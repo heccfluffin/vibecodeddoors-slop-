@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r543';
+const BUILD='2026-10-14 r544';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15857,12 +15857,22 @@ function figGhostDrinkEnd(gh){if(gh.can){if(gh.can.parent)gh.can.parent.remove(g
    ===================================================================================================== */
 const UPD={seen:0,el:null};
 function updNum(b){const m=String(b||'').match(/r(\d+)/);return m?+m[1]:0}
+/* r544: before reloading, make sure the website is really serving the new file yet. GitHub Pages can take a minute or two
+   to roll an update out everywhere; reloading too early just brought back the old game and the same prompt */
+function updGo(d,nw){const b=d.querySelector('#updGo');if(b){b.disabled=true;b.textContent='⏳ Checking...'}try{saveGame()}catch(e){}
+ const url=location.pathname.replace(/[^/]*$/,'')+'index.html?cb='+Date.now();
+ fetch(url,{cache:'reload'}).then(r=>r.ok?r.text():'').then(t=>{const m=String(t).match(/const BUILD='[^']*?(r\d+)'/),got=m?updNum(m[1]):0;
+  if(got>=nw){try{sessionStorage.setItem('updWant',String(nw))}catch(e){}location.replace(location.pathname+'?v='+nw+'&t='+Date.now())}
+  else{if(b){b.disabled=false;b.textContent='⬆️ Update now'}const w=d.querySelector('#updWait')||(()=>{const e2=document.createElement('div');e2.id='updWait';e2.style.cssText='font-size:12px;color:#ffd860;margin-top:6px';d.appendChild(e2);return e2})();w.textContent='⏳ The website is still publishing r'+nw+'. Give it a minute or two, then press Update again.'}})
+ .catch(()=>{try{sessionStorage.setItem('updWant',String(nw))}catch(e){}location.replace(location.pathname+'?v='+nw+'&t='+Date.now())})}
+/* came back from an update but the old file was served anyway: say so, and quietly wait before asking again */
+try{const w=+sessionStorage.getItem('updWant')||0;if(w){sessionStorage.removeItem('updWant');if(updNum(BUILD)<w){UPD.seen=w;setTimeout(()=>{UPD.seen=0},120000);setTimeout(()=>{try{hint('⏳ The website was still publishing the update, so you got the old version. It will offer it again in a couple of minutes.')}catch(e){}},4000)}}}catch(e){}
 function updCheck(){if(!/^https?:$/.test(location.protocol))return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j)return;const nw=updNum(j.b),cur=updNum(BUILD);if(nw>cur&&nw>UPD.seen)updShow(j,nw)}).catch(()=>{})}
 function updShow(j,nw){UPD.seen=nw;if(UPD.el)UPD.el.remove();const d=document.createElement('div');UPD.el=d;
  d.style.cssText='position:fixed;left:50%;top:calc(8px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:300;background:#14261a;border:2px solid #6ad89a;border-radius:12px;padding:10px 14px;font:15px Georgia,serif;color:#e8ffe8;box-shadow:0 4px 20px #000a;max-width:92vw;text-align:center';
  d.innerHTML='<b style="color:#9affc0">🆕 Update available: '+esc(String(j.b))+'</b>'+(j.notes?'<div style="font-size:13px;opacity:.85;margin:4px 0">'+esc(String(j.notes)).slice(0,240)+'</div>':'')+'<div style="font-size:12px;opacity:.7;margin:2px 0 6px">Your save is kept. Updating now ends a run you are in the middle of.</div><button id="updGo" style="margin:2px 4px;padding:6px 16px;font:bold 15px Georgia;border-radius:8px;border:2px solid #6ad89a;background:#1e4a2e;color:#e8ffe8;cursor:pointer">⬆️ Update now</button><button id="updNo" style="margin:2px 4px;padding:6px 14px;font:15px Georgia;border-radius:8px;border:2px solid #6a6a5a;background:#2a2a20;color:#e8e0c8;cursor:pointer">Later</button>';
  for(const ev of['mousedown','mouseup','click','touchstart'])d.addEventListener(ev,e=>e.stopPropagation());document.body.appendChild(d);
- d.querySelector('#updGo').onclick=()=>{try{saveGame()}catch(e){}location.replace(location.pathname+'?v='+nw)};d.querySelector('#updNo').onclick=()=>{d.remove();UPD.el=null}}
+ d.querySelector('#updGo').onclick=()=>updGo(d,nw);d.querySelector('#updNo').onclick=()=>{d.remove();UPD.el=null}}
 setTimeout(updCheck,6000);setInterval(updCheck,180000);
 /* ---------- squads ---------- */
 function milSqNear(q,x,z){const lz=P.z-q.OZ;return (milArea(P.x,lz)&&milArea(x,z))||Math.hypot(P.x-x,lz-z)<150}
@@ -16008,6 +16018,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r544',['Update now checks the website has the new version before reloading (no more looping prompt)']],
  ['r543',['Continue a co-op run together: when making a room in the multiplayer lobby, tick "Continue our co-op run"']],
  ['r542',['Retro chases are beatable now: the darkness no longer speeds up forever, the courses are shorter and jumps go higher','Chandeliers and steam hang at head height, and a JUMP / DUCK sign flashes over the next obstacle']],
  ['r541',['Sylveon outfits are now a pixel cat in their colours in the retro stages']],
