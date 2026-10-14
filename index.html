@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r525';
+const BUILD='2026-10-14 r526';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -7340,8 +7340,8 @@ function vehPhys(q,v,dt,fx,sx,drv,hb){const K=v.K;if(v.crush){v.v=0;return}if(K.
  if(v.air){v.vy-=18*dt;v.y+=v.vy*dt;v.jT=(v.jT||0)+dt;if(v.y<=gnd){v.y=gnd;v.air=0;if(v.jr)try{xpStuntLand(q,v)}catch(e){}const hit=-v.vy;v.vy=0;if(hit>3){snd(70,.4);snd(110,.2);if(q.seat&&q.seat.v===v)camShake(Math.min(.8,hit*.08),.4);try{vfx('dust',v.x,.3,v.z+q.OZ,{n:16,w:1.6})}catch(e){}vehDamage(q,v,hit>7?(hit-7)*4:0)}}}
  v.lastG=gnd;if(Math.abs(v.v)>6&&!v.air&&Math.random()<dt*14)try{vfx('dust',v.x+Math.sin(v.h)*v.K.len/2,.2,v.z+Math.cos(v.h)*v.K.len/2+q.OZ,{n:2,w:.8})}catch(e){}}
 /* crash damage: a car that has been knocked about enough smokes, then blows up (the tank and the bus do not) */
-function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100)copWreck(q,false);return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
-function vehBlow(q,v,mine){if(v.wreck)return;v.wreck=1;v.wreckT=20;v.dmg=100;v.v=0;v.air=0;v.vy=0;v.spin=0;boom(q,v.x,v.y+.8,v.z,mine,1.25,v);if(mine)addHeat(q,HEATV.car,'car');try{vehShatter(q,v)}catch(e){conLog('error','car pieces: '+e.message)}
+function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;/* r526: army vehicles never blow up inside Fort Blackout: they just get scuffed */if(v.mil&&milArea(v.x,v.z)){v.dmg=Math.min(55,(v.dmg||0)+n*.25);return}if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100)copWreck(q,false);return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
+function vehBlow(q,v,mine){if(v.wreck)return;if(v.mil&&milArea(v.x,v.z)){v.dmg=Math.min(55,v.dmg||0);return}v.wreck=1;v.wreckT=20;v.dmg=100;v.v=0;v.air=0;v.vy=0;v.spin=0;boom(q,v.x,v.y+.8,v.z,mine,1.25,v);if(mine)addHeat(q,HEATV.car,'car');try{vehShatter(q,v)}catch(e){conLog('error','car pieces: '+e.message)}
  if(q.seat&&q.seat.v===v){const i=q.seat.i;v.occ[i]=null;if(i==0)vehEngine(q,0);q.seat=null;P.roll=0;const a=Math.random()*6.3;q.fling={vx:Math.cos(a)*7,vz:Math.sin(a)*7,vy:9,y:P.dy+1,t:0};hint('💥 KABOOM! The car blows up and you go FLYING. (You are fine. Somehow.)')}
  if(mine)vehNet(q,{k:'wr',v:v.id});v.occ=v.occ.map(()=>null)}
 function vehShatter(q,v){const parts=[];v.m.updateMatrixWorld(true);q.g.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(q.g.matrixWorld).invert(),list=[];
