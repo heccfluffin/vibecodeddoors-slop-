@@ -11,6 +11,11 @@ const UIDRE = /^U-[A-Z2-9]{4}-[A-Z2-9]{4}$/;
 const B32 = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const KICK_MS = 10 * 60 * 1000;
 const MAX_MSG = 64 * 1024, MAX_TOPIC = 200, MAX_SUBS = 64, RATE = 80; /* messages per second per socket */
+const NS = 'doorsfan-q7k2/';   /* the board only carries DOORS' own topics (not a free relay for other apps) */
+const MAX_RET = 20000, MAX_RET_BYTES = 8 * 1024 * 1024; /* retained notes: bounded, oldest evicted (the game re-posts) */
+const MAX_IPS = 4000;          /* the device->IP memory used for connection bans: bounded, least-recently-seen evicted */
+const MAX_BLK = 20000;         /* temporary kick blocks */
+const MAX_CONN_IP = 10, MAX_CONN = 2500; /* open sockets: per internet connection, and in total */
 
 /* ---------- the same canonical JSON, ID fingerprint and signature checks the game uses ---------- */
 const TE = s => new TextEncoder().encode(s);
@@ -44,10 +49,12 @@ function match(filter, topic) {
 export class Hub {
   constructor(ctx, env) {
     this.ctx = ctx; this.env = env; this.loaded = null;
-    this.ret = new Map();        /* retained notes: topic -> text */
+    this.ret = new Map();        /* retained notes: topic -> text (insertion order = eviction order) */
+    this.retBytes = 0;
     this.reg = { v: 0, own: [], adm: {}, exa: {}, ban: {}, unb: {} }; this.adm = {};
     this.ips = {};               /* uid -> [ip, ...] (last 8 seen) */
-    this.blk = {};               /* temporary kick blocks: 'u:<uid>' or 'i:<ip>' -> until (ms) */
+    this.ipseen = {};            /* uid -> last-seen ms, for evicting the least-recently-seen */
+    this.blk = {};               /* temporary kick blocks: 'u:<uid>' -> until (ms) */
     this.peers = new Map();      /* peerjs id -> websocket (rebuilt from attachments after a sleep) */
     try { this.ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('{"o":"ping"}', '{"o":"pong"}')) } catch (e) { }
   }
@@ -55,8 +62,8 @@ export class Hub {
   load() {
     if (!this.loaded) this.loaded = (async () => {
       const st = this.ctx.storage;
-      const r = await st.list({ prefix: 'r:' }); for (const [k, v] of r) this.ret.set(k.slice(2), v);
-      this.reg = (await st.get('reg')) || this.reg; this.adm = (await st.get('adm')) || {}; this.ips = (await st.get('ips')) || {}; this.blk = (await st.get('blk')) || {};
+      const r = await st.list({ prefix: 'r:' }); for (const [k, v] of r) { const t = k.slice(2); this.ret.set(t, v); this.retBytes += (v ? v.length : 0) + t.length }
+      this.reg = (await st.get('reg')) || this.reg; this.adm = (await st.get('adm')) || {}; this.ips = (await st.get('ips')) || {}; this.ipseen = (await st.get('ipseen')) || {}; this.blk = (await st.get('blk')) || {};
       for (const ws of this.ctx.getWebSockets()) { const a = this.att(ws); if (a && a.k == 'pj' && a.pid) this.peers.set(a.pid, ws) }
     })();
     return this.loaded
@@ -88,7 +95,17 @@ export class Hub {
     const ib = this.ipBanned(a.ip); if (ib) return ib.kick ? { kick: 1, why: 'You were kicked by staff. You can come back in a few minutes.' } : { ban: 1, why: ib.why, by: ib.by, conn: 1 };
     return null
   }
-  remember(u, ip) { if (!u || !ip) return; const l = this.ips[u] || (this.ips[u] = []); if (l[0] === ip) return; const i = l.indexOf(ip); if (i >= 0) l.splice(i, 1); l.unshift(ip); if (l.length > 8) l.length = 8; this.save('ips', this.ips) }
+  remember(u, ip) {
+    if (!u || !ip) return; const l = this.ips[u] || (this.ips[u] = []); this.ipseen[u] = Date.now();
+    if (l[0] !== ip) { const i = l.indexOf(ip); if (i >= 0) l.splice(i, 1); l.unshift(ip); if (l.length > 8) l.length = 8 }
+    /* bound the map: drop the least-recently-seen devices, but never a banned one (so connection-bans stick) */
+    const keys = Object.keys(this.ips);
+    if (keys.length > MAX_IPS) {
+      keys.sort((a, b) => (this.ipseen[a] || 0) - (this.ipseen[b] || 0));
+      for (const k of keys) { if (k === u || this.banOf(k)) continue; delete this.ips[k]; delete this.ipseen[k]; if (Object.keys(this.ips).length <= MAX_IPS) break }
+    }
+    this.save('ips', this.ips); this.save('ipseen', this.ipseen)
+  }
   /* after the registry changes: anybody connected who is now banned goes */
   sweep() {
     for (const ws of this.ctx.getWebSockets()) { const a = this.att(ws); if (!a.k) continue; if (a.k == 'b' && !a.hi) continue; const r = this.refusal(a); if (r) this.refuse(ws, a, r) }
@@ -117,8 +134,19 @@ export class Hub {
   }
 
   /* ---------- the board ---------- */
+  retDrop(t) { if (this.ret.has(t)) { this.retBytes -= (this.ret.get(t).length + t.length); this.ret.delete(t); this.ctx.storage.delete('r:' + t).catch(() => { }) } }
+  retSet(t, m) {
+    this.retDrop(t);
+    /* keep the retained store bounded: evict the oldest non-registry notes (the game re-posts its room/lobby notes) */
+    while ((this.ret.size >= MAX_RET || this.retBytes + m.length + t.length > MAX_RET_BYTES)) {
+      let victim = null; for (const k of this.ret.keys()) { if (!k.startsWith(REG_T)) { victim = k; break } }
+      if (victim == null) break; this.retDrop(victim);
+    }
+    if (this.retBytes + m.length + t.length > MAX_RET_BYTES) return; /* only registry left and still too big: refuse */
+    this.ret.set(t, m); this.retBytes += m.length + t.length; this.save('r:' + t, m)
+  }
   publish(t, m, retain, from) {
-    if (retain) { if (m === '' || m == null) { this.ret.delete(t); this.ctx.storage.delete('r:' + t).catch(() => { }) } else { this.ret.set(t, m); this.save('r:' + t, m) } }
+    if (retain) { if (m === '' || m == null) this.retDrop(t); else this.retSet(t, m) }
     if (m === '' && !retain) return;
     const out = JSON.stringify({ o: 'msg', t, m: m == null ? '' : m });
     for (const ws of this.ctx.getWebSockets()) { const a = this.att(ws); if (a.k != 'b' || !a.hi || !a.subs) continue; if (a.subs.some(f => match(f, t))) try { ws.send(out) } catch (e) { } }
@@ -135,14 +163,14 @@ export class Hub {
     }
     if (!a.hi) return;
     if (d.o == 'sub') {
-      const ts = (Array.isArray(d.t) ? d.t : [d.t]).filter(t => typeof t == 'string' && t.length <= MAX_TOPIC); a.subs = a.subs || [];
+      const ts = (Array.isArray(d.t) ? d.t : [d.t]).filter(t => typeof t == 'string' && t.length <= MAX_TOPIC && t.startsWith(NS)); a.subs = a.subs || [];
       for (const t of ts) if (!a.subs.includes(t) && a.subs.length < MAX_SUBS) a.subs.push(t); this.setAtt(ws, a);
       /* send the retained notes that match */for (const [rt, m] of this.ret) if (ts.some(f => match(f, rt))) try { ws.send(JSON.stringify({ o: 'msg', t: rt, m, r: 1 })) } catch (e) { }
       return
     }
     if (d.o == 'uns') { const ts = Array.isArray(d.t) ? d.t : [d.t]; a.subs = (a.subs || []).filter(t => !ts.includes(t)); this.setAtt(ws, a); return }
     if (d.o == 'pub') {
-      const t = d.t, m = d.m == null ? '' : String(d.m); if (typeof t != 'string' || !t || t.length > MAX_TOPIC || t.includes('+') || t.includes('#') || m.length > MAX_MSG) return;
+      const t = d.t, m = d.m == null ? '' : String(d.m); if (typeof t != 'string' || !t.startsWith(NS) || t.length > MAX_TOPIC || t.includes('+') || t.includes('#') || m.length > MAX_MSG) return;
       if (t.startsWith(REG_T)) {
         /* the ban registry: only signed copies get stored or passed on */
         let changed = false; if (t === REG_T + 'core') changed = await this.regIn(m); else if (t.startsWith(REG_T + 'a/')) changed = await this.admIn(m);
@@ -166,7 +194,9 @@ export class Hub {
     if (!own && !adm) return no('Only the owner and admins can kick.');
     if ((this.reg.own || []).includes(k.u) || (!own && this.reg.adm[k.u])) return no('You cannot kick that player.');
     /* a kick is for the device only (a ban is device AND connection): so family/school wifi is not caught by a kick */const until = Date.now() + KICK_MS; this.blk['u:' + k.u] = until;
-    for (const key in this.blk) if (this.blk[key] < Date.now()) delete this.blk[key]; this.save('blk', this.blk);
+    for (const key in this.blk) if (this.blk[key] < Date.now()) delete this.blk[key];
+    const bk = Object.keys(this.blk); if (bk.length > MAX_BLK) { bk.sort((a, b) => this.blk[a] - this.blk[b]); for (let i = 0; i < bk.length - MAX_BLK; i++) delete this.blk[bk[i]] }
+    this.save('blk', this.blk);
     let n = 0; const why = 'You were kicked by staff' + (k.why ? ': ' + k.why : '') + '. You can come back in 10 minutes.';
     for (const w of this.ctx.getWebSockets()) { const b = this.att(w); if (b.k == 'b' && b.u === k.u) { n++; this.refuse(w, b, { kick: 1, why }) } }
     /* everyone else's game drops them from co-op and the lobby */
@@ -192,6 +222,10 @@ export class Hub {
     if (url.pathname == '/peerjs/id') return new Response(Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2), { headers: { 'Access-Control-Allow-Origin': '*' } });
     if (url.pathname.startsWith('/peerjs/') && url.pathname != '/peerjs/peerjs') return new Response('[]', { headers: { 'Access-Control-Allow-Origin': '*', 'content-type': 'application/json' } });
     if (req.headers.get('Upgrade') !== 'websocket') return new Response('Expected a WebSocket', { status: 426 });
+    /* cap open sockets, overall and per internet connection, so nobody can run up the bill by flooding connections */
+    const live = this.ctx.getWebSockets();
+    if (live.length >= MAX_CONN) return new Response('Server busy', { status: 503, headers: { 'Retry-After': '30' } });
+    if (ip) { let n = 0; for (const w of live) { const b = this.att(w); if (b.ip === ip) n++ } if (n >= MAX_CONN_IP) return new Response('Too many connections', { status: 429, headers: { 'Retry-After': '30' } }); }
     const pair = new WebSocketPair(); const [client, server] = Object.values(pair);
     this.ctx.acceptWebSocket(server);
     if (url.pathname == '/ws') {
