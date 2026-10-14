@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r541';
+const BUILD='2026-10-14 r542';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16008,6 +16008,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r542',['Retro chases are beatable now: the darkness no longer speeds up forever, the courses are shorter and jumps go higher','Chandeliers and steam hang at head height, and a JUMP / DUCK sign flashes over the next obstacle']],
  ['r541',['Sylveon outfits are now a pixel cat in their colours in the retro stages']],
  ['r540',['Retro stages and the 8-bit ending use a pixel version of YOUR outfit','Retro stages work in co-op: same course for everyone, friends shown as ghosts, and they walk out with you in the 8-bit ending']],
  ['r539',['RETRO MODE: the boiler hall escape is an 8-bit side-scrolling chase (jump pipes, duck steam)','RETRO MODE: Seek chases are an 8-bit corridor run','RETRO MODE: door 50 is a top-down 8-bit stealth stage (it hunts by sound, so sneak)']],
@@ -16234,7 +16235,7 @@ function mg8Start(cfg){cfg=cfg||MG8BOIL;if(MG8.on)return;MG8.on=1;state='r8run';
  const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:56;background:#000;display:flex;align-items:center;justify-content:center;touch-action:none';
  const c=document.createElement('canvas');c.width=256;c.height=224;c.style.cssText='height:100%;max-width:100%;aspect-ratio:256/224;image-rendering:pixelated;image-rendering:crisp-edges';d.appendChild(c);document.body.appendChild(d);
  /* the course: pipes to jump (j), steam to duck (d), and a few double pipes (J); the exit at the end */
- const ob=[];let x=260;for(let i=0;i<(cfg.n||26);i++){const r=Math.random(),k=i<3?'j':r<.45?'j':r<.8?'d':'J';ob.push({x,k});x+=(k=='J'?150:110)+Math.random()*70}
+ const ob=[];let x=260;for(let i=0;i<(cfg.n||26);i++){const r=Math.random(),k=i<3?'j':r<.45?'j':r<.8?'d':'J';ob.push({x,k});x+=(k=='J'?135:95)+Math.random()*55}
  Object.assign(MG8,{cfg,d,c,x:c.getContext('2d'),ob,end:x+120,cam:0,px:70,py:0,vy:0,duck:0,sp:62,dark:-40,t:0,hitT:0,res:null,resT:0,seq:Object.assign({},R8RUN,{i:0,acc:0}),last:performance.now(),jq:0});
  MG8.kd=e=>{if(!MG8.on)return;const k=e.code;if(k=='Space'||k=='KeyW'||k=='ArrowUp'){MG8.jq=.15;e.preventDefault()}if(k=='KeyS'||k=='ArrowDown'||k=='KeyC'||k=='ControlLeft'){MG8.duck=1;e.preventDefault()}};
  MG8.ku=e=>{const k=e.code;if(k=='KeyS'||k=='ArrowDown'||k=='KeyC'||k=='ControlLeft')MG8.duck=0};
@@ -16249,9 +16250,9 @@ function mg8Upd(dt){const M=MG8;M.t+=dt;
  if(M.res){M.resT+=dt;if(M.resT>2.4){const r=M.res,C=M.cfg;mg8Stop();state='play';try{if(r=='win')C.win();else C.lose()}catch(e){conLog('error','retro escape end: '+e.message)}}return}
  const wx=M.cam+M.px;
  /* running, jumping, ducking */M.cam+=M.sp*dt*(M.hitT>0?.45:1);M.hitT=Math.max(0,M.hitT-dt);
- if(M.jq>0){M.jq-=dt;if(M.py>=0&&!M.duck){M.vy=-150;M.py=-.01;M.jq=0;r8Tone(r8N('C5'),.06,.04,'square');setTimeout(()=>r8Tone(r8N('G5'),.06,.04,'square'),50)}}
+ if(M.jq>0){M.jq-=dt;if(M.py>=0&&!M.duck){M.vy=-168;M.py=-.01;M.jq=0;r8Tone(r8N('C5'),.06,.04,'square');setTimeout(()=>r8Tone(r8N('G5'),.06,.04,'square'),50)}}
  if(M.py<0||M.vy<0){M.vy+=420*dt;M.py+=M.vy*dt;if(M.py>=0){M.py=0;M.vy=0}}
- /* the darkness: slowly speeds up, and lunges when you stumble */M.dark+=(M.sp*.93+M.t*.55)*dt*(M.hitT>0?1.35:1);
+ /* the darkness: slowly speeds up, and lunges when you stumble *//* r542: it is a little slower than you, so a clean run pulls away; every stumble lets it lunge (about 3 quick stumbles and it has you), and it never falls more than ~130 px behind */M.dark+=(M.hitT>0?M.sp*1.25:M.sp*.9)*dt;if(wx-M.dark>130)M.dark=wx-130;
  /* obstacles */const h=M.duck&&M.py>=0?8:16;for(const o of M.ob){if(o.done)continue;const ox=o.x,w=o.k=='J'?22:10;if(wx+6<ox||wx>ox+w)continue;
   let hit=false;if(o.k=='d'){hit=!(M.duck&&M.py>=0)}else{const top=o.k=='J'?14:10;hit=-M.py<top}
   if(hit){o.done=1;M.hitT=.9;r8Tone(110,.18,.06,'sawtooth');r8Tone(70,.25,.05,'square');try{camShake(.1,.1)}catch(e){}}else if(wx>ox+w-2)o.done=1}
@@ -16265,8 +16266,9 @@ function mg8Draw(){const M=MG8,x=M.x,cam=M.cam;x.imageSmoothingEnabled=false;
  /* warning lights blink red now the power is on */if(Math.floor(M.t*4)%2){x.fillStyle='#ff2010';for(let i=-1;i<6;i++)x.fillRect(i*80-((cam*.7)%80)+30,10,8,5)}}
  /* floor */x.fillStyle='#3a3a40';x.fillRect(0,MGY,256,48);x.fillStyle='#5a5a62';for(let i=-1;i<20;i++)x.fillRect(i*16-(cam%16),MGY,14,2);x.fillStyle='#202024';x.fillRect(0,MGY+2,256,1);
  /* obstacles */for(const o of M.ob){const sx=o.x-cam;if(sx<-30||sx>270)continue;
-  if(M.cfg.k=='hall'){mg8HallOb(x,o,sx,M)}else if(o.k=='d'){/* steam from a pipe above */x.fillStyle='#6a5040';x.fillRect(sx-2,0,14,MGY-26);x.fillStyle='#8a7060';x.fillRect(sx-4,MGY-28,18,4);for(let k=0;k<5;k++){x.fillStyle=k%2?'#e8e8f0':'#b0b0c0';const wob=Math.sin(M.t*20+k)*2;x.fillRect(sx-3+wob,MGY-24+k*2,16,2)}}
+  if(M.cfg.k=='hall'){mg8HallOb(x,o,sx,M)}else if(o.k=='d'){/* steam from a pipe above */x.fillStyle='#6a5040';x.fillRect(sx-2,0,14,MGY-22);x.fillStyle='#8a7060';x.fillRect(sx-4,MGY-24,18,4);for(let k=0;k<6;k++){x.fillStyle=k%2?'#e8e8f0':'#b0b0c0';const wob=Math.sin(M.t*20+k)*2;x.fillRect(sx-3+wob,MGY-20+k*2,16,2)}}
   else{const w=o.k=='J'?22:10,hh=o.k=='J'?14:10;x.fillStyle='#8a6a3a';x.fillRect(sx,MGY-hh,w,hh);x.fillStyle='#b08a50';x.fillRect(sx,MGY-hh,w,2);x.fillStyle='#5a4020';x.fillRect(sx+2,MGY-hh+4,w-4,1)}}
+ /* r542: a JUMP / DUCK sign over the next obstacle as it comes up */{const nx=M.ob.find(o=>!o.done&&o.x-cam>M.px+4);if(nx){const sx=nx.x-cam;if(sx<M.px+110){const dk=nx.k=='d';r8Txt(x,dk?'DUCK ▼':'JUMP ▲',sx+5,dk?MGY-40:MGY-30,(Math.floor(M.t*8)%2)?(dk?'#ff6060':'#60ff80'):'#ffffff',8)}}}
  /* the exit */const ex=M.end-cam;if(ex<280){x.fillStyle='#103010';x.fillRect(ex,MGY-40,22,40);x.fillStyle='#40ff60';x.fillRect(ex+2,MGY-38,18,36);x.fillStyle='#000';r8Txt(x,'EXIT',ex+11,MGY-52,'#40ff60',8)}
  /* you */const gy=MGY-12+M.py,flick=M.hitT>0&&Math.floor(M.t*16)%2;if(!flick){if(M.duck&&M.py>=0){x.save();x.translate(M.px,MGY-6);x.scale(1,.5);r8Guy(x,0,0,0);x.restore()}else r8Guy(x,M.px,gy,M.py<0?1:Math.floor(M.t*10)%2)}
  /* the darkness: a creeping black wall with a ragged edge and two red eyes */const dx=M.dark-cam;if(dx>-20){x.fillStyle='#000';x.fillRect(0,0,Math.max(0,dx),224);for(let r=0;r<224;r+=6)x.fillRect(dx,r,4+((r*7+Math.floor(M.t*10))%5)*2,6);
@@ -16276,19 +16278,19 @@ function mg8Draw(){const M=MG8,x=M.x,cam=M.cam;x.imageSmoothingEnabled=false;
  if(M.res=='win'){x.fillStyle='rgba(0,0,0,.5)';x.fillRect(0,70,256,50);r8Txt(x,'STAGE CLEAR!',128,80,'#40ff60',16)}
  if(M.res=='lose'){x.fillStyle='rgba(0,0,0,.6)';x.fillRect(0,0,256,224);r8Txt(x,'GAME OVER',128,90,'#ff2020',18)}
  x.fillStyle='rgba(0,0,0,.18)';for(let r=0;r<224;r+=2)x.fillRect(0,r,256,1);x.fillStyle='#fff';x.fillRect(0,0,98,9);r8Txt(x,'Unregistered HyperCam 2',2,1,'#000',7,'left')}
-const MG8BOIL={k:'boil',title:'ESCAPE THE BOILER HALL!',n:26,win:()=>{try{badge('retroescape')}catch(e){}win()},lose:()=>die('Figure')};
+const MG8BOIL={k:'boil',title:'ESCAPE THE BOILER HALL!',n:20,win:()=>{try{badge('retroescape')}catch(e){}win()},lose:()=>die('Figure')};
 /* the hotel corridor for the Seek chase: green wallpaper, doors, lamps; jump knocked-over chairs and tables, duck the swinging chandeliers */
 function mg8Hall(x,cam,M){x.fillStyle='#14281c';x.fillRect(0,0,256,224);x.fillStyle='#1c3626';for(let i=-1;i<30;i++)x.fillRect(i*10-((cam*.6)%10),16,4,150);
  x.fillStyle='#3a2414';x.fillRect(0,130,256,46);x.fillStyle='#5a3820';x.fillRect(0,128,256,3);
  for(let i=-1;i<5;i++){const bx=i*72-((cam*.6)%72)+20;x.fillStyle='#4a2a14';x.fillRect(bx,70,26,106);x.fillStyle='#6a4024';x.fillRect(bx+3,74,20,98);x.fillStyle='#d8b040';x.fillRect(bx+18,122,3,3);x.fillStyle='#e8d8a0';x.fillRect(bx+6,60,14,7);r8Txt(x,String(((Math.floor((cam*.6+i*72)/72))%90)+10).padStart(3,'0'),bx+13,60,'#3a2010',6)}
  for(let i=-1;i<5;i++){const bx=i*72-((cam*.6)%72)+56;const on=Math.random()>.08;x.fillStyle=on?'#ffe0a0':'#5a4a30';x.fillRect(bx,50,6,8);if(on){x.fillStyle='rgba(255,220,150,.08)';x.fillRect(bx-10,58,26,40)}}}
-function mg8HallOb(x,o,sx,M){if(o.k=='d'){/* a chandelier swinging low on its chain */const sw=Math.sin(M.t*3+o.x)*2;x.fillStyle='#8a7040';x.fillRect(sx+4+sw,0,2,MGY-30);x.fillStyle='#d8b040';x.fillRect(sx-4+sw,MGY-30,18,5);x.fillStyle='#ffe8a0';for(let k=0;k<4;k++)x.fillRect(sx-3+k*5+sw,MGY-34,2,4);x.fillStyle='#ffffff';x.fillRect(sx+sw,MGY-25,2,3);x.fillRect(sx+8+sw,MGY-25,2,3)}
+function mg8HallOb(x,o,sx,M){if(o.k=='d'){/* a chandelier that has slipped right down its chain to head height */const sw=Math.sin(M.t*3+o.x)*1.5;x.fillStyle='#8a7040';x.fillRect(sx+4+sw,0,2,MGY-17);x.fillStyle='#d8b040';x.fillRect(sx-4+sw,MGY-17,18,4);x.fillStyle='#ffe8a0';for(let k=0;k<4;k++)x.fillRect(sx-3+k*5+sw,MGY-21,2,4);x.fillStyle='#ffffff';for(const ox of[-2,3,8,13])x.fillRect(sx+ox+sw,MGY-13,2,4)}
  else if(o.k=='J'){/* a knocked-over table */x.fillStyle='#6a4024';x.fillRect(sx,MGY-14,22,4);x.fillRect(sx+2,MGY-10,3,10);x.fillRect(sx+17,MGY-10,3,10);x.fillStyle='#8a5a30';x.fillRect(sx,MGY-14,22,1)}
  else{/* a fallen chair */x.fillStyle='#5a2a14';x.fillRect(sx,MGY-6,10,3);x.fillRect(sx,MGY-10,2,10);x.fillRect(sx+8,MGY-3,2,3);x.fillStyle='#8a2a2a';x.fillRect(sx+1,MGY-8,8,2)}}
 /* the Seek chase: when Seek starts chasing in the first chase room, cut to the 8-bit corridor run. Win and you skip ahead
    to the room after the chase; get caught and it is Seek, as usual */
 function mg8SeekA(){for(const a of CH)if(n>=a&&n<a+10)return a;return -1}
-const MG8HALL={k:'hall',title:'RUN! DON\'T LOOK BACK!',n:30,win:()=>{const a=mg8SeekA()>=0?mg8SeekA():MG8.sa;try{if(seek){seek.on=false;seek.visible=false;seek.pend=0}endSeek=null}catch(e){}try{badge('retroseek')}catch(e){}if(a>=0){r8Go(a+10);hint('🎮 You outran it! On to door '+n+'.')}},lose:()=>die('Seek')};
+const MG8HALL={k:'hall',title:'RUN! DON\'T LOOK BACK!',n:22,win:()=>{const a=mg8SeekA()>=0?mg8SeekA():MG8.sa;try{if(seek){seek.on=false;seek.visible=false;seek.pend=0}endSeek=null}catch(e){}try{badge('retroseek')}catch(e){}if(a>=0){r8Go(a+10);hint('🎮 You outran it! On to door '+n+'.')}},lose:()=>die('Seek')};
 setInterval(()=>{try{if(MG8.on||state!='play'||!mg8Can())return;const a=mg8SeekA();if(a<0)return;const ci2=n-a,on=(seek&&seek.on&&!seek.pend)||(r8Co()&&ci2>=1&&ci2<9);if(!on)return;if((MG8.sw=(MG8.sw||0)+1)<4)return;MG8.sw=0;MG8.sa=a;mg8Start(MG8HALL)}catch(e){}},250);
 /* kick it off a moment after the power comes back (the WARNING flashes first) */
 {const po0=powerOn;powerOn=function(){const r=po0.apply(this,arguments);try{if(bh8Here()&&mg8Can())setTimeout(()=>{try{if(state=='play'&&n==100&&!MG8.on)mg8Start(MG8BOIL)}catch(e){}},1700)}catch(e){}return r}}
