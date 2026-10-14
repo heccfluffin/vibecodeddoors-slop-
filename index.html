@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r536';
+const BUILD='2026-10-14 r537';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -10325,7 +10325,7 @@ function mkHubHall(L,HX,HY,obs0,occ){HUB.dim={L,HX,HY,g:G};occ.push({s:-1,z:-L/2
  for(const cz of[-8,-17,-26]){const ch=new THREE.Group();ch.position.set(0,HY-.6,cz);G.add(ch);const r=new THREE.Mesh(new THREE.TorusGeometry(.8,.05,6,20),PM(0xb8902a,0x3a2800,.5));r.rotation.x=Math.PI/2;ch.add(r);const gl=glowSp(0xffd890,.6,3.4);ch.add(gl);const l=mkLight(0xffe2b0,.9,14);l.position.set(0,HY-1,cz);RL.push(l)}
  /* front desk in the middle with a brass bell and a sign */
  box(0,.55,-4,3.6,1.1,1.0,0x4a2c18);for(const sx of[-.75,.75])box(sx,1.42,-4.45,.04,.58,.04,0xc9932c);box(0,1.6,-4.45,1.6,.32,.04,sgn('PRE-RUN SHOP','#d4a850','#1a1008'),0x221800);box(0,1.77,-4.45,1.66,.03,.06,0xc9932c);box(0,1.13,-4,3.8,.07,1.2,0x8a6a4a);box(0,.55,-3.48,3.4,.9,.04,0xc9932c);obs0.push({x0:-1.95,x1:1.95,z0:-4.6,z1:-3.4});
- box(0,HY-1.2,-L+.06,6,1.2,.06,sgn('MULTIPLAYER LOBBY','#d4a850','#1a1008'),0x221800);
+ box(0,HY-1.2,-L-.87,6,1.2,.06,sgn('MULTIPLAYER LOBBY','#d4a850','#1a1008'),0x221800);
  try{mkLbBoard()}catch(e){conLog('error','leaderboard: '+e.message)}
  {const c=document.createElement('canvas');c.width=512;c.height=300;const x=c.getContext('2d');x.fillStyle='#1a1008';x.fillRect(0,0,512,300);x.strokeStyle='#d4a850';x.lineWidth=8;x.strokeRect(4,4,504,292);x.fillStyle='#ffe9a8';x.textAlign='center';x.font='bold 34px Georgia';x.fillText('HOW TO PLAY TOGETHER',256,52);
   x.font='22px Georgia';['Walk into an EMPTY elevator to make a room.','Pick how many players and friends-only.','Walk into a room\'s elevator to join it.','The run starts when the timer runs out,','or the owner presses E inside.'].forEach((t2,i)=>x.fillText(t2,256,104+i*38));
@@ -16008,6 +16008,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r537',['This board (and the MULTIPLAYER LOBBY sign) now hang on the wall instead of floating in front of it']],
  ['r536',['Set off the alarm at Fort Blackout and the base defences CAN now wreck the army vehicle you are in']],
  ['r535',['Fixed tanks floating when a friend drives one (their turret angle was being used as height)']],
  ['r534',['Alt now frees the mouse in the desert too','Fixed spawning under the map (after the Devil\'s Gorge)','Chat no longer covers the minimap; squad panel moved to the right','Alt-tabbing no longer makes you vanish or drops you from your squad']],
@@ -16046,7 +16047,7 @@ function lobbyBoard(px,py,pz,ry){const w=3.3,h=2.1,g=new THREE.Group();
  g.position.set(px,py,pz);g.rotation.y=ry||0;G.add(g);chbNet()}
 function chbNet(){try{if(!/^https?:$/.test(location.protocol))return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.b)return;if(updNum(j.b)>updNum(BUILD)){CHB.nw=String(j.b).slice(0,12);chbDraw()}}).catch(()=>{})}catch(e){}}
 /* on the back wall of the multiplayer lobby (where you wait before a run), to the right of the holiday stall */
-{const mh0=mkHubHall;mkHubHall=function(L){const r=mh0.apply(this,arguments);try{lobbyBoard(6.3,2.3,-L+.06,0)}catch(e){console.warn('lobby board',e)}return r}}
+{const mh0=mkHubHall;mkHubHall=function(L){const r=mh0.apply(this,arguments);try{lobbyBoard(6.3,2.3,-L-.87,0)}catch(e){console.warn('lobby board',e)}return r}}
 
 /* walk up to the board and the full list opens as a readable panel (works the same on phones); walk away and it closes */
 function chbHtml(){let h='<div style="font:bold 22px Georgia;color:#f2d27a;text-align:center;margin-bottom:4px">📋 WHAT\'S NEW</div>';
