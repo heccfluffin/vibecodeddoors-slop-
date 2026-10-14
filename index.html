@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r551';
+const BUILD='2026-10-14 r553';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -6512,7 +6512,7 @@ const MILRANK=[['Civilian','',0],['Recruit','🪖',0],['Private','▪',0],['Corp
 function milSV(){if(!SV.mil||typeof SV.mil!='object')SV.mil={r:0,xp:0,bc:0,cd:'',kn:0,ops:0,nk:0,dis:0};if(!/^\d{8}$/.test(SV.mil.cd||''))SV.mil.cd=String(Math.floor(1e7+Math.random()*9e7));return SV.mil}
 function milRank(){try{return milSV().r|0}catch(e){return 0}}
 function milArea(x,z,m){m=m||0;return x>MILB.x0+m&&x<MILB.x1-m&&z>MILB.z0+m&&z<MILB.z1-m}
-function milRankNm(r){return MILRANK[Math.max(0,Math.min(9,r|0))][0]}
+function milRankNm(r){return MILRANK[Math.max(0,Math.min(MILRANK.length-1,r|0))][0]}
 function milSave(){try{saveGame()}catch(e){}}
 function milHud(txt){let el=document.getElementById('milHud');if(!el){el=document.createElement('div');el.id='milHud';el.style.cssText='position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:21;background:rgba(14,22,12,.86);border:2px solid #7a9a4a;border-radius:10px;padding:6px 14px;font:bold 15px Georgia,serif;color:#e8f0d8;text-align:center;pointer-events:none;max-width:92vw';document.body.appendChild(el)}el.style.display=txt?'block':'none';if(txt&&el._t!==txt){el._t=txt;el.innerHTML=txt}}
 /* a dialog box in the style of the garage: finger-sized buttons, closes with ✕ or Escape */
@@ -6574,7 +6574,7 @@ function milRocketsTick(q,dt){const M=q.mil;for(let i=M.rk.length-1;i>=0;i--){co
   let hit=r.y<=vehGround(q,r.x,r.z)+.1;if(!hit&&r.y<6)for(const o of q.obs){if(o.off)continue;if(r.x>o.x0&&r.x<o.x1&&r.z>o.z0&&r.z<o.z1){hit=1;break}}if(!hit&&r.y<4&&r.t>.1)for(const v of vehAll(q))if(!(q.seat&&q.seat.v===v&&r.mine)&&vehSegD(v,r.x,r.z)<v.r+.3){hit=1;break}
   if(hit||r.t>5){if(hit)boom(q,r.x,Math.max(.3,r.y),r.z,r.mine,1.1,null,0);if(r.m.parent)r.m.parent.remove(r.m);M.rk.splice(i,1)}}}
 /* ---------- ranks, ops and boot camp ---------- */
-function milXP(q,n,why){const S=milSV();S.xp+=n;S.ops=(S.ops|0)+1;let up=0;while(S.r<9&&S.r>=2&&S.xp>=MILRANK[S.r+1][2]){S.r++;up=1}hint('🎖️ +'+n+' XP'+(why?' · '+why:'')+(up?'. PROMOTED: you are now a '+milRankNm(S.r)+'!':' ('+S.xp+'/'+(S.r<9?MILRANK[S.r+1][2]:'max')+')'));if(up){snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1100,.25),300);try{xmNet(q,'milr',{r:S.r})}catch(e){}if(S.r>=9)badge('general');try{sysLine('🎖️ '+(SV.nm||'A player')+' was promoted to '+milRankNm(S.r)+' at Fort Blackout')}catch(e){}}milSave()}
+function milXP(q,n,why){const S=milSV();S.xp+=n;S.ops=(S.ops|0)+1;let up=0;while(S.r<MILRANK.length-1&&S.r>=2&&S.xp>=MILRANK[S.r+1][2]){S.r++;up=1}hint('🎖️ +'+n+' XP'+(why?' · '+why:'')+(up?'. PROMOTED: you are now a '+milRankNm(S.r)+'!':' ('+S.xp+'/'+(S.r<MILRANK.length-1?MILRANK[S.r+1][2]:'max')+')'));if(up){snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1100,.25),300);try{xmNet(q,'milr',{r:S.r})}catch(e){}if(S.r>=9)badge('general');try{sysLine('🎖️ '+(SV.nm||'A player')+' was promoted to '+milRankNm(S.r)+' at Fort Blackout')}catch(e){}}milSave()}
 const MILOPS=[
  {id:'latrine',nm:'Latrine duty',ic:'🧽',min:2,xp:40,d:'Scrub the three latrines behind the barracks. All of them. Properly.',start(q,o){o.n=0;o.done={}},line(q,o){return'🧽 Scrub the latrines ('+o.n+'/3): hut behind the barracks'},tick(q,o,dt){if(o.n>=3)milOpDone(q,o)}},
  {id:'sandbag',nm:'Sandbag detail',ic:'🧱',min:2,xp:50,d:'Carry five sandbags from the pile to the gun pit by the comms tower. You have 150 seconds and no excuses.',start(q,o){o.n=0;o.carry=0;o.t=150},line(q,o){return'🧱 Sandbags '+o.n+'/5 · '+(o.carry?'carrying one: drop it in the GUN PIT':'get one from the PILE')+' · '+Math.ceil(o.t)+'s'},tick(q,o,dt){o.t-=dt;if(o.t<=0)milOpFail(q,o,'Too slow. The sergeant kicked the pile over.');if(o.n>=5)milOpDone(q,o)}},
@@ -6778,7 +6778,7 @@ function milBuild(X,q,g){if(q.mil)return;const{A,BX,CY,ob,prop,loc,rect,sign,ani
  /* the walls and the storm barrier: the base sits past the south edge of the world; let the edge wall know */
 }
 /* ---------- the ops dialog, the keypad, the code test ---------- */
-function milOpsDlg(q){const S=milSV(),r=S.r,M=q.mil;if(!S.opsSeen){S.opsSeen=1;milSave()}const list=MILOPS.filter(o=>o.min<=r&&o.min>=r-3);let body='<p>'+MILRANK[r][1]+' <b>'+milRankNm(r)+'</b> · '+S.xp+' XP'+(r<9?' · next rank at '+MILRANK[r+1][2]+' XP':' · top of the tree')+' · '+(S.ops|0)+' operations completed'+(S.dis?' · '+S.dis+' black mark'+(S.dis>1?'s':''):'')+'</p>'+(M.op?'<p style="color:#ffd890">Current operation: '+M.op.D.ic+' '+M.op.D.nm+'. Picking another abandons it.</p>':'')+'<p style="opacity:.8;font-size:12px">Operations open up with rank. Higher ones pay more XP. '+(r>=8?'<b>Colonel:</b> the X-13 is yours to drive; pass the trials and keep it. ':'')+(r>=7?'<b>Major:</b> the launch code test certifies you on the console. ':'')+'</p>';
+function milOpsDlg(q){const S=milSV(),r=S.r,M=q.mil;if(!S.opsSeen){S.opsSeen=1;milSave()}const list=MILOPS.filter(o=>o.min<=r&&o.min>=Math.min(r,9)-3);let body='<p>'+MILRANK[r][1]+' <b>'+milRankNm(r)+'</b> · '+S.xp+' XP'+(r<MILRANK.length-1?' · next rank at '+MILRANK[r+1][2]+' XP':' · top of the tree')+' · '+(S.ops|0)+' operations completed'+(S.dis?' · '+S.dis+' black mark'+(S.dis>1?'s':''):'')+'</p>'+(M.op?'<p style="color:#ffd890">Current operation: '+M.op.D.ic+' '+M.op.D.nm+'. Picking another abandons it.</p>':'')+'<p style="opacity:.8;font-size:12px">Operations open up with rank. Higher ones pay more XP. '+(r>=8?'<b>Colonel:</b> the X-13 is yours to drive; pass the trials and keep it. ':'')+(r>=7?'<b>Major:</b> the launch code test certifies you on the console. ':'')+'</p>';
  const btns=list.map(o=>[o.id,o.ic+' <b>'+o.nm.toUpperCase()+'</b> · '+o.xp+' XP · '+milRankNm(o.min)+'+<br><span style="font-weight:normal;font-size:12.5px;opacity:.85">'+o.d+'</span>',M.op&&M.op.id==o.id]);if(M.op)btns.push(['_abandon','❌ Abandon the current operation']);
  milDlg(q,'📋 OPS BOARD · FORT BLACKOUT',body,btns,b=>{if(b=='_abandon'){milOpFail(q,M.op,'Abandoned.');return}milOpStart(q,b)})}
 function milKeypad(q,title,n,onOK,pre){let code=pre?String(pre).replace(/\s/g,'').slice(0,n):'';if(pre&&/\s/.test(pre))code='';const draw=msg=>{const d=milDlg(q,title,'<div id="mkpD" style="background:#031a0a;border:2px solid #2a6a3a;padding:8px;margin-bottom:10px;font:bold 22px monospace;color:#40ff80;text-align:center;letter-spacing:6px">'+(msg||code.padEnd(n,'_'))+'</div>'+(pre&&/\s/.test(pre)?'<div style="font-size:12px;opacity:.8;margin-bottom:6px">You have part of it: "'+pre+'"</div>':'')+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">'+['1','2','3','4','5','6','7','8','9','C','0','OK'].map(k=>'<button data-k="'+k+'" style="height:48px;font:bold 20px monospace;background:#2a2a2a;color:#e8e8e8;border:2px solid #4a4a4a;border-radius:8px;cursor:pointer">'+k+'</button>').join('')+'</div>',[],null);
@@ -7340,7 +7340,7 @@ function vehPhys(q,v,dt,fx,sx,drv,hb){const K=v.K;if(v.crush){v.v=0;return}if(K.
  if(v.air){v.vy-=18*dt;v.y+=v.vy*dt;v.jT=(v.jT||0)+dt;if(v.y<=gnd){v.y=gnd;v.air=0;if(v.jr)try{xpStuntLand(q,v)}catch(e){}const hit=-v.vy;v.vy=0;if(hit>3){snd(70,.4);snd(110,.2);if(q.seat&&q.seat.v===v)camShake(Math.min(.8,hit*.08),.4);try{vfx('dust',v.x,.3,v.z+q.OZ,{n:16,w:1.6})}catch(e){}vehDamage(q,v,hit>7?(hit-7)*4:0)}}}
  v.lastG=gnd;if(Math.abs(v.v)>6&&!v.air&&Math.random()<dt*14)try{vfx('dust',v.x+Math.sin(v.h)*v.K.len/2,.2,v.z+Math.cos(v.h)*v.K.len/2+q.OZ,{n:2,w:.8})}catch(e){}}
 /* crash damage: a car that has been knocked about enough smokes, then blows up (the tank and the bus do not) */
-function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;/* r526: army vehicles never blow up inside Fort Blackout: they just get scuffed */if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,(v.dmg||0)+n*.25);return}if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100)copWreck(q,false);return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
+function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;/* r526: army vehicles never blow up inside Fort Blackout: they just get scuffed */if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,(v.dmg||0)+n*.25);return}if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100)copWreck(q,false);return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc&&v.hitO&&typeof v.hitO=='object'&&v.hitO.K)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);/* r552: crashing into a wall or nothing at all is not a crime */if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
 function vehBlow(q,v,mine){if(v.wreck)return;if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,v.dmg||0);return}v.wreck=1;v.wreckT=v.mil?10:20;v.dmg=100;v.v=0;v.air=0;v.vy=0;v.spin=0;boom(q,v.x,v.y+.8,v.z,mine,1.25,v);if(mine)addHeat(q,HEATV.car,'car');try{vehShatter(q,v)}catch(e){conLog('error','car pieces: '+e.message)}
  if(q.seat&&q.seat.v===v){const i=q.seat.i;v.occ[i]=null;if(i==0)vehEngine(q,0);q.seat=null;P.roll=0;const a=Math.random()*6.3;q.fling={vx:Math.cos(a)*7,vz:Math.sin(a)*7,vy:9,y:P.dy+1,t:0};hint('💥 KABOOM! The car blows up and you go FLYING. (You are fine. Somehow.)')}
  if(mine)vehNet(q,{k:'wr',v:v.id});v.occ=v.occ.map(()=>null)}
@@ -9695,7 +9695,7 @@ const BD=[
  ['sylveon','🎀','Sylveon x4','Summon the Sylveon video.'],
  ['curious','💡','Curious Light','Pray to the curious light.'],
  ['pumpkin','🎃','Pumpkin Removal','Learn how to remove a pumpkin from a Nintendo Switch.'],
- ['afterparty','🕺','Afterparty','Escape and celebrate in the car park with everyone.'],['retroescape','🕹️','Stage Clear','Escape the boiler hall in Retro Mode.'],['retroseek','👾','Don\'t Look Back','Outrun the darkness in a Retro Mode Seek chase.'],['retrolib','📕','Quiet Please','Beat the Retro Mode library at door 50.'],['turnin','🙋','Honest Citizen','Turn yourself in to Seek.'],['gatecrash','🚨','Front Door Policy','Pick the lock on GATE CONTROL and open the Dark Penitentiary gates.'],['bailed','💰','Out On Bail','Have a teammate pay your bail at the Dark Penitentiary.'],['icbm','🚀','Danger Close','As a General, call an ICBM strike on Seek at the dam and get the military ending.'],
+ ['afterparty','🕺','Afterparty','Escape and celebrate in the car park with everyone.'],['supreme','👑','Supreme Commander','Reach the top of the Dark Army: Supreme Commander.'],['retroescape','🕹️','Stage Clear','Escape the boiler hall in Retro Mode.'],['retroseek','👾','Don\'t Look Back','Outrun the darkness in a Retro Mode Seek chase.'],['retrolib','📕','Quiet Please','Beat the Retro Mode library at door 50.'],['turnin','🙋','Honest Citizen','Turn yourself in to Seek.'],['gatecrash','🚨','Front Door Policy','Pick the lock on GATE CONTROL and open the Dark Penitentiary gates.'],['bailed','💰','Out On Bail','Have a teammate pay your bail at the Dark Penitentiary.'],['icbm','🚀','Danger Close','As a General, call an ICBM strike on Seek at the dam and get the military ending.'],
  ['nosmoking','🚭','Read The Sign','Light up in the boiler hall or the office. Honcho saw.'],
  ['blastdoor','🚨','Slammed Shut','Survive the meltdown: run ten rooms with Figure behind you and beat the blast door.'],
  ['carmody','🔥','Buckle Up, Buttercup','Be on the Desert Bus when Crash Carmody (a 1 in 100 passenger) hijacks it and blows it up.',1],
@@ -15878,7 +15878,7 @@ setTimeout(updCheck,6000);setInterval(updCheck,180000);
 function milSqNear(q,x,z){const lz=P.z-q.OZ;return (milArea(P.x,lz)&&milArea(x,z))||Math.hypot(P.x-x,lz-z)<150}
 {const mo0=milOpDone;milOpDone=function(q,o){const ok=q&&q.mil&&q.mil.op===o&&!o.fin;mo0(q,o);if(ok&&!dbgCheat)try{vehNet(q,{k:'msq',nm:o.D.nm,ic:o.D.ic||'🎖️',xp:o.D.xp|0,x:+P.x.toFixed(1),z:+(P.z-q.OZ).toFixed(1),by:SV.nm||'A teammate'});const sq=Object.values(q.vnet.rem).filter(r=>Date.now()-r.t<4000&&(r.mr|0)>=2&&milSqNear(q,r.x,r.z)).length;if(sq)setTimeout(()=>hint('🪖 Your squad ('+sq+' teammate'+(sq>1?'s':'')+') earned +'+(o.D.xp|0)+' XP too.'),1800)}catch(e){}}}
 function milSqIn(q,o,id){const N=q.vnet,r=N.rem[id];
- if(o.k=='mrk'){if(r){r.mr=Math.max(0,Math.min(9,o.r|0));r.mx=Math.max(0,o.xp|0)}return}
+ if(o.k=='mrk'){if(r){r.mr=Math.max(0,Math.min(12,o.r|0));r.mx=Math.max(0,o.xp|0)}return}
  if(o.k=='msq'){const S=milSV();if((S.r|0)<2||!milSqNear(q,+o.x||0,+o.z||0)||dbgCheat)return;const xp=Math.max(0,Math.min(500,o.xp|0));if(!xp)return;S.ops=(S.ops|0)-1;/* milXP counts an op; a squad share is not your own op */milXP(q,xp,'Squad: '+fsName(String(o.by||''))+' finished '+String(o.ic||'')+' '+String(o.nm||'a job').slice(0,30))}}
 {const dn0=desertNet;desertNet=function(o){try{if(o&&o.t=='dz'&&(o.k=='msq'||o.k=='mrk')){const q=BUS.ride,id=String(o.id||'');if(q&&q.vnet&&id&&id!==SV.pid)milSqIn(q,o,id);return}}catch(e){}return dn0(o)}}
 /* share my rank now and then; draw teammates' ranks over their heads on the base */
@@ -16018,6 +16018,8 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r553',['The X-13 Wraith has much heavier armour that regenerates when it is out of fire','No more cacti on the old airfield approach (autoland stops hitting them)']],
+ ['r552',['THREE NEW RANKS above General: General of the Army, Field Marshal, Supreme Commander','General of the Army: call AIRSTRIKES from the airstrip tower radio','Field Marshal: ORBITAL STRIKE from the Radar Station 13 uplink','Supreme Commander: MIRV missile with three warheads, and a 2-minute silo reload','The airstrip is on the map; UH-9 skids sit on the pad and its bullets come out of the chin gun','L on any army aircraft flies it home: helicopters back to their pad, jets onto the airstrip and back to their shelter','Crashing into a wall no longer raises your heat','Aircraft models tidied (F-9 nose gap, canopy, gunship cockpit)']],
  ['r551',['The hangar blast-door console is a real console now, and the X-13 trials open the hangar for you','Army work on the base no longer gets the Desert PD after you','More signs wrap instead of cutting off']],
  ['r550',['MISSILE GUIDANCE in launch control: pick where the missile lands (map or list); the cloud goes up there','The missile flies a real arc and no longer hangs in the sky afterwards','Rebuilt launch key switches (SAFE/ARM dial, status lamp)','Base waypoints only point at things your rank can use']],
  ['r549',['THE AIR WING: a flyable UH-9 helicopter (Lieutenant) with a chin gun and rockets on LZ Bravo','A new airstrip outside the north fence: AH-4 attack gunship (Captain), F-9 Sabre fighters (Major), X-22 Wraith II interceptor (Colonel)','Guns on click/F, missiles on R, afterburner on Shift, a flight HUD and a steady chase camera','Tanks hit by explosions no longer barrel-roll forever','No more stray cacti and rocks inside Fort Blackout']],
@@ -16573,7 +16575,7 @@ function awChinGun(K,par,x,y,z,len,m){const t=K.Gp(x,y,z,par);K.add(K.SP(.3,16,1
  const spin=K.Gp(0,0,-.45,bar);for(let i=0;i<3;i++){const a=i/3*6.283;K.tz(.035,.035,len,K.M(0x1a1a1c,{metalness:.8,roughness:.3}),Math.cos(a)*.06,Math.sin(a)*.06,-len/2,spin,8)}K.tz(.1,.1,.08,K.M(0x3a3c40,{metalness:.8}),0,0,-len*.55,spin,12);K.tz(.1,.1,.08,K.M(0x3a3c40,{metalness:.8}),0,0,-len+.06,spin,12);
  const fl=glowSp(0xffc060,0,.9);fl.position.set(0,0,-len-.25);spin.add(fl);return{t,spin,fl}}
 function awHeli(g,dark){const K=awKit(g),{M,add,Gp,BX,CY,SP,tz,GL,lite}=K;const OL=M(dark?0x3a4038:0x4a5a34,{roughness:.62,metalness:.2}),OD=M(dark?0x2c3028:0x3c4a2a,{roughness:.7,metalness:.2}),DK=M(0x1c1e20,{roughness:.6,metalness:.4}),MT=M(0x5a5e64,{metalness:.75,roughness:.35});
- const body=Gp(0,0,0);
+ const body=Gp(0,.07,0);   /* lifted a touch so the skids sit ON the pad, not in it */
  /* the cabin: a rounded box made of a stretched cylinder and a nose ball, tapering into the boom */
  const cab=add(CY(1.0,1.0,4.2,24),OL,0,1.75,0,body);cab.rotation.x=Math.PI/2;cab.scale.set(1.0,1.0,1.08);
  const flr=add(BX(1.9,.5,4.2),OL,0,1.05,0,body);                                                       /* the flat belly */
@@ -16607,7 +16609,7 @@ function awHeli(g,dark){const K=awKit(g),{M,add,Gp,BX,CY,SP,tz,GL,lite}=K;const 
 function awGunship(g){const K=awKit(g),{M,add,Gp,BX,CY,SP,tz,GL,lite}=K;const GY=M(0x3a4038,{roughness:.6,metalness:.25}),GD=M(0x2a2e2a,{roughness:.7,metalness:.25}),DK=M(0x1a1c1e,{metalness:.4}),MT=M(0x5a5e64,{metalness:.75,roughness:.35});const b=Gp(0,0,0);
  /* a narrow, angular fuselage: nose bay, stepped tandem cockpit, wide middle, long tail */
  add(BX(1.15,1.2,4.6),GY,0,1.9,-.6,b);const nb=add(BX(1.0,.95,1.5),GY,0,1.75,-3.6,b);const nc=add(new THREE.ConeGeometry(.6,1.1,4),GY,0,1.75,-4.75,b);nc.rotation.x=-Math.PI/2;nc.rotation.y=Math.PI/4;nc.scale.set(1.05,1,.85);
- const c1=add(BX(.98,.7,1.5),GL,0,2.75,-3.0,b);c1.rotation.x=-.1;const c2=add(BX(.98,.75,1.5),GL,0,3.05,-1.5,b);c2.rotation.x=-.08;for(const z of[-3.75,-2.25,-.75])add(BX(1.02,.08,.08),DK,0,z<-3?3.1:3.42,z,b);add(BX(.06,.08,3.0),DK,0,3.4,-2.25,b);
+ add(BX(1.1,.5,3.3),GY,0,2.6,-2.25,b);const c1=add(BX(.98,.7,1.5),GL,0,2.75,-3.0,b);c1.rotation.x=-.1;const c2=add(BX(.98,.75,1.5),GL,0,3.05,-1.5,b);c2.rotation.x=-.08;for(const z of[-3.75,-2.25,-.75])add(BX(1.02,.08,.08),DK,0,z<-3?3.1:3.42,z,b);add(BX(.06,.08,3.0),DK,0,3.4,-2.25,b);
  add(BX(1.6,1.1,2.6),GY,0,2.25,.5,b);for(const sd of[-1,1]){tz(.42,.42,2.2,GD,sd*.98,2.75,.6,b,18);add(new THREE.CircleGeometry(.36,16),DK,sd*.98,2.75,-.52,b).rotation.y=Math.PI;const ex=tz(.3,.36,.6,M(0x2a2420,{metalness:.6}),sd*1.05,2.8,1.95,b,16);ex.rotation.y=sd*.4}
  const tb=add(CY(.22,.5,7.2,16),GY,0,2.15,5.3,b);tb.rotation.x=Math.PI/2;const fin=add(BX(.16,2.0,1.3),GY,0,3.0,8.7,b);fin.rotation.x=-.35;add(BX(2.8,.09,.8),GY,0,2.05,8.2,b);for(const sd of[-1,1])add(BX(.06,.5,.7),GY,sd*1.4,2.25,8.2,b);
  const tr=Gp(.2,3.55,8.95,b);const tbl=Gp(.12,0,0,tr);for(let i=0;i<4;i++){const bl=add(BX(.04,1.5,.15),M(0x1a1a1c),0,0,0,tbl);bl.rotation.x=i*Math.PI/4}tz(.1,.1,.2,MT,0,0,0,tr,10).rotation.y=Math.PI/2;
@@ -16624,9 +16626,9 @@ function awWing(K,pts,th,m){const s=new THREE.Shape();s.moveTo(pts[0][0],pts[0][
 function awJet(g,ghost){const K=awKit(g),{M,add,Gp,BX,CY,SP,tz,GL,lite}=K;const C1=ghost?M(0x1c1e22,{roughness:.5,metalness:.45}):M(0x7a8288,{roughness:.45,metalness:.45}),C2=ghost?M(0x26282c,{roughness:.55,metalness:.45}):M(0x5e666e,{roughness:.5,metalness:.45}),DK=M(0x141516,{metalness:.5,roughness:.4}),MT=M(0x8a8e94,{metalness:.8,roughness:.3});
  const b=Gp(0,0,0),Y=1.45;
  /* fuselage: a long tapering body with a sharp nose, a pitot tube and a bubble canopy */
- const fu=tz(.72,.9,8.6,C1,0,Y,.6,b,24);fu.scale.set(1,ghost?.72:.86,1);const ns=add(new THREE.ConeGeometry(.72,3.6,24),C1,0,Y,-5.3,b);ns.rotation.x=-Math.PI/2;ns.scale.set(1,ghost?.72:.86,1);add(CY(.02,.03,1.0,6),MT,0,Y,-7.5,b).rotation.x=Math.PI/2;
- const rd=add(new THREE.ConeGeometry(.5,1.2,20),M(0x2a2c30,{roughness:.8}),0,Y,-6.55,b);rd.rotation.x=-Math.PI/2;rd.scale.set(1,.86,1);
- const cp=add(SP(.62,24,16,0,6.283,0,Math.PI/2),GL,0,Y+.45,-3.3,b);cp.scale.set(.85,.9,2.6);add(BX(1.06,.08,.12),MT,0,Y+.48,-2.15,b);const hr=add(new THREE.TorusGeometry(.55,.04,6,20,Math.PI),MT,0,Y+.45,-3.9,b);hr.scale.set(.95,1.2,1);
+ const fu=tz(.72,.9,8.6,C1,0,Y,.6,b,24);fu.scale.set(1,1,ghost?.72:.86);const ns=add(new THREE.ConeGeometry(.72,3.6,24),C1,0,Y,-5.3,b);ns.rotation.x=-Math.PI/2;ns.scale.set(1,1,ghost?.72:.86);add(CY(.02,.03,1.0,6),MT,0,Y,-7.5,b).rotation.x=Math.PI/2;
+ const rd=add(new THREE.ConeGeometry(.5,1.2,20),M(0x2a2c30,{roughness:.8}),0,Y,-6.55,b);rd.rotation.x=-Math.PI/2;rd.scale.set(1,1,ghost?.72:.86);
+ const cp=add(SP(.62,24,16,0,6.283,0,Math.PI/2),GL,0,Y+.45,-3.3,b);cp.scale.set(.85,.9,2.6);add(BX(1.06,.08,.12),MT,0,Y+.48,-2.15,b);const hr=add(new THREE.TorusGeometry(.42,.035,6,20,Math.PI),MT,0,Y+.45,-3.9,b);hr.scale.set(.95,1.0,1);
  add(BX(.5,.12,.4),DK,0,Y+.9,-3.6,b);/* the pilot's head */add(SP(.2,12,10),M(0x3a4a2a),0,Y+.85,-3.45,b);add(SP(.2,12,10,0,6.283,0,Math.PI*.5),M(0xd8d0b0,{metalness:.2}),0,Y+.9,-3.45,b);
  /* intakes either side, the spine */for(const sd of[-1,1]){const it=add(BX(.62,.82,3.0),C2,sd*.95,Y-.08,-1.3,b);add(BX(.5,.7,.06),DK,sd*.95,Y-.08,-2.81,b)}add(BX(.6,.35,5.0),C1,0,Y+.6,1.0,b);
  /* wings, tailplanes, fin(s) */const wing=ghost?[[0,-2.6],[5.6,2.6],[5.6,3.3],[0,3.6]]:[[0,-1.6],[4.9,1.3],[5.0,2.4],[0,2.9]];for(const sd of[-1,1]){const w=awWing(K,wing.map(p=>[p[0]*sd,p[1]]),.14,C1);w.position.set(sd*.7,Y-.05,0);b.add(w);const fl=add(BX(1.6,.05,.4),C2,sd*(.7+2.7),Y-.02,2.45,b)}
@@ -16647,11 +16649,12 @@ function awJet(g,ghost){const K=awKit(g),{M,add,Gp,BX,CY,SP,tz,GL,lite}=K;const 
 const awDown=()=>!!(keys.KeyC||keys.ShiftLeft||keys.ShiftRight||keys.ControlLeft);
 function awEdge(q,v,nx,nz,mine){const m=14;let edge=false;if(nx<-DXB+m){nx=-DXB+m;edge=true}if(nx>DXB-m){nx=DXB-m;edge=true}if(nz<DZS+m){nz=DZS+m;edge=true}if(nz>DZN-m){if(milArea(nx,nz,m)){}else if(milArea(v.x,v.z,m)){nx=v.x;nz=Math.min(nz,MILB.z1-m);edge=true}else{nz=DZN-m;edge=true}}if(edge){v.h+=.03;if(mine&&(v.edT=(v.edT||0)-1/60)<=0){v.edT=4;hint('✈️ The sandstorm wall. Nothing flies through that. Turn back.')}}return[nx,nz]}
 function heliPhys(q,v,dt,fx,sx,drv,hb){const K=v.K,mine=q.seat&&q.seat.v===v,m=v.m;if(v.wreck){v.v*=Math.max(0,1-dt*2);v.vy-=18*dt;v.y+=v.vy*dt;const g0=vehGround(q,v.x,v.z);if(v.y<=g0){v.y=g0;v.vy=0}return}
- if(v.al){if(drv&&(fx||sx||hb)){v.al=null;if(mine)hint('🚁 Auto-land off.')}else{drv=true;fx=0;sx=0;hb=false}}
- v.rpm=(v.rpm||0)+((drv?1:0)-(v.rpm||0))*Math.min(1,dt*(drv?.7:.35));const gnd=vehGround(q,v.x,v.z),up=drv&&hb&&!v.al,dn=drv&&(awDown()||!!v.al);
- let tvy=up?K.climb:dn?-K.climb*.75:0;if(!drv)tvy=-5;if(v.rpm<.55&&tvy>0)tvy=0;if(v.al&&v.y-gnd<3)tvy=-1.6;
+ let alDown=false;if(v.al){if(drv&&(fx||sx||hb)&&(v.al.t=(v.al.t||0)+dt)>1){v.al=null;if(mine)hint('🚁 Auto-land off.')}else{v.al.t=(v.al.t||0)+dt;drv=true;fx=0;sx=0;hb=false;const g0=vehGround(q,v.x,v.z),dx=v.sx-v.x,dz=v.sz-v.z,d=Math.hypot(dx,dz);
+  /* fly home to the pad you took it from, then settle onto it facing the way it was parked */if(v.al.ph=='home'){const want=Math.atan2(-dx,-dz),dh=wrapA(want-v.h);sx=Math.max(-1,Math.min(1,-dh*2));fx=Math.abs(dh)>.6?0:Math.min(1,d/40);if(v.y-g0<30)hb=true;if(d<3&&Math.abs(v.v)<3){v.al.ph='down'}}else{const dh=wrapA(v.sh-v.h);sx=Math.max(-1,Math.min(1,-dh*2));if(d>.5){v.x+=dx*Math.min(1,dt*1.5);v.z+=dz*Math.min(1,dt*1.5)}alDown=true}}}
+ v.rpm=(v.rpm||0)+((drv?1:0)-(v.rpm||0))*Math.min(1,dt*(drv?.7:.35));const gnd=vehGround(q,v.x,v.z),up=drv&&hb,dn=drv&&(awDown()||alDown);
+ let tvy=up?K.climb:dn?-K.climb*.75:0;if(!drv)tvy=-5;if(v.rpm<.55&&tvy>0)tvy=0;if(alDown&&v.y-gnd<3)tvy=-1.6;
  v.vy+=(tvy-v.vy)*Math.min(1,dt*2.6);v.y+=v.vy*dt;if(v.y>K.ceil){v.y=K.ceil;v.vy=Math.min(0,v.vy)}
- if(v.y<=gnd){const hard=v.vy<-7;v.y=gnd;if(v.air){v.air=0;if(hard){vehDamage(q,v,(-v.vy-6)*8);snd(70,.5);if(mine)camShake(.6,.4)}else snd(200,.08);if(v.al){v.al=null;if(mine)hint('🚁 Down. Nice and gentle.')}}v.vy=Math.max(0,v.vy)}else if(v.y>gnd+.25)v.air=1;
+ if(v.y<=gnd){const hard=v.vy<-7;v.y=gnd;if(v.air){v.air=0;if(hard){vehDamage(q,v,(-v.vy-6)*8);snd(70,.5);if(mine)camShake(.6,.4)}else snd(200,.08);if(v.al&&v.al.ph=='down'){v.al=null;v.v=0;if(mine)hint('🚁 Down. Nice and gentle, right where you found it.')}}v.vy=Math.max(0,v.vy)}else if(v.y>gnd+.25)v.air=1;
  const air=v.air,tv=air&&drv?fx*K.max*(fx<0?.45:1):0;v.v+=(tv-v.v)*Math.min(1,dt*(air?.8:4));
  v.str+=((drv?-sx:0)-v.str)*Math.min(1,dt*4);if(v.rpm>.4)v.h+=v.str*K.turn*dt*(air?1:.35);
  let nx=v.x-Math.sin(v.h)*v.v*dt,nz=v.z-Math.cos(v.h)*v.v*dt;[nx,nz]=awEdge(q,v,nx,nz,mine);
@@ -16659,8 +16662,8 @@ function heliPhys(q,v,dt,fx,sx,drv,hb){const K=v.K,mine=q.seat&&q.seat.v===v,m=v
  /* nose down going forward, a lean into turns, a little hover wobble */const tp=-(v.v/K.max)*.24+(tv-v.v)*-.004,tb=air?-v.str*.28*Math.min(1,.4+Math.abs(v.v)/12):0;v.pit=(v.pit||0)+(tp-(v.pit||0))*Math.min(1,dt*3);v.bank=(v.bank||0)+(tb+(air?Math.sin(q.rt*1.7)*.012:0)-(v.bank||0))*Math.min(1,dt*3);
  if(air&&v.y-gnd<12&&Math.random()<dt*14*v.rpm)try{const a=Math.random()*6.283,r=3+Math.random()*4;vfx('dust',v.x+Math.cos(a)*r,gnd+.2,v.z+Math.sin(a)*r+q.OZ,{n:2,w:1.5})}catch(e){}
  if(mine&&(v.snT=(v.snT||0)-dt)<=0&&v.rpm>.2){v.snT=.11/(.4+v.rpm);snd(55+v.rpm*25,.05)}}
-function jetPhys(q,v,dt,fx,sx,drv,hb,pp0){const K=v.K,mine=q.seat&&q.seat.v===v;if(v.wreck||!v.air){const kk=v.K;v.K=Object.assign({},kk,{acc:kk.acc,max:kk.max});pp0(q,v,dt,fx,sx,drv,hb);v.K=kk;if(v.air&&v.v<K.vmin)v.v=K.vmin+2;return}
- if(v.al){pp0(q,v,dt,fx,sx,drv,hb);return}
+function jetPhys(q,v,dt,fx,sx,drv,hb,pp0){const K=v.K,mine=q.seat&&q.seat.v===v;if(v.al&&!v.wreck){if(drv&&(fx||sx)&&(v.al.t||0)>1.5){v.al=null;if(mine)hint('✈️ Autoland OFF: you have control.')}else{jetAuto(q,v,dt,mine);return}}if(v.wreck||!v.air){const kk=v.K;v.K=Object.assign({},kk,{acc:kk.acc,max:kk.max});pp0(q,v,dt,fx,sx,drv,hb);v.K=kk;if(v.air&&v.v<K.vmin)v.v=K.vmin+2;return}
+ 
  const cl=drv?fx:0,boost=drv&&(keys.ShiftLeft||keys.ShiftRight);let tv=cl>0?K.climb:cl<0?-K.climb*1.15:-.8;const gnd=vehGround(q,v.x,v.z);if(v.y-gnd<9&&cl<=0&&tv<-4)tv=-4;v.vy+=(tv-v.vy)*Math.min(1,dt*(v.y-gnd<9?4:2.2));if(v.y>K.ceil&&v.vy>0)v.vy*=Math.max(0,1-dt*3);
  const want=hb?K.vmin:boost?K.vmax:cl<0?K.vcr*1.12:K.vcr;v.v+=(want-v.v)*Math.min(1,dt*(boost?.7:.45));if(v.v<K.vmin)v.v=K.vmin;
  v.str+=((drv?-sx:0)-v.str)*Math.min(1,dt*5);v.h+=v.str*K.turn*(hb?1.25:1)*dt;v.bank+=((-v.str*1.15)-v.bank)*Math.min(1,dt*3.2);v.pit+=(Math.atan2(v.vy,v.v)-v.pit)*Math.min(1,dt*3);
@@ -16669,7 +16672,7 @@ function jetPhys(q,v,dt,fx,sx,drv,hb,pp0){const K=v.K,mine=q.seat&&q.seat.v===v;
  if(v.clipT>0)v.clipT-=dt;if(v.y-g2<10&&!(v.clipT>0)&&!vehOK(q,v,v.x,v.z,v.h)&&v.hitO!=='edge'&&v.hitO!=='me'&&!(v.hitO&&v.hitO.K)){v.clipT=3;vehDamage(q,v,30);v.v=Math.max(K.vmin,v.v*.6);snd(90,.4);if(mine){camShake(.6,.4);hint('💥 CLIPPED SOMETHING. Pull up!')}v.hitO=null}
  if(mine&&(v.snT=(v.snT||0)-dt)<=0){v.snT=.25;snd(40+v.v*.6,.3)}}
 {const pp0=planePhys;planePhys=function(q,v,dt,fx,sx,drv,hb){const K=v.K;if(K.heli)return heliPhys(q,v,dt,fx,sx,drv,hb);if(K.jet)return jetPhys(q,v,dt,fx,sx,drv,hb,pp0);return pp0.apply(this,arguments)}}
-/* L on a helicopter: straight down, gently */{const at0=planeAutoToggle;planeAutoToggle=function(q,v){if(v&&v.K.heli){if(!v.air){hint('🚁 Already on the ground. SPACE to lift off.');return}v.al=v.al?null:{t:0};hint(v.al?'🚁 Auto-land: coming straight down. (Any key to take over.)':'🚁 Auto-land off.');snd(800,.08);return}return at0.apply(this,arguments)}}
+/* L on a helicopter: straight down, gently */{const at0=planeAutoToggle;planeAutoToggle=function(q,v){if(v&&v.K.heli){if(!v.air){hint('🚁 Already on the ground. SPACE to lift off.');return}const far=Math.hypot(v.x-v.sx,v.z-v.sz)>6;v.al=v.al?null:{t:0,ph:far?'home':'down'};hint(v.al?(far?'🚁 Auto-land: flying home to the pad, then down. (Any key to take over.)':'🚁 Auto-land: coming straight down.'):'🚁 Auto-land off.');snd(800,.08);return}return at0.apply(this,arguments)}}
 /* ---------------------------------------------------------------- per-frame look ---------------------------------------------------------------- */
 function awLook(q,dt){const now=q.rt||0;for(const v of q.vehs){if(!v.K||!(v.K.heli||v.K.jet)||!v.m)continue;const u=v.m.userData,mine=q.seat&&q.seat.v===v;
   if(v.K.heli){const rpm=mine?(v.rpm||0):(v.air?1:Math.max(0,(v.rpm||0)-dt*.3));if(!mine)v.rpm=rpm;if(rpm>.01){if(u.rotor)u.rotor.rotation.y+=dt*rpm*27;if(u.tailR)u.tailR.rotation.x+=dt*rpm*62}}
@@ -16681,7 +16684,7 @@ function awLook(q,dt){const now=q.rt||0;for(const v of q.vehs){if(!v.K||!(v.K.he
 /* ---------------------------------------------------------------- weapons ---------------------------------------------------------------- */
 function awFire(q,kind){const s=q.seat;if(!s||s.i!=0)return;const v=s.v,K=v.K;if(!(K.heli||K.jet)||v.wreck)return;const W=kind=='msl'?K.msl:K.gun;if(!W)return;q.awCd=q.awCd||{};if((q.awCd[kind]||0)>0)return;
  if(kind=='msl'){if(v.msl==null)v.msl=K.msl.n;if(v.msl<=0){if((q.awNo=(q.awNo||0)-1)<0){q.awNo=6;hint(K.heli?'🚀 Rockets empty. Land to rearm (or wait).':'🚀 Missiles empty. They reload in 20 seconds, or straight away on the ground.')}return}v.msl--;v.mrT=20}
- q.awCd[kind]=W.rof;const m=v.m;m.updateMatrixWorld(true);let o;if(kind=='msl'){const p=W.pods[(q.awPi=(q.awPi||0)+1)%W.pods.length];o=new THREE.Vector3(p[0],p[1],p[2]-1.2)}else o=new THREE.Vector3(...W.from);o.applyMatrix4(m.matrixWorld);o.z-=q.OZ;
+ q.awCd[kind]=W.rof;const m=v.m;m.updateMatrixWorld(true);let o;if(kind=='msl'){const p=W.pods[(q.awPi=(q.awPi||0)+1)%W.pods.length];o=new THREE.Vector3(p[0],p[1],p[2]-1.2)}else o=new THREE.Vector3(...W.from);o.applyMatrix4(m.matrixWorld);if(kind=='gun'&&m.userData.cg&&m.userData.cg.fl){/* straight out of the chin gun's barrels */m.userData.cg.fl.getWorldPosition(o)}o.z-=q.OZ;
  /* aim: the aircraft's nose; on a helicopter the chin gun follows your view */const d=new THREE.Vector3(0,0,-1);if(K.heli&&kind=='gun'){const yaw=v.h+Math.max(-1.2,Math.min(1.2,wrapA(P.yaw-v.h))),pt=Math.max(-.6,Math.min(.2,P.pitch-.12));d.set(-Math.sin(yaw)*Math.cos(pt),Math.sin(pt),-Math.cos(yaw)*Math.cos(pt))}else{d.applyQuaternion(m.quaternion);if(K.heli)d.y-=.12}d.normalize();
  const spd=W.spd+Math.abs(v.v);awShot(q,{x:o.x,y:o.y,z:o.z,vx:d.x*spd,vy:d.y*spd,vz:d.z*spd,k:kind,pw:W.pw,own:v,mine:1},true);
  try{vehNet(q,{k:'aws',x:+o.x.toFixed(2),y:+o.y.toFixed(2),z:+o.z.toFixed(2),vx:+(d.x*spd).toFixed(1),vy:+(d.y*spd).toFixed(1),vz:+(d.z*spd).toFixed(1),kk:kind,pw:W.pw,v:v.id})}catch(e){}
@@ -16735,7 +16738,7 @@ function awBase(q){const M2=q.mil;if(!M2||q.awB)return;q.awB=1;const g=q.g,R=AW.
  {const s=dsSign('FORT BLACKOUT AIRSTRIP · RUNWAY 09/27\nMAJORS AND ABOVE FLY · EVERYONE ELSE WATCHES','#20261c','#e8f0d0');s.position.set(R.x1-14,0,-938);s.rotation.y=Math.PI;g.add(s)}
  /* the fleet */const mv=(k,x,z,h,r)=>{const v=q.addVeh(k,x,z,h);v.mil=r;v.mk=k;v.nogar=1;return v};
  for(let i=0;i<3;i++)mv('jet',418+i*30,-950,0,7);mv('ghost',395,-960,-Math.PI/2,8);mv('gunship',500,-955,-Math.PI/2,6);
- q.locs.push({nm:'Fort Blackout Airstrip',x:cx,z:R.z,ic:'🛫'});q.obsDirty=1}
+ q.locs.push({nm:'Fort Blackout Airstrip',x:cx,z:R.z,ic:'🛫'});/* on the map too */try{q.mapR.push({x0:R.x0,x1:R.x1,z0:R.z-R.w/2,z1:R.z+R.w/2,c:'#3a3c40'},{x0:403,x1:513,z0:-964,z1:-940,c:'#4a4c50'},{x0:514,x1:526,z0:-979,z1:-933,c:'#4a4c50'});for(let i=0;i<3;i++)q.mapR.push({x0:409+i*30,x1:427+i*30,z0:-953,z1:-931,c:'#7a7c74'});q.mapR.push({x0:543,x1:547,z0:-946,z1:-942,c:'#8a8c84'});q.mapBg=null;if(typeof DMAP!=='undefined'){DMAP.bgDirty=1}}catch(e){}q.obsDirty=1}
 /* the helipad: the parked prop is swapped for the real thing */
 function awPad(q){const M2=q.mil;if(!M2||q.awP)return;q.awP=1;let old=null;q.g.traverse(o=>{if(!old&&o.userData&&o.userData.rotor&&o.userData.tail&&Math.hypot(o.position.x-582,o.position.z+848)<3)old=o});if(old){old.visible=false;q.obs=q.obs.filter(o=>!(o.x0<=579.9&&o.x1>=584&&o.z0<=-857&&o.z1>=-844));q.obsDirty=1}
  const v=q.addVeh('heli',582,-848,-.4);v.mil=5;v.mk='heli';v.nogar=1}
@@ -16750,6 +16753,20 @@ const AWB={el:null};function awBtns(){const q=state=='bus'&&BUS.ride,v=q&&q.roam
   AWB.up=mk('⬆',()=>{keys.Space=1},()=>{keys.Space=0});AWB.dn=mk('⬇',()=>{keys.KeyC=1},()=>{keys.KeyC=0});mk('🔫',()=>{const q2=BUS.ride;if(q2){q2.awHold=1;awFire(q2,'gun')}},()=>{const q2=BUS.ride;if(q2)q2.awHold=0});mk('🚀',()=>{const q2=BUS.ride;if(q2)awFire(q2,'msl')});AWB.ab=mk('🔥',()=>{keys.ShiftLeft=1},()=>{keys.ShiftLeft=0});document.body.appendChild(d);AWB.el=d}
  AWB.el.style.display=on?'flex':'none';if(on){AWB.up.style.display=v.K.heli?'block':'none';AWB.dn.style.display=v.K.heli?'block':'none';AWB.ab.style.display=v.K.jet?'block':'none'}}
 setInterval(()=>{try{awBtns()}catch(e){}},300);
+
+/* ---- jets: L flies the approach to the Fort Blackout airstrip, lands, and taxis back to where you found it ---- */
+function jetAuto(q,v,dt,mine){const A=v.al,R=AW.RW,K=v.K;A.t=(A.t||0)+dt;const g0=vehGround(q,v.x,v.z);const steer=(tx,tz,rate)=>{const want=Math.atan2(-(tx-v.x),-(tz-v.z)),dh=wrapA(want-v.h);const tr=Math.max(-K.turn*.8,Math.min(K.turn*.8,dh*(rate||1.5)));v.h+=tr*dt;v.str=-tr/K.turn;return dh};
+ const fly=(sp,alt)=>{v.v+=(sp-v.v)*Math.min(1,dt*.6);const vy=Math.max(-14,Math.min(14,(alt-v.y)*.8));v.vy+=(vy-v.vy)*Math.min(1,dt*2);v.y+=v.vy*dt;v.x-=Math.sin(v.h)*v.v*dt;v.z-=Math.cos(v.h)*v.v*dt;v.pit+=(Math.atan2(v.vy,Math.max(10,v.v))-v.pit)*Math.min(1,dt*3);v.bank+=((-v.str*1.0)-v.bank)*Math.min(1,dt*3)};
+ const FX=R.x0-380,TD=R.x0+35;
+ if(!A.ph)A.ph=v.air?'fix':'taxi';
+ if(A.ph=='fix'){steer(FX,R.z);fly(K.vcr*.8,80);if(Math.hypot(v.x-FX,v.z-R.z)<70)A.ph='turn'}
+ else if(A.ph=='turn'){const dh=steer(TD+200,R.z,2);fly(70,70);if(Math.abs(dh)<.08&&Math.abs(v.z-R.z)<20)A.ph='final'}
+ else if(A.ph=='final'){steer(R.x1,R.z,2.5);const dist=TD-v.x,alt=Math.max(0,Math.min(70,dist*.14));fly(dist>150?60:46,g0+alt);if(dist<0||v.y<=g0+.3){v.y=g0;v.vy=0;v.air=0;v.pit=0;v.bank=0;A.ph='roll';snd(300,.12);if(mine)hint('✈️ Touchdown on runway 09. Braking.')}}
+ else if(A.ph=='roll'){v.y=g0;v.v=Math.max(0,v.v-12*dt);steer(R.x1,R.z,2);v.x-=Math.sin(v.h)*v.v*dt;v.z-=Math.cos(v.h)*v.v*dt;v.bank*=.9;if(v.v<7)A.ph='taxi'}
+ else if(A.ph=='taxi'){v.y=g0;v.air=0;const wps=[[v.sx,R.z],[v.sx,v.sz]];A.wi=A.wi||0;if(Math.abs(v.z-R.z)>R.w/2+2&&A.wi==0&&Math.abs(v.x-v.sx)>8)A.wi=0;const w=wps[Math.min(A.wi,1)],d=Math.hypot(w[0]-v.x,w[1]-v.z);
+  if(d<2.5){if(A.wi==0)A.wi=1;else{const dh=wrapA(v.sh-v.h);v.h+=Math.max(-.8,Math.min(.8,dh*2))*dt;v.v=0;if(Math.abs(dh)<.03){v.h=v.sh;v.al=null;if(mine)hint('✈️ Parked, right where you found it. Nice flying.');snd(500,.08)}return}}
+  steer(w[0],w[1],2.5);v.v+=(Math.min(8,d)-v.v)*Math.min(1,dt*1.5);v.x-=Math.sin(v.h)*v.v*dt;v.z-=Math.cos(v.h)*v.v*dt;v.bank*=.9;v.pit*=.9}}
+{const at1=planeAutoToggle;planeAutoToggle=function(q,v){if(v&&v.K.jet){if(v.al){v.al=null;hint('✈️ Autoland OFF. You have control.');snd(500,.08);return}v.al={t:0};snd(800,.08);setTimeout(()=>snd(1000,.08),120);hint(v.air?'🛬 AUTOLAND: approach from the west, down onto runway 09 at Fort Blackout, then taxi back to your spot. (Steer to take over.)':'🛬 AUTO-TAXI: back to where you found it.');return}return at1.apply(this,arguments)}}
 
 
 /* =====================================================================================================
@@ -16832,6 +16849,66 @@ function hdBuild(q){const ML=q.mil;if(!ML||!ML.door||q.hdB)return;q.hdB=1;const 
 setInterval(()=>{try{const q=BUS.ride;if(q&&q.roam&&q.mil&&q.mil.door)hdBuild(q)}catch(e){conLog('error','hangar console: '+e.message)}},1000);
 /* the X-13 trials open the hangar for you */{const os0=milOpStart;milOpStart=function(q,id){const r=os0.apply(this,arguments);try{if(id=='trials'&&q.mil&&q.mil.door&&!q.mil.door.open){q.mil.door.open=1;setTimeout(()=>{try{hint('🛸 The hangar blast door rumbles open for your test flight.')}catch(e){}},1500)}}catch(e){}return r}}
 /* no Desert PD heat for army work on the base */{const ah0=addHeat;addHeat=function(q,n,why){try{if(q&&q.mil&&why!=='nuke'){const lz=P.z-q.OZ,onBase=milArea(P.x,lz)||(typeof AW!=='undefined'&&P.x>AW.RW.x0-30&&P.x<AW.RW.x1+30&&lz>AW.RW.z-40&&lz<MILB.z0+5);const S=milSV();if((onBase&&(S.r|0)>=1&&!milHostile(q))||q.mil.op)return}}catch(e){}return ah0.apply(this,arguments)}}
+
+
+/* =====================================================================================================
+   r552: RANKS BEYOND GENERAL, and what they unlock.
+    10 · General of the Army (2800 XP): AIRSTRIKES. Radio the airstrip tower and three F-9s strafe and bomb any
+         point on the map.
+    11 · Field Marshal (3800 XP): ORBITAL STRIKE "THUNDERBOLT". Radar Station 13 has an uplink to a Dark Army
+         satellite: a targeting laser, then a white-hot beam from orbit.
+    12 · Supreme Commander (5000 XP): MIRV. The missile on Silo 1 carries three warheads, each to its own target,
+         and the silo reloads in two minutes instead of ten.
+   ===================================================================================================== */
+MILRANK.push(['General of the Army','★★★★',2800],['Field Marshal','✦',3800],['Supreme Commander','👑',5000]);
+const XU={10:'📻 AIRSTRIKES unlocked: radio the airstrip tower (Fort Blackout Airstrip) and call three F-9s down on any point of the map.',11:'🛰️ ORBITAL STRIKE unlocked: the uplink at Radar Station 13 talks to the THUNDERBOLT satellite. Pick a spot. Stand well back.',12:'☢️ MIRV unlocked: Silo 1 now carries THREE warheads (set three targets at Missile Guidance), and reloads in two minutes.'};
+{const xp0=milXP;milXP=function(q,n,why){const r0=milRank();const r=xp0.apply(this,arguments);try{const r1=milRank();for(let k=r0+1;k<=r1;k++)if(XU[k])setTimeout(()=>{hint(XU[k]);try{sysLine('🎖️ '+XU[k])}catch(e){}},1600);if(r1>=12&&r0<12)badge('supreme')}catch(e){}return r}}
+/* ---- a little shared map picker (the guidance map) ---- */
+function xsPick(q,title,intro,onPick,multi){let picks=[];const btns=[['ok',multi?'✅ Fire on these targets':'✅ Fire'],['x','Cancel']];
+ const d=milDlg(q,title,'<p style="margin:0 0 6px">'+intro+'</p><canvas id="xsMap" width="360" height="392" style="width:100%;max-width:360px;display:block;margin:0 auto;border:2px solid #2a6a3a;cursor:crosshair"></canvas><p id="xsT" style="text-align:center;margin:6px 0 0;color:#ffe060;font-weight:bold">Click the map.</p>',btns,b=>{if(b=='ok'){if(!picks.length){hint('🎯 Click the map to choose a target first.');return false}onPick(multi?picks:picks[0]);return true}return true});
+ const cv=d.querySelector('#xsMap'),k=cv.getContext('2d');const paint=()=>{ngPaint(k,cv.width,cv.height,q,picks[picks.length-1]||{x:9999,z:9999},0);k.strokeStyle='#ff3030';picks.forEach((p,i)=>{const[a,b2]=ngMapXY(p.x,p.z,cv.width,cv.height);k.beginPath();k.arc(a,b2,8,0,6.283);k.stroke();k.fillStyle='#ff6060';k.font='bold 12px monospace';k.fillText(String(i+1),a+9,b2-6)});d.querySelector('#xsT').textContent=picks.length?picks.map(p=>p.nm).join(' · '):'Click the map.'};paint();
+ cv.onclick=e=>{e.stopPropagation();const r=cv.getBoundingClientRect(),[x,z]=ngMapInv((e.clientX-r.left)/r.width*cv.width,(e.clientY-r.top)/r.height*cv.height,cv.width,cv.height);let nm='GRID '+Math.round(x)+' / '+Math.round(-z);try{let best=40;for(const l of q.locs||[]){if(/Phone booth|Stunt/.test(l.nm))continue;const dd=Math.hypot(l.x-x,l.z-z);if(dd<best){best=dd;nm=l.nm}}}catch(x2){}const p={x:Math.max(-DXB+10,Math.min(DXB-10,x)),z:Math.max(DZS+10,Math.min(MILB.z1-5,z)),nm};if(multi){picks.push(p);if(picks.length>multi)picks.shift()}else picks=[p];snd(1200,.04);paint()}}
+/* ---- 10: AIRSTRIKE ---- */
+function xsAirstrike(q,t,remote){const g=q.g,dir=Math.random()*Math.PI*2,dx=Math.sin(dir),dz=Math.cos(dir),L=900;const jets=[];for(let i=0;i<3;i++){const m=new THREE.Group();m.rotation.order='YXZ';try{awJet(m,false)}catch(e){}m.rotation.y=Math.atan2(dx,dz)+Math.PI;g.add(m);jets.push({m,off:(i-1)*14,lag:Math.abs(i-1)*12})}
+ const S0={x:t.x-dx*L/2,z:t.z-dz*L/2},sp=130,T=L/sp;let tt=0,dropped=[0,0,0];snd(300,.5);if(!remote)hint('📻 "Copy, '+(SV.nm||'Commander')+'. Three Sabres inbound on '+t.nm+'. Keep your head down."');
+ q.anims.push(function f(dt){tt+=dt;for(const[i,j]of jets.entries()){const s=Math.max(0,tt*sp-j.lag),px=S0.x+dx*s+dz*j.off,pz=S0.z+dz*s-dx*j.off;j.m.position.set(px,65+Math.sin(tt*2+i)*2,pz);j.m.rotation.z=Math.sin(tt*1.3+i)*.08;
+   const d=Math.hypot(px-t.x,pz-t.z),ahead=(px-t.x)*dx+(pz-t.z)*dz;if(!dropped[i]&&ahead>-70){dropped[i]=1;for(let b=0;b<6;b++)setTimeout(()=>{try{const bx=px+dx*(b*14)+(Math.random()-.5)*8,bz=pz+dz*(b*14)+(Math.random()-.5)*8;boom(q,bx,1,bz,0,2.2,null,1);camShake(.25,.3)}catch(e){}},700+b*120)}}
+  if(Math.random()<dt*2)snd(80+Math.random()*30,.3);if(tt>T+2){for(const j of jets)if(j.m.parent)j.m.parent.remove(j.m);const i=q.anims.indexOf(f);if(i>=0)q.anims.splice(i,1)}})}
+/* ---- 11: ORBITAL STRIKE ---- */
+function xsOrbital(q,t,remote){const g=q.g;const las=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,400,8,1,true),new THREE.MeshBasicMaterial({color:0xff2020,transparent:true,opacity:.7,depthWrite:false,blending:THREE.AdditiveBlending}));las.position.set(t.x,200,t.z);g.add(las);const dot=glowSp(0xff2020,.9,4);dot.position.set(t.x,.5,t.z);g.add(dot);
+ if(!remote)hint('🛰️ THUNDERBOLT: target acquired over '+t.nm+'. Firing in 4 seconds.');let tt=0,fired=0;const beam=new THREE.Mesh(new THREE.CylinderGeometry(6,9,600,24,1,true),new THREE.MeshBasicMaterial({color:0xfff8e0,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));beam.position.set(t.x,300,t.z);g.add(beam);
+ q.anims.push(function f(dt){tt+=dt;las.material.opacity=.4+.4*Math.abs(Math.sin(tt*12));if(tt<4&&(Math.floor(tt*4)!==Math.floor((tt-dt)*4)))snd(1400,.05);
+  if(tt>=4&&!fired){fired=1;las.visible=false;snd(25,2.5);snd(40,2);try{bsF.style.transition='none';bsF.style.background='#fff';bsF.style.opacity=.85;setTimeout(()=>{bsF.style.transition='opacity 1.5s';bsF.style.opacity=0},150);setTimeout(()=>bsF.style.background='#000',1700)}catch(e){}
+   for(let i=0;i<9;i++){const a=i/9*6.283,r=i?14:0;try{boom(q,t.x+Math.cos(a)*r,1,t.z+Math.sin(a)*r,0,i?2.6:4.5,null,1)}catch(e){}}try{for(const v of q.vehs){if(!v.wreck&&Math.hypot(v.x-t.x,v.z-t.z)<35){MILX=1;try{vehBlow(q,v,false)}finally{MILX=0}}}}catch(e){}
+   const lz=P.z-q.OZ,d=Math.hypot(P.x-t.x,lz-t.z);if(d<35&&!q.jail&&!(q.pen&&q.pen.on))setTimeout(()=>{try{roamRespawn(q,'🛰️ You were standing under the satellite. You woke up at the bus stop, steaming.')}catch(e){}},700);else if(d<200)camShake(1.0,2)}
+  if(fired){const u=tt-4;beam.material.opacity=Math.max(0,.95-u*.5);beam.scale.x=beam.scale.z=1+u*.6}
+  if(tt>7){g.remove(las);g.remove(dot);g.remove(beam);const i=q.anims.indexOf(f);if(i>=0)q.anims.splice(i,1)}})}
+/* ---- the consoles ---- */
+function xsBuild(q){const ML=q.mil;if(!ML||q.xsB||typeof AW==='undefined'||!q.awB)return;q.xsB=1;const S=()=>milSV();const g=q.g,M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.5,metalness:.5},o||{})),A=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o},BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+ /* the radio at the foot of the tower */A(BX(1,1.1,.6),M(0x3a4a2a),545,.55,-941.4);A(BX(.9,.5,.08),M(0x15181c),545,1.4,-941.15);A(new THREE.CylinderGeometry(.02,.02,1.4,6),M(0x2a2a2a),545.4,1.8,-941.4);const rl=glowSp(0x40ff80,.8,.4);rl.position.set(544.7,1.25,-941.08);g.add(rl);
+ q.props.push({x:545,z:-940,r:1.5,txt:()=>{if(q.seat||q.inBus)return'';const r=milRank(),cd=Math.ceil(((S().asT||0)-Date.now())/1000);return r<10?'📻 Strike radio. (GENERAL OF THE ARMY only)':cd>0?'📻 The Sabres are rearming: '+cd+' s':'[E] 📻 Call in an AIRSTRIKE'},act:()=>{const r=milRank();if(r<10){snd(180,.2);hint('📻 "This channel is for the General of the Army. Clear it."');return}if(((S().asT||0)-Date.now())>0)return;xsPick(q,'📻 AIRSTRIKE','Three F-9 Sabres will strafe and bomb the point you choose. Friendlies: stay clear.',t=>{S().asT=Date.now()+180000;milSave();xsAirstrike(q,t);try{xmNet(q,'xs',{k:'as',x:Math.round(t.x),z:Math.round(t.z),nm:t.nm})}catch(e){}})}});
+ /* the uplink at Radar Station 13 */A(BX(1.2,1.1,.8),M(0x2a3038),447,.55,-694.5);const sc=A(BX(1.0,.6,.08),M(0x15181c),447,1.45,-694.85);const ul=glowSp(0x60a0ff,.8,.5);ul.position.set(447,1.45,-694.75);g.add(ul);A(new THREE.CylinderGeometry(.35,.35,.06,16),M(0xd8d8d8),447,1.2,-694.4).rotation.x=-.6;
+ q.props.push({x:447,z:-693.2,r:1.5,txt:()=>{if(q.seat||q.inBus)return'';const r=milRank(),cd=Math.ceil(((S().obT||0)-Date.now())/1000);return r<11?'🛰️ Satellite uplink. (FIELD MARSHAL only)':cd>0?'🛰️ THUNDERBOLT is recharging: '+cd+' s':'[E] 🛰️ ORBITAL STRIKE uplink'},act:()=>{const r=milRank();if(r<11){snd(180,.2);hint('🛰️ "UPLINK LOCKED. FIELD MARSHAL AUTHORISATION REQUIRED."');return}if(((S().obT||0)-Date.now())>0)return;xsPick(q,'🛰️ THUNDERBOLT','The satellite drops a beam of light the width of a house on the point you choose. Ground zero is NOT survivable.',t=>{S().obT=Date.now()+300000;milSave();xsOrbital(q,t);try{xmNet(q,'xs',{k:'ob',x:Math.round(t.x),z:Math.round(t.z),nm:t.nm})}catch(e){}})}});
+ q.obs.push({x0:544.5,x1:545.5,z0:-941.7,z1:-941.1},{x0:446.4,x1:447.6,z0:-694.9,z1:-694.1});q.obsDirty=1}
+setInterval(()=>{try{const q=BUS.ride;if(q&&q.roam&&q.mil)xsBuild(q)}catch(e){conLog('error','strike consoles: '+e.message)}},1000);
+XM.net.xs=(o,id)=>{const q=BUS.ride;if(!q||!q.mil)return;const t={x:+o.x||0,z:+o.z||0,nm:String(o.nm||'').slice(0,40)};if(o.k=='as')xsAirstrike(q,t,true);else if(o.k=='ob')xsOrbital(q,t,true)};
+/* ---- 12: MIRV ---- */
+{const ng1=ngDlg;ngDlg=function(q){if(milRank()<12)return ng1.apply(this,arguments);const N=q.mil.nuke;q.ngSeen=1;xsPick(q,'☢️ MIRV GUIDANCE','Supreme Commander: choose up to THREE targets, one per warhead. (Click again to replace the oldest.)',ps=>{N.mirv=ps;ngSet(q,ps[0].x,ps[0].z,ps.length>1?ps[0].nm+' +'+(ps.length-1):ps[0].nm);try{xmNet(q,'nuke',{st:'mirv',p:ps.map(p=>[Math.round(p.x),Math.round(p.z),p.nm])})}catch(e){}},3)}}
+{const n1=XM.net.nuke;XM.net.nuke=(o,id)=>{if(o&&o.st=='mirv'){const q=BUS.ride;if(q&&q.mil&&q.mil.nuke&&Array.isArray(o.p))q.mil.nuke.mirv=o.p.slice(0,3).map(p=>({x:+p[0]||0,z:+p[1]||0,nm:String(p[2]||'')}));return}return n1(o,id)}}
+{const ni0=ngImpact;ngImpact=function(q,t){const r=ni0.apply(this,arguments);try{const N=q.mil.nuke,ps=N.mirv||[];ps.slice(1).forEach((p,i)=>setTimeout(()=>{try{ni0(q,p);const fl=glowSp(0xffe0a0,.95,80);fl.position.set(p.x,60,p.z);q.g.add(fl);let u=0;q.anims.push(function f(dt){u+=dt;fl.material.opacity=Math.max(0,.95-u/5);if(u>5){q.g.remove(fl);const k=q.anims.indexOf(f);if(k>=0)q.anims.splice(k,1)}})}catch(e){}},1200*(i+1)));N.mirv=null}catch(e){}return r}}
+{const nt1=milNukeTick;milNukeTick=function(q,dt){const N=q.mil&&q.mil.nuke;const was=N&&N.st;const r=nt1.apply(this,arguments);try{if(N){if(N.st=='count')N.c12=0;if(N.cool>120&&!N.c12&&milRank()>=12){N.cool=120;N.c12=1}}}catch(e){}return r}}
+
+
+/* =====================================================================================================
+   r553: the X-13 WRAITH gets serious armour (hits do a quarter of what they did) that REGENERATES once it has been
+   out of fire for three seconds; and the approach to the old airfield's runway is cleared of cacti and rocks so
+   autoland never flies a plane into one.
+   ===================================================================================================== */
+{const md0=milVehDmg;milVehDmg=function(q,v,n){if(v&&v.K&&v.K.proto){n*=.25;v.hitAt=performance.now()}return md0.call(this,q,v,n)}}
+setInterval(()=>{try{const q=BUS.ride;if(!q||!q.vehs)return;const now=performance.now();for(const v of q.vehs){if(!v.K||!v.K.proto||v.wreck||!(v.adm>0))continue;if(now-(v.hitAt||0)>3000){const was=v.adm;v.adm=Math.max(0,v.adm-6);if(q.seat&&q.seat.v===v&&Math.floor(was/25)!==Math.floor(v.adm/25))hint('🛡️ Wraith armour regenerating: '+Math.round(100-v.adm)+'%')}}}catch(e){}},500);
+function rwClear(q){if(q.rwC)return;q.rwC=1;const box=(x,z)=>x>-480&&x<330&&z>-1255&&z<-1205;for(let i=q.obs.length-1;i>=0;i--){const o=q.obs[i];if(!o.m||!(o.kd=='cactus'||o.kd=='rock'||o.kd=='boulder'))continue;const x=(o.x0+o.x1)/2,z=(o.z0+o.z1)/2;if(box(x,z)){o.m.visible=false;q.obs.splice(i,1)}}
+ q.g.traverse(o=>{if(!o.visible)return;const x=o.position.x,z=o.position.z;if(!box(x,z))return;if(o.isGroup&&o.children[0]&&o.children[0].material&&o.children[0].material.color&&o.children[0].material.color.getHex()===0x3a7a3a&&o.children[0].geometry&&o.children[0].geometry.type=='CylinderGeometry')o.visible=false});q.obsDirty=1}
+setInterval(()=>{try{const q=BUS.ride;if(q&&q.roam&&q.obs&&q.g)rwClear(q)}catch(e){}},1500);
 
 </script><script>
 /* ======================================================================================================
