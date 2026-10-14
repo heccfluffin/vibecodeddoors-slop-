@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r544';
+const BUILD='2026-10-14 r545';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -8589,10 +8589,10 @@ function retroTick(T){const d=RET.el,q=id=>d.querySelector('#'+id);
  /* keep INSERT COIN and the achievement toast just above whatever is on top of the hotbar (gold line, modifier badge, passives) */
  try{const ib=$('i').getBoundingClientRect(),top=ib.height>4?ib.top:innerHeight-120,ic=d.querySelector('.ic'),ac=d.querySelector('.ac');ic.style.bottom=Math.round(innerHeight-top+10)+'px';ac.style.bottom=Math.round(innerHeight-top+10+ic.offsetHeight+10)+'px'}catch(e){}
  RET.fh.push(RET.fps);if(RET.fh.length>60)RET.fh.shift();const g=q('retG');if(g){const x=g.getContext('2d');x.clearRect(0,0,120,20);x.strokeStyle='#0f0';x.beginPath();RET.fh.forEach((v,i)=>{const y=20-Math.min(20,v/75*20);i?x.lineTo(i*2,y):x.moveTo(0,y)});x.stroke();x.fillStyle='#0f0';x.font='8px monospace';x.fillText('FPS',2,8)}
- if(!retConvTick()){RET.fkT=(RET.fkT==null?2:RET.fkT)-.2;if(RET.fkT<=0){RET.fkT=5+Math.random()*8;if(Math.random()<.45)retConv();else retFake()}}
- if(T-RET.dyT>(RET.qa?14:7)){RET.dyT=T;RET.qa=0;RET.dyI=(RET.dyI+1)%RDOOR.length;q('retY').textContent=RDOOR[RET.dyI]}
+ if(!r8RetSlave()&&!retConvTick()){RET.fkT=(RET.fkT==null?2:RET.fkT)-.2;if(RET.fkT<=0){RET.fkT=5+Math.random()*8;if(Math.random()<.45)retConv();else retFake()}}
+ if(!r8RetSlave()&&T-RET.dyT>(RET.qa?14:7)){RET.dyT=T;RET.qa=0;RET.dyI=(RET.dyI+1)%RDOOR.length;q('retY').textContent=RDOOR[RET.dyI]}
  q('retW').textContent=String(Math.floor(T)%60).padStart(2,'0');
- RET.acT-=.2;const ac=q('retA');if(RET.acT<=0){RET.acT=18+Math.random()*16;ac.innerHTML='🏆 <b>ACHIEVEMENT UNLOCKED!</b><br>'+RACH[Math.random()*RACH.length|0]+' (+0 G)';ac.style.display='block';snd(1319,.06);setTimeout(()=>snd(1760,.06),90);setTimeout(()=>{ac.style.display='none'},3500)}}
+ RET.acT-=.2;const ac=q('retA');if(RET.acT<=0&&!r8RetSlave()){RET.acT=18+Math.random()*16;const aT=RACH[Math.random()*RACH.length|0];r8RetSend({k:'ach',x:aT});retAch(aT)}}
 /* the 3D minimap: the scene drawn again from above and behind you into a box in the corner (the ceilings are clipped off),
    with a big yellow arrow for you and a green block for the next door that only the minimap camera can see */
 let _rcp=null;
@@ -16018,6 +16018,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r545',['RETRO MODE in co-op: the side messages, achievement pop-ups and tips are the same for everyone']],
  ['r544',['Update now checks the website has the new version before reloading (no more looping prompt)']],
  ['r543',['Continue a co-op run together: when making a room in the multiplayer lobby, tick "Continue our co-op run"']],
  ['r542',['Retro chases are beatable now: the darkness no longer speeds up forever, the courses are shorter and jumps go higher','Chandeliers and steam hang at head height, and a JUMP / DUCK sign flashes over the next obstacle']],
@@ -16453,6 +16454,23 @@ setInterval(()=>{try{if(!CONT.cn||CONT.done||HUB.on)return;if(state!='play')retu
  if(!r8Co()){CONT.done=1;const k=CONT.cn;n=k;build();cRestore();hint('▶ Back to door '+k+'.');return}
  if(!CONT.host)return;CONT.done=1;const k=CONT.cn;mpWarpTo(k);cRestore();mpSend({t:'cw',s:mpS(),n:k,gs:gsPackAll(MP.gs||{})});sysLine('▶ Continuing the co-op run from door '+k+'.')}catch(e){conLog('error','co-op continue: '+e.message)}},500);
 {const mm1=mpMsg;mpMsg=function(key,o){if(o&&o.t=='cw'){try{if((o.s|0)!==(mpSeed|0)||MP.host)return;const k=Math.max(0,Math.min(EXN-1,o.n|0));const g=gsClean(o.gs);if(g)for(const kk in g)if(+kk>0)MP.gs[kk]=g[kk];CONT.done=1;if(k>n){mpWarpTo(k);cRestore();hint('▶ Continuing the co-op run from door '+n+'.')}}catch(e){conLog('error','co-op continue: '+e.message)}return}return mm1.apply(this,arguments)}}
+
+
+/* =====================================================================================================
+   r545: RETRO MODE's side messages are the same for everyone in co-op. The host's game makes up the fake messenger
+   chatter, the "ACHIEVEMENT UNLOCKED" pop-ups and the tip of the day, and sends them to everyone; the other players'
+   games stop inventing their own and show the host's instead.
+   ===================================================================================================== */
+const r8RetSlave=()=>{try{return !!(MODS&&MODS.retro&&r8Co()&&!MP.host)}catch(e){return false}};
+let R8RX=0;
+function r8RetSend(o){try{if(!(MODS&&MODS.retro&&r8Co()&&MP.host))return;mpSend(Object.assign({t:'rtm',s:mpS()},o))}catch(e){}}
+{const rm0=retMsg;retMsg=function(name,col,text,mine,fake){if(fake&&!R8RX){if(r8RetSlave())return;r8RetSend({k:'msg',nm:String(name).slice(0,40),c:String(col||'').slice(0,12),x:String(text).slice(0,200),m:mine?1:0})}return rm0.apply(this,arguments)}}
+function retAch(tx){try{const ac=document.querySelector('#retA');if(!ac)return;ac.innerHTML='🏆 <b>ACHIEVEMENT UNLOCKED!</b><br>'+esc(String(tx))+' (+0 G)';ac.style.display='block';snd(1319,.06);setTimeout(()=>snd(1760,.06),90);setTimeout(()=>{ac.style.display='none'},3500)}catch(e){}}
+setInterval(()=>{try{if(MODS&&MODS.retro&&r8Co()&&MP.host&&RET.on)r8RetSend({k:'dy',i:RET.dyI|0})}catch(e){}},2000);
+{const mm2=mpMsg;mpMsg=function(key,o){if(o&&o.t=='rtm'){try{if((o.s|0)!==(mpSeed|0)||MP.host||!(MODS&&MODS.retro))return;
+  if(o.k=='msg'){R8RX=1;try{retMsg(fsName(String(o.nm||''))||String(o.nm||'').slice(0,20)||'?',/^#[0-9a-f]{3,6}$/i.test(o.c)?o.c:'#2a5ab0',String(o.x||'').slice(0,200),o.m?1:0,1);snd(1568,.04)}finally{R8RX=0}}
+  else if(o.k=='ach')retAch(String(o.x||'').slice(0,60));
+  else if(o.k=='dy'){const i=Math.max(0,Math.min(RDOOR.length-1,o.i|0));if(i!==RET.dyI){RET.dyI=i;const y=document.querySelector('#retY');if(y)y.textContent=RDOOR[i]}}}catch(e){}return}return mm2.apply(this,arguments)}}
 
 </script><script>
 /* ======================================================================================================
