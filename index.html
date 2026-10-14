@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r531';
+const BUILD='2026-10-14 r532';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16004,11 +16004,12 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
 
 
 /* =====================================================================================================
-   r531: WHAT'S NEW board on the hotel lobby wall (right wall, between the two sofas).
+   r531: WHAT'S NEW board on the back wall of the multiplayer lobby (before a run).
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
- ['r531',["A What's New board in the hotel lobby (you're reading it)"]],
+ ['r532',['Fixed the black screen and very loud alarm when going to jail']],
+ ['r531',["A What's New board in the lobby before a run (you're reading it)"]],
  ['r530',['Visit jailed players at max security and bail them out (pricey)','New double prison gate + a gate control room you can lockpick','Jail time is saved if you disconnect','Rebuilt bomb, no more floating wires','Military vehicles respawn 10s after exploding','Smoother compass; tiny/giant camera fixed; dance at any size','Admin events now work on non-admins too']],
  ['r527',['Military squads: do jobs together and share XP','Teammates show their rank and XP at the base']],
  ['r525',['Update prompt when a new version is out','Military vehicles cannot explode inside the base']]];
@@ -16029,18 +16030,19 @@ function chbDraw(){const c=CHB.cv,x=c.getContext('2d'),W=c.width,H=c.height;
   for(const it of items){const ls=wrap(it,W-150);if(y+ls.length*34>H-24)break;ls.forEach((l,i)=>{if(!i)x.fillText('•',80,y);x.fillText(l,104,y);y+=34});y+=4}
   y+=10}
  if(CHB.tex)CHB.tex.needsUpdate=true}
-function lobbyBoard(HX){const x0=(HX||5)-.06,z=-10,y=2.05,w=3.3,h=2.1;
+function lobbyBoard(px,py,pz,ry){const w=3.3,h=2.1,g=new THREE.Group();
  if(!CHB.cv){CHB.cv=document.createElement('canvas');CHB.cv.width=1024;CHB.cv.height=660}
  chbDraw();const tex=new THREE.CanvasTexture(CHB.cv);CHB.tex=tex;try{tex.anisotropy=4}catch(e){}
- const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tex,emissiveMap:tex,emissive:0x8a8a8a,roughness:.9}));
- m.rotation.y=-Math.PI/2;m.position.set(x0-.03,y,z);G.add(m);CHB.m=m;
- /* wooden frame, a chalk ledge and a little brass lamp above */
- const F=0x5a3418;box(x0,y+h/2+.06,z,.08,.12,w+.24,F);box(x0,y-h/2-.06,z,.08,.12,w+.24,F);box(x0,y,z-w/2-.06,.08,h+.24,.12,F);box(x0,y,z+w/2+.06,.08,h+.24,.12,F);
- box(x0-.1,y-h/2-.13,z,.16,.04,w*.8,0x4a2c12);box(x0-.12,y-h/2-.09,z-.6,.04,.04,.18,0xf4f4f0);box(x0-.12,y-h/2-.09,z+.3,.04,.04,.14,0xf0d070);
- box(x0-.08,y+h/2+.24,z,.12,.05,1.2,0xc9932c,0x4a3000);const gl=glowSp(0xffe0a0,.35,2.2);gl.position.set(x0-.35,y+h/2+.1,z);G.add(gl);
- chbNet()}
+ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tex,emissiveMap:tex,emissive:0x8a8a8a,roughness:.9}));m.position.z=.03;g.add(m);CHB.m=m;
+ /* wooden frame, a chalk ledge with chalk, and a brass lamp above (built facing +z, then turned to the wall) */
+ const B=(x,y,z,sx,sy,sz,c,e)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),new THREE.MeshStandardMaterial({color:c,emissive:e||0,roughness:.8}));o.position.set(x,y,z);g.add(o)},F=0x5a3418;
+ B(0,h/2+.06,.02,w+.24,.12,.08,F);B(0,-h/2-.06,.02,w+.24,.12,.08,F);B(-w/2-.06,0,.02,.12,h+.24,.08,F);B(w/2+.06,0,.02,.12,h+.24,.08,F);
+ B(0,-h/2-.13,.1,w*.8,.04,.16,0x4a2c12);B(-.6,-h/2-.09,.12,.18,.04,.04,0xf4f4f0);B(.3,-h/2-.09,.12,.14,.04,.04,0xf0d070);
+ B(0,h/2+.24,.08,1.2,.05,.12,0xc9932c,0x4a3000);const gl=glowSp(0xffe0a0,.35,2.2);gl.position.set(0,h/2+.1,.35);g.add(gl);
+ g.position.set(px,py,pz);g.rotation.y=ry||0;G.add(g);chbNet()}
 function chbNet(){try{if(!/^https?:$/.test(location.protocol))return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.b)return;if(updNum(j.b)>updNum(BUILD)){CHB.nw=String(j.b).slice(0,12);chbDraw()}}).catch(()=>{})}catch(e){}}
-{const ml0=mkLobby;mkLobby=function(L,HX){const r=ml0.apply(this,arguments);try{lobbyBoard(HX)}catch(e){console.warn('lobby board',e)}return r}}
+/* on the back wall of the multiplayer lobby (where you wait before a run), to the right of the holiday stall */
+{const mh0=mkHubHall;mkHubHall=function(L){const r=mh0.apply(this,arguments);try{lobbyBoard(6.3,2.3,-L+.06,0)}catch(e){console.warn('lobby board',e)}return r}}
 
 /* walk up to the board and the full list opens as a readable panel (works the same on phones); walk away and it closes */
 function chbHtml(){let h='<div style="font:bold 22px Georgia;color:#f2d27a;text-align:center;margin-bottom:4px">📋 WHAT\'S NEW</div>';
@@ -16054,6 +16056,19 @@ function chbTick(){const m=CHB.m;let near=false;
   d.innerHTML=chbHtml();for(const ev of['mousedown','mouseup','click','touchstart'])d.addEventListener(ev,e=>e.stopPropagation());document.body.appendChild(d)}
  else if(!near&&CHB.el){CHB.el.remove();CHB.el=null}}
 setInterval(chbTick,300);
+
+
+/* =====================================================================================================
+   r532: COURT and JAIL can never run at the same time. If both were live, the court kept pulling you to the dock
+   (outside your cell) every frame, so jail "caught" you every frame: a black screen and a stack of very loud alarms.
+   ===================================================================================================== */
+function courtKill(q){const C=q.court;if(!C)return;C.done=1;q.court=null;try{const d=document.getElementById('lawP');if(d)d.style.display='none'}catch(e){}try{if(C.lm&&C.lm.parent)C.lm.parent.remove(C.lm)}catch(e){}}
+{const js0=jailStart;jailStart=function(q){if(q&&q.court)courtKill(q);return js0.apply(this,arguments)}}
+{const cs1=courtStart;courtStart=function(q,fine){if(q&&(q.jail||(q.pen&&q.pen.on)||(q.court&&!q.court.done)))return;return cs1.apply(this,arguments)}}
+{const ct1=courtTick;courtTick=function(q,dt){if(q&&q.court&&(q.jail||(q.pen&&q.pen.on))){courtKill(q);return}return ct1.apply(this,arguments)}}
+{const jr0=jlRestore;jlRestore=function(q){if(q.court)return;/* wait for the trial to finish */if(q.jail||(q.pen&&q.pen.on)){q.jlDone=1;return}return jr0.apply(this,arguments)}}
+/* and however it happens, one catch every 2 seconds at most: no alarm pile-ups */
+{const jc0=jailCaught;jailCaught=function(q,why){const n=performance.now();if(q.jail&&q.jail.cT&&n-q.jail.cT<2000)return;if(q.jail)q.jail.cT=n;return jc0.apply(this,arguments)}}
 
 </script><script>
 /* ======================================================================================================
