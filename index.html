@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r535';
+const BUILD='2026-10-14 r536';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -7340,8 +7340,8 @@ function vehPhys(q,v,dt,fx,sx,drv,hb){const K=v.K;if(v.crush){v.v=0;return}if(K.
  if(v.air){v.vy-=18*dt;v.y+=v.vy*dt;v.jT=(v.jT||0)+dt;if(v.y<=gnd){v.y=gnd;v.air=0;if(v.jr)try{xpStuntLand(q,v)}catch(e){}const hit=-v.vy;v.vy=0;if(hit>3){snd(70,.4);snd(110,.2);if(q.seat&&q.seat.v===v)camShake(Math.min(.8,hit*.08),.4);try{vfx('dust',v.x,.3,v.z+q.OZ,{n:16,w:1.6})}catch(e){}vehDamage(q,v,hit>7?(hit-7)*4:0)}}}
  v.lastG=gnd;if(Math.abs(v.v)>6&&!v.air&&Math.random()<dt*14)try{vfx('dust',v.x+Math.sin(v.h)*v.K.len/2,.2,v.z+Math.cos(v.h)*v.K.len/2+q.OZ,{n:2,w:.8})}catch(e){}}
 /* crash damage: a car that has been knocked about enough smokes, then blows up (the tank and the bus do not) */
-function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;/* r526: army vehicles never blow up inside Fort Blackout: they just get scuffed */if(v.mil&&milArea(v.x,v.z)){v.dmg=Math.min(55,(v.dmg||0)+n*.25);return}if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100)copWreck(q,false);return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
-function vehBlow(q,v,mine){if(v.wreck)return;if(v.mil&&milArea(v.x,v.z)){v.dmg=Math.min(55,v.dmg||0);return}v.wreck=1;v.wreckT=v.mil?10:20;v.dmg=100;v.v=0;v.air=0;v.vy=0;v.spin=0;boom(q,v.x,v.y+.8,v.z,mine,1.25,v);if(mine)addHeat(q,HEATV.car,'car');try{vehShatter(q,v)}catch(e){conLog('error','car pieces: '+e.message)}
+function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;/* r526: army vehicles never blow up inside Fort Blackout: they just get scuffed */if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,(v.dmg||0)+n*.25);return}if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100)copWreck(q,false);return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
+function vehBlow(q,v,mine){if(v.wreck)return;if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,v.dmg||0);return}v.wreck=1;v.wreckT=v.mil?10:20;v.dmg=100;v.v=0;v.air=0;v.vy=0;v.spin=0;boom(q,v.x,v.y+.8,v.z,mine,1.25,v);if(mine)addHeat(q,HEATV.car,'car');try{vehShatter(q,v)}catch(e){conLog('error','car pieces: '+e.message)}
  if(q.seat&&q.seat.v===v){const i=q.seat.i;v.occ[i]=null;if(i==0)vehEngine(q,0);q.seat=null;P.roll=0;const a=Math.random()*6.3;q.fling={vx:Math.cos(a)*7,vz:Math.sin(a)*7,vy:9,y:P.dy+1,t:0};hint('💥 KABOOM! The car blows up and you go FLYING. (You are fine. Somehow.)')}
  if(mine)vehNet(q,{k:'wr',v:v.id});v.occ=v.occ.map(()=>null)}
 function vehShatter(q,v){const parts=[];v.m.updateMatrixWorld(true);q.g.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(q.g.matrixWorld).invert(),list=[];
@@ -16008,6 +16008,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r536',['Set off the alarm at Fort Blackout and the base defences CAN now wreck the army vehicle you are in']],
  ['r535',['Fixed tanks floating when a friend drives one (their turret angle was being used as height)']],
  ['r534',['Alt now frees the mouse in the desert too','Fixed spawning under the map (after the Devil\'s Gorge)','Chat no longer covers the minimap; squad panel moved to the right','Alt-tabbing no longer makes you vanish or drops you from your squad']],
  ['r533',['Turn yourself in at the Desert PD or the Dark Penitentiary (cheaper fine, shorter sentence)','Police cars no longer stay stuck on fences and walls']],
@@ -16127,6 +16128,15 @@ setInterval(deepWatch,250);
 setInterval(()=>{try{const dm=document.getElementById('dmapW'),on=dm&&dm.style.display!='none'&&getComputedStyle(dm).display!='none'&&dm.getBoundingClientRect().width>0;
  const L=on?Math.round(dm.getBoundingClientRect().right+10)+'px':'12px';if(mpc.style.left!==L){mpc.style.left=L;mpc.style.width=on?'min(400px,calc(100vw - '+L+' - 12px))':'min(400px,calc(48*var(--vw)))'}}catch(e){}},400);
 setInterval(()=>{try{if(!document.hidden)return;const q=BUS.ride;if(q&&q.vnet&&q.roam){q.vnet.t=0;vehNetTick(q,0)}}catch(e){}},1000);
+
+
+/* =====================================================================================================
+   r536: army vehicles are still indestructible inside Fort Blackout... unless the base has turned on YOU.
+   If you sounded the alarm (stole the prototype, sabotage, shooting as a civilian...), the base's sentry guns,
+   flak and guard tanks can wreck the military vehicle you are in.
+   ===================================================================================================== */
+var MILX=0;
+{const f=milVehDmg;milVehDmg=function(q,v,n){MILX=(q&&milHostile(q))?1:0;try{return f.apply(this,arguments)}finally{MILX=0}}}
 
 </script><script>
 /* ======================================================================================================
