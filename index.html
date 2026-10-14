@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r539';
+const BUILD='2026-10-14 r540';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16008,6 +16008,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r540',['Retro stages and the 8-bit ending use a pixel version of YOUR outfit','Retro stages work in co-op: same course for everyone, friends shown as ghosts, and they walk out with you in the 8-bit ending']],
  ['r539',['RETRO MODE: the boiler hall escape is an 8-bit side-scrolling chase (jump pipes, duck steam)','RETRO MODE: Seek chases are an 8-bit corridor run','RETRO MODE: door 50 is a top-down 8-bit stealth stage (it hunts by sound, so sneak)']],
  ['r538',['RETRO MODE: an 8-bit ending (fireworks, results, credits, PRESS START)','RETRO MODE: door 100 is an arcade boss stage with a chiptune, a breaker meter and a WARNING when the door opens']],
  ['r537',['This board (and the MULTIPLAYER LOBBY sign) now hang on the wall instead of floating in front of it']],
@@ -16224,7 +16225,10 @@ function bh8Tick(dt){const here=bh8Here();
    Controls: Space / W / Up = jump, S / Down / C / Ctrl = duck. On a phone: tap the top half to jump, the bottom to duck.
    ===================================================================================================== */
 const MG8={on:0};
-function mg8Can(){try{return MODS&&MODS.retro&&!(MP.on&&mpOpen().length)&&!(HUB&&HUB.on)}catch(e){return false}}
+function mg8Can(){try{return MODS&&MODS.retro&&!(HUB&&HUB.on)}catch(e){return false}}
+const r8Co=()=>{try{return MP.on&&mpOpen().length>0}catch(e){return false}};
+/* go to door k: in co-op every client walks its own copy of the hotel forward (same seed), solo just rebuilds */
+function r8Go(k){if(r8Co()){mpWarpTo(k)}else{n=k;build()}}
 function mg8Start(cfg){cfg=cfg||MG8BOIL;if(MG8.on)return;MG8.on=1;state='r8run';try{document.exitPointerLock()}catch(e){}for(const k in keys)keys[k]=0;
  const d=document.createElement('div');d.style.cssText='position:fixed;inset:0;z-index:56;background:#000;display:flex;align-items:center;justify-content:center;touch-action:none';
  const c=document.createElement('canvas');c.width=256;c.height=224;c.style.cssText='height:100%;max-width:100%;aspect-ratio:256/224;image-rendering:pixelated;image-rendering:crisp-edges';d.appendChild(c);document.body.appendChild(d);
@@ -16283,8 +16287,8 @@ function mg8HallOb(x,o,sx,M){if(o.k=='d'){/* a chandelier swinging low on its ch
 /* the Seek chase: when Seek starts chasing in the first chase room, cut to the 8-bit corridor run. Win and you skip ahead
    to the room after the chase; get caught and it is Seek, as usual */
 function mg8SeekA(){for(const a of CH)if(n>=a&&n<a+10)return a;return -1}
-const MG8HALL={k:'hall',title:'RUN! DON\'T LOOK BACK!',n:30,win:()=>{const a=mg8SeekA()>=0?mg8SeekA():MG8.sa;try{if(seek){seek.on=false;seek.visible=false;seek.pend=0}endSeek=null}catch(e){}try{badge('retroseek')}catch(e){}if(a>=0){n=a+10;build();hint('🎮 You outran it! On to door '+n+'.')}},lose:()=>die('Seek')};
-setInterval(()=>{try{if(MG8.on||state!='play'||!mg8Can())return;const a=mg8SeekA();if(a<0||!(seek&&seek.on&&!seek.pend))return;if((MG8.sw=(MG8.sw||0)+1)<4)return;MG8.sw=0;MG8.sa=a;mg8Start(MG8HALL)}catch(e){}},250);
+const MG8HALL={k:'hall',title:'RUN! DON\'T LOOK BACK!',n:30,win:()=>{const a=mg8SeekA()>=0?mg8SeekA():MG8.sa;try{if(seek){seek.on=false;seek.visible=false;seek.pend=0}endSeek=null}catch(e){}try{badge('retroseek')}catch(e){}if(a>=0){r8Go(a+10);hint('🎮 You outran it! On to door '+n+'.')}},lose:()=>die('Seek')};
+setInterval(()=>{try{if(MG8.on||state!='play'||!mg8Can())return;const a=mg8SeekA();if(a<0)return;const ci2=n-a,on=(seek&&seek.on&&!seek.pend)||(r8Co()&&ci2>=1&&ci2<9);if(!on)return;if((MG8.sw=(MG8.sw||0)+1)<4)return;MG8.sw=0;MG8.sa=a;mg8Start(MG8HALL)}catch(e){}},250);
 /* kick it off a moment after the power comes back (the WARNING flashes first) */
 {const po0=powerOn;powerOn=function(){const r=po0.apply(this,arguments);try{if(bh8Here()&&mg8Can())setTimeout(()=>{try{if(state=='play'&&n==100&&!MG8.on)mg8Start(MG8BOIL)}catch(e){}},1700)}catch(e){}return r}}
 /* hide the boiler-hall overlay while an escape plays */
@@ -16321,7 +16325,7 @@ function lb8Start(){if(LB8.on||MG8.on)return;LB8.on=1;state='r8lib';try{document
 function lb8Stop(){LB8.on=0;removeEventListener('keydown',LB8.kd,true);removeEventListener('keyup',LB8.ku,true);try{LB8.d.remove()}catch(e){}}
 function lb8Frame(now){if(!LB8.on)return;const dt=Math.min(.1,(now-LB8.last)/1000);LB8.last=now;try{lb8Upd(dt);lb8Draw()}catch(e){conLog('error','retro library: '+e.message);lb8Stop();state='play'}if(LB8.on)requestAnimationFrame(lb8Frame)}
 function lb8Upd(dt){const L=LB8,g=L.g;L.t+=dt;
- if(L.res){L.resT+=dt;if(L.resT>2.4){const r=L.res;lb8Stop();state='play';if(r=='win'){try{badge('retrolib')}catch(e){}n=51;build();hint('🎮 Door 50 cleared, retro style. On to door 51.')}else die('Figure')}return}
+ if(L.res){L.resT+=dt;if(L.resT>2.4){const r=L.res;lb8Stop();state='play';if(r=='win'){try{badge('retrolib')}catch(e){}r8Go(51);hint('🎮 Door 50 cleared, retro style. On to door 51.')}else die('Figure')}return}
  if(L.t<2.5)return;   /* the title card */
  /* you */let mx=0,my=0;const K=L.mv;if(K.KeyA||K.ArrowLeft)mx--;if(K.KeyD||K.ArrowRight)mx++;if(K.KeyW||K.ArrowUp)my--;if(K.KeyS||K.ArrowDown)my++;
  if(L.touch){const tx=L.touch[0]/16,ty=(L.touch[1]-16)/16,dx=tx-L.px,dy=ty-L.py,dd=Math.hypot(dx,dy);if(dd>.3){mx=dx/dd;my=dy/dd}}
@@ -16356,6 +16360,51 @@ function lb8Draw(){const L=LB8,x=L.x,g=L.g,O=16;x.imageSmoothingEnabled=false;x.
  if(L.res=='lose'){x.fillStyle='rgba(0,0,0,.6)';x.fillRect(0,0,256,224);r8Txt(x,'GAME OVER',128,90,'#ff2020',18)}
  x.fillStyle='rgba(0,0,0,.15)';for(let r=0;r<224;r+=2)x.fillRect(0,r,256,1);x.fillStyle='#fff';x.fillRect(0,214,98,9);r8Txt(x,'Unregistered HyperCam 2',2,215,'#000',7,'left')}
 setInterval(()=>{try{if(LB8.on||MG8.on||state!='play'||!mg8Can()||n!=50||!fig||!fig.cl||(typeof MINE!='undefined'&&MINE)){LB8.w=0;return}if((LB8.w=(LB8.w||0)+1)<6)return;LB8.w=0;lb8Start()}catch(e){}},250);
+
+
+/* =====================================================================================================
+   r540: PIXEL AVATARS and CO-OP for the Retro Mode stages.
+   - Every outfit gets an 8-bit version built from its own colours and hair style (shirt, trousers, hair, skin), so the
+     little runner in the retro stages and the 8-bit ending is YOU. Sylveon outfits use a person in that Sylveon's colours.
+   - Co-op: everyone plays their own copy of each retro stage, on the SAME course (seeded from the co-op game), and sees
+     their friends as see-through pixel ghosts with name tags, running alongside. Winning moves you on exactly like
+     the normal game would (in co-op each player walks their own copy of the hotel forward); getting caught downs you
+     the usual co-op way. In the 8-bit ending, your co-op friends walk out of the hotel with you.
+   ===================================================================================================== */
+const r8Hex=c=>'#'+(c>>>0).toString(16).padStart(6,'0').slice(-6);
+function r8Pal(id,oc){oc=oc|0;if(typeof isSyl=='function'&&isSyl(oc)){const s=SYLP[oc];return{t:r8Hex(s[0]),p:r8Hex(s[1]),h:r8Hex(s[3]||s[1]),s:'#f0d4b4',st:2}}
+ let h=0;for(const c of String(id||''))h=(h*31+c.charCodeAt(0))>>>0;const pr=OUTF[outfIdx(oc,h)]||OUTF[0];return{t:r8Hex(pr[0]),p:r8Hex(pr[1]),h:r8Hex(pr[2]),s:r8Hex(pr[3]),st:pr[4]|0}}
+const r8Me=()=>r8Pal(SV.pid,SV.oc);
+/* 8 x 12, two walking frames; h = hair, s = skin, e = eyes, t = shirt, p = trousers, b = shoes */
+const R8AV=['..hhhh..','.hssssh.','.sesses.','.ssssss.','..ssss..','.tttttt.','tttttttt','s.tttt.s','..pppp..','..p..p..'];
+function r8Av(x,X,Y,f,pal,al){pal=pal||r8Me();const rows=R8AV.concat([f?'.pp..p..':'..p..pp.',f?'.bb..bb.':'.bb..bb.']),C={h:pal.h,s:pal.s,e:'#151515',t:pal.t,p:pal.p,b:'#2a1a10'};
+ x.save();if(al!=null)x.globalAlpha=al;X=Math.round(X);Y=Math.round(Y);
+ for(let r=0;r<rows.length;r++)for(let k=0;k<8;k++){let ch=rows[r][k];if(ch=='.')continue;
+  x.fillStyle=C[ch];x.fillRect(X+k,Y+r,1,1)}
+ x.fillStyle=pal.h;if(pal.st==1){for(const k of[2,4,6])x.fillRect(X+k-1,Y-1,1,1)}                    /* spiky */
+ else if(pal.st==2){for(let r=1;r<6;r++){x.fillRect(X,Y+r,1,1);x.fillRect(X+7,Y+r,1,1)}x.fillRect(X+1,Y+1,1,1);x.fillRect(X+6,Y+1,1,1)}   /* long */
+ else if(pal.st==3){x.fillRect(X+3,Y-2,2,1);x.fillRect(X+2,Y-1,4,1)}                                /* bun */
+ x.restore()}
+r8Guy=function(x,X,Y,f){r8Av(x,X,Y,f,r8Me())};
+/* ---- co-op: the same course for everyone, progress shared, friends drawn as ghosts ---- */
+function r8Rand(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function r8Seeded(k,f){if(!r8Co())return f();const R0=Math.random;Math.random=r8Rand(((mpS()>>>0)^(n*7919)^(k*104729))>>>0);try{return f()}finally{Math.random=R0}}
+{const s0=mg8Start;mg8Start=function(cfg){return r8Seeded(cfg&&cfg.k=='hall'?2:1,()=>s0.apply(this,[cfg]))}}
+{const s0=lb8Start;lb8Start=function(){return r8Seeded(3,()=>s0.apply(this,arguments))}}
+const R8NET={};
+setInterval(()=>{try{if(!r8Co())return;let o=null;if(MG8.on)o={m:'run',x:+(MG8.cam+MG8.px).toFixed(1),y:+MG8.py.toFixed(1),d:MG8.duck?1:0,r:MG8.res||''};else if(LB8.on)o={m:'lib',x:+LB8.px.toFixed(2),y:+LB8.py.toFixed(2),r:LB8.res||''};if(!o)return;
+ Object.assign(o,{t:'r8',s:mpS(),id:SV.pid,nm:String(SV.nm||'Player').slice(0,20),oc:SV.oc|0,n});mpSend(o)}catch(e){}},200);
+{const mm0=mpMsg;mpMsg=function(key,o){if(o&&o.t=='r8'){try{if((o.s|0)!==(mpSeed|0))return;const id=String(o.id||'');if(!id||id===SV.pid)return;R8NET[id]={m:String(o.m),x:+o.x||0,y:+o.y||0,d:o.d?1:0,r:String(o.r||''),nm:fsName(String(o.nm||'Player')),oc:o.oc|0,n:o.n|0,t:Date.now()}}catch(e){}return}return mm0.apply(this,arguments)}}
+function r8Ghosts(m){const now=Date.now(),L=[];for(const id in R8NET){const g=R8NET[id];if(g.m===m&&g.n===n&&now-g.t<1500)L.push([id,g])}return L}
+function r8Tag(x,s,X,Y,col){x.font='bold 6px "Courier New",monospace';x.textAlign='center';x.textBaseline='bottom';const w=x.measureText(s).width+4;x.fillStyle='rgba(0,0,0,.6)';x.fillRect(X-w/2,Y-8,w,8);x.fillStyle=col;x.fillText(s,X,Y)}
+{const d0=mg8Draw;mg8Draw=function(){d0.apply(this,arguments);try{const M=MG8,x=M.x;for(const[id,g]of r8Ghosts('run')){const sx=g.x-M.cam;if(sx<-10||sx>266)continue;const pal=r8Pal(id,g.oc),gy=MGY-12+g.y;
+  if(g.d&&g.y>=0){x.save();x.globalAlpha=.55;x.translate(sx,MGY-6);x.scale(1,.5);r8Av(x,0,0,0,pal);x.restore()}else r8Av(x,sx,gy,Math.floor(M.t*10+id.length)%2,pal,.55);
+  r8Tag(x,g.r=='win'?g.nm+' ✓':g.r=='lose'?g.nm+' ✗':g.nm,sx+4,gy-2,g.r=='lose'?'#ff8080':'#c0ffc0')}
+  /* friends on the progress bar */for(const[id,g]of r8Ghosts('run')){x.fillStyle=r8Pal(id,g.oc).t;x.fillRect(50+150*Math.max(0,Math.min(1,g.x/M.end))-1,206,3,3)}}catch(e){}}}
+{const d0=lb8Draw;lb8Draw=function(){d0.apply(this,arguments);try{const L=LB8,x=L.x;for(const[id,g]of r8Ghosts('lib')){const X=g.x*16-4,Y=16+g.y*16-9;r8Av(x,X,Y,Math.floor(L.t*6)%2,r8Pal(id,g.oc),.55);r8Tag(x,g.r=='win'?g.nm+' ✓':g.r=='lose'?g.nm+' ✗':g.nm,X+4,Y-1,'#c0ffc0')}}catch(e){}}}
+/* the ending: your co-op friends walk out with you */
+{const d0=r8EndDraw;r8EndDraw=function(dt){d0.apply(this,arguments);try{const E=END,x=E.r8.x,T=E.t;if(!(T<11||T>=27))return;const now=Date.now(),fr=Object.entries(MP.remotes||{}).filter(([id,r])=>r&&now-(r.t||0)<15000).slice(0,4);
+  fr.forEach(([id,r],i)=>{const side=i%2?1:-1,off=(Math.floor(i/2)+1)*14*side,wk=Math.min(1,Math.max(0,(T-1.4-i*.3)/3.2)),gx=124+off*wk,gy=146+wk*48;r8Av(x,gx,gy,wk<1&&(Math.floor(T*8+i)%2),r8Pal(id,r.oc));if(wk>=1)r8Tag(x,fsName(r.name||'Player'),gx+4,gy-2,'#ffe9a8')})}catch(e){}}}
 
 </script><script>
 /* ======================================================================================================
