@@ -124,6 +124,7 @@ export class Hub {
     for (const ws of this.ctx.getWebSockets()) { const a = this.att(ws); if (a.k != 'b' || !a.hi || !a.subs) continue; if (a.subs.some(f => match(f, t))) try { ws.send(out) } catch (e) { } }
   }
   async boardMsg(ws, a, d) {
+    if (d.type == 'HEARTBEAT') return;
     if (d.o == 'hi') {
       if (a.hi) return; let u = '';
       if (d.x && d.y && d.s && a.n) { const uu = await uidOf(String(d.x), String(d.y)); if (await verify(String(d.x), String(d.y), 'doorssrv|' + a.n, String(d.s))) u = uu }
@@ -151,6 +152,7 @@ export class Hub {
       if (d.id) try { ws.send(JSON.stringify({ o: 'puback', id: d.id })) } catch (e) { }
       return
     }
+    if (d.o == 'bye') { a.will = null; this.setAtt(ws, a); return }
     if (d.o == 'kick') { await this.kick(ws, a, d); return }
     if (d.o == 'who') {/* staff: who is online (names, IDs) */if (!a.u || !this.isStaff(a.u)) return; const L = []; for (const w of this.ctx.getWebSockets()) { const b = this.att(w); if (b.k == 'b' && b.hi) L.push({ u: b.u || '', p: b.pid || '', nm: b.nm || '' }) } ws.send(JSON.stringify({ o: 'who', l: L.slice(0, 300) })); return }
   }
@@ -163,7 +165,7 @@ export class Hub {
     const own = (this.reg.own || []).includes(k.by), adm = !!(this.reg.adm && this.reg.adm[k.by]);
     if (!own && !adm) return no('Only the owner and admins can kick.');
     if ((this.reg.own || []).includes(k.u) || (!own && this.reg.adm[k.u])) return no('You cannot kick that player.');
-    const until = Date.now() + KICK_MS; this.blk['u:' + k.u] = until; for (const ip of (this.ips[k.u] || []).slice(0, 1)) this.blk['i:' + ip] = until;
+    /* a kick is for the device only (a ban is device AND connection): so family/school wifi is not caught by a kick */const until = Date.now() + KICK_MS; this.blk['u:' + k.u] = until;
     for (const key in this.blk) if (this.blk[key] < Date.now()) delete this.blk[key]; this.save('blk', this.blk);
     let n = 0; const why = 'You were kicked by staff' + (k.why ? ': ' + k.why : '') + '. You can come back in 10 minutes.';
     for (const w of this.ctx.getWebSockets()) { const b = this.att(w); if (b.k == 'b' && b.u === k.u) { n++; this.refuse(w, b, { kick: 1, why }) } }

@@ -23,6 +23,8 @@ export default {
     const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' };
     if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
     if (url.pathname === '/' || url.pathname === '/health') return new Response('DOORS server: ok', { headers: Object.assign({ 'content-type': 'text/plain' }, cors) });
+    /* PeerJS asks <path><key>/id for a fresh ID (e.g. /doors/id) */
+    if (/^\/[A-Za-z0-9_-]+\/id$/.test(url.pathname)) return new Response(crypto.randomUUID().replace(/-/g, ''), { headers: Object.assign({ 'content-type': 'text/plain' }, cors) });
     if (url.pathname === '/ws' || url.pathname === '/peerjs' || url.pathname === '/peerjs/id' || url.pathname.startsWith('/peerjs/')) {
       const id = env.HUB.idFromName('main');
       const h = new Headers(req.headers);
