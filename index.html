@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r533';
+const BUILD='2026-10-14 r534';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -11623,12 +11623,12 @@ const mpul=document.createElement('div');mpul.style.cssText='position:fixed;left
 function goPause(){if(mpi.style.display=='block'||MUN)return;/* r519: the admin / staff panel never pauses a multiplayer game */{const sd=document.getElementById('staffDlg');if((sd&&sd.style.display=='flex'||DBGMP)&&(HUB.on||MP.on))return}if(HUB.on){hubPause(1);return}   /* typing in chat, or the mouse freed with Alt, does not pause the game */   /* typing in chat does not pause the game */
  if(mpLive()){mpul.style.display='block'}else{state='paused';$('m').innerHTML='<h1>PAUSED</h1><p>'+(MOB.on?'Tap to resume':'Click to resume')+'</p>';$('m').style.display='flex'}}
 /* ALT frees the mouse (the game keeps running, nothing pauses); press Alt again or click the game to grab it back */
-let MUN=0;const munB=document.createElement('div');munB.style.cssText='position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:61;background:rgba(20,16,12,.88);border:2px solid #d4a850;border-radius:8px;color:#ffe9a8;font:14px Georgia,serif;padding:6px 14px;display:none;pointer-events:none';munB.textContent='🖱️ Mouse free · press Alt or click the game to grab it again';document.body.appendChild(munB);
-addEventListener('keydown',e=>{if(e.code!='AltLeft'&&e.code!='AltRight')return;e.preventDefault();if(e.repeat||state!='play'||mpi.style.display=='block')return;
+const munSt=()=>state=='play'||state=='cart'||state=='sewer'||(state=='bus'&&!!BUS.ride);let MUN=0;const munB=document.createElement('div');munB.style.cssText='position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:61;background:rgba(20,16,12,.88);border:2px solid #d4a850;border-radius:8px;color:#ffe9a8;font:14px Georgia,serif;padding:6px 14px;display:none;pointer-events:none';munB.textContent='🖱️ Mouse free · press Alt or click the game to grab it again';document.body.appendChild(munB);
+addEventListener('keydown',e=>{if(e.code!='AltLeft'&&e.code!='AltRight')return;e.preventDefault();if(e.repeat||!munSt()||mpi.style.display=='block')return;
  if(document.pointerLockElement){MUN=1;munB.style.display='block';document.exitPointerLock()}else{MUN=0;munB.style.display='none';try{R.domElement.requestPointerLock()}catch(x){}}});
 addEventListener('keyup',e=>{if(e.code=='AltLeft'||e.code=='AltRight')e.preventDefault()});
 document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement){MUN=0;munB.style.display='none'}});
-setInterval(()=>{if(MUN&&state!='play'){MUN=0;munB.style.display='none'}},300);
+setInterval(()=>{if(MUN&&!munSt()){MUN=0;munB.style.display='none'}},300);
 addEventListener('click',()=>{if((state=='play'||state=='cart'||state=='sewer'||(state=='bus'&&BUS.ride))&&!document.pointerLockElement&&!uiOpen()&&mpi.style.display!='block'&&!VIDP&&!document.getElementById('secBox')&&!HUB.panel&&!HUB.paused){R.domElement.requestPointerLock()}});
 document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement)mpul.style.display='none'});
 /* The hotel generator remembers things between rooms (an office / archive in progress, cooldowns, catwalk and garden streaks). If that memory differs
@@ -15917,10 +15917,10 @@ function sqNetIn(q,o,id){const nm=fsName(String(o.nm||''))||sqName(q,id);
 /* the squad button on the ops board */
 {const od1=milOpsDlg;milOpsDlg=function(q){od1(q);try{const d=document.getElementById('milDlg');if(!d)return;const b=document.createElement('button');b.style.cssText='display:block;width:100%;margin-top:10px;background:#2a3a5a;color:#fff;border:2px solid #7a9ad0;border-radius:8px;padding:10px 12px;font:bold 15px Georgia;cursor:pointer;text-align:left';b.innerHTML='🪖 SQUAD'+(sqIn()?' ('+SQ.mem.length+' · leader: '+esc(sqName(q,SQ.lead))+')':' · do operations with your friends');b.onclick=e=>{e.stopPropagation();milDlgClose(q);sqDlg(q)};const first=d.querySelector('button[data-b]');if(first)first.parentNode.insertBefore(b,first);else d.appendChild(b)}catch(e){}}}
 /* the squad panel */
-function sqHud(q){if(!SQ.el){const d=document.createElement('div');d.style.cssText='position:fixed;left:10px;top:calc(120px + env(safe-area-inset-top,0px));z-index:20;background:rgba(14,22,12,.82);border:2px solid #7a9a4a;border-radius:10px;padding:6px 10px;font:13px Georgia,serif;color:#e8f0d8;pointer-events:none;max-width:250px;display:none';document.body.appendChild(d);SQ.el=d}
+function sqHud(q){if(!SQ.el){const d=document.createElement('div');d.style.cssText='position:fixed;right:10px;top:calc(104px + env(safe-area-inset-top,0px));z-index:20;background:rgba(14,22,12,.82);border:2px solid #7a9a4a;border-radius:10px;padding:6px 10px;font:13px Georgia,serif;color:#e8f0d8;pointer-events:none;max-width:250px;display:none';document.body.appendChild(d);SQ.el=d}
  const on=sqIn()&&q&&q.roam;SQ.el.style.display=on?'block':'none';if(!on)return;const rem=sqRem(q),S=milSV();
  SQ.el.innerHTML='<b style="color:#c8e890">🪖 SQUAD</b>'+SQ.mem.map(m=>{const me=m[0]===SV.pid,r=me?S.r|0:(rem[m[0]]?rem[m[0]].mr|0:0),xp=me?S.xp|0:(rem[m[0]]?rem[m[0]].mx|0:0),ln=me?(q.mil&&q.mil.op?q.mil.op.D.ic+' '+q.mil.op.D.nm:'no job'):(rem[m[0]]&&rem[m[0]].sqLine)||'';return'<div style="margin-top:3px">'+(m[0]===SQ.lead?'👑 ':'')+(MILRANK[r]?MILRANK[r][1]+' ':'')+'<b>'+esc(m[1]||'Player')+'</b> <span style="opacity:.75">'+(MILRANK[r]?milRankNm(r):'')+' · '+xp+' XP</span>'+(ln?'<div style="font-size:11.5px;opacity:.8">'+esc(ln)+'</div>':'')+'</div>'}).join('')}
-setInterval(()=>{try{const q=BUS.ride;if(!q||!q.roam||!q.vnet){if(SQ.el)SQ.el.style.display='none';return}if(sqIn()){const rem=q.vnet.rem,now=Date.now();if(!sqLead()&&!(rem[SQ.lead]&&now-rem[SQ.lead].t<15000)){sqSet(q,'',[]);hint('🪖 Your squad leader is gone. Squad disbanded.')}else if(sqLead()){const keep=SQ.mem.filter(m=>m[0]===SV.pid||(rem[m[0]]&&now-rem[m[0]].t<15000));if(keep.length!==SQ.mem.length){SQ.mem=keep;sqBroadcast(q)}if(SQ.mem.length<2&&(q.sqT=(q.sqT||0)+1)%20==0)sqBroadcast(q)}
+setInterval(()=>{try{const q=BUS.ride;if(!q||!q.roam||!q.vnet){if(SQ.el)SQ.el.style.display='none';return}if(sqIn()){const rem=q.vnet.rem,now=Date.now();if(!sqLead()&&!(rem[SQ.lead]&&now-rem[SQ.lead].t<90000)){sqSet(q,'',[]);hint('🪖 Your squad leader is gone. Squad disbanded.')}else if(sqLead()){const keep=SQ.mem.filter(m=>m[0]===SV.pid||(rem[m[0]]&&now-rem[m[0]].t<90000));if(keep.length!==SQ.mem.length){SQ.mem=keep;sqBroadcast(q)}if(SQ.mem.length<2&&(q.sqT=(q.sqT||0)+1)%20==0)sqBroadcast(q)}
   const op=q.mil&&q.mil.op;let l='no job';try{l=op?op.D.line(q,op).replace(/<[^>]+>/g,''):'no job'}catch(e){}if((q.sqLT=(q.sqLT||0)+1)%3==0)sqNet(q,{k:'sqx',l})}sqHud(q)}catch(e){}},700);
 
 
@@ -16008,6 +16008,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r534',['Alt now frees the mouse in the desert too','Fixed spawning under the map (after the Devil\'s Gorge)','Chat no longer covers the minimap; squad panel moved to the right','Alt-tabbing no longer makes you vanish or drops you from your squad']],
  ['r533',['Turn yourself in at the Desert PD or the Dark Penitentiary (cheaper fine, shorter sentence)','Police cars no longer stay stuck on fences and walls']],
  ['r532',['Fixed the black screen and very loud alarm when going to jail']],
  ['r531',["A What's New board in the lobby before a run (you're reading it)"]],
@@ -16100,6 +16101,31 @@ function copUnstick(q,dt){const c=q.cop;if(!c||c.st!='chase'||!c.v||c.v.wreck)re
   v.x=x;v.z=z;v.h=h;v.v=0;v.vy=0;v.air=0;try{v.y=vehGround(q,x,z)}catch(e){v.y=0}v.m.position.set(x,v.y||0,z);v.m.rotation.y=h;c.path=null;c.nav=null;c.stuck=0;c.rev=0;c.blk=0;c.left=1;c.usX=x;c.usZ=z;c.usD=R;
   try{copSay(q,['Dark shortcut!','You thought a fence could stop the dark law?','I know a dark back road.'][Math.random()*3|0])}catch(e){}return}}
 {const ct2=copTick;copTick=function(q,dt){const r=ct2.apply(this,arguments);try{copUnstick(q,dt)}catch(e){}return r}}
+
+
+/* =====================================================================================================
+   r534: never stuck under the map. The Devil's Gorge (and the pyramid's underground) put you on a "deep" floor
+   30 m down. Being sent somewhere else while still flagged deep (arrested, jailed, the penitentiary, let out,
+   turning yourself in) left you walking 30 m under the surface. Now any of those clears it, and a watchdog
+   lifts you back up if you are ever "deep" somewhere that has no deep floor.
+   ===================================================================================================== */
+function deepClear(q){if(!q||!q.deep)return;q.deep=0;q.deepY=0;try{P.dy=vehGround(q,P.x,P.z-q.OZ)}catch(e){P.dy=0}}
+for(const nm of['jailStart','penStart','courtStart','penRelease']){try{const f0=eval(nm);if(typeof f0!=='function')continue;const w=function(q){const r=f0.apply(this,arguments);try{deepClear(q)}catch(e){}return r};eval(nm+'=w')}catch(e){}}
+function deepWatch(){try{const q=BUS.ride;if(!q||!q.roam||!q.deep||q.lift||q.xr){if(q)q.dpBad=0;return}
+ let ok=true;try{ok=deepOK(q,P.x,P.z-q.OZ)}catch(e){}if(ok){q.dpBad=0;return}
+ if((q.dpBad=(q.dpBad||0)+1)>=3){q.dpBad=0;deepClear(q);hint('🏜️ You were somehow under the desert. Back up you come.')}}catch(e){}}
+setInterval(deepWatch,250);
+
+
+/* =====================================================================================================
+   r535: HUD layout and alt-tab.
+   - In the desert the chat sits to the right of the minimap instead of on top of it (the squad panel moved to the right).
+   - A hidden tab (alt-tab, minimised) still tells your co-op friends where you are once a second, so you do not
+     vanish for them or get dropped from your squad.
+   ===================================================================================================== */
+setInterval(()=>{try{const dm=document.getElementById('dmapW'),on=dm&&dm.style.display!='none'&&getComputedStyle(dm).display!='none'&&dm.getBoundingClientRect().width>0;
+ const L=on?Math.round(dm.getBoundingClientRect().right+10)+'px':'12px';if(mpc.style.left!==L){mpc.style.left=L;mpc.style.width=on?'min(400px,calc(100vw - '+L+' - 12px))':'min(400px,calc(48*var(--vw)))'}}catch(e){}},400);
+setInterval(()=>{try{if(!document.hidden)return;const q=BUS.ride;if(q&&q.vnet&&q.roam){q.vnet.t=0;vehNetTick(q,0)}}catch(e){}},1000);
 
 </script><script>
 /* ======================================================================================================
