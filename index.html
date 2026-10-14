@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r530';
+const BUILD='2026-10-14 r531';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16001,6 +16001,59 @@ function jlSave(force){try{const q=BUS.ride;if(!q||!q.roam)return;const j=jlSnap
 function jlRestore(q){const j=SV.jl;if(!j||q.jlDone)return;q.jlDone=1;if(dbgCheat)return;try{if(j.k=='pen'&&q.penW){if(penStart(q,Math.max(1,j.t)/60)){q.pen.t=j.t;hint('⛓️ Welcome back. You still have '+Math.ceil(j.t/60)+' minute'+(j.t>60?'s':'')+' left on your sentence in the Dark Penitentiary.')}}else if(j.k=='jail'&&q.pd){q.bustN=Math.max(0,(j.b|0)-1);if(jailStart(q)){q.jail.t=j.t;hint('⛓️ Welcome back. You are still in a cell at Desert PD: '+Math.ceil(j.t)+' s to go.')}}}catch(e){conLog('error','jail restore: '+e.message)}}
 setInterval(()=>{try{const q=BUS.ride;if(!q||!q.roam)return;if(!q.jlDone&&SV.jl){if((q.jlW=(q.jlW||0)+1)>=2)jlRestore(q)}else{q.jlDone=1;jlSave()}}catch(e){}},2500);
 addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()=>jlSave(true));document.addEventListener('visibilitychange',()=>{if(document.hidden)jlSave(true)});
+
+
+/* =====================================================================================================
+   r531: WHAT'S NEW board on the hotel lobby wall (right wall, between the two sofas).
+   Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
+   ===================================================================================================== */
+const CHLOG=[
+ ['r531',["A What's New board in the hotel lobby (you're reading it)"]],
+ ['r530',['Visit jailed players at max security and bail them out (pricey)','New double prison gate + a gate control room you can lockpick','Jail time is saved if you disconnect','Rebuilt bomb, no more floating wires','Military vehicles respawn 10s after exploding','Smoother compass; tiny/giant camera fixed; dance at any size','Admin events now work on non-admins too']],
+ ['r527',['Military squads: do jobs together and share XP','Teammates show their rank and XP at the base']],
+ ['r525',['Update prompt when a new version is out','Military vehicles cannot explode inside the base']]];
+const CHB={tex:null,cv:null,nw:null};
+function chbDraw(){const c=CHB.cv,x=c.getContext('2d'),W=c.width,H=c.height;
+ x.fillStyle='#1f3a2c';x.fillRect(0,0,W,H);
+ for(let i=0;i<1400;i++){x.fillStyle='rgba(255,255,255,'+Math.random()*.035+')';x.fillRect(Math.random()*W,Math.random()*H,3,2)}   /* chalk dust */
+ x.textBaseline='top';x.textAlign='center';x.fillStyle='#f2d27a';x.font='bold 58px Georgia';x.fillText("WHAT'S NEW",W/2,22);
+ x.font='22px Georgia';x.fillStyle='#cfe3d4';x.fillText('You are on '+String(BUILD).replace(/^\S+\s/,''),W/2,88);
+ let y=128;
+ if(CHB.nw){x.fillStyle='#ff9a5a';x.font='bold 24px Georgia';x.fillText('⬆ '+CHB.nw+' is out! Reload the page to update.',W/2,y);y+=36}
+ x.strokeStyle='#f2d27a88';x.lineWidth=2;x.beginPath();x.moveTo(60,y);x.lineTo(W-60,y);x.stroke();y+=14;
+ x.textAlign='left';
+ const wrap=(t,mx)=>{const w=t.split(' '),out=[];let l='';for(const s of w){const n=l?l+' '+s:s;if(x.measureText(n).width>mx&&l){out.push(l);l=s}else l=n}if(l)out.push(l);return out};
+ for(const[b,items]of CHLOG){if(y>H-70)break;
+  x.fillStyle='#f2d27a';x.font='bold 34px Georgia';x.fillText(b,56,y);y+=42;
+  x.font='29px Georgia';x.fillStyle='#eef4ee';
+  for(const it of items){const ls=wrap(it,W-150);if(y+ls.length*34>H-24)break;ls.forEach((l,i)=>{if(!i)x.fillText('•',80,y);x.fillText(l,104,y);y+=34});y+=4}
+  y+=10}
+ if(CHB.tex)CHB.tex.needsUpdate=true}
+function lobbyBoard(HX){const x0=(HX||5)-.06,z=-10,y=2.05,w=3.3,h=2.1;
+ if(!CHB.cv){CHB.cv=document.createElement('canvas');CHB.cv.width=1024;CHB.cv.height=660}
+ chbDraw();const tex=new THREE.CanvasTexture(CHB.cv);CHB.tex=tex;try{tex.anisotropy=4}catch(e){}
+ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:tex,emissiveMap:tex,emissive:0x8a8a8a,roughness:.9}));
+ m.rotation.y=-Math.PI/2;m.position.set(x0-.03,y,z);G.add(m);CHB.m=m;
+ /* wooden frame, a chalk ledge and a little brass lamp above */
+ const F=0x5a3418;box(x0,y+h/2+.06,z,.08,.12,w+.24,F);box(x0,y-h/2-.06,z,.08,.12,w+.24,F);box(x0,y,z-w/2-.06,.08,h+.24,.12,F);box(x0,y,z+w/2+.06,.08,h+.24,.12,F);
+ box(x0-.1,y-h/2-.13,z,.16,.04,w*.8,0x4a2c12);box(x0-.12,y-h/2-.09,z-.6,.04,.04,.18,0xf4f4f0);box(x0-.12,y-h/2-.09,z+.3,.04,.04,.14,0xf0d070);
+ box(x0-.08,y+h/2+.24,z,.12,.05,1.2,0xc9932c,0x4a3000);const gl=glowSp(0xffe0a0,.35,2.2);gl.position.set(x0-.35,y+h/2+.1,z);G.add(gl);
+ chbNet()}
+function chbNet(){try{if(!/^https?:$/.test(location.protocol))return;fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{if(!j||!j.b)return;if(updNum(j.b)>updNum(BUILD)){CHB.nw=String(j.b).slice(0,12);chbDraw()}}).catch(()=>{})}catch(e){}}
+{const ml0=mkLobby;mkLobby=function(L,HX){const r=ml0.apply(this,arguments);try{lobbyBoard(HX)}catch(e){console.warn('lobby board',e)}return r}}
+
+/* walk up to the board and the full list opens as a readable panel (works the same on phones); walk away and it closes */
+function chbHtml(){let h='<div style="font:bold 22px Georgia;color:#f2d27a;text-align:center;margin-bottom:4px">📋 WHAT\'S NEW</div>';
+ if(CHB.nw)h+='<div style="color:#ff9a5a;text-align:center;margin-bottom:6px">⬆ '+esc(CHB.nw)+' is out! Reload the page to update.</div>';
+ for(const[b,it]of CHLOG)h+='<div style="color:#f2d27a;font-weight:bold;margin-top:8px">'+esc(b)+'</div><ul style="margin:2px 0 0 18px;padding:0">'+it.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>';
+ return h}
+function chbTick(){const m=CHB.m;let near=false;
+ try{let r=m;while(r&&r.parent)r=r.parent;if(m&&r&&r.isScene){const v=new THREE.Vector3();m.getWorldPosition(v);const dx=v.x-P.x,dz=v.z-P.z,d=Math.hypot(dx,dz);
+  if(d<3.2){const fx=-Math.sin(P.yaw),fz=-Math.cos(P.yaw);near=(fx*dx+fz*dz)/d>.5}}}catch(e){}
+ if(near&&!CHB.el){const d=document.createElement('div');CHB.el=d;d.style.cssText='position:fixed;right:12px;top:50%;transform:translateY(-50%);z-index:250;width:min(380px,86vw);max-height:70vh;overflow:auto;background:#1f3a2cee;border:3px solid #5a3418;border-radius:10px;padding:12px 16px;font:15px Georgia,serif;color:#eef4ee;box-shadow:0 4px 20px #000a;line-height:1.35';
+  d.innerHTML=chbHtml();for(const ev of['mousedown','mouseup','click','touchstart'])d.addEventListener(ev,e=>e.stopPropagation());document.body.appendChild(d)}
+ else if(!near&&CHB.el){CHB.el.remove();CHB.el=null}}
+setInterval(chbTick,300);
 
 </script><script>
 /* ======================================================================================================
