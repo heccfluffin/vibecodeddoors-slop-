@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r545';
+const BUILD='2026-10-14 r546';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -10372,7 +10372,7 @@ function elvArrive(){const r=RMS[0];if(!r||r.n!==0)return;const g=new THREE.Grou
  /* set the elevator into a wall: a full-height wall across the room at the elevator's front, so you only ever see its doors.
     Everything behind that wall (old trim, plants, the room's own back wall) is hidden and its obstacles dropped */
  {const hx=r.hx||5,hy=r.hy||4,FZ=z1+.15,TH=.22,WM=boxMat(T('wall',2,2),0),TM=new THREE.MeshStandardMaterial({color:0x5a3418,roughness:.6});
-  r.G.traverse(m=>{if(m===g||!m.isMesh)return;let o=m,inE=false;while(o){if(o===g){inE=true;break}o=o.parent}if(inE)return;const sx=Math.abs(m.scale.x),sz=Math.abs(m.scale.z);if(m.position.z>FZ+TH/2+.02&&m.position.z<1.5&&(sx<hx*1.6||m.position.y<3.5)&&!(m.geometry===UBX&&(sx>=hx*1.9&&m.scale.y<.5)))m.visible=false});
+  r.G.traverse(m=>{if(m===g||!m.isMesh)return;let o=m,inE=false;while(o){if(o===g){inE=true;break}o=o.parent}if(inE)return;/* r546: judge by where the mesh really is in the room, not its position inside its own group (the door leaf and the key are children of groups, so they sat at local z 0 and were hidden) */r.G.updateMatrixWorld(true);const wp=r.G.worldToLocal(m.getWorldPosition(new THREE.Vector3())),sx=Math.abs(m.scale.x),sz=Math.abs(m.scale.z);if(wp.z>FZ+TH/2+.02&&wp.z<1.5&&(sx<hx*1.6||wp.y<3.5)&&!(m.geometry===UBX&&(sx>=hx*1.9&&m.scale.y<.5)))m.visible=false});
   for(let i=r.obs.length-1;i>=0;i--){const o=r.obs[i];if(o.z0>FZ-.05&&!obsL.includes(o)&&o!==door)r.obs.splice(i,1)}
   const seg=(x0,x1,y0,y1)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(x1-x0,y1-y0,TH),WM);m.position.set((x0+x1)/2,(y0+y1)/2,FZ);g.add(m);return m};
   seg(-hx,-W2/2-.22,0,hy);seg(W2/2+.22,hx,0,hy);seg(-W2/2-.22,W2/2+.22,3.5,hy);
@@ -16018,6 +16018,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r546',['Fixed door 001 and its key being invisible when a run started from the multiplayer lobby']],
  ['r545',['RETRO MODE in co-op: the side messages, achievement pop-ups and tips are the same for everyone']],
  ['r544',['Update now checks the website has the new version before reloading (no more looping prompt)']],
  ['r543',['Continue a co-op run together: when making a room in the multiplayer lobby, tick "Continue our co-op run"']],
