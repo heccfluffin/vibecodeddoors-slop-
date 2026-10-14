@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r542';
+const BUILD='2026-10-14 r543';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -10239,16 +10239,16 @@ function hubTick(dt){if(!HUB.on)return;hubStreetUpd(dt);hubElTick();const now=Da
   const bb=g.userData.bub;if(bb&&bb.t>0){bb.t-=dt;if(bb.t<=0)bb.sp.visible=false}}}
 /*ELEV*/
 /* elevator rooms. The room's owner keeps everyone up to date (once a second); joining and leaving are requests to them */
-function hubElSend(e){const st=e.st;if(!st||st.host!==SV.pid)return;try{PUB.cl&&PUB.cl.connected&&PUB.cl.publish(HUB.key+'el',JSON.stringify({i:SV.pid,e:e.i,hn:st.hn,max:st.max,fo:st.fo?1:0,mods:st.mods||[],mem:st.mem,cd:Math.max(0,st.cd-Date.now()),open:st.open?1:0}))}catch(x){}}
+function hubElSend(e){const st=e.st;if(!st||st.host!==SV.pid)return;try{PUB.cl&&PUB.cl.connected&&PUB.cl.publish(HUB.key+'el',JSON.stringify({i:SV.pid,e:e.i,hn:st.hn,max:st.max,fo:st.fo?1:0,mods:st.mods||[],mem:st.mem,cd:Math.max(0,st.cd-Date.now()),open:st.open?1:0,cn:st.cn|0}))}catch(x){}}
 function hubElCreate(e,max,fo,mods){e.st={host:SV.pid,hn:SV.nm||'Player',max,fo:!!fo,mods:(mods||[]).slice(0,64),mem:[[SV.pid,SV.nm||'Player']],cd:Date.now()+(max==1?3000:30000),open:1,t:Date.now()};HUB.myE=e.i;hubElSend(e);hint((max==1?'🛗 Going up on your own...':'🛗 Your room is open ('+max+' players'+(fo?', friends only':'')+'). It leaves in 30 seconds: press E to go now.')+((mods||[]).length?' Modifiers: '+modsTxt(mods)+' (gold x'+modsG(mods).toFixed(2)+')':''))}
 function hubElPanel(e){if(HUB.panel)return;MUN=1;try{document.exitPointerLock()}catch(x){}const d=document.createElement('div');HUB.panel=d;d.style.cssText='position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);font:15px Georgia,serif;color:#e8e0d0';
  let max=(SV.lastRoom&&SV.lastRoom.max)|0||4,fo=SV.lastRoom&&SV.lastRoom.fo?1:0;const md=new Set((SV.lastMods||[]).filter(k=>MODL.some(m=>m[0]==k)));const draw=()=>{const ol=d.querySelector('#hmods'),sy=ol?ol.scrollTop:0;draw0();const nl=d.querySelector('#hmods');if(nl)nl.scrollTop=sy};const draw0=()=>{d.innerHTML='<div style="background:#14100c;border:3px solid #6ad89a;border-radius:12px;padding:18px 24px;min-width:320px;max-width:min(620px,calc(94*var(--vw)));text-align:center"><div style="font-size:22px;color:#9affc0;letter-spacing:2px;margin-bottom:10px">🛗 MAKE A ROOM</div>'+
   '<div style="margin:8px 0">Players: '+[1,2,3,4].map(k=>'<button data-m="'+k+'" style="margin:2px;padding:6px 14px;font:bold 16px Georgia;cursor:pointer;border-radius:6px;border:2px solid #6ad89a;background:'+(k==max?'#2a5a3a':'#1a1408')+';color:#e8ffe8">'+k+'</button>').join('')+'</div>'+
-  '<label style="display:block;margin:10px 0;cursor:pointer"><input type="checkbox" id="hfo"'+(fo?' checked':'')+' style="vertical-align:middle;margin-right:6px">🔒 Friends only</label>'+
+  '<label style="display:block;margin:10px 0;cursor:pointer"><input type="checkbox" id="hfo"'+(fo?' checked':'')+' style="vertical-align:middle;margin-right:6px">🔒 Friends only</label>'+(typeof cContHtml=='function'?cContHtml():'')+
   '<div style="margin:10px 0 4px;color:#ffd860"><button id="hmc" style="float:right;padding:2px 10px;font:12px Georgia;cursor:pointer;border-radius:6px;border:1px solid #6a5a3a;background:#1a1408;color:#e8e0d0">Clear</button>🎛️ Modifiers · <b>+'+Math.round((modsG([...md])-1)*100)+'%</b> gold (x'+modsG([...md]).toFixed(2)+')'+(md.has('dbg')?' (debug: nothing saved)':modsG([...md])>=3.9999?' · <span class="rbt">🔥 Hotel Hell run!</span>':' · 🔥 Hotel Hell at +300%')+'</div><div id="hmods" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:left;max-height:calc(42*var(--vh));overflow-y:auto;padding-right:4px">'+MODL.map(m=>'<button data-md="'+m[0]+'" title="'+m[3].replace(/"/g,'')+'" style="padding:6px 8px;font:13px Georgia;cursor:pointer;border-radius:6px;border:2px solid '+(md.has(m[0])?'#ffd860':'#5a4a3a')+';background:'+(md.has(m[0])?'#3a2a10':'#1a1408')+';color:#f0e6d0;text-align:left">'+m[1]+' '+m[2]+' <span style="color:'+modTier(m[4])[1]+';font-weight:bold">'+(m[4]?'+'+Math.round(m[4]*100)+'%':'')+'</span> <span style="font-size:10px;color:'+modTier(m[4])[1]+';opacity:.85">'+modTier(m[4])[0]+'</span><div style="font-size:11px;opacity:.65">'+m[3]+'</div></button>').join('')+'</div>'+
   '<div style="margin-top:12px"><button id="hcr" style="margin:4px;padding:8px 22px;font:bold 17px Georgia;cursor:pointer;border-radius:8px;border:2px solid #6ad89a;background:#1e4a2e;color:#e8ffe8">Create</button><button id="hcx" style="margin:4px;padding:8px 18px;font:16px Georgia;cursor:pointer;border-radius:8px;border:2px solid #d4a850;background:#2a1c10;color:#ffe9a8">Cancel</button></div></div>';
   d.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{max=+b.getAttribute('data-m');draw()});d.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{const k=b.getAttribute('data-md');md.has(k)?md.delete(k):md.add(k);draw()});d.querySelector('#hfo').onchange=x=>{fo=x.target.checked?1:0};{const hc=d.querySelector('#hmc');if(hc)hc.onclick=()=>{md.clear();draw()}}
-  d.querySelector('#hcr').onclick=()=>{SV.lastMods=[...md];SV.lastRoom={max,fo};saveGame();close();if(hubInEl()===e.i&&!hubElSt(e))hubElCreate(e,max,fo,[...md])};   /* remembered for next time */d.querySelector('#hcx').onclick=()=>{close();HUB.skipE=e.i}};
+  d.querySelector('#hcr').onclick=()=>{{const cc=d.querySelector('#hcont'),cs=cc&&cc.checked&&typeof cLoad=='function'?cLoad():null;if(cs){md.clear();(cs.mods||[]).filter(k=>MODL.some(m=>m[0]==k)).forEach(k=>md.add(k))}HUB.contN=cs?cs.n:0}SV.lastMods=[...md];SV.lastRoom={max,fo};saveGame();close();if(hubInEl()===e.i&&!hubElSt(e))hubElCreate(e,max,fo,[...md])};   /* remembered for next time */d.querySelector('#hcx').onclick=()=>{close();HUB.skipE=e.i}};
  const close=()=>{d.remove();HUB.panel=null;MUN=0;munB.style.display='none';try{R.domElement.requestPointerLock()}catch(x){}};for(const ev of['click','mousedown','mouseup'])d.addEventListener(ev,x=>x.stopPropagation());draw();document.body.appendChild(d)}   /* clicks in the panel never reach the game (which would grab the mouse) */
 function hubElTick(){if(!HUB.on)return;const now=Date.now(),me=hubInEl();
  for(const e of HUBEL){hubElDraw(e);const st=hubElSt(e),shut=st&&st.cd-now<1200;e.shut+=((shut?1:0)-e.shut)*.12;const k=e.shut;e.dl.position.z=e.zc-e.W2/2-e.W2/4+.05+(e.W2/2-.05)*k;e.dr.position.z=e.zc+e.W2/2+e.W2/4-.05-(e.W2/2-.05)*k}
@@ -10263,7 +10263,7 @@ function hubElTick(){if(!HUB.on)return;const now=Date.now(),me=hubInEl();
  if(st&&st.host===SV.pid){st.t=now;st.mem=st.mem.filter(m=>m[0]===SV.pid||HUB.ps[m[0]]&&now-HUB.ps[m[0]].t<5000);if(now-(HUB.elTx||0)>1000){HUB.elTx=now;hubElSend(e)}if(now>=st.cd&&!HUB.going){HUB.going=1;hubGroupStart(st.mem.map(m=>m[0]).filter(id=>id!==SV.pid))}}}
 function hubElMsg(sub,o,id){const e=HUBEL[o.e|0];if(!e)return;
  if(sub=='el'){if(!o.open){if(e.st&&e.st.host===id){e.st=null;if(HUB.myE===e.i){HUB.myE=null;hint('🛗 The room was closed.')}}return}
-  e.st={host:id,hn:fsName(String(o.hn||'').slice(0,16))||'Player',max:Math.max(1,Math.min(4,o.max|0)),fo:!!o.fo,mods:Array.isArray(o.mods)?o.mods.filter(k=>MODL.some(m=>m[0]==k)).slice(0,64):[],mem:(Array.isArray(o.mem)?o.mem:[]).slice(0,4).map(m=>[fsPid(m[0]),fsName(String(m[1]||''))||'Player']).filter(m=>m[0]),cd:Date.now()+Math.max(0,Math.min(60000,+o.cd||0)),open:1,t:Date.now()};
+  e.st={host:id,hn:fsName(String(o.hn||'').slice(0,16))||'Player',max:Math.max(1,Math.min(4,o.max|0)),fo:!!o.fo,mods:Array.isArray(o.mods)?o.mods.filter(k=>MODL.some(m=>m[0]==k)).slice(0,64):[],mem:(Array.isArray(o.mem)?o.mem:[]).slice(0,4).map(m=>[fsPid(m[0]),fsName(String(m[1]||''))||'Player']).filter(m=>m[0]),cd:Date.now()+Math.max(0,Math.min(60000,+o.cd||0)),open:1,t:Date.now(),cn:Math.max(0,Math.min(EXN-1,o.cn|0))};
   if(e.st.mem.some(m=>m[0]===SV.pid)&&HUB.myE!==e.i&&hubInEl()===e.i){HUB.myE=e.i;hint('🛗 You joined '+e.st.hn+'\'s room ('+e.st.mem.length+'/'+e.st.max+').')}}
  else if(sub=='elj'){const st=e.st;if(!st||st.host!==SV.pid||!st.open)return;if(st.mem.length>=st.max||st.mem.some(m=>m[0]===id))return;if(st.fo&&!hubFriend(id))return;st.mem.push([id,fsName(o.nm)||'Player']);hubElSend(e);sysLine('🛗 '+(fsName(o.nm)||'A player')+' joined your room.')}
  else if(sub=='elv'){const st=e.st;if(!st||st.host!==SV.pid)return;st.mem=st.mem.filter(m=>m[0]!==id);hubElSend(e)}}
@@ -16008,6 +16008,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r543',['Continue a co-op run together: when making a room in the multiplayer lobby, tick "Continue our co-op run"']],
  ['r542',['Retro chases are beatable now: the darkness no longer speeds up forever, the courses are shorter and jumps go higher','Chandeliers and steam hang at head height, and a JUMP / DUCK sign flashes over the next obstacle']],
  ['r541',['Sylveon outfits are now a pixel cat in their colours in the retro stages']],
  ['r540',['Retro stages and the 8-bit ending use a pixel version of YOUR outfit','Retro stages work in co-op: same course for everyone, friends shown as ghosts, and they walk out with you in the 8-bit ending']],
@@ -16412,6 +16413,35 @@ function r8Tag(x,s,X,Y,col){x.font='bold 6px "Courier New",monospace';x.textAlig
 /* the ending: your co-op friends walk out with you */
 {const d0=r8EndDraw;r8EndDraw=function(dt){d0.apply(this,arguments);try{const E=END,x=E.r8.x,T=E.t;if(!(T<11||T>=27))return;const now=Date.now(),fr=Object.entries(MP.remotes||{}).filter(([id,r])=>r&&now-(r.t||0)<15000).slice(0,4);
   fr.forEach(([id,r],i)=>{const side=i%2?1:-1,off=(Math.floor(i/2)+1)*14*side,wk=Math.min(1,Math.max(0,(T-1.4-i*.3)/3.2)),gx=124+off*wk,gy=146+wk*48;r8Av(x,gx,gy,wk<1&&(Math.floor(T*8+i)%2),r8Pal(id,r.oc));if(wk>=1)r8Tag(x,fsName(r.name||'Player'),gx+4,gy-2,'#ffe9a8')})}catch(e){}}}
+
+
+/* =====================================================================================================
+   r543: CONTINUE A CO-OP RUN. While you play a co-op run, your game keeps a note of it (door, modifiers, your health
+   and items, who you were with). Back in the multiplayer lobby, whoever makes the room can tick "Continue our co-op
+   run": everyone who gets in starts together and is taken straight to that door, each with their own health and items
+   from that run. Escaping, or the whole team going down, ends the run (and clears the note), same as a solo run.
+   ===================================================================================================== */
+const CSK='doorsCoop1',CONT={cn:0,host:0,t0:0,done:0,shown:0};
+function cLoad(){try{const d=JSON.parse(localStorage.getItem(CSK)||'null');if(!d||!(d.n>=2&&d.n<EXN)||Date.now()-(d.t||0)>7*864e5)return null;return d}catch(e){return null}}
+function cClear(){try{localStorage.removeItem(CSK)}catch(e){}}
+setInterval(()=>{try{if(!(MP.on&&mpOpen().length&&mpSeed))return;if(!(state=='play'||state=='paused'||state=='keypad'||state=='spec'))return;if(HUB.on||(DAILY&&DAILY.on)||(typeof GON=='function'&&GON())||dbgCheat)return;if(n<2||n>=EXN)return;
+ const mates=mpOpen().map(p=>fsName(p.name||'Player')).filter(Boolean).slice(0,3);
+ localStorage.setItem(CSK,JSON.stringify({n:Math.min(EXN-1,typeof mpLatest=='function'?mpLatest():n),mods:Object.keys(MODS||{}),hp:Math.ceil(hp),inv,fb,lf,mates,t:Date.now(),b:BUILD}))}catch(e){}},3000);
+/* the run ending (you escaped, or the last of you went down) clears it, like the solo save */
+{const rc0=runClear;runClear=function(){cClear();return rc0.apply(this,arguments)}}
+/* the option in the MAKE A ROOM panel */
+function cContHtml(){const c=cLoad();if(!c)return '';return '<label style="display:block;margin:10px 0;cursor:pointer;background:#1a2a1a;border:2px solid #6ad89a;border-radius:8px;padding:8px"><input type="checkbox" id="hcont" style="vertical-align:middle;margin-right:6px">▶ <b>Continue our co-op run</b>: door '+c.n+(c.mates&&c.mates.length?' with '+c.mates.map(esc).join(', '):'')+((c.mods||[]).length?'<div style="font-size:12px;opacity:.75">Modifiers: '+esc(modsTxt(c.mods))+' (the run\'s own modifiers are used)</div>':'')+'</label>'}
+{const hc0=hubElCreate;hubElCreate=function(e){const r=hc0.apply(this,arguments);try{if(e.st)e.st.cn=HUB.contN|0;if(HUB.contN)hint('▶ Your room continues your co-op run from door '+HUB.contN+'. Everyone who gets in goes straight there.')}catch(x){}return r}}
+/* while you are in a room, remember whether it is a continue room */
+setInterval(()=>{try{if(!HUB.on||HUB.myE==null)return;const st=hubElSt(HUBEL[HUB.myE]);if(!st)return;CONT.cn=st.cn|0;CONT.host=st.host===SV.pid?1:0;CONT.done=0;CONT.t0=0;
+ if(CONT.cn&&!CONT.shown&&!CONT.host){CONT.shown=1;const c=cLoad();hint('▶ This room continues a co-op run from door '+CONT.cn+'.'+(c&&Math.abs(c.n-CONT.cn)<=3?' You will keep your health and items from it.':''))}}catch(e){}},700);
+function cRestore(){const c=cLoad();if(!c)return;try{const iv={};for(const k in (c.inv||{}))iv[k]=svInt(c.inv[k],999);for(const k of['f','n','r'])if(k in iv)iv[k]=Math.min(1,iv[k]);inv=Object.assign(inv||{},iv);hp=Math.max(1,Math.min(100,nz(c.hp,100)));fb=inv.f?Math.max(0,Math.min(100,nz(c.fb,100))):0;lf=inv.n?Math.max(0,Math.min(100,nz(c.lf,100))):0;updHud()}catch(e){}}
+/* off we go: once the run has started, the room's owner takes everyone to the saved door */
+setInterval(()=>{try{if(!CONT.cn||CONT.done||HUB.on)return;if(state!='play')return;if(n>=CONT.cn){CONT.done=1;return}
+ if(!CONT.t0){CONT.t0=Date.now();return}if(Date.now()-CONT.t0<2500)return;
+ if(!r8Co()){CONT.done=1;const k=CONT.cn;n=k;build();cRestore();hint('▶ Back to door '+k+'.');return}
+ if(!CONT.host)return;CONT.done=1;const k=CONT.cn;mpWarpTo(k);cRestore();mpSend({t:'cw',s:mpS(),n:k,gs:gsPackAll(MP.gs||{})});sysLine('▶ Continuing the co-op run from door '+k+'.')}catch(e){conLog('error','co-op continue: '+e.message)}},500);
+{const mm1=mpMsg;mpMsg=function(key,o){if(o&&o.t=='cw'){try{if((o.s|0)!==(mpSeed|0)||MP.host)return;const k=Math.max(0,Math.min(EXN-1,o.n|0));const g=gsClean(o.gs);if(g)for(const kk in g)if(+kk>0)MP.gs[kk]=g[kk];CONT.done=1;if(k>n){mpWarpTo(k);cRestore();hint('▶ Continuing the co-op run from door '+n+'.')}}catch(e){conLog('error','co-op continue: '+e.message)}return}return mm1.apply(this,arguments)}}
 
 </script><script>
 /* ======================================================================================================
