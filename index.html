@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r582';
+const BUILD='2026-10-15 r583';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -4075,7 +4075,7 @@ function xpTick(q,dt){const lz=P.z-q.OZ;xpCull(q);try{liftTick(q,dt)}catch(e){co
 /* stunt jumps: leave a marked ramp, stay in the air long enough, land it */
 function xpRampAt(q,x,z){for(const r of q.ramps||[]){if(!r.stunt)continue;if(r.ax=='x'){if(z<r.z0||z>r.z1)continue;const u=(x-r.s)*r.dir;if(u>r.len-6&&u<r.len+3)return r}else{if(x<r.x0-1||x>r.x1+1)continue;const u=(z-r.z0)*r.dir;if(u>r.len-6&&u<r.len+3)return r}}return null}
 function xpStuntLand(q,v){const r=v.jr;v.jr=null;if(!r||!(v.jT>.9)||v.wreck)return;const mine=q.seat&&q.seat.v===v;if(!mine)return;SV.xst=SV.xst||{};const first=!SV.xst[r.stunt];SV.xst[r.stunt]=1;const n=Object.keys(SV.xst).length;if(first){gold+=25;try{saveGame()}catch(e){}}snd(880,.12);setTimeout(()=>snd(1320,.15),120);camShake(.3,.3);
- hint('🛹 STUNT JUMP: '+r.stunt+'! '+v.jT.toFixed(1)+'s in the air. '+(first?'+25 gold. ':'')+n+'/7 stunt jumps landed.');if(r.stunt=='GORGE JUMP')try{badge('gorgejump')}catch(e){}if(n>=7)try{badge('stunt')}catch(e){}}
+ hint('🛹 STUNT JUMP: '+r.stunt+'! '+v.jT.toFixed(1)+'s in the air. '+(first?'+25 gold. ':'')+n+'/7 stunt jumps landed.');if(r.stunt=='GORGE JUMP')try{badge('gorgejump')}catch(e){}if(n>=5)try{badge('stunt')}catch(e){}}
 function xpFog(q){let f=lowFx()?190:250;const s=q.seat;if(s&&s.v.K.plane)f+=Math.min(lowFx()?260:360,s.v.y*3.6);else if(vehGround(q,P.x,P.z-q.OZ)>5)f+=140;q.fogX=f-(lowFx()?190:250);return f}
 /* ---- after the whole desert is built: sort the scenery into chunks, pool the lights, build the collision grid ---- */
 function xpAfterBuild(q){try{seamFix(q.g,q)}catch(e){conLog('error','seams: '+e.message)}try{q.glN=groundLayers(q.g)}catch(e){conLog('error','ground layers: '+e.message)}try{xpChunkify(q);xpChunkSplit(q)}catch(e){conLog('error','chunks: '+e.message)}try{xpLights(q)}catch(e){conLog('error','lights: '+e.message)}try{obsGrid(q)}catch(e){}try{xpCull(q,true)}catch(e){}}
@@ -14484,7 +14484,7 @@ const wz=[],crs=[],addX=(x,y,z)=>{const m=mkCross();m.position.set(x,y,z);G.add(
  for(const w of wg)if(w.oc){if(w.kind=='msup')mkMineSupply(w,obs0);else mkCloset(w,obs0)}
  {const cw=wg.find(w=>w.cl);if(cw){dgt=mkDoorGate(L,obs0);cw.dg=dgt}}
  let grin0=null;if(!MINE&&nn%5==3&&CI<0&&!f&&!ofcI&&!wt0&&!mlt&&!ex){for(const k of[.3,.7]){occ.push({s:-1,z:-L*k,h:1.1});rainWin(-L*k);wz.push(-L*k);if(Math.random()<.004)addX(-3.82,1.57,-L*k)}
-  /* GRIN: 1 window room in 100 (never next to a chase, a boss or the finale) */if((grinForce||Math.random()<(MODS.grin?.05:.01))&&nn>=6&&nn<95&&!hh&&!sk&&!boss&&!seek&&!fig){grinForce=0;grin0={z:-L*(Math.random()<.5?.3:.7),done:0}}}
+  /* GRIN: 1 window room in 100 (never next to a chase, a boss or the finale) */if((grinForce||Math.random()<(MODS.grin?.05:.02))&&nn>=6&&nn<95&&!hh&&!sk&&!boss&&!seek&&!fig){grinForce=0;grin0={z:-L*(Math.random()<.5?.3:.7),done:0}}}
  /* end wall with a real doorway, door leaf hinged on the left, flush in the wall */
  const HE=xcr?14:HX,FXS=gal?[-4.8,-2.4,0,2.4,4.8]:itx?[-2.4,0,2.4]:tj?[-10.5,10.5]:xj?[-10.5,0,10.5]:[0],DX=FXS[Math.random()*FXS.length|0],lw=HE+DX-.8,rw=HE-DX-.8;
  /* the wall pieces right of / above / below the doorway continue the wallpaper pattern of the piece to their left instead of restarting it */
@@ -16019,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r583',['Six badges retired: Resident, Not Guilty, Snatched, First Aid, Glowing Grudge, Sharing Is Caring','Stunt Pilot now needs five stunt jumps instead of all seven','Grin turns up twice as often','Badges are also kept in a second backup save, so a bad save can never take one away','Play Desert skips rooms that will not connect and tries the next one, and a failed join no longer leaves the menu stuck over the desert']],
  ['r582',['Co-op crime: everyone out in the desert together sees the crimes, the getaway car, the police chase and the red marks on every map. Anyone can blow up the getaway car, and helpers get the reward','Co-op mine: one shared mine under the quarry. Same tunnels, same veins (a vein someone breaks is gone for everyone), same clock, and it collapses on everyone together','Admin panel: a 🏅 Badge button on every player, to grant them any badge (search included)']],
  ['r581',['THE OLD QUARRY, REBUILT: a 12 m open pit with two terraced benches, rock faces that tile properly (no more stretching), a haul road with a safety berm (no longer buried in the desert), a rim fence, floodlights, a drill rig, an excavator digging the face, a dump truck hauling loads to the crusher, a conveyor to the stockpile, and a site office','THE MINE: ride the cage down from the headframe. A different mine every time: tunnels, timber props, lanterns and ore veins (copper, iron, silver, gold, and rare glowing crystals deeper in)','Each mine COLLAPSES after three minutes (creaks, dust, falling rocks). Get out in time or the crew dig you out minus what you were carrying. A new mine is blasted 20 s later','Dump ore in the MINECART, ride up, then SMELTERY -> pour into the MOLDS -> knock the bars out -> SELLING GRINDER for gold','The foreman at the quarry office has a MINING SHIFT job: 12 ore in the cart and the bars sold, for a 60 gold bonus. Waypoints show you each step']],
  ['r580',['CRIME in the desert: every few minutes someone robs a place and runs for it in a getaway car. A Desert PD cruiser chases them down and arrests them (cuffs and all)','Crimes show up RED on your map, the missile guidance map and the airstrike / orbital strike map','Help the police: ram, blow up or strike the getaway car. Helping pays a reward and is not a crime','PLAY DESERT on the main menu (after your first trip): a public desert. Join whoever is out there, or start one that others join']],
@@ -18691,8 +18692,9 @@ const PDZ={me:null,ads:{},sub:0,busy:0};const PDZT=()=>FRB+'pdz/';
 async function pdzNet(){const cl=await pubConnect();if(!cl)return null;if(!PDZ.sub){PDZ.sub=1;cl.on('message',(t,m)=>{t=String(t);if(!t.startsWith(PDZT()))return;const id=t.slice(PDZT().length);let o=null;try{o=m&&String(m)?JSON.parse(String(m)):null}catch(e){}if(!o||!/^[A-Z0-9]{6}$/.test(String(o.code||''))){delete PDZ.ads[id];return}PDZ.ads[id]={code:String(o.code),sd:o.sd>>>0,nm:fsName(String(o.nm||''))||'Player',n:Math.max(1,Math.min(16,o.n|0)),t:+o.t||0}});cl.subscribe(PDZT()+'+')}return cl}
 async function pdzPlay(){if(PDZ.busy)return;PDZ.busy=1;try{if(BUS.ride||HUB.on||state=='play'){hint('Leave what you are doing first.');return}if(ID.banned){banShow();return}
  let cl=null;try{cl=await pdzNet()}catch(e){}hint('🏜️ Looking for a public desert...');await new Promise(r=>setTimeout(r,1500));
- const now=Date.now(),L=Object.entries(PDZ.ads).filter(([id,a])=>id!==SV.pid&&now-a.t<60000&&a.n<8&&!isBanned(id)).sort((a,b)=>b[1].n-a[1].n);
- if(L.length){const[id,a]=L[0];sysLine('🏜️ Joining '+a.nm+'\'s desert ('+a.n+' out there).');MP.auto=1;try{await pjJoin(a.code);busBoard(true,1,[],a.sd,()=>{if(BUS.ride)BUS.ride.t=26.5});sysLine('🔗 Connected! BUS 13 drops you at the mining shack: the others are out there somewhere.');return}catch(e){sysLine('Could not join that desert: starting your own.')}}
+ const now=Date.now(),L=Object.entries(PDZ.ads).filter(([id,a])=>id!==SV.pid&&now-a.t<35000&&a.n<8&&!isBanned(id)&&!(PDZ.bad&&PDZ.bad[a.code])).sort((a,b)=>b[1].n-a[1].n||b[1].t-a[1].t);
+ for(const[id,a]of L.slice(0,3)){sysLine('🏜️ Joining '+a.nm+'\'s desert ('+a.n+' out there)...');MP.auto=1;try{await pjJoin(a.code);busBoard(true,1,[],a.sd,()=>{if(BUS.ride)BUS.ride.t=26.5});sysLine('🔗 Connected! BUS 13 drops you at the mining shack: the others are out there somewhere.');return}catch(e){(PDZ.bad=PDZ.bad||{})[a.code]=1;try{mpLeave(true)}catch(x){}sysLine('🏜️ Could not reach '+a.nm+'\'s desert (their network blocks direct connections). Trying the next one...')}}
+ if(L.length)sysLine('🏜️ None of the public deserts would connect: starting your own, so others can join you.');
  const sd=(Math.random()*4294967295)>>>0;busBoard(true,0,[],sd);let code='';try{code=await pjHost()}catch(e){sysLine('Could not open your desert to other players: you are on your own this time.');return}
  PDZ.me={code,sd};pdzAd();sysLine('🏜️ You started a PUBLIC DESERT: anyone who presses PLAY DESERT will join you.')}finally{PDZ.busy=0}}
 function pdzAd(clear){try{const cl=PUB.cl;if(!cl||!cl.connected||!PDZ.me)return;if(clear){cl.publish(PDZT()+SV.pid,'',{retain:true,qos:0});return}cl.publish(PDZT()+SV.pid,JSON.stringify({code:PDZ.me.code,sd:PDZ.me.sd,nm:String(SV.nm||'Player').slice(0,16),n:1+(MP.on?mpOpen().length:0),t:Date.now()}),{retain:true,qos:0})}catch(e){}}
@@ -18954,6 +18956,19 @@ function bdPick(nm,onPick){let d=document.getElementById('bdPick');if(d)d.remove
   const give=id=>{const B=BDIDX[id];if(!B||BDNOGRANT.test(id))return;if(pid===SV.pid){badge(id);sysLine('🏅 You gave yourself: '+B[1]+' '+B[2]);return}if(stSend('badge',{to:pid,b:id}))sysLine('🏅 Sent '+nm+' the '+B[1]+' '+B[2]+' badge.')};
   if(arg)give(String(arg));else bdPick(nm,give)}}
 {const sd1=stDo;stDo=function(k,a,nm,id){if(k!=='badge')return sd1.apply(this,arguments);let o;try{o=JSON.parse(a)}catch(e){return}if(!o||o.to!==SV.pid)return;const b=String(o.b||''),B=BDIDX[b];if(!B||BDNOGRANT.test(b))return;const had=!!(SV.bd&&SV.bd[b]);try{badge(b)}catch(e){}abuseBanner('🏅 '+B[1]+' '+B[2],'a badge from 🛡️ '+(nm||'Staff'));sysLine('🏅 '+(nm||'Staff')+' gave you a badge: '+B[1]+' '+B[2]+(had?' (you already had it)':''))}}
+/* ---------- fewer, better badges ---------- */
+{const GONE=['daily30','acquitted','grinned','bpack','honhard','share'];try{for(let i=BD.length-1;i>=0;i--)if(BD[i]&&GONE.includes(BD[i][0]))BD.splice(i,1);for(const k of GONE){delete BDIDX[k];const j=BDI.indexOf(k);if(j>=0)BDI.splice(j,1)}
+ const st=BDIDX.stunt;if(st)st[3]='Land five of the stunt jumps in the desert.'}catch(e){}}
+/* every badge is also kept in a second, separate save, so a bad or overwritten save can never take one away */
+function bdBackup(){try{const o=JSON.parse(localStorage.getItem('doorsBd1')||'{}');let ch=0;for(const k in SV.bd||{})if(!o[k]){o[k]=SV.bd[k];ch=1}if(ch)localStorage.setItem('doorsBd1',JSON.stringify(o))}catch(e){}}
+function bdRestore(){try{const o=JSON.parse(localStorage.getItem('doorsBd1')||'{}');if(!SV.bd)SV.bd={};let add=0;for(const k in o)if(BDIDX[k]&&!SV.bd[k]){SV.bd[k]=+o[k]||Date.now();add++}if(add)saveGame();bdBackup()}catch(e){}}
+{const bg0=badge;badge=function(id){const r=bg0.apply(this,arguments);try{bdBackup()}catch(e){}return r}}
+{const sa2=svApply;svApply=function(){const r=sa2.apply(this,arguments);try{setTimeout(bdRestore,0)}catch(e){}return r}}
+setTimeout(bdRestore,500);
+/* public desert: never pick a stale room, and if one will not connect, try the next before starting your own */
+/* a failed join (or a double click) could leave the title menu sitting on top of a desert you are already in: put you back in it */
+{let since=0;setInterval(()=>{try{const m=$('m');const stuck=BUS.ride&&!BUS.ride.done&&m&&m.style.display!='none'&&(state=='menu'||state=='bus');if(!stuck){since=0;return}if(!since){since=Date.now();return}if(Date.now()-since>1200){since=0;m.style.display='none';state='bus';try{if(!MOB.on)R.domElement.requestPointerLock()}catch(e){}}}catch(e){}},400)}
+{const pp0=pdzPlay;pdzPlay=function(){if(PDZ.busy){hint('🏜️ Already looking for a desert...');return}if(BUS.ride){hint('🏜️ You are already out in the desert.');return}return pp0.apply(this,arguments)}}
 
 </script><script>
 /* ======================================================================================================
