@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r581';
+const BUILD='2026-10-15 r582';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16019,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r582',['Co-op crime: everyone out in the desert together sees the crimes, the getaway car, the police chase and the red marks on every map. Anyone can blow up the getaway car, and helpers get the reward','Co-op mine: one shared mine under the quarry. Same tunnels, same veins (a vein someone breaks is gone for everyone), same clock, and it collapses on everyone together','Admin panel: a 🏅 Badge button on every player, to grant them any badge (search included)']],
  ['r581',['THE OLD QUARRY, REBUILT: a 12 m open pit with two terraced benches, rock faces that tile properly (no more stretching), a haul road with a safety berm (no longer buried in the desert), a rim fence, floodlights, a drill rig, an excavator digging the face, a dump truck hauling loads to the crusher, a conveyor to the stockpile, and a site office','THE MINE: ride the cage down from the headframe. A different mine every time: tunnels, timber props, lanterns and ore veins (copper, iron, silver, gold, and rare glowing crystals deeper in)','Each mine COLLAPSES after three minutes (creaks, dust, falling rocks). Get out in time or the crew dig you out minus what you were carrying. A new mine is blasted 20 s later','Dump ore in the MINECART, ride up, then SMELTERY -> pour into the MOLDS -> knock the bars out -> SELLING GRINDER for gold','The foreman at the quarry office has a MINING SHIFT job: 12 ore in the cart and the bars sold, for a 60 gold bonus. Waypoints show you each step']],
  ['r580',['CRIME in the desert: every few minutes someone robs a place and runs for it in a getaway car. A Desert PD cruiser chases them down and arrests them (cuffs and all)','Crimes show up RED on your map, the missile guidance map and the airstrike / orbital strike map','Help the police: ram, blow up or strike the getaway car. Helping pays a reward and is not a crime','PLAY DESERT on the main menu (after your first trip): a public desert. Join whoever is out there, or start one that others join']],
  ['r579',['A new missile on Silo 1 (two stages, fins, nozzle, markings) with a real flame and a smoke trail that hangs in the sky','A MUSHROOM CLOUD you can see from anywhere: fireball, rising stem, rolling cap, condensation ring, dust surge. The bang arrives late if you are far away','SILO 1 FREIGHT ELEVATOR at the end of the launch control corridor: ride down, walk the tunnel and stand on the catwalk next to the missile','Generals: set your DESERT SPAWN in your office (the panel by the desk). You start every trip there, with your Wraith in its bay','Your parked Wraith waits for the base to load before it goes back in the bay, so it stays saved','Bay security: a big zap and you go FLYING out of the door','APC: higher seat and a bigger viewport, the hull no longer gets in the way','The desert haze no longer follows you back to the hotel','Wraith refit parts no longer flicker against the hull']],
@@ -17836,7 +17837,7 @@ admPanel=function(){const r=myRank();if(!r){acctPanel();return}admOpen=1;const o
 function stPlHtml(){const L=stPlayers(),own=myRank()=='owner'&&!!ID.own,c=stCtx();if(!L.length)return'<div class="uik-empty">Nobody else is in your lobby, co-op game or desert right now.</div>';
  const B=(a,p,l,cls,ttl)=>'<button class="uik-btn sm '+(cls||'')+'" data-st="'+a+'" data-pid="'+uE(p)+'" title="'+(ttl||'')+'">'+l+'</button>';
  return L.map(p=>{const staffT=p.rk=='owner'&&(REG.own||[]).includes(p.u);return '<div class="uik-pl"><div class="who"><b>'+uE(p.nm)+'</b> '+(p.rk?(RKI[p.rk]||''):'')+'<small>'+p.where+' · <span style="font-family:monospace">'+(p.u||'no ID yet')+'</span></small></div><div class="acts">'+
-  B('tp',p.pid,'📍 Go to','cool','Teleport to them')+B('bring',p.pid,'🧲 Bring','cool','Teleport them to you')+B('freeze',p.pid,'🧊 Freeze','','5 seconds')+B('heal',p.pid,'💚 Heal')+B('warn',p.pid,'⚠️ Warn','warn')+B('rank',p.pid,'🎖️ Rank','','Set their army rank, or undo a bust')+
+  B('tp',p.pid,'📍 Go to','cool','Teleport to them')+B('bring',p.pid,'🧲 Bring','cool','Teleport them to you')+B('freeze',p.pid,'🧊 Freeze','','5 seconds')+B('heal',p.pid,'💚 Heal')+B('warn',p.pid,'⚠️ Warn','warn')+B('rank',p.pid,'🎖️ Rank','','Set their army rank, or undo a bust')+B('badge',p.pid,'🏅 Badge','','Grant them a badge')+
   (staffT?'':(p.u?B('kick',p.pid,'👢 Kick','warn')+(isBanned(p.u)?'':B('ban',p.pid,'🚫 Ban','bad')):''))+(own&&p.u&&!staffT?(p.rk=='admin'?B('unadmin',p.pid,'Remove admin'):B('admin',p.pid,'🛡️ Make admin','vio')):'')+'</div></div>'}).join('')}
 
 /* ---------- the DEBUG menu: tabs instead of a long scroll, a teleport tab, a footer that stays put ---------- */
@@ -18642,10 +18643,10 @@ function crBoss(q){try{return cwSlot(q)===0}catch(e){return true}}
 function crSpawn(q){const L=(q.locs||[]).filter(l=>CRSPOTS.test(l.nm)&&!milArea(l.x,l.z,-40)&&Math.hypot(l.x-DPD.X,l.z-DPD.Z)>140);if(!L.length)return;const l=L[Math.random()*L.length|0],K=CRKIND[Math.random()*CRKIND.length|0];
  const id=++CRM.seq;let ox=l.x+8,oz=l.z+8;/* a clear spot near the place, big enough for a car */search:for(let r=6;r<60;r+=3)for(let k=0;k<12;k++){const a=k/12*6.283+r,x=l.x+Math.cos(a)*r,z=l.z+Math.sin(a)*r;let ok=vehGround(q,x,z)==0;if(ok)for(const o of q.obs){if(o.off)continue;if(x>o.x0-4&&x<o.x1+4&&z>o.z0-4&&z<o.z1+4){ok=false;break}}if(ok){ox=x;oz=z;break search}}const c={id,K,loc:l,x:ox,z:oz,st:'rob',t:0,help:0};
  /* the crook: a masked figure with a swag bag */try{const a=mkAvatar('Crook','crook'+id,0,[]);const g=new THREE.Group();g.add(a);const mk=new THREE.Mesh(new THREE.BoxGeometry(.5,.18,.12),VMAT(0x111111));mk.position.set(0,1.62,-.2);g.add(mk);const bag=new THREE.Mesh(new THREE.SphereGeometry(.28,10,8),VMAT(0x8a6a3a,{roughness:1}));bag.position.set(.35,.9,.15);bag.scale.y=1.2;g.add(bag);g.position.set(ox,0,oz);q.g.add(g);c.m=g}catch(e){}
- /* the getaway car, parked and waiting */const kinds=['sedan','truck','buggy'];const v=q.addVeh(kinds[Math.random()*3|0],ox+2.5,oz,Math.random()*6.28);v.npc=1;v.crim=id;v.nogar=1;for(const p of q.props)if(p.veh===v)p.txt=()=>'';c.v=v;c.u={v,stuck:0,bT:0};
+ /* the getaway car, parked and waiting */const kinds=['sedan','truck','buggy'];const v=q.addVeh(kinds[Math.random()*3|0],ox+2.5,oz,Math.random()*6.28);v.npc=1;v.crim=id;v.nogar=1;v.owner='';for(const p of q.props)if(p.veh===v)p.txt=()=>'';c.v=v;c.u={v,stuck:0,bT:0};
  const far=(q.locs||[]).filter(k=>Math.hypot(k.x-l.x,k.z-l.z)>350&&!milArea(k.x,k.z,-40)&&!/Stunt|Phone/.test(k.nm));c.dest=far[Math.random()*far.length|0]||{x:-l.x,z:l.z,nm:'the edge of the map'};
  CRM.list.push(c);hint('📻 DESERT PD: "All units, '+K[2]+' in progress at '+l.nm+'!" 🚨 It is on your map.');try{snd(880,.1);setTimeout(()=>snd(660,.12),160)}catch(e){}}
-function crCopOut(q,c){const v=q.addVeh('cop',DPD.X+(Math.random()-.5)*4,DPD.Z+12,0);v.npc=1;v.nogar=1;v.crimCop=c.id;for(const p of q.props)if(p.veh===v)p.txt=()=>'';try{pdLights(v)}catch(e){}c.cop={v,stuck:0,bT:0};hint('📻 DESERT PD: "Unit 13 responding. Lights and sirens."')}
+function crCopOut(q,c){const v=q.addVeh('cop',DPD.X+(Math.random()-.5)*4,DPD.Z+12,0);v.npc=1;v.nogar=1;v.crimCop=c.id;v.owner='';for(const p of q.props)if(p.veh===v)p.txt=()=>'';try{pdLights(v)}catch(e){}c.cop={v,stuck:0,bT:0};hint('📻 DESERT PD: "Unit 13 responding. Lights and sirens."')}
 function crDrive(q,u,x,z,dt,max){try{return cwDrive(q,u,x,z,dt,max,0)}catch(e){return 1e9}}
 function crEnd(q,c,why){c.st='done';c.why=why;setTimeout(()=>{try{for(const v of[c.v,c.cop&&c.cop.v])if(v&&!v.gone)garRemove(q,v);for(const m of[c.m,c.cm])if(m&&m.parent)m.parent.remove(m)}catch(e){}},why=='escaped'?1000:45000)}
 function crTick(q,dt){if(!q.roam||q.jail||(q.pen&&q.pen.on))return;
@@ -18813,7 +18814,7 @@ function mnXZ(k){const i=k%MN.N,j=k/MN.N|0;return[MN.ox+(i-MN.N/2+.5)*MN.C,MN.oz
 function mnOK(x,z){if(MN.st!='open'&&MN.st!='warn')return Math.hypot(x-MN.ox,z-MN.oz)<1.6;const m=.45,C=MN.cells;if(!C)return false;for(const[dx,dz]of[[-m,-m],[m,-m],[-m,m],[m,m]]){const k=mnCell(x+dx,z+dz);if(k<0||!C[k])return false}for(const n of MN.nodes)if(!n.gone&&Math.hypot(x-n.x,z-n.z)<.55)return false;return true}
 {const dk1=deepOK;deepOK=function(q,x,lz){if(q.deep===5)return mnOK(x,lz);return dk1.apply(this,arguments)}}
 function mnRnd(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646}}
-function mnGen(q){const R=mnRnd(MN.seed=((Math.random()*1e9)|0)+7),N=MN.N,C=new Uint8Array(N*N),st=mnCell(MN.ox,MN.oz);C[st]=1;
+function mnGen(q,sd){const R=mnRnd(MN.seed=sd||(((Math.random()*1e9)|0)+7)),N=MN.N,C=new Uint8Array(N*N),st=mnCell(MN.ox,MN.oz);C[st]=1;
  for(let w=0;w<4;w++){let k=st;for(let s=0;s<34;s++){const i=k%N,j=k/N|0;const dir=[[1,0],[-1,0],[0,1],[0,-1]][R()*4|0];const ni=Math.max(1,Math.min(N-2,i+dir[0])),nj=Math.max(1,Math.min(N-2,j+dir[1]));k=nj*N+ni;C[k]=1;if(R()<.08){for(const[a,b]of[[1,0],[0,1],[1,1]]){const kk=(Math.min(N-2,nj+b))*N+Math.min(N-2,ni+a);C[kk]=1}}}}
  MN.cells=C;
  /* the build */if(MN.g){if(MN.g.parent)MN.g.parent.remove(MN.g);try{disposeObj(MN.g)}catch(e){}}const g=new THREE.Group();q.g.add(g);MN.g=g;MN.nodes=[];const Y=MN.Y,CS=MN.C,H=3.2;
@@ -18835,15 +18836,15 @@ function mnGen(q){const R=mnRnd(MN.seed=((Math.random()*1e9)|0)+7),N=MN.N,C=new 
 }
 function mnHit(q,n){if(q.deep!==5||n.gone||MN.hitT>performance.now())return;if(mnCnt(MN.carry)>=10){hint('🎒 You cannot carry any more (10). Dump it in the minecart by the cage.');snd(180,.08);return}MN.hitT=performance.now()+650;
  snd(180,.08);setTimeout(()=>snd(1400+Math.random()*700,.03),60);try{vfx('spark',n.g.position.x,n.g.position.y,n.g.position.z+q.OZ,{n:8,c:0xffd080});camShake(.08,.1)}catch(e){}n.hp--;n.g.scale.multiplyScalar(.85);
- if(n.hp<=0){n.gone=1;n.g.visible=false;const k=1+(Math.random()<.35?1:0);MN.carry[n.t]=(MN.carry[n.t]|0)+k;snd(900,.08);hint('⛏️ '+ORE[n.t].ic+' '+k+' '+ORE[n.t].nm+' ore! You carry '+mnCnt(MN.carry)+'/10.');if(n.t=='cr')try{badge('crystal')}catch(e){}}}
+ if(n.hp<=0){n.gone=1;n.g.visible=false;try{xmNet(q,'mnh',{sd:MN.seed,i:MN.nodes.indexOf(n)})}catch(e){}const k=1+(Math.random()<.35?1:0);MN.carry[n.t]=(MN.carry[n.t]|0)+k;snd(900,.08);hint('⛏️ '+ORE[n.t].ic+' '+k+' '+ORE[n.t].nm+' ore! You carry '+mnCnt(MN.carry)+'/10.');if(n.t=='cr')try{badge('crystal')}catch(e){}}}
 function mnDump(q){const n=mnCnt(MN.carry);if(!n)return;for(const k in MN.carry){MN.cart[k]=(MN.cart[k]|0)+MN.carry[k]}MN.carry={};snd(200,.15);setTimeout(()=>snd(160,.12),120);MN.cartM.ore.visible=true;MN.cartM.ore.scale.setScalar(.8+Math.min(1.6,mnCnt(MN.cart)*.05));hint('🛒 Clatter. The cart has '+mnCnt(MN.cart)+' ore. It rides up with you in the cage.');if(MN.job)MN.job.dep=mnCnt(MN.cart)}
 function mnRide(q,dir){if(q.xr||q.seat||MN.ride)return;if(dir<0&&MN.st!='open'){hint(MN.st=='closed'?'⛏️ The crew are blasting a new mine. '+Math.ceil(MN.gap-MN.t)+' s.':'⛏️ The shaft is closed: the mine is coming down!');snd(180,.1);return}
  if(dir<0&&!MN.cells)mnGen(q);for(const k in keys)keys[k]=0;P.x=MN.ox;P.z=MN.oz+q.OZ;q.xr={k:'mn',txt:()=>'',act:null};q.deep=5;q.deepY=dir<0?QD.F:MN.Y;MN.ride={dir,t:0};snd(140,.3);hint(dir<0?'⬇️ The cage drops into the dark. Twenty-eight metres of rope.':'⬆️ Up we go. The cart rattles behind you.')}
 function mnTick(q,dt){/* the three-minute life of a mine */MN.t+=dt;
  if(MN.st=='open'){const left=MN.life-MN.t;if(left<60&&!MN.w1){MN.w1=1;if(q.deep===5){hint('⚠️ The timbers CREAK. One minute until this mine comes down.');snd(70,.4)}}if(left<30&&!MN.w2){MN.w2=1;if(q.deep===5){hint('⚠️ Dust is falling from the roof. THIRTY SECONDS. Get to the cage!');snd(60,.5)}}if(left<10&&!MN.w3){MN.w3=1;if(q.deep===5){hint('🚨 ROCKS ARE FALLING. TEN SECONDS!');snd(50,.6)}}
   if(q.deep===5&&left<30){if(Math.random()<dt*(left<10?14:5))try{vfx('dust',P.x+(Math.random()-.5)*5,MN.Y+3,P.z+(Math.random()-.5)*5,{n:3,w:1})}catch(e){}if(left<10)camShake(.12,.1)}
-  if(left<=0)mnCollapse(q)}
- else if(MN.st=='closed'){if(MN.t>=MN.gap){MN.st='open';MN.t=0;MN.w1=MN.w2=MN.w3=0;mnGen(q);const lz=P.z-q.OZ;if(Math.hypot(P.x-MN.ox,lz-MN.oz)<60&&!q.deep)hint('💥 BOOM... the crew have blasted a NEW MINE. The cage is running again.')}}
+  if(left<=0&&!mnFollow())mnCollapse(q)}
+ else if(MN.st=='closed'){if(MN.t>=MN.gap&&!mnFollow()){MN.st='open';MN.t=0;MN.w1=MN.w2=MN.w3=0;mnGen(q);const lz=P.z-q.OZ;if(Math.hypot(P.x-MN.ox,lz-MN.oz)<60&&!q.deep)hint('💥 BOOM... the crew have blasted a NEW MINE. The cage is running again.')}}
  /* the cage ride */const L=MN.ride;if(L){L.t+=dt;const T=7,u=Math.min(1,L.t/T),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,y=L.dir<0?QD.F+(MN.Y-QD.F)*e:MN.Y+(QD.F-MN.Y)*e;q.deepY=y;P.x=MN.ox;P.z=MN.oz+q.OZ;P.dy=y;if(MN.cage)MN.cage.position.y=y;if(Math.random()<dt*3)snd(110+Math.random()*40,.04);
   if(u>=1){MN.ride=null;q.xr=null;snd(220,.2);if(L.dir<0){q.deep=5;q.deepY=MN.Y;P.x=MN.ox+1.6;hint('⛏️ THE MINE. Swing at the ore veins (E), carry it back to the MINECART. '+Math.max(0,Math.ceil(MN.life-MN.t))+' seconds before it comes down.')}
    else{q.deep=0;q.deepY=0;P.x=MN.ox+2.2;P.dy=QD.F;if(MN.cage)MN.cage.position.y=QD.F;mnCartUp(q)}}}
@@ -18899,6 +18900,60 @@ try{BD.push(['miner','⛏️','Shift worker','Complete a mining shift at the Old
 
 /* the mine closes in: a short dark fog while you are down there */
 {const ru5=busRoamUpd;busRoamUpd=function(q,dt){const r=ru5.apply(this,arguments);try{if(q.deep===5&&S.fog){S.fog.color.setHex(0x120c08);S.fog.near=1.5;S.fog.far=26}}catch(e){}return r}}
+
+
+/* =====================================================================================================
+   r582: CO-OP CRIME AND CO-OP MINES.
+   - Crimes now show up for everyone out in the desert together. One player's game runs the crooks and the police and
+     shares them; everybody else sees the getaway car, the police car, the arrest, and the red marks on every map.
+     Anyone can blow the getaway car up (an explosion or a strike near it counts), and helpers get the reward.
+   - The mine under the quarry is the SAME mine for everyone: the same tunnels, the same veins (a vein one player
+     breaks is gone for the others), the same three-minute clock, and it collapses on everyone at once.
+   ===================================================================================================== */
+const CRR={L:[],from:'',t:0,seen:{},m:{}};
+const crCoop=()=>{try{return MP.on&&mpOpen().length>0}catch(e){return false}};
+/* the crime runner shares its crimes four times a second */
+setInterval(()=>{try{const q=BUS.ride;if(!q||!q.roam||!crCoop())return;const L=CRM.list.filter(c=>c.st!='done').map(c=>({i:c.id,k:CRKIND.indexOf(c.K),l:c.loc.nm,st:c.st,x:+c.v.x.toFixed(1),z:+c.v.z.toFixed(1),h:+c.v.h.toFixed(2),vk:c.v.k,cx:c.cop?+c.cop.v.x.toFixed(1):null,cz:c.cop?+c.cop.v.z.toFixed(1):null,ch:c.cop?+c.cop.v.h.toFixed(2):0,w:c.v.wreck?1:0,d:c.dest&&c.dest.nm}));
+  if(L.length||CRR.sent)xmNet(q,'crm',{L});CRR.sent=L.length>0;
+  /* rewards for the helpers once the crook is in the car */for(const c of CRM.list)if((c.st=='home'||c.st=='done')&&c.helpers&&!c.paidR){c.paidR=1;for(const id of c.helpers)xmNet(q,'crrw',{to:id,g:40})}}catch(e){}},250);
+XM.net.crm=(o,id)=>{try{const q=BUS.ride;if(!q)return;const L=Array.isArray(o.L)?o.L.slice(0,4):[];CRR.L=L;CRR.from=id;CRR.t=Date.now();
+  for(const c of L){const K=CRKIND[c.k]||CRKIND[0];const was=CRR.seen[c.i];if(!was)hint('📻 DESERT PD: "All units, '+K[2]+' in progress at '+String(c.l||'somewhere')+'!" 🚨 It is on your map.');else if(was!==c.st){if(c.st=='flee')hint('📻 DESERT PD: "Suspect fleeing towards '+String(c.d||'the desert')+'!"');if(c.st=='cuff')hint('📻 DESERT PD: "Hands where I can see them!"');if(c.st=='home')hint('📻 DESERT PD: "Suspect in custody."')}CRR.seen[c.i]=c.st}}catch(e){}};
+XM.net.crrw=(o,id)=>{try{if(String(o.to)!==SV.pid)return;const g=Math.max(0,Math.min(100,o.g|0));gold+=g;saveGame();updHud();hint('📻 DESERT PD: "Thanks for the help out there." +'+g+' gold.')}catch(e){}};
+XM.net.crhit=(o,id)=>{try{const q=BUS.ride;if(!q)return;const c=CRM.list.find(c=>c.id==o.i);if(!c||!c.v||c.v.wreck)return;q.crimOK=performance.now()+600;try{vehBlow(q,c.v,false)}catch(e){}(c.helpers=c.helpers||[]).includes(id)||c.helpers.push(id)}catch(e){}};
+/* the other players' copies: plain models that follow what the runner sends */
+function crRemTick(q,dt){const fresh=Date.now()-CRR.t<2500?CRR.L:[];const keep={};
+ for(const c of fresh){keep[c.i]=1;let R=CRR.m[c.i];if(!R){R=CRR.m[c.i]={};try{R.car=mkVehModel(c.vk||'sedan');q.g.add(R.car);R.cop=mkVehModel('cop');R.cop.visible=false;q.g.add(R.cop)}catch(e){}}
+  const ln=(m,x,z,h)=>{if(!m)return;m.position.x+=(x-m.position.x)*Math.min(1,dt*8);m.position.z+=(z-m.position.z)*Math.min(1,dt*8);m.position.y=vehGround(q,m.position.x,m.position.z);m.rotation.y=h};
+  if(R.car){if(!R.init){R.car.position.set(c.x,0,c.z);R.init=1}ln(R.car,c.x,c.z,c.h);R.car.visible=!c.w}
+  if(R.cop){if(c.cx!=null){if(!R.cop.visible){R.cop.position.set(c.cx,0,c.cz);R.cop.visible=true}ln(R.cop,c.cx,c.cz,c.ch)}else R.cop.visible=false}}
+ for(const k in CRR.m)if(!keep[k]){const R=CRR.m[k];for(const m of[R.car,R.cop])if(m&&m.parent)m.parent.remove(m);delete CRR.m[k]}}
+{const ru6=busRoamUpd;busRoamUpd=function(q,dt){const r=ru6.apply(this,arguments);try{crRemTick(q,dt)}catch(e){}return r}}
+/* everyone's maps */{const cm0=crMarks;crMarks=function(){const L=cm0.apply(this,arguments);if(Date.now()-CRR.t<2500)for(const c of CRR.L){if(c.st=='home')continue;L.push({x:c.x,z:c.z,st:c.st,K:CRKIND[c.k]||CRKIND[0],cop:c.cx!=null?{v:{x:c.cx,z:c.cz}}:null})}return L}}
+/* blowing up somebody else's crook: an explosion near the getaway car tells the crime runner */
+{const bm3=boom;boom=function(q,x,y,z,mine,pw){const r=bm3.apply(this,arguments);try{if(mine&&Date.now()-CRR.t<2500)for(const c of CRR.L){if(c.w||c.st=='home'||c.st=='cuff')continue;if(Math.hypot(c.x-x,c.z-z)<5+(pw||1)*3){xmNet(q,'crhit',{i:c.i});hint('💥 Direct hit on the getaway car!')}}}catch(e){}return r}}
+/* ---------- one mine for everyone ---------- */
+const MNF={t:0,from:''};
+function mnFollow(){return Date.now()-MNF.t<6000}
+function mnLead(q){if(!crCoop())return true;try{return cwSlot(q)===0}catch(e){return true}}
+setInterval(()=>{try{const q=BUS.ride;if(!q||!q.roam||!crCoop()||!mnLead(q)||!MN.lamp)return;if(MN.st=='open'&&!MN.cells)mnGen(q);const gone=[];MN.nodes.forEach((n,i)=>{if(n.gone)gone.push(i)});xmNet(q,'mn',{sd:MN.seed,st:MN.st,t:+MN.t.toFixed(1),g:gone})}catch(e){}},2000);
+XM.net.mn=(o,id)=>{try{const q=BUS.ride;if(!q||!MN.lamp)return;if(String(id)>SV.pid&&!mnFollow()&&mnLead(q))return;MNF.t=Date.now();MNF.from=id;
+  const st=o.st=='closed'?'closed':'open';if(MN.st=='open'&&st=='closed'){mnCollapse(q)}else if(MN.st!=st){MN.st=st;MN.w1=MN.w2=MN.w3=0}MN.t=Math.max(0,+o.t||0);
+  const sd=o.sd>>>0;if(st=='open'&&sd&&sd!==MN.seed&&q.deep!==5&&!MN.ride){mnGen(q,sd)}
+  if(sd===MN.seed&&Array.isArray(o.g))for(const i of o.g){const n=MN.nodes[i|0];if(n&&!n.gone){n.gone=1;n.g.visible=false}}}catch(e){}};
+XM.net.mnh=(o,id)=>{try{if((o.sd>>>0)!==MN.seed)return;const n=MN.nodes[o.i|0];if(n&&!n.gone){n.gone=1;n.g.visible=false}}catch(e){}};
+/* going down: if a co-op mine is running, use its layout */{const mr0=mnRide;mnRide=function(q,dir){try{if(dir<0&&mnFollow()&&!MN.cells&&MN.seed)mnGen(q,MN.seed)}catch(e){}return mr0.apply(this,arguments)}}
+/* ---------- staff: GRANT A BADGE (the 🏅 Badge button on a player in the admin panel) ---------- */
+const BDNOGRANT=/^(owner|admin)$/;
+function bdPick(nm,onPick){let d=document.getElementById('bdPick');if(d)d.remove();d=document.createElement('div');d.id='bdPick';d.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;width:min(560px,94vw);max-height:80vh;overflow:auto;background:linear-gradient(#1c1a26,#12101a);border:2px solid #b08aff;border-radius:14px;padding:14px;color:#ece6ff;font:14px Georgia,serif;box-shadow:0 12px 40px #000c';
+ const L=BD.filter(b=>b&&!BDNOGRANT.test(b[0]));d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:17px">🏅 Grant a badge to '+uE(nm)+'</b><button data-x="1" style="background:#2a2236;color:#fff;border:1px solid #8a6ad0;border-radius:8px;padding:4px 10px;cursor:pointer">✕</button></div><input id="bdQ" placeholder="Search badges..." style="width:100%;box-sizing:border-box;margin-bottom:8px;background:#0c0a12;color:#fff;border:1px solid #6a5a9a;border-radius:8px;padding:6px 8px;font:14px Georgia"><div id="bdG" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px"></div>';
+ document.body.appendChild(d);for(const ev of['click','mousedown','mouseup','keydown'])d.addEventListener(ev,e=>e.stopPropagation());
+ const draw=f=>{d.querySelector('#bdG').innerHTML=L.filter(b=>!f||(b[2]+' '+b[3]+' '+b[0]).toLowerCase().includes(f)).map(b=>'<button data-b="'+uE(b[0])+'" title="'+uE(b[3]||'')+'" style="text-align:left;background:#221c30;color:#f0eaff;border:1px solid #4a3a6a;border-radius:8px;padding:6px 8px;cursor:pointer">'+b[1]+' '+uE(b[2])+'</button>').join('')};draw('');
+ d.querySelector('#bdQ').addEventListener('input',e=>draw(e.target.value.trim().toLowerCase()));
+ d.addEventListener('click',e=>{if(e.target.closest('[data-x]')){d.remove();return}const b=e.target.closest('[data-b]');if(b){onPick(b.dataset.b);d.remove()}})}
+{const sa1=stAct;stAct=function(act,pid,arg){if(act!=='badge')return sa1.apply(this,arguments);if(!myRank()){hint('🛡️ Staff only.');return}const nm=stName(pid);
+  const give=id=>{const B=BDIDX[id];if(!B||BDNOGRANT.test(id))return;if(pid===SV.pid){badge(id);sysLine('🏅 You gave yourself: '+B[1]+' '+B[2]);return}if(stSend('badge',{to:pid,b:id}))sysLine('🏅 Sent '+nm+' the '+B[1]+' '+B[2]+' badge.')};
+  if(arg)give(String(arg));else bdPick(nm,give)}}
+{const sd1=stDo;stDo=function(k,a,nm,id){if(k!=='badge')return sd1.apply(this,arguments);let o;try{o=JSON.parse(a)}catch(e){return}if(!o||o.to!==SV.pid)return;const b=String(o.b||''),B=BDIDX[b];if(!B||BDNOGRANT.test(b))return;const had=!!(SV.bd&&SV.bd[b]);try{badge(b)}catch(e){}abuseBanner('🏅 '+B[1]+' '+B[2],'a badge from 🛡️ '+(nm||'Staff'));sysLine('🏅 '+(nm||'Staff')+' gave you a badge: '+B[1]+' '+B[2]+(had?' (you already had it)':''))}}
 
 </script><script>
 /* ======================================================================================================
