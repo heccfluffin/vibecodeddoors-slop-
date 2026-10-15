@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r578';
+const BUILD='2026-10-15 r579';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -7675,7 +7675,7 @@ function vehTick(q,dt,fx,sx){const s=q.seat,b=q.inBus,hb=!!keys.Space;skyFollow(
   const lx=b.drv?(v.it.drv?v.it.drv.x:-.7):b.sit>=0?v.it.seats[b.sit].x:b.lx,lz=b.drv?(v.it.drv?v.it.drv.z-.18:v.it.Z0+1.12):b.sit>=0?v.it.seats[b.sit].z-.13:b.lz,[wx,wz]=vehLocal(v,lx,lz);P.x=wx;P.z=wz+q.OZ;P.dy=v.y+DBFH+(b.drv?-.42:b.sit>=0?(v.it.seats[b.sit].dy!=null?v.it.seats[b.sit].dy:-.42):0)+(b.dive>0?-Math.sin(b.dive/1.5*Math.PI)*1.15:0)+Math.sin(q.rt*23)*.008*Math.min(1,Math.abs(v.v)/8);P.yaw+=wrapA(v.h-b.lh);b.lh=v.h;P.sp=0;P.roll=0}
  busEnv(q,dt);
  /* thrown through the air (a blast, a bail-out, an exploding car) */
- if(q.fling&&!s&&!b){const f=q.fling;f.t+=dt;f.vy-=18*dt;const nx=P.x+f.vx*dt,nz=P.z+f.vz*dt;if(nx>-DXB+1&&nx<DXB-1)P.x=nx;else f.vx=0;if(nz-q.OZ<DZN-1&&nz-q.OZ>DZS+1)P.z=nz;else f.vz=0;f.y+=f.vy*dt;P.dy=f.y;P.roll=(P.roll||0)+dt*(f.soft?3:7)*(f.vx>0?1:-1);const gnd=vehGround(q,P.x,P.z-q.OZ);
+ if(q.fling&&!s&&!b){const f=q.fling;f.t+=dt;f.vy-=18*dt;const nx=P.x+f.vx*dt,nz=P.z+f.vz*dt;if((nx>-DXB+1&&nx<DXB-1)||milArea(nx,P.z-q.OZ))P.x=nx;else f.vx=0;if((nz-q.OZ<DZN-1&&nz-q.OZ>DZS+1)||milArea(P.x,nz-q.OZ))P.z=nz;else f.vz=0;f.y+=f.vy*dt;P.dy=f.y;P.roll=(P.roll||0)+dt*(f.soft?3:7)*(f.vx>0?1:-1);const gnd=vehGround(q,P.x,P.z-q.OZ);
   if(f.y<=gnd&&f.vy<0){P.dy=gnd;P.roll=0;q.fling=null;if(f.gorge){deepEnter(q);return}camShake(.4,.3);snd(90,.2);try{vfx('dust',P.x,.2,P.z,{n:10})}catch(e){}if(!f.soft&&f.t>.6)hint('😵 Ow. Still alive, though.')}}
  try{rdTick(q,dt)}catch(e){}try{copTrcTick(q,dt)}catch(e){}shellTick(q,dt);deskTick(q,dt);try{wallsTick(q)}catch(e){}dmapTick(q,dt)}
 const mineEng=q=>q.eng&&q.seat&&q.seat.i==0;
@@ -16019,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r579',['A new missile on Silo 1 (two stages, fins, nozzle, markings) with a real flame and a smoke trail that hangs in the sky','A MUSHROOM CLOUD you can see from anywhere: fireball, rising stem, rolling cap, condensation ring, dust surge. The bang arrives late if you are far away','SILO 1 FREIGHT ELEVATOR at the end of the launch control corridor: ride down, walk the tunnel and stand on the catwalk next to the missile','Generals: set your DESERT SPAWN in your office (the panel by the desk). You start every trip there, with your Wraith in its bay','Your parked Wraith waits for the base to load before it goes back in the bay, so it stays saved','Bay security: a big zap and you go FLYING out of the door','APC: higher seat and a bigger viewport, the hull no longer gets in the way','The desert haze no longer follows you back to the hotel','Wraith refit parts no longer flicker against the hull']],
  ['r578',['X-13 owner lock: only the owner can drive a Wraith. Others can ride in the gunner seat while the owner drives','Wraith bays: the door opens when your Wraith rolls up, closes fast behind you, and opens from inside when you walk up to it','Bay SECURITY PANEL: trust players to let them in. Two ceiling turrets zap anyone else out','Refits are real challenges now: a prototype part goes on, then you prove it (armour under fire, an 8-target salvo, a 50 m/s speed trap, an artillery barrage, 200 m long shots, the 3-tank gauntlet). Fail and the part comes off','New chat video: say "I like like liker"']],
  ['r577',['The APC has a proper driver compartment: armoured viewport, dashboard with gauges and a screen, steering wheel, radios, extinguisher','Door 100: the old Figure tune no longer plays on top of Unhinged II']],
  ['r576',['Door 100: the Figure boiler hall has its own music now, "Unhinged II". It starts from the top every time you reach him']],
@@ -18196,7 +18197,7 @@ function bayBuild(q){if(q.wbay||!q.g||!q.obs)return;const g=new THREE.Group();q.
   const lab=pdTxt('BAY '+(i+1),1.4,.32,'#d8b040','#20261c');lab.position.set(cx,4.75,Z1+.18);g.add(lab);
   const dob=ob(a,b,Z1-.2,Z1+.2);B.doors.push({i,cx,m:dm,lt,ob:dob,u:0,obOn:1,lab})}
  q.anims.push({x:(X0+X1)/2,z:cz,r:250,f:dt=>bayTick(q,dt)});q.obsDirty=1;q.mapR&&q.mapR.push({x0:X0,x1:X1,z0:Z0,z1:Z1,c:'#4a5a5a'});q.mapBg=null;
- /* a Wraith you left in your bay last time is still there */setTimeout(()=>{try{const S=milSV(),i=bayMine(q),pv=q.mil&&q.mil.proto;if(S.bayPark&&i>=0&&pv&&!pv.wreck&&!(q.seat&&q.seat.v===pv)){pv.x=bayX(i);pv.z=(WBAY.z0+WBAY.z1)/2-1;pv.h=0;pv.v=0;pv.bayLock=1;pv.netSnap=1}}catch(e){}B.ready=1},1500);
+ /* a Wraith you left in your bay last time is still there (wait for the Wraith itself to exist first) */{let tries=0;const rs=()=>{try{const S=milSV(),i=bayMine(q),pv=q.mil&&q.mil.proto;if(!pv||i<0){if(++tries<40&&BUS.ride===q){setTimeout(rs,1000);return}B.ready=1;return}if((S.bayPark||S.spawn=='office')&&garOwned('proto')&&!pv.wreck&&!(q.seat&&q.seat.v===pv)){pv.x=bayX(i);pv.z=(WBAY.z0+WBAY.z1)/2-1;pv.h=0;pv.v=0;pv.bayLock=1;pv.netSnap=1;S.bayPark=1}}catch(e){}B.ready=1};setTimeout(rs,1500)}
  /* your bay: a sign with your name */setTimeout(()=>{try{const i=bayMine(q);if(i>=0){const d=B.doors[i];const nl=pdTxt('BAY '+(i+1)+' · '+String(SV.nm||'YOU').toUpperCase().slice(0,12),3.2,.32,'#40c0ff','#0a1420');nl.position.copy(d.lab.position);nl.position.z+=.02;B.g.add(nl);d.lab.visible=false}}catch(e){}},2000)}
 function bayTick(q,dt){const B=q.wbay;if(!B)return;const mine=bayMine(q),lz=P.z-q.OZ,me=q.seat&&q.seat.v;for(const d of B.doors){let want=0;const BN=d.i!==mine&&typeof bayFresh=='function'?bayFresh(q,d.i):null,ok=d.i===mine||!!(BN&&BN.tr.includes(SV.pid));if(ok){const px=me?me.x:P.x,pz=me?me.z:lz;const outside=pz>WBAY.z1&&Math.hypot(px-d.cx,pz-(WBAY.z1+2))<11,inside=Math.abs(px-d.cx)<WBAY.w/2&&pz>WBAY.z1-7&&pz<WBAY.z1+.5;const wr=q.mil&&q.mil.proto;const wrNear=d.i===mine&&wr&&!wr.wreck&&Math.hypot(wr.x-d.cx,wr.z-(WBAY.z1+3))<22&&(me===wr||(q.seat&&q.seat.v===wr));want=(outside||inside||wrNear||d.force>0)?1:0;if(d.force>0)d.force-=dt}if(BN&&BN.open)want=1;
   const pu=d.u;d.u+=(want-d.u)*Math.min(1,dt*(want?1.5:2.4));{const hh=4.5*Math.max(.06,1-d.u*.94);d.m.scale.y=hh/4.5;d.m.position.y=4.5-hh/2}if((pu<.05)!==(d.u<.05)||(pu>.9)!==(d.u>.9))try{snd(d.u>pu?520:360,.08)}catch(e){}
@@ -18273,7 +18274,7 @@ function memDrop(){try{G=new THREE.Group();wards=[];RL=[];drs=[];hands=[];cops=[
   if(typeof q.wtTag=='string')SV.wtTag=q.wtTag.slice(0,12);
   if(q.jl&&typeof q.jl=='object'&&/^(pen|jail)$/.test(q.jl.k))SV.jl={k:q.jl.k,t:Math.max(1,Math.min(36000,q.jl.t|0)),b:Math.max(0,q.jl.b|0)};
   if(q.mine&&typeof q.mine=='object')SV.mine={bars:Math.max(0,Math.min(1e6,q.mine.bars|0)),ore:Math.max(0,Math.min(1e6,q.mine.ore|0)),shifts:Math.max(0,Math.min(1e6,q.mine.shifts|0))};
-  const m=q.mil;if(m&&typeof m=='object'&&SV.mil){SV.mil.pr=Math.max(0,Math.min(99,m.pr|0));SV.mil.wk=Math.max(0,Math.min(6,m.wk|0));SV.mil.bayPark=m.bayPark?1:0;SV.mil.cwSeen=m.cwSeen?1:0;SV.mil.ngSeen=m.ngSeen?1:0;if(Array.isArray(m.btr))SV.mil.btr=m.btr.filter(t=>t&&typeof t.id=='string').slice(0,20).map(t=>({id:t.id.slice(0,40),nm:String(t.nm||'Player').slice(0,16)}));if(m.awv&&typeof m.awv=='object'){SV.mil.awv={};for(const k of Object.keys(m.awv).slice(0,20))if(/^\w{1,12}$/.test(k)&&m.awv[k])SV.mil.awv[k]=1}
+  const m=q.mil;if(m&&typeof m=='object'&&SV.mil){SV.mil.pr=Math.max(0,Math.min(99,m.pr|0));SV.mil.wk=Math.max(0,Math.min(6,m.wk|0));SV.mil.bayPark=m.bayPark?1:0;SV.mil.cwSeen=m.cwSeen?1:0;SV.mil.ngSeen=m.ngSeen?1:0;SV.mil.spawn=m.spawn=='office'?'office':'';if(Array.isArray(m.btr))SV.mil.btr=m.btr.filter(t=>t&&typeof t.id=='string').slice(0,20).map(t=>({id:t.id.slice(0,40),nm:String(t.nm||'Player').slice(0,16)}));if(m.awv&&typeof m.awv=='object'){SV.mil.awv={};for(const k of Object.keys(m.awv).slice(0,20))if(/^\w{1,12}$/.test(k)&&m.awv[k])SV.mil.awv[k]=1}
    if(m.rzv&&typeof m.rzv=='object'){SV.mil.rzv={};for(const k of Object.keys(m.rzv).slice(0,30))if(/^\w{1,12}$/.test(k)&&m.rzv[k])SV.mil.rzv[k]=1}}};
  const sa0=svApply;svApply=function(d){const r=sa0.apply(this,arguments);try{svExtras(d&&d.s)}catch(e){try{conLog('error','save extras: '+e.message)}catch(x){}}return r};
  /* the game already loaded the save before this ran: read the extras back from it now */try{const raw=localStorage.getItem(SAVE_KEY);if(raw)svExtras(JSON.parse(raw).s)}catch(e){}}
@@ -18356,28 +18357,28 @@ function figMusOn(){try{const r=RMS[ci];return !!(r&&r.n==100&&r.fig&&!(r.pz&&r.
 function apcCockpit(g){const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.75,metalness:.2},o||{})),ck=new THREE.Group();ck.visible=false;g.add(ck);
  const B=(w,h,d,x,y,z,m,rx)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);if(rx)o.rotation.x=rx;ck.add(o);return o};
  const IN=M(0x7c8672,{emissive:0x1c2018}),IN2=M(0x5c6454,{emissive:0x14170f}),DK=M(0x1b1d1c),ST=M(0x7a7e84,{metalness:.7,roughness:.35}),RB=M(0x2a2a2a,{roughness:.9});
- const X0=-1.38,X1=1.38,Z0=-2.95,Z1=-.9,Y0=.85,Y1=2.12,W=X1-X0,D=Z1-Z0,cz=(Z0+Z1)/2,cy=(Y0+Y1)/2,H=Y1-Y0;
+ const X0=-1.38,X1=1.38,Z0=-2.95,Z1=-.9,Y0=.85,Y1=2.4,W=X1-X0,D=Z1-Z0,cz=(Z0+Z1)/2,cy=(Y0+Y1)/2,H=Y1-Y0;
  B(W,.06,D,0,Y0,cz,M(0x3a3f38,{roughness:.95}));for(let i=0;i<5;i++)B(W-.1,.012,.05,0,Y0+.035,Z0+.3+i*.4,ST);/* tread plate strips */
  B(W,.06,D,0,Y1,cz,IN2);B(.06,H,D,X0,cy,cz,IN);B(.06,H,D,X1,cy,cz,IN);B(W,H,.06,0,cy,Z1,IN);
- /* the front plate, with the viewport cut in it */const oy0=1.46,oy1=1.97,ox0=-1.28,ox1=.42;B(W,oy0-Y0,.08,0,(Y0+oy0)/2,Z0,IN);B(W,Y1-oy1,.08,0,(oy1+Y1)/2,Z0,IN);B(ox0-X0,oy1-oy0,.08,(X0+ox0)/2,(oy0+oy1)/2,Z0,IN);B(X1-ox1,oy1-oy0,.08,(ox1+X1)/2,(oy0+oy1)/2,Z0,IN);
+ /* the front plate, with the viewport cut in it */const oy0=1.64,oy1=2.22,ox0=-1.3,ox1=.5;B(W,oy0-Y0,.08,0,(Y0+oy0)/2,Z0,IN);B(W,Y1-oy1,.08,0,(oy1+Y1)/2,Z0,IN);B(ox0-X0,oy1-oy0,.08,(X0+ox0)/2,(oy0+oy1)/2,Z0,IN);B(X1-ox1,oy1-oy0,.08,(ox1+X1)/2,(oy0+oy1)/2,Z0,IN);
  const gl=new THREE.Mesh(new THREE.PlaneGeometry(ox1-ox0,oy1-oy0),new THREE.MeshStandardMaterial({color:0x8fb4b0,transparent:true,opacity:.16,roughness:.05,metalness:.4,depthWrite:false}));gl.position.set((ox0+ox1)/2,(oy0+oy1)/2,Z0-.02);ck.add(gl);
  for(const x of[-.7,-.15])B(.05,oy1-oy0,.1,x,(oy0+oy1)/2,Z0,DK);B(ox1-ox0+.08,.05,.12,(ox0+ox1)/2,oy0,Z0+.02,DK);B(ox1-ox0+.08,.05,.12,(ox0+ox1)/2,oy1,Z0+.02,DK);
- /* periscope blocks over the right seat */for(let i=0;i<2;i++){B(.32,.16,.22,.75+i*.38,1.82,Z0+.14,DK);B(.26,.08,.02,.75+i*.38,1.82,Z0+.26,M(0x203028,{emissive:0x0a2018}))}
- /* the dashboard */const dash=B(1.75,.2,.42,-.4,1.36,Z0+.3,M(0x3a403a,{emissive:0x0c0e0c}),-.25);B(1.75,.42,.08,-.4,1.12,Z0+.47,M(0x3a403a,{emissive:0x0c0e0c}));
+ /* periscope blocks over the right seat */for(let i=0;i<2;i++){B(.32,.16,.22,.95+i*.3,2.3,Z0+.14,DK);B(.26,.08,.02,.95+i*.3,2.3,Z0+.26,M(0x203028,{emissive:0x0a2018}))}
+ /* the dashboard */const dash=B(1.75,.2,.42,-.4,1.52,Z0+.3,M(0x3a403a,{emissive:0x0c0e0c}),-.25);B(1.75,.42,.08,-.4,1.28,Z0+.47,M(0x3a403a,{emissive:0x0c0e0c}));
  const gauge=(x,y,c)=>{const r=new THREE.Mesh(new THREE.CircleGeometry(.065,18),M(0x111111,{emissive:c,emissiveIntensity:.35}));r.position.set(x,y,Z0+.52);ck.add(r);const nd=new THREE.Mesh(new THREE.BoxGeometry(.008,.05,.004),M(0xffffff,{emissive:0xffffff}));nd.position.set(x,y+.015,Z0+.525);nd.rotation.z=(x*7)%1.2-.6;ck.add(nd);const rim=new THREE.Mesh(new THREE.TorusGeometry(.068,.008,6,18),ST);rim.position.set(x,y,Z0+.52);ck.add(rim)};
- gauge(-.95,1.2,0x40ff60);gauge(-.78,1.2,0xffb020);gauge(-.52,1.2,0x40c0ff);gauge(-.35,1.2,0xff4030);
- const scr=new THREE.Mesh(new THREE.PlaneGeometry(.34,.2),new THREE.MeshBasicMaterial({color:0x30ff70}));scr.position.set(.05,1.19,Z0+.52);ck.add(scr);B(.38,.24,.02,.05,1.19,Z0+.512,DK);
- for(let i=0;i<6;i++)B(.04,.03,.02,.3+(i%3)*.06,1.1+(i>>1&1)*.05,Z0+.52,M(0x111111,{emissive:[0xff3030,0x30ff30,0xffc030][i%3]}));
- /* the steering wheel on its column */const col=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,.5,10),DK);col.position.set(-.65,1.3,Z0+.6);col.rotation.x=-1.0;ck.add(col);
- const wh=new THREE.Group();wh.position.set(-.65,1.42,Z0+.76);wh.rotation.x=-.95;ck.add(wh);const rim=new THREE.Mesh(new THREE.TorusGeometry(.19,.026,8,26),RB);wh.add(rim);for(let k=0;k<3;k++){const sp=new THREE.Mesh(new THREE.BoxGeometry(.19,.03,.02),DK);sp.rotation.z=k*2.094;sp.position.set(Math.cos(k*2.094)*.095,Math.sin(k*2.094)*.095,0);wh.add(sp)}const hub=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.04,12),DK);hub.rotation.x=Math.PI/2;wh.add(hub);
+ gauge(-.95,1.36,0x40ff60);gauge(-.78,1.36,0xffb020);gauge(-.52,1.36,0x40c0ff);gauge(-.35,1.36,0xff4030);
+ const scr=new THREE.Mesh(new THREE.PlaneGeometry(.34,.2),new THREE.MeshBasicMaterial({color:0x30ff70}));scr.position.set(.05,1.35,Z0+.52);ck.add(scr);B(.38,.24,.02,.05,1.35,Z0+.512,DK);
+ for(let i=0;i<6;i++)B(.04,.03,.02,.3+(i%3)*.06,1.26+(i>>1&1)*.05,Z0+.52,M(0x111111,{emissive:[0xff3030,0x30ff30,0xffc030][i%3]}));
+ /* the steering wheel on its column */const col=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,.5,10),DK);col.position.set(-.65,1.46,Z0+.6);col.rotation.x=-1.0;ck.add(col);
+ const wh=new THREE.Group();wh.position.set(-.65,1.58,Z0+.76);wh.rotation.x=-.95;ck.add(wh);const rim=new THREE.Mesh(new THREE.TorusGeometry(.19,.026,8,26),RB);wh.add(rim);for(let k=0;k<3;k++){const sp=new THREE.Mesh(new THREE.BoxGeometry(.19,.03,.02),DK);sp.rotation.z=k*2.094;sp.position.set(Math.cos(k*2.094)*.095,Math.sin(k*2.094)*.095,0);wh.add(sp)}const hub=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.04,12),DK);hub.rotation.x=Math.PI/2;wh.add(hub);
  /* the radio rack, the map, the extinguisher, ammo cans */B(.5,.55,.3,1.05,1.5,Z1-.2,M(0x3a4136));for(let i=0;i<4;i++)B(.06,.04,.01,.88+i*.1,1.62,Z1-.36,M(0x111111,{emissive:i%2?0x30ff40:0xffb020}));B(.4,.08,.01,1.05,1.42,Z1-.36,DK);
  const ex=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,.45,12),M(0xc01818,{roughness:.4}));ex.position.set(-1.15,1.15,Z1-.12);ck.add(ex);B(.06,.06,.06,-1.15,1.42,Z1-.12,DK);
  for(let i=0;i<2;i++)B(.3,.22,.18,.95,Y0+.14+i*.23,Z1-.5,M(0x4a5a2a));
  const mp=new THREE.Mesh(new THREE.PlaneGeometry(.5,.35),M(0xc8b888,{roughness:1}));mp.position.set(X1-.04,1.55,-1.6);mp.rotation.y=-Math.PI/2;ck.add(mp);
  /* a dome light */B(.22,.03,.12,0,Y1-.04,cz,M(0xfff0c0,{emissive:0xfff0c0,emissiveIntensity:.7}));
  return ck}
-{const ap0=mkApcModel;mkApcModel=function(){const g=ap0.apply(this,arguments);try{const sl=[];g.children.forEach(o=>{if(o.isMesh&&o.geometry&&o.geometry.parameters&&Math.abs(o.position.y-1.85)<.01&&Math.abs(o.position.z+2.6)<.01)sl.push(o)});g.userData.ck=apcCockpit(g);g.userData.slits=sl}catch(e){conLog('error','APC cockpit: '+e.message)}return g}}
-try{VEHK.apc.seats=[[-.65,-1.72,.05]]}catch(e){}
+{const ap0=mkApcModel;mkApcModel=function(){const g=ap0.apply(this,arguments);try{const sl=[];g.children.forEach(o=>{if(o.isMesh&&o.geometry&&o.geometry.parameters&&Math.abs(o.position.y-1.85)<.01&&Math.abs(o.position.z+2.6)<.01)sl.push(o)});g.children.forEach(o=>{const pa=o.isMesh&&o.geometry&&o.geometry.parameters;if(pa&&((pa.width==2.9&&pa.depth==6.8)||(pa.width==2.6&&pa.depth==5.6)))sl.push(o)});g.userData.ck=apcCockpit(g);g.userData.slits=sl}catch(e){conLog('error','APC cockpit: '+e.message)}return g}}
+try{VEHK.apc.seats=[[-.65,-1.72,.27]]}catch(e){}
 function apcCkTick(q){const me=q&&q.seat&&q.seat.v;for(const v of q.vehs||[]){if(v.k!='apc'||!v.m)continue;const u=v.m.userData;if(!u||!u.ck)continue;const on=me===v;if(u.ck.visible!==on){u.ck.visible=on;for(const s of u.slits||[])s.visible=!on}}}
 {const ru1=busRoamUpd;busRoamUpd=function(q,dt){const r=ru1.apply(this,arguments);try{apcCkTick(q)}catch(e){}return r}}
 
@@ -18431,8 +18432,15 @@ function bayDefTick(q,dt){const B=q.wbay;if(!B||!B.def)return;const mine=bayMine
   if(tgt&&d.lock>.6&&Math.random()<dt*6)try{snd(1400+Math.random()*400,.03)}catch(e){}
   if(tgt&&tgt.me&&d.lock>1.4){d.lock=0;bayZap(q,d)}
   if(tgt&&!tgt.me&&d.i===mine&&!d.warned){d.warned=1;hint('🚨 Intruder in your bay: '+(fsName(tgt.nm||'')||'someone')+'. The turrets are on it. (Trust people at the security panel.)')}if(!tgt)d.warned=0}}
-function bayZap(q,d){const BN=bayFresh(q,d.i);snd(220,.25);snd(1800,.1);try{camShake(.5,.4)}catch(e){}try{bsF.style.transition='none';bsF.style.background='#ff2020';bsF.style.opacity=.55;setTimeout(()=>{bsF.style.transition='opacity .8s';bsF.style.opacity=0;setTimeout(()=>bsF.style.background='#000',900)},80)}catch(e){}
- const x=d.cx,z=WBAY.z1+9;if(q.seat){const v=q.seat.v;v.x=x;v.z=z;v.v=0;v.h=0;try{vehDamage(q,v,15)}catch(e){}}else{P.x=x;P.z=z+q.OZ}hint('⚡ BAY '+(d.i+1)+' SECURITY: you are not on '+((BN&&BN.nm)||'the owner')+'\'s trust list. ZAP. You are outside again.')}
+function bayZap(q,d){const BN=bayFresh(q,d.i);if(d.zapT)return;d.zapT=1;const me=q.seat?q.seat.v:null;
+ /* the turrets go to full power: thick white-blue arcs, sparks, crackle */for(const T of d.tur){T.beam.material.color.setHex(0xa0e0ff);T.beam.scale.x=T.beam.scale.z=4;T.beam.visible=true}
+ for(let k=0;k<6;k++)setTimeout(()=>{try{snd(1600+Math.random()*1400,.05);snd(90+Math.random()*60,.08);vfx('spark',me?me.x:P.x,(me?me.y:(P.dy||0))+1.2,(me?me.z:P.z-q.OZ)+q.OZ,{n:14,c:0x9ad8ff});camShake(.25,.15)}catch(e){}},k*60);
+ try{bsF.style.transition='none';bsF.style.background='#bfe8ff';bsF.style.opacity=.7;setTimeout(()=>{bsF.style.background='#ff3030';bsF.style.opacity=.5},90);setTimeout(()=>{bsF.style.transition='opacity .9s';bsF.style.opacity=0;setTimeout(()=>bsF.style.background='#000',1000)},200)}catch(e){}
+ setTimeout(()=>{try{for(const T of d.tur){T.beam.material.color.setHex(0xff3030);T.beam.scale.x=T.beam.scale.z=1}d.zapT=0;d.lock=0;
+  /* ...and OUT you go: launched through the door into the yard */snd(70,.5);snd(220,.25);camShake(.7,.6);const z0=WBAY.z1+.9;
+  if(q.seat){const v=q.seat.v;v.x=d.cx;v.z=z0+2;v.h=Math.PI;v.v=17;v.air=1;v.vy=7.5;v.spin=(Math.random()-.5)*3;try{vehDamage(q,v,10)}catch(e){}}
+  else{P.x=d.cx+(Math.random()-.5);P.z=z0+q.OZ;q.fling={vx:(Math.random()-.5)*3,vz:13,vy:9,y:(P.dy||0)+1,t:0,soft:1}}
+  hint('⚡ BAY '+(d.i+1)+' SECURITY: you are not on '+((BN&&BN.nm)||'the owner')+'\'s trust list. ZAP... and OUT you go.')}catch(e){d.zapT=0}},420)}
 
 {let last=performance.now();const tk=()=>{requestAnimationFrame(tk);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;try{const q=BUS.ride;if(state=='bus'&&q&&q.roam&&q.wbay)bayDefTick(q,dt)}catch(e){}};requestAnimationFrame(tk)}
 /* ---------- REFITS AS CHALLENGES ---------- */
@@ -18484,6 +18492,137 @@ function wkRefit2(n,min,xp){const C=RFC[n];return{id:'refit'+n,nm:'Wraith refit:
 for(let i=0;i<MILOPS.length;i++){const m=/^refit(\d)$/.exec(MILOPS[i].id||'');if(m){const o=MILOPS[i];MILOPS[i]=wkRefit2(+m[1],o.min,o.xp)}}
 /* ---------- chat video: "I like like liker" (or anything close: "like like liker", "i like liker", "like like likers") ---------- */
 try{VIDS.push({ph:['i like like liker','like like liker'],test:w=>/ (i )?like,? (like,? )?likers? /.test(w),id:'likeVid',cap:'👍 I like like liker'})}catch(e){}
+
+/* ---------- Wraith refit parts sit a hair in front of the hull, so they never flicker against it ---------- */
+{const wb0=wkBuild;wkBuild=function(v,l){const r=wb0.apply(this,arguments);try{const u=v.m&&v.m.userData;for(const k of['wkG','wkT','wkB']){const G=u&&u[k];if(G)G.traverse(o=>{if(o.isMesh&&o.material&&!o.material.transparent){if(!o.material.__po){o.material=o.material.clone();o.material.__po=1}o.material.polygonOffset=true;o.material.polygonOffsetFactor=-2;o.material.polygonOffsetUnits=-2}})}}catch(e){}return r}}
+
+
+/* =====================================================================================================
+   r579: THE MISSILE, PROPERLY.
+   - A new missile on Silo 1: two stages, an interstage ring, a black re-entry shroud, swept fins, a nozzle bell, roll
+     markings. On launch: a white-hot flame, a smoke column from the silo, and a long smoke trail that hangs in the sky.
+   - Impact: a real MUSHROOM CLOUD you can see from anywhere on the map. A fireball, a rising stem, a rolling cap that
+     cools from orange to grey, a condensation ring, and a dust surge racing out over the ground. The flash is
+     softer the further away you are, and the bang arrives late (sound travels at 343 m/s).
+   - SILO 1 FREIGHT ELEVATOR at the east end of the launch control corridor: ride it down to the silo, walk the
+     tunnel to the catwalk and stand right next to the missile. (Nobody is allowed down there during a launch.)
+   ===================================================================================================== */
+const NKC={list:[],trail:[],tex:null};
+function nkPuffTex(){if(NKC.tex)return NKC.tex;const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
+ for(let i=0;i<26;i++){const a=Math.random()*6.28,r=Math.random()*30,px=64+Math.cos(a)*r,py=64+Math.sin(a)*r,R=18+Math.random()*22;const g=x.createRadialGradient(px,py,0,px,py,R);const v=200+Math.random()*55|0;g.addColorStop(0,'rgba('+v+','+v+','+v+',.55)');g.addColorStop(.6,'rgba('+(v-30)+','+(v-30)+','+(v-30)+',.25)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.beginPath();x.arc(px,py,R,0,7);x.fill()}
+ const t=new THREE.CanvasTexture(c);NKC.tex=t;return t}
+function nkSprite(col,op,add){const m=new THREE.SpriteMaterial({map:nkPuffTex(),color:col,transparent:true,opacity:op,depthWrite:false,fog:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending});return new THREE.Sprite(m)}
+/* ---------- the missile ---------- */
+function nkMissile(ms){for(let i=ms.children.length-1;i>=0;i--){const c=ms.children[i];if(c.isMesh)ms.remove(c)}
+ const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.45,metalness:.35},o||{})),A=(geo,m,y,par)=>{const o=new THREE.Mesh(geo,m);o.position.y=y;(par||ms).add(o);return o};
+ const WH=M(0xeeeee8),BK=M(0x1a1a1c),GR=M(0x6a6e74,{metalness:.7,roughness:.3}),RD=M(0xb01818);
+ A(new THREE.CylinderGeometry(.55,.95,1.3,20,1,true),M(0x3a3a3c,{metalness:.8,roughness:.35,side:THREE.DoubleSide}),-.25);/* nozzle bell */
+ A(new THREE.CylinderGeometry(1.3,1.3,6.4,24),WH,3.6);for(const y of[1.2,6.2])A(new THREE.CylinderGeometry(1.31,1.31,.35,24),BK,y);
+ for(let k=0;k<4;k++){const q=new THREE.Mesh(new THREE.CylinderGeometry(1.315,1.315,1.2,24,1,true,k*Math.PI/2,Math.PI/4),BK);q.position.y=4.6;ms.add(q)}/* roll pattern */
+ A(new THREE.CylinderGeometry(1.2,1.3,.8,24),GR,7.2);A(new THREE.CylinderGeometry(1.18,1.2,4.6,24),WH,9.9);A(new THREE.CylinderGeometry(1.19,1.19,.25,24),RD,12.0);
+ A(new THREE.CylinderGeometry(.35,1.18,4.0,24),BK,14.2);A(new THREE.SphereGeometry(.36,12,8,0,Math.PI*2,0,Math.PI/2),BK,16.2);
+ for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4,f=new THREE.Mesh(new THREE.BoxGeometry(.12,2.6,1.6),GR);f.position.set(Math.cos(a)*1.85,1.2,Math.sin(a)*1.85);f.rotation.y=-a;f.rotation.z=0;const sw=new THREE.Mesh(new THREE.BoxGeometry(.12,1.2,1.2),GR);sw.position.set(0,1.5,.2);sw.rotation.x=.6;f.add(sw);ms.add(f)}
+ for(let i=0;i<3;i++){const p=new THREE.Mesh(new THREE.BoxGeometry(.4,1.6,.1),GR);const a=i*2.1;p.position.set(Math.cos(a)*1.32,3.4+i*2.5,Math.sin(a)*1.32);p.rotation.y=-a+Math.PI/2;ms.add(p)}
+ const c=document.createElement('canvas');c.width=64;c.height=512;const k=c.getContext('2d');k.fillStyle='#eeeee8';k.fillRect(0,0,64,512);k.fillStyle='#1a1a1c';k.font='bold 44px Arial';k.textAlign='center';k.save();k.translate(32,256);k.rotate(-Math.PI/2);k.fillText('DARK ARMY',0,15);k.restore();
+ for(const sd of[-1,1]){const pl=new THREE.Mesh(new THREE.PlaneGeometry(.55,4.2),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:.5}));pl.position.set(sd*1.32,3.6,0);pl.rotation.y=sd*Math.PI/2;ms.add(pl)}
+ /* the flame: an outer orange cone and a white-hot core, both pointing down out of the nozzle */
+ const fl=new THREE.Group();fl.position.y=-.9;ms.add(fl);const o1=new THREE.Mesh(new THREE.ConeGeometry(1.1,9,18,1,true),new THREE.MeshBasicMaterial({color:0xff8a30,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,side:THREE.DoubleSide}));o1.rotation.x=Math.PI;o1.position.y=-4.5;fl.add(o1);
+ const o2=new THREE.Mesh(new THREE.ConeGeometry(.55,5,14,1,true),new THREE.MeshBasicMaterial({color:0xfff6d0,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false,fog:false,side:THREE.DoubleSide}));o2.rotation.x=Math.PI;o2.position.y=-2.5;fl.add(o2);fl.visible=false;ms.userData.flame=fl;return ms}
+/* ---------- smoke trail ---------- */
+function nkTrail(q,x,y,z,big){const s=nkSprite(big?0xd8d4cc:0xe8e4dc,big?.75:.6);s.position.set(x,y,z);s.scale.setScalar(big?7:3);q.g.add(s);NKC.trail.push({s,t:0,life:big?28:34,g0:big?7:3,g1:big?30:16,vx:(Math.random()-.5)*1.2,vy:big?2.5:.4,vz:(Math.random()-.5)*1.2});if(NKC.trail.length>420){const o=NKC.trail.shift();if(o.s.parent)o.s.parent.remove(o.s);o.s.material.dispose()}}
+/* ---------- the mushroom cloud ---------- */
+function nkCloud(q,x,z){const g=new THREE.Group();g.position.set(x,0,z);q.g.add(g);const C={g,t:0,x,z,ps:[]};
+ const add=(kind,col,op,addB,o)=>{const s=nkSprite(col,op,addB);g.add(s);const p=Object.assign({s,kind,op0:op},o);C.ps.push(p);return p};
+ C.fb=add('fb',0xfff0c0,1,true,{});C.fb2=add('fb',0xff7020,.9,true,{});
+ for(let i=0;i<34;i++)add('stem',0xc89070,.85,false,{u:i/33,a:Math.random()*6.28,r:Math.random()});
+ for(let i=0;i<56;i++)add('cap',0xd09a70,.9,false,{a:i/56*6.283+Math.random()*.1,b:Math.random()*6.283,k:Math.random()});
+ for(let i=0;i<22;i++)add('dome',0xc8a080,.85,false,{a:Math.random()*6.28,r:Math.random(),h:Math.random()});
+ for(let i=0;i<40;i++)add('base',0xc8a878,.7,false,{a:i/40*6.283,k:Math.random()});
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(1,.06,8,48),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,fog:false}));ring.rotation.x=Math.PI/2;g.add(ring);C.ring=ring;
+ const shock=new THREE.Mesh(new THREE.RingGeometry(.92,1,64),new THREE.MeshBasicMaterial({color:0xf0e0c0,transparent:true,opacity:.6,depthWrite:false,fog:false,side:THREE.DoubleSide}));shock.rotation.x=-Math.PI/2;shock.position.y=.6;g.add(shock);C.shock=shock;
+ NKC.list.push(C);return C}
+const nkE=u=>1-Math.pow(1-Math.min(1,Math.max(0,u)),3);
+function nkCloudTick(C,dt){C.t+=dt;const t=C.t,H=24+210*nkE(t/26),R=12+78*nkE(t/30),fade=t>70?Math.max(0,1-(t-70)/30):1,heat=Math.max(0,1-t/14);
+ const col=(p,base,hot)=>{const m=p.s.material;m.color.setHex(base);if(hot>0)m.color.lerp(NKCOL.set(0xff9a40),hot)};
+ for(const p of C.ps){const s=p.s,m=s.material;
+  if(p.kind=='fb'){const k=p===C.fb?1:1.4;s.position.set(0,Math.min(H*.9,6+t*9),0);s.scale.setScalar((20+t*28)*k*(t<4?1:Math.max(.2,1-(t-4)/8)));m.opacity=p.op0*Math.max(0,1-t/(p===C.fb?6:10))}
+  else if(p.kind=='stem'){const y=p.u*H*.92,w=(5+p.u*6+Math.min(8,t*.4))*(1+p.r*.4);s.position.set(Math.cos(p.a+t*.15)*w*.25,y,Math.sin(p.a+t*.15)*w*.25);s.scale.setScalar(w*2.2);m.opacity=p.op0*fade*Math.min(1,t/1.5);col(p,0x8a7a6c,heat*(1-p.u*.5))}
+  else if(p.kind=='cap'){const roll=p.b+t*.6,rr=R*.35;const rx=R+Math.cos(roll)*rr,ry=H+Math.sin(roll)*rr*.8;s.position.set(Math.cos(p.a)*rx,ry,Math.sin(p.a)*rx);s.scale.setScalar(R*.9*(.8+p.k*.5));m.opacity=p.op0*fade*Math.min(1,t/2);col(p,Math.sin(roll)<0?0x6e625a:0x9a8c80,heat*(Math.sin(roll)<0?1:.6))}
+  else if(p.kind=='dome'){const rr=R*(.2+p.r*.7);s.position.set(Math.cos(p.a)*rr,H+R*.25+p.h*R*.35,Math.sin(p.a)*rr);s.scale.setScalar(R*1.1);m.opacity=p.op0*fade*Math.min(1,t/2.5);col(p,0xa09488,heat*.7)}
+  else if(p.kind=='base'){const rr=Math.min(150,8+t*22)*(.85+p.k*.3);s.position.set(Math.cos(p.a)*rr,4+p.k*5,Math.sin(p.a)*rr);s.scale.setScalar(16+t*1.5);m.opacity=p.op0*Math.max(0,1-t/30)*fade;col(p,0xb89c78,0)}}
+ const rg=C.ring;if(t>3&&t<16){const u=(t-3)/13;rg.position.y=H*.62;rg.scale.setScalar(R*.9+u*60);rg.material.opacity=.7*Math.sin(u*Math.PI)}else rg.material.opacity=0;
+ const sh=C.shock;if(t<9){const r=8+t*95;sh.scale.setScalar(r);sh.material.opacity=.55*(1-t/9)}else sh.visible=false;
+ return t<100}
+const NKCOL=new THREE.Color();
+/* the impact: a cloud per warhead, a flash that depends on how far away you are, the bang arriving late */
+function nkImpact(q,t){try{nkCloud(q,t.x,t.z)}catch(e){conLog('error','mushroom: '+e.message)}
+ const lz=P.z-q.OZ,d=Math.hypot(P.x-t.x,lz-t.z);try{bsF.style.transition='none';bsF.style.background='#fff8e8';bsF.style.opacity=d<300?.95:d<700?.6:.35;setTimeout(()=>{bsF.style.transition='opacity 3s';bsF.style.opacity=0},d<300?400:180);setTimeout(()=>{bsF.style.background='#000'},3600)}catch(e){}
+ const lag=Math.min(6,d/343);setTimeout(()=>{try{snd(28,2.6);snd(42,2);snd(65,1.2);camShake(Math.min(1,220/Math.max(60,d)),2.2)}catch(e){}},lag*1000)}
+{const ni1=ngImpact;ngImpact=function(q,t){const r=ni1.apply(this,arguments);try{nkImpact(q,t);const N=q.mil.nuke,ps=N.mirv||[];ps.slice(1).forEach((p,i)=>setTimeout(()=>{try{if(BUS.ride===q)nkCloud(q,p.x,p.z)}catch(e){}},900*(i+1)))}catch(e){}return r}}
+{const nb0=milNukeBoom;milNukeBoom=function(q){const r=nb0.apply(this,arguments);try{bsF.style.opacity=0}catch(e){}return r}}
+/* the per-frame bits: the flame, the trail, the old placeholder cloud hidden, the new clouds */
+{const nt2=milNukeTick;milNukeTick=function(q,dt){const N=q.mil&&q.mil.nuke;const r=nt2.apply(this,arguments);try{if(!N)return r;const m=N.missile;if(m&&!m.userData.nkNew){nkMissile(m);m.userData.nkNew=1}
+  if(N.cloud){N.cloud.cap.visible=false;N.cloud.stem.visible=false}
+  const fl=m&&m.userData.flame,fly=(N.st=='launch'||N.st=='flight')&&m&&m.visible;if(fl){fl.visible=!!fly;if(fly){const f=1+Math.sin(performance.now()*.05)*.12;fl.scale.set(f,1+Math.random()*.25,f)}}
+  if(fly){N.trT=(N.trT||0)-dt;if(N.trT<=0){N.trT=.05;const v=new THREE.Vector3(0,-2.5,0);m.localToWorld(v);nkTrail(q,v.x,v.y,v.z,false)}const u=N.t-2.5;if(u<5&&Math.random()<dt*20)nkTrail(q,N.sx+(Math.random()-.5)*6,2+Math.random()*3,N.sz+(Math.random()-.5)*6,true)}}catch(e){}return r}}
+{let last=performance.now(),rq=null;const tk=()=>{requestAnimationFrame(tk);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;try{const q=BUS.ride;if(q!==rq){rq=q;NKC.list.length=0;NKC.trail.length=0}if(!q)return;
+  for(let i=NKC.list.length-1;i>=0;i--){const C=NKC.list[i];if(!nkCloudTick(C,dt)){if(C.g.parent)C.g.parent.remove(C.g);C.ps.forEach(p=>p.s.material.dispose());NKC.list.splice(i,1)}}
+  for(let i=NKC.trail.length-1;i>=0;i--){const o=NKC.trail[i];o.t+=dt;const u=o.t/o.life;if(u>=1){if(o.s.parent)o.s.parent.remove(o.s);o.s.material.dispose();NKC.trail.splice(i,1);continue}o.s.position.x+=o.vx*dt;o.s.position.y+=o.vy*dt;o.s.position.z+=o.vz*dt;o.s.scale.setScalar(o.g0+(o.g1-o.g0)*nkE(u*1.4));o.s.material.opacity=.65*(1-u)*(1-u)}}catch(e){}};requestAnimationFrame(tk)}
+/* ---------- SILO 1: the freight elevator and the catwalk round the missile ---------- */
+const SILO={x:578,z:-700,el:{x0:553.6,x1:559.6,z0:-694.6,z1:-687.6},Y:-14,ta:{x0:559.4,x1:580,z0:-692.4,z1:-688.4},tb:{x0:576,x1:580,z0:-695.2,z1:-688.4}};
+const silIn=(r,x,z,m)=>x>r.x0+m&&x<r.x1-m&&z>r.z0+m&&z<r.z1-m;
+function siloOK(x,z){const m=.35;if(silIn(SILO.el,x,z,m)||silIn(SILO.ta,x,z,m)||silIn(SILO.tb,x,z,m))return true;const d=Math.hypot(x-SILO.x,z-SILO.z);return d>2.45&&d<5.5}
+{const dk0=deepOK;deepOK=function(q,x,lz){if(q.deep===4)return siloOK(x,lz);return dk0.apply(this,arguments)}}
+function siloBuild(q){const ML=q.mil;if(!ML||!ML.nuke||q.siloB)return;q.siloB=1;const g=new THREE.Group();q.g.add(g);q.silo={g};
+ const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.7,metalness:.25},o||{})),B=(w,h,d,x,y,z,m)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);g.add(o);return o};
+ const CON=M(0x7a7c78,{emissive:0x101210}),DK=M(0x2a2c30),ST=M(0x8a9098,{metalness:.7,roughness:.35}),YL=M(0xe8c020,{emissive:0x302400}),LIT=M(0xfff4d0,{emissive:0xffe8b0}),RL=M(0x300000,{emissive:0xff3020});const Y=SILO.Y,E=SILO.el;
+ /* top: the cage at the end of the corridor */const ex=(E.x0+E.x1)/2,ez=(E.z0+E.z1)/2;for(const[x,z]of[[E.x0,E.z0],[E.x0,E.z1],[E.x1,E.z0],[E.x1,E.z1]])B(.18,4,.18,x,2,z,YL);
+ for(const z of[E.z0,E.z1]){for(let i=0;i<10;i++)B(.04,3.8,.04,E.x0+.3+i*.6,1.9,z,ST);B(E.x1-E.x0,.1,.1,ex,3.9,z,YL)}for(let i=0;i<11;i++)B(.04,3.8,.04,E.x1,1.9,E.z0+.3+i*.63,ST);
+ const plat=new THREE.Group();g.add(plat);const pl=new THREE.Mesh(new THREE.BoxGeometry(E.x1-E.x0-.2,.2,E.z1-E.z0-.2),M(0x4a4e54,{metalness:.6}));pl.position.set(ex,.02,ez);plat.add(pl);for(const sd of[-1,1]){const s=new THREE.Mesh(new THREE.BoxGeometry(E.x1-E.x0-.3,.02,.25),YL);s.position.set(ex,.13,ez+sd*(E.z1-E.z0)/2.6);plat.add(s)}
+ const rail=new THREE.Mesh(new THREE.BoxGeometry(.08,1.1,E.z1-E.z0-.3),ST);rail.position.set(E.x1-.2,.6,ez);plat.add(rail);q.silo.plat=plat;
+ const cv=document.createElement('canvas');cv.width=512;cv.height=96;const k=cv.getContext('2d');k.fillStyle='#e8c020';k.fillRect(0,0,512,96);k.fillStyle='#1a1a1a';k.font='bold 34px Arial';k.textAlign='center';k.fillText('SILO 1 · FREIGHT ELEVATOR',256,44);k.font='24px Arial';k.fillText('CATWALK LEVEL −14 m',256,80);
+ const sg=new THREE.Mesh(new THREE.PlaneGeometry(3.4,.64),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(cv)}));sg.position.set(E.x0-.02,3.2,ez);sg.rotation.y=-Math.PI/2;g.add(sg);
+ /* the shaft below the cage, the room at the bottom */for(const z of[E.z0-.1,E.z1+.1])B(E.x1-E.x0+.4,14.2,.2,ex,Y/2-.1,z,CON);B(.2,14.2,E.z1-E.z0,E.x0-.1,Y/2-.1,ez,CON);B(E.x1-E.x0,.2,E.z1-E.z0,ex,Y-.1,ez,M(0x4a4c50));
+ /* the tunnel: floor, ceiling, walls, pipes, lights */const TA=SILO.ta,TB=SILO.tb,th=3.4;
+ const tun=(r,openW,openE,openN,openS)=>{const cx=(r.x0+r.x1)/2,cz=(r.z0+r.z1)/2,w=r.x1-r.x0,d=r.z1-r.z0;B(w,.2,d,cx,Y-.1,cz,M(0x4a4c50,{roughness:.9}));B(w,.2,d,cx,Y+th,cz,CON);if(!openN)B(w,th,.2,cx,Y+th/2,r.z0-.1,CON);if(!openS)B(w,th,.2,cx,Y+th/2,r.z1+.1,CON);if(!openW)B(.2,th,d,r.x0-.1,Y+th/2,cz,CON);if(!openE)B(.2,th,d,r.x1+.1,Y+th/2,cz,CON)};
+ tun(TA,true,false,true,false);/* the north wall has the doorway into the short tunnel to the shaft */B(TB.x0-TA.x0,th,.2,(TA.x0+TB.x0)/2,Y+th/2,TA.z0-.1,CON);
+ {const cx=(TB.x0+TB.x1)/2,d=TA.z0-TB.z0;B(TB.x1-TB.x0,.2,d,cx,Y-.1,(TB.z0+TA.z0)/2,M(0x4a4c50,{roughness:.9}));B(TB.x1-TB.x0,.2,d,cx,Y+th,(TB.z0+TA.z0)/2,CON);B(.2,th,d,TB.x0-.1,Y+th/2,(TB.z0+TA.z0)/2,CON);B(.2,th,d,TB.x1+.1,Y+th/2,(TB.z0+TA.z0)/2,CON)}
+ for(const[c,dy]of[[0xb01818,0],[0x8a8a8a,.18],[0xe8c020,.36]]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,TA.x1-TA.x0,8),M(c,{metalness:.5}));p.rotation.z=Math.PI/2;p.position.set((TA.x0+TA.x1)/2,Y+th-.35-dy*.0,TA.z1-.25-dy);g.add(p)}
+ for(let x=TA.x0+2;x<TA.x1;x+=4)B(1,.06,.25,x,Y+th-.06,(TA.z0+TA.z1)/2,LIT);B(.25,.06,1,(TB.x0+TB.x1)/2,Y+th-.06,(TB.z0+TA.z0)/2,LIT);
+ const ar=document.createElement('canvas');ar.width=512;ar.height=96;const a2=ar.getContext('2d');a2.fillStyle='#1a1a1a';a2.fillRect(0,0,512,96);a2.fillStyle='#e8c020';a2.font='bold 40px Arial';a2.textAlign='center';a2.fillText('SILO 1  ➜',256,62);const as=new THREE.Mesh(new THREE.PlaneGeometry(1.8,.34),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(ar)}));as.position.set(E.x1+3,Y+2.3,TA.z1-.02);as.rotation.y=Math.PI;g.add(as);
+ /* the silo shaft: a concrete tube round the missile, rings of pipes, red warning lights, the catwalk */
+ const shaft=new THREE.Mesh(new THREE.CylinderGeometry(6,6,24,40,1,true),new THREE.MeshStandardMaterial({color:0x8a8c88,roughness:.95,side:THREE.BackSide,emissive:0x141614}));shaft.position.set(SILO.x,-8.5,SILO.z);g.add(shaft);
+ const bot=new THREE.Mesh(new THREE.CircleGeometry(6,40),M(0x2a1a10,{emissive:0x401808}));bot.rotation.x=-Math.PI/2;bot.position.set(SILO.x,-20.4,SILO.z);g.add(bot);
+ for(const y of[-19,-16,-10,-6,-2]){const r=new THREE.Mesh(new THREE.TorusGeometry(5.85,.1,6,48),ST);r.rotation.x=Math.PI/2;r.position.set(SILO.x,y,SILO.z);g.add(r)}
+ for(let i=0;i<6;i++){const a=i/6*6.283;B(.25,.25,.15,SILO.x+Math.cos(a)*5.9,Y+2.6,SILO.z+Math.sin(a)*5.9,RL).rotation.y=-a}
+ const cw=new THREE.Mesh(new THREE.RingGeometry(2.2,5.98,48,1),new THREE.MeshStandardMaterial({color:0x5a5e64,metalness:.6,roughness:.5,side:THREE.DoubleSide}));cw.rotation.x=-Math.PI/2;cw.position.set(SILO.x,Y,SILO.z);g.add(cw);
+ const rl=new THREE.Mesh(new THREE.TorusGeometry(2.25,.04,6,48),YL);rl.rotation.x=Math.PI/2;rl.position.set(SILO.x,Y+1.05,SILO.z);g.add(rl);for(let i=0;i<16;i++){const a=i/16*6.283;B(.05,1.05,.05,SILO.x+Math.cos(a)*2.25,Y+.52,SILO.z+Math.sin(a)*2.25,YL)}
+ for(let i=0;i<8;i++){const a=i/8*6.283;B(.4,.06,.12,SILO.x+Math.cos(a)*5.7,Y+3.2,SILO.z+Math.sin(a)*5.7,LIT).rotation.y=-a}
+ /* the tunnel mouth into the shaft */B(4.2,.2,1,(TB.x0+TB.x1)/2,Y-.1,TB.z0-.4,M(0x4a4c50));
+ /* props */q.props.push({x:ex-1,z:ez,r:2,deep:0,txt:()=>q.seat||q.deep?'':siloWhy(q)||'[E] ⬇️ Take the freight elevator down to SILO 1',act:()=>siloRide(q,-1)});
+ q.props.push({x:ex,z:ez,r:2.2,deep:1,txt:()=>q.deep===4&&!q.xr?'[E] ⬆️ Ride the elevator up to launch control':'',act:()=>{if(q.deep===4)siloRide(q,1)}});
+ q.props.push({x:SILO.x,z:SILO.z+4,r:1.6,deep:1,txt:()=>q.deep===4?'[E] 📋 Read the maintenance tag on the missile':'',act:()=>{if(q.deep!==4)return;const N=ML.nuke;snd(300,.05);hint(N.cool>0||N.st!='idle'?'📋 "SILO 1 · RELOADING · DO NOT ENTER BELOW THE CATWALK". The cradle is empty.':'📋 "SILO 1 · DARK ARMY · STAGE 1 & 2 FUELLED · LAST INSPECTED: YESTERDAY · INSPECTOR: SEEK". Somebody has drawn a little eye on it.')}});
+ q.anims.push(dt=>{try{siloTick(q,dt)}catch(e){}})}
+function siloWhy(q){const N=q.mil&&q.mil.nuke;if(milRank()<7&&!(q.mil&&q.mil.auth))return'🔒 Silo access: Lieutenant Colonel and up.';if(N&&(N.st=='count'||N.st=='launch'||N.st=='flight'))return'⛔ SILO SEALED: launch in progress.';return''}
+function siloRide(q,dir){if(q.xr||q.seat)return;if(dir<0){const w=siloWhy(q);if(w){hint(w);snd(180,.1);return}}const E=SILO.el,ex=(E.x0+E.x1)/2,ez=(E.z0+E.z1)/2;for(const k in keys)keys[k]=0;P.x=ex;P.z=ez+q.OZ;
+ q.xr={k:'silo',txt:()=>'',act:null};q.deep=4;q.deepY=dir<0?0:SILO.Y;q.silo.ride={dir,t:0};snd(140,.3);hint(dir<0?'⬇️ The freight elevator drops into the rock. Fourteen metres of it.':'⬆️ Back up to launch control.')}
+function siloTick(q,dt){const S=q.silo;if(!S)return;const L=S.ride,N=q.mil.nuke;
+ if(L){L.t+=dt;const T=6,u=Math.min(1,L.t/T),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,y=L.dir<0?SILO.Y*e:SILO.Y*(1-e);S.plat.position.y=y;q.deepY=y;const E=SILO.el;P.x=(E.x0+E.x1)/2;P.z=(E.z0+E.z1)/2+q.OZ;P.dy=y;if(Math.random()<dt*3)snd(110+Math.random()*40,.04);
+  if(u>=1){S.ride=null;q.xr=null;snd(220,.2);if(L.dir<0){q.deep=4;q.deepY=SILO.Y;P.x=E.x1+1.2;hint('🚀 SILO 1, catwalk level. The tunnel leads east to the shaft.')}else{q.deep=0;q.deepY=0;S.plat.position.y=0;P.x=E.x0-1;P.dy=0;hint('🏢 Launch control.')}}}
+ else if(q.deep!==4&&S.plat.position.y!==0)S.plat.position.y=0;
+ /* the missile sits in its cradle when you are down here */const m=N&&N.missile;if(m&&N.st=='idle'){const show=q.deep===4&&!(N.cool>0);if(m.visible!==show){m.visible=show;m.position.set(N.sx,-18,N.sz);m.quaternion.set(0,0,0,1);m.rotation.set(0,0,0)}}
+ /* nobody stays down there for a launch */if(q.deep===4&&!S.ride&&N&&(N.st=='count'||N.st=='launch')){q.deep=0;q.deepY=0;q.xr=null;const E=SILO.el;P.x=E.x0-1.5;P.z=(E.z0+E.z1)/2+q.OZ;P.dy=0;try{xmFade(()=>{},10)}catch(e){}hint('🚨 The silo crew haul you up the ladder: NOBODY stays in the silo for a launch.')}
+ /* it is dark down here */if(q.deep===4)q.ugK=(q.ugK==null?1:q.ugK)+(.28-(q.ugK==null?1:q.ugK))*Math.min(1,dt*3)}
+setInterval(()=>{try{const q=BUS.ride;if(q&&q.roam&&q.mil&&q.mil.nuke)siloBuild(q)}catch(e){conLog('error','silo: '+e.message)}},1000);
+/* ---------- Generals: set your desert spawn in your office (your Wraith waits in its bay) ---------- */
+function ofSpawnPt(q){const i=cwSlot(q);return{x:CWB.x0+i*10+5,z:CWB.z0+5,i}}
+function ofSpawnProps(q){if(q.ofSpP||!q.cw)return;q.ofSpP=1;for(let i=0;i<4;i++){const x=CWB.x0+i*10+7.6,z=CWB.z0+3.2;q.props.push({x,z,r:1.5,txt:()=>{if(q.seat||cwSlot(q)!==i||milRank()<9)return'';return milSV().spawn=='office'?'[E] 🛏️ Desert spawn: YOUR OFFICE (press to go back to the bus stop)':'[E] 🛏️ Set your desert spawn here: start every desert trip in your office'},act:()=>{if(cwSlot(q)!==i||milRank()<9)return;const S=milSV();S.spawn=S.spawn=='office'?'':'office';milSave();snd(600,.08);hint(S.spawn?'🛏️ Desert spawn set: from now on you arrive in your office at Fort Blackout'+(garOwned('proto')?', with your Wraith waiting in its bay.':'.'):'🛏️ Desert spawn reset: you arrive at the bus stop again.')}})}}
+{const ru2=busRoamUpd;busRoamUpd=function(q,dt){try{ofSpawnProps(q);if(q.roam&&!q.spDone){q.spDone=1;const S=milSV();if(S.spawn=='office'&&milRank()>=9&&!MP.on){const p=ofSpawnPt(q);P.x=p.x;P.z=p.z+q.OZ;P.dy=0;P.yaw=0;q.safe={x:p.x,z:p.z};setTimeout(()=>hint('🛏️ Good morning, General. Your office at Fort Blackout.'+(garOwned('proto')?' Your Wraith is in its bay out back.':'')),800)}}}catch(e){}return ru2.apply(this,arguments)}}
+
+/* ---------- the desert's sandy haze no longer follows you back to the hotel ---------- */
+const DSKF={f:null};
+{const bb1=busBoard;busBoard=function(){try{if(!BUS.ride&&S.fog)DSKF.f=[S.fog.color.getHex(),S.fog.near,S.fog.far,S.background&&S.background.isColor?S.background.getHex():null]}catch(e){}return bb1.apply(this,arguments)}}
+{let had=0;setInterval(()=>{try{if(BUS.ride){had=1;return}if(had&&DSKF.f&&S.fog){had=0;const f=DSKF.f;S.fog.color.setHex(f[0]);S.fog.near=f[1];S.fog.far=f[2];if(f[3]!=null&&S.background&&S.background.isColor)S.background.setHex(f[3]);try{setFog()}catch(e){}}}catch(e){}},250)}
 
 </script><script>
 /* ======================================================================================================
