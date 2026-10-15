@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-14 r559';
+const BUILD='2026-10-15 r560';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16018,6 +16018,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r560',['Joining a co-op room tells you the real reason when it fails (e.g. your network is blocking direct connections) instead of always saying "No game with that code"','One failed matchmaking attempt no longer locks your game onto the old service for the rest of the session']],
  ['r559',['DOORS now has its OWN SERVER: the lobby, public rooms, leaderboards and matchmaking run on it instead of public message boards (the game itself is still player to player)','Bans are enforced by the server: a banned device AND its internet connection are turned away','Owner/admin panel: an Online now list with KICK (out for 10 minutes)','If the server is ever down, the game falls back to the old public boards']],
  ['r558',['COMMAND WING: Generals get their own office (one each in co-op) with a terminal that sends squads out on missions: watch them drive there, do the job and come back, and get paid','WRAITH AUTOPILOT: press L and it drives itself home to Hangar 1 (the door opens for it); the hangar door closes by itself after 20 s','The Wraith is named after its mark (X-13 WRAITH Mk III...)','Generals and up: the police leave you alone; at 4+ stars the police give up after losing 3 cars','Police officers are now Seeks in different colours; the HQ sign fits; the bike rack outside the station is fixed','The AH-4 gets a proper nose and bubble canopies; the base radar dish is a real dish now','El Goblino Gas door works again','Less of a stall when you arrive in the desert']],
  ['r556',['WRAITH REFIT STATION in Hangar 1: drive onto the pad and watch the crane, robot arms and crew fit each new part','Hangar 1 security: a laser grid and four ceiling laser turrets for anyone not cleared','The ops board lists every job your rank can do (scroll for the older ones)','Figure Cola: Figure takes the can out of the machine, drinks it dry, crushes it, and it is gone','Each holiday Daily Run has its own ending (+5 bonus collectables)','Halloween candy is easier to pick up','Launch keys tilt the right way and sit on a proper stand']],
@@ -17487,8 +17488,13 @@ function mqConnect(url,opt){if(url===DSRV.ws)return new SrvCl(url,opt);if(DSRV.b
 function pubLib(){if(DSRV.down){return pubLibCDN()}return Promise.resolve()}
 /* ---------- matchmaking ---------- */
 {const pn0=pjNew;pjNew=function(id){if(DSRV.pjDead||DSRV.pjCloud||!window.Peer)return pn0(id);return new Peer(id,{host:DSRV.host.split(':')[0],port:DSRV.loc?+(DSRV.host.split(':')[1]||80):443,path:'/',secure:!DSRV.loc,key:'doors',config:{iceServers:mpIce()},debug:0})}}
-{const h0=pjHost;pjHost=async function(){try{return await h0.apply(this,arguments)}catch(e){if(DSRV.pjDead||/free room code/.test(String(e)))throw e;conLog('co-op','DOORS server matchmaking failed ('+e+'), using the old service');DSRV.pjDead=1;return h0.apply(this,arguments)}}}
-{const j0=pjJoin;pjJoin=async function(code){try{return await j0.apply(this,arguments)}catch(e){if(DSRV.pjDead||DSRV.pjCloud||DSRV.banned||DSRV.kickUntil>Date.now())throw e;/* not on the DOORS server: an older version may be hosting on the old service */DSRV.pjCloud=1;try{return await j0.apply(this,arguments)}finally{DSRV.pjCloud=0}}}}
+{const h0=pjHost;pjHost=async function(){try{return await h0.apply(this,arguments)}catch(e){if(DSRV.pjDead||/free room code/.test(String(e)))throw e;conLog('co-op','DOORS server matchmaking failed ('+e+'), using the old service this time');DSRV.pjDead=1;setTimeout(()=>{DSRV.pjDead=0},5*60*1000);return h0.apply(this,arguments)}}}
+{const j0=pjJoin;pjJoin=async function(code){let e1=null;
+ /* try your server first, then the old service; if both fail, report the most useful reason (not just "no game") */
+ const order=DSRV.pjDead?[1,0]:[0,1];
+ for(const cloud of order){if(!cloud&&(DSRV.banned||DSRV.kickUntil>Date.now()))continue;DSRV.pjCloud=cloud;try{const r=await j0.apply(this,arguments);if(!cloud)DSRV.pjDead=0;return r}catch(e){const msg=String(e&&e.message||e);conLog('co-op','join via '+(cloud?'old service':'DOORS server')+' failed: '+msg);if(!e1||(/No game with that code/.test(String(e1))&&!/No game with that code/.test(msg)))e1=e}finally{DSRV.pjCloud=0}}
+ if(e1&&/Timed out connecting|Could not connect/.test(String(e1)))throw 'Found the room, but could not connect to the host directly. One of your networks may be blocking direct connections (common on school wifi or mobile data). Try another network, or the manual codes.';
+ throw e1}}
 /* ---------- bans and kicks from the server ---------- */
 function srvBanned(d){DSRV.banned=d;try{for(const c of SRVCL)c.ended=true}catch(e){}ID.banned={by:d.by||'the staff',at:Date.now(),why:(d.conn?'This internet connection is banned (another account was banned on it). ':'')+(d.why||'')};try{banShow()}catch(e){}}
 function srvKicked(why){DSRV.kickUntil=Date.now()+10*60*1000;try{if(MP.on)mpLeave(true)}catch(e){}try{if(HUB.on)hubLeave(true)}catch(e){}try{if(state=='bus'||state=='play')clearAll&&0}catch(e){}
