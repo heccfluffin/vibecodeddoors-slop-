@@ -192,7 +192,7 @@ export class Hub {
     if (await uidOf(String(d.x), String(d.y)) !== k.by || !await verify(String(d.x), String(d.y), kickBody(k), String(d.s))) return no('Could not check who sent the kick.');
     const own = (this.reg.own || []).includes(k.by), adm = !!(this.reg.adm && this.reg.adm[k.by]);
     if (!own && !adm) return no('Only the owner and admins can kick.');
-    if ((this.reg.own || []).includes(k.u) || (!own && this.reg.adm[k.u])) return no('You cannot kick that player.');
+    /* r563: admins have the owner's powers here, so they can kick other admins too (never the owner, never themselves) */if ((this.reg.own || []).includes(k.u) || k.u === k.by) return no('You cannot kick that player.');
     /* a kick is for the device only (a ban is device AND connection): so family/school wifi is not caught by a kick */const until = Date.now() + KICK_MS; this.blk['u:' + k.u] = until;
     for (const key in this.blk) if (this.blk[key] < Date.now()) delete this.blk[key];
     const bk = Object.keys(this.blk); if (bk.length > MAX_BLK) { bk.sort((a, b) => this.blk[a] - this.blk[b]); for (let i = 0; i < bk.length - MAX_BLK; i++) delete this.blk[bk[i]] }
