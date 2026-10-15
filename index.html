@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r560';
+const BUILD='2026-10-15 r561';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -6527,7 +6527,7 @@ function milHit(q,n,by){if(q.seat)milVehDmg(q,q.seat.v,n);else if(!q.inBus)milHu
 /* ---------- hostility ---------- */
 function milHostile(q){const M=q.mil;if(!M)return false;if(M.h>0)return true;if(milRank()>=1)return false;return M.fire}
 function milGoHostile(q,why,quiet){const M=q.mil;if(!M)return;const was=M.h>0;M.h=240;if(!was){snd(60,.6);setTimeout(()=>snd(90,.6),300);if(!quiet)hint('🚨 FORT BLACKOUT ALERT: '+why+'. Every gun on the base is looking for you.');try{xmNet(q,'milh',{on:1})}catch(e){}
-  const S=milSV();if(S.r>=1){const r0=S.r;S.r=Math.max(0,S.r-2);S.xp=MILRANK[S.r][2];S.dis=(S.dis|0)+1;if(S.r<2)S.bc=0;M.auth=0;hint('🎖️ DISHONOURABLE CONDUCT. '+(S.r>0?'Busted from '+milRankNm(r0)+' down to '+milRankNm(S.r)+'.':'Drummed out of the service.'));milSave()}try{addHeat(q,25,'military')}catch(e){}}}
+  const S=milSV();if(S.r>=1){const r0=S.r;S.lost={r:r0,xp:S.xp|0,at:Date.now()};S.r=Math.max(0,S.r-2);S.xp=MILRANK[S.r][2];S.dis=(S.dis|0)+1;if(S.r<2)S.bc=0;M.auth=0;hint('🎖️ DISHONOURABLE CONDUCT. '+(S.r>0?'Busted from '+milRankNm(r0)+' down to '+milRankNm(S.r)+'.':'Drummed out of the service.'));milSave()}try{addHeat(q,25,'military')}catch(e){}}}
 /* ---------- the base defences: sentry turrets, flak towers, guard tanks ---------- */
 const MILSAFE=[[552,568,-968,-922],[552,600,-924,-901]];function milSafe(x,z){return MILSAFE.some(r=>x>r[0]&&x<r[1]&&z>r[2]&&z<r[3])}
 /* where the guns should shoot, with a velocity estimate for people on foot so the lead works on them too */function milTarget(q){/* where the guns should shoot: you (on foot, in a car or in the plane) */if(q.rsp||q.deep)return null;const v=q.seat?q.seat.v:null;const x=v?v.x:P.x,z=v?v.z:P.z-q.OZ,y=v?v.y+(v.K.plane?.6:1):(P.dy||0)+1.1;return{x,y,z,v,air:!!(v&&v.K.plane&&v.air),vx:v?-Math.sin(v.h)*v.v:(q.mil&&q.mil.fvx||0),vz:v?-Math.cos(v.h)*v.v:(q.mil&&q.mil.fvz||0),vy:v?(v.vy||0):0}}
@@ -6642,7 +6642,7 @@ function milTick(q,dt){const M=q.mil;if(!M||!q.roam)return;try{milIdleTick(q,dt)
  /* where you are */const px=T?T.x:P.x,pz=T?T.z:P.z-q.OZ;const lane=milSafe(px,pz)&&!(T&&T.v&&(T.v.K.tank||T.v.K.plane));M.lane=lane;if(lane&&S.r<1&&!M.laneTip){M.laneTip=1;hint('🟨 VISITORS\' LANE: civilians are safe between the yellow lines, up to the RECRUITING OFFICE on the right. Step outside them and the guns wake up.')}const inG=!lane&&milArea(px,pz,-14),inA=T&&(T.air||T.y>9)&&px>MILAA.x0&&px<MILAA.x1&&pz>MILAA.z0&&pz<MILAA.z1;M.inB=milArea(px,pz);
  if(S.r<1){if(inG||inA){M.gT=(M.gT||0)+dt;if(!M.warned){M.warned=1;hint(inA&&!inG?'⚠️ FORT BLACKOUT AIRSPACE. "UNIDENTIFIED AIRCRAFT, TURN BACK." The flak towers are tracking you.':'⚠️ FORT BLACKOUT. "HALT! RESTRICTED MILITARY INSTALLATION. TURN BACK OR BE FIRED UPON." The sentry guns are turning your way. (Civilians can ENLIST at the office by the gate.)');snd(300,.3);setTimeout(()=>snd(300,.3),400)}M.fire=M.gT>(inA&&!inG?2.5:4.5)}else{M.gT=0;M.fire=0;if(M.warned&&!inG&&!inA)M.warned=0}}else{M.fire=0;M.gT=0}
  if(M.h>0){if(inG||inA)M.h=Math.max(M.h,40);M.h-=dt;if(M.h<=0){M.h=0;hint('🪖 Fort Blackout stands down. They have not forgotten you.')}}
- /* the restricted zone */if(M.inB&&pz>MILRZ.z0&&S.r<5&&M.h<=0&&S.r>=1){milGoHostile(q,'Unauthorised entry to the RESTRICTED ZONE (Lieutenant and above only)')}
+ /* the restricted zone: a warning and 10 seconds to turn back, then trouble */if(M.inB&&pz>MILRZ.z0&&S.r<5&&M.h<=0&&S.r>=1){M.rzT=(M.rzT||0)+dt;if(!M.rzW){M.rzW=1;snd(300,.3);setTimeout(()=>snd(300,.3),400);hint('⚠️ RESTRICTED ZONE: Lieutenant and above only. "'+milRankNm(S.r).toUpperCase()+', TURN AROUND. You have 10 seconds."')}if(M.rzT>10){M.rzT=0;M.rzW=0;milGoHostile(q,'Unauthorised entry to the RESTRICTED ZONE (Lieutenant and above only)')}}else if(!(M.inB&&pz>MILRZ.z0)){M.rzT=0;M.rzW=0}
  const hos=milHostile(q);M.alarm=hos||M.remH>0?1:0;if(M.alarm&&(M.sirT=(M.sirT||0)-dt)<=0){M.sirT=1.6;if(Math.hypot(C.position.x-450,C.position.z-(-795+q.OZ))<420){snd(420,.5);setTimeout(()=>snd(560,.5),500)}}
  try{milTurretsTick(q,dt)}catch(e){conLog('error','turrets: '+e.message)}try{milTanksTick(q,dt)}catch(e){conLog('error','guard tanks: '+e.message)}try{milBulletsTick(q,dt)}catch(e){conLog('error','bullets: '+e.message)}try{milRocketsTick(q,dt)}catch(e){conLog('error','rockets: '+e.message)}try{milNukeTick(q,dt)}catch(e){conLog('error','missile: '+e.message)}
  try{milBootTick(q,dt)}catch(e){conLog('error','boot camp: '+e.message)}if(M.op)try{M.op.D.tick(q,M.op,dt)}catch(e){conLog('error','op '+M.op.id+': '+e.message)}
@@ -6743,7 +6743,7 @@ function milBuild(X,q,g){if(q.mil)return;const{A,BX,CY,ob,prop,loc,rect,sign,ani
  /* ---- tank park, the firing line, the targets' berm, the patrol tanks ---- */T('tank park',()=>{LB('TANK PARK · 13TH ARMOURED · SERGEANTS AND UP',8,.9,'#20261c','#e8f0d0',470,3.2,-800.2,Math.PI);
   const mv=(x,z)=>{const v=q.addVeh('tank',x,z,-Math.PI/2);v.mil=4;v.mk='tank';v.nogar=1;return v};for(let i=0;i<4;i++){mv(440+i*20,-790);mv(440+i*20,-770)}for(let i=0;i<4;i++)A(BX(.6,.9,.6),CON2,432+i*20,.45,-780);
   sign('FIRING LINE · FIRE EAST ONLY · TARGETS ON THE BERM','#5a2020',520,-803,0,'#ffe0a0');A(BX(6,3,70),M(0x9a8a60,{roughness:1}),595,1.2,-765).scale.y=1;ob(592,598,-800,-730);
-  /* three patrol tanks on loops */const loops=[[[432,-890],[586,-890],[586,-737],[432,-737]],[[312,-892],[412,-892],[412,-733],[312,-733]],[[482,-721.5],[592,-721.5],[592,-670],[482,-670]]];loops.forEach((lp,i)=>{const v=q.addVeh('tank',lp[0][0],lp[0][1],0);v.mil=99;v.guard=1;v.nogar=1;v.npc=1;ML.gtk.push({v,loop:lp,i:1,cd:2+i});for(const p of q.props)if(p.veh===v)p.txt=()=>q.seat||q.inBus?'':'🪖 A patrol tank. The commander in the hatch is watching you.'})});
+  /* three patrol tanks on loops */const loops=[[[421,-890],[586,-890],[586,-737],[421,-737]],[[312,-892],[412,-892],[412,-733],[312,-733]],[[482,-721.5],[592,-721.5],[592,-670],[482,-670]]];loops.forEach((lp,i)=>{const v=q.addVeh('tank',lp[0][0],lp[0][1],0);v.mil=99;v.guard=1;v.nogar=1;v.npc=1;ML.gtk.push({v,loop:lp,i:1,cd:2+i});for(const p of q.props)if(p.veh===v)p.txt=()=>q.seat||q.inBus?'':'🪖 A patrol tank. The commander in the hatch is watching you.'})});
  /* ---- the restricted zone: a fence line with a laser gate, the hangar, the substation, the bunker, the silo ---- */T('restricted',()=>{const z=MILRZ.z0;for(let x=X0+1;x<X1;x+=4){if(x>462&&x<478)continue;A(CY(.06,.07,4.2,6),ST,x,2.1,z);}for(const[a,b]of[[X0+1,462],[478,X1-1]]){A(BX(b-a,4,.04),M(0x8a9098,{transparent:true,opacity:.35,metalness:.5,side:THREE.DoubleSide}),(a+b)/2,2,z);A(BX(b-a,.05,.05),ST2,(a+b)/2,4.1,z);for(let x=a+1;x<b;x+=1.6)A(new THREE.TorusGeometry(.3,.03,4,8),ST2,x,4.4,z).rotation.y=Math.PI/2;ob(a,b,z-.1,z+.1)}
   for(const sd of[-1,1]){A(BX(.6,5,.6),CON2,470+sd*8.3,2.5,z);A(BX(.2,.2,.2),M(0x400000,{emissive:0xff2020}),470+sd*8.3,5.2,z)}A(BX(17.2,.8,.8),CON2,470,5.3,z);for(let i=0;i<5;i++){const lz=A(BX(16,.03,.03),M(0xff2020,{emissive:0xff2020,emissiveIntensity:1}),470,.5+i*.8,z);anim(470,z,200,()=>{lz.visible=!(milRank()>=5&&!milHostile(q))&&ML.power;lz.material.opacity=1})}
   const gs=dsSign('RESTRICTED ZONE · LIEUTENANT AND ABOVE\nLASER GRID · DEADLY FORCE · THIS MEANS YOU','#5a2020','#ffe0a0');gs.position.set(482,0,z-2);gs.rotation.y=Math.PI;g.add(gs);const gs2=dsSign('RESTRICTED ZONE · LIEUTENANT AND ABOVE\nLASER GRID · DEADLY FORCE · THIS MEANS YOU','#5a2020','#ffe0a0');gs2.position.set(458,0,z-2);gs2.rotation.y=Math.PI;g.add(gs2);
@@ -7340,7 +7340,7 @@ function vehPhys(q,v,dt,fx,sx,drv,hb){const K=v.K;if(v.crush){v.v=0;return}if(K.
  if(v.air){v.vy-=18*dt;v.y+=v.vy*dt;v.jT=(v.jT||0)+dt;if(v.y<=gnd){v.y=gnd;v.air=0;if(v.jr)try{xpStuntLand(q,v)}catch(e){}const hit=-v.vy;v.vy=0;if(hit>3){snd(70,.4);snd(110,.2);if(q.seat&&q.seat.v===v)camShake(Math.min(.8,hit*.08),.4);try{vfx('dust',v.x,.3,v.z+q.OZ,{n:16,w:1.6})}catch(e){}vehDamage(q,v,hit>7?(hit-7)*4:0)}}}
  v.lastG=gnd;if(Math.abs(v.v)>6&&!v.air&&Math.random()<dt*14)try{vfx('dust',v.x+Math.sin(v.h)*v.K.len/2,.2,v.z+Math.cos(v.h)*v.K.len/2+q.OZ,{n:2,w:.8})}catch(e){}}
 /* crash damage: a car that has been knocked about enough smokes, then blows up (the tank and the bus do not) */
-function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;/* r526: army vehicles never blow up inside Fort Blackout: they just get scuffed */if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,(v.dmg||0)+n*.25);return}if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100)copWreck(q,false);return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc&&v.hitO&&typeof v.hitO=='object'&&v.hitO.K)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);/* r552: crashing into a wall or nothing at all is not a crime */if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
+function vehDamage(q,v,n){if(!n||v.K.tank||v.K.bus||v.wreck)return;/* r526: army vehicles never blow up inside Fort Blackout: they just get scuffed */if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,(v.dmg||0)+n*.25);return}if(v.k=='cop'&&q.cop&&v===q.cop.v){if(q.cop.tier==3)return;v.dmg+=n*.2;if(v.dmg>=100){/* r561: bumping into scenery on their own never blows a cop car up: only you (or another car) can */const byYou=q.copRam!=null&&q.rt-q.copRam<2.5,byCar=v.hitO&&typeof v.hitO=='object'&&v.hitO.K;if(byYou||byCar)copWreck(q,byYou);else v.dmg=90}return}v.dmg+=n;const me=!!(q.seat&&q.seat.v===v);if(me&&v!==q.cop?.v&&!v.npc&&v.hitO&&typeof v.hitO=='object'&&v.hitO.K)addHeat(q,Math.min(6,n*.11),n>12?'crash':null);/* r552: crashing into a wall or nothing at all is not a crime */if(v.dmg>=100&&!(v===q.cop?.v)){vehBlow(q,v,me)}else if(v===q.cop?.v&&v.dmg>=100)copWreck(q,q.copRam!=null&&q.rt-q.copRam<2.5)}
 function vehBlow(q,v,mine){if(v.wreck)return;if(v.mil&&milArea(v.x,v.z)&&!MILX){v.dmg=Math.min(55,v.dmg||0);return}v.wreck=1;v.wreckT=v.mil?10:20;v.dmg=100;v.v=0;v.air=0;v.vy=0;v.spin=0;boom(q,v.x,v.y+.8,v.z,mine,1.25,v);if(mine)addHeat(q,HEATV.car,'car');try{vehShatter(q,v)}catch(e){conLog('error','car pieces: '+e.message)}
  if(q.seat&&q.seat.v===v){const i=q.seat.i;v.occ[i]=null;if(i==0)vehEngine(q,0);q.seat=null;P.roll=0;const a=Math.random()*6.3;q.fling={vx:Math.cos(a)*7,vz:Math.sin(a)*7,vy:9,y:P.dy+1,t:0};hint('💥 KABOOM! The car blows up and you go FLYING. (You are fine. Somehow.)')}
  if(mine)vehNet(q,{k:'wr',v:v.id});v.occ=v.occ.map(()=>null)}
@@ -10226,8 +10226,8 @@ function hubMsg(sub,txt){if((!HUB.on&&!(sub=='busgo'&&(BUS.ride||BUS.booting)))|
  else if(sub=='el'||sub=='elj'||sub=='elv')hubElMsg(sub,o,id);
  else if(sub=='bus'||sub=='busb'||sub=='busgo'){busMsg(sub,id,o)}
  else if(sub=='go'){if(!Array.isArray(o.ids)||!o.ids.includes(SV.pid))return;const code=String(o.code||'').toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code))return;const me=HUB.myE!=null?HUBEL[HUB.myE]:null;if(!me||!me.st||me.st.host!==id)return;
-  sysLine('🏨 '+(HUB.ps[id]?HUB.ps[id].nm:'A player')+' is starting a run and taking you along...');try{runLoadShow()}catch(e){}hubLeave(false);clearAll();state='menu';MP.auto=1;HUBRUN=1;
-  pjJoin(code).then(()=>{sysLine('🔗 Connected: the run starts when the host is ready.')}).catch(e=>{MP.auto=0;sysLine('Could not join the group: '+(typeof e=='string'?e:(e&&e.message)||e));menu('DOORS','Could not join the group run.')})}}
+  sysLine('🏨 '+(HUB.ps[id]?HUB.ps[id].nm:'A player')+' is starting a run and taking you along...');try{runLoadShow()}catch(e){}grpStart(HUB.key,id,o);hubLeave(false);clearAll();state='menu';MP.auto=1;HUBRUN=1;
+  pjJoin(code).then(()=>{sysLine('🔗 Connected: the run starts when the host is ready.');if(GRP.g)GRP.g.done=1}).catch(grpFail)}}
 const hubAtDoor=()=>HUB.on&&RMS[ci]&&P.z<-RMS[ci].L+3.5&&Math.abs(P.x-((RMS[ci].dd&&RMS[ci].dd.cx)||0))<3.2;
 function hubTick(dt){if(!HUB.on)return;hubStreetUpd(dt);hubElTick();const now=Date.now();if($('d').textContent!=='🏨 LOBBY')$('d').textContent='🏨 LOBBY';
  if(PUB.cl&&PUB.cl.connected&&HUB.key){const p=JSON.stringify({i:SV.pid,nm:SV.nm||'Player',oc:SV.oc|0,x:+P.x.toFixed(2),z:+P.z.toFixed(2),yw:+P.yaw.toFixed(2),pt:+(P.pitch||0).toFixed(2),cr:P.crouch?1:0,dz:hubAtDoor()?1:0});
@@ -10269,7 +10269,7 @@ function hubElMsg(sub,o,id){const e=HUBEL[o.e|0];if(!e)return;
  else if(sub=='elv'){const st=e.st;if(!st||st.host!==SV.pid)return;st.mem=st.mem.filter(m=>m[0]!==id);hubElSend(e)}}
 async function hubGroupStart(crew){HUBRUN=1;HUB.dailyGo=!!(HUB.myE!=null&&HUBEL[HUB.myE]&&HUBEL[HUB.myE].i===HDAILY);try{runLoadShow()}catch(e){}{const e=HUB.myE!=null?HUBEL[HUB.myE]:null;RUNMODS=e&&e.st&&e.st.mods?e.st.mods.slice():[]}if(!crew.length){hubLeave(false);clearAll();state='menu';soloSeed=0;pendingSeed=0;HUB.dailyGo?dailyStart():playNow();return}
  const names=crew.map(id=>HUB.ps[id]?HUB.ps[id].nm:'?');sysLine('🛗 Going up with '+names.join(', ')+'...');const key=HUB.key;hubLeave(false);clearAll();state='menu';
- try{const code=await pjHost();try{PUB.cl&&PUB.cl.publish(key+'go',JSON.stringify({i:SV.pid,code,ids:crew}))}catch(e){}
+ try{const code=await pjHost();try{PUB.cl&&PUB.cl.publish(key+'go',JSON.stringify({i:SV.pid,code,ids:crew,d:HUB.dailyGo?1:0,m:RUNMODS}))}catch(e){}
   const t0=Date.now();const wait=()=>{const ok=mpOpen().length;if(ok>=crew.length||(ok>0&&Date.now()-t0>8000)||Date.now()-t0>15000){if(!ok){sysLine('Nobody connected in time: starting on your own.');mpLeave(true)}HUB.dailyGo?dailyStart():playNow()}else setTimeout(wait,400)};wait()}
  catch(e){sysLine('Could not make a group room ('+(typeof e=='string'?e:(e&&e.message)||e)+'): starting on your own.');MP.on=false;HUB.dailyGo?dailyStart():playNow()}}
 
@@ -16018,6 +16018,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r561',['Elevator group runs: if the host can\'t be reached, the rest of the group goes up together with a new host','If nobody can be reached, you go back to the lobby with an explanation instead of a black screen','Restricted zone: a warning and 10 seconds to turn back before you get busted','Admins and the owner can set their army rank with /rank (e.g. /rank Sergeant), or undo a bust with /rank undo','General offices: real glass windows, doors that open as you walk up, signs above the doors, and a proper wooden floor','Patrol tanks no longer drive through the general offices','Cop cars no longer blow themselves up by bumping into scenery']],
  ['r560',['Joining a co-op room tells you the real reason when it fails (e.g. your network is blocking direct connections) instead of always saying "No game with that code"','One failed matchmaking attempt no longer locks your game onto the old service for the rest of the session']],
  ['r559',['DOORS now has its OWN SERVER: the lobby, public rooms, leaderboards and matchmaking run on it instead of public message boards (the game itself is still player to player)','Bans are enforced by the server: a banned device AND its internet connection are turned away','Owner/admin panel: an Online now list with KICK (out for 10 minutes)','If the server is ever down, the game falls back to the old public boards']],
  ['r558',['COMMAND WING: Generals get their own office (one each in co-op) with a terminal that sends squads out on missions: watch them drive there, do the job and come back, and get paid','WRAITH AUTOPILOT: press L and it drives itself home to Hangar 1 (the door opens for it); the hangar door closes by itself after 20 s','The Wraith is named after its mark (X-13 WRAITH Mk III...)','Generals and up: the police leave you alone; at 4+ stars the police give up after losing 3 cars','Police officers are now Seeks in different colours; the HQ sign fits; the bike rack outside the station is fixed','The AH-4 gets a proper nose and bubble canopies; the base radar dish is a real dish now','El Goblino Gas door works again','Less of a stall when you arrive in the desert']],
@@ -17327,16 +17328,17 @@ const SQM=[
 function cwSlot(q){/* which office is mine: by my place among the players in the desert */let ids=[SV.pid];try{const R=q.vnet&&q.vnet.rem;for(const id in R)if(Date.now()-(R[id].t||0)<8000)ids.push(id)}catch(e){}ids=[...new Set(ids)].sort();return Math.max(0,ids.indexOf(SV.pid))%4}
 function cwBuild(q){if(q.cw||!q.g||!q.obs||!q.mil)return;const g=new THREE.Group();q.g.add(g);const C={g,off:[],sq:[],mis:null,rollT:0};q.cw=C;const Z=CWB,H=3.4,t=.3;
  const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.8,metalness:.1},o||{})),A=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o},BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d),ob=(x0,x1,z0,z1)=>q.obs.push({x0:Math.min(x0,x1),x1:Math.max(x0,x1),z0:Math.min(z0,z1),z1:Math.max(z0,z1)});
- const CON=M(0x8a8c80),IN=M(0xc8c0a8),FL=M(0x5a3a22,{roughness:.6}),WD=M(0x4a2a14,{roughness:.5}),OL=M(0x3a4a2a),GD=M(0xd8b040,{metalness:.8,roughness:.3});
- const cx=(Z.x0+Z.x1)/2,cz=(Z.z0+Z.z1)/2,W=Z.x1-Z.x0,D=Z.z1-Z.z0;A(BX(W,.08,D),FL,cx,.04,cz);A(BX(W+.6,.3,D+.6),M(0x5a5c52),cx,H+.15,cz);
+ const CON=M(0x8a8c80),IN=M(0xc8c0a8),FL=M(0x5a3a22,{roughness:.6}),WD=M(0x4a2a14,{roughness:.5}),OL=M(0x3a4a2a),GD=M(0xd8b040,{metalness:.8,roughness:.3}),GLS=M(0xa8d0e8,{transparent:true,opacity:.28,metalness:.6,roughness:.05,depthWrite:false,side:THREE.DoubleSide}),WFR=M(0x3a3c36);
+ const cx=(Z.x0+Z.x1)/2,cz=(Z.z0+Z.z1)/2,W=Z.x1-Z.x0,D=Z.z1-Z.z0;FL.polygonOffset=true;FL.polygonOffsetFactor=-4;FL.polygonOffsetUnits=-4;A(BX(W,.08,D),FL,cx,.09,cz);A(BX(W+.6,.3,D+.6),M(0x5a5c52),cx,H+.15,cz);
  A(BX(W,H,t),CON,cx,H/2,Z.z1);ob(Z.x0,Z.x1,Z.z1-t/2,Z.z1+t/2);A(BX(t,H,D),CON,Z.x0,H/2,cz);ob(Z.x0-t/2,Z.x0+t/2,Z.z0,Z.z1);A(BX(t,H,D),CON,Z.x1,H/2,cz);ob(Z.x1-t/2,Z.x1+t/2,Z.z0,Z.z1);
  const sg=pdTxt('COMMAND WING · GENERAL OFFICERS',9,.9,'#20261c','#e8d890');sg.position.set(cx,H+.85,Z.z0-.36);sg.rotation.y=Math.PI;g.add(sg);A(BX(9.4,1.1,.2),M(0x20261c),cx,H+.85,Z.z0-.2);
  for(let i=0;i<4;i++){const ox0=Z.x0+i*10,ox1=ox0+10,oc=ox0+5;if(i>0){A(BX(t,H,D),IN,ox0,H/2,cz);ob(ox0-t/2,ox0+t/2,Z.z0,Z.z1)}
-  /* the front wall of each office: a door in the middle and a window either side */const dA=oc-.7,dB=oc+.7;A(BX(dA-ox0,H,t),CON,(ox0+dA)/2,H/2,Z.z0);ob(ox0,dA,Z.z0-t/2,Z.z0+t/2);A(BX(ox1-dB,H,t),CON,(dB+ox1)/2,H/2,Z.z0);ob(dB,ox1,Z.z0-t/2,Z.z0+t/2);A(BX(1.4,H-2.4,t),CON,oc,2.4+(H-2.4)/2,Z.z0);
-  for(const sd of[-1,1])A(BX(2,1,.06),new THREE.MeshStandardMaterial({color:0x9ac0e0,transparent:true,opacity:.35}),oc+sd*3,1.7,Z.z0-.17);
-  const np=pdTxt('OFFICE '+(i+1),1.6,.32,'#d8b040','#20261c');np.position.set(oc+1.3,2.1,Z.z0-.17);np.rotation.y=Math.PI;g.add(np);
+  /* the front wall of each office: a door in the middle and a real glass window either side (r561) */const dA=oc-.7,dB=oc+.7;const seg=(a,b)=>A(BX(b-a,H,t),CON,(a+b)/2,H/2,Z.z0);seg(ox0,oc-4);seg(oc-2,dA);seg(dB,oc+2);seg(oc+4,ox1);ob(ox0,dA,Z.z0-t/2,Z.z0+t/2);ob(dB,ox1,Z.z0-t/2,Z.z0+t/2);A(BX(1.4,H-2.4,t),CON,oc,2.4+(H-2.4)/2,Z.z0);
+  for(const wx of[oc-3,oc+3]){A(BX(2,1.2,t),CON,wx,.6,Z.z0);A(BX(2,H-2.2,t),CON,wx,2.2+(H-2.2)/2,Z.z0);A(BX(2,1,.04),GLS,wx,1.7,Z.z0);for(const y of[1.2,2.2])A(BX(2.1,.08,t+.06),WFR,wx,y,Z.z0);for(const x of[-1,0,1])A(BX(.07,1,t+.06),WFR,wx+x,1.7,Z.z0)}
+  /* the door: swings open into the office as you walk up to it */{const dg=new THREE.Group();dg.position.set(dA,0,Z.z0);g.add(dg);const dp=new THREE.Mesh(BX(1.38,2.36,.07),WD);dp.position.set(.69,1.19,0);dg.add(dp);for(const sz of[-1,1]){const kn=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),GD);kn.position.set(1.22,1.05,sz*.06);dg.add(kn)}const dw=new THREE.Mesh(BX(.5,.6,.075),GLS);dw.position.set(.69,1.75,0);dg.add(dw);let da=0;q.anims.push({x:oc,z:Z.z0,r:60,f:dt=>{const near=Math.hypot(P.x-oc,(P.z-q.OZ)-Z.z0)<2.8;const tg=near?1:0;if(da===tg)return;const pa=da;da=Math.max(0,Math.min(1,da+(tg?dt*2.5:-dt*1.6)));if(pa===0&&da>0)snd(240,.04);dg.rotation.y=-da*1.45}})}
+  const np=pdTxt('OFFICE '+(i+1),1.3,.3,'#d8b040','#20261c');np.position.set(oc,2.9,Z.z0-.17);np.rotation.y=Math.PI;g.add(np);
   /* inside: a big desk with the command terminal, a chair, a flag, the wall map, a rug, a filing cabinet, a plant */
-  A(BX(4,.05,4),M(0x6a1a1a,{roughness:.95}),oc,.09,cz);A(BX(2.6,.8,1.1),WD,oc,.4,Z.z1-2.6);ob(oc-1.3,oc+1.3,Z.z1-3.15,Z.z1-2.05);A(BX(2.7,.06,1.2),WD,oc,.82,Z.z1-2.6);
+  A(BX(4,.05,4),M(0x6a1a1a,{roughness:.95,polygonOffset:true,polygonOffsetFactor:-6,polygonOffsetUnits:-6}),oc,.15,cz);A(BX(2.6,.8,1.1),WD,oc,.4,Z.z1-2.6);ob(oc-1.3,oc+1.3,Z.z1-3.15,Z.z1-2.05);A(BX(2.7,.06,1.2),WD,oc,.82,Z.z1-2.6);
   A(BX(.7,.5,.06),M(0x1a1a1a),oc,1.15,Z.z1-2.85);const scr=pdTxt('',.62,.42,'#03140a','#40ff80');scr.position.set(oc,1.15,Z.z1-2.815);g.add(scr);A(BX(.5,.03,.18),M(0x2a2a2a),oc,.86,Z.z1-2.35);
   A(BX(.6,.5,.6),M(0x2a1a10),oc,.5,Z.z1-1.5);A(BX(.6,.7,.12),M(0x2a1a10),oc,1.0,Z.z1-1.2);
   const map=pdTxt('',3.4,2,'#c8b890','#3a2a10');map.position.set(oc,2.0,Z.z1-.17);map.rotation.y=Math.PI;g.add(map);A(BX(3.5,2.1,.04),WD,oc,2.0,Z.z1-.14);
@@ -17513,6 +17515,52 @@ function srvWhoDraw(){const box=document.getElementById('srvWhoBox');if(!box)ret
 {const ap0=admPanel;admPanel=function(){const r=ap0.apply(this,arguments);try{const d=document.getElementById('staffDlg');if(d&&d.style.display!='none'&&!document.getElementById('srvWhoBox')){const h=[...d.querySelectorAll('h3')].find(x=>/Players here/.test(x.textContent));const sec=document.createElement('div');sec.innerHTML='<h3 style="margin:10px 0 4px">🌐 Online now (DOORS server)</h3><div style="font-size:12px;opacity:.7;margin-bottom:4px">Everyone connected anywhere: menus, lobby, co-op, the desert. KICK = out for 10 minutes. BAN = their device and their internet connection.</div><div id="srvWhoBox"></div>';if(h)h.parentNode.insertBefore(sec,h);else d.firstChild.appendChild(sec);srvWhoDraw();srvWho()}}catch(e){}return r}}
 /* the account panel: show which service you are on */
 setInterval(()=>{try{ID.srv=srvCl()?'DOORS server':DSRV.down?'public boards (server unreachable)':'connecting'}catch(e){}},3000);
+
+
+/* ---------- r561: group runs that can't reach their host ----------
+   When the crew's host can't be reached, everyone who failed says so on <lobby>go2. The failed player with the
+   smallest id becomes the new host and posts a fresh room code there; the others join it. Anyone left with
+   nobody to go with is taken back to the lobby with an explanation, instead of a black screen. */
+const GRP={g:null};
+function grpPub(o){const G=GRP.g;if(!G)return;try{PUB.cl&&PUB.cl.publish(G.k+'go2',JSON.stringify(Object.assign({i:SV.pid,r:G.r},o)))}catch(e){}}
+function grpListen(){const cl=PUB.cl;if(!cl||cl.__grp)return;cl.__grp=1;cl.on('message',(t,m)=>{const G=GRP.g;if(!G||String(t)!==G.k+'go2')return;let o;try{o=JSON.parse(String(m))}catch(e){return}
+  const id=fsPid(o&&o.i);if(!id||id==SV.pid||o.r!==G.r)return;
+  if(o.f)G.fails.add(id);
+  else if(/^[A-Z0-9]{6}$/.test(String(o.code||''))&&!G.code2){G.code2=String(o.code);G.by=id}})}
+function grpStart(k,host,o){GRP.g={k,host,r:String(o.code||''),d:o.d?1:0,m:Array.isArray(o.m)?o.m.filter(x=>typeof x=='string').slice(0,20):[],fails:new Set(),code2:'',by:'',done:0,ids:o.ids.slice(0,12),nm:{}};
+ for(const id in (HUB.ps||{}))GRP.g.nm[id]=HUB.ps[id].nm||'A player';
+ try{grpListen();PUB.cl&&PUB.cl.subscribe(k+'go2')}catch(e){}
+ /* forget it after a while: by then everyone has either connected or given up */
+ const g=GRP.g;setTimeout(()=>{if(GRP.g===g&&g.done)grpEnd()},90000)}
+function grpEnd(){const G=GRP.g;GRP.g=null;try{if(G&&PUB.cl&&!HUB.on)PUB.cl.unsubscribe(G.k+'go2')}catch(e){}}
+const grpWhy=e=>typeof e=='string'?e:(e&&e.message)||String(e);
+async function grpBack(msg){const G=GRP.g;if(G)G.done=1;grpEnd();MP.auto=0;HUBRUN=0;try{mpLeave(true)}catch(e){}MP.on=false;
+ try{await hubEnter()}catch(e){}setTimeout(()=>{hint(msg);sysLine('⚠️ '+msg)},800)}
+function grpFail(e){const G=GRP.g;MP.auto=0;if(!G||G.done){sysLine('Could not join the group: '+grpWhy(e));grpBack('Could not reach the host of the group run, so you are back in the lobby.');return}
+ const hn=G.nm[G.host]||'the host';
+ sysLine('Could not reach '+hn+' ('+grpWhy(e)+'). Checking if the rest of the group can go up together...');
+ G.fails.add(SV.pid);grpPub({f:1});const t0=Date.now();
+ const tick=()=>{if(G.done||GRP.g!==G)return;const el=Date.now()-t0;
+  if(G.code2){G.done=1;sysLine('🔁 '+(G.nm[G.by]||'Another player')+' is hosting the group instead. Joining...');MP.auto=1;HUBRUN=1;
+   pjJoin(G.code2).then(()=>{sysLine('🔗 Connected: the run starts when the new host is ready.');grpEnd()}).catch(e2=>{grpBack('Could not reach the host of the group run, or the backup host ('+grpWhy(e2)+'). Your network may be blocking direct connections (common on school wifi or mobile data). You are back in the lobby.')});return}
+  const f=[...G.fails].sort();
+  if(f.length>=2&&f[0]===SV.pid&&el>=3000){G.done=1;grpHost(G,f.slice(1));return}
+  if(el>30000){grpBack(f.length>=2?'The backup host never answered, so you are back in the lobby.':'Could not reach '+hn+' for the group run. One of your networks may be blocking direct connections (common on school wifi or mobile data). You are back in the lobby: try again, or play on your own.');return}
+  setTimeout(tick,400)};
+ tick()}
+/* the backup host: same as the elevator host, waiting for whoever else could not reach the first host */
+async function grpHost(G,crew){MP.auto=0;HUBRUN=1;HUB.dailyGo=!!G.d;RUNMODS=G.m.slice();const go=()=>{grpEnd();HUB.dailyGo?dailyStart():playNow()};
+ sysLine('🛗 You are hosting the group instead. Waiting for the others...');
+ try{const code=await pjHost();grpPub({code,ids:crew});
+  const t0=Date.now();const wait=()=>{const ok=mpOpen().length;if(ok>=crew.length||(ok>0&&Date.now()-t0>8000)||Date.now()-t0>15000){if(!ok){sysLine('Nobody connected in time: starting on your own.');mpLeave(true)}go()}else setTimeout(wait,400)};wait()}
+ catch(e){sysLine('Could not make a group room ('+grpWhy(e)+').');grpBack('Could not make a backup room for the group, so you are back in the lobby.')}}
+/* ---------- r561: staff can set their own army rank (/rank Sergeant), and undo their last bust (/rank undo) ---------- */
+{const c0=mpChatCmd;mpChatCmd=function(t){const m=String(t).match(/^\/\s*rank\b\s*(.*)$/i);if(!m)return c0.apply(this,arguments);
+  if(!myRank()){sysLine('🎖️ /rank is for admins and the owner.');return true}const S=milSV(),a=m[1].trim().toLowerCase();
+  if(!a){sysLine('🎖️ You are '+milRankNm(S.r)+' ('+(S.xp|0)+' XP). Use /rank <name> (e.g. /rank Sergeant), or /rank undo to undo your last bust.');return true}
+  let r=-1,xp=0;if(a=='undo'){if(!S.lost){sysLine('🎖️ No bust on record to undo.');return true}r=S.lost.r;xp=S.lost.xp;S.lost=null;S.dis=Math.max(0,(S.dis|0)-1)}
+  else{r=MILRANK.findIndex(k=>k[0].toLowerCase()==a);if(r<0)r=MILRANK.findIndex(k=>k[0].toLowerCase().startsWith(a));if(r<0){sysLine('🎖️ Ranks: '+MILRANK.map(k=>k[0]).join(', '));return true}xp=MILRANK[r][2]}
+  S.r=r;S.xp=Math.max(xp|0,MILRANK[r][2]);if(r>=2)S.bc=1;milSave();sysLine('🎖️ Your rank is now '+milRankNm(r)+'.');try{hint('🎖️ '+milRankNm(r)+' '+(MILRANK[r][1]||''))}catch(e){}return true}}
 
 </script><script>
 /* ======================================================================================================
