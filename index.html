@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r577';
+const BUILD='2026-10-15 r578';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16019,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r578',['X-13 owner lock: only the owner can drive a Wraith. Others can ride in the gunner seat while the owner drives','Wraith bays: the door opens when your Wraith rolls up, closes fast behind you, and opens from inside when you walk up to it','Bay SECURITY PANEL: trust players to let them in. Two ceiling turrets zap anyone else out','Refits are real challenges now: a prototype part goes on, then you prove it (armour under fire, an 8-target salvo, a 50 m/s speed trap, an artillery barrage, 200 m long shots, the 3-tank gauntlet). Fail and the part comes off','New chat video: say "I like like liker"']],
  ['r577',['The APC has a proper driver compartment: armoured viewport, dashboard with gauges and a screen, steering wheel, radios, extinguisher','Door 100: the old Figure tune no longer plays on top of Unhinged II']],
  ['r576',['Door 100: the Figure boiler hall has its own music now, "Unhinged II". It starts from the top every time you reach him']],
  ['r575',['Fixed a big memory leak: every trip to the desert kept the old desert in memory (about 200 MB each time). Now it is freed when you leave','SAVE & EXIT in the desert: free the mouse (Esc) and pick it. On phones there is a 💾 button','Crashing into other vehicles raises your heat again (not on the army base)','Wraith autopilot lines up with the base gate and steers round parked vehicles: no more crashing on the way home','Your parked Wraith is waiting in your bay when you come back','Missile guidance and the new-aircraft tour are remembered, so the base guide stops asking again','Hangar 1: the guide lines stay inside, the banner sits on the wall, the laser sign fits','The fire alarm in launch control faces the right way']],
@@ -18197,8 +18198,8 @@ function bayBuild(q){if(q.wbay||!q.g||!q.obs)return;const g=new THREE.Group();q.
  q.anims.push({x:(X0+X1)/2,z:cz,r:250,f:dt=>bayTick(q,dt)});q.obsDirty=1;q.mapR&&q.mapR.push({x0:X0,x1:X1,z0:Z0,z1:Z1,c:'#4a5a5a'});q.mapBg=null;
  /* a Wraith you left in your bay last time is still there */setTimeout(()=>{try{const S=milSV(),i=bayMine(q),pv=q.mil&&q.mil.proto;if(S.bayPark&&i>=0&&pv&&!pv.wreck&&!(q.seat&&q.seat.v===pv)){pv.x=bayX(i);pv.z=(WBAY.z0+WBAY.z1)/2-1;pv.h=0;pv.v=0;pv.bayLock=1;pv.netSnap=1}}catch(e){}B.ready=1},1500);
  /* your bay: a sign with your name */setTimeout(()=>{try{const i=bayMine(q);if(i>=0){const d=B.doors[i];const nl=pdTxt('BAY '+(i+1)+' · '+String(SV.nm||'YOU').toUpperCase().slice(0,12),3.2,.32,'#40c0ff','#0a1420');nl.position.copy(d.lab.position);nl.position.z+=.02;B.g.add(nl);d.lab.visible=false}}catch(e){}},2000)}
-function bayTick(q,dt){const B=q.wbay;if(!B)return;const mine=bayMine(q),lz=P.z-q.OZ,me=q.seat&&q.seat.v;for(const d of B.doors){let want=0;if(d.i===mine){const nearMe=Math.hypot(P.x-d.cx,lz-(WBAY.z1+2))<15;const wr=q.mil&&q.mil.proto;const wrNear=wr&&!wr.wreck&&Math.hypot(wr.x-d.cx,wr.z-(WBAY.z1+2))<17&&me===wr;want=(nearMe||wrNear||d.force>0)?1:0;if(d.force>0)d.force-=dt}
-  const pu=d.u;d.u+=(want-d.u)*Math.min(1,dt*1.2);{const hh=4.5*Math.max(.06,1-d.u*.94);d.m.scale.y=hh/4.5;d.m.position.y=4.5-hh/2}if((pu<.05)!==(d.u<.05)||(pu>.9)!==(d.u>.9))try{snd(d.u>pu?520:360,.08)}catch(e){}
+function bayTick(q,dt){const B=q.wbay;if(!B)return;const mine=bayMine(q),lz=P.z-q.OZ,me=q.seat&&q.seat.v;for(const d of B.doors){let want=0;const BN=d.i!==mine&&typeof bayFresh=='function'?bayFresh(q,d.i):null,ok=d.i===mine||!!(BN&&BN.tr.includes(SV.pid));if(ok){const px=me?me.x:P.x,pz=me?me.z:lz;const outside=pz>WBAY.z1&&Math.hypot(px-d.cx,pz-(WBAY.z1+2))<11,inside=Math.abs(px-d.cx)<WBAY.w/2&&pz>WBAY.z1-7&&pz<WBAY.z1+.5;const wr=q.mil&&q.mil.proto;const wrNear=d.i===mine&&wr&&!wr.wreck&&Math.hypot(wr.x-d.cx,wr.z-(WBAY.z1+3))<22&&(me===wr||(q.seat&&q.seat.v===wr));want=(outside||inside||wrNear||d.force>0)?1:0;if(d.force>0)d.force-=dt}if(BN&&BN.open)want=1;
+  const pu=d.u;d.u+=(want-d.u)*Math.min(1,dt*(want?1.5:2.4));{const hh=4.5*Math.max(.06,1-d.u*.94);d.m.scale.y=hh/4.5;d.m.position.y=4.5-hh/2}if((pu<.05)!==(d.u<.05)||(pu>.9)!==(d.u>.9))try{snd(d.u>pu?520:360,.08)}catch(e){}
   const open=d.u>.85;if(open===!!d.obOn){d.obOn=!open;if(open){const k=q.obs.indexOf(d.ob);if(k>=0)q.obs.splice(k,1)}else q.obs.push(d.ob);q.obsDirty=1}d.lt.material.emissive.setHex(d.u>.5?0x20c040:0xc00000)}
  /* the Wraith in your bay: locked and protected; leaving it there is remembered */const pv=q.mil&&q.mil.proto;if(pv&&mine>=0){const inside=Math.abs(pv.x-bayX(mine))<4.2&&pv.z>WBAY.z0&&pv.z<WBAY.z1&&!pv.wreck;const empty=!(q.seat&&q.seat.v===pv);pv.bayLock=inside&&empty?1:0;const S=milSV();const was=!!S.bayPark;if(B.ready&&empty&&!!inside!==was){S.bayPark=inside?1:0;milSave();if(inside)hint('🔒 X-13 parked in your Wraith bay: locked, protected, and it will be here next time.')}}
  /* a hint the first time you walk up to the bays */if(!q.bayHint&&Math.hypot(P.x-(WBAY.x0+20),lz-(WBAY.z1+4))<14){q.bayHint=1;hint(mine>=0?'🛸 Your WRAITH BAY is BAY '+(mine+1)+': the door opens for you. Park the X-13 inside to keep it safe.':'🛸 WRAITH BAYS: private bays for X-13 owners. Pass the X-13 trials to get one.')}}
@@ -18272,7 +18273,7 @@ function memDrop(){try{G=new THREE.Group();wards=[];RL=[];drs=[];hands=[];cops=[
   if(typeof q.wtTag=='string')SV.wtTag=q.wtTag.slice(0,12);
   if(q.jl&&typeof q.jl=='object'&&/^(pen|jail)$/.test(q.jl.k))SV.jl={k:q.jl.k,t:Math.max(1,Math.min(36000,q.jl.t|0)),b:Math.max(0,q.jl.b|0)};
   if(q.mine&&typeof q.mine=='object')SV.mine={bars:Math.max(0,Math.min(1e6,q.mine.bars|0)),ore:Math.max(0,Math.min(1e6,q.mine.ore|0)),shifts:Math.max(0,Math.min(1e6,q.mine.shifts|0))};
-  const m=q.mil;if(m&&typeof m=='object'&&SV.mil){SV.mil.pr=Math.max(0,Math.min(99,m.pr|0));SV.mil.wk=Math.max(0,Math.min(6,m.wk|0));SV.mil.bayPark=m.bayPark?1:0;SV.mil.cwSeen=m.cwSeen?1:0;SV.mil.ngSeen=m.ngSeen?1:0;if(m.awv&&typeof m.awv=='object'){SV.mil.awv={};for(const k of Object.keys(m.awv).slice(0,20))if(/^\w{1,12}$/.test(k)&&m.awv[k])SV.mil.awv[k]=1}
+  const m=q.mil;if(m&&typeof m=='object'&&SV.mil){SV.mil.pr=Math.max(0,Math.min(99,m.pr|0));SV.mil.wk=Math.max(0,Math.min(6,m.wk|0));SV.mil.bayPark=m.bayPark?1:0;SV.mil.cwSeen=m.cwSeen?1:0;SV.mil.ngSeen=m.ngSeen?1:0;if(Array.isArray(m.btr))SV.mil.btr=m.btr.filter(t=>t&&typeof t.id=='string').slice(0,20).map(t=>({id:t.id.slice(0,40),nm:String(t.nm||'Player').slice(0,16)}));if(m.awv&&typeof m.awv=='object'){SV.mil.awv={};for(const k of Object.keys(m.awv).slice(0,20))if(/^\w{1,12}$/.test(k)&&m.awv[k])SV.mil.awv[k]=1}
    if(m.rzv&&typeof m.rzv=='object'){SV.mil.rzv={};for(const k of Object.keys(m.rzv).slice(0,30))if(/^\w{1,12}$/.test(k)&&m.rzv[k])SV.mil.rzv[k]=1}}};
  const sa0=svApply;svApply=function(d){const r=sa0.apply(this,arguments);try{svExtras(d&&d.s)}catch(e){try{conLog('error','save extras: '+e.message)}catch(x){}}return r};
  /* the game already loaded the save before this ran: read the extras back from it now */try{const raw=localStorage.getItem(SAVE_KEY);if(raw)svExtras(JSON.parse(raw).s)}catch(e){}}
@@ -18379,6 +18380,110 @@ function apcCockpit(g){const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assi
 try{VEHK.apc.seats=[[-.65,-1.72,.05]]}catch(e){}
 function apcCkTick(q){const me=q&&q.seat&&q.seat.v;for(const v of q.vehs||[]){if(v.k!='apc'||!v.m)continue;const u=v.m.userData;if(!u||!u.ck)continue;const on=me===v;if(u.ck.visible!==on){u.ck.visible=on;for(const s of u.slits||[])s.visible=!on}}}
 {const ru1=busRoamUpd;busRoamUpd=function(q,dt){const r=ru1.apply(this,arguments);try{apcCkTick(q)}catch(e){}return r}}
+
+
+/* =====================================================================================================
+   r578: THE WRAITH IS YOURS.
+   - Owner lock: an X-13 only lets its owner drive. Anyone else can ride in the gunner seat, and only while the owner
+     is at the wheel.
+   - Wraith bays: the door opens when your Wraith rolls up, closes behind you quickly, and opens from the inside when
+     you walk up to it. Each bay has a SECURITY PANEL (trust list) and two ceiling turrets: anyone you have not
+     trusted who gets into your bay is zapped and thrown out.
+   - Refits are real challenges now. The crew bolt on a PROTOTYPE part, then you have to prove it in a test built for
+     that part. Pass and it is yours for good; fail and it comes off again.
+   ===================================================================================================== */
+const WKTRY={ref:0};
+{const wm0=wkMine;wkMine=function(){const b=wm0.apply(this,arguments);return WKTRY.ref>b?WKTRY.ref:b}}
+/* ---------- owner lock ---------- */
+function wkOwner(q){return garOwned('proto')||!!(q&&q.mil&&q.mil.auth)||!!(q&&q.mil&&q.mil.op&&/^(trials|refit)/.test(q.mil.op.D&&q.mil.op.D.id||''))}
+{const ve1=vehEnter;vehEnter=function(q,v,i){try{if(v&&v.K&&v.K.proto&&!q.seat&&!wkOwner(q)){const drv=v.occ&&v.occ[0];if(!drv||drv===SV.pid){hint('🔒 The X-13 is LOCKED. Only its owner can drive it. When they are at the wheel you can ride in the gunner seat.');snd(180,.12);return}
+   let k=-1;for(let j=1;j<v.occ.length;j++)if(!v.occ[j]){k=j;break}if(k<0){hint('🔒 The X-13 is full.');return}return ve1.call(this,q,v,k)}}catch(e){}return ve1.apply(this,arguments)}}
+/* ---------- bays: who owns which, and who they trust (shared with the other players out here) ---------- */
+function btrList(){const S=milSV();if(!Array.isArray(S.btr))S.btr=[];return S.btr}
+function btrHas(id){return btrList().some(t=>t.id===id)}
+function bayFresh(q,i){const b=q.bayNet&&q.bayNet[i];return b&&Date.now()-b.t<9000?b:null}
+setInterval(()=>{try{const q=BUS.ride;if(!q||!q.roam||!q.wbay)return;const i=bayMine(q);if(i<0)return;const d=q.wbay.doors[i];xmNet(q,'bay',{i,nm:String(SV.nm||'Player').slice(0,16),tr:btrList().map(t=>t.id).slice(0,20),open:d&&d.u>.5?1:0})}catch(e){}},2500);
+XM.net.bay=(o,id)=>{try{const q=BUS.ride;if(!q)return;const i=o.i|0;if(i<0||i>=WBAY.n)return;(q.bayNet=q.bayNet||{})[i]={id,nm:fsName(String(o.nm||''))||'Player',tr:Array.isArray(o.tr)?o.tr.map(String).slice(0,20):[],open:o.open?1:0,t:Date.now()};
+  const d=q.wbay&&q.wbay.doors[i];if(d&&d.lab&&d.nlab!==q.bayNet[i].nm){d.nlab=q.bayNet[i].nm;try{const nl=pdTxt('BAY '+(i+1)+' · '+d.nlab.toUpperCase().slice(0,12),3.2,.32,'#d8b040','#20261c');nl.position.copy(d.lab.position);nl.position.z+=.02;if(d.nlM&&d.nlM.parent)d.nlM.parent.remove(d.nlM);q.wbay.g.add(nl);d.nlM=nl;d.lab.visible=false}catch(e){}}}catch(e){}};
+/* turrets in every bay, and the security panel in yours */
+function bayDefBuild(q){const B=q.wbay;if(!B||B.def)return;B.def=1;const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.5,metalness:.6},o||{}));const H=5.2;
+ for(const d of B.doors){d.tur=[];for(const sd of[-1,1]){const g=new THREE.Group();g.position.set(d.cx+sd*3.2,H-.25,(WBAY.z0+WBAY.z1)/2+2);B.g.add(g);const base=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.2,12),M(0x2a2e34));g.add(base);const head=new THREE.Group();head.position.y=-.25;g.add(head);
+   const hb=new THREE.Mesh(new THREE.SphereGeometry(.22,12,8),M(0x3a3e44));head.add(hb);const bl=new THREE.Mesh(new THREE.CylinderGeometry(.04,.05,.45,8),M(0x15181c));bl.rotation.x=Math.PI/2;bl.position.z=-.3;head.add(bl);const eye=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),M(0x300000,{emissive:0xff2020,emissiveIntensity:.6}));eye.position.set(0,.05,-.2);head.add(eye);
+   const beam=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,1,6),new THREE.MeshBasicMaterial({color:0xff3030,transparent:true,opacity:.85}));beam.visible=false;B.g.add(beam);d.tur.push({g,head,eye,beam})}}
+ const i=bayMine(q);if(i<0)return;const d=B.doors[i],px=d.cx+3.9,pz=WBAY.z1-1.1;const pn=new THREE.Group();pn.position.set(px,0,pz);B.g.add(pn);
+ const post=new THREE.Mesh(new THREE.BoxGeometry(.5,1.2,.25),M(0x2a2e34));post.position.y=.6;pn.add(post);const scr=new THREE.Mesh(new THREE.BoxGeometry(.44,.3,.04),M(0x0a1810,{emissive:0x20c060,emissiveIntensity:.6}));scr.position.set(0,1.05,-.13);scr.rotation.x=-.3;pn.add(scr);
+ q.props.push({x:px,z:pz-.6,r:1.3,txt:()=>q.seat?'':'[E] 🛡️ Bay security: who can come in ('+btrList().length+' trusted)',act:()=>bayTrustDlg(q)})}
+function bayTrustDlg(q){const here=[];for(const id in (q.vnet&&q.vnet.rem)||{}){const r=q.vnet.rem[id];if(Date.now()-r.t<6000)here.push({id,nm:fsName(r.nm||'')||'Player'})}
+ const L=btrList();const rows=here.map(p=>'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #2a3a20"><span>'+esc(p.nm)+'</span><span>'+(btrHas(p.id)?'✅ trusted':'⛔ not trusted')+'</span></div>').join('')||'<p style="opacity:.7">Nobody else is out in the desert right now.</p>';
+ const away=L.filter(t=>!here.some(p=>p.id===t.id));const btn=here.map(p=>[(btrHas(p.id)?'u:':'t:')+p.id,(btrHas(p.id)?'⛔ Stop trusting ':'✅ Trust ')+p.nm]).concat(away.map(t=>['u:'+t.id,'⛔ Remove '+t.nm+' (away)'])).slice(0,8);btn.push(['x','Close']);
+ milDlg(q,'🛡️ BAY '+(bayMine(q)+1)+' SECURITY','<p style="margin-top:0">Trusted players can open your bay and walk in. Anyone else who gets in is zapped by the turrets and thrown out.</p>'+rows+(away.length?'<p style="font-size:13px;opacity:.75">Also trusted (not here now): '+away.map(t=>esc(t.nm)).join(', ')+'</p>':''),btn,b=>{if(!b||b=='x')return;const id=b.slice(2),S=milSV();if(b[0]=='t'){const p=here.find(x=>x.id===id);if(p&&!btrHas(id)){btrList().push({id,nm:p.nm});hint('✅ '+p.nm+' can come into your bay now.')}}else{S.btr=btrList().filter(t=>t.id!==id)}milSave();setTimeout(()=>bayTrustDlg(q),50)})}
+{const bb0=bayBuild;bayBuild=function(q){const r=bb0.apply(this,arguments);try{bayDefBuild(q)}catch(e){conLog('error','bay defence: '+e.message)}return r}}
+/* the turrets: they track whoever does not belong, and zap them out */
+function bayIn(i,x,z){const cx=bayX(i);return Math.abs(x-cx)<WBAY.w/2-.4&&z>WBAY.z0&&z<WBAY.z1}
+function bayDefTick(q,dt){const B=q.wbay;if(!B||!B.def)return;const mine=bayMine(q),lz=P.z-q.OZ;
+ for(const d of B.doors){if(!d.tur)continue;let tgt=null;
+  if(d.i!==mine){const BN=bayFresh(q,d.i);const tr=BN&&BN.tr.includes(SV.pid);if(BN&&!tr){const me=q.seat?q.seat.v:null,x=me?me.x:P.x,z=me?me.z:lz;if(bayIn(d.i,x,z))tgt={x,y:(me?me.y+1.2:(P.dy||0)+1.2),z,me:1}}}
+  else{for(const id in (q.vnet&&q.vnet.rem)||{}){const r=q.vnet.rem[id];if(Date.now()-r.t>3000||btrHas(id))continue;if(bayIn(d.i,r.x,r.z)){tgt={x:r.x,y:1.2,z:r.z,nm:r.nm};break}}}
+  d.lock=tgt?(d.lock||0)+dt:0;
+  for(const T of d.tur){const wp=new THREE.Vector3();T.g.getWorldPosition(wp);if(tgt){const dx=tgt.x-T.g.position.x,dz=tgt.z-T.g.position.z,dy=tgt.y-(T.g.position.y-.25);T.head.rotation.y=Math.atan2(-dx,-dz);T.head.rotation.x=Math.atan2(dy,Math.hypot(dx,dz));T.eye.material.emissiveIntensity=1.6;
+    const on=d.lock>.6&&((q.rt*8)|0)%2==0;T.beam.visible=on;if(on){const a=new THREE.Vector3(T.g.position.x,T.g.position.y-.25,T.g.position.z),b=new THREE.Vector3(tgt.x,tgt.y,tgt.z),L=a.distanceTo(b);T.beam.position.copy(a).add(b).multiplyScalar(.5);T.beam.scale.set(1,L,1);T.beam.lookAt(b);T.beam.rotateX(Math.PI/2)}}
+   else{T.head.rotation.y+=dt*.6;T.head.rotation.x=.25;T.eye.material.emissiveIntensity=.6;T.beam.visible=false}}
+  if(tgt&&d.lock>.6&&Math.random()<dt*6)try{snd(1400+Math.random()*400,.03)}catch(e){}
+  if(tgt&&tgt.me&&d.lock>1.4){d.lock=0;bayZap(q,d)}
+  if(tgt&&!tgt.me&&d.i===mine&&!d.warned){d.warned=1;hint('🚨 Intruder in your bay: '+(fsName(tgt.nm||'')||'someone')+'. The turrets are on it. (Trust people at the security panel.)')}if(!tgt)d.warned=0}}
+function bayZap(q,d){const BN=bayFresh(q,d.i);snd(220,.25);snd(1800,.1);try{camShake(.5,.4)}catch(e){}try{bsF.style.transition='none';bsF.style.background='#ff2020';bsF.style.opacity=.55;setTimeout(()=>{bsF.style.transition='opacity .8s';bsF.style.opacity=0;setTimeout(()=>bsF.style.background='#000',900)},80)}catch(e){}
+ const x=d.cx,z=WBAY.z1+9;if(q.seat){const v=q.seat.v;v.x=x;v.z=z;v.v=0;v.h=0;try{vehDamage(q,v,15)}catch(e){}}else{P.x=x;P.z=z+q.OZ}hint('⚡ BAY '+(d.i+1)+' SECURITY: you are not on '+((BN&&BN.nm)||'the owner')+'\'s trust list. ZAP. You are outside again.')}
+
+{let last=performance.now();const tk=()=>{requestAnimationFrame(tk);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;try{const q=BUS.ride;if(state=='bus'&&q&&q.roam&&q.wbay)bayDefTick(q,dt)}catch(e){}};requestAnimationFrame(tk)}
+/* ---------- REFITS AS CHALLENGES ---------- */
+function rfTarget(q,o,x,z,lab){const M=q.mil;const g=new THREE.Group();g.position.set(x,0,z);q.g.add(g);const pl=new THREE.Mesh(new THREE.BoxGeometry(3,3.2,.2),VMAT(0xe8e0c0));pl.position.y=1.8;g.add(pl);const t=dsSign('✕','#c02020','#fff');t.scale.setScalar(.85);g.add(t);const pole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,6,6),VMAT(0xff4020,{emissive:0x802010}));pole.position.y=3;g.add(pole);
+ const tg={x,z,g,dead:0,onHit(){const v=q.seat&&q.seat.v;const far=v?Math.hypot(v.x-x,v.z-z):999;if(o.minD&&far<o.minD){tg.dead=0;hint('🎯 Too close: that one only counts from '+o.minD+' m away. ('+Math.round(far)+' m)');return}g.rotation.x=Math.PI/2*.95;pole.visible=false;o.n=(o.n||0)+1;snd(600,.1);hint('🎯 '+(lab||'Target')+' down! ('+o.n+'/'+o.need+')')}};M.tg.push(tg);M.rangeT.push(tg);return tg}
+function rfWr(q){const s=q.seat;return s&&s.i==0&&s.v.K.proto?s.v:null}
+function rfOpforAdd(q,o,x,z){const M=q.mil;const v=q.addVeh('tank',x,z,Math.PI/2);v.mil=99;v.guard=1;v.nogar=1;v.npc=1;const tg={x,z,v,hp:2,hits:0,dead:0,onHit(){tg.x=v.x;tg.z=v.z;o.n=(o.n||0)+1;v.wreck=1;v.wreckT=99;try{boom(q,v.x,v.y+1,v.z,0,1.2,v)}catch(e){}hint('⚔️ OPFOR tank knocked out! ('+o.n+'/'+o.need+')')}};M.tg.push(tg);o.of.push({v,tg,cd:2+Math.random()*2});for(const p of q.props)if(p.veh===v)p.txt=()=>''}
+const RFC={
+ 1:{t:'LIVE-FIRE ARMOUR TEST',d:'Two OPFOR tanks open up on you while you drive the four range checkpoints. Make it through all four in 80 seconds without losing more than 80% of your armour.',
+  go(q,o){o.t=80;o.n=0;o.need=4;o.ok=1;milOpfor(q,o);milBeacons(q,o,[[560,-800],[575,-760],[548,-732],[520,-785]])},
+  line(q,o){const v=rfWr(q);return'🛡️ ARMOUR TEST · checkpoint '+Math.min(4,o.n+1)+'/4 under fire · armour '+(v?Math.max(0,100-Math.round(v.dmg||0)):'?')+'% · '+Math.ceil(o.t)+'s'},
+  tick(q,o,dt){o.t-=dt;milOpforTick(q,o,dt*1.5);const v=rfWr(q);if(v&&(v.dmg||0)>80)return'Armour below 20%. The reactive plates did not hold up.';const b=o.bc&&o.bc[o.n];if(b&&v&&Math.hypot(v.x-b[0],v.z-b[1])<7){o.n++;snd(800,.08);milBeaconOff(q,o,o.n-1);if(o.n>=4)return true}if(o.t<=0)return'Time. Four checkpoints, under fire, in 80 seconds.'},
+  end(q,o){milBeaconsClear(q,o);milOpforClear(q,o)}},
+ 2:{t:'SALVO TEST',d:'Eight targets across the range berm, 35 seconds. One pod is not enough: you need the full eight-rocket salvo.',
+  go(q,o){o.t=35;o.n=0;o.need=8;o.ok=1;for(let i=0;i<8;i++)rfTarget(q,o,588+(i%2)*4,-805+i*10.5,'Target')},
+  line(q,o){return'🚀 SALVO TEST · targets '+o.n+'/8 on the range berm · '+Math.ceil(o.t)+'s'},
+  tick(q,o,dt){o.t-=dt;if(o.n>=8)return true;if(o.t<=0)return'Time. Eight targets in 35 seconds is a salvo job.'},end(q,o){milTargetsClear(q)}},
+ 3:{t:'SPEED TRAP',d:'Route 13, heading south: three speed-trap gates. Go through every one at 50 m/s or more (Shift for the afterburners). Miss one and you start again at the first.',
+  go(q,o){o.t=180;o.n=0;o.need=3;milBeacons(q,o,[[0,-1080],[0,-1230],[0,-1380]])},
+  line(q,o){const v=rfWr(q);return'🔥 SPEED TRAP · gate '+(o.n+1)+'/3 on Route 13 at 50+ m/s · you: '+(v?Math.round(Math.abs(v.v)):0)+' m/s · '+Math.ceil(o.t)+'s'},
+  tick(q,o,dt){o.t-=dt;const v=rfWr(q),b=o.bc&&o.bc[o.n];if(v&&b&&Math.abs(v.z-b[1])<6&&Math.abs(v.x-b[0])<9){const sp=Math.abs(v.v);if(sp>=50){o.n++;snd(900,.1);milBeaconOff(q,o,o.n-1);hint('🔥 '+Math.round(sp)+' m/s. Gate '+o.n+'/3.');if(o.n>=3)return true}else if(!o.slow){o.slow=1;hint('🐢 '+Math.round(sp)+' m/s: too slow. Back to the first gate (north of it, then run south).');milBeaconsClear(q,o);milBeacons(q,o,[[0,-1080],[0,-1230],[0,-1380]]);o.n=0;setTimeout(()=>o.slow=0,2500)}}if(o.t<=0)return'Time. The afterburners never got a clean run.'},
+  end(q,o){milBeaconsClear(q,o)}},
+ 4:{t:'SHIELD SOAK',d:'Park in the impact zone on the range and sit through a 30-second artillery barrage. Stay inside the ring and keep the hull above 40%.',
+  go(q,o){o.t=150;o.n=0;o.need=1;o.ph=0;o.bt=30;o.ok=1;milBeacons(q,o,[[565,-765]])},
+  line(q,o){const v=rfWr(q);return o.ph?'⚡ SHIELD SOAK · hold position · barrage '+Math.ceil(o.bt)+'s · hull '+(v?Math.max(0,100-Math.round(v.dmg||0)):'?')+'%':'⚡ SHIELD SOAK · drive into the IMPACT ZONE on the range and stop · '+Math.ceil(o.t)+'s'},
+  tick(q,o,dt){const v=rfWr(q);if(!o.ph){o.t-=dt;if(v&&Math.hypot(v.x-565,v.z+765)<7&&Math.abs(v.v)<2){o.ph=1;hint('📻 "Shot, over." The barrage is coming in. Do NOT move.');snd(300,.2)}if(o.t<=0)return'Time. You never got into the impact zone.';return}
+   o.bt-=dt;if(!v||Math.hypot(v.x-565,v.z+765)>9)return'You left the impact zone. The test needs you to SIT in it.';if((v.dmg||0)>60)return'Hull below 40%. The shield needs more work.';
+   if((o.sh=(o.sh||0)-dt)<=0){o.sh=.9+Math.random()*.5;const a=Math.random()*6.28,r=1.5+Math.random()*4.5;try{boom(q,v.x+Math.cos(a)*r,.6,v.z+Math.sin(a)*r,false,.9)}catch(e){}}if(o.bt<=0)return true},
+  end(q,o){milBeaconsClear(q,o)}},
+ 5:{t:'LONG SHOT',d:'Four targets far out in the desert south of the gate. Each one only counts if you hit it from 200 m or more away. Two and a half minutes.',
+  go(q,o){o.t=150;o.n=0;o.need=4;o.ok=1;o.minD=200;for(const[x,z]of[[500,-1290],[610,-1260],[430,-1240],[560,-1340]])rfTarget(q,o,x,z,'Long-range target')},
+  line(q,o){return'🎯 LONG SHOT · targets '+o.n+'/4 · fire from 200 m+ (they are south of the gate) · '+Math.ceil(o.t)+'s'},
+  tick(q,o,dt){o.t-=dt;if(o.n>=4)return true;if(o.t<=0)return'Time. The rails are there; the shots were not.'},end(q,o){milTargetsClear(q)},
+  wp(q,o){return[560,-1000,'the FIRING POINT outside the gate']}},
+ 6:{t:'THE GAUNTLET',d:'Everything at once: three OPFOR tanks dug in on the range, hitting harder than ever. Knock out all three in two minutes and keep the Wraith in one piece.',
+  go(q,o){o.t=120;o.n=0;o.need=3;o.ok=1;milOpfor(q,o);rfOpforAdd(q,o,592,-766)},
+  line(q,o){const v=rfWr(q);return'👑 THE GAUNTLET · OPFOR tanks '+o.n+'/3 · hull '+(v?Math.max(0,100-Math.round(v.dmg||0)):'?')+'% · '+Math.ceil(o.t)+'s'},
+  tick(q,o,dt){o.t-=dt;milOpforTick(q,o,dt*1.8);const v=q.mil.proto;if(v&&v.wreck)return'The Wraith is a wreck. Not perfected yet.';if(o.n>=3)return true;if(o.t<=0)return'Time. The OPFOR hold the range.'},end(q,o){milOpforClear(q,o)}}};
+function wkRefit2(n,min,xp){const C=RFC[n];return{id:'refit'+n,nm:'Wraith refit: '+WKN[n],ic:'🛸',min,xp,ref:n,
+ d:'The crew fit a PROTOTYPE '+WKN[n].split('· ')[1]+' at the REFIT BAY (Hangar 1). Then the '+C.t+': '+C.d+' Pass and it is yours for good. '+WKD[n],
+ start(q,o){if(!garOwned('proto')){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 You need your own Wraith first: pass the X-13 TRIALS.')}},0);return}if((milSV().wk|0)>=n){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 Your Wraith already has the '+WKN[n]+'.')}},0);return}if((milSV().wk|0)<n-1){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 One refit at a time: your Wraith needs the '+WKN[n-1]+' first.')}},0);return}o.st=0;o.h=0;o.n=0;o.t=240;milBeacons(q,o,[WKBAY])},
+ line(q,o){if(o.st==0){const s=q.seat;return'🛸 Drive your WRAITH onto the REFIT BAY pad in Hangar 1'+(o.h>0?' · crew fitting the prototype '+Math.round(o.h/8*100)+'%':s&&s.v.K.proto?'':' · get in your Wraith')}return C.line(q,o)},
+ tick(q,o,dt){if(o.st==0){const s=q.seat;const at=s&&s.i==0&&s.v.K.proto&&Math.hypot(s.v.x-WKBAY[0],s.v.z-WKBAY[1])<5.5;if(at&&Math.abs(s.v.v)<1.2){if(o.h==0)hint('🔧 Hold still: the crew are fitting the prototype.');o.h+=dt;if(Math.random()<dt*12)try{vfx('ember',s.v.x+(Math.random()-.5)*3,s.v.y+1.5,s.v.z+(Math.random()-.5)*5+q.OZ,{n:3})}catch(e){}if(Math.random()<dt*4)snd(900+Math.random()*600,.03);
+    if(o.h>=8){WKTRY.ref=n;try{wkBuild(s.v,wkMine())}catch(e){}milBeaconsClear(q,o);o.bc=null;o.st=1;snd(500,.1);setTimeout(()=>snd(800,.15),120);hint('🛸 PROTOTYPE '+WKN[n]+' fitted. Now the '+C.t+': '+C.d);C.go(q,o)}}else if(o.h>0&&o.h<8)o.h=Math.max(0,o.h-dt*2);return}
+  const r=C.tick(q,o,dt);if(r===true){const S=milSV();S.wk=Math.max(S.wk|0,n);milSave();WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}hint('🛸 '+C.t+' PASSED. The '+WKN[n]+' is yours for good. '+WKD[n]);if(n>=6)try{badge('wraith6')}catch(e){}try{sysLine('🛸 '+(SV.nm||'Someone')+'\'s Wraith passed the '+C.t+' and is now '+WKN[n])}catch(e){}milOpDone(q,o)}
+  else if(typeof r=='string'){WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}milOpFail(q,o,r+' The prototype part comes off again.')}},
+ end(q,o){if(o.bc)milBeaconsClear(q,o);try{C.end(q,o)}catch(e){}if(WKTRY.ref===n){WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}}},
+ wp(q,o){if(o.st==0)return[WKBAY[0],WKBAY[1],'the REFIT BAY'];if(C.wp)return C.wp(q,o);const b=o.bc&&o.bc[o.n];return b?[b[0],b[1],C.t+' checkpoint']:null}}}
+for(let i=0;i<MILOPS.length;i++){const m=/^refit(\d)$/.exec(MILOPS[i].id||'');if(m){const o=MILOPS[i];MILOPS[i]=wkRefit2(+m[1],o.min,o.xp)}}
+/* ---------- chat video: "I like like liker" (or anything close: "like like liker", "i like liker", "like like likers") ---------- */
+try{VIDS.push({ph:['i like like liker','like like liker'],test:w=>/ (i )?like,? (like,? )?likers? /.test(w),id:'likeVid',cap:'👍 I like like liker'})}catch(e){}
 
 </script><script>
 /* ======================================================================================================
@@ -18846,4 +18951,5 @@ function dpMil(q,g){const ML=q.mil;if(!ML||typeof MILB==='undefined')return;cons
 <script id="lobbyMus" type="text/plain" data-src="media/lobbyMus.47c1a41c73.b64"></script>
 <script id="seekMus" type="text/plain" data-src="media/seekMus.1b05c600c7.b64"></script>
 <script id="figMus" type="text/plain" data-src="media/figMus.235b0142c2.b64"></script>
-<script>/* the music and videos live in media/ next to this page; fetch them in the background, a couple at a time */(function(){const L=[["lobbyMus", "media/lobbyMus.47c1a41c73.b64"], ["seekMus", "media/seekMus.1b05c600c7.b64"], ["desertMus", "media/desertMus.978735d984.b64"], ["desertMus2", "media/desertMus2.d81f7e18c3.b64"], ["damMus", "media/damMus.4bc48ab94c.b64"], ["pumpkinVid", "media/pumpkinVid.aedac6ed9e.b64"], ["curiousVid", "media/curiousVid.6453c41f41.b64"], ["seekVid", "media/seekVid.2f6003a887.b64"], ["sylVid", "media/sylVid.df0627146c.b64"], ["lemonVid", "media/lemonVid.5c7e66e6ec.b64"], ["figMus", "media/figMus.235b0142c2.b64"]];let i=0;const next=()=>{if(i>=L.length)return;const[id,src]=L[i++];fetch(src).then(r=>r.ok?r.text():"").then(t=>{const el=document.getElementById(id);if(el&&t)el.textContent=t}).catch(()=>{}).finally(next)};const go=()=>{next();next()};if(document.readyState=="loading")document.addEventListener("DOMContentLoaded",go);else go()})();</script></body></html>
+<script id="likeVid" type="text/plain" data-src="media/likeVid.ee59eb6bac.b64"></script>
+<script>/* the music and videos live in media/ next to this page; fetch them in the background, a couple at a time */(function(){const L=[["lobbyMus", "media/lobbyMus.47c1a41c73.b64"], ["seekMus", "media/seekMus.1b05c600c7.b64"], ["desertMus", "media/desertMus.978735d984.b64"], ["desertMus2", "media/desertMus2.d81f7e18c3.b64"], ["damMus", "media/damMus.4bc48ab94c.b64"], ["pumpkinVid", "media/pumpkinVid.aedac6ed9e.b64"], ["curiousVid", "media/curiousVid.6453c41f41.b64"], ["seekVid", "media/seekVid.2f6003a887.b64"], ["sylVid", "media/sylVid.df0627146c.b64"], ["lemonVid", "media/lemonVid.5c7e66e6ec.b64"], ["figMus", "media/figMus.235b0142c2.b64"], ["likeVid", "media/likeVid.ee59eb6bac.b64"]];let i=0;const next=()=>{if(i>=L.length)return;const[id,src]=L[i++];fetch(src).then(r=>r.ok?r.text():"").then(t=>{const el=document.getElementById(id);if(el&&t)el.textContent=t}).catch(()=>{}).finally(next)};const go=()=>{next();next()};if(document.readyState=="loading")document.addEventListener("DOMContentLoaded",go);else go()})();</script></body></html>
