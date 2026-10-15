@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r573';
+const BUILD='2026-10-15 r574';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -4006,7 +4006,7 @@ function xpBillboards(X){const{q,g,M,A,BX,CY,ob,lab}=X;const B=[[14,-1260,'DOORS
 function xpStunts(X){const{q,g,M,A,BX,sign,loc,rect}=X,PK=X.PK;const ramp=(x,z0,len,w,H,dir,nm)=>{const zc=z0+dir*len/2,ang=Math.atan2(H,len),pl=new THREE.Mesh(BX(w,.25,Math.hypot(len,H)),PK);pl.position.set(x,H/2,zc);pl.rotation.x=dir<0?ang:-ang;g.add(pl);for(let i=1;i<=3;i++){const zz=z0+dir*len*i/3,hh=H*i/3;for(const sd of[-1,1])A(BX(.2,hh,.2),PK,x+sd*(w/2-.2),hh/2,zz)}q.ramps.push({x0:x-w/2,x1:x+w/2,z0,len,H,dir,stunt:nm,sj:1});rect(x-w/2,x+w/2,Math.min(z0,z0+dir*len),Math.max(z0,z0+dir*len),'#a07040');sign('STUNT JUMP\n'+nm,'#c02020',x+w/2+2.5,z0-dir*3,0);loc('Stunt: '+nm,x,z0,'🛹')};
  ramp(40,-1290,9,5,2.6,-1,'ROUTE 13 LEAP');ramp(-500,-1180,8,5,2.4,-1,'WIND FARM WHIP');ramp(520,-1360,9,5,2.8,-1,'AIRFIELD HOP');ramp(-80,-1920,9,5,2.8,1,'SOUTHERN FLIP');ramp(360,-1580,8,5,2.4,1,'LAKESIDE LAUNCH');ramp(-330,-1460,9,5,2.8,-1,'QUARRY SKIP');
  /* a tunnel of barrels to jump over on Route 13 */for(let i=0;i<5;i++){const bx=40+(i-2)*1.1,bz=-1310;A(new THREE.CylinderGeometry(.45,.45,1.1,12),M(0x4a5a3a),bx,.55,bz);const o={x0:bx-.5,x1:bx+.5,z0:bz-.5,z1:bz+.5,m:g.children[g.children.length-1],kd:'barrel'};q.obs.push(o)}}
-function xpKeys(X){const{q,g,M,A,BX,prop,loc,anim}=X;const K=[[-360,-1540,'on Lookout Mesa'],[-210,-1440,'at the bottom of the quarry'],[300,-1736,'on the gorge jump ledge'],[312,-1284,'in the airfield hangar'],[-580,-1920,'in Hangar 18, Dark Zone 51'],[520,-1460,'behind the bank'],[250,-1590,'at the end of the pier'],[478,-1629,'on the station platform'],[-600,-1215,'under turbine 1'],[90,-1322,'by the crusher'],[300,-1830,'in the Speedway infield'],[150,-1948,'under the dinosaur\'s tail']];
+function xpKeys(X){const{q,g,M,A,BX,prop,loc,anim}=X;const K=[[-360,-1540,'on Lookout Mesa'],[-210,-1450,'at the bottom of the quarry'],[300,-1736,'on the gorge jump ledge'],[312,-1284,'in the airfield hangar'],[-580,-1920,'in Hangar 18, Dark Zone 51'],[520,-1460,'behind the bank'],[250,-1590,'at the end of the pier'],[478,-1629,'on the station platform'],[-600,-1215,'under turbine 1'],[90,-1322,'by the crusher'],[300,-1830,'in the Speedway infield'],[150,-1948,'under the dinosaur\'s tail']];
  SV.xk=SV.xk||0;q.keys=[];K.forEach(([x,z,nm],i)=>{if(SV.xk&(1<<i))return;const gp=new THREE.Group();gp.position.set(x,vehGround(q,x,z)+1.1,z);g.add(gp);gp.userData.mv=1;const GM=M(0xffd040,{metalness:.8,roughness:.25,emissive:0x604010});const r=new THREE.Mesh(new THREE.TorusGeometry(.22,.06,8,16),GM);r.position.y=.3;gp.add(r);const s=new THREE.Mesh(BX(.08,.6,.08),GM);s.position.y=-.2;gp.add(s);for(const y of[-.45,-.3]){const t=new THREE.Mesh(BX(.2,.07,.08),GM);t.position.set(.1,y,0);gp.add(t)}const gl=glowSp(0xffd040,.6,1.4);gp.add(gl);q.keys.push({i,x,z,nm,gp})});
  q.keyN=K.length}
 function xpKeyTick(q,dt){if(!q.keys||!q.keys.length)return;const lz=P.z-q.OZ;for(let i=q.keys.length-1;i>=0;i--){const k=q.keys[i];if(Math.abs(P.x-k.x)>60||Math.abs(lz-k.z)>60)continue;k.gp.rotation.y+=dt*2;k.gp.position.y=vehGround(q,k.x,k.z)+1.1+Math.sin(q.rt*2+k.i)*.15;
@@ -4067,7 +4067,7 @@ function xpTick(q,dt){const lz=P.z-q.OZ;xpCull(q);try{liftTick(q,dt)}catch(e){co
  try{xpTrainTick(q,dt)}catch(e){conLog('error','train: '+e.message)}try{hwpTick(q,dt)}catch(e){conLog('error','highway patrol: '+e.message)}try{xpTrafficTick(q,dt)}catch(e){conLog('error','traffic: '+e.message)}try{xpKeyTick(q,dt)}catch(e){}try{xpRaceTick(q,dt)}catch(e){}try{xpSafeTick(q,dt)}catch(e){}
  for(const v of q.vehs)try{xpVehGorge(q,v)}catch(e){}
  /* wading */{let wd=0;if(!q.seat&&!q.inBus&&!q.fling&&vehGround(q,P.x,lz)<.3)for(const w of q.water||[])if(Math.hypot(P.x-w.x,lz-w.z)<w.r){wd=1;break}if(wd){P.dy=-.85+Math.sin(q.rt*2)*.05;if(!q.wade){snd(200,.15);try{vfx('splash',P.x,.1,P.z,{n:12})}catch(e){}}if(P.sp>0&&Math.random()<dt*4)try{vfx('splash',P.x,.1,P.z,{n:3})}catch(e){}}q.wade=wd}
- /* Dark Zone 51: inside the fence is a crime in itself */{const Z=DZ51,inZ=P.x>Z.x0&&P.x<Z.x1&&lz>Z.z0&&lz<Z.z1;if(inZ&&!q.jail&&!q.rsp){if(!q.dzIn){q.dzIn=1;snd(400,.3);setTimeout(()=>snd(300,.3),300);hint('🚨 RESTRICTED AREA. Alarms. Searchlights. The dark police are on their way. (Find the saucer in Hangar 18!)')}if((q.dzT=(q.dzT||0)-dt)<=0){q.dzT=2.4;snd(400,.25);setTimeout(()=>snd(300,.25),250)}try{addHeat(q,5.5*dt,'trespass')}catch(e){}}else q.dzIn=0}
+ /* Dark Zone 51: inside the fence is a crime in itself */{const Z=DZ51,inZ=P.x>Z.x0&&P.x<Z.x1&&lz>Z.z0&&lz<Z.z1;if(inZ&&milRank()>=9&&!q.dzG){q.dzG=1;hint('🎖️ Dark Zone 51 waves a General straight through. Clearance granted.')}if(inZ&&!q.jail&&!q.rsp&&!(milRank()>=9)){if(!q.dzIn){q.dzIn=1;snd(400,.3);setTimeout(()=>snd(300,.3),300);hint('🚨 RESTRICTED AREA. Alarms. Searchlights. The dark police are on their way. (Find the saucer in Hangar 18!)')}if((q.dzT=(q.dzT||0)-dt)<=0){q.dzT=2.4;snd(400,.25);setTimeout(()=>snd(300,.25),250)}try{addHeat(q,5.5*dt,'trespass')}catch(e){}}else q.dzIn=0}
  /* the saucer */if(q.abd){const a=q.abd;a.t+=dt;if(a.t<2.4){P.dy=a.t*a.t*5;P.yaw+=dt*2.5;if(Math.random()<dt*8)snd(300+a.t*400,.05)}else{const L=(q.locs||[]).filter(l=>!/Dark Zone|Hangar|Gorge|Stunt|Railroad/.test(l.nm));const l=L[Math.random()*L.length|0]||{x:4,z:-1040,nm:'the bus stop'};P.x=l.x+4;P.z=q.OZ+l.z+4;q.fling={vx:0,vz:0,vy:0,y:26,t:0,soft:1};q.safe={x:P.x,z:l.z+4};q.abd=null;try{bsF.style.transition='none';bsF.style.background='#fff';bsF.style.opacity=1;setTimeout(()=>{bsF.style.transition='opacity 1.5s';bsF.style.opacity=0;setTimeout(()=>bsF.style.background='#000',1600)},150)}catch(e){}snd(1500,.3);hint('👽 ...and then they let go. Over '+l.nm+'. From quite high up.');try{badge('ufo')}catch(e){}}}
  /* the bank job */if(q.rob&&q.rob.on){const R=q.rob;if(Math.hypot(P.x-R.x,lz-R.z)>3.2){R.on=0;hint('🔓 You stepped away from the vault. The dial resets. Seek is still coming, though.')}else{R.t-=dt;if((R.bT=(R.bT||0)-dt)<=0){R.bT=.7;snd(1400,.08);setTimeout(()=>snd(1000,.08),200)}R.wh.rotation.x+=dt*4;if(R.t<=0){R.on=0;q.robbed=1;try{if(R.open)R.open()}catch(e){}gold+=250;SV.xrob=(SV.xrob|0)+1;try{saveGame();badge('bank')}catch(e){}try{addHeat(q,80)}catch(e){}snd(200,.5);setTimeout(()=>{for(let i=0;i<8;i++)setTimeout(()=>snd(1500,.1),i*160)},200);try{vfx('gold',R.x+1.5,1.5,R.z+q.OZ,{n:30})}catch(e){}hint('💰 CLUNK. The vault swings open. 250 gold! Now RUN: that is four stars and Seek knows exactly where you are.')}}}
  /* taxi stands: F picks the next stop */if(q.taxiHint==null){q.taxiHint=0}
@@ -16019,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r574',['Lost DOORS keys, Wraith refits, prestige, your parked Wraith, meteorite fragments, postcards, stunt jumps, chests and records now load properly (they were saved but never read back)','Job waypoints show on the map: a pin for where to go next, numbered checkpoints and the route. The small map points to it when it is off the edge','Real falling: step off a ledge and you speed up as you drop, with a thump when you land','Fixed the police backup spawning every frame (beeping non-stop) when you were far from the station','Generals have clearance for Dark Zone 51','Squads drive at one fast speed and keep their distance, no more rear-ending','APC camera is no longer in the floor','Wraith bay doors roll up under the frame instead of floating above the roof']],
  ['r573',['Fixed a memory leak: every lobby visit kept the whole old lobby in memory (about 7 MB each time)','Fixed a memory leak: room textures piled up on the graphics card with every run. Long sessions stay smooth now','The last room of a run is freed when you go back to the menu']],
  ['r572',['WRAITH BAYS: four private bays behind the general offices, one per office. The door opens itself for the owner only, and a Wraith parked inside cannot be damaged and is still there next time','Wraith AUTOPILOT (L) plans a real route home from anywhere: round buildings, in through the gate, waits for the door, parks. It goes to your bay if you have one','Squads plan real routes too, so they stop driving into things','The SWAT-style army vehicle and the Dust Devil APCs are visible']],
  ['r571',['SQUAD JOBS: 23 kinds now (3 on offer each day, the same for everyone): water delivery, fuel drop, fortify position, radio relay, land survey, checkpoint, floodlights, flag ceremony, field camp, camo nets, field kitchen, mortar drill, mine clearance, demolition, PT, aid post, landing zone, observation post and the old ones','Every job is acted out: the squad sets up (carrying kit from the vehicles or building it piece by piece), does the job, then packs up and drives home','Army APCs are visible again']],
@@ -17197,7 +17198,7 @@ function pdUnitsTick(q,dt){const H=q.pdHQ;if(!H)return;if((q.heat|0)<=0)q.pdLoss
   v.K=Object.assign({},VEHK.cop,{max:u.st=='home'?16:Math.min(34,10+copStars(q)*5)});v.hitO=null;const x0=v.x,z0=v.z;vehPhys(q,v,dt,fx,Math.max(-1,Math.min(1,-dh*2.2)),true,false);
   if(Math.abs(v.v)<.6&&fx>.3&&!close){u.stuck+=dt;if(u.stuck>1.6){u.stuck=0;u.bT=-1.3}}else u.stuck=0;
   if(v.hitO&&tgt&&v.hitO===tgt&&Math.abs(v.v)>6&&(u.rmT=(u.rmT||0)-dt)<=0){u.rmT=1.5;try{vehDamage(q,tgt,Math.abs(v.v)*.6)}catch(e){}snd(90,.2);try{camShake(.25,.2)}catch(e){}}
-  if(Math.hypot(v.x-tx,v.z-tz)>320&&u.st!='home'){garRemove(q,v);u.gone=1;pk.m.visible=true;q.obs.push(pk.ob);q.obsDirty=1}}}
+  if(Math.hypot(v.x-tx,v.z-tz)>320&&u.st!='home'&&u.t>45){garRemove(q,v);u.gone=1;pk.cd=30;pk.m.visible=true;q.obs.push(pk.ob);q.obsDirty=1}}}
 {let last=performance.now();const tick=()=>{requestAnimationFrame(tick);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;try{const q=BUS.ride;if(state=='bus'&&q&&q.roam&&q.pdHQ)pdUnitsTick(q,dt)}catch(e){conLog('error','backup: '+e.message)}};requestAnimationFrame(tick)}
 {const cw0=copWreck;copWreck=function(q,mine){try{if(q.cop&&q.cop.st!='wreck'&&mine)q.pdLoss=(q.pdLoss|0)+1}catch(e){}return cw0.apply(this,arguments)}}
 
@@ -17381,13 +17382,13 @@ function cwSend(q,o){const C=q.cw,used=new Set(C.sq.filter(s=>!s.done).map(s=>s.
  C.sq.push(s);snd(600,.1);setTimeout(()=>snd(800,.1),120);hint('🪖 SQUAD '+nm+' is rolling out: '+o.T.nm+' at '+o.loc.nm+'. 🪙 '+o.gold+' when they get back.');try{sysLine('🪖 General '+(SV.nm||'')+' sent Squad '+nm+' to '+o.loc.nm)}catch(e){}}
 function cwDrive(q,u,gx,gz,dt,max,dist){const v=u.v;const dx=gx-v.x,dz=gz-v.z,d=Math.hypot(dx,dz),dh=wrapA(Math.atan2(-dx,-dz)-v.h);
  if(u.bT<0){u.bT+=dt;v.K=Object.assign({},VEHK[v.k],{max:6});v.hitO=null;vehPhys(q,v,dt,-.9,Math.sign(dh)||1,true,false);return d}
- const fx=d<dist?(Math.abs(v.v)>1.5?-1:0):Math.abs(dh)>1.1?.35:1;v.K=Object.assign({},VEHK[v.k],{max:Math.min(max,VEHK[v.k].max||14)});v.hitO=null;vehPhys(q,v,dt,fx,Math.max(-1,Math.min(1,-dh*2.2)),true,false);
+ const fx=d<dist?(Math.abs(v.v)>1.5?-1:0):Math.abs(dh)>1.1?.35:1;v.K=Object.assign({},VEHK[v.k],{max:max,acc:Math.max(9,VEHK[v.k].acc||8)});v.hitO=null;vehPhys(q,v,dt,fx,Math.max(-1,Math.min(1,-dh*2.2)),true,false);
  if(fx>.3&&Math.abs(v.v)<.6){u.stuck+=dt;if(u.stuck>1.4){u.stuck=0;u.bT=-1.1-Math.random()*.6}}else u.stuck=0;return d}
 function cwTick(q,dt){const C=q.cw;if(!C)return;if(C.rollT>0)C.rollT-=dt;const lz=P.z-q.OZ;
  for(const s of C.sq){if(s.done)continue;s.t+=dt;const lead=s.v[0];
   if(s.v.some(u=>u.v.wreck)){s.done=1;s.st='lost';hint('💥 SQUAD '+s.nm+' took losses and is out of action. Mission failed.');setTimeout(()=>{for(const u of s.v)try{garRemove(q,u.v)}catch(e){}for(const m of s.sol)if(m.parent)m.parent.remove(m)},8000);continue}
   if(s.ph=='out'||s.ph=='back'){const w=s.wp[s.wi];const far=Math.hypot(P.x-lead.v.x,lz-lead.v.z)>160;
-   const d=cwDrive(q,lead,w[0],w[1],dt,16,0);/* the rest follow in a line */s.v.forEach((u,i)=>{if(!i)return;const pv=s.v[i-1].v;const bx=pv.x+Math.sin(pv.h)*8,bz=pv.z+Math.cos(pv.h)*8;cwDrive(q,u,bx,bz,dt,18,3.5)});
+   const d=cwDrive(q,lead,w[0],w[1],dt,16,0);/* the rest follow in a line */s.v.forEach((u,i)=>{if(!i)return;const pv=s.v[i-1].v;const bx=pv.x+Math.sin(pv.h)*8,bz=pv.z+Math.cos(pv.h)*8;cwDrive(q,u,bx,bz,dt,cvMax(u,pv),3.5)});
    /* nobody watching and stuck? they get on with it */if(far&&(lead.stuck>.8||lead.bT<0)){const st=Math.min(25,d);const ux=(w[0]-lead.v.x)/(d||1),uz=(w[1]-lead.v.z)/(d||1);s.v.forEach((u,i)=>{u.v.x+=ux*st;u.v.z+=uz*st;u.v.h=Math.atan2(-ux,-uz);u.stuck=0;u.bT=0})}
    if(far&&s.v.some((u,i)=>i&&Math.hypot(u.v.x-lead.v.x,u.v.z-lead.v.z)>40)){s.v.forEach((u,i)=>{if(!i)return;u.v.x=lead.v.x+Math.sin(lead.v.h)*8*i;u.v.z=lead.v.z+Math.cos(lead.v.h)*8*i;u.v.h=lead.v.h})}
    if(d<(s.wi==s.wp.length-1?10:7)){s.wi++;if(s.wi>=s.wp.length){if(s.ph=='out'){s.ph='work';s.wt=0;s.st=s.T.work;hint('📻 SQUAD '+s.nm+': "On site at '+s.loc.nm+'. '+s.T.work[0].toUpperCase()+s.T.work.slice(1)+'."');cwWorkStart(q,s)}else{s.done=1;s.st='home';cwPay(q,s)}}}
@@ -18194,7 +18195,7 @@ function bayBuild(q){if(q.wbay||!q.g||!q.obs)return;const g=new THREE.Group();q.
  /* a Wraith you left in your bay last time is still there */setTimeout(()=>{try{const S=milSV(),i=bayMine(q),pv=q.mil&&q.mil.proto;if(S.bayPark&&i>=0&&pv&&!pv.wreck&&!(q.seat&&q.seat.v===pv)){pv.x=bayX(i);pv.z=(WBAY.z0+WBAY.z1)/2-1;pv.h=0;pv.v=0;pv.bayLock=1;pv.netSnap=1}}catch(e){}},1500);
  /* your bay: a sign with your name */setTimeout(()=>{try{const i=bayMine(q);if(i>=0){const d=B.doors[i];const nl=pdTxt('BAY '+(i+1)+' · '+String(SV.nm||'YOU').toUpperCase().slice(0,12),3.2,.32,'#40c0ff','#0a1420');nl.position.copy(d.lab.position);nl.position.z+=.02;B.g.add(nl);d.lab.visible=false}}catch(e){}},2000)}
 function bayTick(q,dt){const B=q.wbay;if(!B)return;const mine=bayMine(q),lz=P.z-q.OZ,me=q.seat&&q.seat.v;for(const d of B.doors){let want=0;if(d.i===mine){const nearMe=Math.hypot(P.x-d.cx,lz-(WBAY.z1+2))<15;const wr=q.mil&&q.mil.proto;const wrNear=wr&&!wr.wreck&&Math.hypot(wr.x-d.cx,wr.z-(WBAY.z1+2))<17&&me===wr;want=(nearMe||wrNear||d.force>0)?1:0;if(d.force>0)d.force-=dt}
-  const pu=d.u;d.u+=(want-d.u)*Math.min(1,dt*1.2);d.m.position.y=2.25+d.u*4.2;d.m.scale.y=Math.max(.06,1-d.u*.94);if((pu<.05)!==(d.u<.05)||(pu>.9)!==(d.u>.9))try{snd(d.u>pu?520:360,.08)}catch(e){}
+  const pu=d.u;d.u+=(want-d.u)*Math.min(1,dt*1.2);{const hh=4.5*Math.max(.06,1-d.u*.94);d.m.scale.y=hh/4.5;d.m.position.y=4.5-hh/2}if((pu<.05)!==(d.u<.05)||(pu>.9)!==(d.u>.9))try{snd(d.u>pu?520:360,.08)}catch(e){}
   const open=d.u>.85;if(open===!!d.obOn){d.obOn=!open;if(open){const k=q.obs.indexOf(d.ob);if(k>=0)q.obs.splice(k,1)}else q.obs.push(d.ob);q.obsDirty=1}d.lt.material.emissive.setHex(d.u>.5?0x20c040:0xc00000)}
  /* the Wraith in your bay: locked and protected; leaving it there is remembered */const pv=q.mil&&q.mil.proto;if(pv&&mine>=0){const inside=Math.abs(pv.x-bayX(mine))<4.2&&pv.z>WBAY.z0&&pv.z<WBAY.z1&&!pv.wreck;const empty=!(q.seat&&q.seat.v===pv);pv.bayLock=inside&&empty?1:0;const S=milSV();const was=!!S.bayPark;if(empty&&!!inside!==was){S.bayPark=inside?1:0;milSave();if(inside)hint('🔒 X-13 parked in your Wraith bay: locked, protected, and it will be here next time.')}}
  /* a hint the first time you walk up to the bays */if(!q.bayHint&&Math.hypot(P.x-(WBAY.x0+20),lz-(WBAY.z1+4))<14){q.bayHint=1;hint(mine>=0?'🛸 Your WRAITH BAY is BAY '+(mine+1)+': the door opens for you. Park the X-13 inside to keep it safe.':'🛸 WRAITH BAYS: private bays for X-13 owners. Pass the X-13 trials to get one.')}}
@@ -18244,6 +18245,62 @@ function memDrop(){try{G=new THREE.Group();wards=[];RL=[];drs=[];hands=[];cops=[
 {const ca0=clearAll;clearAll=function(){const r=ca0.apply(this,arguments);memDrop();return r}}
 {const he0=hubEnter;hubEnter=function(){HUB.blink=[];return he0.apply(this,arguments)}}
 {const hl0=hubLeave;hubLeave=function(){const on=HUB.on;const r=hl0.apply(this,arguments);if(on){HUB.blink=[];HUB.props=[];HUB.ducks=[];HUB.pud=[];HUB.mh=[]}return r}}
+
+
+/* =====================================================================================================
+   r574: SAVES THAT STICK, MAP WAYPOINTS, REAL FALLING.
+   - A lot of progress was written into the save but never read back when the game loaded: the lost DOORS keys,
+     Wraith refits, prestige, the parked Wraith, meteorite fragments, postcards, stunt jumps, chests, records ...
+     They all load now.
+   - The desert map (small and big) shows where your job wants you: the current waypoint as a pin, the next
+     checkpoints as numbered dots, and an arrow on the edge of the small map when it is off it. The compass too.
+   - Falling: walk off a ledge and you fall, faster and faster, until you land (with a thump if it was a long way).
+   ===================================================================================================== */
+/* ---------- saves ---------- */
+{const SVB=['xk','met','fallsC','gcave','gfell','grave','gtTr','zip','skEye','pcdAll','pyrH','pyrT','xrob','penBall','skipBest'];
+ window.svExtras=function(q){if(!q||typeof q!='object')return;
+  for(const k of SVB)if(q[k]!=null){const v=Math.max(0,Math.min(1e7,+q[k]|0));if(v)SV[k]=v}
+  if(+q.xlap>0&&+q.xlap<1e5)SV.xlap=+q.xlap;
+  if(q.pcd&&typeof q.pcd=='object'){SV.pcd={};for(const k in q.pcd)if(/^\d{1,2}$/.test(k)&&q.pcd[k])SV.pcd[k]=1}
+  if(q.xst&&typeof q.xst=='object'){SV.xst={};for(const k of Object.keys(q.xst).slice(0,40))if(/^[\w '!.-]{1,30}$/.test(k)&&q.xst[k])SV.xst[k]=1}
+  if(Array.isArray(q.mbook))SV.mbook=q.mbook.filter(x=>typeof x=='string').map(x=>x.slice(0,14)).slice(0,6);
+  if(typeof q.wtTag=='string')SV.wtTag=q.wtTag.slice(0,12);
+  if(q.jl&&typeof q.jl=='object'&&/^(pen|jail)$/.test(q.jl.k))SV.jl={k:q.jl.k,t:Math.max(1,Math.min(36000,q.jl.t|0)),b:Math.max(0,q.jl.b|0)};
+  if(q.mine&&typeof q.mine=='object')SV.mine={bars:Math.max(0,Math.min(1e6,q.mine.bars|0)),ore:Math.max(0,Math.min(1e6,q.mine.ore|0)),shifts:Math.max(0,Math.min(1e6,q.mine.shifts|0))};
+  const m=q.mil;if(m&&typeof m=='object'&&SV.mil){SV.mil.pr=Math.max(0,Math.min(99,m.pr|0));SV.mil.wk=Math.max(0,Math.min(6,m.wk|0));SV.mil.bayPark=m.bayPark?1:0;SV.mil.cwSeen=m.cwSeen?1:0;
+   if(m.rzv&&typeof m.rzv=='object'){SV.mil.rzv={};for(const k of Object.keys(m.rzv).slice(0,30))if(/^\w{1,12}$/.test(k)&&m.rzv[k])SV.mil.rzv[k]=1}}};
+ const sa0=svApply;svApply=function(d){const r=sa0.apply(this,arguments);try{svExtras(d&&d.s)}catch(e){try{conLog('error','save extras: '+e.message)}catch(x){}}return r};
+ /* the game already loaded the save before this ran: read the extras back from it now */try{const raw=localStorage.getItem(SAVE_KEY);if(raw)svExtras(JSON.parse(raw).s)}catch(e){}}
+/* ---------- waypoints on the map ---------- */
+function wpList(q){const L=[];try{const M=q.mil;if(M&&M.wp&&isFinite(M.wp[0]))L.push({x:M.wp[0],z:M.wp[1],t:String(M.wp[2]||''),main:1});const o=M&&M.op;
+  if(o&&o.bc)for(let i=(o.n|0)+1;i<o.bc.length&&i<(o.n|0)+12;i++)L.push({x:o.bc[i][0],z:o.bc[i][1],n:i+1});
+  if(o&&o.rg)for(let i=(o.n|0)+1;i<o.rg.length&&i<(o.n|0)+12;i++)L.push({x:o.rg[i][0],z:o.rg[i][1],n:i+1,air:1})}catch(e){}
+ try{for(const w of(typeof mnWps=='function'?mnWps(q):[]))L.push(w)}catch(e){}return L}
+function wpPin(x,px,py,s,lab,full,t){x.save();x.translate(px,py);const pu=1+Math.sin(t*4)*.12;x.strokeStyle='rgba(255,216,64,.85)';x.lineWidth=2;x.beginPath();x.arc(0,0,(full?15:11)*pu,0,7);x.stroke();
+ x.fillStyle='#ffd840';x.strokeStyle='#2a1a06';x.lineWidth=2;x.beginPath();x.moveTo(0,0);x.bezierCurveTo(-s*.9,-s*1.1,-s*.7,-s*2.1,0,-s*2.1);x.bezierCurveTo(s*.7,-s*2.1,s*.9,-s*1.1,0,0);x.fill();x.stroke();x.fillStyle='#2a1a06';x.beginPath();x.arc(0,-s*1.45,s*.32,0,7);x.fill();
+ if(full&&lab){x.font='bold 13px Georgia';const tw=x.measureText(lab).width+12;x.fillStyle='rgba(36,24,10,.88)';x.beginPath();if(x.roundRect)x.roundRect(-tw/2,-s*2.1-24,tw,18,6);else x.rect(-tw/2,-s*2.1-24,tw,18);x.fill();x.fillStyle='#ffe9a0';x.textAlign='center';x.textBaseline='middle';x.fillText(lab,0,-s*2.1-14.5)}x.restore()}
+{const dd0=dmapDraw;dmapDraw=function(q,cv,cx,cz,sc,full){const r=dd0.apply(this,arguments);try{const L=wpList(q);if(!L.length)return r;const x=cv.getContext('2d'),W=cv.width,H=cv.height,X=wx=>W/2+(wx-cx)*sc,Y=wz=>H/2+(wz-cz)*sc,t=q.rt||0;x.save();
+  /* the route: dashed line through what is left */const pts=L.filter(w=>w.main||w.n);if(pts.length>1){x.setLineDash([6,5]);x.strokeStyle='rgba(255,216,64,.7)';x.lineWidth=full?2.5:2;x.beginPath();pts.forEach((w,i)=>{i?x.lineTo(X(w.x),Y(w.z)):x.moveTo(X(w.x),Y(w.z))});x.stroke();x.setLineDash([])}
+  for(const w of L.slice().reverse()){if(w.main)continue;const px=X(w.x),py=Y(w.z);if(px<-10||py<-10||px>W+10||py>H+10)continue;x.fillStyle=w.air?'#40c0ff':'#40e080';x.strokeStyle='#102010';x.lineWidth=2;x.beginPath();x.arc(px,py,full?8:6,0,7);x.fill();x.stroke();if(w.n!=null){x.fillStyle='#08200c';x.font='bold '+(full?10:8)+'px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(w.n,px,py+.5)}}
+  const m=L.find(w=>w.main)||L[0];let px=X(m.x),py=Y(m.z);const R=W/2-14,dx=px-W/2,dy=py-H/2,dd=Math.hypot(dx,dy);
+  if(!full&&dd>R){/* off the small map: an arrow on the rim pointing at it */const a=Math.atan2(dy,dx);x.save();x.translate(W/2+Math.cos(a)*R,H/2+Math.sin(a)*R);x.rotate(a);x.fillStyle='#ffd840';x.strokeStyle='#2a1a06';x.lineWidth=2;x.beginPath();x.moveTo(10,0);x.lineTo(-6,-8);x.lineTo(-2,0);x.lineTo(-6,8);x.closePath();x.fill();x.stroke();x.restore()}
+  else{if(full){px=Math.max(14,Math.min(W-14,px));py=Math.max(40,Math.min(H-6,py))}wpPin(x,px,py,full?11:8,m.t?m.t.replace(/^the /,''):'',full,t)}x.restore()}catch(e){}return r}}
+/* ---------- falling ---------- */
+function fallTick(q,dt){const F=q.fall||(q.fall={y:null,vy:0,x:0,z:0,air:0});
+ if(state!='bus'||!q.roam||q.seat||q.inBus||q.fling||q.lift||q.deep||q.abd||q.rsp||q.xr||q.icut||q.jail||q.court||q.bcut){F.y=null;F.vy=0;F.air=0;return}
+ const lz=P.z-q.OZ,g=vehGround(q,P.x,lz),off=Math.max(-1.2,Math.min(.4,(P.dy||0)-g));
+ if(F.y==null||Math.hypot(P.x-F.x,P.z-F.z)>4||!isFinite(F.y)){F.y=g;F.vy=0;F.air=0}
+ else if(g<F.y-.05&&(F.air||g<F.y-.45)){/* in the air: gravity pulls harder every moment, up to a terminal speed */if(!F.air){F.air=1;F.h0=F.y}F.vy=Math.max(-55,F.vy-24*dt);F.y+=F.vy*dt;
+  if(F.y<=g){const sp=-F.vy,h=F.h0-g;F.y=g;F.vy=0;F.air=0;if(h>1.2){try{snd(Math.max(55,120-sp*2),Math.min(.4,.1+sp*.012))}catch(e){}try{camShake(Math.min(.7,sp*.022),Math.min(.5,.15+sp*.01))}catch(e){}try{vfx('dust',P.x,g+.1,P.z,{n:Math.min(30,6+sp|0),w:1.2})}catch(e){}if(h>9&&!q.fallTip){q.fallTip=1;hint('💥 Oof. That was a long way down.')}}}}
+ else{F.y=g;F.vy=0;F.air=0}
+ F.x=P.x;F.z=P.z;P.dy=F.y+(F.air?0:off)}
+{const ru0=busRoamUpd;busRoamUpd=function(q,dt){const r=ru0.apply(this,arguments);try{fallTick(q,dt)}catch(e){}return r}}
+/* ---------- Generals: Dark Zone 51 clearance (trespass heat does not count for them) ---------- */
+{const ah2=addHeat;addHeat=function(q,n,why){try{if(why=='trespass'&&milRank()>=9)return}catch(e){}return ah2.apply(this,arguments)}}
+/* ---------- squads: the cars behind keep their distance and match the car in front ---------- */
+function cvMax(u,pv){const g=Math.hypot(u.v.x-pv.x,u.v.z-pv.z);return Math.max(1.5,Math.min(19,Math.abs(pv.v||0)+(g-9)*.9))}
+/* ---------- the APC: sit up in the hull, not under the floor ---------- */
+try{VEHK.apc.seats=[[.5,-.2,.3]]}catch(e){}
 
 </script><script>
 /* ======================================================================================================
