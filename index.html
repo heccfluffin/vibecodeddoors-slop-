@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r585';
+const BUILD='2026-10-16 r586';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16019,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r586',['Wraith refit missions can be replayed from the OPS BOARD for full XP (the crew re-tune the part, you run the challenge again)']],
  ['r585',['The police drive straight to a crime as soon as it is called in (they used to wait at the station until the crook ran), and they chase on a planned route instead of re-planning every frame',
   'Crimes depend on where they happen: bank jobs, diner holdups, cattle rustling, copper theft, purse snatching and more. Some crooks have a getaway car, some run on foot',
   'Crimes are rarer. Tackle a crook (E), then carry him to the Desert PD for 100 gold, or hold him until the police arrive for 60',
@@ -18497,12 +18498,12 @@ const RFC={
   tick(q,o,dt){o.t-=dt;milOpforTick(q,o,dt*1.8);const v=q.mil.proto;if(v&&v.wreck)return'The Wraith is a wreck. Not perfected yet.';if(o.n>=3)return true;if(o.t<=0)return'Time. The OPFOR hold the range.'},end(q,o){milOpforClear(q,o)}}};
 function wkRefit2(n,min,xp){const C=RFC[n];return{id:'refit'+n,nm:'Wraith refit: '+WKN[n],ic:'🛸',min,xp,ref:n,
  d:'The crew fit a PROTOTYPE '+WKN[n].split('· ')[1]+' at the REFIT BAY (Hangar 1). Then the '+C.t+': '+C.d+' Pass and it is yours for good. '+WKD[n],
- start(q,o){if(!garOwned('proto')){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 You need your own Wraith first: pass the X-13 TRIALS.')}},0);return}if((milSV().wk|0)>=n){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 Your Wraith already has the '+WKN[n]+'.')}},0);return}if((milSV().wk|0)<n-1){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 One refit at a time: your Wraith needs the '+WKN[n-1]+' first.')}},0);return}o.st=0;o.h=0;o.n=0;o.t=240;milBeacons(q,o,[WKBAY])},
+ start(q,o){if(!garOwned('proto')){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 You need your own Wraith first: pass the X-13 TRIALS.')}},0);return}o.rp=(milSV().wk|0)>=n;if(o.rp)setTimeout(()=>hint('🛸 REPLAY: your Wraith already has the '+WKN[n]+'. Run the '+C.t+' again for the XP.'),0);if((milSV().wk|0)<n-1){o.fin=1;setTimeout(()=>{if(q.mil.op===o){q.mil.op=null;hint('🛸 One refit at a time: your Wraith needs the '+WKN[n-1]+' first.')}},0);return}o.st=0;o.h=0;o.n=0;o.t=240;milBeacons(q,o,[WKBAY])},
  line(q,o){if(o.st==0){const s=q.seat;return'🛸 Drive your WRAITH onto the REFIT BAY pad in Hangar 1'+(o.h>0?' · crew fitting the prototype '+Math.round(o.h/8*100)+'%':s&&s.v.K.proto?'':' · get in your Wraith')}return C.line(q,o)},
  tick(q,o,dt){if(o.st==0){const s=q.seat;const at=s&&s.i==0&&s.v.K.proto&&Math.hypot(s.v.x-WKBAY[0],s.v.z-WKBAY[1])<5.5;if(at&&Math.abs(s.v.v)<1.2){if(o.h==0)hint('🔧 Hold still: the crew are fitting the prototype.');o.h+=dt;if(Math.random()<dt*12)try{vfx('ember',s.v.x+(Math.random()-.5)*3,s.v.y+1.5,s.v.z+(Math.random()-.5)*5+q.OZ,{n:3})}catch(e){}if(Math.random()<dt*4)snd(900+Math.random()*600,.03);
-    if(o.h>=8){WKTRY.ref=n;try{wkBuild(s.v,wkMine())}catch(e){}milBeaconsClear(q,o);o.bc=null;o.st=1;snd(500,.1);setTimeout(()=>snd(800,.15),120);hint('🛸 PROTOTYPE '+WKN[n]+' fitted. Now the '+C.t+': '+C.d);C.go(q,o)}}else if(o.h>0&&o.h<8)o.h=Math.max(0,o.h-dt*2);return}
-  const r=C.tick(q,o,dt);if(r===true){const S=milSV();S.wk=Math.max(S.wk|0,n);milSave();WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}hint('🛸 '+C.t+' PASSED. The '+WKN[n]+' is yours for good. '+WKD[n]);if(n>=6)try{badge('wraith6')}catch(e){}try{sysLine('🛸 '+(SV.nm||'Someone')+'\'s Wraith passed the '+C.t+' and is now '+WKN[n])}catch(e){}milOpDone(q,o)}
-  else if(typeof r=='string'){WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}milOpFail(q,o,r+' The prototype part comes off again.')}},
+    if(o.h>=8){WKTRY.ref=n;try{wkBuild(s.v,wkMine())}catch(e){}milBeaconsClear(q,o);o.bc=null;o.st=1;snd(500,.1);setTimeout(()=>snd(800,.15),120);hint(o.rp?'🛸 The crew re-tune the '+WKN[n]+'. Now the '+C.t+' again: '+C.d:'🛸 PROTOTYPE '+WKN[n]+' fitted. Now the '+C.t+': '+C.d);C.go(q,o)}}else if(o.h>0&&o.h<8)o.h=Math.max(0,o.h-dt*2);return}
+  const r=C.tick(q,o,dt);if(r===true){const S=milSV();S.wk=Math.max(S.wk|0,n);milSave();WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}if(o.rp)hint('🛸 '+C.t+' PASSED again. Nice flying.');else{hint('🛸 '+C.t+' PASSED. The '+WKN[n]+' is yours for good. '+WKD[n]);if(n>=6)try{badge('wraith6')}catch(e){}}if(!o.rp)try{sysLine('🛸 '+(SV.nm||'Someone')+'\'s Wraith passed the '+C.t+' and is now '+WKN[n])}catch(e){}milOpDone(q,o)}
+  else if(typeof r=='string'){WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}milOpFail(q,o,r+(o.rp?'':' The prototype part comes off again.'))}},
  end(q,o){if(o.bc)milBeaconsClear(q,o);try{C.end(q,o)}catch(e){}if(WKTRY.ref===n){WKTRY.ref=0;try{const v=q.mil.proto;if(v)wkBuild(v,wkMine())}catch(e){}}},
  wp(q,o){if(o.st==0)return[WKBAY[0],WKBAY[1],'the REFIT BAY'];if(C.wp)return C.wp(q,o);const b=o.bc&&o.bc[o.n];return b?[b[0],b[1],C.t+' checkpoint']:null}}}
 for(let i=0;i<MILOPS.length;i++){const m=/^refit(\d)$/.exec(MILOPS[i].id||'');if(m){const o=MILOPS[i];MILOPS[i]=wkRefit2(+m[1],o.min,o.xp)}}
@@ -19107,6 +19108,14 @@ const CRLOC=[
   hint('📻 DESERT PD: "All units, '+c.K[2]+' in progress at '+c.loc.nm+'!" 🚨 '+(c.foot?'The suspect is on FOOT.':'It is on your map.'))}catch(e){if(said)hint(said)}return r}}
 /* a crook on foot does not get in a car when the job is done: he runs */
 {const ct0=crTick;crTick=function(q,dt){try{for(const c of CRM.list){if(c.foot&&c.st=='rob'&&c.t+dt>18){const g=crRunner(q,c,c.x,c.z);if(c.m)c.m.visible=false;if(g){c.st='run';c.t=0;hint('📻 DESERT PD: "Suspect running from '+c.loc.nm+' on foot!" Catch him and TACKLE him (E).')}}}}catch(e){}return ct0.apply(this,arguments)}}
+
+
+/* =====================================================================================================
+   r586: WRAITH REFIT MISSIONS CAN BE REPLAYED. Every refit you have already passed stays on the OPS BOARD as a
+   replay: the crew re-tune the part, you run the challenge again, and you get the full XP for it.
+   ===================================================================================================== */
+{const ol6=milOpsList;milOpsList=function(r){const L=ol6.apply(this,arguments);try{const S=milSV(),wk=S.wk|0;if(!garOwned('proto')||!wk)return L;const have=new Set(L.map(o=>o.id));
+  const rp=MILOPS.filter(o=>o.ref&&o.ref<=wk&&!have.has(o.id)).map(o=>Object.assign(Object.create(o),{nm:o.nm+' (replay)',d:'🔁 REPLAY. Your Wraith already has this part. Drive onto the refit pad, then run the challenge again for '+o.xp+' XP.'}));L.push(...rp)}catch(e){}return L}}
 
 </script><script>
 /* ======================================================================================================
