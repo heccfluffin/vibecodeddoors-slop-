@@ -13,6 +13,8 @@ const KICK_MS = 10 * 60 * 1000;
 const MAX_MSG = 64 * 1024, MAX_TOPIC = 200, MAX_SUBS = 64, RATE = 80; /* messages per second per socket */
 const NS = 'doorsfan-q7k2/';   /* the board only carries DOORS' own topics (not a free relay for other apps) */
 const MAX_RET = 20000, MAX_RET_BYTES = 8 * 1024 * 1024; /* retained notes: bounded, oldest evicted (the game re-posts) */
+/* r568: notes that should stay (the leaderboard, friend profiles and friend requests) go last when space runs out */
+const KEEP = [NS + 'v1/lb/', NS + 'v1/fp/', NS + 'v1/fr/'];
 const MAX_IPS = 4000;          /* the device->IP memory used for connection bans: bounded, least-recently-seen evicted */
 const MAX_BLK = 20000;         /* temporary kick blocks */
 const MAX_CONN_IP = 10, MAX_CONN = 2500; /* open sockets: per internet connection, and in total */
@@ -139,7 +141,8 @@ export class Hub {
     this.retDrop(t);
     /* keep the retained store bounded: evict the oldest non-registry notes (the game re-posts its room/lobby notes) */
     while ((this.ret.size >= MAX_RET || this.retBytes + m.length + t.length > MAX_RET_BYTES)) {
-      let victim = null; for (const k of this.ret.keys()) { if (!k.startsWith(REG_T)) { victim = k; break } }
+      let victim = null; for (const k of this.ret.keys()) { if (!k.startsWith(REG_T) && !KEEP.some(p => k.startsWith(p))) { victim = k; break } }
+      if (victim == null) for (const k of this.ret.keys()) { if (!k.startsWith(REG_T)) { victim = k; break } }
       if (victim == null) break; this.retDrop(victim);
     }
     if (this.retBytes + m.length + t.length > MAX_RET_BYTES) return; /* only registry left and still too big: refuse */
