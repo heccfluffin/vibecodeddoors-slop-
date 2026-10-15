@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r579';
+const BUILD='2026-10-15 r580';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16019,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r580',['CRIME in the desert: every few minutes someone robs a place and runs for it in a getaway car. A Desert PD cruiser chases them down and arrests them (cuffs and all)','Crimes show up RED on your map, the missile guidance map and the airstrike / orbital strike map','Help the police: ram, blow up or strike the getaway car. Helping pays a reward and is not a crime','PLAY DESERT on the main menu (after your first trip): a public desert. Join whoever is out there, or start one that others join']],
  ['r579',['A new missile on Silo 1 (two stages, fins, nozzle, markings) with a real flame and a smoke trail that hangs in the sky','A MUSHROOM CLOUD you can see from anywhere: fireball, rising stem, rolling cap, condensation ring, dust surge. The bang arrives late if you are far away','SILO 1 FREIGHT ELEVATOR at the end of the launch control corridor: ride down, walk the tunnel and stand on the catwalk next to the missile','Generals: set your DESERT SPAWN in your office (the panel by the desk). You start every trip there, with your Wraith in its bay','Your parked Wraith waits for the base to load before it goes back in the bay, so it stays saved','Bay security: a big zap and you go FLYING out of the door','APC: higher seat and a bigger viewport, the hull no longer gets in the way','The desert haze no longer follows you back to the hotel','Wraith refit parts no longer flicker against the hull']],
  ['r578',['X-13 owner lock: only the owner can drive a Wraith. Others can ride in the gunner seat while the owner drives','Wraith bays: the door opens when your Wraith rolls up, closes fast behind you, and opens from inside when you walk up to it','Bay SECURITY PANEL: trust players to let them in. Two ceiling turrets zap anyone else out','Refits are real challenges now: a prototype part goes on, then you prove it (armour under fire, an 8-target salvo, a 50 m/s speed trap, an artillery barrage, 200 m long shots, the 3-tank gauntlet). Fail and the part comes off','New chat video: say "I like like liker"']],
  ['r577',['The APC has a proper driver compartment: armoured viewport, dashboard with gauges and a screen, steering wheel, radios, extinguisher','Door 100: the old Figure tune no longer plays on top of Unhinged II']],
@@ -18271,7 +18272,7 @@ function memDrop(){try{G=new THREE.Group();wards=[];RL=[];drs=[];hands=[];cops=[
   if(q.pcd&&typeof q.pcd=='object'){SV.pcd={};for(const k in q.pcd)if(/^\d{1,2}$/.test(k)&&q.pcd[k])SV.pcd[k]=1}
   if(q.xst&&typeof q.xst=='object'){SV.xst={};for(const k of Object.keys(q.xst).slice(0,40))if(/^[\w '!.-]{1,30}$/.test(k)&&q.xst[k])SV.xst[k]=1}
   if(Array.isArray(q.mbook))SV.mbook=q.mbook.filter(x=>typeof x=='string').map(x=>x.slice(0,14)).slice(0,6);
-  if(typeof q.wtTag=='string')SV.wtTag=q.wtTag.slice(0,12);
+  if(q.dsr)SV.dsr=1;if(typeof q.wtTag=='string')SV.wtTag=q.wtTag.slice(0,12);
   if(q.jl&&typeof q.jl=='object'&&/^(pen|jail)$/.test(q.jl.k))SV.jl={k:q.jl.k,t:Math.max(1,Math.min(36000,q.jl.t|0)),b:Math.max(0,q.jl.b|0)};
   if(q.mine&&typeof q.mine=='object')SV.mine={bars:Math.max(0,Math.min(1e6,q.mine.bars|0)),ore:Math.max(0,Math.min(1e6,q.mine.ore|0)),shifts:Math.max(0,Math.min(1e6,q.mine.shifts|0))};
   const m=q.mil;if(m&&typeof m=='object'&&SV.mil){SV.mil.pr=Math.max(0,Math.min(99,m.pr|0));SV.mil.wk=Math.max(0,Math.min(6,m.wk|0));SV.mil.bayPark=m.bayPark?1:0;SV.mil.cwSeen=m.cwSeen?1:0;SV.mil.ngSeen=m.ngSeen?1:0;SV.mil.spawn=m.spawn=='office'?'office':'';if(Array.isArray(m.btr))SV.mil.btr=m.btr.filter(t=>t&&typeof t.id=='string').slice(0,20).map(t=>({id:t.id.slice(0,40),nm:String(t.nm||'Player').slice(0,16)}));if(m.awv&&typeof m.awv=='object'){SV.mil.awv={};for(const k of Object.keys(m.awv).slice(0,20))if(/^\w{1,12}$/.test(k)&&m.awv[k])SV.mil.awv[k]=1}
@@ -18623,6 +18624,81 @@ function ofSpawnProps(q){if(q.ofSpP||!q.cw)return;q.ofSpP=1;for(let i=0;i<4;i++)
 const DSKF={f:null};
 {const bb1=busBoard;busBoard=function(){try{if(!BUS.ride&&S.fog)DSKF.f=[S.fog.color.getHex(),S.fog.near,S.fog.far,S.background&&S.background.isColor?S.background.getHex():null]}catch(e){}return bb1.apply(this,arguments)}}
 {let had=0;setInterval(()=>{try{if(BUS.ride){had=1;return}if(had&&DSKF.f&&S.fog){had=0;const f=DSKF.f;S.fog.color.setHex(f[0]);S.fog.near=f[1];S.fog.far=f[2];if(f[3]!=null&&S.background&&S.background.isColor)S.background.setHex(f[3]);try{setFog()}catch(e){}}}catch(e){}},250)}
+
+
+/* =====================================================================================================
+   r580: CRIME IN THE DESERT. Every few minutes somebody robs a place out in the desert, jumps in a getaway car and
+   runs for it. A Desert PD cruiser comes out of the station after them, and when it catches up: the crook is
+   stopped, cuffed and driven back to the station.
+   - Crimes show up RED on your map, on the missile guidance map and on the orbital strike / airstrike map.
+   - You can help: ram the getaway car, blow it up, or drop something heavy on it from orbit. Helping the police
+     catch a crook pays a reward (and none of it counts as a crime).
+   ===================================================================================================== */
+const CRM={list:[],next:90,seq:0};
+const CRSPOTS=/^(Dusty Gulch|Motel 13|Rushy's Diner|Drive-in|Mirage Lake|Speedway|Goblino's Scrap|Observatory|Dino Dan|Sunny Acres|Lookout Mesa|Airfield|Old Quarry|Wind farm|Solar farm)/;
+const CRKIND=[['robbery','💰','an armed robbery'],['carjack','🚗','a carjacking'],['heist','💎','a jewellery heist'],['smash','🔨','a smash and grab']];
+function crBoss(q){try{return cwSlot(q)===0}catch(e){return true}}
+function crSpawn(q){const L=(q.locs||[]).filter(l=>CRSPOTS.test(l.nm)&&!milArea(l.x,l.z,-40)&&Math.hypot(l.x-DPD.X,l.z-DPD.Z)>140);if(!L.length)return;const l=L[Math.random()*L.length|0],K=CRKIND[Math.random()*CRKIND.length|0];
+ const id=++CRM.seq;let ox=l.x+8,oz=l.z+8;/* a clear spot near the place, big enough for a car */search:for(let r=6;r<60;r+=3)for(let k=0;k<12;k++){const a=k/12*6.283+r,x=l.x+Math.cos(a)*r,z=l.z+Math.sin(a)*r;let ok=vehGround(q,x,z)==0;if(ok)for(const o of q.obs){if(o.off)continue;if(x>o.x0-4&&x<o.x1+4&&z>o.z0-4&&z<o.z1+4){ok=false;break}}if(ok){ox=x;oz=z;break search}}const c={id,K,loc:l,x:ox,z:oz,st:'rob',t:0,help:0};
+ /* the crook: a masked figure with a swag bag */try{const a=mkAvatar('Crook','crook'+id,0,[]);const g=new THREE.Group();g.add(a);const mk=new THREE.Mesh(new THREE.BoxGeometry(.5,.18,.12),VMAT(0x111111));mk.position.set(0,1.62,-.2);g.add(mk);const bag=new THREE.Mesh(new THREE.SphereGeometry(.28,10,8),VMAT(0x8a6a3a,{roughness:1}));bag.position.set(.35,.9,.15);bag.scale.y=1.2;g.add(bag);g.position.set(ox,0,oz);q.g.add(g);c.m=g}catch(e){}
+ /* the getaway car, parked and waiting */const kinds=['sedan','truck','buggy'];const v=q.addVeh(kinds[Math.random()*3|0],ox+2.5,oz,Math.random()*6.28);v.npc=1;v.crim=id;v.nogar=1;for(const p of q.props)if(p.veh===v)p.txt=()=>'';c.v=v;c.u={v,stuck:0,bT:0};
+ const far=(q.locs||[]).filter(k=>Math.hypot(k.x-l.x,k.z-l.z)>350&&!milArea(k.x,k.z,-40)&&!/Stunt|Phone/.test(k.nm));c.dest=far[Math.random()*far.length|0]||{x:-l.x,z:l.z,nm:'the edge of the map'};
+ CRM.list.push(c);hint('📻 DESERT PD: "All units, '+K[2]+' in progress at '+l.nm+'!" 🚨 It is on your map.');try{snd(880,.1);setTimeout(()=>snd(660,.12),160)}catch(e){}}
+function crCopOut(q,c){const v=q.addVeh('cop',DPD.X+(Math.random()-.5)*4,DPD.Z+12,0);v.npc=1;v.nogar=1;v.crimCop=c.id;for(const p of q.props)if(p.veh===v)p.txt=()=>'';try{pdLights(v)}catch(e){}c.cop={v,stuck:0,bT:0};hint('📻 DESERT PD: "Unit 13 responding. Lights and sirens."')}
+function crDrive(q,u,x,z,dt,max){try{return cwDrive(q,u,x,z,dt,max,0)}catch(e){return 1e9}}
+function crEnd(q,c,why){c.st='done';c.why=why;setTimeout(()=>{try{for(const v of[c.v,c.cop&&c.cop.v])if(v&&!v.gone)garRemove(q,v);for(const m of[c.m,c.cm])if(m&&m.parent)m.parent.remove(m)}catch(e){}},why=='escaped'?1000:45000)}
+function crTick(q,dt){if(!q.roam||q.jail||(q.pen&&q.pen.on))return;
+ CRM.next-=dt;if(CRM.next<=0){CRM.next=180+Math.random()*150;if(!CRM.list.some(c=>c.st!='done')&&crBoss(q)&&!q.deep)try{crSpawn(q)}catch(e){conLog('error','crime: '+e.message)}}
+ for(let i=CRM.list.length-1;i>=0;i--){const c=CRM.list[i];c.t+=dt;if(c.st=='done'){if(c.t>60)CRM.list.splice(i,1);continue}const v=c.v;
+  if(c.st=='rob'){if(c.m)c.m.rotation.y+=Math.sin(c.t*3)*dt;if(c.t>18){c.st='flee';c.t=0;if(c.m)c.m.visible=false;try{snd(300,.1)}catch(e){}hint('📻 DESERT PD: "Suspect fleeing '+c.loc.nm+' towards '+c.dest.nm+'!"')}if(c.t>6&&!c.cop)crCopOut(q,c);continue}
+  if(c.st=='flee'){c.x=v.x;c.z=v.z;if(!c.cop&&c.t>2)crCopOut(q,c);
+   if(v.wreck||(v.dmg||0)>70){c.st='stop';c.t=0;c.help=1;hint('📻 "The getaway car is out of action! The suspect is crawling out. Hold him there!"')}
+   else{const d=crDrive(q,c.u,c.dest.x,c.dest.z,dt,18);if(d<14||c.t>240){hint('📻 DESERT PD: "We lost him. Suspect escaped."');crEnd(q,c,'escaped');continue}}}
+  if(c.st=='stop'){v.v*=Math.max(0,1-dt*3)}
+  /* the police car chases */const cp=c.cop;if(cp&&(c.st=='flee'||c.st=='stop')){const pv=cp.v;const d=Math.hypot(pv.x-v.x,pv.z-v.z);if(d>9)crDrive(q,cp,v.x,v.z,dt,24);else{pv.v*=Math.max(0,1-dt*4);c.near=(c.near||0)+dt;if(c.near>1.4||c.st=='stop'){if(c.st=='stop'||Math.abs(v.v)<4||c.near>3){c.st='cuff';c.t=0;v.v=0;crCuff(q,c)}}}
+   if(pv.wreck){hint('📻 "Unit 13 is down! Suspect still at large."');c.cop=null}}
+  if(c.st=='cuff'){crCuffTick(q,c,dt)}
+  if(c.st=='home'){const pv=cp&&cp.v;if(!pv){crEnd(q,c,'caught');continue}const d=crDrive(q,cp,DPD.X,DPD.Z+12,dt,16);if(d<10||c.t>120){crEnd(q,c,'caught');try{garRemove(q,pv)}catch(e){}c.cop=null}}}}
+/* the arrest: the crook gets out with his hands up, the officer walks over, cuffs him, and walks him to the car */
+function crCuff(q,c){const v=c.v,pv=c.cop.v;try{const a=mkAvatar('Crook','crook'+c.id,0,[]);const g=new THREE.Group();g.add(a);g.position.set(v.x+Math.cos(v.h)*2.2,0,v.z-Math.sin(v.h)*2.2);q.g.add(g);c.cm=g;try{const rg=a.userData&&a.userData.rig;if(rg&&rg.arms)for(const A of rg.arms)A.p.rotation.x=-2.9}catch(e){}}catch(e){}
+ try{const k=mkCopSeek(.8);k.position.set(pv.x,.9,pv.z);q.g.add(k);c.km=k}catch(e){}
+ const lz=P.z-q.OZ,me=q.seat?q.seat.v:null;const near=Math.hypot((me?me.x:P.x)-v.x,(me?me.z:lz)-v.z)<40;if(c.help||near){c.help=1}
+ hint('📻 DESERT PD: "Hands where I can see them!"');try{snd(960,.2);setTimeout(()=>snd(740,.2),250)}catch(e){}}
+function crCuffTick(q,c,dt){const pv=c.cop&&c.cop.v,k=c.km,g=c.cm;if(!pv||!k||!g){c.st='home';c.t=0;return}
+ if(c.t<2.2){const dx=g.position.x-k.position.x,dz=g.position.z-k.position.z,d=Math.hypot(dx,dz);if(d>1)k.position.x+=dx/d*Math.min(d-1,dt*3),k.position.z+=dz/d*Math.min(d-1,dt*3);k.rotation.y=Math.atan2(-dx,-dz);try{seekRunOn(k,dt)}catch(e){}g.rotation.y=Math.atan2(k.position.x-g.position.x,k.position.z-g.position.z)+Math.PI}
+ else if(c.t<3.2){if(!c.cuffed){c.cuffed=1;try{snd(1500,.05);setTimeout(()=>snd(1700,.05),120)}catch(e){}try{const rg=g.children[0].userData.rig;if(rg&&rg.arms)for(const A of rg.arms){A.p.rotation.x=.5;A.p.rotation.z=0}}catch(e){}}}
+ else if(c.t<6){for(const m of[g,k]){const dx=pv.x-m.position.x,dz=pv.z-m.position.z,d=Math.hypot(dx,dz);if(d>1.4){m.position.x+=dx/d*dt*2.2;m.position.z+=dz/d*dt*2.2;m.rotation.y=Math.atan2(-dx,-dz)}}}
+ else{g.visible=false;k.visible=false;c.st='home';c.t=0;const rw=c.help?40:0;if(rw){gold+=rw;try{saveGame();updHud()}catch(e){}}hint('📻 DESERT PD: "Suspect in custody."'+(rw?' Thanks for the help: +'+rw+' gold.':''));try{if(c.help&&milRank()>=1)milXP(q,15,'Helping the Desert PD')}catch(e){}}}
+{const ru3=busRoamUpd;busRoamUpd=function(q,dt){const r=ru3.apply(this,arguments);try{crTick(q,dt)}catch(e){conLog('error','crime: '+e.message)}return r}}
+/* hitting the getaway car is not a crime: it is helping */
+{const ah3=addHeat;addHeat=function(q,n,why){try{if(q&&q.crimOK>performance.now()&&/^(car|veh|crash|ram)$/.test(why||''))return}catch(e){}return ah3.apply(this,arguments)}}
+{const vd2=vehDamage;vehDamage=function(q,v,n){try{const o=v&&v.hitO;if(v&&v.crim||(o&&typeof o=='object'&&o.crim)){q.crimOK=performance.now()+600;const c=CRM.list.find(c=>c.id==(v.crim||o.crim));if(c)c.help=1}}catch(e){}return vd2.apply(this,arguments)}}
+{const vb3=vehBlow;vehBlow=function(q,v,mine){try{if(v&&v.crim){q.crimOK=performance.now()+600;const c=CRM.list.find(c=>c.id==v.crim);if(c)c.help=1}}catch(e){}return vb3.apply(this,arguments)}}
+/* ---------- crimes on the maps ---------- */
+function crMarks(){return CRM.list.filter(c=>c.st!='done'&&c.st!='home')}
+{const dd1=dmapDraw;dmapDraw=function(q,cv,cx,cz,sc,full){const r=dd1.apply(this,arguments);try{const L=crMarks();if(!L.length)return r;const x=cv.getContext('2d'),W=cv.width,H=cv.height,X=wx=>W/2+(wx-cx)*sc,Y=wz=>H/2+(wz-cz)*sc,t=performance.now()/1000;x.save();
+  for(const c of L){const px=X(c.x),py=Y(c.z),R=Math.max(full?12:8,(c.st=='rob'?35:16)*sc)*(1+Math.sin(t*5)*.15);x.fillStyle='rgba(255,30,30,.22)';x.strokeStyle='rgba(255,60,60,.95)';x.lineWidth=2;x.beginPath();x.arc(px,py,R,0,7);x.fill();x.stroke();x.font=(full?18:13)+'px serif';x.textAlign='center';x.textBaseline='middle';x.fillText('🚨',px,py);if(full){x.font='bold 12px Georgia';x.fillStyle='#ffd0d0';x.fillText(c.K[0].toUpperCase()+(c.st=='flee'?' · FLEEING':''),px,py-R-8)}
+   if(c.cop&&c.cop.v){const cv2=c.cop.v;x.fillStyle=(t*6|0)%2?'#ff2020':'#2040ff';x.beginPath();x.arc(X(cv2.x),Y(cv2.z),full?6:4,0,7);x.fill()}}x.restore()}catch(e){}return r}}
+{const np0=ngPaint;ngPaint=function(k,W,H,q,t,small){const r=np0.apply(this,arguments);try{const L=crMarks();const tt=performance.now()/1000;for(const c of L){const[a,b]=ngMapXY(c.x,c.z,W,H);const R=(c.st=='rob'?14:9)*(1+Math.sin(tt*5)*.15);k.fillStyle='rgba(255,30,30,.35)';k.strokeStyle='#ff4040';k.lineWidth=2;k.beginPath();k.arc(a,b,R,0,6.283);k.fill();k.stroke();k.fillStyle='#ffb0b0';k.font='bold 11px monospace';k.textAlign='left';k.fillText('CRIME: '+c.K[0].toUpperCase(),a+R+3,b+4)}}catch(e){}return r}}
+/* =====================================================================================================
+   PLAY DESERT: once you have been out to the desert, the main menu has a PLAY DESERT button. It drops you into a
+   PUBLIC desert: if somebody is already out there in one, you join them (BUS 13 drops you at the mining shack);
+   if not, you start one, and anybody else who presses PLAY DESERT joins you.
+   ===================================================================================================== */
+const PDZ={me:null,ads:{},sub:0,busy:0};const PDZT=()=>FRB+'pdz/';
+async function pdzNet(){const cl=await pubConnect();if(!cl)return null;if(!PDZ.sub){PDZ.sub=1;cl.on('message',(t,m)=>{t=String(t);if(!t.startsWith(PDZT()))return;const id=t.slice(PDZT().length);let o=null;try{o=m&&String(m)?JSON.parse(String(m)):null}catch(e){}if(!o||!/^[A-Z0-9]{6}$/.test(String(o.code||''))){delete PDZ.ads[id];return}PDZ.ads[id]={code:String(o.code),sd:o.sd>>>0,nm:fsName(String(o.nm||''))||'Player',n:Math.max(1,Math.min(16,o.n|0)),t:+o.t||0}});cl.subscribe(PDZT()+'+')}return cl}
+async function pdzPlay(){if(PDZ.busy)return;PDZ.busy=1;try{if(BUS.ride||HUB.on||state=='play'){hint('Leave what you are doing first.');return}if(ID.banned){banShow();return}
+ let cl=null;try{cl=await pdzNet()}catch(e){}hint('🏜️ Looking for a public desert...');await new Promise(r=>setTimeout(r,1500));
+ const now=Date.now(),L=Object.entries(PDZ.ads).filter(([id,a])=>id!==SV.pid&&now-a.t<60000&&a.n<8&&!isBanned(id)).sort((a,b)=>b[1].n-a[1].n);
+ if(L.length){const[id,a]=L[0];sysLine('🏜️ Joining '+a.nm+'\'s desert ('+a.n+' out there).');MP.auto=1;try{await pjJoin(a.code);busBoard(true,1,[],a.sd,()=>{if(BUS.ride)BUS.ride.t=26.5});sysLine('🔗 Connected! BUS 13 drops you at the mining shack: the others are out there somewhere.');return}catch(e){sysLine('Could not join that desert: starting your own.')}}
+ const sd=(Math.random()*4294967295)>>>0;busBoard(true,0,[],sd);let code='';try{code=await pjHost()}catch(e){sysLine('Could not open your desert to other players: you are on your own this time.');return}
+ PDZ.me={code,sd};pdzAd();sysLine('🏜️ You started a PUBLIC DESERT: anyone who presses PLAY DESERT will join you.')}finally{PDZ.busy=0}}
+function pdzAd(clear){try{const cl=PUB.cl;if(!cl||!cl.connected||!PDZ.me)return;if(clear){cl.publish(PDZT()+SV.pid,'',{retain:true,qos:0});return}cl.publish(PDZT()+SV.pid,JSON.stringify({code:PDZ.me.code,sd:PDZ.me.sd,nm:String(SV.nm||'Player').slice(0,16),n:1+(MP.on?mpOpen().length:0),t:Date.now()}),{retain:true,qos:0})}catch(e){}}
+setInterval(()=>{try{if(!PDZ.me)return;if(!BUS.ride||!MP.on||!MP.host){pdzAd(true);PDZ.me=null;return}pdzAd()}catch(e){}},15000);
+addEventListener('beforeunload',()=>{try{if(PDZ.me)pdzAd(true)}catch(e){}});
+/* the button (after your first trip out there) */
+{const mb0=menuBtns;menuBtns=function(){let h=mb0.apply(this,arguments);try{if(SV.dsr||SV.dsv){const i=h.indexOf('</button>');if(i>0)h=h.slice(0,i+9)+'<button onclick="event.stopPropagation();pdzPlay()" class="mnu-big" style="background:#2a1a0a;color:#ffe2b0;border-color:#e0a050;line-height:1.15">🏜️ PLAY DESERT<span style="display:block;font-size:12px;font-weight:normal;letter-spacing:1px;color:#f0c890;margin-top:3px">a public desert: join whoever is out there</span></button>'+h.slice(i+9)}}catch(e){}return h}}
+setInterval(()=>{try{const q=BUS.ride;if(q&&q.roam&&!SV.dsr){SV.dsr=1;saveGame()}}catch(e){}},5000);
 
 </script><script>
 /* ======================================================================================================
