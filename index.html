@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r565';
+const BUILD='2026-10-15 r566';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -11618,7 +11618,7 @@ function mpGhostUpd(id,r,dt){const seen={};
 /* in co-op the game never pauses: menus and panels just float over a running game (so does the pointer-lock "pause") */
 const mpLive=()=>MP.on&&mpOpen().length>0;
 const live=()=>state=='play'||state=='spec'||(state=='keypad'&&mpLive());
-const uiOpen=()=>bdp.style.display=='flex'||frp.style.display=='flex'||mpp.style.display=='flex';
+const uiOpen=()=>bdp.style.display=='flex'||frp.style.display=='flex'||mpp.style.display=='flex'||['staffDlg','setDlg','howDlg','xfDlg','liveDlg'].some(i=>{const e=document.getElementById(i);return !!e&&e.style.display!='none'&&e.style.display!=''})||(typeof dp!='undefined'&&dp.style.display=='flex');
 const mpul=document.createElement('div');mpul.style.cssText='position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:35;font:15px Georgia,serif;color:#ffe9a8;background:rgba(20,12,6,.92);border:2px solid #d4a850;padding:8px 16px;border-radius:8px;pointer-events:none;display:none;text-align:center';mpul.textContent='🖱️ Mouse released. Click to look around again. The game keeps running in co-op!';document.body.appendChild(mpul);
 function goPause(){if(mpi.style.display=='block'||MUN)return;/* r519: the admin / staff panel never pauses a multiplayer game */{const sd=document.getElementById('staffDlg');if((sd&&sd.style.display=='flex'||DBGMP)&&(HUB.on||MP.on))return}if(HUB.on){hubPause(1);return}   /* typing in chat, or the mouse freed with Alt, does not pause the game */   /* typing in chat does not pause the game */
  if(mpLive()){mpul.style.display='block'}else{state='paused';$('m').innerHTML='<h1>PAUSED</h1><p>'+(MOB.on?'Tap to resume':'Click to resume')+'</p>';$('m').style.display='flex'}}
@@ -14634,7 +14634,8 @@ function build(){
  $('d').textContent=n>=EXN?'THE EXIT':n>100?(DSRT.on?'🌊 FLOOD ':'☢ MELTDOWN ')+(n-100)+'/10':'DOOR '+String(n).padStart(3,'0');updHud();if(r.msg)hint(r.msg)}
 /* player has walked through the open door: the next (already built) room becomes the current one */
 function enter(){
- if(n>=EXN||!RMS[ci+1])return win();
+ /* r566: the lobby door is never an escape (noclip used to walk you out of the hotel) */if(typeof HUB!='undefined'&&HUB.on){P.z=Math.max(P.z,-RMS[ci].L+1.2);hint('🔒 The lobby door stays shut. Use the exit door or an elevator to start a run.');return}
+ if(n>=EXN)return win();if(!RMS[ci+1]){try{const l=RMS[RMS.length-1];RMS.push(mkRoom(l.n+1,false,l.off-(l.L+2),l))}catch(e){conLog('error','enter: '+e.message)}if(!RMS[ci+1])return}
  const old=RMS[ci],dz=old.L+2,os=old.seek,endChase=!!old.hh&&!mpWarp;
  if(smOn()&&os&&os.on&&MP.sm.seek.au===SV.pid&&!mpWarp){const tb=smTail(old);if(tb)smHandoff('seek',tb)}
  if(endChase){beginSeekEnd(old,(os&&os.on&&os.visible!==false&&!(os.stun>0))?os:mkEndSeek(old));if(smOn())mpSend({t:'ce',s:mpS(),n:old.n+1,nm:SV.nm||'Player'})}else{if(!(MP.on&&mpOthersIn(old.n,false))){old.dd.open=0;old.dd.fast=0;snd(110,.2)}if(os){os.visible=false;os.on=false}} /* the door shuts behind you, except at the end of a Seek chase */
@@ -16018,6 +16019,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r566',['Noclipping through the lobby door no longer counts as escaping the hotel','Clicking in the owner panel, settings or debug menu during a game no longer grabs the mouse']],
  ['r565',['New ⚙ SETTINGS menu: master, music and effects volume, mute, mouse look speed, touch controls, graphics, deaf mode, save data','Tidier title screen: stats as chips, one row of buttons, the guide behind 📖 How to play','Owner panel in tabs: Players, Events, Moderation, Transfer, Tools','Staff player tools: Go to, Bring, Freeze, Heal, Warn, Kick, Ban (also /tp /bring /freeze /heal /warn /kick)','Jump everyone to a door (Events tab, or /door 50)','Save transfer: copy stats and/or badges from a friend entry or friend code onto a player (they accept it first)','Debug menu in tabs, with a Teleport tab (players, desert places)']],
  ['r564',['Staff badges renamed: "Owner" (only the owner can ever have it) and "Admin"']],
  ['r563',['Admins are now owners: same powers, badge and title as the owner (only making or removing staff still needs the owner key)','Removed the Admin army rank from r562: your old rank is back']],
