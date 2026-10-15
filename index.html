@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-15 r561';
+const BUILD='2026-10-15 r562';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -6508,7 +6508,7 @@ function penMess(q,g){const W=q.penW;if(!W||q.pmess)return;q.pmess=1;const M=(c,
    trials). Majors get to test the launch codes. Everyone else can try to steal them.
    ===================================================================================================== */
 const MILB={x0:300,x1:600,z0:-930,z1:-660},MILRZ={x0:300,x1:600,z0:-725,z1:-660},MILAA={x0:230,x1:670,z0:-1000,z1:-590};
-const MILRANK=[['Civilian','',0],['Recruit','🪖',0],['Private','▪',0],['Corporal','▪▪',100],['Sergeant','▲',250],['Lieutenant','◆',450],['Captain','◆◆',700],['Major','★',1000],['Colonel','★★',1400],['General','★★★',2000]];
+const MILRANK=[['Civilian','',0],['Recruit','🪖',0],['Private','▪',0],['Corporal','▪▪',100],['Sergeant','▲',250],['Lieutenant','◆',450],['Captain','◆◆',700],['Major','★',1000],['Colonel','★★',1400],['General','★★★',2000],['Admin','🛡️',99999]];
 function milSV(){if(!SV.mil||typeof SV.mil!='object')SV.mil={r:0,xp:0,bc:0,cd:'',kn:0,ops:0,nk:0,dis:0};if(!/^\d{8}$/.test(SV.mil.cd||''))SV.mil.cd=String(Math.floor(1e7+Math.random()*9e7));return SV.mil}
 function milRank(){try{return milSV().r|0}catch(e){return 0}}
 function milArea(x,z,m){m=m||0;return x>MILB.x0+m&&x<MILB.x1-m&&z>MILB.z0+m&&z<MILB.z1-m}
@@ -6527,7 +6527,7 @@ function milHit(q,n,by){if(q.seat)milVehDmg(q,q.seat.v,n);else if(!q.inBus)milHu
 /* ---------- hostility ---------- */
 function milHostile(q){const M=q.mil;if(!M)return false;if(M.h>0)return true;if(milRank()>=1)return false;return M.fire}
 function milGoHostile(q,why,quiet){const M=q.mil;if(!M)return;const was=M.h>0;M.h=240;if(!was){snd(60,.6);setTimeout(()=>snd(90,.6),300);if(!quiet)hint('🚨 FORT BLACKOUT ALERT: '+why+'. Every gun on the base is looking for you.');try{xmNet(q,'milh',{on:1})}catch(e){}
-  const S=milSV();if(S.r>=1){const r0=S.r;S.lost={r:r0,xp:S.xp|0,at:Date.now()};S.r=Math.max(0,S.r-2);S.xp=MILRANK[S.r][2];S.dis=(S.dis|0)+1;if(S.r<2)S.bc=0;M.auth=0;hint('🎖️ DISHONOURABLE CONDUCT. '+(S.r>0?'Busted from '+milRankNm(r0)+' down to '+milRankNm(S.r)+'.':'Drummed out of the service.'));milSave()}try{addHeat(q,25,'military')}catch(e){}}}
+  const S=milSV();if(S.r>=1&&!myRank()){const r0=S.r;S.lost={r:r0,xp:S.xp|0,at:Date.now()};S.r=Math.max(0,S.r-2);S.xp=MILRANK[S.r][2];S.dis=(S.dis|0)+1;if(S.r<2)S.bc=0;M.auth=0;hint('🎖️ DISHONOURABLE CONDUCT. '+(S.r>0?'Busted from '+milRankNm(r0)+' down to '+milRankNm(S.r)+'.':'Drummed out of the service.'));milSave()}try{addHeat(q,25,'military')}catch(e){}}}
 /* ---------- the base defences: sentry turrets, flak towers, guard tanks ---------- */
 const MILSAFE=[[552,568,-968,-922],[552,600,-924,-901]];function milSafe(x,z){return MILSAFE.some(r=>x>r[0]&&x<r[1]&&z>r[2]&&z<r[3])}
 /* where the guns should shoot, with a velocity estimate for people on foot so the lead works on them too */function milTarget(q){/* where the guns should shoot: you (on foot, in a car or in the plane) */if(q.rsp||q.deep)return null;const v=q.seat?q.seat.v:null;const x=v?v.x:P.x,z=v?v.z:P.z-q.OZ,y=v?v.y+(v.K.plane?.6:1):(P.dy||0)+1.1;return{x,y,z,v,air:!!(v&&v.K.plane&&v.air),vx:v?-Math.sin(v.h)*v.v:(q.mil&&q.mil.fvx||0),vz:v?-Math.cos(v.h)*v.v:(q.mil&&q.mil.fvz||0),vy:v?(v.vy||0):0}}
@@ -6574,7 +6574,7 @@ function milRocketsTick(q,dt){const M=q.mil;for(let i=M.rk.length-1;i>=0;i--){co
   let hit=r.y<=vehGround(q,r.x,r.z)+.1;if(!hit&&r.y<6)for(const o of q.obs){if(o.off)continue;if(r.x>o.x0&&r.x<o.x1&&r.z>o.z0&&r.z<o.z1){hit=1;break}}if(!hit&&r.y<4&&r.t>.1)for(const v of vehAll(q))if(!(q.seat&&q.seat.v===v&&r.mine)&&vehSegD(v,r.x,r.z)<v.r+.3){hit=1;break}
   if(hit||r.t>5){if(hit)boom(q,r.x,Math.max(.3,r.y),r.z,r.mine,1.1,null,0);if(r.m.parent)r.m.parent.remove(r.m);M.rk.splice(i,1)}}}
 /* ---------- ranks, ops and boot camp ---------- */
-function milXP(q,n,why){const S=milSV();S.xp+=n;S.ops=(S.ops|0)+1;let up=0;while(S.r<MILRANK.length-1&&S.r>=2&&S.xp>=MILRANK[S.r+1][2]){S.r++;up=1}hint('🎖️ +'+n+' XP'+(why?' · '+why:'')+(up?'. PROMOTED: you are now a '+milRankNm(S.r)+'!':' ('+S.xp+'/'+(S.r<MILRANK.length-1?MILRANK[S.r+1][2]:'max')+')'));if(up){snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1100,.25),300);try{xmNet(q,'milr',{r:S.r})}catch(e){}if(S.r>=9)badge('general');try{sysLine('🎖️ '+(SV.nm||'A player')+' was promoted to '+milRankNm(S.r)+' at Fort Blackout')}catch(e){}}milSave()}
+function milXP(q,n,why){const S=milSV();S.xp+=n;S.ops=(S.ops|0)+1;let up=0;while(S.r<9&&S.r>=2&&S.xp>=MILRANK[S.r+1][2]){S.r++;up=1}hint('🎖️ +'+n+' XP'+(why?' · '+why:'')+(up?'. PROMOTED: you are now a '+milRankNm(S.r)+'!':' ('+S.xp+'/'+(S.r<9?MILRANK[S.r+1][2]:'max')+')'));if(up){snd(660,.15);setTimeout(()=>snd(880,.15),150);setTimeout(()=>snd(1100,.25),300);try{xmNet(q,'milr',{r:S.r})}catch(e){}if(S.r>=9)badge('general');try{sysLine('🎖️ '+(SV.nm||'A player')+' was promoted to '+milRankNm(S.r)+' at Fort Blackout')}catch(e){}}milSave()}
 const MILOPS=[
  {id:'latrine',nm:'Latrine duty',ic:'🧽',min:2,xp:40,d:'Scrub the three latrines behind the barracks. All of them. Properly.',start(q,o){o.n=0;o.done={}},line(q,o){return'🧽 Scrub the latrines ('+o.n+'/3): hut behind the barracks'},tick(q,o,dt){if(o.n>=3)milOpDone(q,o)}},
  {id:'sandbag',nm:'Sandbag detail',ic:'🧱',min:2,xp:50,d:'Carry five sandbags from the pile to the gun pit by the comms tower. You have 150 seconds and no excuses.',start(q,o){o.n=0;o.carry=0;o.t=150},line(q,o){return'🧱 Sandbags '+o.n+'/5 · '+(o.carry?'carrying one: drop it in the GUN PIT':'get one from the PILE')+' · '+Math.ceil(o.t)+'s'},tick(q,o,dt){o.t-=dt;if(o.t<=0)milOpFail(q,o,'Too slow. The sergeant kicked the pile over.');if(o.n>=5)milOpDone(q,o)}},
@@ -6778,7 +6778,7 @@ function milBuild(X,q,g){if(q.mil)return;const{A,BX,CY,ob,prop,loc,rect,sign,ani
  /* the walls and the storm barrier: the base sits past the south edge of the world; let the edge wall know */
 }
 /* ---------- the ops dialog, the keypad, the code test ---------- */
-function milOpsDlg(q){const S=milSV(),r=S.r,M=q.mil;if(!S.opsSeen){S.opsSeen=1;milSave()}const list=milOpsList(r);let body='<p>'+MILRANK[r][1]+' <b>'+milRankNm(r)+'</b> · '+S.xp+' XP'+(r<MILRANK.length-1?' · next rank at '+MILRANK[r+1][2]+' XP':' · top of the tree')+' · '+(S.ops|0)+' operations completed'+(S.dis?' · '+S.dis+' black mark'+(S.dis>1?'s':''):'')+'</p>'+(M.op?'<p style="color:#ffd890">Current operation: '+M.op.D.ic+' '+M.op.D.nm+'. Picking another abandons it.</p>':'')+'<p style="opacity:.8;font-size:12px">Operations open up with rank. Higher ones pay more XP. '+(r>=8?'<b>Colonel:</b> the X-13 is yours to drive; pass the trials and keep it. ':'')+(r>=7?'<b>Major:</b> the launch code test certifies you on the console. ':'')+'</p>';
+function milOpsDlg(q){const S=milSV(),r=S.r,M=q.mil;if(!S.opsSeen){S.opsSeen=1;milSave()}const list=milOpsList(r);let body='<p>'+MILRANK[r][1]+' <b>'+milRankNm(r)+'</b> · '+S.xp+' XP'+(r<9?' · next rank at '+MILRANK[r+1][2]+' XP':' · top of the tree')+' · '+(S.ops|0)+' operations completed'+(S.dis?' · '+S.dis+' black mark'+(S.dis>1?'s':''):'')+'</p>'+(M.op?'<p style="color:#ffd890">Current operation: '+M.op.D.ic+' '+M.op.D.nm+'. Picking another abandons it.</p>':'')+'<p style="opacity:.8;font-size:12px">Operations open up with rank. Higher ones pay more XP. '+(r>=8?'<b>Colonel:</b> the X-13 is yours to drive; pass the trials and keep it. ':'')+(r>=7?'<b>Major:</b> the launch code test certifies you on the console. ':'')+'</p>';
  const btns=list.map(o=>[o.id,o.ic+' <b>'+o.nm.toUpperCase()+'</b> · '+o.xp+' XP · '+milRankNm(o.min)+'+<br><span style="font-weight:normal;font-size:12.5px;opacity:.85">'+o.d+'</span>',M.op&&M.op.id==o.id]);if(M.op)btns.push(['_abandon','❌ Abandon the current operation']);
  milDlg(q,'📋 OPS BOARD · FORT BLACKOUT',body,btns,b=>{if(b=='_abandon'){milOpFail(q,M.op,'Abandoned.');return}milOpStart(q,b)})}
 function milKeypad(q,title,n,onOK,pre){let code=pre?String(pre).replace(/\s/g,'').slice(0,n):'';if(pre&&/\s/.test(pre))code='';const draw=msg=>{const d=milDlg(q,title,'<div id="mkpD" style="background:#031a0a;border:2px solid #2a6a3a;padding:8px;margin-bottom:10px;font:bold 22px monospace;color:#40ff80;text-align:center;letter-spacing:6px">'+(msg||code.padEnd(n,'_'))+'</div>'+(pre&&/\s/.test(pre)?'<div style="font-size:12px;opacity:.8;margin-bottom:6px">You have part of it: "'+pre+'"</div>':'')+'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">'+['1','2','3','4','5','6','7','8','9','C','0','OK'].map(k=>'<button data-k="'+k+'" style="height:48px;font:bold 20px monospace;background:#2a2a2a;color:#e8e8e8;border:2px solid #4a4a4a;border-radius:8px;cursor:pointer">'+k+'</button>').join('')+'</div>',[],null);
@@ -16018,6 +16018,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r562',['New ADMIN army rank: the owner and admins hold it automatically, above General with everything a General gets, and never get busted','/rank <name> lets staff play as a normal rank; /rank admin switches back']],
  ['r561',['Elevator group runs: if the host can\'t be reached, the rest of the group goes up together with a new host','If nobody can be reached, you go back to the lobby with an explanation instead of a black screen','Restricted zone: a warning and 10 seconds to turn back before you get busted','Admins and the owner can set their army rank with /rank (e.g. /rank Sergeant), or undo a bust with /rank undo','General offices: real glass windows, doors that open as you walk up, signs above the doors, and a proper wooden floor','Patrol tanks no longer drive through the general offices','Cop cars no longer blow themselves up by bumping into scenery']],
  ['r560',['Joining a co-op room tells you the real reason when it fails (e.g. your network is blocking direct connections) instead of always saying "No game with that code"','One failed matchmaking attempt no longer locks your game onto the old service for the rest of the session']],
  ['r559',['DOORS now has its OWN SERVER: the lobby, public rooms, leaderboards and matchmaking run on it instead of public message boards (the game itself is still player to player)','Bans are enforced by the server: a banned device AND its internet connection are turned away','Owner/admin panel: an Online now list with KICK (out for 10 minutes)','If the server is ever down, the game falls back to the old public boards']],
@@ -17560,7 +17561,12 @@ async function grpHost(G,crew){MP.auto=0;HUBRUN=1;HUB.dailyGo=!!G.d;RUNMODS=G.m.
   if(!a){sysLine('🎖️ You are '+milRankNm(S.r)+' ('+(S.xp|0)+' XP). Use /rank <name> (e.g. /rank Sergeant), or /rank undo to undo your last bust.');return true}
   let r=-1,xp=0;if(a=='undo'){if(!S.lost){sysLine('🎖️ No bust on record to undo.');return true}r=S.lost.r;xp=S.lost.xp;S.lost=null;S.dis=Math.max(0,(S.dis|0)-1)}
   else{r=MILRANK.findIndex(k=>k[0].toLowerCase()==a);if(r<0)r=MILRANK.findIndex(k=>k[0].toLowerCase().startsWith(a));if(r<0){sysLine('🎖️ Ranks: '+MILRANK.map(k=>k[0]).join(', '));return true}xp=MILRANK[r][2]}
-  S.r=r;S.xp=Math.max(xp|0,MILRANK[r][2]);if(r>=2)S.bc=1;milSave();sysLine('🎖️ Your rank is now '+milRankNm(r)+'.');try{hint('🎖️ '+milRankNm(r)+' '+(MILRANK[r][1]||''))}catch(e){}return true}}
+  S.admOff=r===10?0:1;S.r=r;S.xp=Math.max(xp|0,MILRANK[r][2]);if(r>=2)S.bc=1;milSave();sysLine('🎖️ Your rank is now '+milRankNm(r)+'.');try{hint('🎖️ '+milRankNm(r)+' '+(MILRANK[r][1]||''))}catch(e){}return true}}
+/* ---------- r562: the ADMIN army rank. The owner and admins hold it automatically: above General, with everything a General gets,
+   and they are never busted. /rank <name> still lets them play as a normal rank (and /rank admin goes back). ---------- */
+setInterval(()=>{try{if(!ID.ready||typeof milSV!='function')return;const S=milSV(),st=!!myRank();
+ if(st&&S.r!==10&&!S.admOff){S.preAdm=S.r|0;S.r=10;S.bc=1;milSave();try{hint('🛡️ Staff: your army rank is ADMIN (above General). Use /rank <name> to play as a normal rank.')}catch(e){}}
+ else if(!st&&S.r===10&&ID.uid&&(Date.now()-(window.__admT0||(window.__admT0=Date.now()))>20000)){S.r=Math.min(9,S.preAdm|0);S.xp=Math.min(S.xp|0,99998);milSave()}}catch(e){}},3000);
 
 </script><script>
 /* ======================================================================================================
