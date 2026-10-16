@@ -40,43 +40,7 @@ body.mob #i .hsl{pointer-events:auto}body.mob #i{bottom:calc(10px + env(safe-are
 <div id="pz" style="position:fixed;top:12px;left:12px;font-size:16px;text-shadow:0 0 6px #000;pointer-events:none;display:none"></div>
 <div id="m"><h1>DOORS</h1><p>Reach door 100, then find the exit and escape the hotel.</p>
 <span id="rjslot"></span><div id="mnslot"></div>
-<div id="how">
-<h3>Controls</h3>
-<p id="howTouch" style="display:none">📱 <b>Touch controls</b>: left side of the screen is the joystick (walk), drag on the right side to look, tap the right side to use the item you are holding (hold it to keep using it). The big <b>E</b> button interacts when there is a prompt and otherwise uses your item (or tap the prompt itself), 🧎 crouches, 🔍 inspects what you hold, ⏸ pauses, ☰ opens everything else (journal, badges, lights, players, chat, look speed, fullscreen). Tap a hotbar slot to select it. Turn your phone sideways.</p>
-<p>WASD move · Mouse look · <b>Alt</b> free / grab the mouse (nothing pauses) · C / Space crouch · E interact (hide, open drawers, take items, talk, use locks and levers) · number keys select a hotbar item (items only appear there once you pick them up), click to use it · F flashlight · L lantern · G rainbow flashlight · R rainbow shield · walk into a door to open it · ` opens the debug menu · B opens your badges · J opens your journal (lore about the entities, from the old books in reading halls) · / opens chat (co-op) · X drops an item (or throws a bandage from the pack) · Tab lists the players (co-op) · H shows your last 5 messages · right click inspects what you are holding.</p>
-<h3>The goal</h3>
-<p>You start in the lobby at door 0. Take the key from the reception desk, unlock the door and keep going. Every door is a new room, and the exit is always at the far end. Reach door 100, then walk through the exit room beyond it to escape.</p>
-<h3>Entities</h3>
-<p><b>Rush &amp; Ambush</b>: the lights dim and flicker, then they charge through every room. Hide in a locker. If they hit you they deal 150 damage, which will kill you unless a shield or item stops it. Ambush comes back several times. They only open ordinary doors: locked doors, puzzle locks, gates and elevators stay shut.</p>
-<p><b>Seek</b>: a black, red-glowing chaser who follows you for about 10 rooms, ending in a hallway of grabbing hands. Never stop running.</p>
-<p><b>Figure</b> (doors 50 &amp; 100): blind but hears everything. Crouch when he is near.</p>
-<p><b>Screech</b> (dark rooms): when you hear a "psst", turn and look at him within 3 seconds.</p>
-<p><b>Fake doors</b>: halls that end in several doors have only one real one. The real door's plaque shows the next door number. Opening a fake one hurts.</p>
-<p>Screech, Seek's hands and fake doors hurt but do not kill you outright. Health slowly recovers if you are left alone.</p>
-<p>🛠️ Press <b>F8</b> any time to open the <b>console</b>: it lists errors, the rooms you entered and what happened. <b>Copy report</b> puts it all on your clipboard so you can send it with a bug report.</p>
-<h3>Items</h3>
-<p>✝️ <b>Crucifix</b> (hold it): when an entity touches you it is used up. Rush &amp; Ambush are banished for 8 rooms, Seek &amp; Figure are stunned for 8 seconds. You can carry one at a time.</p>
-<p>👼 <b>Guardian Angel</b> (passive): if an entity touches you and you are not holding a crucifix, it saves you once. You can only have one.</p>
-<p><b>Passive items</b> sit in the row above your hotbar (press 0 for a list) and work on their own. You can carry 2 of them (the Guardian Angel does not count): find a third in a drawer and you can swap. A spare or a third one you leave is traded for 25 gold: 👟 <b>Running Shoes</b> +8% speed · 🧲 <b>Gold Magnet</b> +25% gold from drawers · 🍀 <b>Lucky Clover</b> empty drawers sometimes hold coins · 🔋 <b>Spare Battery</b> lights last 40% longer · 🦺 <b>Padded Vest</b> 15% less damage from hits.</p>
-<p>🔦 Flashlights have a battery and 🏮 lanterns have fuel. Both drain while lit. 🔋 Batteries (rare, about 1 in 100 drawers) top them up by 50% (or are kept as spares that go in automatically when a light runs out). A second flashlight or lantern does not recharge anything.</p>
-<p>🌈 <b>Rainbow Flashlight</b> (rare): never runs out, and its Woke Meter slowly recharges. Press R at a full meter for a 5-second rainbow shield that banishes or stuns anything that touches you and stops all damage.</p>
-<p>✨ <b>Starlight Jug</b>: 4 sips. Each sip heals 60 HP, gives a 50 point shield that soaks up damage (an entity touching you uses up 50), makes you run at 400% speed for 12 seconds, and lights up the hall. Honcho keeps one on his desk.</p>
-<p>🧪 Vitamins give a temporary speed boost (8 seconds alone, 1 second longer for each one already running) and heal 30 HP over 20 seconds. 🗝️ Lockpicks open locked doors.</p>
-<h3>Rooms</h3>
-<p>Halls can have side rooms, a wide wing, an L-shaped wing, a cellar maze (safe from Rush), hedge gardens, steel catwalks, T-junctions and crossroads with fake doors, ballrooms, crate warehouses and libraries.</p>
-<p>🏢 <b>Office blocks</b> last 5 rooms: cubicles, supply closets, copy rooms, break rooms, server rooms and glass meeting rooms. Sometimes the block ends in the boss's corner office: then room 4 ends in a gold-trimmed elevator (step in, the doors close, and the far doors open on the next floor), and the boss, Honcho, will talk to you (E). Photocopiers work too: select an item and press E to print a picture of it.</p>
-<p>💜 <b>The Ohien room</b> is very rare (0.5% of rooms): everything is purple and sparkly, and Ohien the purple Sylveon lives there. Pet Ohien (E) to be healed to full, and take the Starlight Jug from the pedestal. Rush and Ambush cannot enter her room: she drags them under with purple hands.</p>
-<p>📚 <b>Libraries</b> come as dusty stacks, big reading halls and a grand library with a staircase up to the exit. Stand on high ground and Rush &amp; Ambush cannot reach you.</p>
-<h3>Puzzles</h3>
-<p><b>The Archive</b> (3 rooms): each room hides one digit of a 3-digit code, either on a glowing note or inside a filing cabinet drawer (E), in the room or in a supply closet off the hall. Found digits stay on screen at the top left. The last door has a 3-digit combination lock (E).</p>
-<p><b>Door 50</b> (the library): glowing red books hide the digits of a 4-digit code. Enter it at the big lock on the exit door. An iron fence keeps Figure away from the lock.</p>
-<p><b>Door 100</b> (the boiler hall): find 10 breakers and fit them in the wall panel (E). The door opens... and Figure comes for you. RUN.</p>
-<h3>Saving</h3>
-<p>Everything saves automatically in this browser: gold, shop items, stats, and your current run (use Continue run on this screen). Use Export save to move it to another device. Gold is found in drawers and chests, and you spend it in the shop after each run. After every run (a death or an escape) you keep 50% of the gold you finished with.</p>
-<p>🌐 <b>Co-op</b> (menu button): host or join over WebRTC by swapping two copy-paste codes. Everyone gets the same hotel and you can see each other walking around. Doors open and close for everyone (a door only shuts once everybody is out of its room), Rush and Ambush come for everyone at the same time, and Seek, Figure and Honcho are one shared monster: it hunts whoever is nearest, and a crucifix stun, a kill or a locker toss happens to the real thing. If a teammate is still in the room behind you, you can walk back into it. The game never pauses in co-op (menus float over it), so stay alert. Press / to chat (PageUp/PageDown scroll the history); players are shown as named characters with the outfit they picked, the item they hold, and you can see them hiding. To befriend someone in your game use the ➕ button next to their name or type /friend Name in chat: they get a popup (Y accepts, N declines) and you both land in your Friends lists. Press X to drop the selected item for a teammate (they pick it up with E). If one player escapes, everybody still alive escapes with them, and if the whole group gets out alive you earn a badge. If you die while a teammate is alive you lie where you fell and spectate them: a teammate can revive you for 400 gold by standing next to you and pressing E, or from anywhere with /revive Name in chat. You wake up in the latest room the living players have reached. If everybody is down, the run is over. Items and puzzles are still your own for now.</p>
-<p>👥 <b>Friends</b>: set your name, share your friend code, and add your friends' codes to compare best door, escapes, badges and more on a leaderboard. Re-share your code to update your numbers.</p>
-<p>🏅 <b>Badges</b> are earned for all sorts of things and are saved with your game. Using the debug menu turns badge earning off for that session (the menu says so); the code <b>badges</b> turns it back on.</p>
-</div>
+<div id="how"></div>
 <p id="swn" style="display:none;color:#ff9a60"></p></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -93,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r607';
+const BUILD='2026-10-16 r608';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16014,6 +15978,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r608',['A much simpler main menu: Play, Daily run, and four buttons (How to play, Locker, Stats, More). Your profile is in the top left','How to play is short now, in four tabs','Dating mode is gone from the menu','Settings > Save data has a Save now button']],
  ['r607',['QUARRY SKIP is a real stunt now: drive over the glowing booster strip at speed and up the steel kicker, and it fires you clean over Lookout Mesa onto a landing ramp on the far side','Devil\'s Gorge has a new mine lift: a lined shaft, a headframe with a real rope and wheel, hatches that open as the cage comes up. It only goes up, then the empty cage goes back down by itself','No more gaps in the secret cave floor']],
  ['r606',['All speeds are in km/h now','Fort Blackout is properly on the map: every building and wall, and the main ones have names when you zoom in','The Speedway tyre walls are visible again (you were crashing into invisible tyres). A few other invisible things in the desert are fixed too','The dragster\'s front wheels sit on a real axle on the ground','AI cars no longer blow themselves up on corners and walls','Devil\'s Gorge: falling in is a real fall now (no spinning, you land where you fall). Drive in and the car crashes at the bottom with you','The old gorge lift only goes up','The mining shack moved off the road. Press E at its door to go down the mine (walking in by accident no longer starts it)']],
  ['r605',['Smarter AI drivers (squads, the Wraith autopilot, police, backup cars and getaway cars): they slow down for bends, do three-point turns instead of driving in circles, and back out of dead ends steering the right way','Squads can now drive up the road onto Lookout Mesa and down into the Old Quarry','Squads count as arrived when they reach the place, even if it is inside a building (no more circling outside)','The cars in a squad follow the leader\'s track instead of cutting corners into walls','Police backup cars plan routes round buildings instead of driving straight at you']],
@@ -20812,6 +20777,167 @@ const qsOnLand=(v)=>v.x>QSKIP.lx-5.4&&v.x<QSKIP.lx+5.4&&v.z>QSKIP.lz-7&&v.z<QSKI
   /* down: on the landing ramp it is a soft landing (no damage, a quarter of the speed gone) */if(wasAir&&!v.air){if(v.qsFly||qsOnLand(v)){if(v.qsFly&&q.seat&&q.seat.v===v){try{hint('🛹 STUNT JUMP: QUARRY SKIP! Over the mesa. '+(v.jT||0).toFixed(1)+' s in the air.')}catch(e){}}if(qsOnLand(v))v.v*=.75}v.qsFly=0}
   return r}}
 {const vd7=vehDamage;vehDamage=function(q,v,n){if(LANDSOFT&&v===LANDSOFT)return;return vd7.apply(this,arguments)}}
+
+
+/* =====================================================================================================
+   r608: a SIMPLER MAIN MENU and a SHORT HOW TO PLAY (design specs docs/design/main-menu.md and how-to-play.md).
+
+   The title screen used to have seventeen things to click. Now it has:
+     - a slim "Continue run · door N" bar above PLAY (only when your saved run is at door 1 or further);
+     - the big three: PLAY, PLAY DESERT (once unlocked), DAILY RUN (same colours and daily themes as before);
+     - four small buttons in one row (2 × 2 on phones): 📖 How to play · 🎒 Locker · 📊 Stats · ☰ More;
+     - your profile chip in the top-left corner (name and army rank, click it for your Account);
+     - the ⚙ Settings gear in the top-right corner, as before.
+   Where the old buttons went:
+     🎒 Locker  = Shop (inside the card) · Customize · Skins (those two open their own full-screen editors)
+     📊 Stats   = the stats that used to sit in a row at the top · Badges · Journal (those two open their own panels)
+     ☰ More    = Quick solo run · Friends (with the mail count) · Co-op · Changelog · Secrets (the old ⓘ) · Owner panel
+     💾 SAVE    = ⚙ Settings → Save data → "💾 Save now" (still copies a backup save code)
+     💘 Dating mode is gone from the menu. Old saves still load, and the three dating badges are only hidden from
+        your badge list if you never earned them (earned ones stay).
+   The same four buttons also replace the old row of buttons on the shop / "you died" screens.
+
+   HOW TO PLAY is now one card with four short tabs (Basics, Monsters, Items, Desert & co-op), about 250 words in
+   all, instead of the old 2,000-word scroll. The old text in #how is removed by build.py.
+   ===================================================================================================== */
+{const st=document.createElement('style');st.id='mmCSS';st.textContent=`
+#m .mm{gap:10px;margin:10px 0 6px}
+#m .mm .mnu-main{gap:10px}
+.mm-cont{display:block;width:min(420px,calc(86*var(--vw,1vw)));box-sizing:border-box;margin:2px auto 0;padding:8px 16px;text-align:left;cursor:pointer;
+ background:rgba(28,18,9,.9);color:var(--u-gold2,#ffd98a);border:1px solid var(--u-gold,#d4a850);border-radius:12px;font:bold 15px DoorsSans,Arial,sans-serif;letter-spacing:1px;box-shadow:0 4px 14px rgba(0,0,0,.35);transition:filter .12s,transform .12s}
+.mm-cont span{color:var(--u-mute,#b3a07a);font-weight:normal;letter-spacing:0}
+.mm-cont:hover{filter:brightness(1.2);transform:translateY(-1px)}
+.mm-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;width:min(580px,calc(94*var(--vw,1vw)));margin-top:4px}
+.mm-row button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:46px;box-sizing:border-box;margin:0;padding:8px 6px;cursor:pointer;
+ background:rgba(28,18,9,.88);color:var(--u-text,#efe3c4);border:1px solid #7a6034;border-radius:12px;font:bold 15px DoorsSans,Arial,sans-serif;letter-spacing:1px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.35);transition:filter .12s,transform .12s,border-color .12s}
+.mm-row button:hover{border-color:var(--u-gold,#d4a850);background:#3b2714;transform:translateY(-1px)}
+.mm-row button small{display:block;font:12px DoorsSans,Arial,sans-serif;letter-spacing:0;color:var(--u-mute,#b3a07a);margin-top:2px}
+.mm-dot{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:#e02020;color:#fff;font:bold 12px/18px DoorsSans,Arial,sans-serif;text-align:center;border:2px solid #fff;box-shadow:0 0 6px #f00a}
+@media (max-width:520px){.mm-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mm-chip{position:fixed;top:10px;left:10px;z-index:25;display:none;align-items:center;gap:7px;max-width:calc(100vw - 150px);box-sizing:border-box;padding:6px 12px;cursor:pointer;
+ background:rgba(28,18,9,.88);color:var(--u-text,#efe3c4);border:1px solid #7a6034;border-radius:12px;font:14px DoorsSans,Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mm-chip:hover{border-color:var(--u-gold,#d4a850)}
+.mm-chip b{color:var(--u-gold2,#ffd98a);overflow:hidden;text-overflow:ellipsis}
+.mm-chip span{color:var(--u-mute,#b3a07a)}
+body.mm-title>button[title="Info"]{display:none!important}
+.mm-list{display:flex;flex-direction:column;gap:6px}
+.mm-list button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:0!important;padding:10px 14px!important;font-size:15px!important}
+.mm-list button small{margin-left:auto;color:var(--u-mute);font-size:12px}
+.mm-list .own{color:#ffd24a!important;border-color:#c9a227!important}
+.mm-stats{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+.mm-stats div{display:flex;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid rgba(77,58,31,.55)}
+.mm-stats b{color:var(--u-gold2);text-align:right}
+@media (max-width:520px){.mm-stats{grid-template-columns:1fr}}
+.mm-shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:8px 0}
+.mm-shop button{margin:0!important;padding:10px!important;text-align:left;line-height:1.35}
+.mm-shop button small{display:block;color:var(--u-mute);font-size:12px}
+.mm-shop button[disabled]{opacity:.45;cursor:default}
+.uik-tab .ext{font-size:11px;opacity:.6;margin-left:3px}
+/* how to play */
+#howDlg .uik-card{width:min(640px,96vw)}
+#howDlg .uik-body{font-size:15px;line-height:1.5}
+#howDlg .uik-body p{margin:0 0 10px}
+#howDlg .uik-body b{color:var(--u-gold2)}
+#howDlg .htp-keys{line-height:2.1;margin:0 0 10px}
+#howDlg .htp-mon p{margin:0 0 8px}
+#howDlg .uik-ft{justify-content:flex-start;font-size:12px;color:var(--u-mute)}
+#howDlg .uik-ft b{color:var(--u-text)}
+@media (max-width:520px){#howDlg .uik-tab,#mmDlg .uik-tab{padding:7px 7px;font-size:13px}#howDlg .uik-tabs,#mmDlg .uik-tabs{padding:8px 6px 0;gap:2px}#howDlg .uik-body{font-size:14px}}
+`;document.head.appendChild(st)}
+
+/* ---------- the title screen: Continue bar (in #svb) and the new button rows (from menuBtns) ---------- */
+function mmRunDoor(){try{const r=runLoad();return r&&(r.n|0)>=1?r.n|0:0}catch(e){return 0}}
+svHtml=function(shop){const d=shop?mmRunDoor():0;
+ return '<div id="svb" class="uik-sv">'+(d?'<button class="mm-cont" onclick="event.stopPropagation();contRun()">▶ Continue run <span>· door '+d+'</span></button>':'')+'</div>'};
+function mmMoreDot(){let n=0;try{n+=frCount()|0}catch(e){}let ch=0;try{ch=chlNew()?1:0}catch(e){}return n?'<span class="mm-dot">'+n+'</span>':ch?'<span class="mm-dot">!</span>':''}
+function mmRow(){const B=(l,sub,f,extra)=>'<button onclick="event.stopPropagation();'+f+'">'+l+(sub?'<small>'+sub+'</small>':'')+(extra||'')+'</button>';
+ return '<div class="mm-row">'+B('📖 How to play','','howOpen()')+B('🎒 Locker','','mmLocker()')+B('📊 Stats','<span data-mm="best">Best door '+(SV.best|0)+'</span>','mmStats()')+B('☰ More','','mmMore()','<span data-mm="dot">'+mmMoreDot()+'</span>')+'</div>'}
+{const mb=menuBtns;menuBtns=function(){let h=mb.apply(this,arguments),main='';
+ try{const t=document.createElement('template');t.innerHTML=h;const m=t.content.querySelector('.mnu-main');main=m?m.outerHTML:''}catch(e){}
+ return '<div class="mnu mm">'+main+mmRow()+'</div>'}}
+
+/* ---------- the panels behind the four buttons ---------- */
+function mmPanel(title,tabs,cur,body,wire){const d=uikOverlay('mmDlg','<div class="uik-card"><div class="uik-hd"><h2>'+title+'</h2><button class="uik-x" data-act="x">✕</button></div>'+
+  (tabs?'<div class="uik-tabs">'+tabs.map(t=>'<button class="uik-tab'+(t[0]==cur?' on':'')+'" data-tab="'+t[0]+'">'+t[1]+(t[2]?'<span class="ext">↗</span>':'')+'</button>').join('')+'</div>':'')+'<div class="uik-body">'+body+'</div></div>');
+ d.onclick=e=>{e.stopPropagation();const t=e.target.closest('[data-tab],[data-act]');if(!t)return;if(t.dataset.act=='x'){mmClose();return}wire(t)};return d}
+function mmClose(){const d=document.getElementById('mmDlg');if(d)d.style.display='none'}
+/* run something that opens its own screen, after closing our card */
+function mmGo(f){mmClose();try{f()}catch(e){try{conLog('error','menu: '+e.message)}catch(x){}}}
+
+/* 🎒 LOCKER: Shop · Customize · Skins */
+function mmLocker(tab){if(!tab)tab='shop';
+ if(tab=='cust'){mmGo(()=>custOpen());return}if(tab=='skins'){mmGo(()=>skinsOpen());return}
+ const cap=k=>(k=='f'||k=='n')&&pre[k]>0||(k=='l'&&pre.l>=LPMAX);
+ const b='<div class="uik-note" style="font-size:14px;color:var(--u-text)">🪙 <b style="color:var(--u-gold2)">'+(gold|0)+'</b> gold · items carry into your next run.</div><div class="mm-shop">'+
+  SH.map(a=>{const no=gold<a[3]||cap(a[2]);return '<button class="uik-btn" data-act="buy" data-k="'+a[2]+'"'+(no?' disabled':'')+'>'+a[0]+' '+a[1]+'<small>'+a[3]+' 🪙 · owned '+(pre[a[2]]|0)+(cap(a[2])?' (max)':'')+'</small></button>'}).join('')+'</div>'+
+  (gold<Math.min(...SH.map(a=>a[3]))?'<div class="uik-note">No gold to spend yet: you find it in drawers during a run.</div>':'');
+ mmPanel('🎒 LOCKER',[['shop','🛒 Shop'],['cust','👕 Customize',1],['skins','🎨 Skins',1]],tab,b,t=>{if(t.dataset.tab){mmLocker(t.dataset.tab);return}
+  if(t.dataset.act=='buy'&&!t.disabled){const m0=menu;menu=function(){};try{buy(t.dataset.k)}catch(e){}finally{menu=m0}try{updHud()}catch(e){}mmLocker('shop')}})}
+
+/* 📊 STATS: Stats · Badges · Journal */
+function mmStats(tab){if(!tab)tab='stats';
+ if(tab=='bd'){mmGo(()=>badgePanel());return}if(tab=='jn'){mmGo(()=>journalPanel());return}
+ const kk=Object.entries(SV.k||{}).sort((a,b)=>b[1]-a[1])[0],r=(i,l,v)=>'<div><span>'+i+' '+l+'</span><b>'+v+'</b></div>';
+ let rk='',pr=0;try{const S=milSV();if((S.r|0)>0)rk=(MILRANK[S.r]&&MILRANK[S.r][1]?MILRANK[S.r][1]+' ':'')+milRankNm(S.r);pr=S.pr|0}catch(e){}
+ const b='<div class="mm-stats">'+r('🏆','Best door',SV.best|0)+r('🔁','Runs',SV.runs|0)+r('💀','Deaths',SV.deaths|0)+r('🚪','Escapes',SV.wins|0)+r('🪙','Lifetime gold',SV.gold|0)+r('🛡️','Saved by items',SV.saved|0)+r('☠️','Top killer',kk?uE(kk[0])+' ×'+kk[1]:'nobody yet')+
+  (rk?r('🎖️','Army rank',uE(rk)):'')+(pr?r('✪','Prestige',pr):'')+'</div>';
+ let nb='',nj='';try{nb=' ('+bdCount()+'/'+BD.length+')'}catch(e){}try{nj=' ('+jnCount()+'/'+LORE.length+')'}catch(e){}
+ mmPanel('📊 STATS',[['stats','📊 Stats'],['bd','🏅 Badges'+nb,1],['jn','📓 Journal'+nj,1]],tab,b,t=>{if(t.dataset.tab)mmStats(t.dataset.tab)})}
+
+/* ☰ MORE: a short list */
+function mmMore(){let fc=0;try{fc=frCount()|0}catch(e){}let ch=0;try{ch=chlNew()}catch(e){}let rk='';try{rk=myRank()}catch(e){}
+ const L=(a,l,sub,cls)=>'<button class="uik-btn'+(cls?' '+cls:'')+'" data-act="'+a+'">'+l+(sub?'<small>'+sub+'</small>':'')+'</button>';
+ const b='<div class="mm-list">'+L('solo','🚪 Quick solo run','straight into the hotel')+L('fr','👥 Friends'+(fc?' · '+fc:''),fc?'📬 new mail':'')+L('mp','🌐 Co-op','play with friends')+L('chl','📋 Changelog',ch?'🆕 new':'')+L('sec','🤫 Secrets','')+
+  (rk?L('adm',rk=='owner'?'👑 Owner panel':'🛡️ Staff panel','','own'):'')+'</div>';
+ const d=mmPanel('☰ MORE',null,'',b,t=>{const a=t.dataset.act;
+  if(a=='solo')mmGo(()=>playNow());else if(a=='fr')mmGo(()=>friendsPanel());else if(a=='mp')mmGo(()=>mpPanel());else if(a=='chl')mmGo(()=>chlOpen());else if(a=='sec')mmGo(()=>secretBox());else if(a=='adm')mmGo(()=>admPanel())});
+ try{d.querySelector('.uik-card').style.width='min(400px,96vw)'}catch(e){}}
+
+/* ---------- the profile chip (top-left): your name and army rank, click for Account ---------- */
+const mmChip=document.createElement('button');mmChip.className='mm-chip';mmChip.title='Your account';mmChip.onclick=e=>{e.stopPropagation();try{acctPanel()}catch(x){}};document.body.appendChild(mmChip);
+function mmChipText(){let rk='';try{const S=milSV();if((S.r|0)>0)rk=((S.pr|0)?'✪'+(S.pr|0)+' ':'')+milRankNm(S.r)}catch(e){}return '👤 <b>'+uE(SV.nm||'Player')+'</b>'+(rk?'<span>· '+uE(rk)+'</span>':'')}
+setInterval(()=>{try{const m=$('m'),on=!!m&&m.style.display!='none'&&(state=='menu'||state=='dead')&&!!m.querySelector('.mm');
+  mmChip.style.display=on?'flex':'none';document.body.classList.toggle('mm-title',on);if(!on)return;
+  const t=mmChipText();if(mmChip.innerHTML!==t)mmChip.innerHTML=t;
+  const bs=m.querySelector('[data-mm="best"]');if(bs){const v='Best door '+(SV.best|0);if(bs.textContent!==v)bs.textContent=v}
+  const dt=m.querySelector('[data-mm="dot"]');if(dt){const v=mmMoreDot();if(dt.innerHTML!==v)dt.innerHTML=v}}catch(e){}},500);
+
+/* ---------- ⚙ Settings → Save data gets "💾 Save now"; the Controls tab's guide button gets the new name ---------- */
+{const so=setOpen;setOpen=function(){const r=so.apply(this,arguments);try{const d=document.getElementById('setDlg');if(!d)return r;
+  if(SETT=='save'){const bx=d.querySelector('.uik-box');if(bx&&!bx.querySelector('[data-mmsave]'))bx.insertAdjacentHTML('afterbegin','<div class="uik-row"><div class="l">💾 Save now<small>The game saves by itself. This also copies a backup save code to your clipboard.</small></div><button class="uik-btn sm pri" data-mmsave onclick="event.stopPropagation();mmSaveNow(this)">Save now</button></div>')}
+  const hb=d.querySelector('[data-act="how"]');if(hb)hb.textContent='📖 How to play'}catch(e){}return r}}
+function mmSaveNow(btn){try{menuSave(null)}catch(e){}if(btn){btn.textContent='✔ Saved';setTimeout(()=>{btn.textContent='Save now'},2200)}}
+
+/* ---------- Dating mode is gone: hide its badges unless you already earned them ---------- */
+try{for(const id of['firstdate','soulmate','monsterlove']){const i=BD.findIndex(b=>b[0]==id);if(i>=0&&!(SV.bd&&SV.bd[id]))BD.splice(i,1)}}catch(e){}
+
+/* ---------- HOW TO PLAY: one card, four short tabs ---------- */
+let HTP='basics';
+function howOpen(tab){if(typeof tab=='string')HTP=tab;const K=k=>'<span class="uik-kbd">'+k+'</span>';
+ const touch=(()=>{try{return !!(MOB.on||matchMedia('(pointer:coarse)').matches)}catch(e){return false}})();
+ const T=[['basics','🚪 Basics'],['mon','👁️ Monsters'],['items','🎒 Items'],['desert','🌵 Desert & co-op']];
+ const B={
+  basics:'<p><b>Get to door 100 and out.</b> Every door is a new room. Take the key at reception, open the door, keep going.</p>'+
+   '<p class="htp-keys">'+K('WASD')+' move · '+K('Mouse')+' look · '+K('E')+' use, open, hide, talk · '+K('C')+' crouch · '+K('1–9')+' pick an item, '+K('click')+' to use it · '+K('F')+' flashlight · '+K('M')+' map (desert) · '+K('Esc')+' pause</p>'+
+   '<p>Gold comes from drawers. Spend it in the Shop between runs. Everything saves by itself.</p>'+
+   (touch?'<p>📱 Left side: walk. Drag the right side: look. Tap the right side: use your item. <b>E</b> button: interact.</p>':''),
+  mon:'<div class="htp-mon"><p>🏃 <b>Rush &amp; Ambush</b>: lights flicker, then they charge. <b>Hide in a locker.</b></p>'+
+   '<p>👁️ <b>Seek</b>: runs after you for a while. <b>Don\'t stop running.</b></p>'+
+   '<p>🦻 <b>Figure</b> (doors 50 and 100): blind, hears everything. <b>Crouch</b> near him.</p>'+
+   '<p>👀 <b>Screech</b>: in dark rooms, if you hear "psst", <b>turn and look at him.</b></p>'+
+   '<p>🚪 <b>Fake doors</b>: only the door whose plaque shows the next number is real.</p></div>',
+  items:'<p>✝️ <b>Crucifix</b> stops a monster once. 👼 <b>Guardian Angel</b> saves you once.</p>'+
+   '<p>🔦 Lights run down: find 🔋 batteries. 🗝️ Lockpicks open locked doors. 🧪 Vitamins: speed and a little healing.</p>',
+  desert:'<p>🌵 <b>The desert</b> is a big open world: drive anything you find ('+K('E')+' to get in), take jobs, join the army, mine the quarry. '+K('M')+' opens the map; click a place on it to warp there.</p>'+
+   '<p>🌐 <b>Co-op</b>: play with friends from the lobby (PLAY). '+K('/')+' chat · '+K('Tab')+' players · '+K('X')+' drop an item for a friend.</p>'+
+   '<p>If you go down, a friend can revive you.</p>'};
+ const d=uikOverlay('howDlg','<div class="uik-card"><div class="uik-hd"><h2>📖 HOW TO PLAY</h2><button class="uik-x" data-act="x">✕</button></div><div class="uik-tabs">'+
+  T.map(t=>'<button class="uik-tab'+(t[0]==HTP?' on':'')+'" data-tab="'+t[0]+'">'+t[1]+'</button>').join('')+'</div><div class="uik-body">'+B[HTP]+'</div>'+
+  '<div class="uik-ft"><span>Stuck or found a bug? '+K('F8')+' opens the console. <i>Copy report</i> puts it on your clipboard.</span></div></div>');
+ d.onclick=e=>{e.stopPropagation();const t=e.target.closest('[data-tab],[data-act]');if(!t)return;if(t.dataset.tab){howOpen(t.dataset.tab);return}if(t.dataset.act=='x')d.style.display='none'}}
+
+/* rebuild the title screen now that the pieces above exist */
+setTimeout(()=>{try{const ms=document.getElementById('mnslot');if(ms&&!ms.querySelector('.mm'))ms.innerHTML=menuBtns();const b=$('svb');if(b)b.outerHTML=svHtml(1)}catch(e){}},200);
 
 </script><script>
 /* ======================================================================================================
