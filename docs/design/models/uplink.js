@@ -10,7 +10,8 @@
              building side; the pad's back edge then sits 0.3 m in front of the building at z -695.5).
              The [E] prompt: local (-0.5, -1.4), i.e. world (447.5, -692.2) with that placement.
    PARTS     g.userData.parts:
-             az      Group, dish azimuth. Pivot local (0.9, 1.35, 0.7). rotation.y.
+             az      Group, dish azimuth. Pivot local (1.2, 1.35, 0.85). rotation.y.
+                     The dish rim (1.1 m) can't reach the console or the rack at any angle.
              el      Group inside az, dish elevation. Pivot 0.45 above az. rotation.x = -(PI/2 - elevation).
              beacon  Group on top of the rack. rotation.y spins it.
              cover   Group, the flip cover over the FIRE button. rotation.x: 0 shut … 1.9 open.
@@ -30,7 +31,7 @@
    COLLISION Pad is walkable (0.15 step). Boxes (local, before rotation):
                console  x -1.25 … 0.25,  z -1.0 … -0.05
                rack     x -1.85 … -1.25, z 0.0 … 0.6
-               dish     x 0.55 … 1.25,   z 0.35 … 1.05   (the pedestal; the dish itself is overhead)
+               dish     x 0.85 … 1.55,   z 0.5 … 1.2     (the pedestal; the dish itself is overhead)
                sign     0.1 × 0.1 at (1.6, -1.5)
    ===================================================================================================== */
 function mkUplink(){
@@ -51,12 +52,12 @@ function mkUplink(){
   BX(4,.15,3.6,[con,con,M(0x9a9a94,{map:t,roughness:1,metalness:0}),con,con,con],0,.075,0)}
  /* hazard plate under the dish */
  {const t=cv(256,256,(x,w,h)=>{x.fillStyle='#e0b020';x.fillRect(0,0,w,h);x.fillStyle='#1a1a1a';for(let i=-h;i<w;i+=48){x.beginPath();x.moveTo(i,h);x.lineTo(i+24,h);x.lineTo(i+24+h,0);x.lineTo(i+h,0);x.fill()}x.fillStyle='#5a5a54';x.fillRect(40,40,w-80,h-80)});
-  BX(1.1,.02,1.1,[oliveD,oliveD,M(0xffffff,{map:t,roughness:.8,metalness:0}),oliveD,oliveD,oliveD],.9,.16,.7)}
+  BX(1.1,.02,1.1,[oliveD,oliveD,M(0xffffff,{map:t,roughness:.8,metalness:0}),oliveD,oliveD,oliveD],1.2,.16,.85)}
 
  /* ---------- the dish ---------- */
- CY(.22,.28,1.2,olive,.9,.75,.7);CY(.34,.34,.06,oliveD,.9,.18,.7);/* pedestal and its base flange */
- for(let i=0;i<6;i++){const a=i/6*6.283;CY(.025,.025,.05,steel,.9+Math.cos(a)*.29,.22,.7+Math.sin(a)*.29,null,6)}/* bolts */
- const az=new THREE.Group();az.position.set(.9,1.35,.7);g.add(az);parts.az=az;
+ CY(.22,.28,1.2,olive,1.2,.75,.85);CY(.34,.34,.06,oliveD,1.2,.18,.85);/* pedestal and its base flange */
+ for(let i=0;i<6;i++){const a=i/6*6.283;CY(.025,.025,.05,steel,1.2+Math.cos(a)*.29,.22,.85+Math.sin(a)*.29,null,6)}/* bolts */
+ const az=new THREE.Group();az.position.set(1.2,1.35,.85);g.add(az);parts.az=az;
  CY(.3,.3,.15,oliveD,0,.075,0,az);
  for(const sx of[-1,1]){BX(.08,.45,.18,olive,sx*.5,.375,0,az);CY(.07,.07,.12,steel,sx*.5,.45,0,az).rotation.z=Math.PI/2}
  BX(1.08,.1,.18,olive,0,.15,0,az);/* the yoke's cross piece */
@@ -70,7 +71,7 @@ function mkUplink(){
   for(let i=0;i<3;i++){const a=i/3*6.283+.5;beam([Math.cos(a)*R*.95,.05+(R*.95)**2/(4*F),Math.sin(a)*R*.95],[0,fy+.05,0],.015,steel,el)}}
 
  /* ---------- the console ---------- */
- BX(1.4,.8,.6,olive,-.5,.55,-.65);/* base cabinet: x -1.2 … 0.2, z -0.95 … -0.35, top 0.95 */
+ BX(1.4,.8,.9,olive,-.5,.55,-.5);/* base cabinet: x -1.2 … 0.2, z -0.95 … -0.05, top 0.95 (runs under the screen housing) */
  for(const sx of[-1,1])BX(.02,.5,.4,oliveD,-.5+sx*.4,.5,-.951);/* two door panel lines (front) */
  BX(1.36,.12,.02,dark,-.5,.22,-.96);/* kick plate */
  /* the sloped desk: a wedge under it so there is no gap at the sides */
@@ -93,12 +94,14 @@ function mkUplink(){
  /* little printed labels under the lamps */{const t=cv(256,32,(x,w,h)=>{x.fillStyle='#343a26';x.fillRect(0,0,w,h);x.fillStyle='#d8d8c0';x.font='bold 18px '+FONT;x.textAlign='center';['READY','CHRG','LOCK'].forEach((s,i)=>x.fillText(s,40+i*85,23,80))});
   const pg=new THREE.PlaneGeometry(.36,.045);pg.rotateZ(Math.PI);/* text reads from the operator's side */const pl=new THREE.Mesh(pg,M(0xffffff,{map:t,roughness:.8}));pl.rotation.x=-Math.PI/2;pl.position.set(-.43,S+.002,.27);desk.add(pl)}
  /* the screen housing and the screen */
- BX(1.4,.8,.3,olive,-.5,1.51,-.2);BX(1.5,.05,.38,oliveD,-.5,1.935,-.26);/* housing and its hood */
+ BX(1.4,.96,.3,olive,-.5,1.43,-.2);BX(1.5,.05,.38,oliveD,-.5,1.935,-.26);/* housing and its hood */
  BX(1.28,.7,.02,dark,-.5,1.53,-.355);/* bezel */
  const sc=document.createElement('canvas');sc.width=512;sc.height=264;const sx=sc.getContext('2d');const stex=new THREE.CanvasTexture(sc);
  const screen=new THREE.Mesh(new THREE.PlaneGeometry(1.2,.62),new THREE.MeshBasicMaterial({map:stex}));screen.rotation.y=Math.PI;screen.position.set(-.5,1.53,-.367);g.add(screen);parts.screen=screen;
  /* a cable from the console to the rack, and a conduit from the rack to the dish */
- BX(.1,.06,1.0,dark,-1.25,.18,-.35+.15);BX(2.05,.08,.12,dark,-.2,.19,.42);
+ BX(.1,.06,1.0,dark,-1.25,.18,-.35+.15);/* conduit: rack → along the pad → round the hazard plate → up into a junction box on the dish pedestal */
+ BX(1.89,.08,.12,dark,-.31,.19,.48);BX(.12,.08,.49,dark,.62,.19,.665);BX(.32,.08,.12,dark,.8,.19,.85);
+ BX(.12,.33,.12,dark,.9,.315,.85);BX(.12,.26,.22,oliveD,.98,.52,.85);CY(.02,.02,.04,steel,.98,.67,.85,null,6);
 
  /* ---------- the rack ---------- */
  BX(.6,1.9,.6,oliveD,-1.55,1.1,.3);
