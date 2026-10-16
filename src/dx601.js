@@ -78,14 +78,14 @@ function cwTrailPt(s,i){const T=s.tr,L=s.v[0]&&s.v[0].v;if(!T||T.length<3||!L)re
 wkAPTick=function(q,dt){const A=q.wkAP;if(!A)return;const s=q.seat;if(!s||s.v!==A.v||s.i!=0||A.v.wreck){wkAPStop(q);return}const v=A.v,T=A.T;A.t+=dt;
  if(keys.KeyW||keys.KeyS||keys.KeyA||keys.KeyD||keys.ArrowUp||keys.ArrowDown){if(A.t>1){wkAPStop(q,'🛸 Autopilot off: you took the controls.');return}}
  const P2=A.pts,n=P2.length,lastI=n-1,inI=n-1-T.line.length;
- if(A.k>=inI-2){if(T.bay!=null){const d=q.wbay&&q.wbay.doors[T.bay];if(d)d.force=3}else if(q.mil&&q.mil.door&&!q.mil.door.open){q.mil.door.open=1;snd(700,.15);hint('🛸 The blast door opens for the Wraith.')}}
- /* wait for the door to be fully open before driving through it */if(A.k>=inI){const open=T.bay!=null?!!(q.wbay&&q.wbay.doors[T.bay].u>.88):!!(q.mil&&q.mil.door&&q.mil.door.obOff);if(!open){v.v*=Math.max(0,1-dt*4);A.stk=0;return}}
+ if(!T.wp&&A.k>=inI-2){if(T.bay!=null){const d=q.wbay&&q.wbay.doors[T.bay];if(d)d.force=3}else if(q.mil&&q.mil.door&&!q.mil.door.open){q.mil.door.open=1;snd(700,.15);hint('🛸 The blast door opens for the Wraith.')}}
+ /* wait for the door to be fully open before driving through it */if(!T.wp&&A.k>=inI){const open=T.bay!=null?!!(q.wbay&&q.wbay.doors[T.bay].u>.88):!!(q.mil&&q.mil.door&&q.mil.door.obOff);if(!open){v.v*=Math.max(0,1-dt*4);A.stk=0;return}}
  const w=P2[Math.min(A.k,lastI)],d=Math.hypot(w[0]-v.x,w[1]-v.z),final=A.k>=lastI,slow=A.k>=inI;
- if(final&&d<2.5){v.v=0;wkAPStop(q,'🛸 Parked in '+T.nm+'. Welcome home.');return}
+ if(final&&d<2.5){v.v=0;wkAPStop(q,T.wp?'🛸 Arrived at '+T.nm+'.':'🛸 Parked in '+T.nm+'. Welcome home.');return}
  if(!final&&(d<(slow?3:6)||(!slow&&aiPassed(v,w,P2[A.k+1],d)))){A.k++;return}
  const max=slow?7:26;let want=Math.atan2(-(w[0]-v.x),-(w[1]-v.z));if(!slow)want=aiProbe(q,v,A,want,dt,null,Math.min(14,d));
  const r=aiCtl(q,v,A,want,d,dt,{max,stop:final?.5:null,turn:slow?0:aiBend(v.x,v.z,w,P2[A.k+1])});
- if(A.replan){A.replan=0;A.rq++;A.pts=wkPlan(q,v,T);A.k=0}
+ if(A.replan){A.replan=0;A.rq++;A.pts=T.wp?wpPlan(q,v,T):wkPlan(q,v,T);A.k=0}
  const K0=v.K;v.K=Object.assign({},K0,{max});vehPhys(q,v,dt,r[0],r[1],true,false);v.K=K0;
  if(A.rq>6)wkAPStop(q,'🛸 Autopilot: I cannot find a way through from here. Drive it a bit closer and try again (L).')};
 
