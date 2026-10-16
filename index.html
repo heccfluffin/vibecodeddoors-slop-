@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r588';
+const BUILD='2026-10-16 r589';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -3721,7 +3721,7 @@ function xpRoadTex(dirt){const c=document.createElement('canvas');c.width=128;c.
  else{x.fillStyle='#4a4642';x.fillRect(0,0,128,256);x.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<60;i++)x.fillRect(Math.random()*128,Math.random()*256,2,2);x.fillStyle='#f0c020';x.fillRect(61,20,6,100);x.fillStyle='#f0f0e8';x.fillRect(2,0,3,256);x.fillRect(123,0,3,256)}const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
 function xpRoadsBuild(X){const{q,g,M,A,BX,rect}=X;const TA=xpRoadTex(0),TD=xpRoadTex(1);let pieces=[];const done=[];
  for(const r of q.xroads){let ps=[[r.x0,r.x1,r.z0,r.z1]];for(const d of done)ps=rectSub(ps,d);done.push([r.x0,r.x1,r.z0,r.z1]);rect(r.x0,r.x1,r.z0,r.z1,r.dirt?'#8a6a44':'#4a4440');
-  for(const[x0,x1,z0,z1]of ps){if(x1-x0<.05||z1-z0<.05)continue;const t=(r.dirt?TD:TA).clone();t.needsUpdate=true;const L=r.along?x1-x0:z1-z0,W=r.along?z1-z0:x1-x0;t.repeat.set(W/(r.dirt?5:7),L/8);const m=new THREE.Mesh(new THREE.PlaneGeometry(W,L),M(0xffffff,{map:t,roughness:1}));m.rotation.x=-Math.PI/2;if(r.along)m.rotation.z=Math.PI/2;m.position.set((x0+x1)/2,r.dirt?.045:.06,(z0+z1)/2);g.add(m)}}/* r415: junction boxes. Where two roads cross or meet, a plain patch of asphalt covers the box so neither road's edge line runs across the mouth of the other */try{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='#4a4642';x.fillRect(0,0,64,64);x.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<30;i++)x.fillRect(Math.random()*64,Math.random()*64,2,2);const tp=new THREE.CanvasTexture(c);tp.wrapS=tp.wrapT=THREE.RepeatWrapping;const R2=q.xroads.filter(r=>!r.dirt);for(let i=0;i<R2.length;i++)for(let j=i+1;j<R2.length;j++){const a=R2[i],b=R2[j];const x0=Math.max(a.x0,b.x0),x1=Math.min(a.x1,b.x1),z0=Math.max(a.z0,b.z0),z1=Math.min(a.z1,b.z1);if(x1-x0<1||z1-z0<1)continue;if(a.along===b.along)continue;const t=tp.clone();t.needsUpdate=true;t.repeat.set((x1-x0)/4,(z1-z0)/4);const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0+.3,z1-z0+.3),M(0xffffff,{map:t,roughness:1}));m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.068,(z0+z1)/2);m.userData.noSeam=true;g.add(m)}}catch(e){conLog('error','junctions: '+e.message)}}
+  for(const[x0,x1,z0,z1]of ps){if(x1-x0<.05||z1-z0<.05)continue;const t=(r.dirt?TD:TA).clone();t.needsUpdate=true;const L=r.along?x1-x0:z1-z0,W=r.along?z1-z0:x1-x0;t.repeat.set(W/(r.dirt?5:7),L/8);const m=new THREE.Mesh(new THREE.PlaneGeometry(W+.12,L+.12),M(0xffffff,{map:t,roughness:1}));m.rotation.x=-Math.PI/2;if(r.along)m.rotation.z=Math.PI/2;m.position.set((x0+x1)/2,(r.dirt?.045:.06)+(done.length%6)*.0016,(z0+z1)/2);g.add(m)}}/* r415: junction boxes. Where two roads cross or meet, a plain patch of asphalt covers the box so neither road's edge line runs across the mouth of the other */try{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='#4a4642';x.fillRect(0,0,64,64);x.fillStyle='rgba(0,0,0,.18)';for(let i=0;i<30;i++)x.fillRect(Math.random()*64,Math.random()*64,2,2);const tp=new THREE.CanvasTexture(c);tp.wrapS=tp.wrapT=THREE.RepeatWrapping;const R2=q.xroads.filter(r=>!r.dirt);for(let i=0;i<R2.length;i++)for(let j=i+1;j<R2.length;j++){const a=R2[i],b=R2[j];const x0=Math.max(a.x0,b.x0),x1=Math.min(a.x1,b.x1),z0=Math.max(a.z0,b.z0),z1=Math.min(a.z1,b.z1);if(x1-x0<1||z1-z0<1)continue;if(a.along===b.along)continue;const t=tp.clone();t.needsUpdate=true;t.repeat.set((x1-x0)/4,(z1-z0)/4);const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0+.3,z1-z0+.3),M(0xffffff,{map:t,roughness:1}));m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.068,(z0+z1)/2);m.userData.noSeam=true;g.add(m)}}catch(e){conLog('error','junctions: '+e.message)}}
 /* the network */
 function xpRoads(X){const{road,sign,loc}=X;
  road(0,-1200,0,-1960);/* Route 13 south */road(560,-1033.5,560,-1960);/* Dune Rd South */road(208.5,-1030,563.5,-1030);/* Sunset Blvd east */
@@ -7997,7 +7997,7 @@ function cartPzUpd(dt){for(const r of RMS){const S=r.cpz;if(!S||S.done)continue;
 function desertDecor(r){if(r.dsd||HUB.on)return;r.dsd=1;const doorM=new Set();if(r.dd&&r.dd.g)r.dd.g.traverse(o=>doorM.add(o));const h=(i)=>gemH(r,300+i),hx=r.hx||3,L=r.L||8,hy=r.hy||4,G2=r.G;
  const free=(x,z,m)=>!(r.obs||[]).some(o=>x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)&&!(r.rat&&Math.hypot(r.rat.x-x,r.rat.z-z)<1.2+m)&&!(r.mkp||[]).some(o=>o.t=='clr'&&x>o.x0-m&&x<o.x1+m&&z>o.z0-m&&z<o.z1+m)&&!(r.wg||[]).some(w=>!w.mzd&&Math.sign(x)==w.s&&Math.abs(x)>hx-2.4&&Math.abs(z-w.z)<(w.g||1)+.9+m);
  /* re-dress the room as a mine tunnel: rock walls and ceiling, a dirt floor (furniture, doors and trim stay wooden) */
- G2.traverse(m=>{if(!m.isMesh||!m.geometry||doorM.has(m)||m.geometry.type!='BoxGeometry'||!m.material||Array.isArray(m.material))return;const pr=m.geometry.parameters||{},w=(pr.width||1)*m.scale.x,hh=(pr.height||1)*m.scale.y,d=(pr.depth||1)*m.scale.z,y=m.position.y;let kd=null;
+ G2.traverse(m=>{if(!m.isMesh||!m.geometry||doorM.has(m)||m.userData.keep||m.geometry.type!='BoxGeometry'||!m.material||Array.isArray(m.material))return;const pr=m.geometry.parameters||{},w=(pr.width||1)*m.scale.x,hh=(pr.height||1)*m.scale.y,d=(pr.depth||1)*m.scale.z,y=m.position.y;let kd=null;
   if(hh<=.3&&w>=2&&d>=2&&y<.3)kd='floor';else if(hh<=.3&&w>=2&&d>=2&&y>=hy-.5)kd='ceil';else if(hh>=2.4&&(w<=.4||d<=.4)&&Math.max(w,d)>=1.2)kd='wall';
   /* anything else still wearing a hotel texture (the wall over the door and its number plate, over side openings, the filler walls where the tunnel widens) is rock too */
   if(!kd&&m.material.map&&HOTIM().has(m.material.map.image)){const hk=HOTIM().get(m.material.map.image);kd=hk=='floor'||hk=='carpet'||hk=='chk'||hk=='rug'?'floor':hk=='ceil'||hk=='otile'?'ceil':'wall'}if(!kd)return;
@@ -11066,9 +11066,9 @@ function smRecv(o){const k=String(o.k||'');const m=MP.sm&&MP.sm[k];if(!m)return;
  if(to===SV.pid&&was!==SV.pid)smAdopt(k,o.st)}
 /* the owner decides, a few times a second, whether another player should be the one it hunts */
 function smCand(k,r,pos){const rr=mpRoom(r.n);if(!rr)return false;
- if(k=='seek'){const c=chIdx(r.n);return c>=0&&c<9&&Math.abs(rr.off+r.z-pos.z)<70}
+ if(k=='seek'){const c=chIdx(r.n);return c>=0&&c<9&&(W=>Math.hypot(W[0]-pos.x,W[1]-pos.z))(rWorld(rr,r.x,r.z))<70}
  if(k=='fig')return r.n===n&&!r.hid;
- return Math.abs(rr.off+r.z-pos.z)<60}
+ return (W=>Math.hypot(W[0]-pos.x,W[1]-pos.z))(rWorld(rr,r.x,r.z))<60}
 function smTick(){if(!smOn()||!MP.sm)return;const now=Date.now();
  for(const k of SMK){const m=MP.sm[k];
   if(m.au&&m.au!==SV.pid&&!mpHere(m.au)&&m.last&&smLive(k)===false&&now-m.act<9000){ /* the owner dropped out: the lowest id nearby takes the monster over from where it was */
@@ -11077,7 +11077,7 @@ function smTick(){if(!smOn()||!MP.sm)return;const now=Date.now();
   if(m.au!==SV.pid)continue;
   const pos=smPos(k);if(!pos)continue;
   const myd=mpDead?1e9:Math.hypot(P.x-pos.x,P.z-pos.z);let best=null,bd=1e9;
-  for(const id in MP.remotes){const r=MP.remotes[id];if(r.dd||now-r.t>3000||!smCand(k,r,pos))continue;const rr=mpRoom(r.n),d=Math.hypot(r.x-pos.x,rr.off+r.z-pos.z);if(d<bd){bd=d;best=id}}
+  for(const id in MP.remotes){const r=MP.remotes[id];if(r.dd||now-r.t>3000||!smCand(k,r,pos))continue;const rr=mpRoom(r.n),d=(W=>Math.hypot(W[0]-pos.x,W[1]-pos.z))(rWorld(rr,r.x,r.z));if(d<bd){bd=d;best=id}}
   if(k=='fig'&&fig&&fig.inv&&fig.inv.t>0&&myd<1e8)return;   /* busy with a distraction: do not pass him on */
   if(best&&(myd>1e8||bd+4<myd||(bd<1.9&&bd<myd)))smHandoff(k,best)}}
 /* a Seek chase moving on: if a teammate is still behind in the chase halls, Seek stays with them instead of following you */
@@ -11100,11 +11100,11 @@ function mpBackOK(){if(ci<=0||P.hid||cut||mpDead||elvRide||state!='play'||P.vent
  if(!prev.dd.open){prev.dd.open=1;prev.dd.fast=0;doorSnd();hint('↩ The door behind you creaks open.');return false}
  return true}
 function mpEnterBack(){const prev=RMS[ci-1];if(!prev)return;const dz=prev.L+2;mpBackT=0;mpWarp=1;
- try{ci--;n=prev.n;for(const r of RMS){r.off-=dz;r.G.position.z=r.off}
-  for(const e of EV){e.m.position.z-=dz;e.hi-=dz;e.lo-=dz}
-  mpGhostShift(-dz,0);crkShift(-dz);
+ try{ci--;n=prev.n;const WT=worldTo(prev);if(!WT.rot){for(const r of RMS){r.off-=dz;r.G.position.z=r.off}
+  for(const e of EV){e.m.position.z-=dz;if(e.rooms)for(const r of e.rooms)if(!RMS.includes(r)){r.off-=dz;r.G.position.z=r.off}}
+  mpGhostShift(-dz,0);crkShift(-dz)}
   const k=prev.eb||0;if(k){mpGhostShift(0,k);for(const r of RMS){r.eb=(r.eb||0)-k;r.G.position.y=r.eb}for(const e of EV)e.m.position.y-=k;P.dy=(P.dy||0)-k}
-  P.z=-prev.L-.1;setCur(prev)}finally{mpWarp=0}
+  if(prev.dd&&prev.dd.side){P.x=prev.dd.side*(prev.hx-.3);P.z=prev.dd.cz}else P.z=-prev.L-.1;setCur(prev)}finally{mpWarp=0}
  $('d').textContent='DOOR '+String(n).padStart(3,'0');updHud();sync();clearTimeout(fillT);fillT=setTimeout(fill,320);hint('↩ You walk back into door '+n+'.')}
 
 /* ---------- chase start / chase end: nobody is left behind ---------- */
@@ -11497,8 +11497,8 @@ function mpUpd(dt){if(!MP.on)return;const now=Date.now();
   if(!r.g||r.gn!==r.name||r.goc!==r.oc||r.grk!==rkOf(id)||r.gbk!==(r.bs||[]).join()){r.grk=rkOf(id);if(r.g){S.remove(r.g);disposeObj(r.g)}r.g=mkAvatar(r.name,id,r.oc|0,r.bs);r.gn=r.name;r.goc=r.oc;r.gbk=(r.bs||[]).join();r.gk='?';r.ggw=false;S.add(r.g);r.first=1}if(!!r.ggw!==!!r.gw){r.ggw=!!r.gw;try{gweenTint(r.g,r.gw)}catch(e){}}
   if(r.gk!==(r.it||'')+(r.on?'!':'')+r.sk){r.gk=(r.it||'')+(r.on?'!':'')+r.sk;r.g.userData.sk=r.sk;mpSetItem(r.g,r.it||'',r.on)}
   {const bb=r.g.userData.bub;if(bb&&(r.mn||r.away)){if((r.mnT=(r.mnT||0)-dt)<=0){r.mnT=2.5;hnSay({bub:bb},r.away?'💤 tabbed out':'⏸ in a menu')}}else r.mnT=0;if(bb&&bb.t>0){bb.t-=dt;if(bb.t<=0)bb.sp.visible=false}}
-  const wx=r.x,wz=room.off+r.z,wy=(room.eb||0)+Math.max(-70,Math.min(11,r.dy)),g=r.g,k=r.first?1:Math.min(1,dt*10);r.first=0;
-  const px=g.position.x,pz=g.position.z;g.position.x+=(wx-g.position.x)*k;g.position.z+=(wz-g.position.z)*k;g.position.y+=(wy-g.position.y)*k;g.rotation.y+=wrapA(r.yaw-g.rotation.y)*Math.min(1,dt*10);
+  const WG=rWorld(room,r.x,r.z),wx=WG[0],wz=WG[1],wy=(room.eb||0)+Math.max(-70,Math.min(11,r.dy)),g=r.g,k=r.first?1:Math.min(1,dt*10);r.first=0;
+  const px=g.position.x,pz=g.position.z;g.position.x+=(wx-g.position.x)*k;g.position.z+=(wz-g.position.z)*k;g.position.y+=(wy-g.position.y)*k;g.rotation.y+=wrapA(r.yaw+(room.G.rotation.y||0)-g.rotation.y)*Math.min(1,dt*10);
   g.visible=true;const av=g.userData.av,mv=Math.hypot(g.position.x-px,g.position.z-pz)/Math.max(dt,.001),run=mv>.5;av.ph=(av.ph||0)+(run?dt*Math.min(16,6+mv*1.2):0);const S2=Math.sin(av.ph),km=run?1:0;
   av.legs[0].rotation.x=S2*.8*km;av.legs[1].rotation.x=-S2*.8*km;if(av.rib)av.rib.forEach(rb=>rb.segs.forEach((sg,j)=>{sg.rotation.x=Math.sin(t*3+rb.ph+j*.7)*(.08+.06*km)}));if(av.tail)av.tail.forEach((q,j)=>{q.rotation.y=Math.sin(t*4+j)*.15*(1+km)});av.arms[0].rotation.x=-S2*.7*km;av.arms[1].rotation.x=S2*.7*km;if(r.carryB&&!av.syl){av.arms[0].rotation.x=1.25;av.arms[1].rotation.x=1.25}avLook(av,r.pt,0,dt);if(r.an)avAct(av,r.an,r.anT);av.body.position.y=r.cr||r.hid?-.35:0;{const k=abuseScale();g.scale.set(k,k*(r.cr||r.hid?.8:1),k)}{const dd=!!r.dd,m=av.mod,k2=Math.min(1,dt*8);m.rotation.x+=((dd?-Math.PI/2:0)-m.rotation.x)*k2;m.position.y+=((dd?.2:0)-m.position.y)*k2;const tg=g.userData.tag,bb=g.userData.bub;if(tg)tg.position.y=dd?1.0:2.5;if(bb)bb.sp.position.y=dd?1.7:(g.userData.bby||3.15);if(g.userData.bsp)g.userData.bsp.position.y=dd?1.4:2.98;if(g.userData.down){g.userData.down.visible=dd;if(dd)g.userData.down.material.opacity=.4+.25*Math.sin(Date.now()/250);g.scale.y=dd?abuseScale():g.scale.y}}if(r.dn&&!r.dd){av.dt=(av.dt||0)+dt;danceAnim(av,r.dn-1,av.dt)}else if(av.dn0)danceClear(av);av.dn0=(r.dn&&!r.dd)?1:0}}
 let mpLast=0;
@@ -11595,7 +11595,7 @@ function mpMons(){const a=[];
    and their monster ghosts with it, so they don't slide across the new room for a moment */
 function mpGhostShift(dz,ky){for(const id in MP.remotes){const r=MP.remotes[id];if(r.g){r.g.position.z+=dz;r.g.position.y-=ky}if(r.gh)for(const key in r.gh){const g=r.gh[key].g;g.position.z+=dz;g.position.y-=ky}}}
 function mpGhostUpd(id,r,dt){const seen={};
- for(const m of(r.mo||[])){const room=mpRoom(m.n);if(!room)continue;const key=m.k,wx=m.x,wz=room.off+m.z;seen[key]=1;
+ for(const m of(r.mo||[])){const room=mpRoom(m.n);if(!room)continue;const key=m.k,WM=rWorld(room,m.x,m.z),wx=WM[0],wz=WM[1];seen[key]=1;
   /* hide it when it is basically the same monster as the one hunting you on your own screen */
   let mine=null;if(key=='seek'&&seek&&seek.on&&seek.visible){const w=new THREE.Vector3();seek.getWorldPosition(w);mine=[w.x,w.z]}
   else if(key=='fig'&&fig&&fig.m&&fig.m.visible!==false){const w=new THREE.Vector3();fig.m.getWorldPosition(w);mine=[w.x,w.z]}   /* only if MY Figure is actually showing: a hidden copy (a teammate owns him) must not hide the teammate's one */
@@ -11811,7 +11811,7 @@ function mkMathCat(L,occ,obs0,an){
   cells.sort((u,v)=>v[2]-u[2]);
   for(let k=0;k<2;k++){const[i,j]=cells[k],idx=order[(s<0?0:2)+k],x=s*(X0+CS*(i+.5)),z=zA-CS*(j+.5);
    const g=new THREE.Group();g.position.set(x,1.15,z);G.add(g);
-   g.add(new THREE.Mesh(BG(.5,.32,.02),new THREE.MeshStandardMaterial({map:mathTex(pu.parts[idx]),emissive:0x332a10,roughness:.9})));
+   g.add(new THREE.Mesh(BG(.5,.32,.02),new THREE.MeshStandardMaterial({map:mathTex(pu.parts[idx]),emissive:0x332a10,roughness:.9})));{const gw=glowSp(0xffe08a,.6,1.8);gw.position.y=.9;g.add(gw);const gw2=glowSp(0xffe08a,.35,1.2);gw2.position.y=2.4;g.add(gw2)}
    g.add(glowSp(0x9ad0ff,.45,1.1));
    const p={type:'mq',m:g,idx,taken:0};g.userData.pk=p;pk.push(p);
    an.push(dt=>{if(!p.taken){g.rotation.y+=dt*1.2;g.position.y=1.15+Math.sin(t*2+idx)*.04}})}
@@ -14420,7 +14420,7 @@ function mkRoomRaw(nn,first,off,prev){mkHallVar.k='';
  const MINE=(typeof DSRT!='undefined'&&DSRT.on&&!HUB.on)||(!HUB.on&&dMineN(nn)),ofvF=ofvForce,bsF=ofcBS,ofcI=MINE||nn>100?0:ofcPick(nn),arcI=MINE||ofcI||nn>100?0:arcPick(nn),stI=MINE||ofcI||arcI||nn>100?0:stPick(nn),boss=ofcI==5&&!!(bsF||honForce)&&!(typeof DAILY!='undefined'&&DAILY.on);if(boss){honForce=0;hcBanTo=nn+13}  /* Honcho can chase you for up to 13 doors after his office: no archive or locked room in that stretch */
  const ofv=ofcI&&!boss?(ofvF||(Math.random()*4|0)):0,lob=nn==0&&!MINE,hubR=HUB.on&&nn==0;
  const f=nn==50||nn==100,ex=nn==EXN,mlt=nn>100&&nn<EXN;let HX=hubR?12:f?14:ex?7:4,HY=hubR?6:f?(MINE&&nn==100?12:6):ex?6:4;const CI=chIdx(nn),sk=CI>=0&&CI<9,hh=CI==9,occ=[];let msg='';
- const cw0=!f&&!hh&&!sk&&nn>2&&nn<99&&(nn%5!=3||forceWT)&&!ofcI&&!arcI&&!stI,wt0=MINE?0:hcBan(nn,nn==60&&!MODS.noshop&&!ofcI&&!arcI&&!stI&&!f?'jeff':cw0&&forceWT?(w=>(forceWT='',w))(forceWT):cw0&&Math.random()<(MODS.nopet?0:.0025)?'ohien':cw0&&Math.random()<(MODS.nopet?0:.0025)?'floof':cw0&&nn>=8&&nn>hcBanTo&&Math.random()<.05?'flood':cw0&&nn>=6&&nn>hcBanTo&&Math.random()<.04?'press':cw0&&nn>=10&&Math.random()<(MODS.nocas?0:.025)?'casino':cw0&&catLeft>0?(catLeft--,'cat'):cw0&&gdnLeft>0?(gdnLeft--,'garden'):(cw0&&Math.random()<.5)?(w=>(w=='cat'&&(catLeft=Math.random()*5|0),w=='garden'&&(gdnLeft=1+(Math.random()*4|0)),w))(['rooms','L','L2','cellar','lib','garden','cat','int','T','X','ball','ware','libB','libC','libS','vent','suite','svc','svc'][Math.random()*16|0]):0),
+ const cw0=!(prev&&prev.dd&&prev.dd.side)&&!f&&!hh&&!sk&&nn>2&&nn<99&&(nn%5!=3||forceWT)&&!ofcI&&!arcI&&!stI,wt0=MINE?0:hcBan(nn,nn==60&&!MODS.noshop&&!ofcI&&!arcI&&!stI&&!f?'jeff':cw0&&forceWT?(w=>(forceWT='',w))(forceWT):cw0&&Math.random()<(MODS.nopet?0:.0025)?'ohien':cw0&&Math.random()<(MODS.nopet?0:.0025)?'floof':cw0&&nn>=8&&nn>hcBanTo&&Math.random()<.05?'flood':cw0&&nn>=6&&nn>hcBanTo&&Math.random()<.04?'press':cw0&&nn>=10&&Math.random()<(MODS.nocas?0:.025)?'casino':cw0&&catLeft>0?(catLeft--,'cat'):cw0&&gdnLeft>0?(gdnLeft--,'garden'):(cw0&&Math.random()<.5)?(w=>(w=='cat'&&(catLeft=Math.random()*5|0),w=='garden'&&(gdnLeft=1+(Math.random()*4|0)),w))(['rooms','L','L2','cellar','lib','garden','cat','int','T','X','ball','ware','libB','libC','libS','vent','suite','svc','svc'][Math.random()*16|0]):0),
   lib=wt0=='lib',gdn=wt0=='garden',cat=wt0=='cat',cm=cat&&(cmForce||nn>=10&&nn>hcBanTo&&Math.random()<.35)&&(cmForce=0,true),itx=wt0=='int',tj=wt0=='T',xj=wt0=='X',bal=wt0=='ball',wh=wt0=='ware',lb2=wt0=='libB',lc=wt0=='libC',ls=wt0=='libS',lbx=lb2||lc||ls,oh=wt0=='ohien'||wt0=='floof',fp=wt0=='floof'&&(pinkTX(),true),vt=wt0=='vent',fdr=wt0=='flood',prs=wt0=='press',cas=wt0=='casino',shp=wt0=='jeff',wt=lib||gdn||cat||itx||tj||xj||bal||wh||lbx||oh||vt||fdr||prs||cas||shp?0:wt0;
  /* more fake-door rooms: a GALLERY of five doors at the end (only one real), and a hall with FAKE SIDE DOORS set into its walls */
  const gal=!wt0&&cw0&&nn>=6&&!locked&&Math.random()<.035,sdr=!wt0&&!gal&&cw0&&nn>=4&&Math.random()<.05,sdrZ=[];if(gal)HX=7;
@@ -14436,7 +14436,7 @@ function mkRoomRaw(nn,first,off,prev){mkHallVar.k='';
  if(gdn)box(0,.012,-L/2,3.4,.025,Z-.4,T('path',1.7,(Z-.4)/2));
  /* wings: openings in the side walls (side rooms / wide L arm / stairwell to a cellar). The exit door stays centred, so every room still lines up. */
  const wg=[];let mzR=[],pz0=null,obs0=[],pk0=[],an=null,dgt=null,rfn0=null,hn0=null,bell0=null,seats0=SEATQ=[],lb0=LBQ=[],srv0=SRVQ=[],sv0=SVQ=[],dq0=DQ=[],sp0=SPQ=[],cs0=CSQ=[],js0=JSQ=[],oh0=null,plk0=null;lkObs=obs0;lkgs=[];lkTheme=oh?(fp?2:1):0;
- if(wt=='rooms'){const c=2+(Math.random()*3|0);for(let i=0;i<c;i++)for(const s of[-1,1])wg.push({s,z:-5-i*5,hz:2,g:1.1,d:3.5,rm:1})}
+ if(wt=='rooms'){const c=2+(Math.random()*3|0);for(let i=0;i<c;i++)for(const s of[-1,1])wg.push({s,z:-5-i*5,hz:2,g:.8,d:3.5,rm:1,sr:1})}
  else if(wt=='L')wg.push({s:Math.random()<.5?-1:1,z:-L*.5,hz:3.6,g:3.3,d:9});
   else if(wt=='suite')wg.push({s:Math.random()<.5?-1:1,z:-L*.5,hz:4.8,g:1.0,d:9,kind:'bed'});
   else if(wt=='svc')wg.push({s:Math.random()<.5?-1:1,z:-L*.5,hz:4.2,g:1.0,d:8,kind:['laundry','kitchen','bath','luggage','gym'][Math.random()*5|0]});
@@ -14449,6 +14449,8 @@ function mkRoomRaw(nn,first,off,prev){mkHallVar.k='';
  if(ofcI&&ofv==1){const kd=shuf(['supply','copy','break','server']);if(srvForce){kd.splice(kd.indexOf('server'),1);kd.unshift('server')}let sd0=Math.random()<.5?-1:1,ki=0;for(let z=-6;z>-L+5;z-=7.5){if(ki>=2&&Math.random()<.25)continue;wg.push({s:sd0,z,hz:2.3,g:1.1,d:4,oc:1,kind:kd[ki%4]});ki++;sd0=-sd0}}
  /* DESERT MINES: a cave-in room sometimes has a SUPPLY AREA off the tunnel (shelves, barrels, sacks, a crate that may hold the dynamite) */
  if(MINE&&nn>=3&&nn%6==3&&CI<0&&!f&&!hh&&!sk&&L>=10&&HX==4&&Math.random()<.6)wg.push({s:Math.random()<.5?-1:1,z:-Math.round(L*(.35+Math.random()*.3)),hz:2.3,g:1.1,d:4.5,oc:1,kind:'msup'});
+ const TRN=turnOK(nn,prev,{first,f,hh,sk,CI,ofcI,arcI,stI,xcr,itx,gal,lob,ex,mlt,locked,cm,boss,wt0,mk,HX,L}),TZ=-L+2.6;if(TRN){for(let i=wg.length-1;i>=0;i--){const w=wg[i];if(w.s==TRN&&w.z-(w.hz||0)<TZ+14)wg.splice(i,1)}wg.push({s:TRN,z:TZ,hz:0,g:.8,mzd:1,tx:1});occ.push({s:TRN,z:TZ,h:1.4})}
+ if(MINE&&nn>=3&&nn<99&&!mk&&!f&&!hh&&!sk&&CI<0&&L>=16&&HX==4&&Math.random()<.45){const s=Math.random()<.5?-1:1,z=-Math.round(L*(.3+Math.random()*.35));if(!wg.some(w=>w.s==s&&Math.abs(w.z-z)<7))wg.push({s,z,hz:2,g:.8,d:3.5,rm:1,sr:1,mine:1})}
  const mkp=mk?mineLayoutPlan(mk,L,HX,HY,occ,obs0):null;if(MINE&&DSRT.on&&nn==CH[0]+10){occ.push({s:-1,z:-3.2,h:1.3});obs0.push({x0:-HX,x1:-HX+1.2,z0:-3.85,z1:-2.55})}
  wg.forEach(w=>occ.push({s:w.s,z:w.z,h:w.g+.5}));
  const hotelW=!MINE&&!ofcI&&!bal&&!lob&&!ex&&!oh&&!wh&&nn<100&&!cat&&!gdn&&!stI&&!fdr&&!vt&&!prs&&!cas&&!shp;
@@ -14456,6 +14458,7 @@ function mkRoomRaw(nn,first,off,prev){mkHallVar.k='';
  for(const sd of[-1,1]){let za=1;for(const w of wg.filter(w=>w.s==sd).sort((p,q)=>q.z-p.z)){seg(sd,za,w.z+w.g);za=w.z-w.g}seg(sd,za,xcr?ez+CD:-L-1)}
  if(first&&hubR){for(const sd of[-1,1]){box(sd*(HX+3)/2,HY/2,1,HX-3,HY,.1,W((HX-3)/4,HY/2));obs0.push({x0:sd>0?3:-HX,x1:sd>0?HX:-3,z0:.9,z1:1.1})}box(0,(3.4+HY)/2,1,6,HY-3.4,.1,W(1.5,(HY-3.4)/2))}   /* a 6 m entrance out to the street */
   else if(first)box(0,HY/2,1,HX*2,HY,.1,W(HX/2,HY/2));
+ else if(prev&&prev.dd&&prev.dd.side){for(const sd of[-1,1])box(sd*(HX+.8)/2,HY/2,1,HX-.8,HY,.2,W((HX-.8)/3.2,HY/2));box(0,(3+HY)/2,1,1.6,HY-3,.2,W(.5,(HY-3)/2))}
  else{const phx=prev?(prev.ew||prev.hx||4):4,phy=prev?(prev.hy||4):4;
   if(HX>phx)for(const sd of[-1,1])box(sd*(phx+HX)/2,HY/2,1,HX-phx,HY,.2,W((HX-phx)/3.2,HY/2));
   if(HY>phy)box(0,(phy+HY)/2,1,Math.min(HX,phx)*2,HY-phy,.2,W(HX/2,(HY-phy)/2))}
@@ -14475,7 +14478,7 @@ const wz=[],crs=[],addX=(x,y,z)=>{const m=mkCross();m.position.set(x,y,z);G.add(
    trim4(xe,z,hz*2-.1,true,-s);trim4(xm,z-hz,d-.1,false,1);trim4(xm,z+hz,d-.1,false,-1);
    for(const o of[-1,1])trim4(s*4,z+o*(g+hz)/2,hz-g-.1,true,s);trim4(s*4,z,g*2,true,s,1)}
   if(!w.cl){box(xm,-.05,z,d,.1,hz*2,T(ofcI?'carpet':'floor',2,2));box(xm,4,z,d,.1,hz*2,T(ofcI?'otile':'ceil',2,2));
-   const chs=w.rm&&Math.random()<CHEST_P;if(chs)chestAt(s*(4+d-.75),0,z,-s);
+   if(w.sr){try{mkSideRoom(w,obs0,MINE)}catch(e){conLog('error','side room: '+e.message)}continue}const chs=w.rm&&Math.random()<CHEST_P;if(chs)chestAt(s*(4+d-.75),0,z,-s);
    const wr=!w.oc&&['bed','laundry','kitchen','bath','luggage','gym'].includes(w.kind);   /* office closets (supplies, copy, break, server) are furnished by mkCloset instead */
    if(wr)mkWingRoom(w,obs0);for(const o of wr||w.oc?[]:d==9?[-1.8,1.8]:!chs&&Math.random()<.5?[0]:[]){const lx=s*(4+d-1);wards.push({x:lx,z:z+o});locker(lx,z+o,-s)}}
   else{box(xm,4,z,d,.1,hz*2,T('ceil',2,2));box(s*4.65,-.05,z,1.3,.1,hz*2,T('floor',1,2));box(s*10.3,-.05,z,4.4,.1,hz*2,T('floor',2,2));box(s*10.3,-3.05,z,4.4,.1,hz*2,T('floor',2,2));
@@ -14518,7 +14521,7 @@ const wz=[],crs=[],addX=(x,y,z)=>{const m=mkCross();m.position.set(x,y,z);G.add(
  if(wh)mkWare(L,HX,occ,obs0);
  if(oh){const q=mkOhien(L,HX,HY,ez,occ,obs0,spot,fp);oh0=q.oh;pk0=pk0.concat(q.pk);an=an||[];q.an.forEach(f=>an.push(f))}
  if(sk&&CI>0){const q=mkChaseObs(L,HX,occ,obs0,CI,nn);msg=q.msg;if(q.an){an=an||[];an.push(q.an)}}if(mlt){const q=mkMelt(L,HX,HY,ez,occ,obs0,nn);an=an||[];an.push(q.an);msg=nn==EXN-1?'☢ The last corridor! The blast door at the end is closing: RUN!':'☢ MELTDOWN! Everything is exploding. Keep running: Figure is right behind you!'}
- if(!MINE&&!mlt&&!wt0&&!ofcI&&!arcI&&!stI&&!f&&!hh&&!sk&&!lob&&!ex&&nn>=2&&Math.random()<.7){const r0=mkHallVar(L,HX,HY,occ,obs0,W);if(r0)rfn0=r0}if(sdr)sdrPlan(L,occ,sdrZ);if(lob&&!hubR)bell0=mkLobby(L,HX,ez,obs0,occ);if(hubR)mkHubHall(L,HX,HY,obs0,occ);if(lb2)mkLibB(L,HX,HY,occ,obs0);if(lc)mkLibC(L,HX,HY,occ,obs0);if(ls)rfn0=mkLibS(L,HX,HY,ez,occ,obs0);if(stI)rfn0=mkStairs(L,UP,HY,stI,occ,obs0);if(fdr){const q=mkFlood(L,HX,HY,ez,occ,obs0);pz0=q.pu;an=an||[];an.push(q.an)}if(shp){mkJeff(L,HX,HY,ez,occ,obs0);msg="🛍️ JEFF'S SHOP! Jeff sells items at the desk. El Goblino and Bob the skeleton are hanging out here too."}
+ if(!MINE&&!mlt&&!wt0&&!ofcI&&!arcI&&!stI&&!f&&!hh&&!sk&&!lob&&!ex&&nn>=2&&!TRN&&Math.random()<.7){const r0=mkHallVar(L,HX,HY,occ,obs0,W);if(r0)rfn0=r0}if(sdr)sdrPlan(L,occ,sdrZ);if(lob&&!hubR)bell0=mkLobby(L,HX,ez,obs0,occ);if(hubR)mkHubHall(L,HX,HY,obs0,occ);if(lb2)mkLibB(L,HX,HY,occ,obs0);if(lc)mkLibC(L,HX,HY,occ,obs0);if(ls)rfn0=mkLibS(L,HX,HY,ez,occ,obs0);if(stI)rfn0=mkStairs(L,UP,HY,stI,occ,obs0);if(fdr){const q=mkFlood(L,HX,HY,ez,occ,obs0);pz0=q.pu;an=an||[];an.push(q.an)}if(shp){mkJeff(L,HX,HY,ez,occ,obs0);msg="🛍️ JEFF'S SHOP! Jeff sells items at the desk. El Goblino and Bob the skeleton are hanging out here too."}
  if(cas){mkCasino(L,HX,HY,ez,occ,obs0);msg='🎰 The LUCKY DOOR CASINO! Gamble your gold and items at the slots, roulette, high-low and the item dice. The house usually wins...'}
  if(prs){const q=mkPress(L,HX,HY,ez,occ,obs0);mkHatch(pv,lf,ez,DX,UP);
   /* the steam-lock wheel and its stem belong to the door: mount them on the door leaf so they swing open with it */
@@ -14580,7 +14583,7 @@ const wz=[],crs=[],addX=(x,y,z)=>{const m=mkCross();m.position.set(x,y,z);G.add(
  let obsH0=obs0.length;for(const o of obs0)for(const v of[o.x0,o.x1,o.z0,o.z1])obsH0=(obsH0*31+Math.round((v||0)*10))|0;obsH0=(obsH0>>>0).toString(36);
  const cpzp=mk=='cartpz'?cartPzPlan(L,HX,occ,obs0):null;
  const room={mine:MINE?1:0,mk,mkp,cpzp,ev0:ev?ev.k:'',obsH:obsH0,grin:grin0,gp:gp0,spl:sp0,js:js0,cs:cs0,dq:dq0,fm:(stI||fdr||prs||wh)?'conc':(nn==100||mlt)?'metal':gdn?'grass':ex?'conc':(bal||lob||shp)?'tile':cat?'wood':'carpet',sv:sv0,srv:srv0,kind:(typeof wt0=='string'?wt0:''),hv:mkHallVar.k||'',st:stI,seats:seats0,lb:lb0,mz:mzR,plk:plk0,lkg:lkgs,oh:oh0,eb:EB,upH:UP,cops:cops.slice(),bell:bell0,hy:HY,ew:HE,el:elo,up:!!UP,xr:xcr?{z1:ez+CD-.2,hw:14}:null,arc:arcI,hn:hn0,ofc:ofcI,boss,elv,rf:rfn0,fds,obs:obs0,pz:pz0,pk:pk0,n:nn,G,L,wards,RL,drs,keyM,locked,seek,fig,ev,msg,dd,hands,hh,off,crs,wg,wz,hx:HX,dk,sws:wg.filter(w=>w.cl).map(w=>w.sw),an,dgt,ty:lib?'lib':gdn?'garden':cat?'cat':wt||''};
- G.position.z=off;G.position.y=EB;({G,L,wards,RL,drs,keyM,locked,seek,fig,ev,hasKey,hands,cops}=sv);return room;
+ if(TRN)try{sideExit(room,TRN,TZ,HY,UP)}catch(e){conLog('error','side exit: '+e.message)}G.position.z=off;G.position.y=EB;({G,L,wards,RL,drs,keyM,locked,seek,fig,ev,hasKey,hands,cops}=sv);return room;
 }
 
 /* ===== key model: ring bow, collars, shaft, tip and a toothed bit, with a faint glow so it is easy to spot ===== */
@@ -14615,13 +14618,13 @@ function disposeObj(o){o.traverse(m=>{if(m.geometry&&!m.isSprite&&!KEEP.has(m.ge
 function disposeRoom(r){S.remove(r.G);disposeObj(r.G)}
 function clearAll(){ELVA=null;if(SKM.a){SKM.a.pause();SKM.on=0}dovClear();drainAud(false);LKA=null;fbClear();FBX=0;nsClear();NSX=0;nsRClear();NS_T=0;FIN=null;MELT=null;crkClear();bsmClear();orgClear();orgCut=null;orgDone=false;hireDlg=false;orgPending=0;orgLift=0;hcGrab=false;hcLift=0;bsmPending=0;godT=-99;if(REVA){S.remove(REVA.g);disposeObj(REVA.g);REVA=null}revLift=0;endSeek=null;if(HC){S.remove(HC.m);HC=null}HNL.intensity=0;hcWatch=null;ofcBS=false;clearTimeout(fillT);PRN.length=0;FALLS.length=0;for(const h of HEARTS){if(h.sp.parent)h.sp.parent.remove(h.sp)}HEARTS.length=0;cut=null;S.fog.near=2;SKL.intensity=0;rmSc();RMS.forEach(disposeRoom);RMS=[];ci=0;EV.forEach(e=>{S.remove(e.m);disposeObj(e.m)});EV=[];PE=[];ban={rush:0,amb:0};evLast=evAt=-99;GL=0;elvRide=false;ofcK=0;ofcCD=0;arcK=0;arcCD=0;stK=0;stCD=0;hcBanTo=-1;cmb=null;xr=null;hn=null;gc.style.display='none'}
 /* Rush and Ambush only come when the room you are in has somewhere to hide: a locker, any side room / wing (they only run down the hall), a stair platform or the arms of a junction */
-const canHide=r=>!!r&&(r.wards.length>0||r.wg.length>0||!!r.up||!!r.xr||!!(r.pz&&r.pz.vents));
+const canHide=r=>!!r&&(r.wards.length>0||r.wg.some(w=>!w.tx)||!!r.up||!!r.xr||!!(r.pz&&r.pz.vents));
 function setCur(r){if(GON()&&GILD.goalN&&r.n===GILD.goalN&&!GILD.fin&&!GILD.enc){setTimeout(()=>{try{gEncStart(r)}catch(e){conLog('error','Golden encounter: '+e.message);gEndStart()}},50)}if(DAILY.on&&r.n>=DGOAL&&!DAILY.fin){DAILY.fin=1;snd(90,.6);try{bsF.style.transition='none';bsF.style.background='#ff2ad8';bsF.style.opacity=.7;setTimeout(()=>{bsF.style.transition='opacity 1.4s';bsF.style.opacity=0;setTimeout(()=>bsF.style.background='#000',1500)},60)}catch(e){}if(DAILY.th&&DTH[DAILY.th]&&typeof holEnd=='function'){hint(DTH[DAILY.th].ic+' You made it!');setTimeout(()=>{if(DAILY.on)holEnd(DAILY.th)},900)}else{hint('📅 You reached the glitch!');setTimeout(()=>{if(DAILY.on)dailyFinish(true)},2200)}}conLog('room','Door '+r.n+': '+roomName(r));roomT0=t;CW=r.hx;dkc=r.dk;setFog();wzs=r.wz;crs=r.crs;wgs=r.wg;sws=r.sws||[];cg=r.dgt||null;an0=r.an||null;G=r.G;L=r.L;wards=r.wards;RL=r.RL;drs=r.drs;fds=r.fds||[];$('d').style.visibility=fds.length?'hidden':'visible';$('pb').style.visibility=fds.length?'hidden':'visible';rfn=r.rf||null;keyM=r.keyM;locked=r.locked;seek=r.seek;fig=r.fig;hands=r.hands;hn=r.hn||null;curOh=r.oh||null;curLk=r.lkg||[];curPlk=r.plk||null;if(HC&&!HC.gone&&!mpWarp&&(r.seek||r.fig))hcQuit();if(r.oh&&!mpWarp)badge('ohroom');crkRoom(r);if(r.boss&&!mpWarp)badge('boss');hcWatch=null;if(r.boss&&!mpWarp)hcEnterBoss(r);cops=r.cops||[];curBell=r.bell||null;curSeats=r.seats||[];curLB=r.lb||[];curSrv=r.srv||[];curSV=r.sv||[];curDQ=r.dq||[];curSP=r.spl||[];curCS=r.cs||[];curJS=r.js||[];radPlant();xr=r.xr||null;dor=r.dd;obs=r.obs||[];mzs=r.mz||[];puz=r.pz||null;picks=r.pk||[];pzHud();hasKey=false;hk=0;if(fig&&!fig.done){fig.done=1;if(smClaim('fig')){fig.intro=r.n==100?3:2.2;say('Figure',Math.random()<.55?"I'm Figure. I'm going to get you, you nickel.":"I'm Figure. I'm going to get you, you "+cur()+".");hint('Figure is posing — CROUCH now! (C)')}else fig.m.visible=false}if(seek&&!seek.pend)seek.visible=true;if(r.ev){if((MP.on&&MP.evDone[r.n])||mpWarp){}else if(r.n>(ban[r.ev.k]||0)&&!PE.length&&!EV.length&&r.n-evAt>=4&&canHide(r)){r.ev.rn=r.n;PE.push(r.ev);evAt=r.n;if(MP.on&&mpOpen().length)mpEvSend(r.ev,r)}r.ev=null}}
 /* only the current room +-1 is drawn, only the current and next room are lit (keeps 5 rooms cheap) */
 function poolLights(){const K=lowFx()?3:LPOOL.length,cand=[],cp=C.position;
- const ref=(state=='spec'&&specRi>=0)?specRi:ci;for(let i=0;i<RMS.length;i++){const d=i-ref;if(d<-1||d>1)continue;const r=RMS[i];for(const l of r.RL){if(l.visible===false)continue;const z=l.position.z+r.off,yy=l.position.y+(r.eb||0),dx=l.position.x-cp.x,dy=yy-cp.y,dz=z-cp.z;cand.push([dx*dx+dy*dy+dz*dz,l,z,yy])}}
+ const ref=(state=='spec'&&specRi>=0)?specRi:ci;for(let i=0;i<RMS.length;i++){const d=i-ref;if(d<-1||d>1)continue;const r=RMS[i];for(const l of r.RL){if(l.visible===false)continue;const W2=rWorld(r,l.position.x,l.position.z),z=W2[1],yy=l.position.y+(r.eb||0),dx=W2[0]-cp.x,dy=yy-cp.y,dz=z-cp.z;cand.push([dx*dx+dy*dy+dz*dz,l,z,yy,W2[0]])}}
  cand.sort((a,b)=>a[0]-b[0]);
- for(let i=0;i<LPOOL.length;i++){const p=LPOOL[i],c=i<K?cand[i]:null;if(c){const l=c[1];p.position.set(l.position.x,c[3],c[2]);p.color.copy(l.color);p.intensity=l.intensity;p.distance=l.distance}else p.intensity=0}}
+ for(let i=0;i<LPOOL.length;i++){const p=LPOOL[i],c=i<K?cand[i]:null;if(c){const l=c[1];p.position.set(c[4],c[3],c[2]);p.color.copy(l.color);p.intensity=l.intensity;p.distance=l.distance}else p.intensity=0}}
 function sync(){const lo=lowFx();CBL.visible=!lo;SKL.visible=!lo;const ref=(state=='spec'&&specRi>=0)?specRi:ci;RMS.forEach((r,i)=>{const d=i-ref;r.G.visible=Math.abs(d)<=1;const k=Math.ceil(r.RL.length/3);r.RL.forEach((l,j)=>l.visible=lo?(d==0&&j%k==0):(d==0||d==1))})}
 function fill(){
  while(!HUB.on&&RMS.length-1-ci<KA){const l=RMS[RMS.length-1];if(l.n>=EXN)break;RMS.push(mkRoom(l.n+1,false,l.off-(l.L+2),l))}
@@ -14640,11 +14643,11 @@ function enter(){
  if(smOn()&&os&&os.on&&MP.sm.seek.au===SV.pid&&!mpWarp){const tb=smTail(old);if(tb)smHandoff('seek',tb)}
  if(endChase){beginSeekEnd(old,(os&&os.on&&os.visible!==false&&!(os.stun>0))?os:mkEndSeek(old));if(smOn())mpSend({t:'ce',s:mpS(),n:old.n+1,nm:SV.nm||'Player'})}else{if(!(MP.on&&mpOthersIn(old.n,false))){old.dd.open=0;old.dd.fast=0;snd(110,.2)}if(os){os.visible=false;os.on=false}} /* the door shuts behind you, except at the end of a Seek chase */
  ci++;const o=RMS[ci];n=o.n;if(!mpWarp)bdDoors();if(FIN&&old.pz===FIN.pz){FIN=null;if(o.n<EXN)meltStart()}if(!MELT&&o.n==101)meltStart();if(MELT&&o.n>100&&o.n<EXN)meltRoom(o,old);if(MELT&&o.n>=EXN)meltEscape(old);if(old.fds&&old.fds.length)badge('choose');
- for(const r of RMS){r.off+=dz;r.G.position.z=r.off}
- for(const e of EV){e.m.position.z+=dz;e.hi+=dz;e.lo+=dz}
+ const WT=worldTo(o);if(!WT.rot){for(const r of RMS){r.off+=dz;r.G.position.z=r.off}
+ for(const e of EV){e.m.position.z+=dz;if(e.rooms)for(const r of e.rooms)if(!RMS.includes(r)){r.off+=dz;r.G.position.z=r.off}}
  for(const q of VFX)q.s.position.z+=dz;
  crkShift(dz);mpGhostShift(dz,0);if(REVA)REVA.g.position.z+=dz;if(HC){HC.m.position.z+=dz;HC.doors++;if(HC.doors>=HC.need&&!HC.gone)hcGiveUp()}
- P.z+=dz;if(o.eb){const k=o.eb;mpGhostShift(0,k);for(const r of RMS){r.eb=(r.eb||0)-k;r.G.position.y=r.eb}for(const e of EV)e.m.position.y-=k;P.dy=(P.dy||0)-k}if(old.xr&&Math.abs(old.dd.cx)>2.5){P.x=Math.max(-2,Math.min(2,P.x-old.dd.cx));blink()}setCur(o);
+ P.z+=dz}else if(HC){HC.doors++;if(HC.doors>=HC.need&&!HC.gone)hcGiveUp()}if(o.eb){const k=o.eb;mpGhostShift(0,k);for(const r of RMS){r.eb=(r.eb||0)-k;r.G.position.y=r.eb}for(const e of EV)e.m.position.y-=k;P.dy=(P.dy||0)-k}if(old.xr&&Math.abs(old.dd.cx)>2.5){P.x=Math.max(-2,Math.min(2,P.x-old.dd.cx));blink()}setCur(o);
  if(seek&&os&&!mpWarp&&smFree('seek')&&smClaim('seek')){if(os.stun>0){seek.stun=os.stun;os.stun=0;unaura(os)}seek.on=true;seek.tt=4;seek.position.z=Math.max(3,os.position.z+dz);seek.position.x=os.position.x}
  $('d').textContent=n>=EXN?'THE EXIT':n>100?(DSRT.on?'🌊 FLOOD ':'☢ MELTDOWN ')+(n-100)+'/10':'DOOR '+String(n).padStart(3,'0');updHud();if(o.msg)hint(o.msg);if(o.hh)sayR('Seek','hand');
  sync();clearTimeout(fillT);fillT=setTimeout(fill,320);if(!mpWarp)runSave()}
@@ -14653,7 +14656,7 @@ function mpIdx(num){const i=RMS.findIndex(q=>q.n==num);return i>=0?i:(num<RMS[0]
 function spawnEv(e){evAt=Math.max(evAt,n);if(e.sn!=null&&(e.sn>RMS[RMS.length-1].n||e.en<RMS[0].n))return;const rs=e.k=='rush',a=e.sn!=null?mpIdx(e.sn):(rs?0:Math.max(0,ci-1)),b0=e.en!=null?mpIdx(e.en):(rs?RMS.length-1:Math.min(RMS.length-1,ci+1));
  /* Rush and Ambush never go into door 100 or beyond (the boiler hall, the meltdown and the exit) */
  if(n>=100||RMS[a].n>=100){conLog('event',(rs?'Rush':'Ambush')+' cancelled: no entities past door 99');return}let b=b0;while(b>a&&RMS[b].n>=100)b--;
- const hi=RMS[a].off+8,lo=RMS[b].off-RMS[b].L-8,m=mdl(e.k);m.position.set(0,1.2,hi);S.add(m);EV.push({k:e.k,m,d:-1,pass:0,max:rs?1:3,hi,lo,id:(spawnEv.c=(spawnEv.c||0)+1)});conLog('event',(rs?'Rush':'Ambush')+' #'+spawnEv.c+' spawned at door '+n+': runs doors '+RMS[a].n+'-'+RMS[b].n+' (z '+hi.toFixed(1)+' → '+lo.toFixed(1)+', '+(rs?1:3)+' pass'+(rs?'':'es')+') · you: z '+P.z.toFixed(1)+(P.hid?' hidden':' not hidden'));snd(120,1.5);deafCap((rs?'🔊 RUSH':'🔊 AMBUSH')+' is in the hallway — a roar and the lights go out!',3)}
+ const m=mdl(e.k),ev={k:e.k,m,d:1,s:0,pass:0,max:rs?1:3,rooms:RMS.slice(a,b+1),id:(spawnEv.c=(spawnEv.c||0)+1)};ev.pth=evPath(ev);ev.ds=evDoorS(ev.pth);{const p0=pthAt(ev.pth,0);m.position.set(p0.x,1.2,p0.z)}S.add(m);EV.push(ev);const hi=0,lo=ev.pth.T;conLog('event',(rs?'Rush':'Ambush')+' #'+spawnEv.c+' spawned at door '+n+': runs doors '+RMS[a].n+'-'+RMS[b].n+' (z '+hi.toFixed(1)+' → '+lo.toFixed(1)+', '+(rs?1:3)+' pass'+(rs?'':'es')+') · you: z '+P.z.toFixed(1)+(P.hid?' hidden':' not hidden'));snd(120,1.5);deafCap((rs?'🔊 RUSH':'🔊 AMBUSH')+' is in the hallway — a roar and the lights go out!',3)}
 
 
 /* ===== Seek intro cutscene (first Seek room only) =====
@@ -15094,7 +15097,7 @@ function upd(dt){
    const jmag=MOB.jm?Math.min(1,l):1,mx=(-Math.sin(P.yaw)*fx+Math.cos(P.yaw)*sx)/l*s*jmag*dt,mz=(-Math.cos(P.yaw)*fx-Math.sin(P.yaw)*sx)/l*s*jmag*dt,ns=Math.max(1,Math.ceil(Math.hypot(mx,mz)/.25));
    for(let i=0;i<ns;i++){const nx=P.x+mx/ns,nz=P.z+mz/ns,bad=!walkOK(P.x,P.z);if(walkOK(nx,P.z)||bad)P.x=nx;if(walkOK(P.x,nz)||bad)P.z=nz}
    if(!BSM&&!ORG&&mz>0&&P.z>=.44&&mpBackOK()){mpBackT+=dt;if(mpBackT>.2)mpEnterBack()}else mpBackT=0}
-  if(!(fx||sx))mpBackT=0;if(!BSM&&!ORG){if(dor&&!dor.open&&P.z<-L+.9&&Math.abs(P.x-(dor.cx||0))<1.3)touch();if(cg&&cg.p<.85&&P.z<-L+5.8&&t>(cg.cd||0)){cg.cd=t+5;hint('A heavy gate bars the door. Find the lever down in the cellar.')}const op=dor&&dor.open&&!HUB.on,hv=HUB.on&&HUB.vopen&&HUB.VD;P.dy=0;for(const w of wgs)if(w.cl){const a=P.x*w.s;if(a>5.3)P.dy=-3*Math.min(1,(a-5.3)/2.8)}if(rfn)P.dy+=rfn(P.z);if(dbgClip){const up=(keys.Space?1:0)-((keys.ShiftLeft||keys.ShiftRight||keys.KeyQ)?1:0),fw=MOB.jm?MOB.jy:(keys.KeyW?1:0)-(keys.KeyS?1:0);dbgFlyY=Math.max(-40,Math.min(60,dbgFlyY+(up*6+Math.sin(P.pitch)*fw*7)*.016));P.dy=dbgFlyY}if((P.dy||0)>=2.9)badge('stairs');P.z=Math.max(hv&&(Math.abs(P.x)<=.75||P.z<-L-1.3)?-L-1-HUB.VD+.5:(op&&Math.abs(P.x-(dor.cx||0))<=.75)||dbgClip?-L-4:-L-.5,Math.min(HUB.on?(HUB.hd?172:45.4):.5,P.z));if(HUB.on&&HUB.hd&&HUB.hd.ride&&HUB.hd.ride.px!=null){const R2=HUB.hd.ride;P.x=R2.px;P.z=R2.pz;P.dy=R2.dy}if(hv&&P.z<-L-.6&&P.z>-L-1.3)P.x=Math.max(-.75,Math.min(.75,P.x));if(op&&P.z<-L-.6){const cx=dor.cx||0;P.x=Math.max(cx-.75,Math.min(cx+.75,P.x))}if((op||dbgClip)&&P.z<-L-1.4){if(!op&&dor){dor.open=1;dor.fast=1}enter()}}}
+  if(!(fx||sx))mpBackT=0;if(!BSM&&!ORG){if(dor&&!dor.side&&!dor.open&&P.z<-L+.9&&Math.abs(P.x-(dor.cx||0))<1.3)touch();if(cg&&cg.p<.85&&P.z<-L+5.8&&t>(cg.cd||0)){cg.cd=t+5;hint('A heavy gate bars the door. Find the lever down in the cellar.')}const op=dor&&dor.open&&!HUB.on,hv=HUB.on&&HUB.vopen&&HUB.VD;P.dy=0;for(const w of wgs)if(w.cl){const a=P.x*w.s;if(a>5.3)P.dy=-3*Math.min(1,(a-5.3)/2.8)}if(rfn)P.dy+=rfn(P.z);if(dbgClip){const up=(keys.Space?1:0)-((keys.ShiftLeft||keys.ShiftRight||keys.KeyQ)?1:0),fw=MOB.jm?MOB.jy:(keys.KeyW?1:0)-(keys.KeyS?1:0);dbgFlyY=Math.max(-40,Math.min(60,dbgFlyY+(up*6+Math.sin(P.pitch)*fw*7)*.016));P.dy=dbgFlyY}if((P.dy||0)>=2.9)badge('stairs');P.z=Math.max(hv&&(Math.abs(P.x)<=.75||P.z<-L-1.3)?-L-1-HUB.VD+.5:(op&&!dor.side&&Math.abs(P.x-(dor.cx||0))<=.75)||dbgClip?-L-4:-L-.5,Math.min(HUB.on?(HUB.hd?172:45.4):.5,P.z));if(HUB.on&&HUB.hd&&HUB.hd.ride&&HUB.hd.ride.px!=null){const R2=HUB.hd.ride;P.x=R2.px;P.z=R2.pz;P.dy=R2.dy}if(hv&&P.z<-L-.6&&P.z>-L-1.3)P.x=Math.max(-.75,Math.min(.75,P.x));if(op&&!dor.side&&P.z<-L-.6){const cx=dor.cx||0;P.x=Math.max(cx-.75,Math.min(cx+.75,P.x))}if(((op&&!dor.side)||dbgClip)&&P.z<-L-1.4){if(!op&&dor){dor.open=1;dor.fast=1}enter()}sideDoorTick()}}
  /* pending events keep counting after you leave their room, then run through EVERY loaded room, kicking each door open on the way */
  let dimk=0;
  for(let i=PE.length-1;i>=0;i--){const e=PE[i];e.t-=dt;if(n>=100||!e.w&&!canHide(RMS[ci])){PE.splice(i,1);continue}
@@ -15105,10 +15108,9 @@ function upd(dt){
  for(let i=EV.length-1;i>=0;i--){const e=EV[i],m=e.m,rs=e.k=='rush',sp=(rs?55:42)*dt*(MODS.frush?1.4:1)*(GON()?1.3:1),pz=m.position.z;
   if(ohBanishCheck(e,m)||e.dem){demUpd(e,i,dt);continue}
   if(e.cx>0){if(!e.cxl){e.cxl=1;conLog('event',(rs?'Rush':'Ambush')+' #'+e.id+' was stopped by a crucifix / shield')}rushStop(e);e.cx-=dt;pulse(m,6);if(e.cx<.5)m.scale.setScalar(Math.max(.01,e.cx/.5));if(e.cx<=0){rushStop(e);S.remove(m);disposeObj(m);EV.splice(i,1)}continue}
-  m.position.z+=e.d*sp;evBossSkip(e,m,pz);if(e.gone){conLog('event',(rs?'Rush':'Ambush')+' #'+e.id+' stopped at Honcho\'s office / the elevator');rushStop(e);S.remove(m);disposeObj(m);EV.splice(i,1);continue}if(Math.random()<dt*30)vfx('trail',m.position.x+(Math.random()-.5)*1.4,m.position.y+(Math.random()-.5)*1.2,m.position.z-e.d*.6,{c:rs?0x3a2050:0x10a040});{const dd=Math.abs(m.position.z-P.z);if(dd<14&&!BSM&&!ORG)camShake(.07*(1-dd/14),.12)}rushBreaks(e);if(P.hid&&(pz-P.z)*(m.position.z-P.z)<=0&&t-(P.hideT||-99)<=.75)badge('reflex');if(P.hid&&Math.abs(m.position.z-P.z)<4)e.hid=1;else if(!P.hid&&(Math.abs(P.x)>CW-.6||(P.dy||0)<-1.5)&&Math.abs(m.position.z-P.z)<4)e.sd=1;m.rotation.y=e.d<0?0:Math.PI;if(rs)rushAu(e,Math.abs(m.position.z-P.z),dt);m.userData.w.forEach((w,j)=>w.scale.setScalar(1+.25*Math.sin(t*25+j*2)));
-  if(e.d<0)for(const r of RMS){const q=m.position.z-(r.off-r.L-1);if(!r.dd.open&&!r.locked&&!(r.mb>0)&&!(r.cave&&!r.cave.done)&&!r.el&&!(r.pz&&!r.pz.open)&&!(r.dgt&&r.dgt.p<1)&&r.n<100&&q>0&&q<7){r.dd.open=1;r.dd.fast=1;snd(90,.35)}}
-  if(rs){if(!inBoss()&&!P.hid&&!elvRide&&(P.dy||0)<1.2&&rayHit(pz,e.d,sp+1))hitEv(e,'Rush')}else if(!inBoss()&&Math.abs(m.position.z-P.z)<2.5&&!P.hid&&(P.dy||0)>-1.5&&(P.dy||0)<1.2&&!elvRide)hitEv(e,'Ambush');
-  if(e.d<0&&m.position.z<e.lo||e.d>0&&m.position.z>e.hi){e.pass++;conLog('event',(rs?'Rush':'Ambush')+' #'+e.id+' '+(e.pass>=e.max?'finished':'turned around')+' (pass '+e.pass+'/'+e.max+') · you '+(e.hid?'hid from it':'did not need to hide / were not in its path'));if(e.pass>=e.max){if(e.hid)badge('hidepass');if(e.sd)badge('sidehide');rushStop(e);S.remove(m);disposeObj(m);EV.splice(i,1)}else{e.d*=-1;sayR('Ambush','amb')}}}
+  const st=evStep(e,sp);evBossSkip(e,m,pz);if(e.gone){conLog('event',(rs?'Rush':'Ambush')+' #'+e.id+' stopped at Honcho\'s office / the elevator');rushStop(e);S.remove(m);disposeObj(m);EV.splice(i,1);continue}if(Math.random()<dt*30)vfx('trail',m.position.x+(Math.random()-.5)*1.4,m.position.y+(Math.random()-.5)*1.2,m.position.z-e.d*.6,{c:rs?0x3a2050:0x10a040});{const dd=evDist(e);if(dd<14&&!BSM&&!ORG)camShake(.07*(1-dd/14),.12)}rushBreaks(e);if(P.hid&&evDist(e)<3&&t-(P.hideT||-99)<=.75)badge('reflex');if(P.hid&&evDist(e)<5)e.hid=1;else if(!P.hid&&(Math.abs(P.x)>CW-.6||(P.dy||0)<-1.5)&&evDist(e)<5)e.sd=1;if(rs)rushAu(e,evDist(e),dt);else ambAu(e,evDist(e),dt);m.userData.w.forEach((w,j)=>w.scale.setScalar(1+.25*Math.sin(t*25+j*2)));
+  if(rs){if(!inBoss()&&!P.hid&&!elvRide&&(P.dy||0)<1.2&&st&&evHitTest(e,st,sp))hitEv(e,'Rush')}else if(!inBoss()&&st&&evHitTest(e,st,sp)&&!P.hid&&(P.dy||0)>-1.5&&(P.dy||0)<1.2&&!elvRide)hitEv(e,'Ambush');
+  if(e.d>0&&e.s>=e.pth.T||e.d<0&&e.s<=0){e.pass++;conLog('event',(rs?'Rush':'Ambush')+' #'+e.id+' '+(e.pass>=e.max?'finished':'turned around')+' (pass '+e.pass+'/'+e.max+') · you '+(e.hid?'hid from it':'did not need to hide / were not in its path'));if(e.pass>=e.max){if(e.hid)badge('hidepass');if(e.sd)badge('sidehide');rushStop(e);S.remove(m);disposeObj(m);EV.splice(i,1)}else{e.d*=-1;sayR('Ambush','amb')}}}
  if(seek&&!smFree('seek')&&!(seek.pend&&(skCue()||cut&&cut.pud))){seek.on=false;seek.visible=false;seek.pend=0;smMirror('seek',seek)}
  else if(seek){if(P.z<-6&&!seek.on&&!seek.pend&&smClaim('seek')){seek.on=true;sayR('Seek','seek')}if(seek.on&&seek.stun>0){seek.stun-=dt;pulse(seek,5);if(seek.stun<=0)unaura(seek)}
   else if(seek.on&&!(cut&&cut.toss)){seek.tt=(seek.tt??6)-dt;if(seek.tt<0){seek.tt=7+Math.random()*4;sayR('Seek','seek')}seek.position.z-=Math.sign(seek.position.z-P.z)*(4.2+seek.ci*.1)*(MODS.fseek?1.15:1)*(GON()?1.18:1)*(Math.abs(seek.position.z-P.z)<3?1.35:Math.max(.8,Math.min(1.6,.8+.8*(Math.abs(seek.position.z-P.z)-3)/5)))*dt;{const ddx=P.x-seek.position.x,cl=Math.abs(seek.position.z-P.z)<4;seek.position.x+=Math.sign(ddx)*Math.min(Math.abs(ddx),dt*(cl?7.5:3.5))}
@@ -16019,6 +16021,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r589',['The hotel turns corners: some rooms have their exit door in a side wall near the end, and the next room runs off at 90 degrees from there (the Desert Mines too). Rooms never fold back into each other','Rush and Ambush follow a path through the rooms: down each hall, round the corners and through the real door','Ambush has its own sound, a far-off hollow drone that turns into a shriek up close','The little side rooms off the halls are real rooms with doors: bedrooms, bathrooms, studies and linen closets with drawers and wardrobes; in the mines, bunk rooms, tool sheds and powder stores behind plank doors','Math bridge pages glow so you can spot them over the maze walls','Fixed: hairline gaps between desert road pieces']],
  ['r588',['Every tycoon machine rebuilt with real parts and animation: skip hoist that tips down a chute, miners swinging picks, winch house, shaking ore hopper and running belts, a casting robot, blower and arc furnace, hydraulic die press, refinery with gauges, assay office with a balance','Tycoon upgrades are done on QUARRY OS computers (at the office and by the machines)','The excavator is rebuilt and drivable: dig the rubble mounds and dump into the ORE HOPPER for ore','DAILY BLAST: the dynamite plunger is wired to a charge on the face and pays 100 gold once a day','New DARK CAVES in the mines: you need an LED HEADLAMP (tycoon upgrade) to see and mine there; lanterns down the drives; supports face the right way; water sits in proper basins','Quarry walls have a new rock texture and scree at the foot of the faces; the haul road has a wider landing; the crusher feeds its belt from the bottom','The quarry pickaxe swings at the face and knocks nuggets out; the mine cage has no floating parts and a swinging gate; the shaft hole really is a hole; you can no longer see the mine through the walls','With the die press fitted, the crucible pours down a launder instead of swinging through the press']],
  ['r587',['QUARRY TYCOON: a board outside the quarry office sells upgrades (picks, satchel, cage winch, furnaces, better molds for higher grade ingots, an assay office)','Automation unlocks after a mining shift or 300 gold earned: a mining crew with a skip hoist, an ore conveyor, a casting robot and a bar conveyor, all built in the quarry','Silver, gold and crystal bars sell for much more','The mines are about four times bigger, with long drives and caverns: old workings, crystal caverns, magma chambers, flooded galleries and fungus grottos. They last 5 minutes','The mine cage has mesh sides, a gate, a lamp and a call box, and is solid; a guard closes the hole while the cage is down','The haul road has one smooth retaining wall instead of steps','Crouching works anywhere in the desert, not just on flat ground']],
  ['r586',['Wraith refit missions can be replayed from the OPS BOARD for full XP (the crew re-tune the part, you run the challenge again)']],
@@ -19463,6 +19466,132 @@ function excTick(q,dt){if(!window.EXC)return;excPropSync(q);const E=EXC;if(!E.dr
 /* ---------- the quarry pickaxe swings ---------- */
 function qpkSwing(q){const K=window.QPK;if(!K||K.busy)return;K.busy=1;const g=K.pg,r0=g.rotation.z,y0=g.position.y,x0=g.position.x;let t=0;const iv=setInterval(()=>{t+=.016;const u=Math.min(1,t/.55);const back=u<.5?u/.5:1-(u-.5)/.5*1.25;g.rotation.z=r0+back*1.6-(u>.5?.15:0);g.position.y=y0+Math.sin(u*Math.PI)*.6;g.position.x=x0+Math.sin(u*Math.PI)*.35;if(u>=.75&&!K.hit){K.hit=1;try{const q2=BUS.ride;vfx('debris',K.fx,K.fy,K.fz+q2.OZ,{n:10});vfx('spark',K.fx,K.fy,K.fz+q2.OZ,{n:10,c:0xffd080});vfx('dust',K.fx+.3,K.fy-.4,K.fz+q2.OZ,{n:5,w:.8})}catch(e){}}if(t>=.8){clearInterval(iv);g.rotation.z=r0;g.position.y=y0;g.position.x=x0;K.busy=0;K.hit=0}},16)}
 function qpkNug(){const K=window.QPK;if(!K)return;const n=K.nug.find(m=>m.visible);if(!n)return;let t=0,vy=1.5,vx=.8;const y0=n.position.y;const iv=setInterval(()=>{t+=.016;vy-=9*.016;n.position.y+=vy*.016;n.position.x+=vx*.016;if(n.position.y<QD.F+.08){clearInterval(iv);n.visible=false;try{vfx('gold',n.position.x,QD.F+.3,n.position.z+BUS.ride.OZ,{n:12})}catch(e){}}},16)}
+
+
+/* =====================================================================================================
+   r589: THE HOTEL TURNS CORNERS.
+   - Some rooms now have their exit door in a SIDE wall, near the far end, and the next room runs off at 90° from
+     there. Every room still lines up with the next, and a room never turns so far that it could come back round
+     into one that is still standing (the run only ever heads forward, left or right, never back).
+   - Under the hood the world is re-centred on the room you are in at every door, turning as well as sliding.
+   - Rush and Ambush follow a PATH through the rooms: down the middle of each hall, round the corner, through the
+     real exit door. Ambush has a sound of its own now, a far-off hollow drone and a close-up shriek.
+   ===================================================================================================== */
+
+/* room-local <-> world (world = the frame the current room sits in, unrotated at the origin) */
+function rWorld(r,lx,lz){const g=r.G,a=g.rotation.y||0,c=Math.cos(a),s=Math.sin(a);return[g.position.x+lx*c+lz*s,g.position.z-lx*s+lz*c]}
+function rLocal(r,wx,wz){const g=r.G,a=g.rotation.y||0,c=Math.cos(a),s=Math.sin(a),dx=wx-g.position.x,dz=wz-g.position.z;return[dx*c-dz*s,dx*s+dz*c]}
+/* ---------- deciding a turn (called from inside the room builder, with the room's own seeded random) ---------- */
+function turnOK(nn,prev,o){if(o.first||!prev||HUB.on||nn<3||nn>=94||(MP.on&&!mpSeed))return 0;if(typeof DAILY!='undefined'&&DAILY.on)return 0;
+ if(o.f||o.hh||o.sk||o.CI>=0||o.ofcI||o.arcI||o.stI||o.xcr||o.itx||o.gal||o.lob||o.ex||o.mlt||o.locked||o.cm||o.boss)return 0;
+ if(o.wt0&&!['rooms','suite','svc','L'].includes(o.wt0))return 0;if(o.mk&&!['zigzag','pillars','dig','stream','pinch'].includes(o.mk))return 0;if(o.HX>7||o.L<16)return 0;
+ const nx=nn+1;if(nx==50||nx==100||nx>=EXN||nx>=95||chIdx(nx)>=0||chIdx(nn)>=0)return 0;if(prev.dd&&prev.dd.side)return 0;/* never two corners in a row */
+ const hd=prev.hd|0;if(Math.random()>.5)return 0;/* the run only heads forward, left or right: from a sideways stretch you can only turn back to forward */
+ if(hd==0)return Math.random()<.5?-1:1;return -hd}
+/* ---------- placing a room after the previous one ---------- */
+function rmPlace(r,prev){if(!prev||!r||!r.G)return;const pg=prev.G,dd=prev.dd||{};let lx,lz,da;
+ if(dd.side){lx=dd.side*((prev.hx||4)+1.12);lz=dd.cz;da=-dd.side*Math.PI/2}else{lx=0;lz=-prev.L-2;da=0}
+ const[wx,wz]=rWorld(prev,lx,lz);r.G.position.x=wx;r.G.position.z=wz;r.G.rotation.y=(pg.rotation.y||0)+da;r.off=wz;r.hd=(prev.hd|0)+(dd.side?(da>0?-1:1):0)}
+{const mk0=mkRoom;mkRoom=function(nn,first,off,prev){const r=mk0.apply(this,arguments);try{if(prev&&!first)rmPlace(r,prev);else r.hd=0}catch(e){conLog('error','room placement: '+e.message)}return r}}
+/* ---------- the side exit: built after the room (the end wall gets closed up, the door moves to the side wall) ---------- */
+function sideExit(room,s,cz,HY,UP){const G=room.G,dd=room.dd,HX=room.hx,ez=-room.L-1;if(!dd||!dd.g)return;const pv=dd.g,DX=dd.cx||0;
+ /* the wall material of this room, from the end-wall piece left of the doorway */let wm=null;for(const c of G.children)if(c.isMesh&&Math.abs(c.position.z-ez)<.02&&c.geometry&&c.geometry.parameters&&c.geometry.parameters.height>=HY-.01&&c.position.x<DX){wm=c.material;break}wm=wm||new THREE.MeshStandardMaterial({color:0x8a7a5a});
+ const B=(x,y,z,w,h,d,m)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);G.add(o);return o};
+ B(DX,(UP+3)/2,ez,1.6,UP+3,.2,wm);/* close the end doorway */
+ const hd=new THREE.Group();hd.position.set(s*HX,0,cz-s*.8);hd.rotation.y=-s*Math.PI/2;G.add(hd);
+ /* carry the door leaf, its frame and the number plaque across: they were placed relative to the end-wall doorway */
+ const mv=[];for(const c of G.children){if(c===hd)continue;const p=c.position;if(Math.abs(p.z-(ez+.13))<.03&&Math.abs(p.x-DX)<1&&p.y>UP+.5)mv.push(c)}
+ G.remove(pv);hd.add(pv);pv.position.set(0,UP,0);for(const c of mv){const p=c.position.clone();G.remove(c);hd.add(c);c.position.set(p.x-(DX-.8),p.y,p.z-ez)}
+ /* a lintel over the new doorway, and the trim gaps closed on the end wall */B(s*HX,(3+HY)/2,cz,.1,HY-3,1.6,wm);
+ dd.side=s;dd.cz=cz;dd.cx=0;room.ez0=ez}
+/* ---------- walking through a side door ---------- */
+{const wk0=walkOK;walkOK=function(x,z){const d=dor;if(d&&d.side&&d.open&&!HUB.on&&Math.abs(z-d.cz)<.5&&x*d.side>CW-1&&x*d.side<CW+1.4)return true;return wk0.apply(this,arguments)}}
+function sideDoorTick(){try{srTick()}catch(e){}const d=dor;if(!d||!d.side||HUB.on||BSM||ORG)return;const s=d.side;if(!d.open&&P.x*s>CW-.9&&Math.abs(P.z-d.cz)<1.3)touch();if(d.open&&P.x*s>CW-.6)P.z=Math.max(d.cz-.5,Math.min(d.cz+.5,P.z));if(d.open&&P.x*s>CW+.5&&RMS[ci+1])enter()}
+/* ---------- re-centring the world on a room (sliding and turning) ---------- */
+function worldTo(o){const a=o.G.rotation.y||0,ox=o.G.position.x,oz=o.G.position.z;if(Math.abs(a)<1e-6&&Math.abs(ox)<1e-6)return{dz:-oz,rot:0};
+ const c=Math.cos(-a),s=Math.sin(-a);const X=(x,z)=>{const dx=x-ox,dz=z-oz;return[dx*c+dz*s,-dx*s+dz*c]};const mvP=p=>{const[x,z]=X(p.x,p.z);p.x=x;p.z=z};const mvO=m=>{if(!m)return;mvP(m.position);m.rotation.y-=a};
+ const RS=new Set(RMS);for(const e of EV)for(const r of e.rooms||[])RS.add(r);for(const r of RS){mvO(r.G);r.off=r.G.position.z}for(const e of EV){mvO(e.m)}for(const q of VFX)if(q.s)mvP(q.s.position);
+ try{if(typeof CRK!='undefined'&&CRK){for(const p of CRK.pts){if(p.x!=null)mvP(p);else p.z-=oz}if(CRK.m)mvO(CRK.m);if(CRK.lz!=null)CRK.lz-=oz}}catch(e){}
+ try{for(const id in MP.remotes){const r=MP.remotes[id];if(r.g)mvO(r.g);if(r.gh)for(const k in r.gh)mvO(r.gh[k].g)}}catch(e){}
+ if(REVA)mvO(REVA.g);if(HC)mvO(HC.m);{const pz=P.z;const[x,z]=X(P.x,pz);P.x=x;P.z=z;P.yaw-=a}return{dz:0,rot:a}}
+/* ---------- Rush and Ambush: paths ---------- */
+function evPath(e){const L=[],RR=e.rooms;for(let i=0;i<RR.length;i++){const r=RR[i];if(!r)continue;const d=r.dd||{};if(i==0)L.push([r,0,9]);L.push([r,0,.5]);
+  if(d.side){L.push([r,0,d.cz]);L.push([r,d.side*(r.hx+.6),d.cz])}else{const cx=d.cx||0;if(Math.abs(cx)>.3){L.push([r,0,-r.L+2.5]);L.push([r,cx,-r.L+2.5])}L.push([r,cx,-r.L-1])}
+  if(i==RR.length-1){if(d.side)L.push([r,d.side*(r.hx+9),d.cz]);else L.push([r,d.cx||0,-r.L-9])}}
+ const W=L.map(([r,x,z])=>{const[a,b]=rWorld(r,x,z);return[a,b,r]});const S=[0];for(let i=1;i<W.length;i++)S.push(S[i-1]+Math.hypot(W[i][0]-W[i-1][0],W[i][1]-W[i-1][1]));return{W,S,T:S[S.length-1]}}
+function pthAt(pth,s){const{W,S}=pth;s=Math.max(0,Math.min(pth.T,s));let i=1;while(i<S.length-1&&S[i]<s)i++;const k=(s-S[i-1])/Math.max(1e-6,S[i]-S[i-1]);return{x:W[i-1][0]+(W[i][0]-W[i-1][0])*k,z:W[i-1][1]+(W[i][1]-W[i-1][1])*k,dx:W[i][0]-W[i-1][0],dz:W[i][1]-W[i-1][1],r:W[i][2]}}
+/* the doors along the path: how far along the path each one is */
+function evDoorS(pth){const out=[];const{W,S}=pth;for(let i=0;i<W.length;i++){const r=W[i][2];if(!r||out.some(o=>o.r===r))continue;const d=r.dd||{};const[x,z]=d.side?rWorld(r,d.side*r.hx,d.cz):rWorld(r,d.cx||0,-r.L-1);let best=0,bd=1e9;for(let j=0;j<W.length;j++){const q=Math.hypot(W[j][0]-x,W[j][1]-z);if(q<bd){bd=q;best=S[j]}}out.push({r,s:best})}return out}
+/* ---------- Ambush's own sound: a hollow, wavering drone far off, a rising shriek up close ---------- */
+function ambAu(e,d,dt){try{AC=AC||new AudioContext();if(AC.state=='suspended')AC.resume();
+ if(!e.au){const mk=(ty,f)=>{const o=AC.createOscillator();o.type=ty;o.frequency.value=f;o.start();return o},lp=AC.createBiquadFilter(),bp=AC.createBiquadFilter(),gR=AC.createGain(),gS=AC.createGain(),mg=AC.createGain(),lg=AC.createGain(),tg=AC.createGain(),lf=mk('sine',5.5),tr=mk('sine',2.2);
+  lp.type='lowpass';lp.frequency.value=320;bp.type='bandpass';bp.frequency.value=1100;bp.Q.value=2.2;lg.gain.value=38;tg.gain.value=.35;
+  const r1=mk('triangle',82),r2=mk('sawtooth',123),s1=mk('sine',640),s2=mk('sawtooth',960),s3=mk('triangle',1290);
+  r1.connect(lp);r2.connect(lp);lp.connect(gR);lf.connect(lg);lg.connect(s1.frequency);lg.connect(s2.frequency);lg.connect(s3.frequency);s1.connect(bp);s2.connect(bp);s3.connect(bp);bp.connect(gS);tr.connect(tg);tg.connect(gR.gain);gR.connect(mg);gS.connect(mg);mg.gain.value=0;mg.connect(AC.destination);
+  e.au={gR,gS,mg,s1,s2,s3,r1,r2,lf:tr,l2:lf,pd:d}}
+ const a=e.au,C=AC.currentTime,v=(a.pd-d)/Math.max(dt,.001);a.pd=d;const vol=Math.pow(Math.max(0,1-d/220),1.3),sc=Math.max(0,Math.min(1,(70-d)/45)),dp=1+Math.max(-.18,Math.min(.18,v/300));
+ a.mg.gain.setTargetAtTime(.5*vol,C,.06);a.gR.gain.setTargetAtTime(.8*(1-sc*.7),C,.06);a.gS.gain.setTargetAtTime(.5*sc,C,.06);a.r1.frequency.setTargetAtTime(82*dp,C,.06);a.r2.frequency.setTargetAtTime(123*dp,C,.06);
+ a.s1.frequency.setTargetAtTime(640*dp*(1+.5*sc),C,.06);a.s2.frequency.setTargetAtTime(960*dp*(1+.5*sc),C,.06);a.s3.frequency.setTargetAtTime(1290*dp*(1+.4*sc),C,.06)}catch(x){}}
+{const rs0=rushStop;rushStop=function(e){const a=e&&e.au;if(a&&a.l2){e.au=null;try{a.mg.gain.setTargetAtTime(0,AC.currentTime,.08)}catch(x){}setTimeout(()=>[a.r1,a.r2,a.s1,a.s2,a.s3,a.lf,a.l2].forEach(o=>{try{o.stop()}catch(x){}}),700);return}return rs0.apply(this,arguments)}}
+/* ---------- one step of Rush / Ambush along its path; returns the old and new position ---------- */
+function evStep(e,sp){if(!e.rooms)return null;e.pth=evPath(e);e.ds=evDoorS(e.pth);const p0=pthAt(e.pth,e.s);e.s+=e.d*sp;const p1=pthAt(e.pth,e.s);e.m.position.x=p1.x;e.m.position.z=p1.z;if(p1.dx||p1.dz)e.m.rotation.y=Math.atan2(-p1.dx*e.d,-p1.dz*e.d);
+ /* doors ahead get kicked open */if(e.d>0)for(const q of e.ds){const r=q.r;if(r.dd.open||r.locked||r.mb>0||(r.cave&&!r.cave.done)||r.el||(r.pz&&!r.pz.open)||(r.dgt&&r.dgt.p<1)||r.n>=100)continue;const ah=q.s-e.s;if(ah>0&&ah<7){r.dd.open=1;r.dd.fast=1;snd(90,.35)}}
+ return{p0,p1}}
+function evHitTest(e,st,sp){/* in the current frame, which is the current room's: along the way it is going, and across it */const ux=st.p1.dx,uz=st.p1.dz,L=Math.hypot(ux,uz)||1,fx=ux/L*e.d,fz=uz/L*e.d,dx=P.x-st.p0.x,dz=P.z-st.p0.z,al=dx*fx+dz*fz,ac=Math.abs(dx*fz-dz*fx);
+ if(e.k=='rush')return al>=-1&&al<=sp+1&&ac<3.7;return Math.abs(al)<2.5&&ac<Math.max(3.7,CW)}
+function evDist(e){return Math.hypot(e.m.position.x-P.x,e.m.position.z-P.z)}
+
+/* Rush breaks the lights of the rooms it tears through; both of them vanish at Honcho's office / the elevator; Ohien drags them under */
+rushBreaks=function(e){if(e.k!='rush'||!e.pth)return;const r=pthAt(e.pth,e.s).r;if(!r)return;const i=RMS.indexOf(r);if(i<0||i>ci)return;if(!e.brk)e.brk=new Set();if(e.brk.has(r))return;e.brk.add(r);if(breakLights(r)&&!e.lbm){e.lbm=1;hint('💥 The lights shatter as Rush tears past! The dark is coming...')}};
+evBossSkip=function(e,m){if(!e.pth)return;const r=pthAt(e.pth,e.s).r;if(!r||!(r.boss||r.el))return;e.gone=1;if(RMS[ci]===r||RMS[ci]&&Math.abs(RMS[ci].n-r.n)<=1){if(!e.bk){e.bk=1;hint('🕴️ '+(e.k=='rush'?'Rush':'Ambush')+' stops dead at the door of '+(r.boss?'Honcho\'s office':'the elevator')+' and fades away.')}}};
+ohBanishCheck=function(e,m){if(e.dem||e.cx>0||!e.pth)return false;const r=pthAt(e.pth,e.s).r;if(r&&r.oh){const[lx,lz]=rLocal(r,m.position.x,m.position.z);if(lz<-1.2&&lz>-r.L+.6){conLog('event',(e.k=='rush'?'Rush':'Ambush')+' #'+e.id+' was dragged under by Ohien (door '+r.n+')');startDem(e,m,r);return true}}return false};
+
+/* =====================================================================================================
+   SIDE ROOMS WITH DOORS. The little rooms off the hotel halls are real rooms now: a door you walk into (it swings
+   open), and inside a BEDROOM, a BATHROOM, a STUDY or a LINEN CLOSET, furnished, with drawers to search and a
+   wardrobe to hide in. In the mines the side rooms are a BUNK ROOM, a TOOL SHED or a POWDER STORE behind a plank door.
+   ===================================================================================================== */
+const SRQ=[];
+function srDrawer(x,z,len,fs,cols,y0){const L2=len||1.4,H=y0||1;box(x,H/2,z,.9,H,L2,cols[0]);const dg=new THREE.Group();G.add(dg);dg.add(box(x,H-.38,z,.8,.14,L2-.3,cols[1]));dg.add(box(x+fs*.48,H-.32,z,.06,.4,L2-.2,cols[2]));dg.add(box(x+fs*.53,H-.32,z,.06,.06,.2,cols[3]));
+ const r2=Math.random(),lt=r2<.5?['g',5+(Math.random()*30|0)]:r2<.62?['v',1]:r2<.7?['l',1]:r2<.74?['f',1]:r2<.77?['b',1]:null,it=lt&&loot(lt[0],lt[1]);if(it){it.position.set(x+fs*.22,H-.31,z);dg.add(it)}drs.push({x,z,o:0,fr:dg,lt,it,s:fs});return dg}
+function mkSideRoom(w,obs0,MINE){const{s,z,hz,d}=w,X=u=>s*(4+u),R=Math.random,ob=(u0,u1,z0,z1)=>{const a=X(u0),b=X(u1);obs0.push({x0:Math.min(a,b),x1:Math.max(a,b),z0,z1})},B=(u,y,zz,lu,h,lz,c,e)=>box(X(u),y,zz,lu,h,lz,c,e),fs=-s;
+ const kinds=MINE?['bunk','tool','powder']:['bed','bed','bath','study','linen'],k=w.srk||(w.srk=kinds[R()*kinds.length|0]);
+ /* a light */{const l=mkLight(MINE?0xffc070:0xffe2b8,.7,8);l.position.set(X(d/2),3.4,z);RL.push(l);if(MINE){B(d/2,3.7,z,.05,.6,.05,0x2a2a2a);B(d/2,3.3,z,.2,.28,.2,0xfff0b0,0xffb040)}else B(d/2,3.93,z,.6,.06,.6,0xf4ead0,0xffe8b0)}
+ /* the door: a leaf hinged in the opening, solid until it swings open */const hg=new THREE.Group();hg.position.set(s*4,0,z-.78);G.add(hg);const lf=new THREE.Mesh(new THREE.BoxGeometry(.07,2.6,1.52),MINE?new THREE.MeshStandardMaterial({color:0x6a4a2a,roughness:.95}):new THREE.MeshStandardMaterial({map:T('door',1,1)}));lf.position.set(0,1.3,.76);hg.add(lf);lf.userData.keep=1;
+ if(MINE){for(const y of[.5,1.3,2.1]){const pl=new THREE.Mesh(new THREE.BoxGeometry(.1,.12,1.5),new THREE.MeshStandardMaterial({color:0x4a3018}));pl.position.set(-s*.05,y,.76);hg.add(pl);pl.userData.keep=1}}
+ const kn=new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),new THREE.MeshStandardMaterial({color:0xd8a830,metalness:.8}));kn.position.set(-s*.07,1.1,1.3);hg.add(kn);kn.userData.keep=1;if(!MINE){const pl=new THREE.Mesh(new THREE.BoxGeometry(.02,.14,.3),new THREE.MeshStandardMaterial({color:0xc8a040,metalness:.7}));pl.position.set(-s*.05,1.9,.76);hg.add(pl)}
+ const dr={g:hg,p:0,open:0,x:s*4,z,s};obs0.push({x0:s*4-.12,x1:s*4+.12,z0:z-.8,z1:z+.8,g:dr});SRQ.push(dr);
+ const H=MINE?[0x5a3a1e,0x3a2410,0x7a5028,0xc0a060]:[0x5c3a1e,0x24160a,0x7a5028,0xd4a850];
+ if(k=='bed'){/* a bed against the far side wall, head to the back; a nightstand; a wardrobe to hide in; a rug and a picture */
+  const bz=z+hz-.62;B(2.2,.25,bz,2.1,.3,1.15,0x5a3a22);B(2.2,.48,bz,2,.16,1.08,0xf0ece0);B(2.55,.6,bz,1.3,.08,1.1,[0x8a2a2a,0x2a4a7a,0x3a6a3a][R()*3|0]);B(1.45,.62,bz,.35,.12,.75,0xffffff);B(3.33,.75,bz,.08,1.2,1.2,0x4a2a14);ob(1.15,3.4,bz-.6,bz+.6);
+  srDrawer(X(3.0),z+hz-1.6,.7,fs,H,.62);B(3.0,.75,z+hz-1.6,.12,.12,.12,0xffe8a0,0xffd080);ob(2.55,3.45,z+hz-1.95,z+hz-1.25);
+  const lx=X(d-1);wards.push({x:lx,z:z-hz+.75});locker(lx,z-hz+.75,fs);
+  B(1.5,.012,z,1.8,.02,1.4,0x7a3a3a);if(R()<.8)B(d-.05,2.1,z,.04,.6,.8,[0x5a7a9a,0x9a6a3a,0x6a8a5a][R()*3|0])}
+ else if(k=='bath'){/* tiled floor, a tub along the back wall with a shower curtain, a toilet, a sink with a mirror and a cabinet under it */
+  B(d/2,.003,z,d-.1,.01,hz*2-.1,0xe8e8f0);for(let u=.5;u<d;u+=.5)B(u,.008,z,.01,.004,hz*2-.1,0x9aa0b0);
+  B(d-.45,.3,z,.8,.6,1.9,0xf4f4f8);B(d-.45,.6,z,.65,.04,1.7,0x90b8d8);ob(d-.9,d,z-1,z+1);B(d-.95,1.6,z,.02,1.9,1.9,0xd8e8f0);B(d-.95,2.6,z,.03,.03,2,0xb0b0b8);
+  B(1.0,.25,z+hz-.35,.4,.5,.5,0xf4f4f8);B(1.0,.62,z+hz-.18,.42,.4,.16,0xf4f4f8);ob(.75,1.25,z+hz-.65,z+hz);
+  srDrawer(X(1.9),z-hz+.55,.9,fs,[0xe8e4dc,0xd0ccc4,0xf4f0e8,0xb0b0b8],.85);B(1.9,.95,z-hz+.55,.6,.06,.7,0xf4f4f8);B(1.9,1.7,z-hz+.12,.6,.75,.03,0xb8d8e8);ob(1.4,2.4,z-hz,z-hz+1.05);
+  B(.6,1.9,z-hz+.08,.25,.04,.04,0xb0b0b8)}
+ else if(k=='study'){/* a desk with a drawer, a chair, a bookcase, a wardrobe */
+  srDrawer(X(d-.55),z-.6,1.2,fs,H,.78);B(d-.55,.8,z-.6,.95,.05,1.5,0x6a4426);B(d-.55,1.05,z-.95,.25,.35,.3,0x2a2a2a);B(d-1.35,.45,z-.5,.45,.06,.45,0x3a2414);B(d-1.6,.75,z-.5,.06,.6,.45,0x3a2414);ob(d-1.1,d,z-1.3,z+.1);
+  B(1.6,1.1,z+hz-.25,1.6,2.2,.4,0x4a2a14);for(let r2=0;r2<4;r2++)B(1.6,.35+r2*.5,z+hz-.42,1.4,.38,.05,[0x7a2a2a,0x2a5a3a,0x2a3a6a,0x8a6a2a][r2]);ob(.75,2.45,z+hz-.5,z+hz);
+  const lx=X(d-.6);wards.push({x:lx,z:z+hz-1.35});locker(lx,z+hz-1.35,fs)}
+ else if(k=='linen'){/* shelves of folded sheets, a laundry cart, a chest of drawers */
+  for(const zz of[z-hz+.3,z+hz-.3])for(let y=.4;y<2.4;y+=.6){B(d/2+.4,y,zz,d-1.2,.05,.5,0x7a5a3a);for(let u=1.2;u<d-.4;u+=.55)B(u,y+.13,zz,.45,.2,.4,[0xf0f0f0,0xe0e8f0,0xf0e8d8][R()*3|0])}ob(.8,d,z-hz,z-hz+.6);ob(.8,d,z+hz-.6,z+hz);
+  srDrawer(X(d-.5),z,1.2,fs,H,1)}
+ else if(k=='bunk'){/* a timber bunk bed, a footlocker, a lantern on a crate */
+  const bz=z+hz-.55;for(const y of[.4,1.6]){B(2.1,y,bz,2,.12,.95,0x5a3a1e);B(2.1,y+.1,bz,1.9,.1,.85,0x8a7a5a)}for(const u of[1.1,3.1])for(const dz of[-.45,.45])B(u,1,bz+dz,.08,2,.08,0x4a3018);ob(1.05,3.15,bz-.5,bz+.5);
+  srDrawer(X(d-.55),z-.9,.9,fs,H,.6);const lx=X(d-.6);wards.push({x:lx,z:z-hz+.65});locker(lx,z-hz+.65,fs)}
+ else if(k=='tool'){/* a workbench with a tool chest, a rack of shovels and picks, crates */
+  srDrawer(X(d-.5),z,1.4,fs,H,.95);B(d-.5,1.0,z,1,.08,1.9,0x6a4a2a);B(d-.06,1.7,z,.05,.9,1.8,0x5a4a3a);for(let i=0;i<5;i++)B(d-.12,1.6,z-.7+i*.35,.05,.6,.05,0x8a8e94);ob(d-1,d,z-1,z+1);
+  for(const zz of[z-hz+.5,z+hz-.5]){B(1.2,.35,zz,.7,.7,.7,0x7a5a32);ob(.85,1.55,zz-.35,zz+.35)}}
+ else if(k=='powder'){/* barrels, a crate stamped DANGER, shelves; a cabinet */
+  for(const[u,zz]of[[1.2,z-hz+.45],[1.9,z-hz+.45],[1.2,z+hz-.45]]){const m=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.9,12),new THREE.MeshStandardMaterial({color:0x6a3a1a}));m.position.set(X(u),.45,zz);G.add(m);ob(u-.35,u+.35,zz-.35,zz+.35)}
+  B(2.6,.4,z+hz-.5,.8,.8,.7,0x9a7a3a);B(2.6,.4,z+hz-.14,.5,.25,.02,0xc02020);ob(2.2,3,z+hz-.85,z+hz);srDrawer(X(d-.5),z-.5,1.1,fs,H,1)}}
+/* the doors swing open when you walk up to them (and stay open) */
+function srTick(){const r=RMS[ci];if(!r||!r.srd)return;const now=performance.now(),dt=Math.min(.1,(now-(srTick.t||now))/1000);srTick.t=now;for(const d of r.srd){if(!d.open&&Math.hypot(P.x-d.x,P.z-d.z)<1.7){d.open=1;try{doorSnd()}catch(e){snd(200,.1)}}if(d.open&&d.p<1){d.p=Math.min(1,d.p+dt*2.2);d.g.rotation.y=d.s*1.5*(1-Math.pow(1-d.p,3))}}}
+{const mk1=mkRoom;mkRoom=function(){SRQ.length=0;const r=mk1.apply(this,arguments);try{r.srd=SRQ.splice(0)}catch(e){}return r}}
 
 </script><script>
 /* ======================================================================================================
