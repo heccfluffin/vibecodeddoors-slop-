@@ -239,6 +239,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx599.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx600.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx601.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx602.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx605.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -381,6 +382,9 @@ R('Walk into the shack again when you are ready.','Press E at the shack door whe
 R('Walk into the SHACK when you are ready.','Press E at the SHACK door when you are ready.')
 R('P.roll=(P.roll||0)+dt*(f.soft?3:7)*(f.vx>0?1:-1);','if(!f.noRoll)P.roll=(P.roll||0)+dt*(f.soft?3:7)*(f.vx>0?1:-1);')
 R("prop(lx+.4,lz+2.6,1.6,()=>q.lift?'':'[E] Ride the old lift DOWN (it goes a long way)',()=>liftGo(q,-1))","prop(lx+.4,lz+2.6,1.6,()=>q.lift?'':'⛔ LIFT GOES UP ONLY · NO RIDES DOWN',()=>{})")
+# r608: main menu and how to play (dx605)
+# the old 2,000-word How to Play text goes: dx605 shows a short tabbed card instead (#how stays, empty, as the title-screen marker)
+_a=s.index('<div id="how">');_b=s.index('<p id="swn"',_a);assert s.count('<div id="how">')==1 and _b-_a<20000;s=s[:_a]+'<div id="how"></div>\n'+s[_b:]
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered

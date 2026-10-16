@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r608
 
 # How to Play: short version
 

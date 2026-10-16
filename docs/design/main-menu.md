@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r608
 
 # Main menu: fewer buttons
 
