@@ -1,4 +1,4 @@
-Status: proposed
+Status: building (no more self-wrecking AI cars shipped in r606; the rest next)
 
 # Police: no random explosions, more patrols, speed checkpoints
 

@@ -162,7 +162,15 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r605** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- **Live: r606** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- r606 (`src/dx602.js` + build.py patches): km/h everywhere (`kmh.md`); base map drawn from the wall boxes
+  (`mapBaseDraw`, labels `MAPBN`); every desert InstancedMesh unculled and pulled out of scenery chunks (`imFix`;
+  that was the Speedway's "invisible obstacles"); dragster front axle; AI cars don't damage themselves on scenery
+  (`AISELF` around `vehPhys`/`vehDamage`); gorge fall keeps momentum, no roll, cars fall and wreck at the bottom;
+  lift only goes up; mining shack moved west of the road (`SHKP`, `shW`, `shBox`, E prompt). Specs' status lines and
+  `docs/design/NOTES.md` are updated. **Still to build:** devils-gorge parts 2-3 (cave floor slab, lift model),
+  speedway-and-stunt-jump part 3 (booster ramp models), police (3 patrol cars, km/h checkpoints, cop gorge fall),
+  main-menu, how-to-play, uplink, water-delivery, office-monitors (model needs the user's OK).
 - r605: `src/dx601.js` **shared AI driver** used by every AI car: `aiCtl(q,v,s,want,d,dt,o)` (speed for bends,
   three-point turns when the point is inside the tightest turning circle `5/K.turn`, stuck recovery that alternates
   sides and sets `s.replan`, circling detection), `aiProbe` (feelers, slope-aware), `aiPassed`, `aiBend`.
@@ -257,6 +265,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Desert perf part 2 | dx599 |
 | Wraith follows your bay, font registration in build.py | dx600 |
 | Shared AI driver, squad convoy track, autopilot, route-grid levels (mesa, quarry) | dx601 |
+| Base map, instanced-mesh fix, dragster axle, AI self-damage, gorge fall, mining shack move | dx602 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

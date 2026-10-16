@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r606
 
 # Fort Blackout on the map
 

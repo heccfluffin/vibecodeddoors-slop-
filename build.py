@@ -238,6 +238,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx598.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx599.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx600.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx601.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx602.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -342,6 +343,44 @@ R('const n=nj*W+ni;if(g[n]||reach[n])continue;','const n=nj*W+ni;if(g[n]||reach[
 R('const n=nj*W+ni;if(g[n]||cl[n]===G)continue;','const n=nj*W+ni;if(g[n]||cl[n]===G||(NAV.pl&&NAV.pl[n]!==NAV.pl[k]))continue;')
 R("out.push([L.ax,L.az,'ramp',L]);out.push([L.bx,L.bz,'land'])","out.push([L.ax,L.az,L.up?'up':'ramp',L]);out.push([L.bx,L.bz,'land'])")
 R('function navLOS(x0,z0,x1,z1,gr){const g=gr||NAV.g,d=Math.hypot(x1-x0,z1-z0),n=Math.ceil(d/1.2);for(let i=1;i<=n;i++){const u=i/n,k=navCell(x0+(x1-x0)*u,z0+(z1-z0)*u);if(k<0||g[k])return false}return true}','function navLOS(x0,z0,x1,z1,gr){const g=gr||NAV.g,pl=NAV.pl,k0=navCell(x0,z0),l0=pl&&k0>=0?pl[k0]:0,d=Math.hypot(x1-x0,z1-z0),n=Math.ceil(d/1.2);for(let i=1;i<=n;i++){const u=i/n,k=navCell(x0+(x1-x0)*u,z0+(z1-z0)*u);if(k<0||g[k]||(pl&&pl[k]!==l0))return false}return true}')
+# r606: speeds in km/h everywhere (docs/design/kmh.md). The Desert Bus trip keeps its miles.
+R("Math.round(Math.abs(v.v)*2.237)+' mph'+(v.boostT","Math.round(Math.abs(v.v)*3.6)+' km/h'+(v.boostT")
+R("Math.round(Math.abs(v.v)*2.237)+' mph'+(vehOnHwy(v)","Math.round(Math.abs(v.v)*3.6)+' km/h'+(vehOnHwy(v)")
+R("Math.round(K.max*2.237)+' mph<br>","Math.round(K.max*3.6)+' km/h<br>")
+R('mph=Math.round(Math.abs(v.v)*2.237);','mph=Math.round(Math.abs(v.v)*3.6);')
+R("+mph+' mph · ⭐","+mph+' km/h · ⭐")
+R("+mph+' mph · drive","+mph+' km/h · drive")
+R('speed sign. 45 mph. It is a joke.','speed sign. 72 km/h. It is a joke.')
+R('763 MPH · LAND SPEED RECORD','1228 KM/H · LAND SPEED RECORD')
+R("(600+Math.random()*250|0)+' MPH!!","(970+Math.random()*400|0)+' KM/H!!")
+R('DARK ARROW\\n763.0 MPH','DARK ARROW\\n1227.9 KM/H')
+R('COMPOSITE ARMOUR · 85 MPH\\n','COMPOSITE ARMOUR · 137 KM/H\\n')
+R('holds the lane at 45 mph all by itself','holds the lane at 72 km/h all by itself')
+R('Top speed 45 mph.','Top speed 72 km/h.')
+R('U-turns at 300 miles per hour.','U-turns at 480 km/h.')
+R('Somebody went 763 miles per hour here.','Somebody went 1228 km/h here.')
+R('the bus does 45 miles an hour?','the bus does 72 km/h?')
+R('Speed limit is 45. I go 45. Ever.','Speed limit is 72. I go 72. Ever.')
+_o,_n=('In a bus. In the desert. At 45 mph.','In a bus. In the desert. At 72 km/h.');assert s.count(_o)==2;s=s.replace(_o,_n)
+# r606: the mining shack off the road (E to go in), Devil's Gorge real fall, one-way lift (dx602)
+R("  {const SZ=-1062,pk=mineTexR('plank',3,2),","  {const gO=g,shG=new THREE.Group(),shI=new THREE.Group();shG.position.set(SHKP.cx,0,SHKP.sz);shG.rotation.y=SHKP.th;shI.position.z=-SHKP.sz;shG.add(shI);gO.add(shG);{const g=shI;const SZ=-1062,pk=mineTexR('plank',3,2),")
+R('BUS.shack={SZ,HZ,cage,gate,lan,shL,D,eb}}','gO.add(eb);gO.add(ss);/* r606: a dirt path from the road to the door */{const d=shW(0,SZ+D/2+3.2),x0=-3.5,x1=d[0],pth=new THREE.Mesh(new THREE.PlaneGeometry(Math.abs(x1-x0),3),new THREE.MeshStandardMaterial({color:0x9a7a50,roughness:1}));pth.rotation.x=-Math.PI/2;pth.position.set((x0+x1)/2,.04,d[1]);gO.add(pth)}BUS.shack={SZ,HZ,cage,gate,lan,shL,D,eb}}}')
+R('{const SZ=-1062,D=14,W=16;ob(-W/2-.3,-W/2+.3,SZ-D/2,SZ+D/2);ob(W/2-.3,W/2+.3,SZ-D/2,SZ+D/2);ob(-W/2,W/2,SZ-D/2-.3,SZ-D/2+.3);ob(-W/2,-1.5,SZ+D/2-.3,SZ+D/2+.3);ob(1.5,W/2,SZ+D/2-.3,SZ+D/2+.3);for(const x of[-W/2+.3,W/2-.3])ob(x-.25,x+.25,SZ+D/2+1.95,SZ+D/2+2.45);ob(4.0,4.6,-1043.8,-1043.2);ob(4.8,5.4,-1044.4,-1042.6)}','{const SZ=-1062,D=14,W=16,ob2=(x0,x1,z0,z1)=>{const r=shBox(x0,x1,z0,z1);ob(r[0],r[1],r[2],r[3])};ob2(-W/2-.3,-W/2+.3,SZ-D/2,SZ+D/2);ob2(W/2-.3,W/2+.3,SZ-D/2,SZ+D/2);ob2(-W/2,W/2,SZ-D/2-.3,SZ-D/2+.3);ob2(-W/2,-1.5,SZ+D/2-.3,SZ+D/2+.3);ob2(1.5,W/2,SZ+D/2-.3,SZ+D/2+.3);for(const x of[-W/2+.3,W/2-.3])ob2(x-.25,x+.25,SZ+D/2+1.95,SZ+D/2+2.45);ob(4.0,4.6,-1043.8,-1043.2);ob(4.8,5.4,-1044.4,-1042.6)}')
+R("rect(-8,8,-1069,-1055,'#8a6a40')","rect(...shBox(-8,8,-1069,-1055),'#8a6a40');{const d=shW(0,-1062+7+3.2);rect(d[0],-3.5,d[1]-1.5,d[1]+1.5,'#9a7a50')}")
+R("{nm:'Mining shack',x:0,z:-1062,ic:'⛏️'}","{nm:'Mining shack',x:SHKP.cx,z:-1062,ic:'⛏️'}")
+R('if(W<3){const k=S2(W/3);P.x=q.wx0*(1-k);P.z=q.wz0+(zD-q.wz0)*k;P.yaw=q.wy0*(1-k);P.pitch=q.wp0*(1-k);','if(W<3){const k=S2(W/3),dp=shW(0,zD-OZ);P.x=q.wx0+(dp[0]-q.wx0)*k;P.z=q.wz0+(dp[1]+OZ-q.wz0)*k;P.yaw=q.wy0+wrapA(SHKP.th-q.wy0)*k;P.pitch=q.wp0*(1-k);')
+R('else if(W<7){const k=S2((W-3)/4);P.x=0;P.z=zD+(zC-zD)*k;P.yaw=Math.sin(W*.6)*.3*(1-k);','else if(W<7){const k=S2((W-3)/4),wp=shW(0,zD+(zC-zD)*k-OZ);P.x=wp[0];P.z=wp[1]+OZ;P.yaw=SHKP.th+Math.sin(W*.6)*.3*(1-k);')
+R('q.wt=7;P.x=0;P.z=zC;','q.wt=7;{const wp=shW(0,zC-OZ);P.x=wp[0];P.z=wp[1]+OZ}')
+R('if(T3>=0&&T3<1.2){P.z=zC;','if(T3>=0&&T3<1.2){{const wp=shW(0,zC-OZ);P.x=wp[0];P.z=wp[1]+OZ}')
+R('if(T3>=1.3){P.z=zC;','if(T3>=1.3){{const wp=shW(0,zC-OZ);P.x=wp[0];P.z=wp[1]+OZ}')
+R('P.yaw=Math.sin(T3*.4)*.6;','P.yaw=SHKP.th+Math.sin(T3*.4)*.6;')
+R('if(skip){P.x=0;P.z=zD;P.yaw=0;P.pitch=0;q.wt=3}','if(skip){const dp=shW(0,zD-OZ);P.x=dp[0];P.z=dp[1]+OZ;P.yaw=SHKP.th;P.pitch=0;q.wt=3}')
+R('/* the shack doorway */const lz=P.z-OZ,zF=sh.SZ+sh.D/2;if(!q.seat&&!q.inBus&&!q.fling&&Math.abs(P.x)<1.4&&lz<zF+1.2&&lz>zF-2.5)busRoamEnd(q,false)}','/* the shack doorway: E to go in now (r606, dx602) */}')
+R('const sh=q.sh;P.x=0;P.z=q.OZ+sh.SZ+sh.D/2+3.5;P.dy=0;P.yaw=0;','const sh=q.sh;{const wp=shW(0,sh.SZ+sh.D/2+3.5);P.x=wp[0];P.z=wp[1]+q.OZ}P.dy=0;P.yaw=SHKP.th-Math.PI;')
+R('Walk into the shack again when you are ready.','Press E at the shack door when you are ready.')
+R('Walk into the SHACK when you are ready.','Press E at the SHACK door when you are ready.')
+R('P.roll=(P.roll||0)+dt*(f.soft?3:7)*(f.vx>0?1:-1);','if(!f.noRoll)P.roll=(P.roll||0)+dt*(f.soft?3:7)*(f.vx>0?1:-1);')
+R("prop(lx+.4,lz+2.6,1.6,()=>q.lift?'':'[E] Ride the old lift DOWN (it goes a long way)',()=>liftGo(q,-1))","prop(lx+.4,lz+2.6,1.6,()=>q.lift?'':'⛔ LIFT GOES UP ONLY · NO RIDES DOWN',()=>{})")
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered
@@ -370,7 +409,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r605';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r606';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

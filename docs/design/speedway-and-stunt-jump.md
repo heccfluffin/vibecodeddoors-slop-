@@ -1,4 +1,4 @@
-Status: proposed
+Status: building (parts 1 and 2 shipped in r606; part 3 next)
 
 # Speedway fixes and the new Quarry Skip booster jump
 

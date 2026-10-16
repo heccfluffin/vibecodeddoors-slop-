@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r606
 
 # Speeds in km/h everywhere
 

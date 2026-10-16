@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r606
 
 # Mining shack: off the road, and E to go in
 
