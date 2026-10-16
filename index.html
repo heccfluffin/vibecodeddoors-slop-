@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r606';
+const BUILD='2026-10-16 r607';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -3653,7 +3653,7 @@ function navBuild(q){const C=NAV.C,X0=NAV.X0=-DXB,Z0=NAV.Z0,W=Math.ceil(2*DXB/C)
  for(let i=0;i<W;i++){g[i]=gf[i]=1;g[(H-1)*W+i]=gf[(H-1)*W+i]=1}for(let j=0;j<H;j++){g[j*W]=gf[j*W]=1;g[j*W+W-1]=gf[j*W+W-1]=1}
  /* r605: raised and sunken areas are levels of their own (see navXRamp in dx601) */const PL=new Uint8Array(W*H);{let pli=0;for(const p of q.plates||[])if(Math.abs(p.y)>2){pli++;rng(p.x0,p.x1,p.z0,p.z1,k=>PL[k]=pli)}for(let j=1;j<H-1;j++)for(let i=1;i<W-1;i++){const k=j*W+i;if(PL[k]!==PL[k+1]||PL[k]!==PL[k-1]||PL[k]!==PL[k+W]||PL[k]!==PL[k-W])g[k]=1}}NAV.pl=PL;{const r=LAKE.r+6;rng(LAKE.x-r,LAKE.x+r,LAKE.z-r,LAKE.z+r,k=>g[k]=1)}{let x=-DXB;for(const b of GORGE.bridges.slice().sort((a,b)=>a[0]-b[0])){rng(x,b[0]-1,GORGE.z0-2,GORGE.z1+2,k=>g[k]=1);x=b[1]+1}rng(x,DXB,GORGE.z0-2,GORGE.z1+2,k=>g[k]=1)}
  for(const m of q.mapR||[])if(m.c=='#4a4440'||m.c=='#8a6a44')rng(m.x0+.5,m.x1-.5,m.z0+.5,m.z1-.5,k=>road[k]=1);
- NAV.W=W;NAV.H=H;NAV.g=g;const links={};for(const r of q.ramps||[]){if(r.ax=='x'){try{navXRamp(r,rng,g,links)}catch(e){}continue}const zA=r.z0,zB=r.z0+r.dir*r.len,cx=(r.x0+r.x1)/2;rng(r.x0-R,r.x1+R,Math.min(zA,zB)-.5,Math.max(zA,zB)+.5,k=>g[k]=1);
+ NAV.W=W;NAV.H=H;NAV.g=g;const links={};for(const r of q.ramps||[]){if(r.ax=='x'){try{navXRamp(r,rng,g,links)}catch(e){}continue}if(r.nolink){rng(r.x0-R,r.x1+R,Math.min(r.z0,r.z0+r.dir*r.len)-.5,Math.max(r.z0,r.z0+r.dir*r.len)+.5,k=>g[k]=1);continue}const zA=r.z0,zB=r.z0+r.dir*r.len,cx=(r.x0+r.x1)/2;rng(r.x0-R,r.x1+R,Math.min(zA,zB)-.5,Math.max(zA,zB)+.5,k=>g[k]=1);
   const a=navCell(cx,zA-r.dir*9),b=navCell(cx,zB+r.dir*(12+r.H*3));if(a>=0&&b>=0&&!g[a]&&!g[b])links[a]={to:b,r,ax:cx,az:zA-r.dir*9,bx:cx,bz:zB+r.dir*(12+r.H*3)}}
  /* which bits of the town can a car actually get to (from the main road)? */const reach=new Uint8Array(W*H);{const s0=navFree(navCell(0,-990));if(s0>=0){const st=[s0];reach[s0]=1;while(st.length){const k=st.pop(),i=k%W,j=k/W|0;for(let dj=-1;dj<=1;dj++)for(let di=-1;di<=1;di++){if(!di&&!dj)continue;const ni=i+di,nj=j+dj;if(ni<0||nj<0||ni>=W||nj>=H)continue;const n=nj*W+ni;if(g[n]||reach[n]||PL[n]!==PL[k])continue;if(di&&dj&&(g[j*W+ni]||g[nj*W+i]))continue;reach[n]=1;st.push(n)}const L=links[k];if(L&&!reach[L.to]){reach[L.to]=1;st.push(L.to)}}}}
  {let x=-DXB;for(const b of GORGE.bridges.slice().sort((a,b)=>a[0]-b[0])){rng(x,b[0]-.3,GORGE.z0,GORGE.z1,k=>gf[k]=1);x=b[1]+.3}rng(x,DXB,GORGE.z0,GORGE.z1,k=>gf[k]=1)}Object.assign(NAV,{W,H,g,gf,road,links,reach,q,t:q.t||0,n:(NAV.n|0)+1});return NAV}
@@ -4004,7 +4004,7 @@ function xpRaceBoard(R){try{const c=document.createElement('canvas');c.width=512
 function xpBillboards(X){const{q,g,M,A,BX,CY,ob,lab}=X;const B=[[14,-1260,'DOORS: NOW WITH\n100% MORE DOORS','#1a1a2a','#ffe040',.3],[-14,-1500,'EL GOBLINO GAS\n← 480 m · BREAD · NO GAS','#5a9a2a','#ffffff',-.3],[320,-1414,'RUSHY\'S DINER →\nPIE. FAST.','#c02020','#ffffff',0],[-300,-1414,'HAVE YOU SEEN THIS SPEEDSTER?\n(dark)','#2a2a2a','#ff4040',0],[-200,-1894,'DARK ZONE 51\nDOES NOT EXIST ←','#1a1a2a','#40ff80',0],[14,-1960,'YOU HAVE REACHED\nTHE END OF THE DESERT','#8a5a2a','#ffe0a0',.3],[466,-1612,'THE TRAIN\nDOES NOT STOP','#5a3a22','#ffffff',0],[-460,-1300,'WIND FARM\nDO NOT TOUCH THE SPINNY BITS','#2a6a3a','#ffffff',1.2]];
  for(const[x,z,t,bg,fg,ry]of B){const gp=new THREE.Group();gp.position.set(x,0,z);gp.rotation.y=ry;g.add(gp);for(const sd of[-1,1]){const p=new THREE.Mesh(CY(.14,.16,6,8),M(0x5a4a3a));p.position.set(sd*3.6,3,0);gp.add(p)}const bd=new THREE.Mesh(BX(10,4,.2),M(0x3a2a1a));bd.position.set(0,7.8,0);gp.add(bd);const f=lab(t,9.4,3.4,bg,fg,80);f.position.set(0,7.8,.13);gp.add(f);const b2=lab(t,9.4,3.4,bg,fg,80);b2.position.set(0,7.8,-.13);b2.rotation.y=Math.PI;gp.add(b2);const lt=new THREE.Mesh(BX(10,.3,1),M(0x6a6a6a));lt.position.set(0,5.6,.6);gp.add(lt);ob(x-3.8,x+3.8,z-.4,z+.4)}}
 function xpStunts(X){const{q,g,M,A,BX,sign,loc,rect}=X,PK=X.PK;const ramp=(x,z0,len,w,H,dir,nm)=>{const zc=z0+dir*len/2,ang=Math.atan2(H,len),pl=new THREE.Mesh(BX(w,.25,Math.hypot(len,H)),PK);pl.position.set(x,H/2,zc);pl.rotation.x=dir<0?ang:-ang;g.add(pl);for(let i=1;i<=3;i++){const zz=z0+dir*len*i/3,hh=H*i/3;for(const sd of[-1,1])A(BX(.2,hh,.2),PK,x+sd*(w/2-.2),hh/2,zz)}q.ramps.push({x0:x-w/2,x1:x+w/2,z0,len,H,dir,stunt:nm,sj:1});rect(x-w/2,x+w/2,Math.min(z0,z0+dir*len),Math.max(z0,z0+dir*len),'#a07040');sign('STUNT JUMP\n'+nm,'#c02020',x+w/2+2.5,z0-dir*3,0);loc('Stunt: '+nm,x,z0,'🛹')};
- ramp(40,-1290,9,5,2.6,-1,'ROUTE 13 LEAP');ramp(-500,-1180,8,5,2.4,-1,'WIND FARM WHIP');ramp(520,-1360,9,5,2.8,-1,'AIRFIELD HOP');ramp(-80,-1920,9,5,2.8,1,'SOUTHERN FLIP');ramp(360,-1580,8,5,2.4,1,'LAKESIDE LAUNCH');ramp(-330,-1460,9,5,2.8,-1,'QUARRY SKIP');
+ ramp(40,-1290,9,5,2.6,-1,'ROUTE 13 LEAP');ramp(-500,-1180,8,5,2.4,-1,'WIND FARM WHIP');ramp(520,-1360,9,5,2.8,-1,'AIRFIELD HOP');ramp(-80,-1920,9,5,2.8,1,'SOUTHERN FLIP');ramp(360,-1580,8,5,2.4,1,'LAKESIDE LAUNCH');/* r607: QUARRY SKIP is the booster jump now (dx603) */
  /* a tunnel of barrels to jump over on Route 13 */for(let i=0;i<5;i++){const bx=40+(i-2)*1.1,bz=-1310;A(new THREE.CylinderGeometry(.45,.45,1.1,12),M(0x4a5a3a),bx,.55,bz);const o={x0:bx-.5,x1:bx+.5,z0:bz-.5,z1:bz+.5,m:g.children[g.children.length-1],kd:'barrel'};q.obs.push(o)}}
 function xpKeys(X){const{q,g,M,A,BX,prop,loc,anim}=X;const K=[[-360,-1540,'on Lookout Mesa'],[-210,-1450,'at the bottom of the quarry'],[300,-1736,'on the gorge jump ledge'],[312,-1284,'in the airfield hangar'],[-580,-1920,'in Hangar 18, Dark Zone 51'],[520,-1460,'behind the bank'],[250,-1590,'at the end of the pier'],[478,-1629,'on the station platform'],[-600,-1215,'under turbine 1'],[90,-1322,'by the crusher'],[300,-1830,'in the Speedway infield'],[150,-1948,'under the dinosaur\'s tail']];
  SV.xk=SV.xk||0;q.keys=[];K.forEach(([x,z,nm],i)=>{if(SV.xk&(1<<i))return;const gp=new THREE.Group();gp.position.set(x,vehGround(q,x,z)+1.1,z);g.add(gp);gp.userData.mv=1;const GM=M(0xffd040,{metalness:.8,roughness:.25,emissive:0x604010});const r=new THREE.Mesh(new THREE.TorusGeometry(.22,.06,8,16),GM);r.position.y=.3;gp.add(r);const s=new THREE.Mesh(BX(.08,.6,.08),GM);s.position.y=-.2;gp.add(s);for(const y of[-.45,-.3]){const t=new THREE.Mesh(BX(.2,.07,.08),GM);t.position.set(.1,y,0);gp.add(t)}const gl=glowSp(0xffd040,.6,1.4);gp.add(gl);q.keys.push({i,x,z,nm,gp})});
@@ -4377,9 +4377,9 @@ function xpGorgeCave(X){const{q,g,M,A,BX,CY,prop,loc,light,lab}=X,z0=GORGE.z0,D=
  for(let i=0;i<10;i++){const x=-DXB+60+i*((2*DXB-120)/9),z=GORGE.z1-2-Math.random()*4;const dr=A(new THREE.SphereGeometry(4+Math.random()*3,10,6,0,Math.PI*2,0,Math.PI/2),M(0xd8b07a,{roughness:1}),x,Y,z);dr.scale.y=.35}
  /* the cave mouth: a dark arch in the south wall */const ar=A(BX(GCV.tx1-GCV.tx0+1.6,1,1.4),RKM,(GCV.tx0+GCV.tx1)/2,Y+5.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx0-.4,Y+2.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx1+.4,Y+2.5,z0-.2);
  /* the tunnel and the chamber: floor, walls, ceiling */const cx=(GCV.cx0+GCV.cx1)/2,cz=(GCV.cz0+GCV.cz1)/2,CW=GCV.cx1-GCV.cx0,CD=GCV.cz1-GCV.cz0,H=6;
- A(BX(GCV.tx1-GCV.tx0,.2,GCV.cz1-z0+1),DRK,(GCV.tx0+GCV.tx1)/2,Y-.1,(z0+GCV.cz1)/2);A(BX(CW,.2,CD),DRK,cx,Y-.1,cz);
+ /* r607: floors run 0.3 m under the walls, the tunnel 1 m out into the riverbed (1 cm lower there), a rock slab under it all */A(BX(GCV.tx1-GCV.tx0+.6,.2,(z0+1)-(GCV.cz1-.3)),DRK,(GCV.tx0+GCV.tx1)/2,Y-.11,((z0+1)+(GCV.cz1-.3))/2);A(BX(CW+.6,.2,CD+.6),DRK,cx,Y-.1,cz);A(BX(CW+1.2+1.6,.6,(z0+1)-(GCV.cz0-1.4)),M(0x2a1e18,{roughness:1}),cx,Y-.32,((z0+1)+(GCV.cz0-1.4))/2);
  for(const sx of[GCV.tx0-.3,GCV.tx1+.3])A(BX(.6,H,z0-GCV.cz1+.6),RKM,sx,Y+H/2,(z0+GCV.cz1)/2);A(BX(GCV.tx1-GCV.tx0+1.2,.6,z0-GCV.cz1+1.4),RKM,(GCV.tx0+GCV.tx1)/2,Y+H+.3,(z0+GCV.cz1)/2);
- A(BX(CW+1.2,H,.6),RKM,cx,Y+H/2,GCV.cz0-.3);for(const[a,b]of[[GCV.cx0-.6,GCV.tx0-.6],[GCV.tx1+.6,GCV.cx1+.6]])A(BX(b-a,H,.6),RKM,(a+b)/2,Y+H/2,GCV.cz1+.3);for(const sx of[GCV.cx0-.3,GCV.cx1+.3])A(BX(.6,H,CD+1.2),RKM,sx,Y+H/2,cz);A(BX(CW+1.2,.6,CD+1.2),RKM,cx,Y+H+.3,cz);
+ A(BX(CW+1.2,H,.6),RKM,cx,Y+H/2,GCV.cz0-.3);for(const[a,b]of[[GCV.cx0-.6,GCV.tx0-.6],[GCV.tx1+.6,GCV.cx1+.6]])A(BX(b-a,H,.6),RKM,(a+b)/2,Y+H/2,GCV.cz1+.3);for(const sx of[GCV.cx0-.3,GCV.cx1+.3])A(BX(.6,H,CD+1.2),RKM,sx,Y+H/2,cz);{/* r607: the ceiling in four pieces round a 3.8 m hole for the lift shaft */const X0=GCV.cx0-.6,X1=GCV.cx1+.6,Z0=GCV.cz0-.6,Z1=GCV.cz1+.6,hx0=GCV.lx-1.9,hx1=GCV.lx+1.9,hz0=GCV.lz-1.9,hz1=GCV.lz+1.9,cb=(a,b,c,d)=>{if(b-a>.01&&d-c>.01)A(BX(b-a,.6,d-c),RKM,(a+b)/2,Y+H+.3,(c+d)/2)};cb(X0,X1,Z0,hz0);cb(X0,X1,hz1,Z1);cb(X0,hx0,hz0,hz1);cb(hx1,X1,hz0,hz1)}
  for(let i=0;i<9;i++){const st=A(new THREE.ConeGeometry(.3+Math.random()*.4,1.2+Math.random()*1.6,6),RKM,GCV.cx0+2+Math.random()*(CW-4),Y+H-.7,GCV.cz0+2+Math.random()*(CD-4));st.rotation.x=Math.PI}
  /* crystals, glowing */const CR=[0x9a50ff,0x40c8ff,0xff60c0];for(let i=0;i<16;i++){const col=CR[i%3],x=i<8?GCV.cx0+.6+Math.random()*1.4:GCV.cx1-.6-Math.random()*1.4,z=GCV.cz0+2+Math.random()*(CD-6),h=.8+Math.random()*1.6;const c2=A(new THREE.ConeGeometry(.18+Math.random()*.2,h,5),M(col,{emissive:col,emissiveIntensity:.8,roughness:.2,metalness:.3,transparent:true,opacity:.9}),x,Y+h/2,z);c2.rotation.z=(Math.random()-.5)*.6;q.deepB.push({x0:x-.35,x1:x+.35,z0:z-.35,z1:z+.35})}
  light(0x9a60ff,1.4,16,GCV.cx0+3,Y+2.5,cz);light(0x40c8ff,1.4,16,GCV.cx1-3,Y+2.5,cz-4);light(0xffb060,1.2,12,(GCV.tx0+GCV.tx1)/2,Y+3,GCV.cz1-1);
@@ -4392,15 +4392,7 @@ function xpGorgeCave(X){const{q,g,M,A,BX,CY,prop,loc,light,lab}=X,z0=GORGE.z0,D=
  prop(GCV.cx0+1.2,cz+3,1.6,'[E] Look at the cave paintings',()=>{snd(250,.06);hint('🎨 Very old paintings in red clay: four doors, a figure running, and one big eye watching. Whoever drew this got out of the hotel a LONG time ago.')}).deep=1;
  {const bn=M(0xe8e0c8);const sx=cx+5,sz=GCV.cz1-4;const sk=A(new THREE.SphereGeometry(.18,8,6),bn,sx,Y+.18,sz);for(let i=0;i<4;i++)A(CY(.03,.03,.5,5),bn,sx+.3+i*.12,Y+.05,sz+.2).rotation.z=Math.PI/2;A(CY(.15,.18,.15,8),M(0xd8b030),sx-.4,Y+.08,sz+.3);
   prop(sx,sz+1,1.3,'[E] Look at the skeleton',()=>{snd(200,.06);hint('💀 An explorer, still wearing a hard hat. In one bony hand: a ticket for BUS 13. Return trip. Unused.')}).deep=1}
- /* the cage lift: a shaft up to the surface, a cage that rides it, a headframe on top */const lx=GCV.lx,lz=GCV.lz;const TM=M(0x6a4a2a,{roughness:1}),IR=M(0x5a5a5a,{metalness:.6,roughness:.5});
- for(const[a,b]of[[-1.6,-1.6],[1.6,-1.6],[-1.6,1.6],[1.6,1.6]])A(BX(.25,D,.25),TM,lx+a,Y+D/2,lz+b);for(let y=Y+3;y<0;y+=4)for(const sd of[-1,1]){A(BX(3.4,.2,.2),TM,lx,y,lz+sd*1.6);A(BX(.2,.2,3.4),TM,lx+sd*1.6,y,lz)}
- const cage=new THREE.Group();cage.position.set(lx,Y,lz);g.add(cage);cage.userData.mv=1;{const fl=new THREE.Mesh(BX(2.6,.12,2.6),IR);fl.position.y=.06;cage.add(fl);const rf=new THREE.Mesh(BX(2.6,.1,2.6),IR);rf.position.y=2.5;cage.add(rf);for(const[a,b]of[[-1.25,-1.25],[1.25,-1.25],[-1.25,1.25],[1.25,1.25]]){const p=new THREE.Mesh(BX(.08,2.5,.08),IR);p.position.set(a,1.25,b);cage.add(p)}for(let i=0;i<7;i++){const bb=new THREE.Mesh(BX(.04,2.4,.04),IR);bb.position.set(-1.25+i*.4,1.2,-1.25);cage.add(bb);const bc=new THREE.Mesh(BX(.04,2.4,.04),IR);bc.position.set(-1.25,1.2,-1.25+i*.4);cage.add(bc);const bd=new THREE.Mesh(BX(.04,2.4,.04),IR);bd.position.set(1.25,1.2,-1.25+i*.4);cage.add(bd)}const lt=new THREE.Mesh(new THREE.SphereGeometry(.12,8,6),M(0xffe0a0,{emissive:0xffc060}));lt.position.y=2.35;cage.add(lt)}
- /* the headframe on the surface */for(const[a,b]of[[-1.8,-1.8],[1.8,-1.8],[-1.8,1.8],[1.8,1.8]]){A(BX(.3,6,.3),TM,lx+a,3,lz+b);X.ob(lx+a-.2,lx+a+.2,lz+b-.2,lz+b+.2)}A(BX(4,.3,.3),TM,lx,6,lz-1.8);A(BX(4,.3,.3),TM,lx,6,lz+1.8);A(BX(.3,.3,4),TM,lx-1.8,6,lz);A(BX(.3,.3,4),TM,lx+1.8,6,lz);const wh=A(new THREE.TorusGeometry(.9,.08,6,16),IR,lx,6.9,lz);wh.rotation.y=Math.PI/2;
- A(BX(3.4,.08,3.4),M(0x5a4a3a),lx,.04,lz);for(const sd of[-1,1])A(BX(3.6,.6,.12),TM,lx,.3,lz+sd*1.9);A(BX(.12,.6,3.6),TM,lx-1.9,.3,lz);
- const sg=lab('OLD GORGE MINE\nLIFT · GOES DOWN',2.6,.9,'#4a2a12','#ffe0a0',60);sg.position.set(lx,4.2,lz+1.95);g.add(sg);loc('Old Gorge Mine',lx,lz,'⛏️');q.mapR.push({x0:lx-2,x1:lx+2,z0:lz-2,z1:lz+2,c:'#6a4a2a'});
- q.gcage={m:cage,x:lx,z:lz};
- prop(lx,lz,1.3,()=>q.lift?'':'[E] Ride the lift up to the surface',()=>liftGo(q,1)).deep=1;
- prop(lx+.4,lz+2.6,1.6,()=>q.lift?'':'⛔ LIFT GOES UP ONLY · NO RIDES DOWN',()=>{})}
+ /* r607: the lift is the design chat's model (gorgeLiftBuild in dx603) */try{gorgeLiftBuild(X,GCV.lx,GCV.lz)}catch(e){conLog('error','gorge lift: '+e.message)}loc('Old Gorge Mine',GCV.lx,GCV.lz,'⛏️');q.mapR.push({x0:GCV.lx-2.2,x1:GCV.lx+2.2,z0:GCV.lz-2.2,z1:GCV.lz+2.2,c:'#6a4a2a'})}
 /* walking at the bottom: the riverbed, the tunnel, the chamber */
 function deepOK(q,x,lz){if(q.deep===2)return pyrDeepOK(q,x,lz);const r=.3,G=GORGE,inG=x>-DXB+.5&&x<DXB-.5&&lz>G.z0+.7&&lz<G.z1-.7,inT=x>GCV.tx0+r&&x<GCV.tx1-r&&lz>GCV.cz1-1&&lz<G.z0+1.2,inC=x>GCV.cx0+r&&x<GCV.cx1-r&&lz>GCV.cz0+r&&lz<GCV.cz1-r;if(!inG&&!inT&&!inC)return false;
  const L=G.ledge;if(x>L.x0-r&&x<L.x1+r&&lz<L.z1+r)return false;for(const[b0,b1]of G.bridges){const W=b1-b0,cx=(b0+b1)/2,mz=(G.z0+G.z1)/2;for(const sd of[-1,1]){const px=cx+sd*(W/2+.2);if(Math.abs(x-px)<.3+r&&Math.abs(lz-mz)<.3+r)return false}}
@@ -7322,7 +7314,7 @@ const vehOnHwy=v=>!!(v.trip&&v.trip.on);
 /* can a vehicle sit at (x, lz, heading h)? circles along its length against the obstacles, the edge and the other vehicles; returns the obstacle hit (or true) */
 function vehOK(q,v,x,lz,h,crush){const d=Math.max(0,v.K.len/2-v.r),n=Math.max(2,Math.ceil(2*d/v.r));if(vehOnHwy(v))return true;
  for(let i=0;i<=n;i++){const u=-d+2*d*i/n,cx=x-Math.sin(h)*u,cz=lz-Math.cos(h)*u;if((cx<-DXB+v.r*.5||cx>DXB-v.r*.5||cz<DZS+v.r*.5||cz>DZN-v.r*.5)&&!inDest(cx,cz)&&!milArea(cx,cz,v.r*.5)){v.hitO='edge';return false}if(v.K.plane&&v.air&&v.y>9)continue;
-  for(const o of obsNear(q,cx,cz))if(!o.off&&!o.ped&&cx>o.x0-v.r&&cx<o.x1+v.r&&cz>o.z0-v.r&&cz<o.z1+v.r){{const pen=(a,b)=>Math.min(a-o.x0+v.r,o.x1+v.r-a,b-o.z0+v.r,o.z1+v.r-b),ox=v.x-Math.sin(v.h)*u,oz=v.z-Math.cos(v.h)*u;if(pen(ox,oz)>0&&pen(cx,cz)<pen(ox,oz)-.002)continue}if(crush&&o.m&&o.kd!='barrel'){destroyObj(q,o,cx,cz,v.owner===SV.pid&&!(q.cop&&v===q.cop.v));continue}v.hitO=o;return false}
+  for(const o of obsNear(q,cx,cz))if(!o.off&&!o.ped&&!(o.top!=null&&v.y>o.top-.3)&&!(v.qsFly&&v.air&&v.y>6)&&cx>o.x0-v.r&&cx<o.x1+v.r&&cz>o.z0-v.r&&cz<o.z1+v.r){{const pen=(a,b)=>Math.min(a-o.x0+v.r,o.x1+v.r-a,b-o.z0+v.r,o.z1+v.r-b),ox=v.x-Math.sin(v.h)*u,oz=v.z-Math.cos(v.h)*u;if(pen(ox,oz)>0&&pen(cx,cz)<pen(ox,oz)-.002)continue}if(crush&&o.m&&o.kd!='barrel'){destroyObj(q,o,cx,cz,v.owner===SV.pid&&!(q.cop&&v===q.cop.v));continue}v.hitO=o;return false}
   for(const w of vehAll(q)){if(w===v||vehOnHwy(w))continue;const dn=vehSegD(w,cx,cz);if(dn<v.r+w.r){const ox=v.x-Math.sin(v.h)*u,oz=v.z-Math.cos(v.h)*u;if(dn>vehSegD(w,ox,oz)+.002)continue;v.hitO=w;return false}}
   if(!(q.seat&&q.seat.v===v)&&!(q.inBus&&q.inBus.v===v)&&!q.fling){const pz=P.z-q.OZ,dn=Math.hypot(cx-P.x,cz-pz);if(dn<v.r+.3){const ox=v.x-Math.sin(v.h)*u,oz=v.z-Math.cos(v.h)*u;if(dn>Math.hypot(ox-P.x,oz-pz)+.002)continue;v.hitO='me';return false}}}return true}
 function vehEngine(q,on){try{if(!on){if(q.eng){q.eng.g.gain.setTargetAtTime(0,AC.currentTime,.1);const e=q.eng;setTimeout(()=>{try{e.o.stop()}catch(x){}},400);q.eng=null}return}if(q.eng)return;AC=AC||new AudioContext();if(AC.state=='suspended')AC.resume();const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();o.type='sawtooth';o.frequency.value=40;f.type='lowpass';f.frequency.value=380;g.gain.value=0;o.connect(f);f.connect(g);g.connect(AC.destination);o.start();g.gain.setTargetAtTime(.05,AC.currentTime,.2);q.eng={o,g};snd(70,.4);setTimeout(()=>snd(90,.3),200)}catch(e){}}
@@ -16022,6 +16014,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r607',['QUARRY SKIP is a real stunt now: drive over the glowing booster strip at speed and up the steel kicker, and it fires you clean over Lookout Mesa onto a landing ramp on the far side','Devil\'s Gorge has a new mine lift: a lined shaft, a headframe with a real rope and wheel, hatches that open as the cage comes up. It only goes up, then the empty cage goes back down by itself','No more gaps in the secret cave floor']],
  ['r606',['All speeds are in km/h now','Fort Blackout is properly on the map: every building and wall, and the main ones have names when you zoom in','The Speedway tyre walls are visible again (you were crashing into invisible tyres). A few other invisible things in the desert are fixed too','The dragster\'s front wheels sit on a real axle on the ground','AI cars no longer blow themselves up on corners and walls','Devil\'s Gorge: falling in is a real fall now (no spinning, you land where you fall). Drive in and the car crashes at the bottom with you','The old gorge lift only goes up','The mining shack moved off the road. Press E at its door to go down the mine (walking in by accident no longer starts it)']],
  ['r605',['Smarter AI drivers (squads, the Wraith autopilot, police, backup cars and getaway cars): they slow down for bends, do three-point turns instead of driving in circles, and back out of dead ends steering the right way','Squads can now drive up the road onto Lookout Mesa and down into the Old Quarry','Squads count as arrived when they reach the place, even if it is inside a building (no more circling outside)','The cars in a squad follow the leader\'s track instead of cutting corners into walls','Police backup cars plan routes round buildings instead of driving straight at you']],
  ['r604',['New look: one clean font (Barlow Semi Condensed) everywhere, in menus, the HUD, signs and screens. It is built into the game, so it works offline too','Your parked X-13 Wraith now always waits in YOUR bay, even when a friend joins and the bay numbers change, and your friends see it there too','The sign with your name moves with your bay']],
@@ -20530,6 +20523,295 @@ function shBox(x0,x1,z0,z1){const a=shW(x0,z0),b=shW(x1,z1);return[Math.min(a[0]
 {const ru9=busRoamUpd;busRoamUpd=function(q,dt){const r=ru9.apply(this,arguments);try{if(q&&q.sh&&q.props&&!q.shProp){q.shProp=1;const d=shW(0,q.sh.SZ+q.sh.D/2+1.2);
    q.props.push({x:d[0],z:d[1],r:2.4,txt:()=>{if(q.seat||q.inBus||q.fling||q.jail||q.court||q.walk||!q.roam)return'';let co=0;try{co=MP.on&&mpOpen().length>0}catch(e){}return co?'[E] Go down the mine (the cage waits for everyone)':'[E] Go down the mine'},act:()=>{if(q.seat||q.inBus||q.fling||q.jail||q.court||q.walk||!q.roam)return;busRoamEnd(q,false)}})}
   if(q&&q.sh&&q.roam&&!q.shTip){const d=shW(0,q.sh.SZ+q.sh.D/2+1.2);if(Math.hypot(P.x-d[0],P.z-q.OZ-d[1])<4){q.shTip=1;hint('⛏️ Press E to go down the mine. You can come back up any time.')}}}catch(e){conLog('error','shack: '+e.message)}return r}}
+
+
+/* =====================================================================================================
+   r607: DEVIL'S GORGE AND THE QUARRY SKIP (docs/design/devils-gorge.md parts 2-3, speedway-and-stunt-jump.md part 3).
+   - THE OLD GORGE MINE LIFT is rebuilt from the design chat's model (mkGorgeLift): a lined shaft through the cave
+     ceiling, a timber headframe, a real rope over the sheave to the winch, hatches over the shaft on the surface.
+     It only goes UP: ride it from the cave, step out at the top, and the empty cage goes back down by itself.
+   - THE CAVE FLOOR: the tunnel floor was built with a negative depth (an inside-out box you could see through).
+     Fixed, every floor piece now runs under its walls, and one solid rock slab sits under the whole cave.
+   - QUARRY SKIP: the old little ramp is replaced by a steel booster ramp (mkBoosterRamp) and a landing ramp on the far
+     side of Lookout Mesa (mkLandingRamp). Drive over the glowing strip at speed and up the kicker: it fires you
+     over the mesa onto the landing ramp. Without the boost it is just a steep kicker.
+   The three model functions below are the design chat's files, copied as they are.
+   ===================================================================================================== */
+function mkGorgeLift(){
+ const g=new THREE.Group();
+ /* ---------- materials ---------- */
+ const timber=new THREE.MeshStandardMaterial({color:0x6e4c2c,roughness:1});
+ const timberD=new THREE.MeshStandardMaterial({color:0x553820,roughness:1});
+ const iron=new THREE.MeshStandardMaterial({color:0x4a4a4e,metalness:.65,roughness:.5});
+ const ironD=new THREE.MeshStandardMaterial({color:0x2e2e32,metalness:.6,roughness:.6});
+ const rust=new THREE.MeshStandardMaterial({color:0x7a3e22,metalness:.4,roughness:.8});
+ const ropeM=new THREE.MeshStandardMaterial({color:0x3a3026,roughness:1});
+ const lampM=new THREE.MeshStandardMaterial({color:0xffe0a0,emissive:0xffb050,emissiveIntensity:1.2});
+ /* timber cribbing for the shaft lining: a 256 px canvas = 2 m × 2 m, 8 logs of 25 cm */
+ const crib=(w,h)=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  for(let i=0;i<8;i++){const y=i*32;const s=88+((i*53)%28);x.fillStyle='rgb('+(s+22)+','+(s-8)+','+(s-38)+')';x.fillRect(0,y,256,32);
+   x.fillStyle='rgba(0,0,0,.35)';x.fillRect(0,y+29,256,3);x.fillStyle='rgba(255,230,190,.08)';x.fillRect(0,y+1,256,3);
+   for(let k=0;k<26;k++){x.fillStyle='rgba(30,15,5,'+(.08+((k*37+i*11)%10)/60)+')';x.fillRect((k*97+i*41)%256,y+4+((k*13)%22),20+((k*29)%40),1)}
+   const j=(i*71)%256;x.fillStyle='rgba(0,0,0,.4)';x.fillRect(j,y,2,32)}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(w/2,h/2);return new THREE.MeshStandardMaterial({map:t,roughness:1})};
+ /* sign texture: text on a board, drawn at the board's real proportions */
+ const signMat=(w,h,lines,bg,fg)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const x=c.getContext('2d');
+  x.fillStyle=bg;x.fillRect(0,0,c.width,c.height);x.strokeStyle=fg;x.lineWidth=6;x.strokeRect(8,8,c.width-16,c.height-16);x.fillStyle=fg;x.textAlign='center';x.textBaseline='middle';
+  const n=lines.length;lines.forEach((L,i)=>{x.font=(i?'600 ':'bold ')+Math.round(c.height*(n==1?.42:i?.17:.3))+'px "Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';x.fillText(L,256,c.height*(n==1?.52:(i?.72:.38)),c.width-90)});
+  const t=new THREE.CanvasTexture(c);return new THREE.MeshStandardMaterial({map:t,roughness:.9})};
+ const BX=(w,h,d,m,x,y,z,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);(p||g).add(o);return o};
+ const CY=(r,len,m,x,y,z,p,seg)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,seg||10),m);o.position.set(x,y,z);(p||g).add(o);return o};
+ /* a beam from point a to point b */
+ const beam=(a,b,t,m,p)=>{const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),d=B.clone().sub(A),L=d.length();const o=new THREE.Mesh(new THREE.BoxGeometry(t,L,t),m);o.position.copy(A).add(B).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());(p||g).add(o);return o};
+
+ /* ======================= THE SHAFT ======================= */
+ const TOP=-.18,BOT=-24,SH=TOP-BOT;/* lining from the ceiling up to just under the surface collar */
+ for(const sx of[-1,1])BX(.2,SH,3.8,crib(3.8,SH),sx*1.8,(TOP+BOT)/2,0);/* ±x walls run the full 3.8 m and cover the corners */
+ for(const sz of[-1,1])BX(3.4,SH,.2,crib(3.4,SH),0,(TOP+BOT)/2,sz*1.8);
+ /* guide rails the cage runs on: from the cave floor to 2.9 m up the headframe */
+ for(const sx of[-1,1]){BX(.16,32.9,.2,timberD,sx*1.62,(-30+2.9)/2,0);BX(.25,.2,.2,timberD,sx*1.825,2.8,0)}
+ /* in the cave: an open frame from the floor (-30) to the ceiling (-24) */
+ for(const sx of[-1,1])for(const sz of[-1,1])BX(.25,6,.25,timber,sx*1.8,-27,sz*1.8);
+ for(const sx of[-1,1])BX(.25,6,.25,timber,sx*1.8,-27,0);/* the posts behind the guides */
+ for(const sx of[-1,1])BX(.18,.22,3.35,timber,sx*1.8,-27,0);/* side rails at waist height (between the corner posts) */
+ BX(3.35,.22,.18,timber,0,-27,1.8);/* back rail; the front stays open, that is the way in */
+ for(const sx of[-1,1])BX(.4,.3,4.4,timber,sx*2.0,-24.15,0);/* the collar under the cave ceiling, hiding the cut */
+ for(const sz of[-1,1])BX(3.6,.3,.4,timber,0,-24.15,sz*2.0);
+ /* bottom: two buffer blocks the cage lands on (the cage floor sits on the cave floor between them) */
+ for(const sx of[-1,1])BX(.3,.18,.5,ironD,sx*1.45,-29.91,1.0);
+ /* a small sign in the cave on the front-left post */
+ {const m=signMat(1.2,.4,['▲ LIFT TO SURFACE'],'#4a2a12','#ffe0a0');const s=BX(1.2,.4,.04,[timberD,timberD,timberD,timberD,timberD,m],-1.8,-28.2,-1.8-.125-.02);s.userData.sign=1}
+
+ /* ======================= THE SURFACE COLLAR AND HATCHES ======================= */
+ for(const sx of[-1,1])BX(.5,.3,4.4,timber,sx*1.95,-.03,0);/* x-beams run the full length */
+ for(const sz of[-1,1])BX(3.4,.3,.5,timber,0,-.03,sz*1.95);/* z-beams sit between them */
+ /* lips between the collar and the hinge line, either side of the guide rails */
+ for(const sx of[-1,1])for(const sz of[-1,1])BX(.16,.3,1.6,timber,sx*1.62,-.03,sz*.9);
+ const parts={};
+ for(const sx of[-1,1]){const h=new THREE.Group();h.position.set(sx*1.54,.12,0);g.add(h);
+  const leaf=new THREE.Group();h.add(leaf);/* planks across, two battens underneath */
+  /* four planks, with a slot in the middle so the open leaf clears the guide rail */
+  for(const[z,i]of[[-1.305,0],[-.51,1],[.51,0],[1.305,1]])BX(1.54,.07,z<-1||z>1?.79:.8,i?timber:timberD,-sx*.77,-.035,z,leaf);
+  for(const bz of[-1.1,1.1])BX(1.4,.06,.14,timberD,-sx*.77,-.1,bz,leaf);
+  BX(.08,.04,.5,iron,-sx*.06,.02,-1.0,leaf);BX(.08,.04,.5,iron,-sx*.06,.02,1.0,leaf);/* hinge straps */
+  parts[sx<0?'hatchL':'hatchR']=h}
+
+ /* ======================= THE HEADFRAME ======================= */
+ const LG=7.8;/* legs stand on the collar corners (top 0.12) and go up to 7.8 */
+ for(const sx of[-1,1])for(const sz of[-1,1])BX(.3,LG-.12,.3,timber,sx*2.05,(LG+.12)/2,sz*2.05);
+ for(const y of[2.8,5.3]){for(const sz of[-1,1])BX(3.8,.2,.2,timber,0,y,sz*2.05);for(const sx of[-1,1])BX(.2,.2,3.8,timber,sx*2.05,y,0)}
+ /* diagonal braces on the sides and the back, in the upper two panels (the front stays open to walk out) */
+ for(const[y0,y1]of[[2.9,5.2],[5.4,7.7]]){for(const sx of[-1,1])beam([sx*2.05,y0,-1.9],[sx*2.05,y1,1.9],.16,timberD);beam([-1.9,y0,2.05],[1.9,y1,2.05],.16,timberD)}
+ /* the cap */for(const sx of[-1,1])BX(.3,.3,4.4,timber,sx*2.05,LG+.15,0);for(const sz of[-1,1])BX(3.8,.3,.3,timber,0,LG+.15,sz*2.05);
+ /* the back legs, leaning down towards the winch */
+ for(const sx of[-1,1])beam([sx*2.0,LG,2.05],[sx*1.6,0,6.4],.28,timber);
+ for(const sx of[-1,1])BX(.4,.1,.4,ironD,sx*1.6,.05,6.4);/* footing plates */
+ beam([-1.75,3.9,4.4],[1.75,3.9,4.4],.18,timberD);/* a cross-tie between the back legs */
+ /* the sheave: bearing beams, blocks, axle, wheel */
+ const SY=9.0,SZ=1.0,SR=1.0;
+ for(const sx of[-1,1]){BX(.25,.3,4.4,timberD,sx*.35,LG+.45,0);BX(.25,.55,.4,ironD,sx*.35,LG+.6+.275,SZ)}
+ CY(.07,.95,iron,0,SY,SZ).rotation.z=Math.PI/2;
+ {const s=new THREE.Group();s.position.set(0,SY,SZ);g.add(s);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(SR-.04,.07,8,36),rust);rim.rotation.y=Math.PI/2;s.add(rim);
+  for(const ox of[-.06,.06]){const fl=new THREE.Mesh(new THREE.TorusGeometry(SR+.02,.025,6,36),rust);fl.rotation.y=Math.PI/2;fl.position.x=ox;s.add(fl)}
+  for(let i=0;i<6;i++){const sp=new THREE.Mesh(new THREE.BoxGeometry(.05,SR*2-.12,.07),rust);sp.rotation.x=i*Math.PI/6;s.add(sp)}
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.2,12),ironD);hub.rotation.z=Math.PI/2;s.add(hub);parts.sheave=s}
+ /* the sign over the front */
+ {const m=signMat(3.6,1.0,['OLD GORGE MINE','LIFT GOES UP ONLY · NO RIDES DOWN'],'#4a2a12','#ffe0a0');BX(3.6,1.0,.06,[timberD,timberD,timberD,timberD,timberD,m],0,3.7,-2.2-.03)}
+ /* a lamp under the cap, front */
+ {BX(.1,.3,.1,iron,0,LG-.15,-2.05+.2);const l=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),lampM);l.position.set(0,LG-.38,-2.05+.2);g.add(l)}
+
+ /* ======================= THE WINCH ======================= */
+ const WZ=8.5,WY=1.1;
+ BX(2.4,.3,2.2,timberD,0,.15,WZ);/* skid: x ±1.2, z 7.4 … 9.6 */
+ for(const sx of[-1,1]){BX(.12,.95,.8,ironD,sx*.75,.3+.475,WZ)}
+ CY(.06,1.62,iron,0,WY,WZ).rotation.z=Math.PI/2;
+ {const d=new THREE.Group();d.position.set(0,WY,WZ);g.add(d);
+  const wrap=new THREE.Mesh(new THREE.CylinderGeometry(.47,.47,1.0,18),ropeM);wrap.rotation.z=Math.PI/2;d.add(wrap);
+  for(const sx of[-1,1]){const f=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,.06,18),rust);f.rotation.z=Math.PI/2;f.position.x=sx*.53;d.add(f)}
+  /* wraps of rope, so it reads as rope and you can see it turn */for(let i=0;i<7;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(.475,.025,5,18),new THREE.MeshStandardMaterial({color:0x2a221a,roughness:1}));r.rotation.y=Math.PI/2;r.position.x=-.42+i*.14;d.add(r)}
+  const mark=new THREE.Mesh(new THREE.BoxGeometry(.9,.04,.08),new THREE.MeshStandardMaterial({color:0xc8a040,roughness:.8}));mark.position.set(0,.5,0);d.add(mark);parts.drum=d}
+ /* the engine and its exhaust, the brake lever */
+ BX(1.2,.8,.7,new THREE.MeshStandardMaterial({color:0x5a6a4a,metalness:.4,roughness:.6}),0,.7,9.15);
+ CY(.06,.9,ironD,.4,1.55,9.3);CY(.08,.08,ironD,.4,2.04,9.3);
+ BX(.08,.08,.08,ironD,1.0,.4,WZ-.3);beam([1.0,.4,WZ-.3],[1.05,1.5,WZ-.55],.06,iron);
+ {const k=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),new THREE.MeshStandardMaterial({color:0xb02020,roughness:.6}));k.position.set(1.05,1.53,WZ-.56);g.add(k)}
+
+ /* ======================= THE ROPE ======================= */
+ /* back run: from the sheave over to the top of the drum (outer tangent of the two circles, in the y-z plane) */
+ {const c1=[SZ,SY],r1=SR+.02,c2=[WZ,WY],r2=.5;const dz=c2[0]-c1[0],dy=c2[1]-c1[1],L=Math.hypot(dz,dy),ux=dz/L,uy=dy/L,px=-uy,py=ux;/* perpendicular, pointing up/back */
+  const ct=(r1-r2)/L,st=Math.sqrt(1-ct*ct),nz=ux*ct+px*st,ny=uy*ct+py*st;
+  beam([0,c1[1]+r1*ny,c1[0]+r1*nz],[0,c2[1]+r2*ny,c2[0]+r2*nz],.05,ropeM)}
+ /* front run: hangs straight down from the front of the sheave (z = 0) to the cage shackle */
+ {const geo=new THREE.CylinderGeometry(.025,.025,1,6);geo.translate(0,-.5,0);const r=new THREE.Mesh(geo,ropeM);r.position.set(0,SY,0);g.add(r);parts.rope=r}
+
+ /* ======================= THE CAGE ======================= */
+ const cage=new THREE.Group();g.add(cage);parts.cage=cage;
+ BX(2.6,.12,2.6,ironD,0,.06,0,cage);/* floor */
+ for(let i=0;i<6;i++)BX(2.5,.01,.06,iron,0,.125,-1.0+i*.4,cage);/* tread strips on the floor, raised 5 mm */
+ BX(2.6,.1,2.6,iron,0,2.5,0,cage);/* roof */
+ for(const sx of[-1,1])for(const sz of[-1,1])BX(.08,2.33,.08,iron,sx*1.26,1.285,sz*1.26,cage);
+ /* bars: back (+z) and both sides */
+ for(let i=1;i<7;i++){const t=-1.26+i*.36;BX(.04,2.33,.04,iron,t,1.285,1.26,cage);BX(.04,2.33,.04,iron,1.26,1.285,t,cage);BX(.04,2.33,.04,iron,-1.26,1.285,t,cage)}
+ for(const y of[.5,1.15]){BX(2.44,.06,.06,iron,0,y,1.26,cage);for(const sx of[-1,1])BX(.06,.06,2.44,iron,sx*1.26,y,0,cage)}
+ /* guide shoes on both sides, touching the rails */
+ for(const sx of[-1,1])for(const y of[.3,2.25])BX(.24,.3,.3,ironD,sx*1.42,y,0,cage);
+ /* on the roof: a cross bar, the shackle the rope hangs from, and a lamp under the roof */
+ BX(2.4,.15,.18,ironD,0,2.625,0,cage);
+ {const sh=new THREE.Mesh(new THREE.TorusGeometry(.1,.025,6,12),iron);sh.position.set(0,2.8,0);cage.add(sh);BX(.06,.12,.06,iron,0,2.72,0,cage)}
+ {const l=new THREE.Mesh(new THREE.SphereGeometry(.1,10,8),lampM);l.position.set(0,2.33,0);cage.add(l);BX(.04,.1,.04,iron,0,2.42,0,cage)}
+ const ROPE_Y=2.9;/* where the rope joins the shackle, above the cage floor */
+ /* the gate: a hinged grille on the front, opening outward */
+ {const gt=new THREE.Group();gt.position.set(-1.22,.12,-1.3);cage.add(gt);
+  for(const y of[.06,1.15,2.2])BX(2.44,.06,.05,iron,1.22,y,0,gt);
+  for(let i=0;i<8;i++)BX(.035,2.2,.035,iron,.06+i*.33,1.13,0,gt);
+  BX(.06,.06,.12,rust,2.36,1.15,-.05,gt);/* latch */parts.gate=gt}
+
+ /* ======================= ONE CALL MOVES EVERYTHING ======================= */
+ const LIM=(v,a,b)=>Math.max(a,Math.min(b,v));
+ g.userData.parts=parts;
+ g.userData.setLift=function(y,gate,hatch){y=LIM(y,-30,0);cage.position.y=y;
+  parts.rope.scale.y=SY-(y+ROPE_Y);
+  parts.sheave.rotation.x=(y+30)/SR;/* the rope moving up turns the wheel */
+  parts.drum.rotation.x=(y+30)/.5;/* and winds it onto the drum */
+  parts.gate.rotation.y=LIM(gate==null?0:gate,0,1)*1.55;
+  const h=LIM(hatch==null?0:hatch,0,1)*1.75;parts.hatchL.rotation.z=h;parts.hatchR.rotation.z=-h};
+ g.userData.setLift(-30,1,0);
+ return g}
+function mkBoosterRamp(){
+ const g=new THREE.Group();
+ const steel=new THREE.MeshStandardMaterial({color:0x6a6e74,metalness:.6,roughness:.45});
+ const steelD=new THREE.MeshStandardMaterial({color:0x3a3d42,metalness:.55,roughness:.55});
+ const red=new THREE.MeshStandardMaterial({color:0xc02a1e,metalness:.3,roughness:.5});
+ const yel=new THREE.MeshStandardMaterial({color:0xe0b020,metalness:.2,roughness:.6});
+ const lampM=new THREE.MeshStandardMaterial({color:0x60e0ff,emissive:0x30c8ff,emissiveIntensity:1});
+ const BX=(w,h,d,m,x,y,z,p)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);(p||g).add(o);return o};
+ /* deck height along the ramp (the top of the deck plates) */
+ const P=[[5,0],[-1,1.6],[-5,5.0]];
+ const deckY=z=>{if(z>=P[1][0])return P[0][1]+(P[1][1]-P[0][1])*(P[0][0]-z)/(P[0][0]-P[1][0]);return P[1][1]+(P[2][1]-P[1][1])*(P[1][0]-z)/(P[1][0]-P[2][0])};
+ /* chevrons pointing -z: a 256 px tile = 2 m × 2 m */
+ const chev=(w,l,glow)=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle=glow?'#0a1a22':'#4a4e54';x.fillRect(0,0,256,256);
+  if(!glow){x.fillStyle='rgba(255,255,255,.06)';for(let i=0;i<256;i+=16)for(let j=(i/16%2)*8;j<256;j+=16)x.fillRect(j,i,6,2)}/* tread plate */
+  x.strokeStyle=glow?'#60e8ff':'#e0b020';x.lineWidth=22;x.lineCap='square';for(const y0 of[60,188]){x.beginPath();x.moveTo(40,y0+40);x.lineTo(128,y0-30);x.lineTo(216,y0+40);x.stroke()}
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(w/2,l/2);
+  return new THREE.MeshStandardMaterial(glow?{map:t,emissiveMap:t,emissive:0xffffff,emissiveIntensity:.9,roughness:.6}:{map:t,metalness:.5,roughness:.5})};
+ const parts={lights:[]};
+ /* ---------- the deck: two plates, each with its top face on the profile line ---------- */
+ const T=.15;
+ for(let i=0;i<2;i++){const[z0,y0]=P[i],[z1,y1]=P[i+1],L=Math.hypot(z1-z0,y1-y0),a=Math.atan2(y1-y0,z0-z1);/* angle up towards -z */
+  const nz=Math.sin(a),ny=Math.cos(a);/* deck normal (points up and towards +z) */
+  const mats=[steelD,steelD,chev(6.2,L,false),steelD,steelD,steelD];
+  const d=new THREE.Mesh(new THREE.BoxGeometry(6.2,T,L),mats);d.position.set(0,(y0+y1)/2-ny*T/2,(z0+z1)/2-nz*T/2);d.rotation.x=a;g.add(d);
+  /* side rails on the deck edges: red, 0.5 m tall */
+  for(const sx of[-1,1]){const r=new THREE.Mesh(new THREE.BoxGeometry(.12,.5,L),red);r.position.set(sx*3.06,(y0+y1)/2+ny*.25,(z0+z1)/2+nz*.25);r.rotation.x=a;g.add(r)}}
+ /* the kink between the two plates: a round pipe hides the seam */
+ {const k=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,6.2,12),steel);k.rotation.z=Math.PI/2;k.position.set(0,P[1][1]-.1,P[1][0]);g.add(k)}
+ /* the lip: a yellow steel edge at the top */
+ BX(6.2,.18,.22,yel,0,P[2][1]-.09,P[2][0]-.11);
+ /* ---------- the frame underneath ---------- */
+ const post=(x,z)=>{const top=deckY(z)-T/Math.cos(z>=P[1][0]?Math.atan2(1.6,6):Math.atan2(3.4,4))-.02;if(top<.15)return;BX(.18,top,.18,steelD,x,top/2,z);BX(.4,.04,.4,steelD,x,.02,z)};
+ for(const z of[2,-1,-3,-4.9])for(const x of[-2.8,-1,1,2.8])post(x,z);
+ /* cross braces under the kicker, and the open front closed with a mesh grille so nothing drives under it */
+ for(const z of[-3,-4.9]){const h=deckY(z)-.6;BX(5.8,.12,.12,steelD,0,h,z);BX(5.8,.12,.12,steelD,0,h/2,z)}
+ for(const sx of[-1,1]){/* side bracing of the kicker */const zz=[-1,-3,-4.9];for(let i=0;i<2;i++){const a=new THREE.Vector3(sx*2.9,.2,zz[i]),b=new THREE.Vector3(sx*2.9,deckY(zz[i+1])-.5,zz[i+1]),d=b.clone().sub(a);const m=new THREE.Mesh(new THREE.BoxGeometry(.1,d.length(),.1),steelD);m.position.copy(a).add(b).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(m)}}
+ {const c=document.createElement('canvas');c.width=512;c.height=416;const x=c.getContext('2d');x.clearRect(0,0,512,416);x.strokeStyle='#2a2d32';x.lineWidth=6;for(let i=-416;i<512;i+=34){x.beginPath();x.moveTo(i,0);x.lineTo(i+416,416);x.stroke();x.beginPath();x.moveTo(i+416,0);x.lineTo(i,416);x.stroke()}
+  const t=new THREE.CanvasTexture(c);const gm=new THREE.MeshStandardMaterial({map:t,transparent:true,alphaTest:.5,side:THREE.DoubleSide,metalness:.5,roughness:.6});
+  const gr=new THREE.Mesh(new THREE.PlaneGeometry(6.0,4.85),gm);gr.position.set(0,4.85/2,-5.26);g.add(gr)}
+ /* ---------- lamps along the sides of the deck ---------- */
+ for(const sx of[-1,1])for(const z of[4,1.5,-1.5,-3.8]){const y=deckY(z)+.55;const l=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),lampM);l.position.set(sx*3.06,y+(z<-1?.12:0),z);g.add(l);parts.lights.push(l)}
+ /* ---------- the booster strip in front ---------- */
+ {const m=chev(5,12,true);const s=new THREE.Mesh(new THREE.BoxGeometry(5,.04,12),[steelD,steelD,m,steelD,steelD,steelD]);s.position.set(0,.02,11);g.add(s);parts.strip=s;
+  for(const sx of[-1,1])BX(.25,.06,12,yel,sx*2.625,.03,11)}
+ /* ---------- the sign ---------- */
+ {BX(.2,3.2,.2,steelD,4.2,1.6,9);const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.fillStyle='#c02a1e';x.fillRect(0,0,512,256);x.strokeStyle='#fff';x.lineWidth=10;x.strokeRect(10,10,492,236);x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';
+  x.font='bold 74px "Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';x.fillText('QUARRY SKIP',256,84,470);x.font='600 40px "Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';x.fillText('BOOSTER · OVER THE MESA',256,160,470);x.fillText('FULL SEND ▶',256,208,470);
+  const sm=new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:.7});BX(2.0,1.0,.06,[steelD,steelD,steelD,steelD,sm,steelD],4.2,2.9,9.13)}
+ g.userData.parts=parts;
+ return g}
+function mkLandingRamp(){
+ const g=new THREE.Group();
+ const steelD=new THREE.MeshStandardMaterial({color:0x3a3d42,metalness:.55,roughness:.55});
+ const yel=new THREE.MeshStandardMaterial({color:0xe0b020,metalness:.2,roughness:.6});
+ const red=new THREE.MeshStandardMaterial({color:0xc02a1e,metalness:.3,roughness:.5});
+ const BX=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);g.add(o);return o};
+ const W=10.4,P=[[6.5,4.4],[1.5,1.0],[-6.5,0]],T=.15;
+ const plate=(w,l)=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');x.fillStyle='#4a4e54';x.fillRect(0,0,256,256);x.fillStyle='rgba(255,255,255,.06)';for(let i=0;i<256;i+=16)for(let j=(i/16%2)*8;j<256;j+=16)x.fillRect(j,i,6,2);
+  /* a yellow target band every 2 m */x.fillStyle='#e0b020';x.fillRect(0,120,256,16);
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(w/2,l/2);return new THREE.MeshStandardMaterial({map:t,metalness:.5,roughness:.5})};
+ const deckY=z=>z>=P[1][0]?P[1][1]+(P[0][1]-P[1][1])*(z-P[1][0])/(P[0][0]-P[1][0]):P[2][1]+(P[1][1]-P[2][1])*(z-P[2][0])/(P[1][0]-P[2][0]);
+ for(let i=0;i<2;i++){const[z0,y0]=P[i],[z1,y1]=P[i+1],L=Math.hypot(z1-z0,y1-y0),a=Math.atan2(y1-y0,z0-z1);/* negative: going down towards -z */
+  const nz=Math.sin(a),ny=Math.cos(a);
+  const d=new THREE.Mesh(new THREE.BoxGeometry(W,T,L),[steelD,steelD,plate(W,L),steelD,steelD,steelD]);d.position.set(0,(y0+y1)/2-ny*T/2,(z0+z1)/2-nz*T/2);d.rotation.x=a;g.add(d);
+  if(i==0)for(const sx of[-1,1]){const r=new THREE.Mesh(new THREE.BoxGeometry(.12,.35,L),red);r.position.set(sx*5.06,(y0+y1)/2+ny*.175,(z0+z1)/2+nz*.175);r.rotation.x=a;g.add(r)}}
+ {const k=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,W,12),steelD);k.rotation.z=Math.PI/2;k.position.set(0,P[1][1]-.1,P[1][0]);g.add(k)}
+ /* the top edge and the back wall (solid steel panel with yellow and black stripes) */
+ BX(W,.18,.22,yel,0,P[0][1]-.09,P[0][0]+.11);
+ {const c=document.createElement('canvas');c.width=512;c.height=216;const x=c.getContext('2d');x.fillStyle='#1a1a1a';x.fillRect(0,0,512,216);x.fillStyle='#e0b020';for(let i=-216;i<512;i+=48){x.beginPath();x.moveTo(i,216);x.lineTo(i+24,216);x.lineTo(i+24+216,0);x.lineTo(i+216,0);x.fill()}
+  const m=new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:.7});/* 512 × 216 = 10.4 m × 4.4 m */
+  BX(W,P[0][1]-.18,.2,[steelD,steelD,steelD,steelD,m,steelD],0,(P[0][1]-.18)/2,P[0][0]+.12)}
+ /* legs under the steep part, and the sides closed with grilles */
+ for(const z of[5,3])for(const x of[-4.8,-1.6,1.6,4.8]){const h=deckY(z)-T/Math.cos(Math.atan2(3.4,5))-.02;BX(.18,h,.18,steelD,x,h/2,z);BX(.4,.04,.4,steelD,x,.02,z)}
+ {const c=document.createElement('canvas');c.width=512;c.height=512;const x=c.getContext('2d');x.strokeStyle='#2a2d32';x.lineWidth=6;for(let i=-512;i<512;i+=34){x.beginPath();x.moveTo(i,0);x.lineTo(i+512,512);x.stroke();x.beginPath();x.moveTo(i+512,0);x.lineTo(i,512);x.stroke()}
+  const t=new THREE.CanvasTexture(c);const gm=new THREE.MeshStandardMaterial({map:t,transparent:true,alphaTest:.5,side:THREE.DoubleSide,metalness:.5,roughness:.6});
+  /* a triangle-ish side panel under the steep part: a shape following the deck */
+  const sh=new THREE.Shape();sh.moveTo(P[1][0],0);sh.lineTo(P[0][0],0);sh.lineTo(P[0][0],P[0][1]-.2);sh.lineTo(P[1][0],P[1][1]-.2);sh.lineTo(P[1][0],0);
+  const geo=new THREE.ShapeGeometry(sh);/* map UVs to metres / 4 so the grille is not stretched */const uv=geo.attributes.uv,pos=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,pos.getX(i)/4,pos.getY(i)/4);t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  for(const sx of[-1,1]){const m=new THREE.Mesh(geo,gm);m.rotation.y=-Math.PI/2;m.position.x=sx*5.1;g.add(m)}}
+ return g}
+
+/* ---------- obstacles with a height: a car above `top` drives over them (the space under a ramp, a ramp's back wall) ---------- */
+/* (the check is in vehOK, patched in build.py) */
+
+/* ---------- the gorge lift ---------- */
+const GLIFT={y:-30,gate:1,hatch:0,ph:'bottom',t:0,ride:0,m:null};
+function gorgeLiftBuild(X,lx,lz){const{q,g}=X;const m=mkGorgeLift();m.position.set(lx,0,lz);m.rotation.y=Math.PI;m.userData.mv=1;m.userData.noChunk=1;g.add(m);GLIFT.m=m;GLIFT.ph='bottom';GLIFT.y=-30;GLIFT.gate=1;GLIFT.hatch=0;GLIFT.ride=0;m.userData.setLift(-30,1,0);
+ /* local (before the half turn) to world */const W=(x,z)=>[lx-x,lz-z],box=(x0,x1,z0,z1)=>{const a=W(x0,z0),b=W(x1,z1);return[Math.min(a[0],b[0]),Math.max(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[1],b[1])]};
+ for(const sx of[-1,1])for(const sz of[-1,1]){const r=box(sx*2.05-.15,sx*2.05+.15,sz*2.05-.15,sz*2.05+.15);X.ob(r[0],r[1],r[2],r[3])}
+ for(const sx of[-1,1]){const r=box(sx*1.6-.15,sx*1.6+.15,6.25,6.55);X.ob(r[0],r[1],r[2],r[3])}{const r=box(-1.2,1.2,7.4,9.6);X.ob(r[0],r[1],r[2],r[3])}
+ q.deepB=q.deepB||[];for(const[a,b]of[[-1.8,-1.8],[1.8,-1.8],[-1.8,1.8],[1.8,1.8],[-1.8,0],[1.8,0]]){const r=box(a-.125,a+.125,b-.125,b+.125);q.deepB.push({x0:r[0],x1:r[1],z0:r[2],z1:r[3]})}
+ /* the hatches are floor */q.plates.push({x0:lx-1.7,x1:lx+1.7,z0:lz-1.7,z1:lz+1.7,y:.12});
+ q.gcage={m:m.userData.parts.cage,x:lx,z:lz};
+ X.prop(lx,lz,1.3,()=>{if(GLIFT.ride)return'';return GLIFT.ph=='bottom'?'[E] Ride the lift up to the surface':'⏳ The cage is on its way down...'},()=>liftGo(q,1)).deep=1}
+liftGo=function(q,dir){if(dir<0||q.lift||!GLIFT.m||GLIFT.ph!='bottom')return;GLIFT.ph='shut';GLIFT.t=0;GLIFT.ride=1;q.lift={dir:1,t:0};q.deep=1;q.deepY=-30;for(const k in keys)keys[k]=0;snd(140,.4);hint('⬆️ The gate clangs shut. The old cage rattles and starts to climb...')};
+const glEase=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+liftTick=function(q,dt){const L=GLIFT;if(!L.m)return;L.t+=dt;const lx=q.gcage.x,lz=q.gcage.z;
+ if(L.ph=='shut'){L.gate=Math.max(0,1-L.t/.6);if(L.t>=.6){L.ph='up';L.t=0}}
+ else if(L.ph=='up'){const u=Math.min(1,L.t/7);L.y=-30+30*glEase(u);if(L.y>-4)L.hatch=Math.min(1,L.hatch+dt);if(Math.random()<dt*3)snd(110+Math.random()*50,.05);if(u>=1){L.y=0;L.hatch=1;L.ph='open';L.t=0;snd(200,.3)}}
+ else if(L.ph=='open'){L.gate=Math.min(1,L.t/.6);if(L.t>=.6){L.ph='wait';L.t=0;if(L.ride){L.ride=0;q.lift=null;q.deep=0;q.deepY=0;P.x=lx;P.z=lz+2.6+q.OZ;P.dy=0;hint('⛏️ Daylight. You step out of the OLD GORGE MINE headframe, south of the gorge. (The lift only goes up.)')}}}
+ else if(L.ph=='wait'){if(L.t>=3){L.ph='close';L.t=0}}
+ else if(L.ph=='close'){L.gate=Math.max(0,1-L.t/.6);if(L.t>=.6){L.ph='down';L.t=0}}
+ else if(L.ph=='down'){const u=Math.min(1,L.t/7);L.y=-30*glEase(u);if(L.y<-3)L.hatch=Math.max(0,L.hatch-dt);if(u>=1){L.y=-30;L.hatch=0;L.ph='reopen';L.t=0}}
+ else if(L.ph=='reopen'){L.gate=Math.min(1,L.t/.6);if(L.t>=.6){L.ph='bottom';L.t=0}}
+ const moving=L.ph=='up'||L.ph=='down';const cg=L.m.userData.parts.cage;try{L.m.userData.setLift(L.y,L.gate,L.hatch);cg.rotation.z=moving?Math.sin(L.t*9)*.004:0}catch(e){}
+ /* you ride on the cage floor */if(L.ride&&q.lift){P.x=lx;P.z=lz+q.OZ;P.dy=L.y+.12+(moving?Math.sin(L.t*14)*.02:0);q.deepY=L.y}};
+
+/* ---------- the Quarry Skip booster jump ---------- */
+const QSKIP={bx:-330,bz:-1464,lx:-330,lz:-1625.1,m:null};
+let LANDSOFT=null;
+function quarrySkipBuild(X){const{q,g,rect,loc}=X;const B=QSKIP;
+ const b=mkBoosterRamp();b.position.set(B.bx,0,B.bz);g.add(b);b.userData.noChunk=1;B.m=b;
+ const l=mkLandingRamp();l.position.set(B.lx,0,B.lz);g.add(l);
+ /* the decks, for the wheels: (local z, height) run-in (+5,0)→(-1,1.6), kicker (-1,1.6)→(-5,5.0) */
+ q.ramps.push({x0:B.bx-2.9,x1:B.bx+2.9,z0:B.bz+5,len:6,H:1.6,y0:0,dir:-1,nolink:1});
+ q.ramps.push({x0:B.bx-2.9,x1:B.bx+2.9,z0:B.bz-1,len:4,H:3.4,y0:1.6,dir:-1,stunt:'QUARRY SKIP',sj:1,boost:1,nolink:1});
+ /* landing: (local z, height) (-6.5,0)→(+1.5,1.0)→(+6.5,4.4), written as ramps rising towards +z (the ground code takes the higher of ramp and ground) */
+ q.ramps.push({x0:B.lx-5,x1:B.lx+5,z0:B.lz-6.5,len:8,H:1.0,y0:0,dir:1,land:1,nolink:1});
+ q.ramps.push({x0:B.lx-5,x1:B.lx+5,z0:B.lz+1.5,len:5,H:3.4,y0:1.0,dir:1,land:1,nolink:1});
+ const ob=(x0,x1,z0,z1,top)=>{const o={x0,x1,z0,z1};if(top!=null)o.top=top;q.obs.push(o);return o};
+ for(const sx of[-1,1])ob(B.bx+Math.min(sx*3,sx*3.12),B.bx+Math.max(sx*3,sx*3.12),B.bz-5,B.bz+3.5,5.6);/* (nothing under the kicker: the ground code already stops a car stepping up more than 0.6 m, so you cannot drive under the deck) */ob(B.bx+4.1,B.bx+4.3,B.bz+8.9,B.bz+9.1);
+ ob(B.lx-5.2,B.lx+5.2,B.lz+6.4,B.lz+6.7,4.4);for(const sx of[-1,1])ob(B.lx+Math.min(sx*5,sx*5.12),B.lx+Math.max(sx*5,sx*5.12),B.lz+1.5,B.lz+6.5,4.6);q.obsDirty=1;
+ rect(B.bx-3.1,B.bx+3.1,B.bz-5,B.bz+17,'#a07040');rect(B.lx-5.2,B.lx+5.2,B.lz-6.5,B.lz+6.7,'#a07040');loc('Stunt: QUARRY SKIP',B.bx,B.bz,'🛹');
+ /* the strip's chevrons run forward, the lamps pulse */let t=0,fl=0;q.anims.push({x:B.bx,z:B.bz,r:150,f:dt=>{t+=dt;const P2=b.userData.parts;try{P2.strip.material[2].map.offset.y-=dt*1.5;const lm=P2.lights[0].material;if(B.flash>0){B.flash-=dt;lm.emissiveIntensity=2}else lm.emissiveIntensity=.6+.6*Math.max(0,Math.sin(t*8))}catch(e){}}})}
+{const xs0=xpStunts;xpStunts=function(X){const r=xs0.apply(this,arguments);try{quarrySkipBuild(X)}catch(e){conLog('error','quarry skip: '+e.message)}return r}}
+const qsOnLand=(v)=>v.x>QSKIP.lx-5.4&&v.x<QSKIP.lx+5.4&&v.z>QSKIP.lz-7&&v.z<QSKIP.lz+7;
+{const vp7=vehPhys;vehPhys=function(q,v,dt,fx,sx,drv,hb){if(!v||!q||v.K.plane)return vp7.apply(this,arguments);const B=QSKIP;
+  /* drove over the strip fast enough: the booster is armed for 2 s */if(Math.abs(v.x-B.bx)<2.5+(v.K.w||2)/2&&v.z>B.bz+5&&v.z<B.bz+17&&Math.abs(v.v)>=12)v.qsT=performance.now();
+  const wasAir=!!v.air;if(v.qsFly&&v.air){sx=0;v.str=0}
+  const soft=v.air&&(v.qsFly||qsOnLand(v));const pL=LANDSOFT;if(soft)LANDSOFT=v;let r;try{r=vp7.call(this,q,v,dt,fx,sx,drv,hb)}finally{LANDSOFT=pL}
+  /* off the lip with the booster armed: fire */if(!wasAir&&v.air&&v.jr&&v.jr.boost&&v.qsT&&performance.now()-v.qsT<2000){v.qsT=0;v.qsFly=1;v.h=0;v.v=40;v.vy=33.6;B.flash=.5;try{snd(90,.6);snd(400,.3);setTimeout(()=>snd(700,.25),120);vfx('dust',v.x,.8,v.z+q.OZ,{n:30,w:2.5})}catch(e){}if(q.seat&&q.seat.v===v)try{camShake(.5,.5)}catch(e){}}
+  /* down: on the landing ramp it is a soft landing (no damage, a quarter of the speed gone) */if(wasAir&&!v.air){if(v.qsFly||qsOnLand(v)){if(v.qsFly&&q.seat&&q.seat.v===v){try{hint('🛹 STUNT JUMP: QUARRY SKIP! Over the mesa. '+(v.jT||0).toFixed(1)+' s in the air.')}catch(e){}}if(qsOnLand(v))v.v*=.75}v.qsFly=0}
+  return r}}
+{const vd7=vehDamage;vehDamage=function(q,v,n){if(LANDSOFT&&v===LANDSOFT)return;return vd7.apply(this,arguments)}}
 
 </script><script>
 /* ======================================================================================================
