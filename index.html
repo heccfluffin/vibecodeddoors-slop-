@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r594';
+const BUILD='2026-10-16 r595';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -14707,7 +14707,7 @@ function skmStart(){try{skmPrep();if(MODS.retro)skmRoute();skmRetroTick();const 
  if(a.readyState<1)a.addEventListener('loadedmetadata',()=>{try{a.currentTime=0}catch(e){}},{once:true});SKM.on=1;SKM.quiet=0}catch(e){}}
 /* the door slamming on Seek at the end of the chase: jump to 1:34 in the song, play 5 seconds of it, then stop */
 function skmSlam(){try{skmPrep();if(MODS.retro)skmRoute();skmRetroTick();const a=SKM.a;if(!a)return;const go=()=>{try{a.currentTime=94}catch(e){}};go();if(a.readyState<1)a.addEventListener('loadedmetadata',go,{once:true});a.volume=SKMV;const p=a.play();if(p&&p.catch)p.catch(()=>{});SKM.on=1;SKM.slam=5}catch(e){}}
-function skmTick(dt){if(!SKM.on||!SKM.a)return;if(SKM.slam>0){SKM.slam-=dt;if(SKM.slam<=.25)SKM.a.volume=Math.max(0,SKM.a.volume-dt*3.5);if(SKM.slam<=0){SKM.a.pause();SKM.on=0;SKM.slam=0}return}const chase=!!cut&&!!cut.pud||!!(seek&&seek.on)||seekChase()||(MP.on&&(mpDead||state=='spec')&&((MP.sm&&MP.sm.seek&&smLive('seek'))||Object.values(MP.remotes||{}).some(r=>!r.dd&&Date.now()-r.t<3000&&typeof chIdx=='function'&&chIdx(r.n)>=0)))||(typeof CART!='undefined'&&CART.on)||(typeof SEW!='undefined'&&SEW.on)
+function skmTick(dt){if(!SKM.on||!SKM.a)return;if(SKM.slam>0){SKM.slam-=dt;if(SKM.slam<=.25)SKM.a.volume=Math.max(0,SKM.a.volume-dt*3.5);if(SKM.slam<=0){SKM.a.pause();SKM.on=0;SKM.slam=0}return}const chase=!!cut&&!!cut.pud||!!(seek&&seek.on)||seekChase()||(MP.on&&!HUB.on&&((typeof smLive=='function'&&smLive('seek'))||(chIdx(n)>=1&&chIdx(n)<=9)))||(MP.on&&(mpDead||state=='spec')&&((MP.sm&&MP.sm.seek&&smLive('seek'))||Object.values(MP.remotes||{}).some(r=>!r.dd&&Date.now()-r.t<3000&&typeof chIdx=='function'&&chIdx(r.n)>=0)))||(typeof CART!='undefined'&&CART.on)||(typeof SEW!='undefined'&&SEW.on)
  if(state!='play'&&state!='paused'&&state!='keypad'&&state!='spec'&&state!='cart'&&state!='sewer'&&!(MP.on&&mpDead&&state=='dead')){SKM.quiet=9}else if(chase)SKM.quiet=0;else SKM.quiet+=dt;
  if(SKM.quiet>1.5){SKM.a.volume=Math.max(0,SKM.a.volume-dt*.6);if(SKM.a.volume<=0.01){SKM.a.pause();SKM.on=0}}else SKM.a.volume=Math.min(SKMV,SKM.a.volume+dt*.4)}
 /* ===== fail-safe: out of the map -> back to the current room + glitch jumpscare ===== */
@@ -16021,6 +16021,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r595',['Co-op: Seek\'s chase music keeps playing while the chase is on, even if you have got ahead of the others and Seek is not after you']],
  ['r594',['Seek chase: some hotel chase rooms end in a + CROSSROADS: left, right or straight on. Only one door is the way out and it glows BLUE; the other two are fake doors that will cost you health and time with Seek right behind you']],
  ['r593',['Corner legs (and the rooms at the end of them) only get the trim the room itself has: brick, casino, garden, warehouse, ballroom and other plain-walled rooms no longer get a wooden rail and skirting board in their turns']],
  ['r592',['Fixed co-op rooms coming out differently for different players (different lockers, drawers, turns and room types). Every 3D object the graphics library creates was quietly using up a number from the room\'s seeded random sequence, so a player who had a texture or model cached already got a different room from that point on','Office rooms no longer turn (no more odd walls and floating windows in office corners)','The wall panelling in corner legs lines up with the hallway\'s panelling','Casino: the high-low dealer faces his table, and the HIGH-LOW sign hangs on gold posts above him instead of poking out of his shoulder']],
