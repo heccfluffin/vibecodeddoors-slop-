@@ -82,7 +82,8 @@ function mkFastCar(kind,colour){
    BX(.04,.2,.55,blk,sd*1.03,.6,.95);/* side intake on the rear fender */
    pane([[-.8,BL+.02],[-.25,RY-.02],[.4,RY-.02],[.95,BL+.02]],sd*.94);rod([sd*.94,BL,-.85],[sd*.92,RY,-.25],.035,paint);rod([sd*.94,BL,.95],[sd*.92,RY,.45],.04,paint)}
   /* roof and glass */BX(1.8,.05,.72,paint,0,RY+.025,.1);BX(1.76,.02,.7,trim,0,RY-.01,.1);
-  slope(1.84,-.85,BL+.02,-.25,RY,glass);slope(1.84,1.3,.87,.45,RY,glass);
+  slope(1.84,-.85,BL+.02,-.25,RY,glass);slope(1.8,1.3,.87,.45,RY,glass);/* rear glass edges sit inside the sail panels */
+  for(const sd of[-1,1])extrude((()=>{const t=new THREE.Shape();t.moveTo(.93,BL-.02);t.lineTo(1.34,BL+.02);t.lineTo(.43,RY+.0);t.lineTo(.93,BL-.02);return t})(),.1,paint,sd*.93);/* sail panels: close the gap between the side window and the sloped rear glass */
   BX(1.96,.03,1.9,M(0x111214,{roughness:.8,metalness:.1}),0,BOT-.01,0);/* flat floor */BX(1.8,.03,1.5,trim,0,.42,-.05);
   BX(1.7,.22,.3,trim,0,.92,-.72);/* dash */steer(.42,1.0,-.3,-1.2,.16);/* well behind the windscreen */bucket(.42,.5,-.05,.5);bucket(-.42,.5,-.05,.5);
   /* lights: thin wedge headlights, a full-width tail light, twin exhausts */
@@ -105,10 +106,11 @@ function mkFastCar(kind,colour){
    /* rear flares over the fat tyres */const fl=new THREE.Mesh(new THREE.TorusGeometry(.5,.07,6,18,Math.PI),paint);fl.rotation.y=Math.PI/2;fl.position.set(sd*1.06,.42,1.55);g.add(fl);
    pane([[-.9,BL+.02],[-.22,RY-.02],[1.05,RY-.02],[1.05,BL+.02]],sd*.95);rod([sd*.96,BL,-.95],[sd*.94,RY,-.2],.04,paint);rod([sd*.97,BL,1.12],[sd*.94,RY,1.1],.08,paint)}
   BX(1.86,.06,1.32,paint,0,RY+.03,.45);BX(1.8,.02,1.3,trim,0,RY-.01,.45);
-  slope(1.86,-.95,BL+.02,-.2,RY,glass);slope(1.86,2.1,1.0,1.1,RY,glass);
+  slope(1.86,-.95,BL+.02,-.2,RY,glass);slope(1.8,2.1,1.0,1.1,RY,glass);/* rear glass edges sit inside the sail panels */
+  for(const sd of[-1,1])extrude((()=>{const t=new THREE.Shape();t.moveTo(1.06,BL-.02);t.lineTo(2.16,BL+.0);t.lineTo(1.06,RY+.0);t.lineTo(1.06,BL-.02);return t})(),.1,paint,sd*.94);/* fastback sail panels */
   BX(1.96,.03,1.9,U,0,BOT+.02,0);BX(1.86,.03,1.9,trim,0,.5,.3);/* floor */
   BX(1.8,.24,.36,trim,0,1.0,-.38);/* dash: its back face at z -0.2 */steer(.45,1.12,.06,-1.15,.18);
-  bucket(.45,.64,.35,.56);bucket(-.45,.64,.35,.56);BX(1.6,.1,.42,seatM,0,1.03,1.28);{const b=BX(1.6,.32,.08,seatM,0,1.2,1.52);b.rotation.x=-.35}/* the rear bench sits on the rear deck, under the fastback glass */
+  bucket(.45,.64,.35,.56);bucket(-.45,.64,.35,.56);BX(1.6,.1,.42,seatM,0,1.03,1.12);{const b=BX(1.6,.3,.08,seatM,0,1.19,1.36);b.rotation.x=-.3}/* the rear bench: its back stays 8 cm under the fastback glass */
   /* hood scoop, grille with quad lights, chrome bumpers, tail lights, stripes */
   BX(.7,.1,.8,paint,0,1.02,-1.6);BX(.6,.07,.03,blk,0,1.03,-2.0);
   BX(1.9,.38,.04,blk,0,.66,-2.475);for(const sd of[-1,1])for(const o of[.55,.82]){CYL(.085,.085,.05,hl,sd*o,.67,-2.492,'z');const r=new THREE.Mesh(new THREE.TorusGeometry(.09,.012,6,16),chrome);r.position.set(sd*o,.67,-2.517);g.add(r)}/* lamp faces 2 cm in front of the grille panel (it ends at z -2.495) */
