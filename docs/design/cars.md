@@ -38,6 +38,19 @@ so it can replace the old branch directly.
   front and rear wheel sizes. Each tyre has `t.userData.r`: use `v.v·dt / (w.t.userData.r || K.whr)` so nothing
   looks like it slips.
 
+## 4. Heavy vehicles (`heavy.js`, `mkHeavy(kind, opt)` and `mkTow()`)
+- `mkApcModel()` → `mkHeavy('apc')`. `mkSwatModel(gun)` → `mkHeavy('swat', {gun})`. Same sizes, wheel spots and hooks:
+  `userData.wheels`, `userData.bar` (light bar), `userData.gun` (APC `{tur, bar, rk:1}`, SWAT `{tur, bar, mz:[]}`).
+- The old models put a Seek (with hat) in the APC's turret hatch and in the SWAT truck's driver's seat. The new models
+  don't build it: add it from `userData.crew` (`{x, y, z, sc, par}`: position and scale inside `par`, the turret
+  for the APC, the truck itself for the SWAT truck). Keep the Seeks: the user wants them.
+- `mkVan(K, label, col)` → `mkHeavy('van', {label, col})`. **The new van faces -z like every other vehicle; the old
+  one faced +z**, so add `Math.PI` to its rotation where vans are placed.
+- `mkTowTruck()` → `mkTow()` (needs `pickup.js` loaded first). Same `userData.lights` (the two amber lamps), plus
+  `userData.hook` (swing it a little while towing if you like). Put El Goblino at `userData.crew` (0.45, 0.5, -0.5,
+  scale 0.48) as before. The old recolour traverse isn't needed.
+- Skip `vehMore()` for all of these.
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
