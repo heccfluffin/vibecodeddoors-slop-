@@ -67,8 +67,8 @@ function mkCaretaker(seed){
   add(box(.09,.022,.02),hair,0,.115,-.112,head);/* moustache */
   const back=add(new THREE.SphereGeometry(.118,14,10,0,6.283,0,1.7),hair,0,.165,.008,head);back.scale.set(.97,1.05,1);back.rotation.x=-.25}
  /* the hat: a wide brim, a crown and a band */
- {const brim=add(cyl(.26,.26,.015,24),hat,0,.27,0,head);brim.rotation.x=.06;
-  add(cyl(.12,.13,.13,16),hat,0,.33,0,head);add(cyl(.132,.132,.035,16),M(0x5a2a1a),0,.29,0,head);add(cyl(.12,.12,.01,16),hat,0,.4,0,head)}
+ {const brim=add(cyl(.26,.26,.015,24),hat,0,.245,0,head);brim.rotation.x=.06;
+  add(cyl(.112,.12,.13,16),hat,0,.305,0,head);add(cyl(.124,.124,.035,16),M(0x5a2a1a),0,.265,0,head);add(cyl(.112,.112,.01,16),hat,0,.375,0,head)}/* sits down over the crown of the head */
  /* ---------- arms ---------- */
  for(const sx of[-1,1]){const arm=new THREE.Group();arm.position.set(sx*.23,.47,0);torso.add(arm);
   add(new THREE.SphereGeometry(.065,10,8),shirt(1,1),0,0,0,arm);

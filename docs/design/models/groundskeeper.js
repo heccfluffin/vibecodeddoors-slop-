@@ -82,7 +82,7 @@ function mkGroundskeeper(){
 
   add(cyl(.02,.02,.05,8),iron,0,.2,.12,head).rotation.x=Math.PI/2}/* where the hose plugs in at the back */
  /* the hat: a wide flat brim and a low crown */
- {add(cyl(.34,.34,.022,32),hatM,0,.33,0,head);add(cyl(.13,.14,.1,20),hatM,0,.39,0,head);add(cyl(.13,.13,.01,20),hatM,0,.44,0,head);add(cyl(.142,.142,.025,20),M(0x0e0e10),0,.355,0,head)}
+ {/* sits down on the head: the crown goes over the top of it, the brim rests where the head is 0.19 m wide */add(cyl(.34,.34,.022,32),hatM,0,.265,0,head);add(cyl(.128,.132,.13,20),hatM,0,.335,0,head);add(cyl(.128,.128,.01,20),hatM,0,.405,0,head);add(cyl(.137,.137,.03,20),M(0x0e0e10),0,.29,0,head);add(cyl(.105,.105,.012,20),hatM,0,.27,0,head)}
  /* ---------- arms ---------- */
  for(const sx of[-1,1]){const arm=new THREE.Group();arm.position.set(sx*.25,.47,0);torso.add(arm);
   add(cyl(.065,.058,A),coatT(1,1),0,-A/2,0,arm);
