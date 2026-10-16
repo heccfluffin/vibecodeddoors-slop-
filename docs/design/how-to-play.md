@@ -60,10 +60,5 @@ change, drop that sentence.)
 - No numbers players don't need (damage values, percentages, drop rates).
 - Don't change the keys themselves.
 
-## Note for the user (not Claude Code)
-The old text describes "Ohien the purple **Sylveon**". Sylveon is a Pokémon, which breaks the "no known characters"
-rule. The new How to Play doesn't mention it, but the room and model probably still look like one. Worth a redesign
-(it's on the model list).
-
 ## How to check it (short)
 Open How to Play at 1366 × 768: four tabs, none scrolls. On a phone-sized window the touch line shows.
