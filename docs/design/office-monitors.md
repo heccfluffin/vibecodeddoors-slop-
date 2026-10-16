@@ -1,4 +1,4 @@
-Status: proposed
+Status: proposed. **The user has approved the model** (`squad-monitors.js`, 2026-10-16): ready to build.
 
 # Squad camera monitors in each General's office
 
