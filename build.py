@@ -236,6 +236,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx596.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx597.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx598.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx599.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx600.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -330,12 +331,35 @@ R("prop(wx,wz-2.0,1.3,()=>busy?'🪣 ...winding...':'[E] Wind up the bucket',()=
 R("/* bleachers on the west edge of the square, facing the podium */for(let r=0;r<3;r++){A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),423+r*1,.45+r*.4,-840);A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),423.5+r*1,.45+r*.4,-840);A(BX(.1,.45+r*.4,20),DK,423.3+r*1,.22+r*.2,-840)}","/* bleachers on the east edge of the square, looking across at the parade (the command wing and the bays took the west edge) */for(let r=0;r<3;r++){A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),540+r*1,.45+r*.4,-856);A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),540.5+r*1,.45+r*.4,-856);A(BX(.1,.45+r*.4,20),DK,540.3+r*1,.22+r*.2,-856)}")
 R("lab('SPECTATORS · CLAP WHEN TOLD',3,.4,'#20261c','#e8f0d0',424.5,1.9,-829.5,0,44);","lab('SPECTATORS · CLAP WHEN TOLD',3,.4,'#20261c','#e8f0d0',541.5,1.9,-845.5,0,44);")
 R("const free=(x,z)=>!inZone(x,z)&&!onRoad(x,z)&&","const free=(x,z)=>!inZone(x,z)&&!milArea(x,z,-14)&&!onRoad(x,z)&&")
+# r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
+# serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
+# Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered
+# before any game code runs, so signs drawn at load time already use it.
+FONTF='DoorsSans,Arial,sans-serif'
+_fre=re.compile(r'Tahoma,"MS Sans Serif",Arial,sans-serif|Tahoma,"MS Sans Serif",Arial|Tahoma,Arial,sans-serif|Tahoma,Arial'
+ r'|"Arial Black",Impact,sans-serif|Impact, Arial Black, sans-serif|Impact, Arial|Georgia, ?serif|Georgia|Arial,sans-serif|Arial'
+ r'|(?<=px )sans-serif|(?<=px )serif\b')
+_fn=[0]
+def _frep(m):
+    t=m.group(0)
+    if t.startswith('Tahoma'):return t
+    _fn[0]+=1;return FONTF
+_parts=re.split(r'(<script id="[A-Za-z0-9_]+" type="text/plain">[^<]*</script>)',s)
+s=''.join(x if x.startswith('<script id=') else _fre.sub(_frep,x) for x in _parts)
+import base64 as _b64
+_fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
+_fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
+ "for(const w in W){try{const b=atob(W[w]),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);"
+ "const f=new FontFace('DoorsSans',a.buffer,{weight:w});document.fonts.add(f);f.load().catch(()=>{})}catch(e){}}})();</script>")%_fw
+_fjs+='<style>/* r604: the default for anything that does not set its own font */body,button,input,select,textarea{font-family:'+FONTF+'}</style>'
+k=s.index('<title>DOORS</title>')+len('<title>DOORS</title>');s=s[:k]+_fjs+s[k:]
+print('font: replaced',_fn[0],'font settings')
 import base64
 _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r603';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r604';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

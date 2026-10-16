@@ -164,7 +164,13 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r603** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- **Live: r604** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- r604: `src/dx600.js` keeps a parked Wraith in your *current* bay (the bay index from `cwSlot` changes when friends
+  join; the parked Wraith now follows it while empty and still, you take ownership so it syncs, and the name sign
+  follows). **One font**: build.py swaps Georgia/Arial/Impact/serif/sans-serif for `DoorsSans` (Barlow Semi
+  Condensed, `src/fonts/*.woff2`, registered with `FontFace` in `<head>` before any game code). Kept on purpose:
+  monospace, Tahoma (retro Windows windows), Comic Sans (jokes). New code should just write `Georgia` or `Arial`
+  in fonts and the build swaps it, or write `DoorsSans,Arial,sans-serif` directly.
 - r603 contents: `src/dx599.js` desert performance part 2 on top of the r500 `DP` system (late batching of desert
   groups and late-built vehicles, distance culling of loose leaves on layer 6 `PL_FAR`, `?noperf` turns it off,
   `perfForce()` test hook); desert Save & Exit in co-op (`dx575.js`); tank loop moved off the motor pool; motor pool
@@ -187,9 +193,8 @@ The user asked the remaining performance work to:
 They said no three.js upgrade is needed if the game runs fine. Don't start one without explicit approval.
 
 **Desert / base**
-1. **Wraith not in its bay** after closing and reopening the game, then warping to Fort Blackout with "skip bus
-   cutscene" on. Check that `bayBuild`'s restore (`rs()` in dx572) runs on that path, that `S.bayPark` is saved
-   (`milSave`) and that `bayMine(q)` is valid then. Maybe give each player a persistent bay index instead of `cwSlot`.
+1. ~~Wraith not in its bay~~: fixed in r604 (dx600). Solo restore already worked in a headless test; the co-op bay
+   shuffle was the cause. If the user still sees it, ask whether a friend was in the desert and who owns a Wraith.
 2. **Autopilot and squads drive in circles:** they always turn one way, crash into walls, reverse a little and crash
    again, and take wide turns so they can't get through small gaps. Squads can't get up mesa tops because they drive
    straight at the goal instead of following a path (ramps). Related code: `cwDrive` (dx557, wrapped in dx572 with
@@ -215,7 +220,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
     start with **E** instead of by walking into it.
 
 **Global**
-11. **Change the font everywhere.** It's Georgia almost everywhere and "screams made by AI". Pick one good-looking
+11. ~~Change the font everywhere.~~ Done in r604 (Barlow Semi Condensed). It's Georgia almost everywhere and "screams made by AI". Pick one good-looking
     font (Google Fonts are fine) and use it consistently. Check canvas text (`ctx.font=`), CSS, `pdTxt`/`lab`/`sgn`
     label helpers and the HUD.
 12. **Simplify "How to play"**. There's far too much text.
@@ -238,7 +243,8 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Caves: chasms, lava lakes, geysers, lush fungus, big ore, cage drop, desert jump | dx596 |
 | Map warp/drag, office-bay door, desert-mines shaft (1% in mine), changelog button | dx597 |
 | Squad motor pool, crews, squad map routes, co-op Save & Exit (hotel) | dx598 |
-| Desert perf part 2 (unreleased) | dx599 |
+| Desert perf part 2 | dx599 |
+| Wraith follows your bay, font registration in build.py | dx600 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |
