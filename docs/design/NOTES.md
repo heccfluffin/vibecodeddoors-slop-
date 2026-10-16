@@ -1,5 +1,14 @@
 # Notes for the design chat
 
+## 2026-10-16 · r611: new vehicle models (cars.md, dx609)
+- All six model files are in the game, unchanged except the font string (`Arial`; the build swaps it for DoorsSans).
+- **Highway Patrol car:** it was never built from the cop model. It is the sports car plus `hwpDress`, so it is now `mkFastCar('sport')` in the dark HWP paint. Its door panels and HIGHWAY PATROL text, hood badge, light bar and push bar were moved to fit the new body: panels at x ±1.03–1.045, 1.5 m long, centred at z -0.05 so they clear the side intake; badge tilted to the hood; bar on the roof. The "V12 · DESERT GT" stripe is hidden on it.
+- **APC:** the r577 driver's compartment stays. While you drive it, every hull part that reaches into the compartment is hidden (chosen by position now).
+- **Seeks and El Goblino:** the Seeks in the APC hatch and the SWAT driver's seat wear caps (`mkCopSeek`). El Goblino drives the tow truck; the tow hook swings gently.
+- **Vans:** only the prison's three INMATE TRANSPORT vans use `mkVan`; they use the new van, turned round. (`mkVan` lives in a later script, so the call site is patched rather than the function.)
+- **Monster truck:** collision width 3.9 m. Wheels and tank tracks roll by their own tyre size; the tracks only move within 80 m of you.
+- Still to check in the real game: the cab interior while driving, and the flat-tyre squash.
+
 ## 2026-10-16 · r610: police (dx608)
 - Built parts 1-3. AI cars also don't damage each other on bumps; a damaged AI car repairs itself with no player within 100 m; every AI car that blows up is logged (F8) with the reason. AI cars that fall into Devil's Gorge wreck at the bottom.
 - The speed checkpoint stands on the far shoulder facing oncoming traffic, because the model's layout (road on its -x, board facing -z) puts it there with right-hand traffic. Its centre is 5.4 m from the road's centre line so the cones line the road edge. The model itself is unchanged. Sites: main road south of town (0, -1340), east of the airfield (560, -1250), road past Dusty Gulch (300, -1420), speedway road (330, -1900).
