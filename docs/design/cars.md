@@ -89,6 +89,15 @@ so it can replace the old branch directly.
 - `VEHK.jet.gun.from` → `[.62,1.42,-5.0]` (gun port on the left of the nose). The X-22 stays `[0,1.3,-6.5]`.
 - `cock` cameras unchanged: they sit inside the canopies (which are taller now).
 
+## 9. Runabouts (`runabouts.js`, `mkRunabout(kind, colour)`)
+- The `'bike'`, `'golf'`, `'quad'` and `'buggy'` branches of `mkVehModel` → `mkRunabout(k)`. Same sizes, wheel spots and
+  seats; skip `vehMore()` for them.
+- Steering hooks: `userData.sw` + `swAx`: bike `'y'` (the whole front end, raked, turns about the steering head), quad
+  `'y'` (bars), golf and buggy `'z'` (steering wheel).
+- Bike: the front wheel turns by `str·0.45` and the bars by `str·0.5`. Use the same factor for both (0.5) so the tyre
+  stays in the fork.
+- Wheels roll by `v.v·dt/(w.t.userData.r||K.whr)` as for the other new cars.
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
