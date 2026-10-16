@@ -71,6 +71,14 @@ so it can replace the old branch directly.
   next to the wheel roll (line with `if(w.tank)w.t.rotation.x-=…`). The tracks are two InstancedMeshes per side; only
   update them when the tank is moving and within ~80 m, to save time.
 
+## 7. Helicopters (`helis.js`, `uh9Model(g, dark)` and `ah4Model(g)`)
+- In dx549's `mkVehModel` wrapper: `awHeli(g, dark)` → `uh9Model(g, dark)`, `awGunship(g)` → `ah4Model(g)`. Same hooks:
+  `userData.rotor` (y), `tailR` (x), `cg` {t, spin, fl} with `t.children[1]` the yoke, `beacon`.
+- Update in `VEHK` (dx549): `heli.msl.pods` → `[[2.05,2.0,-.2],[-2.05,2.0,-.2]]` (the wings moved above the open
+  doorways); `heli.gun.from` → `[0,.55,-4.75]`; `gunship.gun.from` → `[0,.66,-6.15]` (the chin gun hangs lower now so
+  it can aim up without going through the nose). `cock` cameras unchanged: both have real cockpits there now.
+- The hull material is double-sided so the cockpit and cabin have walls from inside.
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
