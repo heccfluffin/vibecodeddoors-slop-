@@ -23,7 +23,8 @@ so it can replace the old branch directly.
 - `VEHK.jeep` (`mdl:'truck'`) → `mkPickup('jeep')`
 - `VEHK.monster` (`mdl:'truck'`) → `mkPickup('monster')`. This model lifts the monster's body itself: **don't apply
   `VEHK.monster.lift`** to it. Keep `VEHK.monster.sc` (1.15). The monster's wheels sit at x ±1.38 now, outside the
-  body; its collision width (`VEHK.monster.w` 2.9) still covers them after the 1.15 scale.
+  body: over the tyres it is 3.9 m wide after the 1.15 scale, so set `VEHK.monster.w` to 3.9 (it was 2.9), or its
+  wheels go through walls and other cars.
 - Skip `vehMore()` for all three.
 - Seats unchanged (`VEHK.truck`, `VEHK.jeep`, `VEHK.monster`).
 
