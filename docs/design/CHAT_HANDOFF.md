@@ -30,7 +30,6 @@ HOW WE WORK:
 
 MY RULES (always):
 - Never put the owner key or any secret in the game.
-- No known characters, mascots or logos, and no lookalikes (no Wario, no Roblox Noob, no London Underground roundel). Original designs only.
 - Things must look right: nothing floating, no z-fighting (flickering faces), no gaps, nothing facing the wrong way, no stretched textures.
 - Keep tests and screenshot runs short. I don't like long test runs.
 - Name filter allows "fag..." (my friend is FaggotChan) but blocks the n-word. There's no chat filter.
