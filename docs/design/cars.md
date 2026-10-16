@@ -51,6 +51,17 @@ so it can replace the old branch directly.
   scale 0.48) as before. The old recolour traverse isn't needed.
 - Skip `vehMore()` for all of these.
 
+## 5. The X-13 Wraith and its refits (`wraith.js`)
+- `protoModel(g, T)` → `wraithModel(g, T.wheels)`. Same hooks: `userData.tur` (0, 1.4, 0.2), `bar` (0, 0.3, -1.4 in
+  tur, muzzles at bar z -3.0), `radar`, `mf`, and the `userData.ex` exhaust glows. Rocket pods at x ±1.18, world y 1.75,
+  where `milRockets` fires from.
+- In `wkBuild` (dx554), replace everything that draws (from `const M=…` to the "MK" decal) with `wraithMarks(m, l)`.
+  It makes the same `wkG/wkT/wkB`, `wkBub`, and the minigun's `rws/rwsP/rwsS/rwsT/rwsF` (mount still at (0, 2.34, 2.3)),
+  so `protoTick`, the gunner camera and `wkGunFire` don't change. Mk VI repaints through `userData.paint` (no more
+  colour-hex traverse), and calling it again with a lower mark (a friend's Wraith via `rwk`) paints it back.
+- Wheel roll: tank wheels roll by `v.v·dt/.34`. These are r 0.5, so use `v.v·dt/(w.t.userData.r||.34)`.
+- `VEHK.proto` w/len and seats unchanged.
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
