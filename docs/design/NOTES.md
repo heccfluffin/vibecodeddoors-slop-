@@ -1,5 +1,10 @@
 # Notes for the design chat
 
+## 2026-10-16 · r612: squad camera monitors (office-monitors.md, dx610)
+- Built as specced: a bank on each office's left wall at (ox0 + 0.15, 0, -853), desk collision box from the header. Feeds only for squads of yours, only rendered while you stand in your own office on foot, one feed per frame round robin, half rate under 30 fps. 320 × 180 targets, camera 14 m behind / 7 m above the lead vehicle (lerp 0.1), circling 12 m out at 6 m while on site, SIGNAL LOST frozen 10 s.
+- The desert hides chunks and vehicles far from the player, so far squads would film empty sand: for each feed render, the chunks and vehicles within 250 m of that feed's camera are shown for that one render, then hidden again. The feed camera also sees the r603 far-cull layer.
+- The big view on E at the desk (nice to have) is not built.
+
 ## 2026-10-16 · r611: new vehicle models (cars.md, dx609)
 - All six model files are in the game, unchanged except the font string (`Arial`; the build swaps it for DoorsSans).
 - **Highway Patrol car:** it was never built from the cop model. It is the sports car plus `hwpDress`, so it is now `mkFastCar('sport')` in the dark HWP paint. Its door panels and HIGHWAY PATROL text, hood badge, light bar and push bar were moved to fit the new body: panels at x ±1.03–1.045, 1.5 m long, centred at z -0.05 so they clear the side intake; badge tilted to the hood; bar on the roof. The "V12 · DESERT GT" stripe is hidden on it.

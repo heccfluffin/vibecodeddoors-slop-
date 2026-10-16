@@ -162,7 +162,9 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r611** (`main`, released 2026-10-16). r611 = new vehicle models (`dx609`, helper agent; `nvFinish`, `nvCrew`,
+- **Live: r612** (`main`, released 2026-10-16). r612 = squad camera monitors in the offices (`dx610`, `SQMON`, `sqmTick`;
+  feeds render only in your own office, one per frame).
+- r611: r611 = new vehicle models (`dx609`, helper agent; `nvFinish`, `nvCrew`,
   `nvHwp`, `nvBuild`, `nvVan`; `wkBuild` in dx554 now calls `wraithMarks`; wheel roll uses `w.t.userData.r`).
 - r610: r610 = police (`dx608`, helper agent): 3 patrol cruisers (`PCRB` beats, host
   drives, sync messages `pcr`/`pcrc`/`pcrw`), Highway Patrol speed checkpoints (`SPCK` sites, `spcForce(i)` debug), AI
@@ -176,7 +178,7 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
   one-way lift state machine (`GLIFT`, replaces `liftGo`/`liftTick`); cave floor fix (the tunnel floor box had a negative
   depth); Quarry Skip booster (`QSKIP`, launch in a `vehPhys` wrapper, soft landing via `LANDSOFT`). **`q.obs` boxes
   can now have `top`** (a car above `top - 0.3` passes over), and `q.ramps` can have `nolink` (wall in the route grid).
-- Not started: office-monitors (model needs the user's OK), `helis.js` (a new helicopter model from the design chat,
+- Not started: `helis.js` (a new helicopter model from the design chat,
   no spec yet). See `docs/design/remodel-list.md` for the design chat's queue.
 - r606 (`src/dx602.js` + build.py patches): km/h everywhere (`kmh.md`); base map drawn from the wall boxes
   (`mapBaseDraw`, labels `MAPBN`); every desert InstancedMesh unculled and pulled out of scenery chunks (`imFix`;
@@ -288,6 +290,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Water delivery: tanks, groundskeeper, jerrycans | dx607 |
 | Police: patrol cruisers, speed checkpoints, AI repair/logging | dx608 |
 | New vehicle models (sedans, pickups, fast cars, heavy, Wraith, tank) | dx609 |
+| Squad camera monitors in the offices | dx610 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

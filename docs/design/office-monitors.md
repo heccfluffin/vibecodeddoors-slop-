@@ -1,4 +1,4 @@
-Status: proposed. **The user has approved the model** (`squad-monitors.js`, 2026-10-16): ready to build.
+Status: shipped in r612
 
 # Squad camera monitors in each General's office
 
