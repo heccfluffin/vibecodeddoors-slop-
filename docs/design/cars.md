@@ -28,6 +28,16 @@ so it can replace the old branch directly.
 - Skip `vehMore()` for all three.
 - Seats unchanged (`VEHK.truck`, `VEHK.jeep`, `VEHK.monster`).
 
+## 3. Fast cars (`fast-cars.js`, `mkFastCar(kind, colour)`)
+- `mkVehModel('sport')` → `mkFastCar('sport')`, `'muscle'` → `mkFastCar('muscle')`, `'hotrod'` → `mkFastCar('hotrod')`,
+  `'dragster'` → `mkFastCar('dragster')`. Skip `vehMore()` for them.
+- **The dragster's front wheels now sit on the ground** (this is the Speedway "front wheels float" fix; if they still
+  float in the game, something lifts or pitches the model: check `vehMore` and any `m.position.y` / `m.rotation.x`
+  set for the dragster).
+- Wheel roll: the game rolls every wheel by `v.v·dt / K.whr`. The dragster, muscle car and hot rod have different
+  front and rear wheel sizes. Each tyre has `t.userData.r`: use `v.v·dt / (w.t.userData.r || K.whr)` so nothing
+  looks like it slips.
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
