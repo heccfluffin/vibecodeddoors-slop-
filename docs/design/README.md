@@ -15,3 +15,23 @@ This folder is how the design chat (Claude in the claude.ai app) and Claude Code
   Newest notes at the top, each with the date and build number.
 
 Only one side changes code: Claude Code. If both need to touch the same file in `docs/`, pull first.
+
+## Models (`docs/design/models/`)
+
+The design chat also builds 3D models. These are the one kind of code it writes, and they are finished parts, not game logic.
+
+- Each model is **`docs/design/models/<name>.js`**: one self-contained three.js r128 function, in the game's own style,
+  for example `function mkDrillRig(){ ... return g }`. It returns a `THREE.Group`. It uses no globals except `THREE`,
+  makes its own materials, and puts nothing in the scene.
+- **The header comment says everything needed to place it:** size in metres, where the origin is (usually the centre of
+  the base, on the ground), which way is front (-z unless stated), which named parts move (`g.userData.parts`:
+  wheels, arm, door and so on, with their pivots), any suggested animation code, and a suggested collision box.
+- There may also be `<name>.md` with notes, and a preview page the user has already approved.
+
+**Claude Code: "add docs/design/models/<name>.js to the game"** means:
+1. Copy the function into the right module, or a new one. Rename it if the name clashes with an existing global
+   (search `src/bak519.html` and `src/dx*.js`).
+2. Place it, add obstacles (`ob(...)`, `q.obs`), props and animations, and replace the old model if there is one.
+3. Don't change how the model looks without saying so in `NOTES.md`. Small fixes for fit (scale, ground height,
+   overlaps with what is around it) are fine, but list them.
+4. Set the `Status:` line in the header and release as usual.
