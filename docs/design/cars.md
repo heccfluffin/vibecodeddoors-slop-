@@ -18,6 +18,15 @@ so it can replace the old branch directly.
 - Keep `K.lift` / `K.sc` handling as in `mkVehModel` (none of these use it).
 - The wreck look (burnt black) must still work: if it recolours materials by traversing, it will find the new ones.
 
+## 2. Pickups (`pickup.js`, `mkPickup(kind, colour)`)
+- `mkVehModel('truck')` → `mkPickup('pickup')`
+- `VEHK.jeep` (`mdl:'truck'`) → `mkPickup('jeep')`
+- `VEHK.monster` (`mdl:'truck'`) → `mkPickup('monster')`. This model lifts the monster's body itself: **don't apply
+  `VEHK.monster.lift`** to it. Keep `VEHK.monster.sc` (1.15). The monster's wheels sit at x ±1.38 now, outside the
+  body; its collision width (`VEHK.monster.w` 2.9) still covers them after the 1.15 scale.
+- Skip `vehMore()` for all three.
+- Seats unchanged (`VEHK.truck`, `VEHK.jeep`, `VEHK.monster`).
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
