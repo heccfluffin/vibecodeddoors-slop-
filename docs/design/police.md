@@ -25,7 +25,7 @@ and backup units only during a chase.
 **Should be:**
 - **3 patrol cruisers** on the desert roads at any time (Desert PD, the existing cruiser model), each on its own part of
   the road network: town and the bus stop; the airfield / Dusty Gulch side; the quarry / mesa / wind farm side.
-- They drive at the speed limit (45 mph = 20 m/s), stop at junctions for a second, and now and then pull over for 10–20 s
+- They drive at the speed limit (70 km/h ≈ 19.5 m/s), stop at junctions for a second, and now and then pull over for 10–20 s
   (parked on the shoulder, lights off) before carrying on.
 - Any of them can start a chase the way the existing patrol does (`copPatrol` rules), and they join a chase within
   300 m as backup.
@@ -49,14 +49,16 @@ Sometimes the **Highway Patrol** (its existing dark car, `hwpDress`) sets up a c
 ### Setting up
 - `mkSpeedCheckpoint()` on the shoulder, front (-z) facing the traffic in the busier direction; its `warn` sign 70 m
   before it on the same side. The HWP car parks at `CAR` (nose out).
-- The board shows the speed of any car driving towards it within 120 m (`setSpeed(mph)`; mph = m/s × 2.237).
+- The board shows the speed of any car driving towards it within 120 m (`setSpeed(kmh)`; km/h = m/s × 3.6).
+  The checkpoint works in **km/h** (the user's choice). The HUD speedometer still shows mph (`× 2.237`); ask the user
+  whether to switch the HUD to km/h too, so the two match.
   Blank when nothing's coming. `update(dt)` while a player is within 150 m.
 
 ### Speeding: what happens (the user's choice)
-- Limit **45 mph**. Measured when the car passes the trailer (closest point, within 20 m of it).
-- **1–24 mph over: a fine.** Take it from your cash (gold): 25 gold + 5 per mph over, e.g. 55 mph = 75 gold.
-  Hint: "🚨 HIGHWAY PATROL: 55 in a 45. Fined 75 gold. Slow down." No chase, no heat. If you can't pay, it's 10 heat instead.
-- **25+ mph over (70 mph and up): the Highway Patrol chases you.** The board shows STOP · POLICE, the HWP car
+- Limit **70 km/h**. Measured when the car passes the trailer (closest point, within 20 m of it).
+- **1–39 km/h over: a fine.** Take it from your cash (gold): 25 gold + 3 per km/h over, e.g. 90 km/h = 85 gold.
+  Hint: "🚨 HIGHWAY PATROL: 90 in a 70. Fined 85 gold. Slow down." No chase, no heat. If you can't pay, it's 10 heat instead.
+- **40+ km/h over (110 km/h and up): the Highway Patrol chases you.** The board shows STOP · POLICE, the HWP car
   pulls out with lights and siren (`hwpGo(q,H,id,'speed')`) and adds heat as it does now for speeding.
 - Each player is only fined or chased once per pass (don't fine them again while they're still within 120 m).
 - Co-op: the host runs the checkpoint; the fine goes to the player who sped (send them a `hwps`-style message).
@@ -73,5 +75,5 @@ Sometimes the **Highway Patrol** (its existing dark car, `hwpDress`) sets up a c
 - Don't fine players who are walking, in the bus, or not driving (passengers).
 
 ## How to check it (short)
-Force a checkpoint near the bus stop (debug), drive past at 40 (nothing), 55 (fined), 80 (chased). Watch one patrol
+Force a checkpoint near the bus stop (debug), drive past at 60 km/h (nothing), 90 (fined), 120 (chased). Watch one patrol
 cruiser drive its loop for a minute without blowing up.
