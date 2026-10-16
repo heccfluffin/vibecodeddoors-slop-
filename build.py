@@ -244,6 +244,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx604.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx605.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx606.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx607.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx609.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -401,6 +402,13 @@ R("/* the uplink at Radar Station 13 */A(BX(1.2,1.1,.8),M(0x2a3038),447,.55,-694
 R("q.props.push({x:447,z:-693.2,r:1.5,","q.props.push({x:447.5,z:-692.2,r:1.5,")
 R(",{x0:446.4,x1:447.6,z0:-694.9,z1:-694.1});q.obsDirty=1}",");q.obsDirty=1}")
 R("s.sg2?SJT.pack+3:28","s.sg2?(s.sg2.wEnd||SJT.pack+3):28")
+# r611: new vehicle models (dx609)
+# wheels roll by their own tyre size (userData.r), and the tank's tracks run while it moves near you
+R("for(const w of m.userData.wheels||[]){if(w.tank)w.t.rotation.x-=v.v*dt/.34;else{w.t.rotation.x-=v.v*dt/(v.K.whr||.4);if(w.front)w.p.rotation.y=v.str*.45}}",
+  "for(const w of m.userData.wheels||[]){if(w.tank)w.t.rotation.x-=v.v*dt/(w.t.userData.r||.34);else{w.t.rotation.x-=v.v*dt/(w.t.userData.r||v.K.whr||.4);if(w.front)w.p.rotation.y=v.str*.45}}if(m.userData.trkAdv&&Math.abs(v.v)>.05&&Math.hypot(P.x-v.x,P.z-(q.OZ||0)-v.z)<80)m.userData.trkAdv(v.v*dt);")
+# the prison's vans: the new van model, turned round (it faces -z; the old one faced +z)
+R("const v=mkVan(K,'INMATE TRANSPORT');v.position.set(cx0+8,0,cz0+5+i*7);v.rotation.y=Math.PI/2;",
+  "const v=nvVan('INMATE TRANSPORT');v.position.set(cx0+8,0,cz0+5+i*7);v.rotation.y=Math.PI/2+Math.PI;")
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered

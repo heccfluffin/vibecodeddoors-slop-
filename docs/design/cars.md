@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r611
 
 # New car models
 
