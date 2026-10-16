@@ -209,7 +209,7 @@ R("function T(k,a,b){const ky=k+'|'+(+a).toFixed(3)+'|'+(+b).toFixed(3);let t=TC
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx573.js').read()+"\n"+s[k:]
 R("if(Math.hypot(v.x-tx,v.z-tz)>320&&u.st!='home'){garRemove(q,v);u.gone=1;pk.m.visible=true;","if(Math.hypot(v.x-tx,v.z-tz)>320&&u.st!='home'&&u.t>45){garRemove(q,v);u.gone=1;pk.cd=30;pk.m.visible=true;")
 R("if(inZ&&!q.jail&&!q.rsp){if(!q.dzIn)","if(inZ&&milRank()>=9&&!q.dzG){q.dzG=1;hint('🎖️ Dark Zone 51 waves a General straight through. Clearance granted.')}if(inZ&&!q.jail&&!q.rsp&&!(milRank()>=9)){if(!q.dzIn)")
-R("cwDrive(q,u,bx,bz,dt,18,3.5)","cwDrive(q,u,bx,bz,dt,cvMax(u,pv),3.5)")
+R("cwDrive(q,u,bx,bz,dt,18,tp?1.5:3.5)","cwDrive(q,u,bx,bz,dt,cvMax(u,pv),tp?1.5:3.5)")
 R("v.K=Object.assign({},VEHK[v.k],{max:Math.min(max,VEHK[v.k].max||14)});v.hitO=null;vehPhys(q,v,dt,fx,","v.K=Object.assign({},VEHK[v.k],{max:max,acc:Math.max(9,VEHK[v.k].acc||8)});v.hitO=null;vehPhys(q,v,dt,fx,")
 R("[-210,-1440,'at the bottom of the quarry']","[-210,-1450,'at the bottom of the quarry']")
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx574.js').read()+"\n"+s[k:]
@@ -237,6 +237,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx597.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx598.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx599.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx600.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx601.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -331,6 +332,16 @@ R("prop(wx,wz-2.0,1.3,()=>busy?'🪣 ...winding...':'[E] Wind up the bucket',()=
 R("/* bleachers on the west edge of the square, facing the podium */for(let r=0;r<3;r++){A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),423+r*1,.45+r*.4,-840);A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),423.5+r*1,.45+r*.4,-840);A(BX(.1,.45+r*.4,20),DK,423.3+r*1,.22+r*.2,-840)}","/* bleachers on the east edge of the square, looking across at the parade (the command wing and the bays took the west edge) */for(let r=0;r<3;r++){A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),540+r*1,.45+r*.4,-856);A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),540.5+r*1,.45+r*.4,-856);A(BX(.1,.45+r*.4,20),DK,540.3+r*1,.22+r*.2,-856)}")
 R("lab('SPECTATORS · CLAP WHEN TOLD',3,.4,'#20261c','#e8f0d0',424.5,1.9,-829.5,0,44);","lab('SPECTATORS · CLAP WHEN TOLD',3,.4,'#20261c','#e8f0d0',541.5,1.9,-845.5,0,44);")
 R("const free=(x,z)=>!inZone(x,z)&&!onRoad(x,z)&&","const free=(x,z)=>!inZone(x,z)&&!milArea(x,z,-14)&&!onRoad(x,z)&&")
+# r605: the desert police (patrol and chase) drive with the shared AI driver in dx601.js
+R("const dh=wrapA(best-v.h),top=mode=='road'?15:17,vt=Math.min(top,Math.sqrt(Math.max(0,(G.beat?dG+40:dG)-4)*2*7)+2)*(Math.abs(dh)>1?.55:1);let fx=v.v>vt+1?-1:v.v<vt?.85:0,sx=Math.max(-1,Math.min(1,-dh*2.4));if(wp[2]=='land'||wp[2]=='ramp'&&d<12)fx=1;if(Math.abs(dh)>2&&d<10){fx=-.6;sx=-sx}\n if(c.rev>0){c.rev-=dt;fx=-1;sx=c.rsx}else if(Math.abs(v.v)<1&&c.t>2){c.stuck=(c.stuck||0)+dt;if(c.stuck>1.2){c.rev=1.1;c.rsx=Math.random()<.5?-1:1;c.stuck=0;c.rpT=0}}else c.stuck=0;\n v.K=Object.assign({},VEHK.cop,{max:wp[2]=='land'||wp[2]=='ramp'?20:top,acc:wp[2]=='ramp'?11:8});v.hitO=null;vehPhys(q,v,dt,fx,sx,true,false);","/* r605: the shared AI driver (dx601) */const top=mode=='road'?15:17,rmp=wp[2]=='land'||(wp[2]=='ramp'&&d<12),atG=Math.hypot(wp[0]-G.x,wp[1]-G.z)<1;v.K=Object.assign({},VEHK.cop,{max:rmp?20:top,acc:wp[2]=='ramp'?11:8});\n let r=aiCtl(q,v,c,best,d,dt,{max:top,ramp:rmp,stop:atG&&!G.beat?5:null});if(c.rev>0){c.rev-=dt;r=[-1,Math.sign(wrapA(best-v.h))||1]}if(c.replan){c.replan=0;c.rpT=0}c.stuck=c.am==1&&c.amK==1?1:0;\n v.hitO=null;vehPhys(q,v,dt,r[0],r[1],true,false);")
+R("let dh=wrapA(best-v.h),fx=1,sx=Math.max(-1,Math.min(1,-dh*2.4));if(c.nav&&c.nav[2]=='land'){fx=1;sx=Math.max(-1,Math.min(1,-dh*3))}if(Math.abs(dh)>1.9&&dist<14){fx=-.7;sx=-sx}if(!tv&&dist<6)fx=.45;if(tv&&dist<9&&Math.abs(tv.v)<3)fx=.5;\n if(c.rev>0){c.rev-=dt;fx=-1;sx=c.rsx}else if(Math.abs(v.v)<1&&c.t>2){c.stuck=(c.stuck||0)+dt;if(c.stuck>1.2){c.rev=1.1;c.rsx=Math.random()<.5?-1:1;c.stuck=.95}}else c.stuck=Math.max(0,(c.stuck||0)-dt);\n /* rubber band: far away he floors it */const top=dist>45?29:dist>25?25:q.heat>=70?24:21;{const K0=c.K0||VEHK.cop,f=K0.max/23;v.K=Object.assign({},K0,{max:top*f,acc:(dist>25?13:10)*K0.acc/10})}vehPhys(q,v,dt,fx,sx,true,false);","/* r605: the shared AI driver (dx601). Rubber band: far away he floors it */const top=dist>45?29:dist>25?25:q.heat>=70?24:21;{const K0=c.K0||VEHK.cop,f=K0.max/23;v.K=Object.assign({},K0,{max:top*f,acc:(dist>25?13:10)*K0.acc/10})}\n const dS=Math.hypot(tx-v.x,tz-v.z),rmp=!!(c.nav&&(c.nav[2]=='land'||(c.nav[2]=='ramp'&&dS<12)));let mx=v.K.max;if(!tv&&dist<6)mx=Math.min(mx,7);if(tv&&dist<9&&Math.abs(tv.v)<3)mx=Math.min(mx,8);\n let r=aiCtl(q,v,c,best,dS,dt,{max:mx,ramp:rmp,orbit:!(tv&&Math.abs(tv.v)>3)});if(c.rev>0){c.rev-=dt;r=[-1,Math.sign(wrapA(best-v.h))||1]}if(c.replan){c.replan=0;c.npT=0}c.stuck=c.am==1&&c.amK==1?1:0;\n vehPhys(q,v,dt,r[0],r[1],true,false);")
+# r605: the route grid gets levels (mesa top, quarry floor) joined by their east-west roads (navXRamp in dx601)
+R('for(const p of q.plates||[])if(Math.abs(p.y)>2)rng(p.x0,p.x1,p.z0,p.z1,k=>g[k]=1);','/* r605: raised and sunken areas are levels of their own (see navXRamp in dx601) */const PL=new Uint8Array(W*H);{let pli=0;for(const p of q.plates||[])if(Math.abs(p.y)>2){pli++;rng(p.x0,p.x1,p.z0,p.z1,k=>PL[k]=pli)}for(let j=1;j<H-1;j++)for(let i=1;i<W-1;i++){const k=j*W+i;if(PL[k]!==PL[k+1]||PL[k]!==PL[k-1]||PL[k]!==PL[k+W]||PL[k]!==PL[k-W])g[k]=1}}NAV.pl=PL;')
+R('const links={};for(const r of q.ramps||[]){const zA=r.z0,',"const links={};for(const r of q.ramps||[]){if(r.ax=='x'){try{navXRamp(r,rng,g,links)}catch(e){}continue}const zA=r.z0,")
+R('const n=nj*W+ni;if(g[n]||reach[n])continue;','const n=nj*W+ni;if(g[n]||reach[n]||PL[n]!==PL[k])continue;')
+R('const n=nj*W+ni;if(g[n]||cl[n]===G)continue;','const n=nj*W+ni;if(g[n]||cl[n]===G||(NAV.pl&&NAV.pl[n]!==NAV.pl[k]))continue;')
+R("out.push([L.ax,L.az,'ramp',L]);out.push([L.bx,L.bz,'land'])","out.push([L.ax,L.az,L.up?'up':'ramp',L]);out.push([L.bx,L.bz,'land'])")
+R('function navLOS(x0,z0,x1,z1,gr){const g=gr||NAV.g,d=Math.hypot(x1-x0,z1-z0),n=Math.ceil(d/1.2);for(let i=1;i<=n;i++){const u=i/n,k=navCell(x0+(x1-x0)*u,z0+(z1-z0)*u);if(k<0||g[k])return false}return true}','function navLOS(x0,z0,x1,z1,gr){const g=gr||NAV.g,pl=NAV.pl,k0=navCell(x0,z0),l0=pl&&k0>=0?pl[k0]:0,d=Math.hypot(x1-x0,z1-z0),n=Math.ceil(d/1.2);for(let i=1;i<=n;i++){const u=i/n,k=navCell(x0+(x1-x0)*u,z0+(z1-z0)*u);if(k<0||g[k]||(pl&&pl[k]!==l0))return false}return true}')
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered
@@ -359,7 +370,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r604';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r605';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

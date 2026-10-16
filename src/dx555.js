@@ -67,11 +67,13 @@ function pdUnitsTick(q,dt){const H=q.pdHQ;if(!H)return;if((q.heat|0)<=0)q.pdLoss
   if(u.i>=want&&u.st!='home'){u.st='home';u.ht=0;hint('📻 '+PDU[u.i][0]+': "Standing down. Heading back to base."')}
   let gx=tx,gz=tz;if(u.st=='home'){gx=pk.x;gz=pk.z+10;u.ht=(u.ht||0)+dt;const far=Math.hypot(P.x-v.x,P.z-q.OZ-v.z)>70;if(Math.hypot(v.x-pk.x,v.z-pk.z)<13||(u.ht>30&&far)||u.ht>90){garRemove(q,v);u.gone=1;pk.m.visible=true;q.obs.push(pk.ob);q.obsDirty=1;continue}}
   else{/* spread out round you: one straight at you, the others to the sides, so they box you in */const side=u.i==0?0:u.i==1?1:-1;if(tgt&&side){const hx=-Math.sin(tgt.h),hz=-Math.cos(tgt.h);gx=tx+hx*6+(-hz)*side*4;gz=tz+hz*6+hx*side*4}}
-  const dx=gx-v.x,dz=gz-v.z,d=Math.hypot(dx,dz);const want2=Math.atan2(-dx,-dz),dh=wrapA(want2-v.h);
-  if(u.bT<0){u.bT+=dt;v.K=Object.assign({},VEHK.cop,{max:8});v.hitO=null;vehPhys(q,v,dt,-.9,Math.sign(dh)||1,true,false);continue}
-  const close=d<(tgt?3:5);let fx=close?(tgt&&tgt.v>2?.6:-.2):Math.abs(dh)>1.2?.4:1;if(!tgt&&d<7)fx=Math.abs(v.v)>2?-1:0;
-  v.K=Object.assign({},VEHK.cop,{max:u.st=='home'?16:Math.min(34,10+copStars(q)*5)});v.hitO=null;const x0=v.x,z0=v.z;vehPhys(q,v,dt,fx,Math.max(-1,Math.min(1,-dh*2.2)),true,false);
-  if(Math.abs(v.v)<.6&&fx>.3&&!close){u.stuck+=dt;if(u.stuck>1.6){u.stuck=0;u.bT=-1.3}}else u.stuck=0;
+  /* r605: a planned route when there is no clear run (round the buildings, up the ramps), and the shared AI driver (dx601) */
+  const d=Math.hypot(gx-v.x,gz-v.z);let sx0=gx,sz0=gz,tag=null;u.c=u.c||{};const C=u.c;
+  navReady(q);if(d>14||!navLOS(v.x,v.z,gx,gz)){C.npT=(C.npT||0)-dt;if(C.npT<=0||u.replan||C.ntx==null||Math.hypot(C.ntx-gx,C.ntz-gz)>8){u.replan=0;C.npT=d>200?1.6:.8;C.ntx=gx;C.ntz=gz;navReq(q,C,'path',v.x,v.z,gx,gz,d>150?1:0)}navWork(C,2);const wp=C.path&&navSteer(C,v.x,v.z,12);if(wp){sx0=wp[0];sz0=wp[1];tag=wp[2]||null}}
+  const ds=Math.hypot(sx0-v.x,sz0-v.z),ramp=tag=='land'||(tag=='ramp'&&ds<12);let want2=Math.atan2(-(sx0-v.x),-(sz0-v.z));if(!ramp)want2=aiProbe(q,v,u,want2,dt,['me',tgt].filter(Boolean),Math.min(14,ds));
+  const mx=u.st=='home'?16:Math.min(34,10+copStars(q)*5);v.K=Object.assign({},VEHK.cop,{max:ramp?Math.max(20,mx):mx});
+  const close=d<(tgt?3:5),atGoal=sx0===gx&&sz0===gz;const r=aiCtl(q,v,u,want2,ds,dt,{max:mx,ramp,stop:atGoal&&!tgt?5:null,orbit:!(tgt&&Math.abs(tgt.v)>3)});let fx=r[0];if(close&&tgt)fx=tgt.v>2?.6:-.2;
+  v.hitO=null;vehPhys(q,v,dt,fx,r[1],true,false);u.stuck=u.stk||0;u.bT=u.am==1?-1:0;
   if(v.hitO&&tgt&&v.hitO===tgt&&Math.abs(v.v)>6&&(u.rmT=(u.rmT||0)-dt)<=0){u.rmT=1.5;try{vehDamage(q,tgt,Math.abs(v.v)*.6)}catch(e){}snd(90,.2);try{camShake(.25,.2)}catch(e){}}
   if(Math.hypot(v.x-tx,v.z-tz)>320&&u.st!='home'){garRemove(q,v);u.gone=1;pk.m.visible=true;q.obs.push(pk.ob);q.obsDirty=1}}}
 {let last=performance.now();const tick=()=>{requestAnimationFrame(tick);const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;try{const q=BUS.ride;if(state=='bus'&&q&&q.roam&&q.pdHQ)pdUnitsTick(q,dt)}catch(e){conLog('error','backup: '+e.message)}};requestAnimationFrame(tick)}

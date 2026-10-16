@@ -62,7 +62,7 @@ function cwTick(q,dt){const C=q.cw;if(!C)return;if(C.rollT>0)C.rollT-=dt;const l
  for(const s of C.sq){if(s.done)continue;s.t+=dt;const lead=s.v[0];
   if(s.v.some(u=>u.v.wreck)){s.done=1;s.st='lost';hint('💥 SQUAD '+s.nm+' took losses and is out of action. Mission failed.');setTimeout(()=>{for(const u of s.v)try{garRemove(q,u.v)}catch(e){}for(const m of s.sol)if(m.parent)m.parent.remove(m)},8000);continue}
   if(s.ph=='out'||s.ph=='back'){const w=s.wp[s.wi];const far=Math.hypot(P.x-lead.v.x,lz-lead.v.z)>160;
-   const d=cwDrive(q,lead,w[0],w[1],dt,16,0);/* the rest follow in a line */s.v.forEach((u,i)=>{if(!i)return;const pv=s.v[i-1].v;const bx=pv.x+Math.sin(pv.h)*8,bz=pv.z+Math.cos(pv.h)*8;cwDrive(q,u,bx,bz,dt,18,3.5)});
+   const d=cwDrive(q,lead,w[0],w[1],dt,16,0);/* the rest follow in a line */cwTrailRec(s);s.v.forEach((u,i)=>{if(!i)return;const pv=s.v[i-1].v;const tp=cwTrailPt(s,i);const bx=tp?tp[0]:pv.x+Math.sin(pv.h)*8,bz=tp?tp[1]:pv.z+Math.cos(pv.h)*8;cwDrive(q,u,bx,bz,dt,18,tp?1.5:3.5)});
    /* nobody watching and stuck? they get on with it */if(far&&(lead.stuck>.8||lead.bT<0)){const st=Math.min(25,d);const ux=(w[0]-lead.v.x)/(d||1),uz=(w[1]-lead.v.z)/(d||1);s.v.forEach((u,i)=>{u.v.x+=ux*st;u.v.z+=uz*st;u.v.h=Math.atan2(-ux,-uz);u.stuck=0;u.bT=0})}
    if(far&&s.v.some((u,i)=>i&&Math.hypot(u.v.x-lead.v.x,u.v.z-lead.v.z)>40)){s.v.forEach((u,i)=>{if(!i)return;u.v.x=lead.v.x+Math.sin(lead.v.h)*8*i;u.v.z=lead.v.z+Math.cos(lead.v.h)*8*i;u.v.h=lead.v.h})}
    if(d<(s.wi==s.wp.length-1?10:7)){s.wi++;if(s.wi>=s.wp.length){if(s.ph=='out'){s.ph='work';s.wt=0;s.st=s.T.work;hint('📻 SQUAD '+s.nm+': "On site at '+s.loc.nm+'. '+s.T.work[0].toUpperCase()+s.T.work.slice(1)+'."');cwWorkStart(q,s)}else{s.done=1;s.st='home';cwPay(q,s)}}}

@@ -88,8 +88,6 @@ It then inlines the media, sets `const BUILD='YYYY-MM-DD rNNN'` (that regex is n
 - **Never embed the owner key** or any secret in the HTML. People must not be able to read the owner code from the page.
 - **Name filter:** allows "fag…" (the user's friend is literally called FaggotChan), but blocks the n-word.
   There is **no chat filter**.
-- **No known characters or lookalikes:** no Wario stand-ins, no Roblox Noob, no London Underground roundel and
-  the like. Original designs only.
 - **Moderation:** kicks are device-only. Bans cover device and connection.
 - **Tests: keep them short.** The user has rejected long live tests and long screenshot runs several times.
   They have also interrupted long tool calls. Prefer a quick load check plus one targeted check.
@@ -164,7 +162,20 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r604** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- **Live: r605** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- r605: `src/dx601.js` **shared AI driver** used by every AI car: `aiCtl(q,v,s,want,d,dt,o)` (speed for bends,
+  three-point turns when the point is inside the tightest turning circle `5/K.turn`, stuck recovery that alternates
+  sides and sets `s.replan`, circling detection), `aiProbe` (feelers, slope-aware), `aiPassed`, `aiBend`.
+  `cwDrive` is fully redefined there (squads, crime getaway cars, crime cops), `wkAPTick` (autopilot) too; police
+  patrol/chase use it via build.py R patches; backup cars (`pdUnitsTick`, dx555) edited directly. Squad followers
+  follow the leader's track (`cwTrailRec`/`cwTrailPt`). Squads "arrive" at the end of their planned route.
+  **Route grid levels:** plates higher/lower than 2 m (Lookout Mesa, the Old Quarry) are separate levels in `NAV.pl`,
+  joined only by east-west ramp roads (`navXRamp`, path tags `'up'` then `'land'`). The base game only handled
+  north-south jump ramps and made a bogus link for x-ramps.
+  Tested by simulation (driver + physics at 30 steps/s, no rendering), new vs r604: point beside the car 15.4 s/1.8 laps
+  → 2.6 s; behind 7.8 → 4.0 s; Lookout Mesa and Old Quarry unreachable → 14 s and 13 s; Bus stop (inside a building)
+  reached; autopilot home from the desert 38 → 36 s; cop reaches a standing player in 2 s (same). Not tested: real
+  play, co-op, the backup cars.
 - r604: `src/dx600.js` keeps a parked Wraith in your *current* bay (the bay index from `cwSlot` changes when friends
   join; the parked Wraith now follows it while empty and still, you take ownership so it syncs, and the name sign
   follows). **One font**: build.py swaps Georgia/Arial/Impact/serif/sans-serif for `DoorsSans` (Barlow Semi
@@ -195,7 +206,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 **Desert / base**
 1. ~~Wraith not in its bay~~: fixed in r604 (dx600). Solo restore already worked in a headless test; the co-op bay
    shuffle was the cause. If the user still sees it, ask whether a friend was in the desert and who owns a Wraith.
-2. **Autopilot and squads drive in circles:** they always turn one way, crash into walls, reverse a little and crash
+2. ~~Autopilot and squads drive in circles~~ (and police): done in r605, see section 6. Old note: they always turn one way, crash into walls, reverse a little and crash
    again, and take wide turns so they can't get through small gaps. Squads can't get up mesa tops because they drive
    straight at the goal instead of following a path (ramps). Related code: `cwDrive` (dx557, wrapped in dx572 with
    `bgPath` base grid and `navReq`/`navSteer`), the autopilot in dx572, `vehPhys`. Needed: proper path following,
@@ -245,6 +256,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Squad motor pool, crews, squad map routes, co-op Save & Exit (hotel) | dx598 |
 | Desert perf part 2 | dx599 |
 | Wraith follows your bay, font registration in build.py | dx600 |
+| Shared AI driver, squad convoy track, autopilot, route-grid levels (mesa, quarry) | dx601 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |
