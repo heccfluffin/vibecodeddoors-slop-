@@ -12,8 +12,9 @@
    FRONT     -z (the nose).
    SAME HOOKS AS mkVehModel, so it drops in:
              g.userData.wheels  [{p, t, front}] : p = Group at the wheel centre (x ±0.98, y 0.36, z ±1.42),
-                                t = the tyre mesh (rotation.z = PI/2; the flat-tyre event scales it), front = z < 0
-             g.userData.sw      the steering wheel Group, at (0.45, 1.0, -0.56), rotation.x = -1.15; turns on its z
+                                t = the tyre mesh (rotation.z = PI/2; the game spins t.rotation.x to roll it, and the hubcap
+                                is inside t so it rolls too; the flat-tyre event scales it), front = z < 0
+             g.userData.sw      the steering wheel Group, at (0.45, 1.02, -0.42), rotation.x = -1.15; turns on its z
              g.userData.swAx    'z'
              g.userData.bar     (cop only) [red, blue] light meshes: the game sets their material.emissive
    SEATS     Unchanged from VEHK.sedan: driver (0.45, z -0.1), passenger (-0.45, -0.1), rear (±0.42, 0.85).
@@ -70,14 +71,14 @@ function mkSedan(kind,colour){
   const pm=kind=='cop'?black:paint;strip([sd*.9,.95,-.95],[sd*.89,RY,-.27],.07,pm);strip([sd*.92,.95,.29],[sd*.9,RY,.29],.09,pm);strip([sd*.9,.95,1.3],[sd*.89,RY,.85],.09,pm);
   strip([sd*.95,.97,-.93],[sd*.95,.97,1.28],.03,chrome)}/* chrome window line */
  /* ---------- inside ---------- */
- BX(1.8,.28,.4,trim,0,.86,-.77);BX(1.8,.05,.48,M(0x3a3430,{roughness:.9,metalness:0}),0,1.01,-.8);/* dash */
+ BX(1.8,.28,.35,trim,0,.86,-.795);BX(1.8,.05,.42,M(0x3a3430,{roughness:.9,metalness:0}),0,1.01,-.82);/* dash: back face at z -0.62, clear of the steering wheel */
  {const c=document.createElement('canvas');c.width=256;c.height=64;const x=c.getContext('2d');x.fillStyle='#14120f';x.fillRect(0,0,256,64);
   for(const[cx,lbl]of[[70,'SPEED'],[186,'FUEL']]){x.strokeStyle='#d8d0b8';x.lineWidth=2;x.beginPath();x.arc(cx,36,24,Math.PI*.8,Math.PI*2.2);x.stroke();x.fillStyle='#d8d0b8';x.font='9px '+FONT;x.textAlign='center';x.fillText(lbl,cx,58);x.strokeStyle='#ff6020';x.lineWidth=2;x.beginPath();x.moveTo(cx,36);x.lineTo(cx-14,24);x.stroke()}
-  const gm=new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),emissive:0x40a0ff,emissiveIntensity:.15,roughness:.4});const p=new THREE.Mesh(new THREE.PlaneGeometry(.5,.125),gm);p.position.set(.45,.93,-.568);p.rotation.x=-.25;g.add(p)}
+  const gm=new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),emissive:0x40a0ff,emissiveIntensity:.15,roughness:.4});const p=new THREE.Mesh(new THREE.PlaneGeometry(.5,.125),gm);p.position.set(.45,.93,-.618);p.rotation.x=-.25;g.add(p)}
  /* steering wheel (same place and hook as the old model) */
- const sw=new THREE.Group();sw.position.set(.45,1.0,-.56);sw.rotation.x=-1.15;g.add(sw);
+ const sw=new THREE.Group();sw.position.set(.45,1.02,-.42);sw.rotation.x=-1.15;g.add(sw);
  {const r=new THREE.Mesh(new THREE.TorusGeometry(.18,.022,8,24),dk);sw.add(r);for(const a of[0,2.1,4.2]){const sp=new THREE.Mesh(new THREE.BoxGeometry(.16,.025,.02),dk);sp.position.set(Math.cos(a)*.08,Math.sin(a)*.08,0);sp.rotation.z=a;sw.add(sp)}
-  const hub=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.05,12),chrome);hub.rotation.x=Math.PI/2;sw.add(hub);const col=new THREE.Mesh(new THREE.CylinderGeometry(.03,.035,.42,8),dk);col.rotation.x=Math.PI/2;col.position.z=-.22;sw.add(col)}
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.05,12),chrome);hub.rotation.x=Math.PI/2;sw.add(hub);const col=new THREE.Mesh(new THREE.CylinderGeometry(.03,.035,.3,8),dk);col.rotation.x=Math.PI/2;col.position.z=-.16;sw.add(col)}
  /* front bucket seats and the rear bench */
  const seat=(x,z,w)=>{BX(w,.12,.52,seatM,x,.58,z);const bk=BX(w,.62,.11,seatM,x,.93,z+.29);bk.rotation.x=-.12;BX(w*.5,.17,.1,seatM,x,1.32,z+.35)};
  seat(.45,-.1,.56);seat(-.45,-.1,.56);BX(1.56,.12,.5,seatM,0,.58,.82);{const rb=BX(1.56,.58,.1,seatM,0,.92,1.08);rb.rotation.x=-.12}
@@ -120,9 +121,10 @@ function mkSedan(kind,colour){
  for(const[x,z]of[[-.98,-WZ],[.98,-WZ],[-.98,WZ],[.98,WZ]]){const p=new THREE.Group();p.position.set(x,WR,z);g.add(p);
   const t=new THREE.Mesh(new THREE.CylinderGeometry(WR,WR,.26,22),dk);t.rotation.z=Math.PI/2;p.add(t);
   for(const s of[-1,1]){const sw2=new THREE.Mesh(new THREE.TorusGeometry(WR-.04,.04,6,22),dk);sw2.position.set(0,s*.11,0);sw2.rotation.x=Math.PI/2;t.add(sw2)}/* rounded tyre shoulders */
-  const hub=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.27,18),chrome);hub.rotation.z=Math.PI/2;p.add(hub);
-  const cap=new THREE.Mesh(new THREE.CylinderGeometry(.07,.09,.28,12),M(0xb8bcc0,{metalness:.5,roughness:.3}));cap.rotation.z=Math.PI/2;p.add(cap);
-  for(let i=0;i<6;i++){const a=i/6*6.283;const sp=new THREE.Mesh(new THREE.BoxGeometry(.28,.11,.025),M(0x9aa0a4,{metalness:.5,roughness:.3}));sp.position.set(0,Math.cos(a)*.13,Math.sin(a)*.13);sp.rotation.x=a;p.add(sp)}/* ribs on the hubcap */
+  /* the hubcap is part of the tyre mesh's group, so it rolls with it (the game spins t.rotation.x). In t's frame the axle is y. */
+  const hub=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.27,18),chrome);t.add(hub);
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(.07,.09,.28,12),M(0xb8bcc0,{metalness:.5,roughness:.3}));t.add(cap);
+  for(let i=0;i<6;i++){const a=i/6*6.283;const sp=new THREE.Mesh(new THREE.BoxGeometry(.11,.28,.025),M(0x9aa0a4,{metalness:.5,roughness:.3}));sp.position.set(Math.cos(a)*.13,0,Math.sin(a)*.13);sp.rotation.y=-a;t.add(sp)}/* ribs on the hubcap */
   wheels.push({p,t,front:z<0})}
  /* ---------- liveries ---------- */
  const decal=(w,h,draw)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);draw(c.getContext('2d'),c.width,c.height);return new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),transparent:true,alphaTest:.3,roughness:.4,metalness:.2})};
