@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r591';
+const BUILD='2026-10-16 r592';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -14040,8 +14040,8 @@ function mkCasino(L,HX,HY,ez,occ,obs0){const M=(c,e,m)=>new THREE.MeshStandardMa
   obs0.push({x0:-1.35,x1:1.35,z0:z-1.35,z1:z+1.35});CSQ.push({k:'roul',x:0,z:z+2.2})}
  /* high-low card table with a dealer */
  {const x=HX-2.2,z=-19;box(x,.4,z,2.2,.8,1.4,0x5a2a10);box(x,.82,z,2.3,.04,1.5,0x1a6a2a);for(let k=0;k<3;k++)box(x-.5+k*.5,.85,z+.2,.26,.01,.36,0xf4f0e6);
-  const d=mkAvatar('Dealer','dealer#7',13,[]);if(d.userData.tag)d.userData.tag.visible=false;if(d.userData.bub)d.userData.bub.sp.visible=false;d.position.set(x,0,z-1.2);G.add(d);
-  box(x,1.5,z-1.8,.6,.2,.04,sgn('HIGH-LOW','#ffe060','#1a0a2a'),0x200020);obs0.push({x0:x-1.2,x1:x+1.2,z0:z-1.9,z1:z+.8});CSQ.push({k:'hilo',x,z:z+1.6})}
+  const d=mkAvatar('Dealer','dealer#7',13,[]);if(d.userData.tag)d.userData.tag.visible=false;if(d.userData.bub)d.userData.bub.sp.visible=false;d.position.set(x,0,z-1.2);d.rotation.y=Math.PI;G.add(d);
+  box(x,2.55,z-1.85,1.1,.34,.05,sgn('HIGH-LOW','#ffe060','#1a0a2a'),0x200020);box(x,2.55,z-1.89,1.18,.42,.03,0xd8a830,0x3a2a00);for(const o of[-.5,.5])box(x+o,1.2,z-1.9,.05,2.4,.05,0xd8a830,0x3a2a00);obs0.push({x0:x-1.2,x1:x+1.2,z0:z-1.9,z1:z+.8});CSQ.push({k:'hilo',x,z:z+1.6})}
  /* the item dice table */
  {const x=-HX+2.2,z=-21;box(x,.42,z,1.6,.84,1.6,0x2a1a3a);box(x,.86,z,1.7,.04,1.7,0x6a1a6a);for(const o of[-.25,.25]){const dc=box(x+o,.95,z,.16,.16,.16,0xf4f0e6);dc.rotation.y=o*2}
   box(x,1.6,z-.9,.9,.24,.04,sgn('ITEM DICE','#ffe060','#3a0a3a'),0x300020);obs0.push({x0:x-.9,x1:x+.9,z0:z-.9,z1:z+.9});CSQ.push({k:'dice',x,z:z+1.6})}}
@@ -16021,6 +16021,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r592',['Fixed co-op rooms coming out differently for different players (different lockers, drawers, turns and room types). Every 3D object the graphics library creates was quietly using up a number from the room\'s seeded random sequence, so a player who had a texture or model cached already got a different room from that point on','Office rooms no longer turn (no more odd walls and floating windows in office corners)','The wall panelling in corner legs lines up with the hallway\'s panelling','Casino: the high-low dealer faces his table, and the HIGH-LOW sign hangs on gold posts above him instead of poking out of his shoulder']],
  ['r591',['Caves: some caverns have a parkour route (SPACE to jump) up rock pillars to a ledge of DIAMOND and URANIUM (the uranium clicks on a Geiger counter). Magma chambers have lava rivers with stone bridges, lavafalls, glowing cracks and basalt columns; big caverns have rock pillars floor to roof','Quarry tycoon: the computer is only in the office; anything you buy is BUILT in front of you, piece by piece, with scaffolding','Eight ORE PROCESSING machines: ore washer, magnetic sorter, ball mill, coal preheater, bar polisher, diesel generator, ore silo, assay lab, joined up by conveyors, a water main and power cables','A quarry tutorial with waypoints the first time you go into the pit','ROOM INSPECTOR for co-op desyncs: F7 or /room shows exactly how the room was generated and compares it with everyone else (with their build and browser); Copy desync report copies only what differs','Speed boosts make you mop faster','Side rooms are bigger, with full-size doors in frames, lockers clear of the walls, a properly laid out bathroom, and hotel trim in the corner legs and their rooms']],
  ['r590',['Turns are proper L-shaped corners now: the hall bends round to the door. Plus T-rooms: the way on to one side or straight ahead, the other arms ending in a FAKE door or a door to a little side room (all room types can turn, except ones whose exit is a puzzle)','Fixed: the leftover door outline in the end wall of turning rooms, and windows floating in corner openings','Excavator: stays parked until you drive it; the bucket scoops, fills with rubble and tips it out into the hopper; a proper operator seat; engine vents fixed','Fixed: the ore hopper sign, tilted blocks in the mines (now real abandoned minecarts), gaps above the flooded floors and flickering mine walls']],
  ['r589',['The hotel turns corners: some rooms have their exit door in a side wall near the end, and the next room runs off at 90 degrees from there (the Desert Mines too). Rooms never fold back into each other','Rush and Ambush follow a path through the rooms: down each hall, round the corners and through the real door','Ambush has its own sound, a far-off hollow drone that turns into a shriek up close','The little side rooms off the halls are real rooms with doors: bedrooms, bathrooms, studies and linen closets with drawers and wardrobes; in the mines, bunk rooms, tool sheds and powder stores behind plank doors','Math bridge pages glow so you can spot them over the maze walls','Fixed: hairline gaps between desert road pieces']],
@@ -19570,11 +19571,11 @@ function legBlocked(room,s,cz,HY,K){const HX=room.hx,x0=s>0?HX-1.7:-HX,x1=s>0?HX
  if(!bad)return false;K.B(s*HX,HY/2,cz,.1,HY,HX*2+.02,K.W(HX*2,HY));room.wg=room.wg.filter(w=>!(w.tx&&w.s==s));return true}
 /* the leg itself: floor, ceiling, its two long walls, trim, lamps, and the walkable area */
 /* wainscot, chair rail, baseboard and crown along a wall: along 'x' (a long leg wall) or 'z' (an end wall) */
-function legTrim(K,x,z,len,ax,HY,dir){if(len<.05)return;const B=K.B,W=(w,h,d)=>ax=='x'?[w,h,d]:[d,h,w],m=c=>new THREE.MeshStandardMaterial({color:c});if(K.WN){const g=W(len,1,.04);B(x,.5,z,g[0],g[1],g[2],K.WN(len))}{const g=W(len,.14,.06);B(x,.07,z,g[0],g[1],g[2],m(0x2a1608))}{const g=W(len+.02,.07,.07);B(x,1.03,z,g[0],g[1],g[2],m(0x6e4326))}{const g=W(len,.14,.06);B(x,HY-.07,z,g[0],g[1],g[2],m(0xd8c8a8))}}
-function legEndTrim(room,K,s,SX,cz,HY,gap){if(room.mine)return;const ez=-room.L-1,z0=ez,z1=ez+room.hx*2;for(const[a,b]of[[z0+.1,cz-gap],[cz+gap,z1-.1]])legTrim(K,s*(SX-.12),(a+b)/2,b-a,'z',HY)}
+function legTrim(K,x,z,len,ax,HY,dir){if(len<.05)return;const B=K.B,W=(w,h,d)=>ax=='x'?[w,h,d]:[d,h,w],m=c=>new THREE.MeshStandardMaterial({color:c});if(K.WN){const g=W(len,1,.06);B(x,.5,z,g[0],g[1],g[2],K.WN(len))}{const g=W(len,.14,.06);B(x,.07,z,g[0],g[1],g[2],m(0x2a1608))}{const g=W(len+.02,.07,.07);B(x,1.03,z,g[0],g[1],g[2],m(0x6e4326))}{const g=W(len,.14,.06);B(x,HY-.07,z,g[0],g[1],g[2],m(0xd8c8a8))}}
+function legEndTrim(room,K,s,SX,cz,HY,gap){if(room.mine)return;const ez=-room.L-1,z0=ez,z1=ez+room.hx*2;for(const[a,b]of[[z0+.1,cz-gap],[cz+gap,z1-.1]])legTrim(K,s*(SX-.13),(a+b)/2,b-a,'z',HY)}
 function legBuild(room,s,cz,HY,LEG,K){const HX=room.hx,ez=-room.L-1,SX=HX+LEG,xm=s*(HX+LEG/2),z0=ez,z1=ez+HX*2,B=K.B;
  B(xm,-.05,(z0+z1)/2,LEG+.02,.1,HX*2,K.F(LEG,HX*2));B(xm,HY,(z0+z1)/2,LEG+.02,.1,HX*2,K.C(LEG,HX*2));B(xm,HY/2,z0,LEG,HY,.2,K.W(LEG,HY));B(xm,HY/2,z1,LEG,HY,.2,K.W(LEG,HY));
- if(!room.mine){for(const zz of[z0+.12,z1-.12])legTrim(K,xm,zz,LEG,'x',HY)}
+ if(!room.mine){for(const zz of[z0+.13,z1-.13])legTrim(K,xm,zz,LEG,'x',HY)}
  for(const u of LEG>6?[.5,LEG-1.5]:[LEG/2]){const l=mkLight(room.mine?0xffc070:0xffd9a0,.7,10);l.position.set(s*(HX+u),HY-.5,cz);room.RL.push(l);B(s*(HX+u),HY-.08,cz,.5,.1,1.1,new THREE.MeshStandardMaterial({color:0xfff0c0,emissive:0xffd890}))}
  room.mz.push({x0:s>0?HX-.8:-(SX-.6),x1:s>0?SX-.6:-HX+.8,z0:z0+.6,z1:z1-.6});return SX}
 function sideExit(room,s,cz,HY,UP,LEG){const G=room.G,dd=room.dd,HX=room.hx,ez=-room.L-1;if(!dd||!dd.g)return;const pv=dd.g,DX=dd.cx||0;LEG=LEG||8;const K=legMats(room,s,HY),B=K.B,W=K.W;
@@ -19859,6 +19860,17 @@ addEventListener('keydown',e=>{if(e.code=='F7'&&!e.repeat){e.preventDefault();if
 {const cc0=mpChatCmd;mpChatCmd=function(t){if(/^\/(room|roominfo|desync)\b/i.test(String(t).trim())){rdOpen();return true}return cc0.apply(this,arguments)}}
 /* a desync gets flagged straight away, with a button to look */
 {const dc0=mpDesyncCheck;mpDesyncCheck=function(){const before={};for(const id in MP.remotes)before[id]=MP.remotes[id].fpw;const r=dc0.apply(this,arguments);try{for(const id in MP.remotes){const q=MP.remotes[id];if(q.fpw===n&&before[id]!==n){hint('⚠️ This room is different on '+(q.name||'a teammate')+'\'s screen (a desync). Press F7 (or type /room) to see exactly what differs.');break}}}catch(e){}return r}}
+
+
+/* r592: room desync fix. three.js gives every new mesh/material/geometry a random id using Math.random, so while a room was being
+   generated from the seeded random, each object three created ate a number from the room's sequence. Clients that had a texture or
+   geometry cached already (different browser, different rooms seen before) made a different number of objects and the rest of the room
+   came out differently. Now calls that come from three.js always use the browser's own random, and the seeded sequence is only used by the game. */
+(function(){try{const NAT=Math.random;let cur=NAT,wrap=NAT;const fromThree=()=>{const L=Error.stackTraceLimit;try{Error.stackTraceLimit=4}catch(e){}const s=String(new Error().stack||'');try{Error.stackTraceLimit=L}catch(e){}
+  const fr=s.split('\n').filter(x=>x&&!/^Error/.test(x));return !!(fr[2]&&fr[2].indexOf('three')>=0&&fr[2].indexOf('three.min')>=0)};
+ Object.defineProperty(Math,'random',{configurable:true,get(){return wrap},set(f){if(f&&f.__raw)f=f.__raw;cur=f;if(f===NAT){wrap=NAT;return}const g=function(){return fromThree()?NAT():cur()};g.__raw=f;wrap=g}});
+ window.RNGISO=1}catch(e){console.warn('rng isolation',e)}})();
+{const tk0=turnOK;turnOK=function(nn,prev,o){if(o&&o.ofcI>0)return 0;return tk0.apply(this,arguments)}}
 
 </script><script>
 /* ======================================================================================================
