@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r602';
+const BUILD='2026-10-16 r603';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -6743,7 +6743,7 @@ function milBuild(X,q,g){if(q.mil)return;const{A,BX,CY,ob,prop,loc,rect,sign,ani
  /* ---- tank park, the firing line, the targets' berm, the patrol tanks ---- */T('tank park',()=>{LB('TANK PARK · 13TH ARMOURED · SERGEANTS AND UP',8,.9,'#20261c','#e8f0d0',470,3.2,-800.27,Math.PI);A(BX(8.3,1.15,.12),M(0x2a3020),470,3.2,-800.15);for(const sx of[465.6,474.4])A(CY(.08,.1,3.75,8),M(0x4a4e54,{metalness:.6}),sx,1.87,-800.12);
   const mv=(x,z)=>{const v=q.addVeh('tank',x,z,-Math.PI/2);v.mil=4;v.mk='tank';v.nogar=1;return v};for(let i=0;i<4;i++){mv(440+i*20,-790);mv(440+i*20,-770)}for(let i=0;i<4;i++)A(BX(.6,.9,.6),CON2,432+i*20,.45,-780);
   sign('FIRING LINE · FIRE EAST ONLY · TARGETS ON THE BERM','#5a2020',520,-803,0,'#ffe0a0');A(BX(6,3,70),M(0x9a8a60,{roughness:1}),595,1.2,-765).scale.y=1;ob(592,598,-800,-730);
-  /* three patrol tanks on loops */const loops=[[[421,-890],[586,-890],[586,-737],[421,-737]],[[312,-892],[412,-892],[412,-733],[312,-733]],[[482,-721.5],[592,-721.5],[592,-670],[482,-670]]];loops.forEach((lp,i)=>{const v=q.addVeh('tank',lp[0][0],lp[0][1],0);v.mil=99;v.guard=1;v.nogar=1;v.npc=1;ML.gtk.push({v,loop:lp,i:1,cd:2+i});for(const p of q.props)if(p.veh===v)p.txt=()=>q.seat||q.inBus?'':'🪖 A patrol tank. The commander in the hatch is watching you.'})});
+  /* three patrol tanks on loops */const loops=[[[421,-869.5],[586,-869.5],[586,-737],[421,-737]],[[312,-892],[412,-892],[412,-733],[312,-733]],[[482,-721.5],[592,-721.5],[592,-670],[482,-670]]];loops.forEach((lp,i)=>{const v=q.addVeh('tank',lp[0][0],lp[0][1],0);v.mil=99;v.guard=1;v.nogar=1;v.npc=1;ML.gtk.push({v,loop:lp,i:1,cd:2+i});for(const p of q.props)if(p.veh===v)p.txt=()=>q.seat||q.inBus?'':'🪖 A patrol tank. The commander in the hatch is watching you.'})});
  /* ---- the restricted zone: a fence line with a laser gate, the hangar, the substation, the bunker, the silo ---- */T('restricted',()=>{const z=MILRZ.z0;for(let x=X0+1;x<X1;x+=4){if(x>462&&x<478)continue;A(CY(.06,.07,4.2,6),ST,x,2.1,z);}for(const[a,b]of[[X0+1,462],[478,X1-1]]){A(BX(b-a,4,.04),M(0x8a9098,{transparent:true,opacity:.35,metalness:.5,side:THREE.DoubleSide}),(a+b)/2,2,z);A(BX(b-a,.05,.05),ST2,(a+b)/2,4.1,z);for(let x=a+1;x<b;x+=1.6)A(new THREE.TorusGeometry(.3,.03,4,8),ST2,x,4.4,z).rotation.y=Math.PI/2;ob(a,b,z-.1,z+.1)}
   for(const sd of[-1,1]){A(BX(.6,5,.6),CON2,470+sd*8.3,2.5,z);A(BX(.2,.2,.2),M(0x400000,{emissive:0xff2020}),470+sd*8.3,5.2,z)}A(BX(17.2,.8,.8),CON2,470,5.3,z);for(let i=0;i<5;i++){const lz=A(BX(16,.03,.03),M(0xff2020,{emissive:0xff2020,emissiveIntensity:1}),470,.5+i*.8,z);anim(470,z,200,()=>{lz.visible=!(milRank()>=5&&!milHostile(q))&&ML.power;lz.material.opacity=1})}
   const gs=dsSign('RESTRICTED ZONE · LIEUTENANT AND ABOVE\nLASER GRID · DEADLY FORCE · THIS MEANS YOU','#5a2020','#ffe0a0');gs.position.set(482,0,z-2);gs.rotation.y=Math.PI;g.add(gs);const gs2=dsSign('RESTRICTED ZONE · LIEUTENANT AND ABOVE\nLASER GRID · DEADLY FORCE · THIS MEANS YOU','#5a2020','#ffe0a0');gs2.position.set(458,0,z-2);gs2.rotation.y=Math.PI;g.add(gs2);
@@ -16021,6 +16021,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r603',['The desert runs smoother: far-off small things stop being drawn in the haze, and newer parts of the desert (the military base additions, the quarry machines, parked aircraft and trucks) are drawn in batches like the rest','SAVE & EXIT in the desert now works in co-op too: you leave the room and can continue later','The patrol tanks near Fort Blackout take a new loop and no longer drive through the motor pool','The motor pool floor lines no longer vanish a short way off']],
  ['r602',['Dragging the zoomed-in desert map is smooth (it redraws every frame while you drag)','The high-security door between office and bay no longer flickers (z-fighting) on either side','Squad soldiers run forwards, not backwards, and sit facing the front of the vehicle','The motor pool floor sits above the base roads, so no road markings show through']],
  ['r601',['SAVE & EXIT in co-op and public rooms: free the mouse (Esc) and press 💾 Save & exit. Continue it later on your own, or with friends']],
  ['r600',['1 in 100 quarry mines has an OLD SHAFT deep inside, straight down to door 60 of the DESERT MINES. In co-op the host takes everyone once you are all at the shaft','Military base: the spectators\' bleachers moved to the east side of the parade square, facing the parade (they were staring at the back of the command wing)','No more trees, cacti or rocks growing inside the military base','A HIGH-SECURITY door in the back of each general\'s office leads straight into the back of its Wraith bay (the bay owner only)','A Wraith parked in your bay stays remembered until you drive it out: a friend joining or leaving used to make the game forget it','SQUADS: a SQUAD MOTOR POOL north of the command wing. Your squad\'s soldiers walk out of your office, climb into the vehicles, the doors roll up and they drive out; back home they drive in and walk back','You can see the soldiers sitting in squad jeeps and pickups','Squads no longer drive round in circles at a waypoint (inside the base, for example): they go on to the next one','The desert map shows where each squad is heading, with a dashed route and a flag','Desert wishing well rebalanced: a wish costs 10 gold, only about 1 in 8 is granted, and at most 3 wishes a day. The bucket has a 45 s wait between winds and rarely brings up gold']],
@@ -18361,10 +18362,10 @@ function dskStrip(old){try{if(typeof MILIDLE!='undefined')for(let i=MILIDLE.leng
 setInterval(()=>{try{const q=BUS.ride;if(DSK.last&&DSK.last!==q){const o=DSK.last;dskFree(o);setTimeout(()=>dskStrip(o),15000)}DSK.last=q||null}catch(e){}},500);
 {const dd0=deskDrop;deskDrop=function(){const q=BUS.ride;const r=dd0.apply(this,arguments);if(q){try{dskFree(q)}catch(e){}setTimeout(()=>dskStrip(q),15000)}return r}}
 /* ---------- the desert gets a SAVE & EXIT ---------- */
-function dsExit(){const q=BUS.ride;if(!q)return;if(MP.on){hint('🚌 In co-op, leave from the co-op menu so everyone goes together.');return}
+function dsExit(){const q=BUS.ride;if(!q)return;const wasMP=MP.on;
  try{jlSave(true)}catch(e){}try{saveGame()}catch(e){}try{rdStop();RDO.st=0;jailHud('');vehEngine(q,0);dmapHide();if(q.kp){q.kp.remove();q.kp=null}vehNet(q,{k:'bye'})}catch(e){}
  const f0=q.f0;try{deskDrop()}catch(e){}try{C.far=100;C.updateProjectionMatrix();if(S.fog&&f0){S.fog.color.setHex(f0[0]);S.fog.near=f0[1];S.fog.far=f0[2]}}catch(e){}
- try{if(HUD.el)HUD.el.style.display='none';if(HUD.ban){HUD.ban.style.opacity=0;HUD.banT=0}$('d').style.display=''}catch(e){}dsPB.style.display='none';clearAll();state='menu';try{document.exitPointerLock()}catch(e){}menu('DOORS','💾 Saved. The desert will still be there.')}
+ try{if(HUD.el)HUD.el.style.display='none';if(HUD.ban){HUD.ban.style.opacity=0;HUD.banT=0}$('d').style.display=''}catch(e){}dsPB.style.display='none';if(wasMP)try{mpLeave(true)}catch(e){}clearAll();state='menu';try{document.exitPointerLock()}catch(e){}menu('DOORS','💾 Saved. The desert will still be there.')}
 const dsPB=document.createElement('div');dsPB.style.cssText='position:fixed;left:50%;top:64px;transform:translateX(-50%);z-index:62;display:none;background:rgba(20,14,8,.94);border:2px solid #d4a850;border-radius:12px;padding:10px 14px;font:15px Georgia,serif;color:#ffe9b8;text-align:center;box-shadow:0 6px 24px rgba(0,0,0,.5)';
 dsPB.innerHTML='<div style="letter-spacing:2px;color:#ffd860;margin-bottom:8px">🏜️ THE DESERT</div><button data-d="go" style="margin:3px;padding:7px 16px;font:bold 15px Georgia;cursor:pointer;border-radius:8px;border:2px solid #6ad89a;background:#1e4a2e;color:#e8ffe8">▶ Keep playing</button><button data-d="set" style="margin:3px;padding:7px 14px;font:15px Georgia;cursor:pointer;border-radius:8px;border:2px solid #8aa0c0;background:#1c2634;color:#e0ecff">⚙️ Settings</button><button data-d="exit" style="margin:3px;padding:7px 14px;font:15px Georgia;cursor:pointer;border-radius:8px;border:2px solid #d4a850;background:#2a1c10;color:#ffe9a8">💾 Save &amp; exit</button>';
 document.body.appendChild(dsPB);for(const ev of['click','mousedown','mouseup'])dsPB.addEventListener(ev,x=>x.stopPropagation());
@@ -20243,7 +20244,7 @@ function cwShed(q){const C=q.cw;if(!C||C.shed)return;const g=new THREE.Group();q
   const lt=A(.3,.3,.3,M(0x200000,{emissive:0xc00000}),P2.x1+.25,4.25,rz+3.4);S.doors.push({rz,m:dm,lt,ob:ob(P2.x1-.2,P2.x1+.2,a,b),on:1,u:0});z=b}
  if(P2.z1-z>.05){A(t,H,P2.z1-z,CON,P2.x1,H/2,(z+P2.z1)/2);ob(P2.x1-t/2,P2.x1+t/2,z,P2.z1)}
  {const sg=pdTxt('SQUAD MOTOR POOL',6,.7,'#20261c','#e8d890');sg.position.set(P2.x1+.2,H+.7,cz);sg.rotation.y=Math.PI/2;g.add(sg);A(.15,.85,6.3,M(0x20261c),P2.x1+.05,H+.7,cz)}
- for(const rz of rows){for(let k=0;k<8;k++)A(.6,.01,.1,M(0xd8d0b0),P2.x0+2+k*3.2,.155,rz+3.5)}
+ for(const rz of rows){for(let k=0;k<8;k++)A(.6,.03,.12,M(0xd8d0b0),P2.x0+2+k*3.2,.17,rz+3.5)}
  const lmp=[[462,-880],[476,-880],[462,-894],[476,-894]];for(const[x,z2]of lmp){A(.8,.06,.4,M(0xfff0c0,{emissive:0xfff0c0}),x,H-.05,z2)}
  q.obsDirty=1;q.mapR&&q.mapR.push({x0:P2.x0,x1:P2.x1,z0:P2.z0,z1:P2.z1,c:'#4a5a4a'});q.mapBg=null}
 {const cb8=cwBuild;cwBuild=function(q){const r=cb8.apply(this,arguments);try{cwShed(q)}catch(e){conLog('error','motor pool: '+e.message)}return r}}
@@ -20284,6 +20285,49 @@ setInterval(()=>{try{const show=MP.on&&!HUB.on&&mpul.style.display=='block'&&(st
 function mpSaveExit(){let saved=false;try{if(!(DAILY&&DAILY.on)&&!(typeof GON=='function'&&GON())&&state!='spec'&&hp>0&&n>=1&&n<EXN){if(mpSeed)soloSeed=mpSeed>>>0;state='play';runSave();saved=!!runLoad()}}catch(e){}
  try{mpLeave(true)}catch(e){}try{clearAll()}catch(e){}state='menu';MPSX.style.display='none';try{mpul.style.display='none'}catch(e){}try{document.exitPointerLock()}catch(e){}
  menu('DOORS',saved?'💾 Saved at door '+n+'. Pick it up again from the menu with Continue (on your own), or with Continue our co-op run when you make a room with friends.':'You left the game.')}
+
+
+/* =====================================================================================================
+   r603: DESERT PERFORMANCE, PART 2 (on top of the r500 batching).
+   The r500 pass batches the desert's static scenery once, while it loads. Everything built after that (the quarry
+   machines, the military base additions, the command wing, the Wraith bays, the motor pool, destinations that are put
+   up as you get near them...) was never batched, and it is where the draw calls pile up.
+   1. LATE BATCHING: any new part of the desert that has stood still for a few seconds is batched with the same
+      code and the same watchdog as the rest (if something in it moves or changes, that piece goes back to being drawn
+      on its own, straight away).
+   2. DISTANCE CULLING for the separate objects that are not in a chunk: small things stop being drawn a long way off
+      (where they would be a few pixels in the haze), and nothing is drawn past the fog.
+   Nothing is paused: timers, police, traffic, squads and physics run exactly as before.
+   ?noperf in the address switches this part off.
+   ===================================================================================================== */
+const PERF={on:!/[?&]noperf\b/.test(location.search),q:null,seen:new Map(),stats:{late:0,lateMeshes:0,culled:0},li:0,leaves:null};
+const PL_FAR=6;
+/* rays (roof checks, aiming, clicking) still see culled objects */
+{for(const fn of['intersectObject','intersectObjects']){const f0=THREE.Raycaster.prototype[fn];THREE.Raycaster.prototype[fn]=function(){try{this.layers.enable(PL_FAR)}catch(e){}return f0.apply(this,arguments)}}}
+/* a fingerprint of a whole part of the desert: where its pieces are, and how many there are */
+function perfRootFP(r){let h=0,n=0;r.traverse(o=>{if(o.isMesh){const e=o.matrixWorld.elements;h+=e[12]*1.3+e[13]*2.1+e[14]*.7+e[0]+e[10];n++}});return Math.round(h*100)+'/'+n}
+function perfLate(q){const D=q.dp;if(!D||!D.merged||!D.roots||typeof DP=='undefined'||!DP._mergeRoot)return;const now=performance.now(),known=new Set(D.roots.concat(D.movers||[]));const veh=new Set((q.vehs||[]).map(v=>v.m));
+ /* vehicles built after the first pass (the parked aircraft and trucks at the base, for example): batched as movers, checked every frame like the others */
+ for(const v of q.vehs||[]){const o=v.m;if(!o||known.has(o)||o.userData.dpLate||o.userData.dpRecs||v.gone||v.wreck||!o.parent)continue;o.userData.dpLate=1;try{o.updateMatrixWorld(true);const k=DP._mergeRoot(q,o,DP.cfg().lam,false);if(o.userData.dpRecs&&o.userData.dpRecs.length){o.userData.dpVeh=1;(D.movers||(D.movers=[])).push(o);PERF.stats.late+=k[0];PERF.stats.lateMeshes+=k[1]}}catch(e){conLog('error','late batching (vehicle): '+e.message)}}
+ for(const o of q.g.children){if(known.has(o)||veh.has(o)||o.userData.dpLate||o.userData.chunk||o.userData.dpKeep||o.userData.noChunk||o.userData.mv)continue;if(!(o.isGroup||o.type==='Group'||o.type==='Object3D'))continue;if(!o.visible)continue;
+  try{if(typeof MN!='undefined'&&(o===MN.g))continue}catch(e){}
+  const fp=perfRootFP(o),c=PERF.seen.get(o);if(!c||c.fp!==fp){PERF.seen.set(o,{fp,t:now});continue}if(now-c.t<6000)continue;
+  /* still for six seconds: batch it, and from now on the watchdog checks it like the rest */o.userData.dpLate=1;PERF.seen.delete(o);try{o.updateMatrixWorld(true);const k=DP._mergeRoot(q,o,DP.cfg().lam,false);if(o.userData.dpRecs&&o.userData.dpRecs.length){D.roots.push(o);PERF.stats.late+=k[0];PERF.stats.lateMeshes+=k[1]}}catch(e){conLog('error','late batching: '+e.message)}
+  break}}
+/* ---------- distance culling of loose objects ---------- */
+const PERF_D=[150,320];
+function perfCull(q){const cam=C.position,root=q.g;let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}
+ const L=PERF.leaves||(PERF.leaves=[]);if(!L.length||PERF.li>=L.length){L.length=0;PERF.li=0;const veh=new Set((q.vehs||[]).map(v=>v.m));
+  const walk=(o,inChunk)=>{for(const c of o.children){if(veh.has(c))continue;const ch=inChunk||!!(c.userData&&c.userData.chunk);if(c.children.length)walk(c,ch);else if(!ch&&(c.isMesh||c.isSprite)&&!c.isInstancedMesh)L.push(c)}};walk(root,false)}
+ const v=new THREE.Vector3();for(let k=0;k<400&&PERF.li<L.length;k++,PERF.li++){const o=L[PERF.li];if(!o.parent)continue;const mask=o.layers.mask,isFar=mask===(1<<PL_FAR);if(!isFar&&mask!==1)continue;
+  /* measured from the middle of what is drawn, not from where the object sits (a batch sits at its group's origin, which can be far from the things in it) */
+  let r=1;v.setFromMatrixPosition(o.matrixWorld);try{if(o.isSprite)r=Math.max(o.scale.x,o.scale.y);else{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere){r=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld)}}}catch(e){}
+const d=v.distanceTo(cam)-r,lim=Math.min(far,r<1.2?PERF_D[0]:r<4?PERF_D[1]:1e9),want=d>lim;
+  if(want&&!isFar){o.layers.set(PL_FAR);PERF.stats.culled++}else if(!want&&isFar){o.layers.set(0);PERF.stats.culled--}}}
+/* ---------- run it from the desert's own update ---------- */
+{const ru14=busRoamUpd;busRoamUpd=function(q,dt){const r=ru14.apply(this,arguments);try{if(!PERF.on||!q||!q.g)return r;if(PERF.q!==q){PERF.q=q;PERF.seen=new Map();PERF.leaves=null;PERF.li=0;PERF.lt=0}
+  const now=performance.now();if(now-(PERF.lt||0)>1500){PERF.lt=now;perfLate(q)}perfCull(q)}catch(e){conLog('error','perf: '+e.message);PERF.on=false}return r}}
+/* for testing: batch everything new now, and cull everything in one go */function perfForce(){const q=BUS.ride;if(!q)return;for(let j=0;j<3;j++){for(const c of PERF.seen.values())c.t-=7000;for(let i=0;i<80;i++)perfLate(q)}PERF.leaves=null;PERF.li=0;for(let i=0;i<200;i++)perfCull(q);return PERF.stats}
 
 </script><script>
 /* ======================================================================================================

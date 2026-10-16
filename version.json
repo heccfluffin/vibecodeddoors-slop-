@@ -1,1 +1,1 @@
-{"b": "r602", "notes": "Smooth map dragging, door z-fight fix, squad soldier fixes, motor pool floor."}
+{"b": "r603", "notes": "Smoother desert (fewer draw calls), Save & Exit in the desert works in co-op, tanks avoid the motor pool."}
