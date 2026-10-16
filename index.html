@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r600';
+const BUILD='2026-10-16 r601';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16021,6 +16021,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r601',['SAVE & EXIT in co-op and public rooms: free the mouse (Esc) and press 💾 Save & exit. Continue it later on your own, or with friends']],
  ['r600',['1 in 100 quarry mines has an OLD SHAFT deep inside, straight down to door 60 of the DESERT MINES. In co-op the host takes everyone once you are all at the shaft','Military base: the spectators\' bleachers moved to the east side of the parade square, facing the parade (they were staring at the back of the command wing)','No more trees, cacti or rocks growing inside the military base','A HIGH-SECURITY door in the back of each general\'s office leads straight into the back of its Wraith bay (the bay owner only)','A Wraith parked in your bay stays remembered until you drive it out: a friend joining or leaving used to make the game forget it','SQUADS: a SQUAD MOTOR POOL north of the command wing. Your squad\'s soldiers walk out of your office, climb into the vehicles, the doors roll up and they drive out; back home they drive in and walk back','You can see the soldiers sitting in squad jeeps and pickups','Squads no longer drive round in circles at a waypoint (inside the base, for example): they go on to the next one','The desert map shows where each squad is heading, with a dashed route and a flag','Desert wishing well rebalanced: a wish costs 10 gold, only about 1 in 8 is granted, and at most 3 wishes a day. The bucket has a 45 s wait between winds and rarely brings up gold']],
  ['r599',['A CHANGELOG button on the main menu: it shows a red ! whenever there has been an update you have not read yet (or a newer build is out)','Desert map: click (or tap) a place\'s icon to WARP there. Not from prison, a vehicle, the mine, or while you are wanted','Zoomed in on the desert map, click and drag (or drag a finger) to move it around']],
  ['r598',['Lava geysers no longer overlap lava pools, the lake, the river, ore or parkour routes, and there are more of them out in the open chamber','The stone bridge over the lava river is in a random place along it (always reaching both banks)','Lava pools that landed inside a lava lake or the river are gone']],
@@ -20275,6 +20276,13 @@ function cwWalkTick(q,s,dt){let left=0;for(const w of s.walk){if(w.done)continue
    for(let i=s.ph=='work'?s.wp.length:s.wi;i<s.wp.length;i++)x.lineTo(X(s.wp[i][0]),Y(s.wp[i][1]));if(s.ph=='work')x.lineTo(X(T.x),Y(T.z));x.stroke();x.setLineDash([]);
    const fx=X(T.x),fy=Y(T.z);x.fillStyle='#2a8aff';x.strokeStyle='#fff';x.lineWidth=2;x.beginPath();x.arc(fx,fy,full?9:6,0,7);x.fill();x.stroke();x.font=(full?18:13)+'px serif';x.textAlign='center';x.textBaseline='middle';x.fillText('🚩',fx,fy-(full?16:12));
    if(full){x.font='bold 12px Georgia';x.fillStyle='#e8f2ff';x.strokeStyle='#000';x.lineWidth=3;const t2='SQUAD '+s.nm+(s.ph=='back'?' (home)':'');x.strokeText(t2,fx,fy+18);x.fillText(t2,fx,fy+18)}x.restore()}}catch(e){}return r}}
+/* ---------- SAVE & EXIT in co-op and public rooms: free the mouse (Esc) and a button appears ---------- */
+const MPSX=document.createElement('button');MPSX.textContent='💾 Save & exit';MPSX.style.cssText='position:fixed;left:50%;bottom:calc(205px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:36;display:none;font:bold 15px Georgia,serif;color:#ffe9a8;background:#2a1c10;border:2px solid #d4a850;border-radius:8px;padding:8px 18px;cursor:pointer';
+for(const ev of['mousedown','mouseup','touchstart'])MPSX.addEventListener(ev,e=>e.stopPropagation());MPSX.onclick=e=>{e.stopPropagation();mpSaveExit()};document.body.appendChild(MPSX);
+setInterval(()=>{try{const show=MP.on&&!HUB.on&&mpul.style.display=='block'&&(state=='play'||state=='keypad'||state=='spec');MPSX.style.display=show?'block':'none'}catch(e){}},300);
+function mpSaveExit(){let saved=false;try{if(!(DAILY&&DAILY.on)&&!(typeof GON=='function'&&GON())&&state!='spec'&&hp>0&&n>=1&&n<EXN){if(mpSeed)soloSeed=mpSeed>>>0;state='play';runSave();saved=!!runLoad()}}catch(e){}
+ try{mpLeave(true)}catch(e){}try{clearAll()}catch(e){}state='menu';MPSX.style.display='none';try{mpul.style.display='none'}catch(e){}try{document.exitPointerLock()}catch(e){}
+ menu('DOORS',saved?'💾 Saved at door '+n+'. Pick it up again from the menu with Continue (on your own), or with Continue our co-op run when you make a room with friends.':'You left the game.')}
 
 </script><script>
 /* ======================================================================================================
