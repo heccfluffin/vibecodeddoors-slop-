@@ -1,4 +1,4 @@
-Status: building (part 1 shipped in r606; parts 2 and 3 next)
+Status: shipped in r607 (part 1 in r606)
 
 # Devil's Gorge: real fall, solid cave floor, new one-way lift
 

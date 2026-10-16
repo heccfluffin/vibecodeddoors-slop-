@@ -1,4 +1,4 @@
-Status: building (parts 1 and 2 shipped in r606; part 3 next)
+Status: shipped in r607 (parts 1-2 in r606)
 
 # Speedway fixes and the new Quarry Skip booster jump
 

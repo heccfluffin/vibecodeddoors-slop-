@@ -162,7 +162,14 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r606** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- **Live: r607** (`main`, released 2026-10-16).
+- r607 (`src/dx603.js` + build.py patches): the design chat's `mkGorgeLift`, `mkBoosterRamp`, `mkLandingRamp`;
+  one-way lift state machine (`GLIFT`, replaces `liftGo`/`liftTick`); cave floor fix (the tunnel floor box had a negative
+  depth); Quarry Skip booster (`QSKIP`, launch in a `vehPhys` wrapper, soft landing via `LANDSOFT`). **`q.obs` boxes
+  can now have `top`** (a car above `top - 0.3` passes over), and `q.ramps` can have `nolink` (wall in the route grid).
+- In progress elsewhere: main-menu + how-to-play (worktree `/home/user/wt-menu`, r608, dx605), uplink + water-delivery
+  (worktree `/home/user/wt-uplink`, r609, dx606/dx607). Then police (r610?) and autopilot modes (user request:
+  Wraith: home or waypoint; aircraft: auto-land at the nearest airstrip, the waypoint, or straight down).
 - r606 (`src/dx602.js` + build.py patches): km/h everywhere (`kmh.md`); base map drawn from the wall boxes
   (`mapBaseDraw`, labels `MAPBN`); every desert InstancedMesh unculled and pulled out of scenery chunks (`imFix`;
   that was the Speedway's "invisible obstacles"); dragster front axle; AI cars don't damage themselves on scenery
@@ -266,6 +273,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Wraith follows your bay, font registration in build.py | dx600 |
 | Shared AI driver, squad convoy track, autopilot, route-grid levels (mesa, quarry) | dx601 |
 | Base map, instanced-mesh fix, dragster axle, AI self-damage, gorge fall, mining shack move | dx602 |
+| Gorge lift model, cave floor, Quarry Skip booster jump | dx603 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |
