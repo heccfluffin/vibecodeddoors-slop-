@@ -1,0 +1,4 @@
+const {chromium}=require('playwright');const fs=require('fs');
+(async()=>{const b=await chromium.launch({args:['--use-gl=swiftshader']});const pg=await (await b.newContext({viewport:{width:600,height:400}})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));pg.on('console',m=>{if(m.type()=='error')errs.push(m.text().slice(0,200))});
+ const T3=fs.readFileSync(__dirname+'/three/three.min.js','utf8');await pg.route(/three\.min\.js/,r=>r.fulfill({contentType:'text/javascript',body:T3}));await pg.route(/^https?:\/\/(?!localhost).*/,r=>{if(/three\.min/.test(r.request().url()))return r.fallback();r.abort()});
+ await pg.goto('file://'+require('path').resolve(__dirname,'../out/DOORS.html'));await pg.waitForTimeout(3000);console.log(await pg.evaluate(()=>[typeof chlOpen,typeof cwShed,typeof mpSaveExit,document.querySelectorAll('button').length]));console.log(errs.slice(0,5));await b.close()})();
