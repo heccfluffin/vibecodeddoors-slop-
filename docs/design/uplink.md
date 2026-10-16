@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r609
 
 # THUNDERBOLT uplink: new model
 

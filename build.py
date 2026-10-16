@@ -242,6 +242,8 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx602.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx603.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx604.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx605.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx606.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx607.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -394,6 +396,11 @@ R("if(r.ax=='x'){try{navXRamp(r,rng,g,links)}catch(e){}continue}","if(r.ax=='x')
 # r608: main menu and how to play (dx605)
 # the old 2,000-word How to Play text goes: dx605 shows a short tabbed card instead (#how stays, empty, as the title-screen marker)
 _a=s.index('<div id="how">');_b=s.index('<p id="swn"',_a);assert s.count('<div id="how">')==1 and _b-_a<20000;s=s[:_a]+'<div id="how"></div>\n'+s[_b:]
+# r609: uplink and water delivery (dx606, dx607)
+R("/* the uplink at Radar Station 13 */A(BX(1.2,1.1,.8),M(0x2a3038),447,.55,-694.5);const sc=A(BX(1.0,.6,.08),M(0x15181c),447,1.45,-694.85);const ul=glowSp(0x60a0ff,.8,.5);ul.position.set(447,1.45,-694.75);g.add(ul);A(new THREE.CylinderGeometry(.35,.35,.06,16),M(0xd8d8d8),447,1.2,-694.4).rotation.x=-.6;","/* the uplink at Radar Station 13: the r609 model (dx606) */try{upBuild(q)}catch(e){conLog('error','uplink: '+e.message)}")
+R("q.props.push({x:447,z:-693.2,r:1.5,","q.props.push({x:447.5,z:-692.2,r:1.5,")
+R(",{x0:446.4,x1:447.6,z0:-694.9,z1:-694.1});q.obsDirty=1}",");q.obsDirty=1}")
+R("s.sg2?SJT.pack+3:28","s.sg2?(s.sg2.wEnd||SJT.pack+3):28")
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered
@@ -422,7 +429,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r608';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r609';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

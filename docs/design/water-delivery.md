@@ -1,4 +1,4 @@
-Status: proposed
+Status: shipped in r609
 
 # Water delivery: the Groundskeeper takes the water and pours it in
 

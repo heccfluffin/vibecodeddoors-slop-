@@ -162,16 +162,17 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r608** (`main`, released 2026-10-16). r608 = the main menu and How to play (`src/dx605.js`, built by a helper
+- **Live: r609** (`main`, released 2026-10-16). r609 = uplink (`dx606`) and water delivery (`dx607`), built by a helper
+  agent, plus autopilot modes (`dx604`: L cycles modes for the Wraith, planes, jets and helicopters; `wpPlan`, `apFixed`).
+- r608: r608 = the main menu and How to play (`src/dx605.js`, built by a helper
   agent; the old `#how` text is cut out in build.py, `#how` stays as an empty title-screen marker).
 - r607:
 - r607 (`src/dx603.js` + build.py patches): the design chat's `mkGorgeLift`, `mkBoosterRamp`, `mkLandingRamp`;
   one-way lift state machine (`GLIFT`, replaces `liftGo`/`liftTick`); cave floor fix (the tunnel floor box had a negative
   depth); Quarry Skip booster (`QSKIP`, launch in a `vehPhys` wrapper, soft landing via `LANDSOFT`). **`q.obs` boxes
   can now have `top`** (a car above `top - 0.3` passes over), and `q.ramps` can have `nolink` (wall in the route grid).
-- In progress elsewhere: uplink + water-delivery
-  (worktree `/home/user/wt-uplink`, r609, dx606/dx607). Then police (r610?) and autopilot modes (user request:
-  Wraith: home or waypoint; aircraft: auto-land at the nearest airstrip, the waypoint, or straight down).
+- In progress: police (worktree `/home/user/wt-police`, branch r610-police, dx608). Not started: `cars.md` (heavy vehicle
+  models from the design chat), office-monitors (model needs the user's OK).
 - r606 (`src/dx602.js` + build.py patches): km/h everywhere (`kmh.md`); base map drawn from the wall boxes
   (`mapBaseDraw`, labels `MAPBN`); every desert InstancedMesh unculled and pulled out of scenery chunks (`imFix`;
   that was the Speedway's "invisible obstacles"); dragster front axle; AI cars don't damage themselves on scenery
@@ -276,7 +277,10 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Shared AI driver, squad convoy track, autopilot, route-grid levels (mesa, quarry) | dx601 |
 | Base map, instanced-mesh fix, dragster axle, AI self-damage, gorge fall, mining shack move | dx602 |
 | Gorge lift model, cave floor, Quarry Skip booster jump | dx603 |
+| Autopilot modes (L cycles) | dx604 |
 | Main menu (4-button row, Locker, Stats, More), How to play tabs | dx605 |
+| Orbital uplink console | dx606 |
+| Water delivery: tanks, groundskeeper, jerrycans | dx607 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

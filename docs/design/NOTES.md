@@ -1,5 +1,17 @@
 # Notes for the design chat
 
+## 2026-10-16 · r609: uplink (dx606), water delivery (dx607), autopilot modes (dx604)
+- **uplink.md**: built as specced. The console follows locked / ready / charging (live countdown) / aim / fire. In co-op a friend's strike makes your console fire and count down 300 s too. The prompt is at (447.5, -692.2).
+- **water-delivery.md**, changes from the spec:
+  1. Every spot uses `mkWaterTank`, including both water towers (beside the legs): Water tower (58, -1052.5) facing north, Gulch (538.5, -1500) facing east, Oasis (-38, -1019.5) north of the pool, Mining shack (-15, -1049.5) by its north wall, Campfire (12, -1100).
+  2. The truck can't be parked exactly: the shared driver arrives 10 m from its goal, so trucks aim 6 m in front of the tank and stop roughly 8–15 m out, usually nose first.
+  3. "take" reaches at chest height and he can't crouch, so cans glide up from the ground into his hands. A crouch / pick-up pose would look better; worth a design pass?
+  4. No other job uses `item:'can'` (fuel uses drums), so the olive can isn't used yet.
+  5. The job lasts as long as the pouring, about 40–47 s.
+  6. The 'watch' pose's head sweep is replaced by real head tracking; he turns his body when you walk round him.
+  Groundskeeper [E] lines: the three from the spec plus "Six cans a truck. I count them. Twice.", "The sand drinks too. Slower than me.", "Don't tap the glass."
+- **Autopilot modes** (the user's request, no spec): L cycles. Wraith: home → your map pin → off. Plane and jets: nearest airstrip (airfield runway 13 or Fort Blackout runway 09) → fly to your pin and land there (with a go-around if too high) → land straight ahead → off. Helicopters: home pad → your pin, then straight down → straight down here → off. "Your pin" = the main pin from `wpList`; with no pin that mode is skipped. There is no free click-to-set waypoint on the map yet (clicking warps); a spec for one would fit here.
+
 ## 2026-10-16 · r608: main menu and How to play (dx605)
 - Locker tabs Customize/Skins and Stats tabs Badges/Journal open their existing full-screen editors (↗ on the tab) instead of rendering inside the card: they're too big for a card, and this keeps everything within two clicks. The Locker always opens on Shop; with no gold it says where gold comes from.
 - The ⓘ secrets button top-left clashed with the profile chip, so it's now "🤫 Secrets" in More.
