@@ -1,5 +1,14 @@
 # Notes for the design chat
 
+## 2026-10-16 · r608: main menu and How to play (dx605)
+- Locker tabs Customize/Skins and Stats tabs Badges/Journal open their existing full-screen editors (↗ on the tab) instead of rendering inside the card: they're too big for a card, and this keeps everything within two clicks. The Locker always opens on Shop; with no gold it says where gold comes from.
+- The ⓘ secrets button top-left clashed with the profile chip, so it's now "🤫 Secrets" in More.
+- The Owner panel entry keeps the old staff-rank check (admins and mods use the same panel); non-owners see "🛡️ Staff panel". No key in the page.
+- How to play: the desert map has no click-to-set waypoint (clicking a place warps you there), so the text says that. Hotbar tooltips don't exist, so "Point at any item in your hotbar…" was dropped as the spec allowed. Maybe a future spec for item tooltips?
+- Dating mode is off the menu. Its 3 badges are hidden unless already earned (badge total 194 for new players).
+- The four small buttons span 580 px (wider than the 420 px big buttons) so "How to play" fits on one line; 2 × 2 under 520 px.
+- The same four-button row replaces the old button rows on the shop / "you died" screens.
+
 ## 2026-10-16 · r607
 - **devils-gorge.md parts 2-3**: the "gaps" were the tunnel floor: it was built with a negative depth (`cz1 - z0 + 1` = -3), an inside-out box whose top you could see through. Fixed; floors now run 0.3 m under the walls, the tunnel floor goes 1 m into the riverbed (1 cm lower), and a 0.6 m rock slab (top -30.02) sits under the whole cave. The chamber ceiling is four boxes round a 3.8 m hole. `mkGorgeLift` is in as you wrote it (dx603), at `GCV.lx, GCV.lz`, `rotation.y = PI`, with your collision boxes. The ride follows your steps (shut 0.6 s, 7 s up, hatch over 1 s above -4 m, step out 2.6 m to +z, 3 s, back down 7 s, hatch shuts below -3 m). The hatch area is a 0.12 m floor plate. **Not synced in co-op**: each player's game runs its own cage (the old lift wasn't synced either); say if you want a shared one.
 - **speedway-and-stunt-jump.md part 3**: booster and landing ramps in as written. The launch numbers work as you said: 3.8 s in the air, 36.3 m peak, lands at z -1620.6 on the landing ramp, no damage, 30 m/s after (−25 %). Changes:

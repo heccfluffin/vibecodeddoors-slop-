@@ -240,6 +240,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx600.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx601.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx602.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx603.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx605.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -389,6 +390,9 @@ R('A(BX(CW+1.2,.6,CD+1.2),RKM,cx,Y+H+.3,cz);','{/* r607: the ceiling in four pie
 R('for(const o of obsNear(q,cx,cz))if(!o.off&&!o.ped&&cx>o.x0-v.r','for(const o of obsNear(q,cx,cz))if(!o.off&&!o.ped&&!(o.top!=null&&v.y>o.top-.3)&&!(v.qsFly&&v.air&&v.y>6)&&cx>o.x0-v.r')
 R("ramp(-330,-1460,9,5,2.8,-1,'QUARRY SKIP');",'/* r607: QUARRY SKIP is the booster jump now (dx603) */')
 R("if(r.ax=='x'){try{navXRamp(r,rng,g,links)}catch(e){}continue}","if(r.ax=='x'){try{navXRamp(r,rng,g,links)}catch(e){}continue}if(r.nolink){rng(r.x0-R,r.x1+R,Math.min(r.z0,r.z0+r.dir*r.len)-.5,Math.max(r.z0,r.z0+r.dir*r.len)+.5,k=>g[k]=1);continue}")
+# r608: main menu and how to play (dx605)
+# the old 2,000-word How to Play text goes: dx605 shows a short tabbed card instead (#how stays, empty, as the title-screen marker)
+_a=s.index('<div id="how">');_b=s.index('<p id="swn"',_a);assert s.count('<div id="how">')==1 and _b-_a<20000;s=s[:_a]+'<div id="how"></div>\n'+s[_b:]
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered
@@ -417,7 +421,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r607';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-16 r608';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
