@@ -164,32 +164,18 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r602** (`main`).
-- **Built but NOT released (r603, in this branch):**
-  - `src/dx599.js`: desert performance part 2, on top of the r500 `DP` system:
-    - **Late batching:** desert groups built after the r500 pass, once still for 6 s, go through `DP._mergeRoot`
-      and are added to `D.roots` (the watchdog then checks them). This was added last and is **untested**:
-      vehicles built late (the parked aircraft and trucks at the base) are batched as movers (`D.movers`).
-    - **Distance culling** of loose leaves that aren't in a chunk, using layer 6 (`PL_FAR`): small objects
-      (radius < 1.2) disappear beyond 150 m, medium ones (< 4) beyond 320 m, everything beyond the fog.
-      The Raycaster prototype is patched to also hit layer 6.
-    - `?noperf` in the URL turns it off. `perfForce()` is a test hook.
-    - Measured at the base with swiftshader: draw calls ~1390 → ~1140 and tris 224k → 210k (before the vehicle
-      batching). The biggest remaining cost at the base: **5 parked aircraft, ~140 meshes each (~700 draw calls),
-      not batched**. That's what the untested vehicle step targets. The bus stop went from 367 to ~225 calls.
-    - JS profiling showed game logic is only ~6% of CPU. Rendering/driver work dominates, so draw calls and
-      triangles are what matter. The scene has ~34k meshes, and `scene.updateMatrixWorld` traverses all of them
-      every frame.
-    - An earlier attempt at a separate merge system double-merged the r500 batches and broke visuals. It was thrown
-      away. **Don't write a second batching system.**
-  - `src/dx575.js`: desert **Save & Exit now works in co-op** (it leaves the room instead of refusing).
-  - The patrol tank loop near the base was moved so tanks don't drive through the motor pool
-    (build.py patch: `[[421,-869.5],[586,-869.5],[586,-737],[421,-737]]`).
-  - Motor pool floor lines are raised (they disappeared a short way off).
-  - **The r603 changelog entry hasn't been written yet.** Add it in dx531.js before releasing.
-- Before releasing r603: check visually that nothing disappears or looks wrong with the perf changes (compare
-  `?noperf`), especially the bus-stop shack doorway and the phone booth on the north road. Those broke with the old
-  merge attempt and should be fine now, but haven't been re-checked.
+- **Live: r603** (`main`, released 2026-10-16). Nothing built-but-unreleased.
+- r603 contents: `src/dx599.js` desert performance part 2 on top of the r500 `DP` system (late batching of desert
+  groups and late-built vehicles, distance culling of loose leaves on layer 6 `PL_FAR`, `?noperf` turns it off,
+  `perfForce()` test hook); desert Save & Exit in co-op (`dx575.js`); tank loop moved off the motor pool; motor pool
+  floor lines raised.
+- **Bug found and fixed before release:** `perfCull` measured distance from an object's origin. A batched mesh
+  sits at its group's origin, which can be hundreds of metres from what it draws, so whole base buildings were
+  culled while you stood next to them. It now measures from the geometry's bounding-sphere centre. Any future
+  culling code must do the same.
+- Measured with swiftshader, draw calls with perf on vs `?noperf`: bus stop 375 → 225, north road booth 2024 → 807,
+  base 1192 → 553. Triangles are about the same (the gain is draw calls). Screenshots matched at all three spots.
+- Not checked: a close-up of the parked aircraft (the test aimed at the wrong spot), and real-GPU frame rates.
 
 ## 7. Pending requests from the user (not done yet)
 

@@ -31,8 +31,9 @@ function perfCull(q){const cam=C.position,root=q.g;let far=1e9;try{if(S.fog&&S.f
  const L=PERF.leaves||(PERF.leaves=[]);if(!L.length||PERF.li>=L.length){L.length=0;PERF.li=0;const veh=new Set((q.vehs||[]).map(v=>v.m));
   const walk=(o,inChunk)=>{for(const c of o.children){if(veh.has(c))continue;const ch=inChunk||!!(c.userData&&c.userData.chunk);if(c.children.length)walk(c,ch);else if(!ch&&(c.isMesh||c.isSprite)&&!c.isInstancedMesh)L.push(c)}};walk(root,false)}
  const v=new THREE.Vector3();for(let k=0;k<400&&PERF.li<L.length;k++,PERF.li++){const o=L[PERF.li];if(!o.parent)continue;const mask=o.layers.mask,isFar=mask===(1<<PL_FAR);if(!isFar&&mask!==1)continue;
-  let r=1;try{if(o.isSprite)r=Math.max(o.scale.x,o.scale.y);else{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();r=(g.boundingSphere?g.boundingSphere.radius:1)*o.matrixWorld.getMaxScaleOnAxis()}}catch(e){}
-  v.setFromMatrixPosition(o.matrixWorld);const d=v.distanceTo(cam)-r,lim=Math.min(far,r<1.2?PERF_D[0]:r<4?PERF_D[1]:1e9),want=d>lim;
+  /* measured from the middle of what is drawn, not from where the object sits (a batch sits at its group's origin, which can be far from the things in it) */
+  let r=1;v.setFromMatrixPosition(o.matrixWorld);try{if(o.isSprite)r=Math.max(o.scale.x,o.scale.y);else{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere){r=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld)}}}catch(e){}
+const d=v.distanceTo(cam)-r,lim=Math.min(far,r<1.2?PERF_D[0]:r<4?PERF_D[1]:1e9),want=d>lim;
   if(want&&!isFar){o.layers.set(PL_FAR);PERF.stats.culled++}else if(!want&&isFar){o.layers.set(0);PERF.stats.culled--}}}
 /* ---------- run it from the desert's own update ---------- */
 {const ru14=busRoamUpd;busRoamUpd=function(q,dt){const r=ru14.apply(this,arguments);try{if(!PERF.on||!q||!q.g)return r;if(PERF.q!==q){PERF.q=q;PERF.seen=new Map();PERF.leaves=null;PERF.li=0;PERF.lt=0}
