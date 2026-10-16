@@ -11,6 +11,15 @@ system and much more), built with **three.js r128** (cdnjs) as one huge single H
 - This branch (**`source`**) holds the *build inputs*. `main` only holds the built output. **Never hand-edit
   `index.html` on `main`.** Change the sources here, build, then deploy.
 
+
+## 0. Design specs from the design chat (read this)
+
+The user also works with Claude in the claude.ai app on design. That chat writes feature specs into
+**`docs/design/`** (one Markdown file each) and never edits code. When the user says "build docs/design/<name>.md",
+build it from the spec. Update the spec's `Status:` line when you start and when it ships, and write anything the
+design chat should know (what changed from the spec, questions) at the top of **`docs/design/NOTES.md`**.
+The standing rules below always win over a spec. See `docs/design/README.md`.
+
 ---
 
 ## 1. How the build works
