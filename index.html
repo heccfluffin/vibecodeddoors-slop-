@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r593';
+const BUILD='2026-10-16 r594';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -14520,7 +14520,7 @@ const wz=[],crs=[],addX=(x,y,z)=>{const m=mkCross();m.position.set(x,y,z);G.add(
  if(bal)mkBall(L,HX,occ,obs0);
  if(wh)mkWare(L,HX,occ,obs0);
  if(oh){const q=mkOhien(L,HX,HY,ez,occ,obs0,spot,fp);oh0=q.oh;pk0=pk0.concat(q.pk);an=an||[];q.an.forEach(f=>an.push(f))}
- if(sk&&CI>0){const q=mkChaseObs(L,HX,occ,obs0,CI,nn);msg=q.msg;if(q.an){an=an||[];an.push(q.an)}}if(mlt){const q=mkMelt(L,HX,HY,ez,occ,obs0,nn);an=an||[];an.push(q.an);msg=nn==EXN-1?'☢ The last corridor! The blast door at the end is closing: RUN!':'☢ MELTDOWN! Everything is exploding. Keep running: Figure is right behind you!'}
+ if(sk&&CI>0){const q=mkChaseObs(LEGS.length?L-5:L,HX,occ,obs0,CI,nn);msg=q.msg;if(q.an){an=an||[];an.push(q.an)}}if(mlt){const q=mkMelt(L,HX,HY,ez,occ,obs0,nn);an=an||[];an.push(q.an);msg=nn==EXN-1?'☢ The last corridor! The blast door at the end is closing: RUN!':'☢ MELTDOWN! Everything is exploding. Keep running: Figure is right behind you!'}
  if(!MINE&&!mlt&&!wt0&&!ofcI&&!arcI&&!stI&&!f&&!hh&&!sk&&!lob&&!ex&&nn>=2&&!LEGS.length&&Math.random()<.7){const r0=mkHallVar(L,HX,HY,occ,obs0,W);if(r0)rfn0=r0}if(sdr)sdrPlan(L,occ,sdrZ);if(lob&&!hubR)bell0=mkLobby(L,HX,ez,obs0,occ);if(hubR)mkHubHall(L,HX,HY,obs0,occ);if(lb2)mkLibB(L,HX,HY,occ,obs0);if(lc)mkLibC(L,HX,HY,occ,obs0);if(ls)rfn0=mkLibS(L,HX,HY,ez,occ,obs0);if(stI)rfn0=mkStairs(L,UP,HY,stI,occ,obs0);if(fdr){const q=mkFlood(L,HX,HY,ez,occ,obs0);pz0=q.pu;an=an||[];an.push(q.an)}if(shp){mkJeff(L,HX,HY,ez,occ,obs0);msg="🛍️ JEFF'S SHOP! Jeff sells items at the desk. El Goblino and Bob the skeleton are hanging out here too."}
  if(cas){mkCasino(L,HX,HY,ez,occ,obs0);msg='🎰 The LUCKY DOOR CASINO! Gamble your gold and items at the slots, roulette, high-low and the item dice. The house usually wins...'}
  if(prs){const q=mkPress(L,HX,HY,ez,occ,obs0);mkHatch(pv,lf,ez,DX,UP);
@@ -14583,7 +14583,7 @@ const wz=[],crs=[],addX=(x,y,z)=>{const m=mkCross();m.position.set(x,y,z);G.add(
  let obsH0=obs0.length;for(const o of obs0)for(const v of[o.x0,o.x1,o.z0,o.z1])obsH0=(obsH0*31+Math.round((v||0)*10))|0;obsH0=(obsH0>>>0).toString(36);
  const cpzp=mk=='cartpz'?cartPzPlan(L,HX,occ,obs0):null;
  const room={mine:MINE?1:0,mk,mkp,cpzp,ev0:ev?ev.k:'',obsH:obsH0,grin:grin0,gp:gp0,spl:sp0,js:js0,cs:cs0,dq:dq0,fm:(stI||fdr||prs||wh)?'conc':(nn==100||mlt)?'metal':gdn?'grass':ex?'conc':(bal||lob||shp)?'tile':cat?'wood':'carpet',sv:sv0,srv:srv0,kind:(typeof wt0=='string'?wt0:''),hv:mkHallVar.k||'',st:stI,seats:seats0,lb:lb0,mz:mzR,plk:plk0,lkg:lkgs,oh:oh0,eb:EB,upH:UP,cops:cops.slice(),bell:bell0,hy:HY,ew:HE,el:elo,up:!!UP,xr:xcr?{z1:ez+CD-.2,hw:14}:null,arc:arcI,hn:hn0,ofc:ofcI,boss,elv,rf:rfn0,fds,obs:obs0,pz:pz0,pk:pk0,n:nn,G,L,wards,RL,drs,keyM,locked,seek,fig,ev,msg,dd,hands,hh,off,crs,wg,wz,hx:HX,dk,sws:wg.filter(w=>w.cl).map(w=>w.sw),an,dgt,ty:lib?'lib':gdn?'garden':cat?'cat':wt||''};
- for(const lg of LEGS)try{if(lg.end=='exit')sideExit(room,lg.s,TZ,HY,UP,lg.leg);else legEnd(room,lg.s,TZ,HY,UP,lg.leg,lg.end)}catch(e){conLog('error','corner leg: '+e.message)}G.position.z=off;G.position.y=EB;({G,L,wards,RL,drs,keyM,locked,seek,fig,ev,hasKey,hands,cops}=sv);return room;
+ for(const lg of LEGS)try{if(lg.end=='exit')sideExit(room,lg.s,TZ,HY,UP,lg.leg);else legEnd(room,lg.s,TZ,HY,UP,lg.leg,lg.end)}catch(e){conLog('error','corner leg: '+e.message)}if(TT.cross)crossFinish(room,TT,HY);G.position.z=off;G.position.y=EB;({G,L,wards,RL,drs,keyM,locked,seek,fig,ev,hasKey,hands,cops}=sv);return room;
 }
 
 /* ===== key model: ring bow, collars, shaft, tip and a toothed bit, with a faint glow so it is easy to spot ===== */
@@ -16021,6 +16021,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r594',['Seek chase: some hotel chase rooms end in a + CROSSROADS: left, right or straight on. Only one door is the way out and it glows BLUE; the other two are fake doors that will cost you health and time with Seek right behind you']],
  ['r593',['Corner legs (and the rooms at the end of them) only get the trim the room itself has: brick, casino, garden, warehouse, ballroom and other plain-walled rooms no longer get a wooden rail and skirting board in their turns']],
  ['r592',['Fixed co-op rooms coming out differently for different players (different lockers, drawers, turns and room types). Every 3D object the graphics library creates was quietly using up a number from the room\'s seeded random sequence, so a player who had a texture or model cached already got a different room from that point on','Office rooms no longer turn (no more odd walls and floating windows in office corners)','The wall panelling in corner legs lines up with the hallway\'s panelling','Casino: the high-low dealer faces his table, and the HIGH-LOW sign hangs on gold posts above him instead of poking out of his shoulder']],
  ['r591',['Caves: some caverns have a parkour route (SPACE to jump) up rock pillars to a ledge of DIAMOND and URANIUM (the uranium clicks on a Geiger counter). Magma chambers have lava rivers with stone bridges, lavafalls, glowing cracks and basalt columns; big caverns have rock pillars floor to roof','Quarry tycoon: the computer is only in the office; anything you buy is BUILT in front of you, piece by piece, with scaffolding','Eight ORE PROCESSING machines: ore washer, magnetic sorter, ball mill, coal preheater, bar polisher, diesel generator, ore silo, assay lab, joined up by conveyors, a water main and power cables','A quarry tutorial with waypoints the first time you go into the pit','ROOM INSPECTOR for co-op desyncs: F7 or /room shows exactly how the room was generated and compares it with everyone else (with their build and browser); Copy desync report copies only what differs','Speed boosts make you mop faster','Side rooms are bigger, with full-size doors in frames, lockers clear of the walls, a properly laid out bathroom, and hotel trim in the corner legs and their rooms']],
@@ -19872,6 +19873,29 @@ addEventListener('keydown',e=>{if(e.code=='F7'&&!e.repeat){e.preventDefault();if
  Object.defineProperty(Math,'random',{configurable:true,get(){return wrap},set(f){if(f&&f.__raw)f=f.__raw;cur=f;if(f===NAT){wrap=NAT;return}const g=function(){return fromThree()?NAT():cur()};g.__raw=f;wrap=g}});
  window.RNGISO=1}catch(e){console.warn('rng isolation',e)}})();
 {const tk0=turnOK;turnOK=function(nn,prev,o){if(o&&o.ofcI>0)return 0;return tk0.apply(this,arguments)}}
+
+
+/* r594: + crossroads in the Seek chase (hotel only). The hall ends in a crossing: left, right and straight ahead. Only one of the three is the
+   way on and its door glows blue; the other two are fake doors. */
+{const tp0=turnPlan;turnPlan=function(nn,prev,o){
+ if(o&&o.sk&&o.CI>=2&&o.CI<=7&&!o.MINE&&!o.first&&prev&&!(prev.dd&&prev.dd.side)&&!HUB.on&&!(typeof DAILY!='undefined'&&DAILY.on)&&o.HX<=7&&o.L>=20){
+  if(Math.random()<.35){const hd=prev.hd|0,lg=()=>5+(Math.random()*3|0);
+   /* never send the run back the way it came: from a sideways stretch only straight on or back to forward */
+   const ch=hd==0?[0,1,-1]:[0,-hd];const w=ch[Math.random()*ch.length|0];
+   if(w==0)return{ex:0,cross:1,legs:[{s:1,leg:lg(),end:'fake'},{s:-1,leg:lg(),end:'fake'}]};
+   return{ex:w,cross:w,legs:[{s:w,leg:lg(),end:'exit'},{s:-w,leg:lg(),end:'fake'}]}}
+  return{ex:0,legs:[]}}
+ return tp0.apply(this,arguments)}}
+/* the blue light round the right door, and the fake door straight ahead when the way on is to one side */
+function crossFinish(room,TT,HY){try{if(!TT||!TT.cross)return;const G=room.G,ez=-room.L-1,dd=room.dd||{};
+  if(TT.ex){try{const keep=G;mkFakeDoor('z',0,ez+.1,1,room.n,room.fds)}catch(e){conLog('error','cross fake door: '+e.message)}}
+  let x,z,ax;if(dd.side){x=dd.side*(dd.sx-.12);z=dd.cz;ax='x'}else{x=dd.cx||0;z=ez+.12;ax='z'}
+  const M=new THREE.MeshBasicMaterial({color:0x40a8ff,transparent:true,opacity:.85}),bar=(px,py,pz,w,h,d)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),M);m.position.set(px,py,pz);G.add(m);return m};
+  const th=.07,o=.94;if(ax=='z'){bar(x-o,1.6,z+.06,th,3.2,th);bar(x+o,1.6,z+.06,th,3.2,th);bar(x,3.2,z+.06,o*2+th,th,th)}else{const n=-dd.side*.06;bar(x+n,1.6,z-o,th,3.2,th);bar(x+n,1.6,z+o,th,3.2,th);bar(x+n,3.2,z,th,th,o*2+th)}
+  const gl=glowSp(0x40a0ff,.75,3.2);gl.position.set(ax=='z'?x:x-dd.side*.5,1.7,ax=='z'?z+.5:z);G.add(gl);
+  const l=mkLight(0x3a8cff,1.4,7);l.position.set(ax=='z'?x:x-dd.side*1.1,2.2,ax=='z'?z+1.1:z);room.RL.push(l);
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(ax=='z'?2.2:1.4,ax=='z'?1.4:2.2),new THREE.MeshBasicMaterial({color:0x2a7aff,transparent:true,opacity:.18,depthWrite:false}));fl.rotation.x=-Math.PI/2;fl.position.set(ax=='z'?x:x-dd.side*.7,.02,ax=='z'?z+.7:z);G.add(fl);
+  room.cross=1}catch(e){conLog('error','crossroads: '+e.message)}}
 
 </script><script>
 /* ======================================================================================================
