@@ -51,6 +51,26 @@ so it can replace the old branch directly.
   scale 0.48) as before. The old recolour traverse isn't needed.
 - Skip `vehMore()` for all of these.
 
+## 5. The X-13 Wraith and its refits (`wraith.js`)
+- `protoModel(g, T)` → `wraithModel(g, T.wheels)`. Same hooks: `userData.tur` (0, 1.4, 0.2), `bar` (0, 0.3, -1.4 in
+  tur, muzzles at bar z -3.0), `radar`, `mf`, and the `userData.ex` exhaust glows. Rocket pods at x ±1.18, world y 1.75,
+  where `milRockets` fires from.
+- In `wkBuild` (dx554), replace everything that draws (from `const M=…` to the "MK" decal) with `wraithMarks(m, l)`.
+  It makes the same `wkG/wkT/wkB`, `wkBub`, and the minigun's `rws/rwsP/rwsS/rwsT/rwsF` (mount still at (0, 2.34, 2.3)),
+  so `protoTick`, the gunner camera and `wkGunFire` don't change. Mk VI repaints through `userData.paint` (no more
+  colour-hex traverse), and calling it again with a lower mark (a friend's Wraith via `rwk`) paints it back.
+- Wheel roll: tank wheels roll by `v.v·dt/.34`. These are r 0.5, so use `v.v·dt/(w.t.userData.r||.34)`.
+- `VEHK.proto` w/len and seats unchanged.
+
+## 6. Battle tank (`tank.js`, `mkTank()`)
+- The `'tank'` branch of `mkVehModel` → `mkTank()`. Same `userData.tur` (0, 1.35, 0.3) and `userData.bar` (0, 0.35, -1.5 in
+  tur; `tankFire`'s recoil to -1.2 and back still fits). Muzzle at bar z -3.3. Size and seats unchanged.
+- Wheels: road wheels, sprocket, idler and rollers, all `tank:1` with `t.userData.r`: use `v.v·dt/(w.t.userData.r||.34)`
+  (same fix as the Wraith).
+- **New: `userData.trkAdv(d)`** runs both tracks round the wheels. Call `m.userData.trkAdv && m.userData.trkAdv(v.v*dt)`
+  next to the wheel roll (line with `if(w.tank)w.t.rotation.x-=…`). The tracks are two InstancedMeshes per side; only
+  update them when the tank is moving and within ~80 m, to save time.
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
