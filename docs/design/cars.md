@@ -79,6 +79,16 @@ so it can replace the old branch directly.
   it can aim up without going through the nose). `cock` cameras unchanged: both have real cockpits there now.
 - The hull material is double-sided so the cockpit and cabin have walls from inside.
 
+## 8. Fighter jets (`jets.js`, `jetModel(g, ghost, pods)`)
+- In dx549's `mkVehModel` wrapper: `awJet(g, ghost)` → `jetModel(g, ghost, VEHK[k].msl.pods)`. Same hooks: `ab`, `ab2`,
+  `gear`, `msl` (in pods order), `beacon`. Missile spots unchanged.
+- **Gear:** the model has `userData.gearSet(f)` (0 down … 1 up): legs swing up on hinges (nose back, mains inward).
+  In `awLook`, replace the two `u.gear.scale.y` lines with
+  `if(u.gearSet){v.gearF=v.gearF==null?(up?1:0):v.gearF;v.gearF+=((up?1:0)-v.gearF)*Math.min(1,dt*1.6);u.gearSet(v.gearF)}`
+  and keep the old lines as the `else` for anything else. Don't scale `gear` any more.
+- `VEHK.jet.gun.from` → `[.62,1.42,-5.0]` (gun port on the left of the nose). The X-22 stays `[0,1.3,-6.5]`.
+- `cock` cameras unchanged: they sit inside the canopies (which are taller now).
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
