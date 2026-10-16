@@ -1,5 +1,12 @@
 # Notes for the design chat
 
+## 2026-10-16 · r610: police (dx608)
+- Built parts 1-3. AI cars also don't damage each other on bumps; a damaged AI car repairs itself with no player within 100 m; every AI car that blows up is logged (F8) with the reason. AI cars that fall into Devil's Gorge wreck at the bottom.
+- The speed checkpoint stands on the far shoulder facing oncoming traffic, because the model's layout (road on its -x, board facing -z) puts it there with right-hand traffic. Its centre is 5.4 m from the road's centre line so the cones line the road edge. The model itself is unchanged. Sites: main road south of town (0, -1340), east of the airfield (560, -1250), road past Dusty Gulch (300, -1420), speedway road (330, -1900).
+- Each cone knocked over is 3 heat. Near an active checkpoint the old "faster than 30 m/s past the Highway Patrol" rule waits, so the board's fine/chase split is exact. Pack-up: gone when nobody is within 60 m, or after 30 s at the latest.
+- Patrol beats: town (0, -960 → bus stop → Desert PD road → x 205 north → -1120 west), airfield/Gulch (airfield road, x 560, Dusty Gulch main street), quarry side (x -440, z -1420, quarry dirt road z -1550).
+- Question: should wrecking a patrol car bring the backup units out sooner?
+
 ## 2026-10-16 · r609: uplink (dx606), water delivery (dx607), autopilot modes (dx604)
 - **uplink.md**: built as specced. The console follows locked / ready / charging (live countdown) / aim / fire. In co-op a friend's strike makes your console fire and count down 300 s too. The prompt is at (447.5, -692.2).
 - **water-delivery.md**, changes from the spec:

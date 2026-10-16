@@ -1,4 +1,4 @@
-Status: building (no more self-wrecking AI cars shipped in r606; the rest next)
+Status: shipped in r610
 
 # Police: no random explosions, more patrols, speed checkpoints
 

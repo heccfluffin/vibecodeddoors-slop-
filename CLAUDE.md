@@ -162,7 +162,10 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r609** (`main`, released 2026-10-16). r609 = uplink (`dx606`) and water delivery (`dx607`), built by a helper
+- **Live: r610** (`main`, released 2026-10-16). r610 = police (`dx608`, helper agent): 3 patrol cruisers (`PCRB` beats, host
+  drives, sync messages `pcr`/`pcrc`/`pcrw`), Highway Patrol speed checkpoints (`SPCK` sites, `spcForce(i)` debug), AI
+  self-repair and wreck logging.
+- r609: r609 = uplink (`dx606`) and water delivery (`dx607`), built by a helper
   agent, plus autopilot modes (`dx604`: L cycles modes for the Wraith, planes, jets and helicopters; `wpPlan`, `apFixed`).
 - r608: r608 = the main menu and How to play (`src/dx605.js`, built by a helper
   agent; the old `#how` text is cut out in build.py, `#how` stays as an empty title-screen marker).
@@ -171,8 +174,8 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
   one-way lift state machine (`GLIFT`, replaces `liftGo`/`liftTick`); cave floor fix (the tunnel floor box had a negative
   depth); Quarry Skip booster (`QSKIP`, launch in a `vehPhys` wrapper, soft landing via `LANDSOFT`). **`q.obs` boxes
   can now have `top`** (a car above `top - 0.3` passes over), and `q.ramps` can have `nolink` (wall in the route grid).
-- In progress: police (worktree `/home/user/wt-police`, branch r610-police, dx608). Not started: `cars.md` (heavy vehicle
-  models from the design chat), office-monitors (model needs the user's OK).
+- In progress: `cars.md` new vehicle models (worktree `/home/user/wt-cars`, branch r611-cars, dx609). Not started:
+  office-monitors (model needs the user's OK).
 - r606 (`src/dx602.js` + build.py patches): km/h everywhere (`kmh.md`); base map drawn from the wall boxes
   (`mapBaseDraw`, labels `MAPBN`); every desert InstancedMesh unculled and pulled out of scenery chunks (`imFix`;
   that was the Speedway's "invisible obstacles"); dragster front axle; AI cars don't damage themselves on scenery
@@ -281,6 +284,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Main menu (4-button row, Locker, Stats, More), How to play tabs | dx605 |
 | Orbital uplink console | dx606 |
 | Water delivery: tanks, groundskeeper, jerrycans | dx607 |
+| Police: patrol cruisers, speed checkpoints, AI repair/logging | dx608 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |
