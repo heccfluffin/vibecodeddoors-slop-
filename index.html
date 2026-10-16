@@ -93,7 +93,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-16 r601';
+const BUILD='2026-10-16 r602';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -16021,6 +16021,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r602',['Dragging the zoomed-in desert map is smooth (it redraws every frame while you drag)','The high-security door between office and bay no longer flickers (z-fighting) on either side','Squad soldiers run forwards, not backwards, and sit facing the front of the vehicle','The motor pool floor sits above the base roads, so no road markings show through']],
  ['r601',['SAVE & EXIT in co-op and public rooms: free the mouse (Esc) and press 💾 Save & exit. Continue it later on your own, or with friends']],
  ['r600',['1 in 100 quarry mines has an OLD SHAFT deep inside, straight down to door 60 of the DESERT MINES. In co-op the host takes everyone once you are all at the shaft','Military base: the spectators\' bleachers moved to the east side of the parade square, facing the parade (they were staring at the back of the command wing)','No more trees, cacti or rocks growing inside the military base','A HIGH-SECURITY door in the back of each general\'s office leads straight into the back of its Wraith bay (the bay owner only)','A Wraith parked in your bay stays remembered until you drive it out: a friend joining or leaving used to make the game forget it','SQUADS: a SQUAD MOTOR POOL north of the command wing. Your squad\'s soldiers walk out of your office, climb into the vehicles, the doors roll up and they drive out; back home they drive in and walk back','You can see the soldiers sitting in squad jeeps and pickups','Squads no longer drive round in circles at a waypoint (inside the base, for example): they go on to the next one','The desert map shows where each squad is heading, with a dashed route and a flag','Desert wishing well rebalanced: a wish costs 10 gold, only about 1 in 8 is granted, and at most 3 wishes a day. The bucket has a 45 s wait between winds and rarely brings up gold']],
  ['r599',['A CHANGELOG button on the main menu: it shows a red ! whenever there has been an update you have not read yet (or a newer build is out)','Desert map: click (or tap) a place\'s icon to WARP there. Not from prison, a vehicle, the mine, or while you are wanted','Zoomed in on the desert map, click and drag (or drag a finger) to move it around']],
@@ -20172,7 +20173,7 @@ function dmapWarp(q,l){const no=m=>{hint(m);try{snd(180,.08)}catch(e){}};
 /* ---------- drag the zoomed-in map around ---------- */
 function dmapDragWire(){const D=DMAP;if(!D||!D.fc||D.fc.dataset.drag)return;D.fc.dataset.drag=1;const fc=D.fc;let st=null;
  const down=(x,y)=>{if((D.zm||1)<=1.01)return;st={x,y,px:D.px||0,pz:D.pz||0,m:0}};
- const move=(x,y)=>{if(!st)return;const r=fc.getBoundingClientRect(),k=fc.width/r.width,sc=900/1380*(D.zm||1),dx=(x-st.x)*k,dy=(y-st.y)*k;if(Math.hypot(dx,dy)>5)st.m=1;D.px=st.px-dx/sc;D.pz=st.pz-dy/sc;fc.style.cursor='grabbing'};
+ const move=(x,y)=>{if(!st)return;const r=fc.getBoundingClientRect(),k=fc.width/r.width,sc=900/1380*(D.zm||1),dx=(x-st.x)*k,dy=(y-st.y)*k;if(Math.hypot(dx,dy)>5)st.m=1;D.px=st.px-dx/sc;D.pz=st.pz-dy/sc;fc.style.cursor='grabbing;/* redraw at once, every animation frame, instead of waiting for the next map tick */if(!D.raf)D.raf=requestAnimationFrame(()=>{D.raf=0;try{const q=BUS.ride;if(q&&D.open)dmapDraw(q,D.fc,P.x+(D.px||0),P.z-q.OZ+(D.pz||0),900/1380*(D.zm||1),1)}catch(e){}})};
  const up=()=>{if(st&&st.m)D.dragMoved=1;st=null;fc.style.cursor='pointer'};
  fc.addEventListener('mousedown',e=>{e.stopPropagation();down(e.clientX,e.clientY)});addEventListener('mousemove',e=>move(e.clientX,e.clientY));addEventListener('mouseup',up);
  fc.addEventListener('touchstart',e=>{if(e.touches.length==1)down(e.touches[0].clientX,e.touches[0].clientY);else st=null},{passive:true});fc.addEventListener('touchmove',e=>{if(e.touches.length==1)move(e.touches[0].clientX,e.touches[0].clientY)},{passive:true});fc.addEventListener('touchend',up)}
@@ -20208,7 +20209,7 @@ function cwBayDoors(q){const C=q.cw,B=q.wbay;if(!C||!B||C.bd)return;C.bd=[];cons
   for(let i=q.obs.length-1;i>=0;i--){const o=q.obs[i];if(Math.abs(o.x0-x0)<.05&&Math.abs(o.x1-x1)<.05&&Math.abs((o.z0+o.z1)/2-zw)<.05)q.obs.splice(i,1)}
   let a=x0;for(const x of xs){const b=x-dw/2;add(g,b-a,h,t,mat,(a+b)/2,h/2,zw);ob(a,b,zw-t/2,zw+t/2);add(g,dw,h-2.6,t,mat,x,2.6+(h-2.6)/2,zw);a=x+dw/2}add(g,x1-a,h,t,mat,(a+x1)/2,h/2,zw);ob(a,x1,zw-t/2,zw+t/2)};
  cut(C.g,Z.z1,H,CON,Z.x0,Z.x1);cut(B.g,WBAY.z0,BH,BCON,WBAY.x0,WBAY.x0+WBAY.w*WBAY.n);
- for(let i=0;i<4;i++){const x=xs[i],z0=Z.z1,z1=WBAY.z0;/* the little airlock between the buildings */for(const s of[-1,1]){add(C.g,.15,2.6,z1-z0+.3,ST,x+s*(dw/2+.08),1.3,(z0+z1)/2);ob(x+s*(dw/2)-.08,x+s*(dw/2)+.16*s,z0,z1)}add(C.g,dw+.3,.1,z1-z0+.3,ST,x,2.65,(z0+z1)/2);add(C.g,dw,.05,z1-z0+.3,M(0x3a3c3e),x,.03,(z0+z1)/2);
+ for(let i=0;i<4;i++){const x=xs[i],z0=Z.z1,z1=WBAY.z0;/* the little airlock between the buildings *//* the airlock walls sit between the two buildings' walls and just outside the doorway, so no faces overlap */const zi0=z0+.16,zi1=z1-.16,L2=zi1-zi0;for(const sd of[-1,1]){add(C.g,.12,2.6,L2,ST,x+sd*(dw/2+.07),1.3,(zi0+zi1)/2);ob(x+sd*(dw/2)-.04,x+sd*(dw/2)+.13*sd,z0,z1)}add(C.g,dw+.26,.1,L2,ST,x,2.66,(zi0+zi1)/2);add(C.g,dw,.04,L2,M(0x3a3c3e),x,.03,(zi0+zi1)/2);
   /* the door itself: a thick steel slab with yellow and black edges that slides into the wall, a keypad, a light */const dg=new THREE.Group();dg.position.set(x,0,z0-.02);C.g.add(dg);add(dg,dw,2.55,.14,ST,0,1.28,0);for(let k=0;k<6;k++)add(dg,dw,.08,.16,k%2?YB:BK,0,.12+k*.09,0);add(dg,.06,1.6,.16,M(0x2a2e32,{metalness:.8}),.45,1.4,0);for(const y of[.6,1.3,2.0])add(dg,dw*.9,.04,.17,M(0x8a9096,{metalness:.8}),0,y,0);
   const kp=add(C.g,.22,.3,.06,M(0x1a1a1a),x+dw/2+.35,1.35,z0-.2);const lt=add(C.g,.08,.08,.04,M(0x200000,{emissive:0xc00000}),x+dw/2+.35,1.58,z0-.24);
   const sg=pdTxt('HIGH SECURITY · BAY '+(i+1),1.7,.24,'#d8b040','#20261c');sg.position.set(x,2.95,z0-.17);sg.rotation.y=Math.PI;C.g.add(sg);
@@ -20233,7 +20234,7 @@ const MPOOL={x0:455,x1:485,z0:-901,z1:-872,pd:466};
 function cwShed(q){const C=q.cw;if(!C||C.shed)return;const g=new THREE.Group();q.g.add(g);const S={g,doors:[]};C.shed=S;const H=4.6,t=.3,P2=MPOOL;
  const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.8,metalness:.15},o||{})),A=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);g.add(o);return o},ob=(x0,x1,z0,z1)=>{const o={x0:Math.min(x0,x1),x1:Math.max(x0,x1),z0:Math.min(z0,z1),z1:Math.max(z0,z1)};q.obs.push(o);return o};
  const CON=M(0x7a7c70),RF=M(0x5a5c52),FL=M(0x55574f,{polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}),DR=M(0x8a8e92,{metalness:.5}),YL=M(0xd8b020);
- const W=P2.x1-P2.x0,D=P2.z1-P2.z0,cx=(P2.x0+P2.x1)/2,cz=(P2.z0+P2.z1)/2;A(W,.08,D,FL,cx,.06,cz);A(W+.6,.3,D+.6,RF,cx,H+.15,cz);
+ const W=P2.x1-P2.x0,D=P2.z1-P2.z0,cx=(P2.x0+P2.x1)/2,cz=(P2.z0+P2.z1)/2;A(W-.1,.12,D-.1,FL,cx,.09,cz);A(W+.6,.3,D+.6,RF,cx,H+.15,cz);
  A(t,H,D,CON,P2.x0,H/2,cz);ob(P2.x0-t/2,P2.x0+t/2,P2.z0,P2.z1);A(W,H,t,CON,cx,H/2,P2.z0);ob(P2.x0,P2.x1,P2.z0-t/2,P2.z0+t/2);
  /* the south wall, with a door for the crews */{const a=P2.pd-.7,b=P2.pd+.7;A(a-P2.x0,H,t,CON,(P2.x0+a)/2,H/2,P2.z1);ob(P2.x0,a,P2.z1-t/2,P2.z1+t/2);A(P2.x1-b,H,t,CON,(b+P2.x1)/2,H/2,P2.z1);ob(b,P2.x1,P2.z1-t/2,P2.z1+t/2);A(1.4,H-2.4,t,CON,P2.pd,2.4+(H-2.4)/2,P2.z1);
   const dl=pdTxt('CREWS',1.1,.24,'#d8b040','#20261c');dl.position.set(P2.pd,2.65,P2.z1+.17);g.add(dl)}
@@ -20242,7 +20243,7 @@ function cwShed(q){const C=q.cw;if(!C||C.shed)return;const g=new THREE.Group();q
   const lt=A(.3,.3,.3,M(0x200000,{emissive:0xc00000}),P2.x1+.25,4.25,rz+3.4);S.doors.push({rz,m:dm,lt,ob:ob(P2.x1-.2,P2.x1+.2,a,b),on:1,u:0});z=b}
  if(P2.z1-z>.05){A(t,H,P2.z1-z,CON,P2.x1,H/2,(z+P2.z1)/2);ob(P2.x1-t/2,P2.x1+t/2,z,P2.z1)}
  {const sg=pdTxt('SQUAD MOTOR POOL',6,.7,'#20261c','#e8d890');sg.position.set(P2.x1+.2,H+.7,cz);sg.rotation.y=Math.PI/2;g.add(sg);A(.15,.85,6.3,M(0x20261c),P2.x1+.05,H+.7,cz)}
- for(const rz of rows){for(let k=0;k<8;k++)A(.5,.02,.12,M(0xe8e0c0),P2.x0+2+k*3.2,.1,rz+3.5)}
+ for(const rz of rows){for(let k=0;k<8;k++)A(.6,.01,.1,M(0xd8d0b0),P2.x0+2+k*3.2,.155,rz+3.5)}
  const lmp=[[462,-880],[476,-880],[462,-894],[476,-894]];for(const[x,z2]of lmp){A(.8,.06,.4,M(0xfff0c0,{emissive:0xfff0c0}),x,H-.05,z2)}
  q.obsDirty=1;q.mapR&&q.mapR.push({x0:P2.x0,x1:P2.x1,z0:P2.z0,z1:P2.z1,c:'#4a5a4a'});q.mapBg=null}
 {const cb8=cwBuild;cwBuild=function(q){const r=cb8.apply(this,arguments);try{cwShed(q)}catch(e){conLog('error','motor pool: '+e.message)}return r}}
@@ -20254,7 +20255,7 @@ function cwSide(v){const c=Math.cos(v.h),sn=Math.sin(v.h),ox=-(v.K.w/2+.7);retur
 function cwWalkTick(q,s,dt){let left=0;for(const w of s.walk){if(w.done)continue;left++;if(w.dl>0){w.dl-=dt;continue}w.m.visible=true;const tg=w.pi<w.path.length?w.path[w.pi]:null,T=tg||(w.board?cwSide(w.u.v):null);
   const fin=()=>{w.done=1;if(w.m.parent)w.m.parent.remove(w.m);if(w.board){w.u.crewN=(w.u.crewN|0)+1;try{snd(260,.04)}catch(e){}}};if(!T){fin();continue}
   const dx=T[0]-w.m.position.x,dz=T[1]-w.m.position.z,d=Math.hypot(dx,dz);if(d<.4){if(tg)w.pi++;else fin();continue}
-  const sp=Math.min(d,4.2*dt);w.m.position.x+=dx/d*sp;w.m.position.z+=dz/d*sp;w.m.rotation.y=Math.atan2(dx,dz);try{seekRunOn(w.m,dt)}catch(e){}}return left}
+  const sp=Math.min(d,4.2*dt);w.m.position.x+=dx/d*sp;w.m.position.z+=dz/d*sp;w.m.rotation.y=Math.atan2(-dx,-dz);try{seekRunOn(w.m,dt)}catch(e){}}return left}
 /* ---------- every frame ---------- */
 {const ct8=cwTick;cwTick=function(q,dt){const C=q.cw;try{if(C)for(const s of C.sq){if(s.done&&!s.walkHome)continue;
    if(s.ph=='board'){s.bt+=dt;for(const u of s.v){u.v.v=0}const left=cwWalkTick(q,s,dt);if(left===0||s.bt>40){if(!s.go){s.go=s.bt}if(s.bt-s.go>1.2){for(const u of s.v)u.crewN=u.need;s.ph='out';s.st='rolling out';try{snd(140,.3)}catch(e){}}}}
@@ -20268,7 +20269,7 @@ function cwWalkTick(q,s,dt){let left=0;for(const w of s.walk){if(w.done)continue
      if(s.walkHome){if(cwWalkTick(q,s,dt)===0)s.walkHome=0}
      /* the crews you can see in the open vehicles */for(const u of s.v){const v=u.v,open=!v.K.tank&&v.k!='apc'&&(v.K.seats||[]).length>0;u.crew=u.crew||[];const want=open&&!s.done&&s.ph!='work'&&!v.wreck?Math.min(u.crewN||0,v.K.seats.length):0;
       while(u.crew.length<want){const m=mkSoldier(0);q.g.add(m);u.crew.push(m)}while(u.crew.length>want){const m=u.crew.pop();if(m.parent)m.parent.remove(m)}
-      u.crew.forEach((m,i)=>{const w=vehWorldSeat(v,i);m.position.set(w.x,(v.y||0)+w.dy+.55,w.z);m.rotation.y=v.h+Math.PI})}}}}catch(e){conLog('error','squads: '+e.message)}
+      u.crew.forEach((m,i)=>{const w=vehWorldSeat(v,i);m.position.set(w.x,(v.y||0)+w.dy+.55,w.z);m.rotation.y=v.h})}}}}catch(e){conLog('error','squads: '+e.message)}
   return r}}
 /* ---------- where the squads are heading, on the map ---------- */
 {const dd8=dmapDraw;dmapDraw=function(q,cv,cx,cz,sc,full){const r=dd8.apply(this,arguments);try{const C=q.cw;if(!C)return r;const x=cv.getContext('2d'),W=cv.width,H=cv.height,X=wx=>W/2+(wx-cx)*sc,Y=wz=>H/2+(wz-cz)*sc;
