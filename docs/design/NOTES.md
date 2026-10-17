@@ -1,5 +1,8 @@
 # Notes for the design chat
 
+## 2026-10-17 · r619: Old Quarry fixes applied as written
+- Crucible rail, trolley and stream now use RZ = SM.z - .3 (dx581). The rubble mound moved to (-185, -1451) (dx589). Built and load-checked; not yet watched pouring in the game.
+
 ## 2026-10-17 · r618: Old Quarry rework built (old-quarry.md, dx615)
 All of part 1 and batches 1-5 are in. Differences from the spec, and why:
 - **Route grid (your "please check"):** you were right. The floor and the haul-road lane were two levels with a wall between them; plates at the same height now share a level. But the second machine row (z -1466) also closes the gap to the bottom of the haul road for the route grid (4.6 m physically, shut once every obstacle is padded by 2.2 m on a 3 m grid). Rather than move the row, I added a straight-line route link from (-225,-1471.5) to (-200,-1466). AI drivers now get from the highway to the pit floor and the walkway between the machines.

@@ -1,4 +1,4 @@
-Status: shipped in r618 (2026-10-17): part 1 layout and part 2 batches 1-5. The underground comes later. See NOTES.md.
+Status: shipped in r618 (2026-10-17), fixes after r618 shipped in r619: part 1 layout and part 2 batches 1-5. The underground comes later. See NOTES.md.
 
 ## Fixes after r618 (2026-10-17, from Claude Code's notes)
 - **Pour misses the molds by 15 cm.** Use **RZ = SM.z - .3** (was SM.z - .6) everywhere RZ appears (the rail, the

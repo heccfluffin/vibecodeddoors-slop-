@@ -167,7 +167,7 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r618** (`main`, released 2026-10-17). r618 = the Old Quarry rework (`old-quarry.md`): `dx615` holds the design chat's
+- **Live: r619** (`main`, 2026-10-17; r619 = the design chat's two Old Quarry fixes: crucible RZ = SM.z-.3, rubble mound at (-185,-1451)). r618 released 2026-10-17. r618 = the Old Quarry rework (`old-quarry.md`): `dx615` holds the design chat's
   five quarry model files (`qmKit`, `qmTurn`, `qmFurnace`... `qmMachine`, `qmSkip`, `qmCrucible`, `qmHaulTruck`), the wiring is
   direct edits in dx581 (rim, crusher, truck, office, blast, yard, pour code: the pot tips via `SM.cru.pot`), dx589 (qtBuild
   sections, qtTick poses), dx591 (`QPOS` two rows, `qmMachine`, `QA.mpos`, `QA.oreB` ore on belts), dx587 (office computer).

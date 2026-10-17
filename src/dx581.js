@@ -208,7 +208,7 @@ function mnSurface(X){const{q,g,M,A,ob,prop,lab}=X,F=QD.F;
  /* r618: foundations under the smelting yard, the mine head, the ore hopper and the skip tower (each a walking plate) */
  for(const[a,b,c,d,o]of[[-240,-202,-1453,-1440.6,{drain:'n'}],[-251.6,-241,-1456,-1440.6,{drain:'w'}],[-193.5,-186.5,-1449.6,-1440.6],[-243.5,-236.5,-1463.5,-1456.5]])q.plates.push(qmPad(g,a,b,c,d,F,o).plate);
  /* the smelter (r618: qmFurnace, turned to face the pit), the crucible rail and the trolley with the crucible */{const x=SM.x,z=SM.z;const FU=qmTurn(qmFurnace,g,x,z,F);SM.mouth=FU.mouth;for(const o of FU.obs)ob(o.x0,o.x1,o.z0,o.z1);
-  const RZ=z-.6,RY=F+5.2;for(const o of qmCraneRail(g,x+1.4,SM.mx+3.4,RZ,F,F+3.9).obs)ob(o.x0,o.x1,o.z0,o.z1);
+  const RZ=z-.3,RY=F+5.2;for(const o of qmCraneRail(g,x+1.4,SM.mx+3.4,RZ,F,F+3.9).obs)ob(o.x0,o.x1,o.z0,o.z1);
   const cu=qmCrucible();cu.tro.position.set(x+2.6,RY,RZ);g.add(cu.tro);
   const strm=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,1,6),new THREE.MeshBasicMaterial({color:0xff7020}));strm.visible=false;g.add(strm);SM.tro={g:cu.tro,home:x+2.6,a:SM.mx-1.25,b:SM.mx+1.25,strm,RY,RZ};SM.cru={g:cu.cr,molt:cu.molt,pot:cu.pot};
   prop(x,z-2.6,1.8,()=>smTxt(q),()=>smAct(q))}
