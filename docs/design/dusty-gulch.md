@@ -44,11 +44,12 @@ the steps at .15).
   - Pass `noPorch: 1` to every `shell(...)` call, because the boardwalks replace the porches and their awning posts.
 - **Welcome arch** at z -1430: two log posts at x 441.5 and 458.5, a crossbeam, the painted board both ways, and a cow
   skull. Drop the old `[456, -1432, 'DUSTY GULCH\nPOP. 13...']` street sign from `xpRoads`.
-- **Lamps:** replace the street lamps (the merged posts at x 445/455 every 26 m, now in the middle of the dirt
-  street) with iron lantern posts.
-  - In town (z -1437..-1515) they stand at x 442.8 / 457.2, on the boardwalk edge. Outside town they're at x 442.2 /
-    457.8.
-  - Keep the game's `light(...)` calls, moved to the lantern tops (y 3.6).
+- **Lamps:** replace the street lamps (the merged posts at x 445/455 every 26 m, which are now in the middle of the
+  dirt street).
+  - In town, lanterns hang on iron brackets from the boardwalk edge beams every 7.2 m (x 443.3 / 456.7, y 2.9).
+  - Outside town, iron lantern posts stand at x 442.2 / 457.8.
+  - Keep the game's `light(...)` calls at the lanterns: every second one in town, and every outside post.
+- **Arch braces** run from each post up to the crossbeam.
 - **Hitching rails with water troughs** at (444, -1453), (444, -1478), (444, -1506), (456, -1455) and (456, -1478).
   Drop the old taxi-stand hitching rail at (470, -1448).
 - **Town pump and trough** at (432, -1462). **Broken wagon** at (426, -1486), with one wheel off.
