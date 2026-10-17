@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-3 approved · more batches coming
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-4 approved · batch 5 (middle and restricted zone) next
 
 # Fort Blackout rework
 
@@ -223,3 +223,18 @@ they're closed shells (the core sits 25 cm inside the skin) with closed doors.
   If you park spare helicopters here, they fly home to their own pad.
 - `fbArmoury(g)` also returns `lamp` (the test cell's red lamp): blink it in an anim if you like.
 - The power plant could later light up when `ML.power` is on, and go dark in an outage. Not needed now.
+
+### Batch 4: the airfield annex (`models/fort-air.js`), approved
+New globals: `fbShelter, fbTower, fbAirOps, fbFuelFarm, fbApproachLights`. The kit's `fbRoad` takes `{taxi:true}`:
+no kerbs, with a yellow centre line. The kit's `k.H` now also has `tube`.
+- **`fbShelter(g, x, n)`** at x 418, 448, 478 (n 1-3) replaces the three shelters in `awBase` (the cylinder, the back
+  wall, its obstacles and the "SHELTER n" decal). Their back walls move 4 m north, to z -935. Each shelter is open to
+  the north and its front is at z -957. Push the returned `obs`. The jets' parking spots (418/448/478, -950) stay inside.
+- **`fbTower(g, 545, -944)`** replaces the tower meshes. Keep the obstacle and the glow sprite, and put the sprite at
+  the returned `beacon` position.
+- **`fbAirOps(g)`**, **`fbFuelFarm(g)`**, **`fbApproachLights(g)`**: push their `obs`. A 5 m service road runs along
+  the base wall: `fbRoad(g, 300, -933.2, 403, -933.2, 5, {taxi:true})`. The taxiway is
+  `fbRoad(g, 513, -952, 556.5, -952, 8, {taxi:true})`.
+- The fence, guard towers and outer checkpoint are in batch 1. The old dragon's teeth row at z -939 goes; put the new
+  chicane at z -1016..-1008 (simple concrete blocks with colliders are fine).
+- `awBase` still draws the runway, its lines, the apron, the windsock and the fleet. Keep those.

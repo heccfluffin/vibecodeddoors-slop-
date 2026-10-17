@@ -68,8 +68,9 @@ function fbKit(){if(fbKit.k)return fbKit.k;const k={};
   const poly=pts=>{const s=new THREE.Shape();s.moveTo(pts[0][0],pts[0][1]);for(const q of pts.slice(1))s.lineTo(q[0],q[1]);s.lineTo(pts[0][0],pts[0][1]);return s};
   /* a flat shape in the x-y plane of a group, pushed d along z; placed at (x,y,z) and turned ry */
   const slab=(pts,d,m,x,y,z,ry,p)=>{const ge=new THREE.ExtrudeGeometry(poly(pts),{depth:d,bevelEnabled:false});ge.translate(0,0,-d/2);if(S(m))k.wuv(ge,S(m));const o=new THREE.Mesh(ge,m);o.position.set(x,y,z);o.rotation.y=ry||0;return add(o,p)};
+  const tube=(pts,r,m,p,seg)=>add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(q=>new THREE.Vector3(...q))),seg||24,r,6,false),m),p);
   const L=(s,w,h,bg,fg,fs,x,y,z,ry,p,font)=>{const o=k.lab(s,w,h,bg,fg,fs,font);o.position.set(x,y,z);o.rotation.y=ry||0;(p||g).add(o);return o};
-  return{add,B,C,rod,slab,L,poly}};
+  return{add,B,C,rod,slab,L,poly,tube}};
  return fbKit.k=k}
 
 /* ---- dressing a BLD box building ---- */
@@ -191,6 +192,7 @@ function fbFence(g,x0,z0,x1,z1,h){const k=fbKit(),{B,C,rod}=k.H(g);const len=Mat
 function fbRoad(g,x0,z0,x1,z1,w,o){const k=fbKit(),{B}=k.H(g);o=o||{};const X=Math.abs(x1-x0)>=Math.abs(z1-z0),a0=X?Math.min(x0,x1):Math.min(z0,z1),a1=X?Math.max(x0,x1):Math.max(z0,z1),c=X?z0:x0,len=a1-a0,mid=(a0+a1)/2;
  const P=(u,y,L,hh,W,m,off)=>X?B(L,hh,W,u,y,c+(off||0),m):B(W,hh,L,c+(off||0),y,u,m);
  P(mid,.065,len,.03,w,k.ROAD);
+ if(o.taxi){/* a taxiway or service road: a solid yellow centre line, no kerbs */P(mid,.085,len,.01,.2,k.LINEY,0);return g}
  /* lines: white edge lines, a dashed centre line */ /* kerbs and pavement, with gaps where other roads join */const gaps=o.gaps||[];const runs=[];let a=a0;for(const[g0,g1]of gaps.slice().sort((p,q)=>p[0]-q[0])){if(g0>a)runs.push([a,g0]);a=Math.max(a,g1)}if(a<a1)runs.push([a,a1]);/* where this road ends at another one, stop the kerbs and pavement short of that road's kerb and pavement */const tr=o.trim||[0,0];const runsK=runs.map(([r0,r1])=>[Math.max(r0,a0+tr[0]),Math.min(r1,a1-tr[1])]).filter(([r0,r1])=>r1-r0>.05);
  for(const sd of[-1,1])for(const[r0,r1]of runs)P((r0+r1)/2,.085,r1-r0,.01,.12,k.LINE,sd*(w/2-.3));for(let u=a0+1.5;u<a1-1;u+=6){if(gaps.some(([g0,g1])=>u+3>g0&&u<g1))continue;P(u+1.5,.085,3,.01,.12,k.LINE,0)}
  for(const sd of[-1,1]){const pave=o.pave=='both'||(o.pave=='l'&&sd<0)||(o.pave=='r'&&sd>0);for(const[r0,r1]of runsK){P((r0+r1)/2,.09,r1-r0,.08,.3,k.KERB,sd*(w/2+.15));if(pave)P((r0+r1)/2,.07,r1-r0,.04,1.5,k.PAVE,sd*(w/2+.3+.75))}}
