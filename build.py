@@ -249,6 +249,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx609.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx610.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx611.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx612.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx613.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -415,6 +416,9 @@ R("const v=mkVan(K,'INMATE TRANSPORT');v.position.set(cx0+8,0,cz0+5+i*7);v.rotat
   "const v=nvVan('INMATE TRANSPORT');v.position.set(cx0+8,0,cz0+5+i*7);v.rotation.y=Math.PI/2+Math.PI;")
 # r613: jets' landing gear folds on hinges (gearSet) instead of shrinking (dx611)
 R("if(u.gear){const up=v.air&&v.y-vehGround(q,v.x,v.z)>3;u.gear.scale.y+=((up?.02:1)-u.gear.scale.y)*Math.min(1,dt*3);u.gear.visible=u.gear.scale.y>.05}","if(u.gear){const up=v.air&&v.y-vehGround(q,v.x,v.z)>3;if(u.gearSet){v.gearF=v.gearF==null?(up?1:0):v.gearF;v.gearF+=((up?1:0)-v.gearF)*Math.min(1,dt*1.6);u.gearSet(v.gearF)}else{u.gear.scale.y+=((up?.02:1)-u.gear.scale.y)*Math.min(1,dt*3);u.gear.visible=u.gear.scale.y>.05}}")
+# r615: the Desert Bus outside is busShell (dx613)
+R('B(HW*2+.1,DBFH-.3,ZL+.1,0,(DBFH-.3)/2+.15,ZC,M(0x3a3a3a));\n for(const sd of[-1,1]){B(.36,.18,.05,sd*1.9,DBFH+.3,Z0-.14,hl);B(.36,.18,.05,sd*1.9,DBFH+.3,Z1+.14,tl)}B(HW*2+.2,.2,.15,0,.45,Z0-.16,M(0xc0c4c8,{metalness:.8}));B(HW*2+.2,.2,.15,0,.45,Z1+.16,M(0xc0c4c8,{metalness:.8}));','/* r615: body, lights, bumpers, wheels: busShell (dx613) */')
+R('it.dsign={c:d,t:dp.material.map};const wheels=[];for(const z of[Z0+3,Z0+6.5,Z1-7,Z1-3.5])for(const sd of[-1,1]){/* a wheel arch over each tyre, outside the walls */B(.52,.08,1.36,sd*(HW+.33),1.07,z,M(0xd8701a));B(.06,.34,1.36,sd*(HW+.58),.92,z,M(0xd8701a));const pw=new THREE.Group();pw.position.set(sd*(HW+.33),.5,z);g.add(pw);const t=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.4,16),dk);t.rotation.z=Math.PI/2;pw.add(t);const hb=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.42,8),M(0xc0c4c8,{metalness:.8}));hb.rotation.z=Math.PI/2;pw.add(hb);wheels.push({p:pw,t,front:z<Z0+5})}','it.dsign={c:d,t:dp.material.map};const wheels=busShell(g,{HW,Z0,Z1,CH:it.CH,FH:DBFH});')
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered
@@ -443,7 +447,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r614';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r615';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

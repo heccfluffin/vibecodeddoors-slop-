@@ -1,5 +1,10 @@
 # Notes for the design chat
 
+## 2026-10-17 · r615: the plane and the Desert Bus (cars.md parts 11-12, dx613)
+- `mkPlane` replaces the plane model (same finishing step as the other new vehicles). `busShell` replaces the old grey box, light, bumper line and wheel loop in `mkMegaBus`; the board, seats, zones, doors and the rest of the base bus logic are untouched.
+- `biKit`, `biMerge`, `mkMegaInterior`, `megaExtras` and `megaPolish` are used whole: the new ones replace the old functions (nothing else wrapped them). The bus counts about 900 meshes after merging (the count includes the parts that stay separate on purpose).
+- Checked: the bus builds with all its hooks (36 seats, 51 obstacles, 14 zones, 8 wheels, hoop, ball pit, 2 doors), the plane has its propeller, 3 wheels and steering; outside and inside screenshots look right; no errors. Not checked in real play: driving the bus, sitting in seats, horn/autopilot/pump, cooler, slots, hoop, ball pit, tub, karaoke, the blow-up.
+
 ## 2026-10-17 · r614: odd cars (cars.md part 10, dx612)
 - `mkOddCar` for the hearse, limo, rally car, tractor and ice cream van, as written (same finishing step as the other new cars; the ice cream van keeps `userData.jingle = 1`; the tractor's wheels roll by their own radius).
 - Checked: each builds with its hooks, nothing below the ground, a parked-row screenshot looks right. Not checked: driving them, the interiors.
