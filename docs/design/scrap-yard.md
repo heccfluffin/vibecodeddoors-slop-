@@ -1,4 +1,4 @@
-Status: layout and batch 1 approved by the user 2026-10-17 · more batches coming
+Status: layout and batches 1-2 approved by the user 2026-10-17 · more batches coming
 
 # Goblino's Scrap rework
 
@@ -49,3 +49,13 @@ In `xpScrap`, change these:
   (+z). His talk prop goes to (68, -1354.6) and the light to (68, 3.6, -1355).
 - **Sign:** drop the `sign("GOBLINO'S SCRAP...")` call. The new entrance sign stands at (54, -1352), outside the fence
   north of the gate.
+
+### Batch 2: the car stacks and the magnet crane, approved
+New globals: `syFlatCar, syStacks, syCrane`. None of them clash with existing names.
+- **`syStacks(g)`** replaces the nine `mkOldCar` stacks and their `ob`s. It builds 14 stacks in two rows (layout
+  above), each 2-4 flattened cars, crosswise in alternating layers. Push its `obs`.
+- **`const cr = syCrane(g, 160, -1366)`** replaces the crane block. Push `cr.obs`.
+  - Replace the crane's anim with `anim(160, -1366, 160, () => cr.tick(q.rt))`. It's the same swing and lift as
+    before, and the cable now stretches between the boom tip and the magnet.
+  - `cr.arm` keeps `userData.mv = 1`.
+- `syFlatCar(colour, seed)` is a single flattened car. Batch 3 can use it for the crusher's output cube, if you like.

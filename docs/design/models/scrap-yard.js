@@ -51,3 +51,40 @@ function syYard(g){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;const X0=60,X1=180,Z
   for(const dz of[-2.4,2.4]){const hc=C(.32,.32,.04,sx+.09,3.3,sz+dz,M(0xc8ccd0,{metalness:.85,roughness:.25}),'x',null,16);C(.12,.12,.06,sx+.1,3.3,sz+dz,M(0x8a8e92,{metalness:.8}),'x',null,10)}obs.push({x0:sx-.2,x1:sx+.2,z0:sz-2,z1:sz+2})}
  /* floodlights in the four corners */for(const[x,z]of[[62,-1378],[178,-1378],[62,-1302],[178,-1302]]){B(.6,.3,.6,x,.15,z,k.PRE);C(.1,.14,8,x,4.2,z,M(0x5a5e64,{metalness:.6}),null,null,10);const ax=x<120?1:-1,az=z<-1340?1:-1;B(1.2,.1,.1,x,8.1,z,M(0x5a5e64,{metalness:.6}));for(const s of[-.45,.45]){const hd=B(.36,.24,.3,x+s,8.0,z+az*.15,M(0x3a3a3a));hd.rotation.x=az*.5;const lm=new THREE.Mesh(new THREE.PlaneGeometry(.3,.2),M(0xfff0d0,{emissive:0xfff0d0,emissiveIntensity:1}));lm.position.set(x+s,7.9,z+az*.31);lm.rotation.x=-az*Math.PI/2+az*.5*0-Math.PI*0;lm.rotation.y=az<0?Math.PI:0;g.add(lm)}obs.push({x0:x-.3,x1:x+.3,z0:z-.3,z1:z+.3})}
  g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{obs}}
+
+/* ---- batch 2: the car stacks and the magnet crane ---- */
+/* a flattened car: a crumpled slab in the car's paint, the window band, a door seam, a squashed wheel arch, rust; about 4.2 x 1.9 x .55 */
+function syFlatCar(col,seed){const k=fbKit(),M=k.M;let sd=seed|0||7;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;
+ const hex='#'+col.toString(16).padStart(6,'0');const side=k.tex(256,64,(c,w,h)=>{c.fillStyle=hex;c.fillRect(0,0,w,h);c.fillStyle='rgba(20,22,26,.85)';c.beginPath();c.moveTo(w*.22,h*.12);c.lineTo(w*.72,h*.12);c.lineTo(w*.8,h*.45);c.lineTo(w*.16,h*.45);c.closePath();c.fill();
+  c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=2;for(const x of[.47,.7])c.strokeRect(w*x,h*.1,1,h*.8);c.fillStyle='rgba(20,20,20,.9)';for(const x of[.18,.8]){c.beginPath();c.ellipse(w*x,h,w*.08,h*.45,0,Math.PI,0);c.fill()}
+  for(let i=0;i<14;i++){c.fillStyle='rgba(120,60,25,'+(.2+r()*.4)+')';c.beginPath();c.ellipse(r()*w,r()*h,4+r()*16,2+r()*8,r()*3,0,7);c.fill()}for(let i=0;i<10;i++){c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=1;c.beginPath();c.moveTo(r()*w,r()*h);c.lineTo(r()*w,r()*h);c.stroke()}});
+ const SM=M(0xffffff,{map:side,roughness:.7,metalness:.35}),TOP=M(col,{roughness:.6,metalness:.35}),UN=M(0x2a2622,{roughness:.9});
+ const geo=new THREE.BoxGeometry(4.2,.55,1.9,8,1,4);const p=geo.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);p.setY(i,y+(r()-.5)*.12+(y>0?Math.sin(x*1.3+seed)*.06:0));p.setZ(i,z+(r()-.5)*.1);p.setX(i,x+(r()-.5)*.06)}geo.computeVertexNormals();
+ return new THREE.Mesh(geo,[SM,SM,TOP,UN,SM,SM])}
+function syStacks(g){const k=fbKit(),obs=[];const COLS=[0x8a6a3a,0x3a5a8a,0xa03030,0x6a8a4a,0xd8d8d8,0x2a2a2a,0xc8a020,0x4a7a8a];let n=0;
+ for(const z of[-1373,-1361])for(let x=88;x<=148;x+=10){const hgt=2+((x*7+z)%3+3)%3;for(let i=0;i<hgt;i++){const c=syFlatCar(COLS[(n+i*3)%COLS.length],n*13+i*7+1);c.position.set(x+((i*37)%5-2)*.06,.3+i*.56,z+((i*17)%5-2)*.06);c.rotation.y=(i%2?Math.PI/2:0)+((i*29)%7-3)*.03;g.add(c)}n++;obs.push({x0:x-2.4,x1:x+2.4,z0:z-2.4,z1:z+2.4})}
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{obs}}
+
+/* the magnet crane: a tracked material handler. arm (slews on y), a box boom with its rams, a cable (cb) to the magnet (mg),
+   a flattened car (held) under the magnet. tick(t) runs the same motion the game had; tipY is the cable's top in arm space. */
+function syCrane(g,cx,cz){const k=fbKit(),M=k.M;const YL=M(0xe8b818,{roughness:.5,metalness:.3}),DK=M(0x22252a,{roughness:.6,metalness:.4}),ST=M(0x9aa0a8,{metalness:.85,roughness:.25}),GL=new THREE.MeshStandardMaterial({color:0x1a2a38,metalness:.6,roughness:.1,transparent:true,opacity:.7});
+ const base=new THREE.Group();base.position.set(cx,0,cz);g.add(base);const Bs=k.H(base);
+ /* the undercarriage: two crawler frames, sprocket and idler, rollers, a track band with grousers; the slewing ring */
+ for(const sd of[-1,1]){const tz=sd*1.5;Bs.B(4.2,.55,.6,0,.55,tz,DK);for(const ex of[-2.1,2.1])Bs.C(.44,.44,.62,ex,.46,tz,DK,'z',null,16);for(let i=-3;i<=3;i++)Bs.C(.15,.15,.6,i*.55,.18,tz,ST,'z',null,10);Bs.B(4.3,.08,.66,0,.92,tz,DK);Bs.B(4.3,.08,.66,0,.04,tz,DK);for(let i=0;i<20;i++)Bs.B(.08,.06,.68,-2.1+i*.22,.97,tz,DK)}
+ Bs.B(2.2,.35,2.6,0,.8,0,DK);Bs.C(1.2,1.3,.35,0,1.12,0,DK,null,null,22);
+ const arm=new THREE.Group();arm.position.set(cx,2.6,cz);arm.userData.mv=1;arm.userData.dpKeep=1;g.add(arm);const A=k.H(arm);
+ /* upper: deck, engine house with louvres, counterweight with stripes, the cab raised on a riser with a ladder */
+ A.B(4.2,.3,3.0,-.4,-1.15,0,DK);A.B(2.0,1.4,2.8,-1.4,-.3,0,YL);for(let i=0;i<6;i++)A.B(1.2,.04,.06,-1.6,-.6+i*.12,1.42,DK);A.B(.8,1.3,3.0,-2.8,-.35,0,DK);for(let i=0;i<4;i++)A.B(.82,.12,.5,-2.8,-.5+i*.3,1.26-i*.0,i%2?YL:DK).position.z=1.26;
+ A.C(.08,.09,.8,-1.0,.8,-.9,DK,null,null,8);
+ /* the riser: a steel box with panel seams and a hose run */A.B(.5,1.6,.5,.6,-.2,.95,DK);for(const y of[-.6,.2])A.B(.52,.04,.52,.6,y,.95,M(0x3a3e44,{metalness:.5}));A.rod([.36,-.95,.75],[.36,.55,.75],.025,M(0x111111));const cab=new THREE.Group();cab.position.set(.6,1.1,.95);arm.add(cab);const Cb=k.H(cab);Cb.B(1.4,.1,1.2,0,-.5,0,YL);Cb.B(1.4,.1,1.2,0,.85,0,YL);for(const[a,b]of[[-.65,-.55],[.65,-.55],[-.65,.55],[.65,.55]])Cb.B(.08,1.35,.08,a,.18,b,YL);Cb.B(1.3,1.3,1.1,0,.18,0,GL);/* inside: a seat, joysticks, a dash */Cb.B(.45,.1,.45,-.25,-.25,0,DK);Cb.B(.08,.5,.45,-.48,.0,0,DK);for(const sz of[-.28,.28]){Cb.B(.3,.06,.08,-.12,-.08,sz,DK);Cb.C(.02,.02,.16,.0,.02,sz,DK,null,null,6)}Cb.B(.1,.3,.9,.58,-.25,0,DK);Cb.B(.06,.06,.2,.66,.05,.0,M(0x30ff60,{emissive:0x10a030}));/* a door handle on the ladder side */Cb.B(.16,.04,.04,.4,.15,.56,M(0xb8bcc0,{metalness:.8}));Cb.B(.2,.12,.12,.72,.75,0,M(0xfff0c0,{emissive:0xffe0a0,emissiveIntensity:1}));Cb.C(.08,.08,.12,0,.97,0,M(0xff8000,{emissive:0xff6000,emissiveIntensity:.4}),null,null,10);
+ /* the ladder up the riser's outer face: two rails standing on the deck, rungs between, a grab handle at the top */for(const lx of[.42,.78])A.B(.05,2.15,.05,lx,-.03,1.27,DK);for(let i=0;i<7;i++)A.B(.36,.04,.04,.6,-.85+i*.28,1.27,DK);for(const lx of[.42,.78])A.rod([lx,1.1,1.27],[lx,1.45,1.27],.02,DK);
+ /* the boom: a box section from the foot (0.4, -.3) to the tip at (11.5, 4.2), a sheave at the tip, two lift rams */
+ const foot=[.6,-.4],tip=[11.5,4.2],bl=Math.hypot(tip[0]-foot[0],tip[1]-foot[1]),ang=Math.atan2(tip[1]-foot[1],tip[0]-foot[0]);const bm=new THREE.Group();bm.position.set(foot[0],foot[1],0);bm.rotation.z=ang;arm.add(bm);const Bm=k.H(bm);
+ Bm.B(bl,.55,.5,bl/2,0,0,YL);for(let i=1;i<6;i++)Bm.B(.04,.57,.52,i*bl/6,0,0,DK);Bm.B(bl,.04,.52,bl/2,.29,0,DK);Bm.C(.3,.3,.3,0,0,0,DK,'z',null,14);Bm.C(.32,.32,.2,bl,0,0,DK,'z',null,14);
+ A.C(.06,.06,.56,tip[0],tip[1],0,ST,'z',null,8);for(const sz of[-.35,.35]){A.rod([-.2,-.9,sz],[3.2,1.0,sz],.13,DK);A.rod([1.4,.0,sz],[3.2,1.0,sz],.08,ST)}
+ /* the cable (unit length, scaled), the magnet (a disc with ribs, a junction box, chains), the car under it */
+ const cb=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,1,6),DK);cb.position.set(tip[0],1.7,0);arm.add(cb);
+ const mg=new THREE.Group();mg.position.set(tip[0],-.4,0);arm.add(mg);{const G=k.H(mg);G.C(1.0,1.0,.4,0,0,0,M(0x5a5a5a,{metalness:.8,roughness:.35}),null,null,22);G.C(1.04,1.04,.08,0,-.18,0,DK,null,null,22);for(let i=0;i<6;i++){const rb=G.B(1.9,.1,.08,0,.22,0,DK);rb.rotation.y=i*Math.PI/6}G.B(.4,.25,.3,0,.32,0,M(0xc03020));for(const sx of[-.6,.6])G.rod([sx,.2,0],[0,.75,0],.02,DK)}
+ const held=syFlatCar(0x3a3a3a,99);held.scale.set(.9,1,.9);held.position.set(tip[0],-1.4,0);arm.add(held);
+ const tick=t=>{arm.rotation.y=Math.sin(t*.3)*1.2;mg.position.y=-.4+Math.sin(t*.6)*1.2;held.position.y=mg.position.y-.55;const top=tip[1]-.1,bot=mg.position.y+.75;cb.scale.y=Math.max(.1,top-bot);cb.position.y=(top+bot)/2};tick(0);
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{arm,cb,mg,held,tick,tipY:tip[1],obs:[{x0:cx-2.4,x1:cx+2.4,z0:cz-2,z1:cz+2}]}}
