@@ -48,8 +48,8 @@ function qmOreFeed(g,x,z,F,rx,rz){const{k,M,ST,DK,YL,BL,GM}=qmMat(),{B,C,rod,L}=
  const hp=new THREE.Group();hp.position.set(x,F+1.75,z);hp.userData.dpKeep=1;g.add(hp);/* the pan's open end faces the furnace (-z), right over the belt's tail */{const H=k.H(hp);H.B(.6,.06,1.0,0,0,-.2,GM);for(const s of[-1,1])H.B(.04,.16,1.0,s*.3,.08,-.2,GM);H.B(.6,.16,.04,0,.08,.3,GM);for(const[a,b]of[[-.25,.2],[.25,.2],[-.25,-.55],[.25,-.55]])H.C(.04,.04,.12,a,-.08,b,M(0x1a1a1a),null,null,8);H.B(.3,.24,.26,.48,.0,.1,BL)}
  const fl2=new THREE.Mesh(new THREE.DodecahedronGeometry(.6,0),M(0x8a7a6a,{roughness:1}));fl2.scale.y=.45;fl2.position.set(0,1.0,0);hp.add(fl2);
  L('ORE FEED',1.2,.28,'#1a1a1a','#e8c020',60,x,F+1.15,z+.79,0);
- /* the charging chute on the hood: a steel box with a flap */{B(.9,.5,.9,rx,F+4.15,rz,GM);B(1.0,.06,1.0,rx,F+4.42,rz,DK);B(.9,.08,.9,rx,F+3.94,rz,DK)}
- qmNS(g);return{hp,fl2,from:[x,F+1.58,z-.6],to:[rx,F+4.5,rz],obs:[{x0:x-.8,x1:x+.8,z0:z-.8,z1:z+.8}]}}
+ /* the charging chute on the hood: an open-topped steel hopper; the belt's head drum hangs just over it */{for(const s2 of[-1,1]){B(.05,.5,.9,rx+s2*.43,F+4.15,rz,GM);B(.9,.5,.05,rx,F+4.15,rz+s2*.43,GM)}for(const s2 of[-1,1]){B(.09,.05,1.0,rx+s2*.45,F+4.42,rz,DK);B(1.0,.05,.09,rx,F+4.42,rz+s2*.45,DK)}B(.9,.08,.9,rx,F+3.94,rz,DK);B(.8,.02,.8,rx,F+4.0,rz,M(0x1a1a1a))}
+ qmNS(g);return{hp,fl2,from:[x,F+1.58,z-.6],to:[rx,F+4.66,rz],obs:[{x0:x-.8,x1:x+.8,z0:z-.8,z1:z+.8}]}}
 
 /* ---- the casting robot: a six-axis arm on a pedestal, cable loom along the arm, a gripper; a beacon; a safety rail ---- */
 function qmCastRobot(g,rx,rz,F){const{k,M,ST,DK,YL,OR}=qmMat(),{B,C,rod,L}=k.H(g);const WH=M(0xe4e4e0,{roughness:.5,metalness:.2});
@@ -70,7 +70,7 @@ function qmBlower(g,bx,bz,F,fx,fz){const{k,M,ST,DK,BL,GM}=qmMat(),{B,C,rod,L}=k.
  /* inlet guard: a ring and bars */{const r=new THREE.Mesh(new THREE.TorusGeometry(.64,.025,6,24),DK);r.position.set(bx,F+1.0,bz-.42);g.add(r);for(let i=0;i<4;i++){const b=B(1.26,.03,.03,bx,F+1.0,bz-.42,DK);b.rotation.z=i*Math.PI/4}}
  C(.24,.24,.5,bx+.95,F+.55,bz,BL,'x',null,14);B(.4,.3,.4,bx+.95,F+.35,bz,DK);
  /* the duct: up out of the scroll, along +z, round the corner and into the furnace wall, on stands */const y=F+1.9,DM=M(0x8a8e94,{metalness:.6,roughness:.35});
- rod([bx+.4,F+1.5,bz+.1],[bx+.4,y,bz+.1],.22,DM,null,14);rod([bx+.4,y,bz+.1],[bx+.4,y,fz],.22,DM,null,14);C(.24,.24,.24,bx+.4,y,fz,DM,null,null,14);rod([bx+.4,y,fz],[fx,y,fz],.22,DM,null,14);C(.32,.32,.08,fx-.05,y,fz,DK,'x',null,14);
+ rod([bx+.4,F+1.5,bz+.1],[bx+.4,y,bz+.1],.22,DM,null,14);rod([bx+.4,y,bz+.1],[bx+.4,y,fz],.22,DM,null,14);/* rounded elbows, so no pipe end shows at the corners */for(const[ex,ez]of[[bx+.4,bz+.1],[bx+.4,fz]]){const el=new THREE.Mesh(new THREE.SphereGeometry(.22,16,12),DM);el.position.set(ex,y,ez);g.add(el)}{const el=new THREE.Mesh(new THREE.SphereGeometry(.22,16,12),DM);el.position.set(bx+.4,F+1.5,bz+.1);g.add(el)}rod([bx+.4,y,fz],[fx,y,fz],.22,DM,null,14);C(.32,.32,.08,fx-.05,y,fz,DK,'x',null,14);
  for(const t of[.35,.75]){const zz=bz+.1+(fz-bz-.1)*t;B(.08,y-F-.2,.08,bx+.4,F+(y-F-.2)/2,zz,DK);B(.5,.06,.08,bx+.4,y-.22,zz,DK)}for(const zz of[bz+.1+.6,fz-.3])C(.28,.28,.05,bx+.4,y,zz,DK,'z',null,14);
  qmNS(g);return{fan,obs:[{x0:bx-.75,x1:bx+1.25,z0:bz-.7,z1:bz+.7}]}}
 
