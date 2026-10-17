@@ -104,6 +104,38 @@ so it can replace the old branch directly.
 - The tractor's front (r 0.32) and rear (r 0.78) wheels differ: roll by `w.t.userData.r` (already done in r611 for the
   other new cars).
 
+## 11. Plane and Desert Bus outside (`plane-bus.js`)
+- **`mkPlane()`** replaces the `'plane'` branch of `mkVehModel`. Same hooks as now: `userData.prop` (spins on z, at
+  (0, 1.5, -4.62)), `userData.wheels` (two mains, nose wheel `front: true`, `t.userData.r` set), `userData.sw` with
+  `swAx 'z'` (the yoke). `g.rotation.order` is 'YXZ'. The cockpit camera (0, 1.8, -1.22) sits at eye height in the cabin.
+  Skip `vehMore()` for it.
+- **`busShell(g, {HW, Z0, Z1, CH, FH})`** builds the bus's outside round the interior. In `mkMegaBus`, replace the
+  grey base box, the four head/tail light boxes, the two bumpers and the wheel + arch loop with
+  `const wheels = busShell(g, {HW, Z0, Z1, CH, FH: DBFH});`. Keep the DESERT BUS signs, `it.dsign`, the splat, the
+  flames and the `userData` line. Wheels are the old 4 axles at x ±(HW + 0.33), `t.userData.r = 0.5`.
+
+## 12. Desert Bus inside (`bus-interior.js`)
+Three base-game functions are replaced **whole** (redefine them in a module, after bak519; `mkMegaBus` calls them by
+their global names): `mkMegaInterior()`, `megaExtras(it)`, `megaPolish(it)`. New globals: `biKit`, `biMerge` (checked:
+no clashes).
+- Everything the game reads keeps its value and position: `it` fields (`g, HW, Z0, Z1, CH, obs, seats, dleaf, doors,
+  zones, drv, sk, ents, proj, lab`), the 32 seats in the same order plus the 4 tub seats, every `it.obs` box, every zone,
+  `it.hoop`, `it.pit`, and all `ex.*` hooks (`ap {lev, led}`, `horn`, `dknob`, `pump`, `af`, `wire {wd, wled}`,
+  `juke {bands, jc, jtx}`, `cool {lid}`, `slot {sc, stx, lv, sg}`, `score`, `balls/ballM/dm`, `tub {wt}`, `bub`,
+  `stage {sp}`, `led`, `clock`). `megaPolishTick`, `megaTick`, `megaDoors` etc. need no change.
+- `ex.cool.lid` and `ex.slot.lv` are now stand-ins (plain `Object3D`s the game keeps moving as before). The real lid
+  and lever copy them in an `onBeforeRender`, so the lid swings on its back hinge and the lever pulls towards you.
+- Door leaves: same `h` / `lf` groups, `h.rotation.y` as before.
+- The mirror no longer swings; only the pine tree under it does (`ex.af` is the tree's group).
+- The wiring panel is now a floor cabinet under the window (same zone and obstacle).
+- **Merging:** at the end of `megaPolish`, `biMerge(it.g)` joins static meshes by material, per 4 m of bus and per side
+  (about 925 meshes → 150). Animated parts, labels, glass, sprites and the ball InstancedMeshes are left alone.
+  Chunks stay under 9 m across, so `busBlowApart` still throws them about.
+- It calls `glowSp` and `dbSlotDraw` (both in bak519) and uses its own textures (no `mineTexR`, no `VMAT`).
+- `run0Hide` is no longer needed (there's no old runner to hide).
+- Check (short): board the bus, sit in a seat and at the wheel, press the horn / autopilot / destination / pump,
+  open the cooler, spin the slots, throw at the hoop, dive in the ball pit, sit in the tub, sing. Then blow it up once.
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat

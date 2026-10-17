@@ -7,7 +7,8 @@ one at a time (preview → user approves → commit to `docs/design/models/`), t
 each one in. Animations and textures come with each model.
 
 Done so far: Gorge lift, Quarry Skip ramps, THUNDERBOLT uplink, water tank, jerrycan, caretaker (spare),
-the Groundskeeper, squad monitors, speed checkpoint.
+the Groundskeeper, squad monitors, speed checkpoint, every desert vehicle (cars.md 1-11), the Desert Bus
+inside and out (cars.md 11-12), the plane.
 
 ## Tier 1: seen all the time
 | # | What | Where it's built | Notes |
@@ -16,7 +17,7 @@ the Groundskeeper, squad monitors, speed checkpoint.
 | 2 | **Desert cars** | `mkVehModel` (one function for ~20 vehicles), `mkOldCar`, `mkVan`, `mkTowTruck`, `mkApcModel`, `mkSwatModel` | Box cars. Do them in families: sedan/cab, pickup/jeep, police cruiser + Highway Patrol, dragster/sport/muscle, trucks/APC. |
 | 3 | **Player avatar** | `mkAvatar` | What co-op friends see of each other. Keep the outfit/skin system working. |
 | 4 | **Elevators** | hotel `mkElevator`; Silo 1 freight elevator (dx579); mine cage and headframe (shack cage in bak519 ~2495, dx581 headframe) | The user asked for these after the gorge lift. |
-| 5 | **The Desert Bus** | `mkBusModel`, `mkBusInterior`, `mkMegaBus`, `mkMegaInterior` | You spend a lot of time in it. |
+| 5 | ~~**The Desert Bus**~~ (done) | `mkBusModel`, `mkBusInterior`, `mkMegaBus`, `mkMegaInterior` | You spend a lot of time in it. |
 | 6 | **Hotel items** | `mkKey`, `mkCross` (crucifix), `mkJug` (Starlight Jug), `mkBulb`, `mkDrawer`, `mkLoreBook`, lockers | Small, held in your hand, seen close up. |
 
 ## Tier 2: characters and entities
@@ -31,6 +32,9 @@ the Groundskeeper, squad monitors, speed checkpoint.
 | 13 | Animals | `mkDog`, `mkRat` | |
 
 ## Tier 3: desert places (big, done in pieces)
+The user asked (2026-10-17) to remodel **the whole desert map**: layouts as well as models. Order: Fort Blackout first
+(a new layout, it has things "just shoved into it"), then the quarry and mine buildings, then every other place.
+Each one is a spec plus models with a preview for the user's OK.
 | # | What | Where |
 |---|---|---|
 | 14 | Dusty Gulch (town) | `xpGulch`, `xpMoreTown` |
