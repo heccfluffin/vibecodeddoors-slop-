@@ -1,4 +1,4 @@
-Status: shipped (parts 1-6 in r611, 7-9 in r613, 10 in r614, 11-12 in r615)
+Status: shipped (parts 1-6 in r611, 7-9 in r613, 10 in r614, 11-12 in r615) · part 13 (police helicopter) approved 2026-10-17, to build
 
 # New car models
 
@@ -135,6 +135,21 @@ no clashes).
 - `run0Hide` is no longer needed (there's no old runner to hide).
 - Check (short): board the bus, sit in a seat and at the wheel, press the horn / autopilot / destination / pump,
   open the cooler, spin the slots, throw at the hoop, dive in the ball pit, sit in the tub, sing. Then blow it up once.
+
+## 13. Police helicopter (`police-heli.js`, `mkPoliceHeli()`)
+Load it after `helis.js` (it uses `heliKit`). New global: `mkPoliceHeli`. It doesn't clash with any existing name.
+- Replace the **first** `mkHeli()` in bak519 (the Dark Police helicopter, ~line 2834, used at the police pad as
+  `const hm=mkHeli()`) with `mkPoliceHeli()`. The military `mkHeli(K)` further down is a different model. Don't touch it.
+- The size, the origin (ground under the cabin, front -z) and the hooks are the same, so `heliTick` needs no change:
+  `userData = {mr, tr, spG, cone, cm, pool, pm, bea, sk}`.
+  - `mr` is at (0, 3.15, 0) and spins on y.
+  - `tr` is at (.14, 2.4, 5.6) and spins on x.
+  - `bea` holds the [red, blue] light bar boxes; the game sets their `material.emissive`.
+  - `spG` is at (0, .8, -1.2), with `cone`/`cm` and `pool`/`pm` the same as before.
+  - `sk` is `mkCopSeek(.42)` at (0, 1.05, -.6).
+  - The pad obstacle (x ±1.4, z -3..2.4) still fits.
+- The cabin is one mesh with a painted canvas texture (1536×768, made once) plus a grey inner lining. The windows are
+  glass groups in the same mesh. Mark the rotors `dpKeep` (they spin). The rest can batch.
 
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
