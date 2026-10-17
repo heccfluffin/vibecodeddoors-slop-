@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-4 approved · more batches coming
+Status: approved by the user 2026-10-17: part 1 (layout) and part 2 batches 1-5 (all the surface models), to build. The underground comes later.
 
 # The Old Quarry rework
 
@@ -193,3 +193,47 @@ into the furnace's west wall.
   front of the firebox door.
 
 **Batch 1 change:** in `qmFurnace` (`quarry-yard.js`), the firebox door leaf is now arched, matching the opening.
+
+### Batch 5: the pit floor and the crucible rail (`models/quarry-pit.js`), approved
+Load it after `quarry-works.js` (it uses `qmMat`). New globals: `qmCraneRail, qmCrucible, qmDrillRig, qmHaulTruck,
+qmBlast`. None of them clash with existing names. Push every returned `obs`.
+
+**Crucible rail** (dx581's smelter block): replace the rail, its two posts, the brace, the trolley and the crucible
+meshes. With the furnace turned, use RZ = SM.z - .6.
+- The rail: `qmCraneRail(g, SM.x + 1.4, SM.mx + 3.4, RZ, F, F + 3.9)`. It has an I-beam with end stops, a post on the
+  hood with a knee brace, and an A-frame at the far end.
+- The trolley and crucible: `const cu = qmCrucible(); cu.tro.position.set(SM.x + 2.6, RY, RZ); g.add(cu.tro)`.
+  Then `SM.tro.g = cu.tro`, `SM.cru = {g: cu.cr, molt: cu.molt, pot: cu.pot}`. Keep the stream `strm` as it is.
+- **Tip the pot, not the crucible group:** in the pour code (dx581 ~258-266), every `SM.cru.g.rotation.z` becomes
+  `SM.cru.pot.rotation.z`. The bail then stays hanging in the hook while the pot tips on its trunnions.
+  `SM.cru.g.position.y` stays as it is.
+- **Pour from the first mold:**
+  - The stream leaves the lip .75 ahead of the trolley, so set `SM.tro.a = SM.mx - 1.25 - .75` and
+    `SM.tro.b = SM.mx + 1.25 - .75`.
+  - Batch 1 turned the mold table, so its molds now run east to west. Reverse the list:
+    `SM.molds = qmTurn(qmMoldTable, ...).molds.slice().reverse()`. `molds[0]` is then the one nearest the furnace and
+    the molds fill in the order the crucible passes them.
+
+**Drill rig:** replace dx581's drill rig block with `const dr = qmDrillRig(g, -205, -1443, F)` (part 1 moved it onto
+the pit floor).
+- In the anim, use `dr.hd` and `dr.rod`, the same moving parts as before: `hd.position.y = 6.8 - u * 5.6`, and `rod`
+  spins on y.
+- The dust spot is (bx, by + .3, bz - 3.05), the same as before.
+
+**Haul truck:** replace the dump truck's meshes with `const tk = qmHaulTruck()`.
+- Use `bed = tk.userData.bed`, `load = tk.userData.load` and `wh = tk.userData.wh`. The anim is unchanged: the bed
+  tips on x, `load.visible` stays as it is, and the wheels spin with `rotation.x +=`.
+- The wheels are built turned round, so that `+=` now rolls them forward. The old truck's wheels rolled backwards.
+- The size is the same (2.6 wide over the body, 6 long), so the push-out box needs no change.
+- The path is the part 1 route.
+
+**Daily blast:** `const bl = qmBlast(g, -198, -1442, -172, -1444, F)` replaces the box, the handle group, the
+terminals, the wire, the rock pile, the charge and the sign.
+- Use `hg = bl.hg`, `ch = bl.ch` and `rk = bl.rk`. Push `bl.obs`; the plunger prop stays at (px, pz + .6).
+- **The charge now sits in front of the rock pile, at (fx - 2.5, fz).** Before, it was hidden inside the pile. Move the
+  `boom(...)` and the debris `vfx` to that spot: `ch.position.x, F + 1, fz`.
+
+**Excavator:** checked and kept as it is. It's already detailed.
+
+**Batch 1 change:** the furnace's temperature gauge is now a round dial in its bezel, raised to y 2.72 so it clears
+the steel band.
