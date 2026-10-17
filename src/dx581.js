@@ -43,7 +43,7 @@ xpQuarry=function(X){const{q,g,M,A,ob,prop,loc,rect,sign,anim,zone,road,lab,R}=X
  /* walking surfaces */q.plates.push({x0:x0,x1:x1,z0:QD.strip.z1,z1:z1,y:QD.B1},{x0:x0,x1:QD.strip.x0,z0:z0,z1:QD.strip.z1,y:QD.B1},{...QD.b2,y:QD.B2},{...QD.fl,y:F},{...QD.strip,y:F});
  q.ramps.push({ax:'x',s:-220,dir:1,len:60,H:-F,y0:F,x0:-222,x1:-160,z0:QD.strip.z0,z1:QD.strip.z1});
  /* the rock: outer walls round the hole, the benches as solid steps, the floor */const T=1.5,Y0=F-.6;
- WB(x1-x0+2*T,-Y0,T,cx,Y0/2,z0-T/2,RK);WB(x1-x0+2*T,-Y0,T,cx,Y0/2,z1+T/2,RK);WB(T,-Y0,z1-z0,x0-T/2,Y0/2,cz,RK);WB(T,-Y0,z1-QD.strip.z1,x1+T/2,Y0/2,(QD.strip.z1+z1)/2,RK);
+ /* r621: the outer walls stop 2 cm under the ground, so their tops don't flicker against the desert floor along the rim */const WH=-Y0-.02,WY=(Y0-.02)/2;WB(x1-x0+2*T,WH,T,cx,WY,z0-T/2,RK);WB(x1-x0+2*T,WH,T,cx,WY,z1+T/2,RK);WB(T,WH,z1-z0,x0-T/2,WY,cz,RK);WB(T,WH,z1-QD.strip.z1,x1+T/2,WY,(QD.strip.z1+z1)/2,RK);
  const solid=(r,top)=>{const w=r.x1-r.x0,d=r.z1-r.z0;const b=WB(w,top-Y0,d,(r.x0+r.x1)/2,(top+Y0)/2,(r.z0+r.z1)/2,RK);const t=WB(w-.02,.06,d-.02,(r.x0+r.x1)/2,top+.03,(r.z0+r.z1)/2,GV,6,6);return b};
  const A1={x0,x1,z0:QD.strip.z1,z1},A2={x0,x1:QD.strip.x0,z0,z1:QD.strip.z1};
  for(const r of rSub(A1,QD.b2).concat([A2]))solid(r,QD.B1);for(const r of rSub(QD.b2,QD.fl))solid(r,QD.B2);solid(QD.fl,F);solid(QD.strip,F);

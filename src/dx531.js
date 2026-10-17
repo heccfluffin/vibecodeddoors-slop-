@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r622',['Old Quarry: no more flickering on the ground along the pit rim']],
 ['r621',['The DARK ZONE 51 sign now faces the road']],
 ['r620',['Goblino\'s Scrap is rebuilt: a drive lane with sliding gates and a weighbridge, a new office with El Goblino at the counter, stacks of flattened cars, a new magnet crane, scrap bays, a tyre mountain and a pad for the monster truck','The crusher faces the lane now: the press squashes the car when it reaches it, the cube tips into the melter and the ladle pours','Ingots are priced by the car: a quad is worth less than a jeep. Your own spawned cars and the Wraith can\'t be crushed','Drive off with El Goblino\'s monster truck and he calls the police','The Desert PD has a new patrol helicopter','Fort Blackout: the old road surface under the new roads is gone (it was drawn over them up close)']],
 ['r619',['Old Quarry: the crucible now pours right into the molds','Old Quarry: a rubble pile no longer sits on the ore hopper']],
