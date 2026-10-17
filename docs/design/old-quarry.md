@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-2 approved · more batches coming
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-3 approved · more batches coming
 
 # The Old Quarry rework
 
@@ -108,3 +108,28 @@ New globals: `qmCrusher, qmOffice, qmFlood, qmEntrance`.
 - **`qmFlood(g, x, z, aimX, aimZ)`** at the four corners: (-263,-1483), (-157,-1483), (-157,-1429), (-263,-1429),
   aimed at the pit centre (-210,-1456). This replaces the three old towers. Push `obs`.
 - **`qmEntrance(g, -133, -1463, -Math.PI/2)`** replaces the two road signs.
+
+### Batch 3: the processing machines (`models/quarry-proc.js`), approved
+Load it after `quarry-yard.js`. New global: `qmMachine`. It doesn't clash with any existing name.
+- **Positions:** use the new `QPOS` from part 1:
+  - row 1, z -1459: sortr -234, wash -228, mill -222, heat -216, pol -210;
+  - row 2, z -1466: gen -228, silo -222, lab -216.
+- **Facing:** both rows face the walkway between them, at z -1462.5.
+  - Call with `face = -1` for row 1 and `+1` for row 2.
+  - Row 1 is **mirrored** (`scale.z = -1`), not turned. That way ore always enters on the west side (-x) and leaves on
+    the east (+x), matching `qtLinks`' belts. The signs are added straight to the section group, so their text isn't
+    mirrored.
+- **In `qtBuild2`'s `mk`:** replace the pad, the name plate, the obstacle push and the machine body with
+  `const h = qmMachine(id, g, x, z, F, l, z > -1462 ? -1 : 1)`.
+  - Push `h.obs` (marked `qtm: 1` as before).
+  - Assign the hooks: `QA.wash = h.wash`, `QA.washP = h.washP`, `QA.sortD = h.sortD`, `QA.mill = h.mill`,
+    `QA.heatF = h.heatF`, `QA.pol = h.pol`, `QA.gen = h.gen`, `QA.labD = h.labD`, `QA.labL = h.labL`.
+  - `qtTick2` doesn't need changing. The lab dish is now a group (dish, feed arm and receiver), so the whole dish
+    turns on its post.
+  - Everything goes into the section group `g`, so `qtConstruct`'s build-up animation still works.
+- **Preheater pipe:** keep the hot-ore pipe to the furnace, but start it at the returned `h.out` (the top of the drum).
+- **Belts:** `qtLinks`' belts still run from centre ± 1.55, and every machine now has something at those spots:
+  - the sorter's own tail pulley, the washer's feed box, the mill's feed hopper and the preheater's feed chute take
+    belts in on the west side;
+  - the sorter's splitter, the washer's outlet chutes and the mill's discharge screen sit over the outgoing belts on
+    the east side.
