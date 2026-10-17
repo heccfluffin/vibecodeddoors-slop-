@@ -90,6 +90,11 @@ New globals: `guFront, guWest`. Call `guWest(g)` after the three west shells.
 - In the bank and chapel `shell(...)` calls: `noPorch: 1`, and drop the name sign and its backing board, as on the
   west side.
 
+### Fix for every shell: the door frame z-fights
+In `shell(...)` the door frame posts are `BX(.42, 2.5, .1)` at `cz ± 1.35`, so their inner faces sit at `cz ± 1.3`,
+exactly on the wall's cut ends. Move them to `cz ± 1.34` (inner faces 1 cm proud of the wall). The head piece is
+fine (it already hangs 5 cm below the lintel).
+
 ### Coming next
 - **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
   and the chapel. They keep every prop, mission spot and moving part (the jukebox, Bob, the piano, the vault).
