@@ -35,6 +35,8 @@ inside and out (cars.md 11-12), the plane.
 The user asked (2026-10-17) to remodel **the whole desert map**: layouts as well as models. Order: Fort Blackout first
 (a new layout, it has things "just shoved into it"), then the quarry and mine buildings, then every other place.
 Each one is a spec plus models with a preview for the user's OK.
+After the whole desert is remodelled: write a **desert optimisation spec** (the user asked). Nothing that breaks
+gameplay, build on the existing `DP` batching, and Claude Code makes a git backup (a tag or branch) before starting.
 | # | What | Where |
 |---|---|---|
 | 14 | Dusty Gulch (town) | `xpGulch`, `xpMoreTown` |
