@@ -1,5 +1,10 @@
 Status: shipped (parts 1-6 in r611, 7-9 in r613, 10 in r614, 11-12 in r615) · part 13 (police helicopter) approved 2026-10-17, to build
 
+## Fix (2026-10-17): the tank's tail lights flicker
+In `tank.js` (and its copy in dx609, the line with `BX(.14,.08,.03,tl,sd*1.3,1.32,2.965)`), the tail lights' back face sat
+exactly on the hull's back face at z 2.95, and the game's seam smoothing then fought over the two. Make them
+`BX(.14, .08, .05, tl, sd*1.3, 1.32, 2.96)`: 5 cm deep, sunk 1.5 cm into the hull. Nothing else changes.
+
 # New car models
 
 The desert cars are being remodelled one family at a time. Each model in `docs/design/models/` has the same hooks

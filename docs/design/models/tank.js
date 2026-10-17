@@ -53,7 +53,7 @@ function mkTank(){const g=new THREE.Group();
  {const c=document.createElement('canvas');c.width=128;c.height=128;const k=c.getContext('2d');k.fillStyle='#14160f';k.fillRect(0,0,128,128);k.fillStyle='#4a5430';for(let i=5;i<128;i+=11)k.fillRect(4,i,120,6);
   const gm=M(0xffffff,{map:new THREE.CanvasTexture(c),roughness:.8});for(const sd of[-1,1]){const p=BX(.9,.03,1.3,gm,sd*.62,1.45,2.0);p.rotation.x=.0133}}
  for(const sd of[-1,1]){rod([sd*1.3,1.49,-.8],[sd*1.3,1.47,1.0],.025,steel);/* tow cable along the deck edge */
-  BX(.36,.24,.1,dk,sd*.9,1.12,2.98);CYL(.1,.1,.06,M(0x0a0a0a),sd*.9,1.12,3.04,'z');BX(.14,.08,.03,tl,sd*1.3,1.32,2.965)}
+  BX(.36,.24,.1,dk,sd*.9,1.12,2.98);CYL(.1,.1,.06,M(0x0a0a0a),sd*.9,1.12,3.04,'z');BX(.14,.08,.05,tl,sd*1.3,1.32,2.96)}/* the tail lights go 1.5 cm into the hull, so no face sits on the hull's back face (that flickered) */
  for(let i=0;i<3;i++){BX(.32,.44,.15,jer,-.5+i*.38,1.22,3.04);BX(.18,.04,.04,dk,-.5+i*.38,1.45,3.04)}BX(1.2,.04,.3,steel,-.12,.98,3.0);/* jerrycans on a shelf under the rear lip */
  BX(1.66,.04,5.0,dk,0,.3,0);/* belly */
 
