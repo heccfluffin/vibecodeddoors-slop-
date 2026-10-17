@@ -45,11 +45,11 @@ function qmSkip(g,x,z,F,bx,bz,px,pz){const{k,M,ST,DK,YL,GM,ROCK,RB}=qmMat(),{B,C
 function qmOreFeed(g,x,z,F,rx,rz){const{k,M,ST,DK,YL,BL,GM}=qmMat(),{B,C,rod,L}=k.H(g);
  for(const[a,b]of[[-.7,-.7],[.7,-.7],[-.7,.7],[.7,.7]]){B(.14,2.0,.14,x+a,F+1.0,z+b,DK);B(.3,.04,.3,x+a,F+.02,z+b,ST)}for(const[a,b,c,d]of[[-.7,-.7,.7,-.7],[-.7,.7,.7,.7],[-.7,-.7,-.7,.7],[.7,-.7,.7,.7]]){rod([x+a,F+.3,z+b],[x+c,F+1.5,z+d],.03,DK);B(Math.abs(c-a)+.14,.1,Math.abs(d-b)+.14,x+(a+c)/2,F+2.0,z+(b+d)/2,DK)}
  {const fun=new THREE.Mesh(new THREE.CylinderGeometry(1.15,.35,1.2,4,1,true),M(0x6a7078,{metalness:.55,side:THREE.DoubleSide}));fun.rotation.y=Math.PI/4;fun.position.set(x,F+2.6,z);g.add(fun);const rim=B(1.66,.08,1.66,x,F+3.22,z,DK);rim.material=DK;const fill=new THREE.Mesh(new THREE.BoxGeometry(1.5,.02,1.5),DK);fill.visible=false}
- const hp=new THREE.Group();hp.position.set(x,F+1.75,z);hp.userData.dpKeep=1;g.add(hp);{const H=k.H(hp);H.B(.6,.06,1.0,0,0,.2,GM);for(const s of[-1,1])H.B(.04,.16,1.0,s*.3,.08,.2,GM);H.B(.6,.16,.04,0,.08,-.3,GM);for(const[a,b]of[[-.25,-.2],[.25,-.2],[-.25,.55],[.25,.55]])H.C(.04,.04,.12,a,-.08,b,M(0x1a1a1a),null,null,8);H.B(.3,.24,.26,.48,.0,-.1,BL)}
+ const hp=new THREE.Group();hp.position.set(x,F+1.75,z);hp.userData.dpKeep=1;g.add(hp);/* the pan's open end faces the furnace (-z), right over the belt's tail */{const H=k.H(hp);H.B(.6,.06,1.0,0,0,-.2,GM);for(const s of[-1,1])H.B(.04,.16,1.0,s*.3,.08,-.2,GM);H.B(.6,.16,.04,0,.08,.3,GM);for(const[a,b]of[[-.25,.2],[.25,.2],[-.25,-.55],[.25,-.55]])H.C(.04,.04,.12,a,-.08,b,M(0x1a1a1a),null,null,8);H.B(.3,.24,.26,.48,.0,.1,BL)}
  const fl2=new THREE.Mesh(new THREE.DodecahedronGeometry(.6,0),M(0x8a7a6a,{roughness:1}));fl2.scale.y=.45;fl2.position.set(0,1.0,0);hp.add(fl2);
  L('ORE FEED',1.2,.28,'#1a1a1a','#e8c020',60,x,F+1.15,z+.79,0);
  /* the charging chute on the hood: a steel box with a flap */{B(.9,.5,.9,rx,F+4.15,rz,GM);B(1.0,.06,1.0,rx,F+4.42,rz,DK);B(.9,.08,.9,rx,F+3.94,rz,DK)}
- qmNS(g);return{hp,fl2,from:[x,F+1.85,z+.75],to:[rx,F+4.5,rz],obs:[{x0:x-.8,x1:x+.8,z0:z-.8,z1:z+.8}]}}
+ qmNS(g);return{hp,fl2,from:[x,F+1.58,z-.6],to:[rx,F+4.5,rz],obs:[{x0:x-.8,x1:x+.8,z0:z-.8,z1:z+.8}]}}
 
 /* ---- the casting robot: a six-axis arm on a pedestal, cable loom along the arm, a gripper; a beacon; a safety rail ---- */
 function qmCastRobot(g,rx,rz,F){const{k,M,ST,DK,YL,OR}=qmMat(),{B,C,rod,L}=k.H(g);const WH=M(0xe4e4e0,{roughness:.5,metalness:.2});
@@ -112,7 +112,7 @@ function qmRefinery(g,x,z,F,hx,hz){const{k,M,ST,DK,YL,RD,CU}=qmMat(),{B,C,rod,L}
  /* the outlet pipe at the front with a valve wheel (vw turns on y: its wheel lies flat on top of the valve body) */rod([x+.6,F+1.0,z-1.15],[x+.6,F+1.0,z-1.9],.09,CU,null,10);C(.14,.14,.24,x+.6,F+1.0,z-1.9,DK,null,null,10);C(.03,.03,.3,x+.6,F+1.25,z-1.9,DK,null,null,8);
  const vw=new THREE.Group();vw.position.set(x+.6,F+1.4,z-1.9);vw.userData.dpKeep=1;g.add(vw);{const w=new THREE.Mesh(new THREE.TorusGeometry(.2,.025,6,16),RD);w.rotation.x=Math.PI/2;vw.add(w);for(let i=0;i<3;i++){const sp=new THREE.Mesh(new THREE.BoxGeometry(.4,.02,.02),RD);sp.rotation.y=i*Math.PI/3;vw.add(sp)}}
  rod([x+.6,F+1.0,z-1.9],[x+.6,F+.25,z-1.9],.09,CU,null,10);B(.3,.2,.3,x+.6,F+.1,z-1.9,DK);
- /* the feed pipe from the furnace: up the tank's east side (clear of the firebox door), across above the arc gantry, down onto the hood */const PY=F+7.1;/* (above the arc furnace's gantry beam) */rod([x+1.4,F+3.0,z],[x+1.4,PY,z],.11,CU,null,10);rod([x+1.4,PY,z],[x+1.4,PY,hz],.11,CU,null,10);rod([x+1.4,PY,hz],[hx,PY,hz],.11,CU,null,10);rod([hx,PY,hz],[hx,F+4.0,hz],.11,CU,null,10);
+ /* the feed pipe from the furnace: up the tank's east side (clear of the firebox door), across above the arc gantry, down onto the hood */const PY=F+7.1;/* (above the arc furnace's gantry beam) */rod([x+1.4,F+3.0,z],[x+1.4,PY,z],.11,CU,null,10);rod([x+1.4,PY,z],[x+1.4,PY,hz],.11,CU,null,10);rod([x+1.4,PY,hz],[hx,PY,hz],.11,CU,null,10);rod([hx,PY,hz],[hx,F+3.88,hz],.11,CU,null,10);/* lands on the hood (top at 3.9) with a flange */C(.2,.22,.08,hx,F+3.94,hz,DK,null,null,12);
  for(const[px2,pz2]of[[x+1.4,z],[x+1.4,hz],[hx,hz]])C(.15,.15,.24,px2,PY,pz2,DK,null,null,10);C(.18,.18,.06,x+1.32,F+3.0,z,DK,'x',null,10);rod([x+1.4,F+3.0,z],[x+1.25,F+3.0,z],.11,CU,null,10);
  for(const t of[.5]){const zz=z+(hz-z)*t;B(.1,PY-F,.1,x+1.4,F+(PY-F)/2,zz,DK);B(.6,.08,.2,x+1.4,F+.04,zz,DK)}
  qmNS(g);return{vw,gc,gt,top:[x-.4,F+5.4,z+.3],obs:[{x0:x-1.5,x1:x+1.5,z0:z-1.5,z1:z+1.5}]}}
