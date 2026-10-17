@@ -8,7 +8,8 @@
      mill  {mill: [mill groups, spin on x]}                       heat  {heatF: firebox mesh (emissiveIntensity), out: [x, y, z]}
      pol   {pol: [wheel meshes, spin on their y]}                 gen   {gen: [[x, y, z] exhaust tips]}
      silo  {}                                                     lab   {labD: dish group (spins on y), labL: lamp mesh (color)}
-   plus obs (the plinth, 3 x 3 as before) and ins/outs: belt ends [x, y, z] on the machine's west and east sides (-x / +x).
+   plus obs (the plinth, 3 x 3 as before) and ins/outs: where the belts in and out should end [x, y, z], on the machine's
+   west (-x) and east (+x) sides. Each machine's outlet is lower than its inlet, so ore drops through it and the belts climb.
    ===================================================================================================== */
 function qmMachine(id,g,x,z,F,l,face){const k=qmKit(),M=k.M;const lg=new THREE.Group();lg.position.set(x,F,z);lg.scale.z=face<0?-1:1;g.add(lg);/* mirrored (not turned) for row 1, so ore still comes in on the west side and leaves on the east */const P=k.H(lg);
  const W=(px,py,pz)=>[x+px,F+py,z+pz*(face<0?-1:1)];/* local -> q.g space */
@@ -23,13 +24,20 @@ function qmMachine(id,g,x,z,F,l,face){const k=qmKit(),M=k.M;const lg=new THREE.G
    const pt=k.tex(256,128,(c,w,h)=>{c.fillStyle='#6a7078';c.fillRect(0,0,w,h);c.fillStyle='#1a1c1e';for(let y=6;y<h;y+=12)for(let x2=(y/12%2)*6+3;x2<w;x2+=12){c.beginPath();c.arc(x2,y,3.2,0,7);c.fill()}});pt.repeat.set(3,1);
    const PM=M(0xffffff,{map:pt,metalness:.6,roughness:.4,side:THREE.DoubleSide});const zs=l>1?[-.8,.8]:[0];const wash=[];
    P.B(3.1,.5,zs.length>1?3.1:1.8,0,.41,0,M(0x3a4a52,{metalness:.5}));{const wt=new THREE.Mesh(new THREE.PlaneGeometry(2.9,zs.length>1?2.9:1.6),M(0x2a6a8a,{metalness:.2,roughness:.08,transparent:true,opacity:.85}));wt.rotation.x=-Math.PI/2;wt.position.y=.62;lg.add(wt)}
-   for(const dz of zs){const tr=new THREE.Group();tr.position.set(0,1.32,dz);lg.add(tr);const d=new THREE.Mesh(new THREE.CylinderGeometry(.52,.52,2.4,22,1,true),PM);d.rotation.z=Math.PI/2;tr.add(d);
+   const DY=1.55,two=zs.length>1;/* the drums sit high enough that their outlets drop onto the outgoing belt; ore comes in at the top end */
+   for(const dz of zs){const tr=new THREE.Group();tr.position.set(0,DY,dz);lg.add(tr);const d=new THREE.Mesh(new THREE.CylinderGeometry(.52,.52,2.4,22,1,true),PM);d.rotation.z=Math.PI/2;tr.add(d);
     for(const e of[-1.15,1.15]){const rg=new THREE.Mesh(new THREE.TorusGeometry(.56,.07,8,24),ST);rg.rotation.y=Math.PI/2;rg.position.x=e*.85;tr.add(rg)}{const gr=new THREE.Mesh(new THREE.TorusGeometry(.58,.05,6,28),YL);gr.rotation.y=Math.PI/2;gr.position.x=-.2;tr.add(gr)}
     for(const e of[-1.2,1.2]){const lip=new THREE.Mesh(new THREE.TorusGeometry(.5,.035,6,22),DK);lip.rotation.y=Math.PI/2;lip.position.x=e;tr.add(lip)}wash.push(tr);
-    /* trunnion rollers on two cross frames */for(const ex of[-.98,.98]){P.B(.16,.5,1.3,ex,.86,dz,DK);for(const sz of[-.42,.42])P.C(.1,.1,.18,ex,.72+.38,dz+sz,ST,'x',null,12)}
-    /* spray bar along the top with nozzles, fed from the water main at the west end */P.C(.04,.04,2.5,0,2.0,dz,BL,'x',null,8);for(let n=-2;n<=2;n++)P.C(.03,.05,.08,n*.5,1.93,dz,ST,null,null,6);P.C(.04,.04,.4,-1.25,1.8,dz,BL)}
-   P.B(.5,.5,.4,1.25,.95,zs.length>1?1.3:.75,BL);P.B(.06,.42,.36,.9,1.0,zs.length>1?1.3:.75,YL);/* motor and chain guard */
-   /* outlet chute from each drum mouth down onto the outgoing belt, propped on the tank; a feed box at each drum's inlet over the incoming belt */const two=zs.length>1;for(const dz of zs){const ch=P.B(.42,.05,.6,1.38,1.3,dz,ST);ch.rotation.z=-.2;for(const s of[-1,1])P.B(.42,.16,.04,1.38,1.36,dz+s*.3,ST).rotation.z=-.2;P.rod([1.38,1.26,dz],[1.38,.66,dz],.03,DK)}if(two){/* twin drums: a collecting trough across both outlets, sloping to a spout over the middle of the belt */P.B(.34,.05,2.3,1.66,1.2,0,ST);for(const s of[-1,1]){P.B(.34,.2,.04,1.66,1.3,s*1.15,ST);const sl=P.B(.34,.04,1.1,1.66,1.24,s*.6,ST);sl.rotation.x=s*.08}P.B(.04,.2,2.3,1.82,1.3,0,ST);P.B(.04,.2,2.3,1.5,1.3,0,ST);P.rod([1.66,1.17,1.0],[1.66,.66,1.0],.03,DK);P.rod([1.66,1.17,-1.0],[1.66,.66,-1.0],.03,DK)}/* the feed box at the inlet end, spanning both drums when there are two, with a divider down the middle */P.B(.42,.36,two?2.2:.6,-1.42,1.08,0,M(0x6a7078,{metalness:.5}));P.B(.46,.04,two?2.24:.64,-1.42,1.27,0,DK);if(two){const dv=P.B(.4,.18,.04,-1.42,1.2,0,DK);dv.rotation.x=0;for(const s of[-1,1])P.B(.4,.05,.5,-1.42,1.2,s*.27,DK).rotation.x=s*.6}
+    /* trunnion rollers on two cross frames standing on the tank */for(const ex of[-.98,.98]){P.B(.16,DY-.45-.66,1.3,ex,(.66+DY-.45)/2,dz,DK);for(const sz of[-.42,.42])P.C(.1,.1,.18,ex,DY-.36,dz+sz,ST,'x',null,12)}
+    /* spray bar along the top with nozzles, fed from the water main at the west end */P.C(.04,.04,2.5,0,DY+.68,dz,BL,'x',null,8);for(let n=-2;n<=2;n++)P.C(.03,.05,.08,n*.5,DY+.61,dz,ST,null,null,6);P.C(.04,.04,DY+.68-.66,-1.25,(DY+.68+.66)/2,dz+.12,BL)}
+   /* the drive: a motor on the tank rim and a chain guard up to the girth gear */{const mz=two?1.32:.78;P.B(.5,.42,.36,-.2,.87,mz,BL);P.B(.3,DY-.85,.05,-.2,(DY+.85)/2,mz-.2,YL)}
+   /* a trough from a to b, open on top, in local space */const trough=(a,b,w)=>{const d=new THREE.Vector3(b[0]-a[0],b[1]-a[1],b[2]-a[2]),Ln=d.length();const tg=new THREE.Group();tg.position.set((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);tg.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),d.clone().normalize());lg.add(tg);const T=k.H(tg);T.B(Ln,.04,w,0,0,0,ST);for(const s of[-1,1])T.B(Ln,.16,.04,0,.08,s*w/2,ST);return tg};
+   /* outlets: a trough from under each drum's mouth down onto the belt (towards the middle when there are two), on a prop */
+   for(const dz of zs){trough([1.1,DY-.6,dz],[1.66,.8,dz*.25],.5);P.rod([1.3,DY-.72,dz*.8],[1.3,.66,dz*.8],.03,DK)}
+   /* the inlet: the belt drops into a feed box (with a divider for two drums) whose spouts run into the drum mouths */
+   P.B(.4,.46,two?2.1:.6,-1.5,DY+.03,0,M(0x6a7078,{metalness:.5}));P.B(.44,.04,two?2.14:.64,-1.5,DY+.27,0,DK);P.B(.1,DY-.2-.66,.1,-1.5,(DY-.2+.66)/2,0,DK);
+   for(const dz of zs)trough([-1.32,DY+.05,dz*.7],[-1.0,DY-.18,dz],.36);if(two){const dv=new THREE.Mesh(new THREE.ConeGeometry(.2,.3,4),DK);dv.rotation.x=Math.PI/2;dv.scale.set(1,1,.3);dv.position.set(-1.5,DY+.2,0);lg.add(dv)}
+   H.ins=W(-1.6,DY+.38,0);H.outs=W(1.62,.64,0);
    H.wash=wash;H.washP=[x,z]}
  :(id=='sortr')?()=>{/* a feed hopper onto a short belt, a big red magnet drum at the head pulley, a splitter and three bins for the sorted ore */
    /* its own belt starts right under the end of the incoming one (x -1.6) */P.B(2.9,.14,1.1,-.25,.86,0,DK);for(const sx of[-1.5,1.0])for(const sz of[-.45,.45]){leg(sx,sz,.64);foot(sx,sz)}P.B(2.4,.06,.84,-.4,.96,0,RB);for(const sx of[-1.62,.82])P.C(.12,.12,.9,sx,.94,0,ST,'z',null,12);
@@ -38,7 +46,7 @@ function qmMachine(id,g,x,z,F,l,face){const k=qmKit(),M=k.M;const lg=new THREE.G
    P.B(.45,.35,.35,.95,1.2,-.85,BL);P.B(.06,.3,.3,.95,1.2,-.66,ST);
    {const sp=P.B(.06,.5,.9,1.45,.9,0,ST);sp.rotation.z=.4}for(const[px,c]of[[.2,0xd07a40],[1.0,0x8a8a90],[1.8,0xe0e4ea]]){const bx=px-.6;P.B(.72,.5,.7,bx,.43,1.05,M(0x4a4e54,{metalness:.5}));P.B(.76,.04,.74,bx,.69,1.05,DK);for(let i=0;i<3;i++){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.11+i*.03,0),M(c,{metalness:.6,roughness:.4}));r.position.set(bx+(i-1)*.18,.72+i%2*.05,1.0+(i%2)*.1);lg.add(r)}}
    if(l>1){P.B(.6,1.1,.45,-1.35,.71,-1.2,BL);P.B(.5,.7,.02,-1.35,.8,-.97,M(0x1a2a3a));const lt=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),new THREE.MeshBasicMaterial({color:0x60c0ff}));lt.position.set(-1.35,1.32,-1.2);lg.add(lt)}
-   H.sortD=dr}
+   H.sortD=dr;H.ins=W(-1.6,1.05,0);H.outs=W(1.62,.62,0)}
  :(id=='mill')?()=>{/* ball mills: a bolted shell with a yellow girth gear, end heads and trunnions on bearing pedestals, a pinion and motor, a feed chute and a discharge screen */
    const zs=l>1?[-.85,.85]:[0];const mill=[];for(const dz of zs){const m=new THREE.Group();m.position.set(0,1.5,dz);lg.add(m);const Mm=k.H(m);
     Mm.C(.62,.62,2,0,0,0,M(0x5a6a7a,{metalness:.6,roughness:.35}),'x',null,24);for(const e of[-1,1])Mm.C(.62,.3,.18,e*1.09,0,0,M(0x4a5a6a,{metalness:.6}),'x',null,24).rotation.z=e>0?-Math.PI/2:Math.PI/2;
@@ -46,7 +54,7 @@ function qmMachine(id,g,x,z,F,l,face){const k=qmKit(),M=k.M;const lg=new THREE.G
     /* the discharge screen turns with the mill, on its outlet trunnion */Mm.C(.28,.28,.36,1.66,0,0,M(0x6a7078,{metalness:.6}),'x',null,16);Mm.C(.3,.3,.04,1.84,0,0,DK,'x',null,16);Mm.C(.14,.14,.2,1.42,0,0,ST,'x',null,12);mill.push(m);for(const sx of[-1.32,1.32]){P.B(.42,1.0,.56,sx,.66,dz,DK);P.C(.24,.24,.36,sx,1.22,dz,ST,'x',null,14);foot(sx,dz)}
     const pz=dz+(l>1?Math.sign(dz)*.62:.8);P.B(.55,.42,.44,.45,.47,pz,BL);P.C(.16,.16,.2,.45,.82,pz,YL,'z',null,12);P.B(.62,.18,.5,.45,.25,pz,DK);/* the outlet: a chute under the discharge screen, sloping down onto the belt (towards the middle when there are two mills) */{const ch=P.B(.4,.04,.5,1.72,1.18,dz*.55,ST);ch.rotation.x=dz?Math.sign(dz)*.25:0;for(const s of[-1,1])P.B(.04,.16,.55,1.72+s*.2,1.24,dz*.55,ST).rotation.x=dz?Math.sign(dz)*.25:0;P.rod([1.72,1.14,dz*.55+(dz?Math.sign(dz)*.2:0)],[1.72,.18,dz*.55+(dz?Math.sign(dz)*.2:0)],.03,DK)}}
    /* the feed: the belt drops ore into a hopper; a screw feeder tube lifts it into each mill's feed trunnion */{const hw=zs.length>1?2.3:.58;/* one hopper under the incoming belt, as wide as the mills it feeds */P.B(.5,.42,hw,-1.78,.82,0,M(0x6a7078,{metalness:.5}));P.B(.56,.04,hw+.06,-1.78,1.04,0,DK);for(const sx of[-.2,.2])for(const sz of[-hw/2+.05,hw/2-.05])P.B(.06,.5,.06,-1.78+sx,.4,sz,DK)}for(const dz of zs){/* a screw feeder up into each mill's feed trunnion */P.rod([-1.62,.9,dz],[-1.22,1.5,dz],.11,M(0x5a6a7a,{metalness:.5}),null,12);P.C(.13,.13,.08,-1.24,1.49,dz,DK,'x',null,12);P.B(.22,.2,.2,-1.95,.95,dz+(zs.length>1?Math.sign(dz)*.75:.38),BL)}
-   H.mill=mill}
+   H.mill=mill;H.ins=W(-1.6,1.12,0);H.outs=W(1.62,1.0,0)}
  :(id=='heat')?()=>{/* a riveted preheater drum on a frame, a coal firebox with a glowing door and grate, a stack, a gauge, a coal bunker; the hot-ore pipe leaves from the top (out) */
    for(const[sx,sz]of[[-.95,-.6],[.15,-.6],[-.95,.6],[.15,.6]]){leg(sx,sz,.62);foot(sx,sz)}P.B(1.3,.1,1.4,-.4,.82,0,DK);
    P.C(.85,.85,2.2,-.4,1.97,0,M(0x3a3a3a,{metalness:.6}),null,null,24);for(const y of[1.15,1.95,2.75])P.C(.87,.87,.06,-.4,y,0,DK,null,null,24);P.C(.25,.86,.55,-.4,3.33,0,M(0x3a3a3a,{metalness:.6}),null,null,24);P.C(.12,.12,.3,-.4,3.7,0,DK,null,null,12);
@@ -54,7 +62,7 @@ function qmMachine(id,g,x,z,F,l,face){const k=qmKit(),M=k.M;const lg=new THREE.G
    P.C(.13,.15,3.4,.95,1.86,-.3,DK,null,null,12);P.C(.2,.2,.1,.95,3.6,-.3,DK,null,null,12);P.C(.26,.26,.04,.95,3.7,-.3,DK,null,null,12);
    {const gg=new THREE.Mesh(new THREE.CircleGeometry(.11,16),new THREE.MeshBasicMaterial({color:0xf0f0e8}));gg.position.set(-.4,2.2,.875);lg.add(gg);P.C(.13,.13,.04,-.4,2.2,.86,DK,'z',null,16);P.B(.01,.08,.005,-.4,2.22,.882,RD)}
    P.B(1.0,.6,.8,.9,.46,.95,M(0x4a3a2a,{roughness:.9}));for(let i=0;i<7;i++){const r=new THREE.Mesh(new THREE.DodecahedronGeometry(.13,0),M(0x111111,{roughness:1}));r.position.set(.55+(i%4)*.22,.8+(i>3?.08:0),.8+(i%3)*.15);lg.add(r)}
-   H.heatF=fb;H.out=W(-.4,3.85,0)}
+   H.heatF=fb;H.ins=W(-1.6,1.3,0);H.out=W(-.4,3.85,0)}
  :(id=='pol')?()=>{/* a steel bench with guarded polishing wheels on one shaft, a motor at the end, a dust hood and duct, a tray of shining bars */
    P.B(2.5,.1,1.1,0,.9,0,M(0x4a4e54,{metalness:.5}));for(const sx of[-1.15,1.15])for(const sz of[-.45,.45]){leg(sx,sz,.72);foot(sx,sz)}P.B(2.3,.04,.9,0,.4,0,DK);
    P.C(.04,.04,2.3,0,1.3,-.1,ST,'x',null,8);for(const sx of[-1,0,1])P.B(.08,.4,.1,sx*.95,1.1,-.1,DK);const pol=[];for(let i=0;i<l+1;i++){const px=-.7+i*.7;const w=P.C(.3,.3,.1,px,1.3,-.1,M(0xe8e8f0,{metalness:.9,roughness:.1}),'x',null,22);pol.push(w);const gd=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.18,22,1,true,0,Math.PI),M(0x3a6a2a,{metalness:.4,side:THREE.DoubleSide}));gd.rotation.z=Math.PI/2;gd.rotation.x=Math.PI;gd.position.set(px,1.3,-.1);lg.add(gd)}

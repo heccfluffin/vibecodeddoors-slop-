@@ -128,8 +128,20 @@ Load it after `quarry-yard.js`. New global: `qmMachine`. It doesn't clash with a
     turns on its post.
   - Everything goes into the section group `g`, so `qtConstruct`'s build-up animation still works.
 - **Preheater pipe:** keep the hot-ore pipe to the furnace, but start it at the returned `h.out` (the top of the drum).
-- **Belts:** `qtLinks`' belts still run from centre ± 1.55, and every machine now has something at those spots:
-  - the sorter's own tail pulley, the washer's feed box, the mill's feed hopper and the preheater's feed chute take
-    belts in on the west side;
-  - the sorter's splitter, the washer's outlet chutes and the mill's discharge screen sit over the outgoing belts on
-    the east side.
+- **Belts:** each machine now returns `ins` and `outs`, the exact belt end points [x, y, z] on its west and east sides.
+  Its outlet is lower than its inlet, so ore drops through the machine and the belts between machines climb.
+  - Keep the hooks of every machine by id, e.g. `QA.mpos[id] = h`.
+  - In `qtLinks`, make the ore-line belt from machine A to machine B
+    `qtBelt2(g, QA.mpos[A].outs, QA.mpos[B].ins, .55, 1)` instead of `belt(...)` with the 1.55 offsets.
+  - The "last machine to the furnace roof" belt starts at that machine's `outs`.
+  - The heights:
+
+    | Machine | Belt in (y above the floor) | Belt out |
+    |---|---|---|
+    | Sorter | 1.05 | .62 |
+    | Washer | 1.93 | .64 |
+    | Mill | 1.12 | 1.0 |
+    | Preheater | 1.3 | pipe |
+
+  - The washer's drums now sit at 1.55. Ore drops from the belt into a feed box at the top end, and outlet troughs
+    under the drum mouths slope down onto the outgoing belt (towards the middle when there are twin drums).
