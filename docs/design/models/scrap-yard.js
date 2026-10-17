@@ -1,0 +1,53 @@
+/* =====================================================================================================
+   Goblino's Scrap, rework. Needs fort-kit.js (fbKit). See scrap-yard.md.
+   The yard: x 60..180, z -1380..-1300 (desert local), ground y 0. The gate is the gap in the west fence, z -1350..-1338.
+   ===================================================================================================== */
+
+/* ---- batch 1: the yard floor, the fence with barbed wire, the sliding gates, the weighbridge, the office, the sign, floodlights ---- */
+function syYard(g){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;const X0=60,X1=180,Z0=-1380,Z1=-1300,obs=[];
+ /* the floor: one gravel texture with the drive lane, oil stains and tyre tracks painted in (nothing to flicker) */
+ const FW=1536,FH=1024,sx=FW/(X1-X0),sz=FH/(Z1-Z0),fx=x=>(x-X0)*sx,fz=z=>(z-Z0)*sz;
+ const ft=k.tex(FW,FH,(c)=>{c.fillStyle='#8a7a62';c.fillRect(0,0,FW,FH);let sd=9191;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;
+  for(let i=0;i<14000;i++){const v=r();c.fillStyle=v<.5?'rgba(60,50,38,'+(.08+r()*.12)+')':'rgba(190,175,150,'+(.06+r()*.1)+')';const s=1+r()*3;c.fillRect(r()*FW,r()*FH,s,s)}
+  /* the drive lane, packed darker, with two worn wheel tracks */c.fillStyle='rgba(70,62,52,.45)';c.fillRect(0,fz(-1347),FW,fz(-1341)-fz(-1347));c.fillStyle='rgba(45,40,34,.35)';for(const z of[-1345.6,-1342.4])c.fillRect(0,fz(z-.45),FW,.9*sz);
+  /* the turn-in from the lane to the crusher bay (its mouth faces the lane, at z -1326.5) */c.fillStyle='rgba(70,62,52,.42)';c.fillRect(fx(86.5),fz(-1341),fx(93.5)-fx(86.5),fz(-1326.6)-fz(-1341));c.fillStyle='rgba(45,40,34,.3)';for(const x of[88.4,91.6])c.fillRect(fx(x-.45),fz(-1341),.9*sx,fz(-1326.6)-fz(-1341));
+  /* aisles between the car stacks */c.fillStyle='rgba(70,62,52,.25)';c.fillRect(fx(84),fz(-1367.5),fx(166)-fx(84),5.5*sz);
+  /* oil stains and rust stains */for(let i=0;i<70;i++){const x=r()*FW,y=r()*FH,s=(8+r()*40),gr=c.createRadialGradient(x,y,0,x,y,s);const rust=r()<.35;gr.addColorStop(0,rust?'rgba(120,60,30,.3)':'rgba(25,20,16,.4)');gr.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=gr;c.fillRect(x-s,y-s,2*s,2*s)}});
+ ft.wrapS=ft.wrapT=THREE.ClampToEdgeWrapping;ft.anisotropy=8;{const fl=new THREE.Mesh(new THREE.PlaneGeometry(X1-X0,Z1-Z0),M(0xffffff,{map:ft,roughness:1}));fl.rotation.x=-Math.PI/2;fl.position.set((X0+X1)/2,.025,(Z0+Z1)/2);g.add(fl)}
+ /* the fence: corrugated sheets in mixed rust and paint, 2.4 m, on posts every 3 m, with three strands of barbed wire on cranked arms */
+ const cor=(base)=>{const t=k.tex(128,128,(c,w,h)=>{c.fillStyle=base;c.fillRect(0,0,w,h);for(let x=0;x<w;x+=8){const gr=c.createLinearGradient(x,0,x+8,0);gr.addColorStop(0,'rgba(0,0,0,.25)');gr.addColorStop(.5,'rgba(255,255,255,.12)');gr.addColorStop(1,'rgba(0,0,0,.25)');c.fillStyle=gr;c.fillRect(x,0,8,h)}let sd=base.length*77;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;for(let i=0;i<30;i++){c.fillStyle='rgba(120,60,25,'+(.15+r()*.3)+')';c.beginPath();c.ellipse(r()*w,r()*h,3+r()*12,6+r()*24,0,0,7);c.fill()}c.fillStyle='rgba(100,50,20,.4)';c.fillRect(0,h-10,w,10)});t.repeat.set(1,1);return M(0xffffff,{map:t,roughness:.75,metalness:.35,side:THREE.DoubleSide})};
+ const SH=[cor('#7a6a5a'),cor('#8a5a3a'),cor('#5a6a70'),cor('#6a6a58')],POST=M(0x4a4440,{metalness:.5,roughness:.6}),WIRE=M(0x6a6a6a,{metalness:.7,roughness:.4});
+ const run=(ax,a0,a1,c0,inw)=>{/* a fence line along ax ('x' or 'z') at c0, from a0 to a1; inw = which side is the yard (barbs lean out) */let i=0;for(let a=a0;a<a1-.01;a+=3){const b=Math.min(a1,a+3),m=(a+b)/2,len=b-a;const p=new THREE.Mesh(new THREE.PlaneGeometry(len,2.4),SH[(i++*7+Math.round(a))%4]);if(ax=='x'){p.position.set(m,1.25,c0)}else{p.rotation.y=Math.PI/2;p.position.set(c0,1.25,m)}p.rotation.z=((i*13)%5-2)*.004;g.add(p)}
+  for(let a=a0;a<=a1+.01;a+=3){const[x,z]=ax=='x'?[a,c0]:[c0,a];B(.12,2.9,.12,x,1.45,z,POST);const ox=ax=='x'?0:-inw*.4,oz=ax=='x'?-inw*.4:0;rod([x,2.85,z],[x+ox,3.25,z+oz],.025,POST)}
+  for(let s=0;s<3;s++){const f=.35+s*.3;const ox=ax=='x'?0:-inw*.4*f,oz=ax=='x'?-inw*.4*f:0,y=2.85+.4*f;const[x0,z0,x1,z1]=ax=='x'?[a0,c0,a1,c0]:[c0,a0,c0,a1];rod([x0+ox,y,z0+oz],[x1+ox,y,z1+oz],.01,WIRE,null,4)}};
+ run('x',X0,X1,Z0,1);run('x',X0,X1,Z1,-1);run('z',Z0,Z1,X1,-1);run('z',Z0,-1350,X0,1);run('z',-1338,Z1,X0,1);
+ /* the gate: two steel-framed mesh leaves on a ground track, slid open behind the fence (outside, along the west line); a gate post each side with a lamp */
+ {const MESH=k.tex(128,128,(c,w,h)=>{c.clearRect(0,0,w,h);c.strokeStyle='#8a8e92';c.lineWidth=3;for(let i=-w;i<w*2;i+=14){c.beginPath();c.moveTo(i,0);c.lineTo(i+h,h);c.stroke();c.beginPath();c.moveTo(i,h);c.lineTo(i+h,0);c.stroke()}});MESH.repeat.set(4,2);
+  const MM=new THREE.MeshStandardMaterial({map:MESH,transparent:true,alphaTest:.3,side:THREE.DoubleSide,metalness:.5,roughness:.5}),FR=M(0xd8a020,{metalness:.35,roughness:.5});
+  for(const[zc,dir]of[[-1353,-1],[-1335,1]]){const x=X0-.45;const p=new THREE.Mesh(new THREE.PlaneGeometry(6,2.2),MM);p.rotation.y=Math.PI/2;p.position.set(x,1.35,zc);g.add(p);
+   for(const y of[.25,2.45])B(.08,.08,6,x,y,zc,FR);for(const dz of[-3,-1,1,3])B(.08,2.3,.08,x,1.35,zc+dz,FR);rod([x,.3,zc-3],[x,2.4,zc+3],.03,FR);for(const dz of[-2.4,2.4])C(.12,.12,.08,x,.12,zc+dz,M(0x2a2a2a),'x',null,10)}
+  B(.12,.03,30,X0-.45,.015,-1344,M(0x5a5a5a,{metalness:.6}));/* the track along the outside */
+  for(const z of[-1350.2,-1337.8]){B(.3,3.2,.3,X0,1.6,z,FR);C(.12,.16,.25,X0,3.3,z,M(0x2a2a2a),null,null,10);const lp=new THREE.Mesh(new THREE.SphereGeometry(.1,8,6),M(0xffe0a0,{emissive:0xffc060,emissiveIntensity:1}));lp.position.set(X0,3.48,z);g.add(lp);obs.push({x0:X0-.25,x1:X0+.25,z0:z-.25,z1:z+.25})}
+  L('OPEN 9-5 · MAYBE',1.6,.32,'#1a1a1a','#e8c020',60,X0-.2,2.6,-1351.6,-Math.PI/2)}
+ /* the weighbridge: a steel deck on a concrete pit edge, ramped both ends, a readout on a post facing the lane */
+ {const wx0=64,wx1=74,wz0=-1347,wz1=-1341,cx=(wx0+wx1)/2,cz=(wz0+wz1)/2;B(wx1-wx0+.4,.18,wz1-wz0+.4,cx,.09,cz,k.PRE);const DP=M(0x6a6e72,{metalness:.6,roughness:.45});DP.map=k.tex(64,64,(c,w,h)=>{c.fillStyle='#6a6e72';c.fillRect(0,0,w,h);c.fillStyle='rgba(0,0,0,.3)';for(let y=4;y<h;y+=8)for(let x=(y/8%2)*4+2;x<w;x+=8){c.fillRect(x,y,4,1.5)}});DP.map.repeat.set(10,6);
+  B(wx1-wx0,.06,wz1-wz0,cx,.21,cz,DP);for(const ex of[wx0-.6,wx1+.6]){const rp=B(1.2,.06,wz1-wz0,ex,.1,cz,DP);rp.rotation.z=ex<cx?-.16:.16}for(const s of[-1,1])B(wx1-wx0,.1,.1,cx,.25,cz+s*(wz1-wz0)/2,M(0xd8a020));
+  B(.15,1.6,.15,wx1-1,.8,wz0-.6,M(0x3a3a3a));B(.9,.45,.12,wx1-1,1.75,wz0-.55,M(0x1a1a1a));L('8.20 t',.8,.3,'#0a0a0a','#ff3020',60,wx1-1,1.75,wz0-.485,0)}
+ /* the office: a site cabin on blocks with a counter window onto the lane (El Goblino stands inside it), a door, steps, an aircon, a sign on the roof */
+ {const ox=68,oz=-1360,W=8,D=7.6,H=2.7,y0=.35;const WL=M(0xd8ccb0,{roughness:.8}),TRIM=M(0x8a5a2a,{roughness:.6}),GLM=new THREE.MeshStandardMaterial({color:0x2a3a4a,metalness:.4,roughness:.15,transparent:true,opacity:.55});
+  for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1],[0,-1],[0,1]])B(.4,y0,.4,ox+a*(W/2-.3),y0/2,oz+b*(D/2-.3),k.PRE);
+  const zf=oz+D/2;/* walls: back and sides solid, the front (lane side) with the counter window and a window */B(W,.12,D,ox,y0+.06,oz,TRIM);B(W,H,.12,ox,y0+H/2,oz-D/2+.06,WL);for(const s of[-1,1])B(.12,H,D,ox+s*(W/2-.06),y0+H/2,oz,WL);
+  /* front wall pieces round the counter hatch (x ox-1.6..ox+.4, y 1.0..2.1 above the floor) and the door (x ox+2..ox+3) */const fy=(a,b)=>[y0+a,b-a];
+  const fw=(x0,x1,ya,yb)=>B(x1-x0,yb-ya,.12,(x0+x1)/2,y0+(ya+yb)/2,zf-.06,WL);fw(ox-W/2,ox-1.6,0,H);fw(ox+.4,ox+2,0,H);fw(ox+3,ox+W/2,0,H);fw(ox-1.6,ox+.4,0,1.0);fw(ox-1.6,ox+.4,2.1,H);fw(ox+2,ox+3,2.1,H);
+  B(2.2,.08,.5,ox-.6,y0+1.04,zf+.15,TRIM);/* the counter */B(2.3,.06,.7,ox-.6,y0+2.18,zf+.3,M(0xc03020,{metalness:.3}));/* a red awning over it */for(const s of[-1,1])rod([ox-.6+s*1.1,y0+2.1,zf],[ox-.6+s*1.1,y0+2.15,zf+.62],.02,TRIM);
+  {const d=B(.95,2.05,.06,ox+2.5,y0+1.03,zf+.02,TRIM);B(.08,.08,.05,ox+2.85,y0+1.0,zf+.07,M(0xc0a040,{metalness:.8}))}for(let i=0;i<2;i++)B(1.2,.12,.35,ox+2.5,.06+i*.15,zf+.55-i*.3,k.PRE);
+  {const gw=new THREE.Mesh(new THREE.PlaneGeometry(1.2,.8),GLM);gw.position.set(ox-3,y0+1.6,zf+.005);g.add(gw);B(1.3,.06,.1,ox-3,y0+1.18,zf+.03,TRIM)}
+  B(W+.4,.14,D+.4,ox,y0+H+.07,oz,M(0x4a4a4a,{metalness:.4}));B(.8,.55,.5,ox+3.4,y0+H+.42,oz-2.6,M(0xd0d0c8));
+  B(5.4,1.0,.1,ox,y0+H+.75,zf-.2,M(0x2a1a10));L("GOBLINO'S SCRAP · OFFICE",5.2,.9,'#8a2a1a','#ffe0a0',60,ox,y0+H+.75,zf-.14,0);for(const s of[-2.2,2.2])B(.08,.6,.08,ox+s,y0+H+.3,zf-.25,TRIM);
+  /* inside, behind the counter: a desk, a till, a calendar, a safe */B(2.0,.8,.6,ox-.6,y0+.4,zf-.6,TRIM);B(.4,.25,.3,ox-1.2,y0+.93,zf-.6,M(0x2a2a2a));B(.5,.6,.05,ox+1,y0+1.6,oz-D/2+.13,M(0xf0e8d0));B(.7,.8,.6,ox-3.2,y0+.4,oz-D/2+.5,M(0x3a4a3a,{metalness:.5}));
+  obs.push({x0:ox-W/2-.1,x1:ox+W/2+.1,z0:oz-D/2-.1,z1:zf+.1})}
+ /* the entrance sign outside: hubcaps nailed to a board on two posts */
+ {const sx=54,sz=-1352;for(const dz of[-1.8,1.8])B(.18,4.2,.18,sx,2.1,sz+dz,M(0x5a4030));B(.12,1.5,4.4,sx,3.3,sz,M(0x6a4a2a));L("GOBLINO'S SCRAP\nWE CRUSH · WE SELL · WE CRUSH AGAIN",4.2,1.3,'#8a5a2a','#ffe0a0',60,sx+.065,3.3,sz,Math.PI/2);L("GOBLINO'S SCRAP\nWE CRUSH · WE SELL · WE CRUSH AGAIN",4.2,1.3,'#8a5a2a','#ffe0a0',60,sx-.065,3.3,sz,-Math.PI/2);
+  for(const dz of[-2.4,2.4]){const hc=C(.32,.32,.04,sx+.09,3.3,sz+dz,M(0xc8ccd0,{metalness:.85,roughness:.25}),'x',null,16);C(.12,.12,.06,sx+.1,3.3,sz+dz,M(0x8a8e92,{metalness:.8}),'x',null,10)}obs.push({x0:sx-.2,x1:sx+.2,z0:sz-2,z1:sz+2})}
+ /* floodlights in the four corners */for(const[x,z]of[[62,-1378],[178,-1378],[62,-1302],[178,-1302]]){B(.6,.3,.6,x,.15,z,k.PRE);C(.1,.14,8,x,4.2,z,M(0x5a5e64,{metalness:.6}),null,null,10);const ax=x<120?1:-1,az=z<-1340?1:-1;B(1.2,.1,.1,x,8.1,z,M(0x5a5e64,{metalness:.6}));for(const s of[-.45,.45]){const hd=B(.36,.24,.3,x+s,8.0,z+az*.15,M(0x3a3a3a));hd.rotation.x=az*.5;const lm=new THREE.Mesh(new THREE.PlaneGeometry(.3,.2),M(0xfff0d0,{emissive:0xfff0d0,emissiveIntensity:1}));lm.position.set(x+s,7.9,z+az*.31);lm.rotation.x=-az*Math.PI/2+az*.5*0-Math.PI*0;lm.rotation.y=az<0?Math.PI:0;g.add(lm)}obs.push({x0:x-.3,x1:x+.3,z0:z-.3,z1:z+.3})}
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{obs}}
