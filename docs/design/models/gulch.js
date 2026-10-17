@@ -52,3 +52,46 @@ function guStreet(g){const k=guKit(),{B,C,rod,L}=k.H(g),M=k.M;const obs=[],plate
   wheel(-1.2,.55,.85,0,0);wheel(-1.2,.55,-.85,0,0);wheel(1.2,.55,-.85,0,0);/* the front-right wheel is off, leaning against the bed's side; a stack of stones holds that corner up */wheel(1.1,.52,1.18,.42,0,0);for(let i=0;i<3;i++){const st=W.B(.45-i*.05,.28,.42,1.2,.14+i*.28,.62,M(0x8a8070,{roughness:1}));st.rotation.y=i*.4}
   rod([-1.7,.9,.3],[-3.6,.05,.5],.05,k.POST);rod([-1.7,.9,-.3],[-3.6,.05,-.6],.05,k.POST);ob(424,428.2,-1487.5,-1484.5)}
  g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{obs,plates}}
+
+/* ---- batch 2/3: the western fronts. guFront(g, o) puts a false front over a shell's street wall:
+   o = {x: the wall's face (shell fx), dir: +1 (door faces +x) / -1, z0, z1, H: the shell's height, top: the false front's height,
+        shape: 'arch' | 'step' | 'flat', board: material, trim: material, name, sub, signBg, signFg, wins: [[za, zb], ...] (the shell's
+        front windows, y 1.2 .. 2.6), door: [za, zb] (y 0 .. 2.5)}
+   The front stands .42 out from the wall (in front of the shell's roof edge and window frames), with the openings cut through it,
+   linings back to the wall, casings, corner boards and a cornice. Returns {face}: the x of the new front face. ---- */
+function guFront(g,o){const k=guKit(),{B,C,rod,L}=k.H(g),M=k.M;const dir=o.dir,cz=(o.z0+o.z1)/2,hw=(o.z1-o.z0)/2+.15,T=o.top,H=o.H,fx=o.x+dir*.42,d=.1;
+ const sh=new THREE.Shape();sh.moveTo(-hw,0);sh.lineTo(hw,0);
+ if(o.shape=='arch'){sh.lineTo(hw,T-1.2);sh.lineTo(hw*.7,T-1.2);for(let i=0;i<=16;i++){const a=i/16*Math.PI;sh.lineTo(Math.cos(a)*hw*.7,T-1.2+Math.sin(a)*1.2)}sh.lineTo(-hw,T-1.2)}
+ else if(o.shape=='step'){const s=[[1,T-1.2],[.72,T-1.2],[.72,T-.6],[.42,T-.6],[.42,T]];for(const[a,b]of s)sh.lineTo(hw*a,b);for(const[a,b]of s.slice().reverse())sh.lineTo(-hw*a,b)}
+ else{sh.lineTo(hw,T);sh.lineTo(-hw,T)}sh.lineTo(-hw,0);
+ const hole=(a,b,y0,y1)=>{const p=new THREE.Path();p.moveTo(a,y0);p.lineTo(a,y1);p.lineTo(b,y1);p.lineTo(b,y0);p.lineTo(a,y0);sh.holes.push(p)};const lz=z=>(z-cz)*dir;
+ const ops=[];if(o.door){const a=lz(o.door[0]),b=lz(o.door[1]);ops.push([Math.min(a,b),Math.max(a,b),0,2.5])}for(const w of o.wins||[]){const a=lz(w[0]),b=lz(w[1]);ops.push([Math.min(a,b),Math.max(a,b),1.2,2.6])}
+ for(const p of ops)hole(p[0],p[1],p[2]+(p[2]>0?0:-.01),p[3]);
+ const geo=new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false,curveSegments:16});{const uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*.4,uv.getY(i)*.4)}
+ const fm=new THREE.Mesh(geo,[o.board,o.trim]);fm.rotation.y=dir>0?-Math.PI/2:Math.PI/2;fm.position.set(fx+dir*0,0,cz);g.add(fm);/* (the front cap faces the street) */
+ const X=fx+dir*.02,Xt=fx+dir*.07;
+ /* linings through the openings back to the wall, casings round them, a sill under each window */
+ for(const p of ops){const za=cz+p[0]*dir,zb=cz+p[1]*dir,z0=Math.min(za,zb),z1=Math.max(za,zb),y0=p[2],y1=p[3],dx=Math.abs(fx-o.x)+d;const xm=(o.x+fx)/2-dir*d/2;
+  B(dx,.05,z1-z0,xm,y1-.025,(z0+z1)/2,o.trim);for(const z of[z0,z1])B(dx,y1-y0,.05,xm,(y0+y1)/2,z,o.trim);if(y0>0)B(dx,.05,z1-z0,xm,y0+.025,(z0+z1)/2,o.trim);
+  B(.06,.14,z1-z0+.32,Xt,y1+.07,(z0+z1)/2,o.trim);for(const z of[z0-.09,z1+.09])B(.06,y1-y0+.14,.12,Xt,(y0+y1)/2+.07,z,o.trim);if(y0>0){B(.12,.06,z1-z0+.36,fx+dir*.06,y0-.03,(z0+z1)/2,o.trim);for(const z of[z0,z1])B(.06,.1,.1,fx+dir*.04,y0-.11,z,o.trim)}}
+ /* corner boards, a base board, a cornice along the top (and round the arch: a capping strip) */for(const s of[-1,1])B(.06,T-1.15,.2,Xt,(T-1.15)/2,cz+s*(hw-.1),o.trim);B(.06,.25,hw*2,Xt,.13,cz,o.trim);
+ if(o.shape=='flat'){B(.3,.18,hw*2+.3,fx+dir*.12,T-.05,cz,o.trim);B(.2,.1,hw*2+.2,fx+dir*.08,T-.22,cz,o.trim);for(let i=0;i<Math.floor(hw*2/.6);i++)B(.12,.16,.12,fx+dir*.08,T-.36,cz-hw+.3+i*.6,o.trim)}
+ else if(o.shape=='step'){const s=[[1,T-1.2],[.72,T-.6],[.42,T]];for(const[a,y]of s)for(const sg of(a==.42?[0]:[-1,1])){const zc=a==.42?cz:cz+sg*hw*(a+(a==1?.72:.42))/2;const w=a==.42?hw*.84:hw*(a-(a==1?.72:.42));B(.24,.14,w+.12,fx+dir*.1,y+.05,zc,o.trim)}}
+ else{for(let i=0;i<16;i++){const a0=i/16*Math.PI,a1=(i+1)/16*Math.PI,p0=[Math.cos(a0)*hw*.7,T-1.2+Math.sin(a0)*1.2],p1=[Math.cos(a1)*hw*.7,T-1.2+Math.sin(a1)*1.2];const sg=B(.22,.12,Math.hypot(p1[0]-p0[0],p1[1]-p0[1])+.02,fx+dir*.09,(p0[1]+p1[1])/2+.04,cz+(p0[0]+p1[0])/2,o.trim);sg.rotation.x=-Math.atan2(p1[1]-p0[1],p1[0]-p0[0])}for(const s of[-1,1])B(.22,.12,hw*.3+.1,fx+dir*.09,T-1.15,cz+s*hw*.85,o.trim)}
+ /* the painted name board above the awning, and its subtitle */const sy=H+.95;B(.06,1.35,Math.min(hw*1.6,9.4),Xt,sy,cz,o.trim);L(o.name,Math.min(hw*1.6,9.4)-.2,1.15,o.signBg,o.signFg,60,fx+dir*.105,sy,cz,dir>0?Math.PI/2:-Math.PI/2);
+ if(o.sub)L(o.sub,Math.min(hw*1.2,6),.42,null,o.signFg,60,fx+dir*.08,o.shape=='arch'?T-.75:T-1.0,cz,dir>0?Math.PI/2:-Math.PI/2);
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{face:fx}}
+
+/* the three west-side fronts. Each returns {face}. Pass `noPorch: 1` to their shells and drop the shells' name sign (lab + backing board). */
+function guWest(g){const k=guKit(),{B,C,rod,L}=k.H(g),M=k.M;
+ /* Rushy's Diner: cream boards, red trim, an arched top; a neon EAT blade sign */
+ guFront(g,{x:440,dir:1,z0:-1458,z1:-1440,H:4,top:7.2,shape:'arch',board:k.BOARDW,trim:M(0xb02020,{roughness:.6}),name:"RUSHY'S DINER",sub:'PIE · COFFEE · MORE PIE',signBg:'#b02020',signFg:'#fff0d0',wins:[[-1449-5.4-.8,-1449-5.4+.8],[-1449+5.4-.8,-1449+5.4+.8]],door:[-1450.3,-1447.7]});
+ {const bz=-1455.6,bx=440.6;B(.9,.1,.1,bx+.45,4.6,bz,k.IRON);B(.9,.1,.1,bx+.45,3.6,bz,k.IRON);const bd=B(.12,1.3,.9,bx+.9,4.1,bz,M(0x1a1a1a));L('EAT',.75,1.1,'#1a1a1a','#ff3060',60,bx+.97,4.1,bz,Math.PI/2);L('EAT',.75,1.1,'#1a1a1a','#ff3060',60,bx+.83,4.1,bz,-Math.PI/2);const gl=new THREE.Mesh(new THREE.BoxGeometry(.02,1.0,.6),M(0xff3060,{emissive:0xff2050,emissiveIntensity:.8,transparent:true,opacity:.35}));gl.position.set(bx+.99,4.1,bz);g.add(gl)}
+ /* Bob's Bargains: blue-grey boards, cream trim, a stepped top; a hanging shingle and crates out front */
+ guFront(g,{x:440,dir:1,z0:-1482,z1:-1466,H:4,top:7.0,shape:'step',board:k.BOARDB,trim:M(0xe8dcc0,{roughness:.7}),name:"BOB'S BARGAINS",sub:'GENERAL STORE · EST. WHO KNOWS',signBg:'#2a3a5a',signFg:'#ffe0a0',wins:[[-1474-4.8-.8,-1474-4.8+.8],[-1474+4.8-.8,-1474+4.8+.8]],door:[-1475.3,-1472.7]});
+ {const bz=-1479,bx=440.5;rod([bx,3.3,bz],[bx+1.0,3.3,bz],.03,k.IRON);for(const dz of[-.3,.3])rod([bx+.95,3.3,bz+dz],[bx+.95,3.05,bz+dz],.01,k.IRON);B(.06,.6,.9,bx+.95,2.75,bz,M(0xe8dcc0));L('BOB',.8,.45,'#e8dcc0','#2a3a5a',60,bx+.99,2.78,bz,Math.PI/2);L('BOB',.8,.45,'#e8dcc0','#2a3a5a',60,bx+.91,2.78,bz,-Math.PI/2);
+  for(const[dz,h]of[[-1.2,0],[-1.2,.5],[1.5,0]])B(.6,.5,.6,441.2,.71+h,-1474+dz*2.4,k.BOARD)}
+ /* The Rusty Door saloon: dark weathered boards, a tall flat front with a bracketed cornice and two shuttered upper windows (painted, the building is single-storey) */
+ const sTrim=M(0xc8a060,{roughness:.6});guFront(g,{x:440,dir:1,z0:-1512,z1:-1490,H:4.5,top:8.6,shape:'flat',board:k.BOARDD,trim:sTrim,name:'THE RUSTY DOOR',sub:'· SALOON ·',signBg:'#3a1a0a',signFg:'#ffd080',wins:[[-1501-6.6-.8,-1501-6.6+.8],[-1501+6.6-.8,-1501+6.6+.8]],door:[-1502.3,-1499.7]});
+ for(const dz of[-4.2,4.2]){const z=-1501+dz,x=440.55;B(.04,1.4,1.0,x,7.05,z,M(0x1a2228,{metalness:.3,roughness:.2}));for(const s of[-1,1])B(.06,1.5,.5,x+.02,7.05,z+s*.78,M(0x6a2a1a));B(.08,.08,1.1,x+.02,7.05,z,sTrim);B(.08,1.5,.08,x+.02,7.05,z,sTrim);B(.14,.08,1.2,x+.05,6.3,z,sTrim)}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true})}
