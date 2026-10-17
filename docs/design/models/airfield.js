@@ -183,3 +183,43 @@ function afCarPark(g){const k=afKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],X0=275,X1=
  {const x=X0+1,z=(Z0+Z1)/2;C(.08,.1,6,x,3,z,M(0x3a3e42,{metalness:.4}),null,null,10);rod([x,5.9,z],[x+1.2,6.0,z],.04,M(0x3a3e42));B(.6,.12,.3,x+1.3,5.95,z,M(0x3a3e42));B(.5,.03,.24,x+1.3,5.88,z,M(0xfff4d0,{emissive:0xffe8b0,emissiveIntensity:.8}));obs.push({x0:x-.2,x1:x+.2,z0:z-.2,z1:z+.2})}
  {/* the sign faces the road (+x) */const x=X1-.4,z=(Z0+Z1)/2;for(const dz of[-.6,.6])C(.04,.04,1.8,x,.9,z+dz,M(0x3a3e42),null,null,6);B(.05,.8,1.6,x,1.6,z,M(0x2a4a8a));L('PARKING\n5 MIN · OR FOREVER',1.5,.7,'#2a4a8a','#ffffff',44,x+.03,1.6,z,Math.PI/2);obs.push({x0:x-.1,x1:x+.1,z0:z-.8,z1:z+.8})}
  g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+/* ---- batch 4: the control tower and the windsock ---- */
+
+/* the control tower at (430, -1200): a concrete shaft, a steel stair up its east side, a walkway round the cab, the cab
+   with sloping glass and consoles inside, a roof with aerials, a rotating airport beacon (green and white) and a red
+   light on the mast. The intercom prop stays at (tx, tz + 3.4); the door is on that side.
+   Returns {obs, beacon (Group: spin rotation.y), red (material: blink it)}. */
+function afTower(g,tx,tz){const k=afKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],CON=M(0xd8ccb4,{roughness:.95}),STL=M(0x5a5e64,{metalness:.5,roughness:.4}),YL=M(0xe8c020,{roughness:.6}),GLs=M(0x7aa8c0,{transparent:true,opacity:.4,roughness:.05,metalness:.3,side:THREE.DoubleSide,depthWrite:false}),DK=M(0x26282b,{roughness:.6});
+ const S=4,FL=12,CH=3.0,CW=7;
+ /* the shaft: banded concrete, a door and a sign on the prop side, slit windows up the stair */
+ B(S,FL,S,tx,FL/2,tz,CON);for(let y=3;y<FL;y+=3)B(S+.06,.1,S+.06,tx,y,tz,M(0xb8ac94));B(S+.6,.3,S+.6,tx,.15,tz,M(0x9a948a));
+ B(1.1,2.2,.06,tx-.6,1.1,tz+S/2+.03,M(0x2a4a6a));C(.035,.035,.06,tx-.25,1.1,tz+S/2+.07,STL,'z',null,8);B(1.3,.12,.15,tx-.6,2.28,tz+S/2+.05,DK);L('TOWER',2.4,.55,'#d8ccb4','#2a4a8a',80,tx+.6,6.5,tz+S/2+.035,0);
+ B(.6,.25,.04,tx+1.2,1.6,tz+S/2+.02,M(0x1a1a1a));C(.08,.08,.04,tx+1.2,1.6,tz+S/2+.05,M(0x40c060,{emissive:0x104010}),'z',null,10);/* the intercom box by the door */
+ for(let y=4;y<FL;y+=3)B(.04,.9,.25,tx+S/2+.02,y,tz-1.2,M(0x334a5c,{metalness:.3,roughness:.1}));
+ obs.push({x0:tx-S/2-.3,x1:tx+S/2+.3,z0:tz-S/2-.3,z1:tz+S/2+.3});
+ /* the stair: zig-zag flights up the east side, landings, rails */{/* a stair tower beside the walkway: it lands on the walkway's edge (FL + .3), clear of the cab */const sx=tx+(CW+2.2)/2+.6,n=4,fh=(FL+.3)/n;for(let i=0;i<n;i++){const y0=i*fh,y1=y0+fh,dir=i%2?1:-1,za=tz+dir*1.6,zb=tz-dir*1.6;const len=Math.hypot(fh,3.2),st=B(1.1,.08,len,sx,(y0+y1)/2,tz,STL);st.rotation.x=dir*Math.atan2(fh,3.2);for(let j=1;j<12;j++){const u=j/12;B(1.1,.04,.28,sx,y0+fh*u+.02,za+(zb-za)*u,M(0x7a7e84,{metalness:.4}))}
+   for(const e of[-.55,.55])rod([sx+e*1.0,y0+1.0,za],[sx+e*1.0,y1+1.0,zb],.025,YL);B(1.1,.08,1.1,sx,y1,zb+(-dir)*.55*0,STL);}
+  for(let i=0;i<=n;i++){const y=i*fh;C(.05,.05,y||.01,sx+.5,y/2,tz+1.6,STL,null,null,6);C(.05,.05,y||.01,sx+.5,y/2,tz-1.6,STL,null,null,6)}
+  for(let i=1;i<n;i++)for(const z of[tz-1.6,tz+1.6])B(sx-.5-(tx+S/2),.15,.15,(sx-.5+tx+S/2)/2,i*fh,z,STL);/* brackets back to the shaft */obs.push({x0:sx-.6,x1:sx+.6,z0:tz-2.2,z1:tz+2.2})}
+ /* the walkway round the cab: a slab, a railing */B(CW+2.2,.3,CW+2.2,tx,FL+.15,tz,M(0x9a948a));for(let i=0;i<4;i++){const a=i*Math.PI/2,ca=Math.cos(a),sa=Math.sin(a),h=(CW+2.0)/2;const gap=i==0?[-2.4,-.8]:null;/* the east side opens where the stair lands */for(let t=-h;t<=h+.01;t+=1.3){if(gap&&t>gap[0]&&t<gap[1])continue;const x=tx+ca*h-sa*t,z=tz+sa*h+ca*t;C(.03,.03,1.0,x,FL+.8,z,YL,null,null,6)}
+  if(gap){for(const[a2,b2]of[[-h,gap[0]],[gap[1],h]]){C(.03,.03,1.0,tx+h,FL+.8,tz+(a2==-h?b2:a2),YL,null,null,6);B(.06,.06,b2-a2,tx+h,FL+1.3,tz+(a2+b2)/2,YL)}}else{const r=B(CW+2.0,.06,.06,tx+ca*h,FL+1.3,tz+sa*h,YL);if(i%2==0)r.rotation.y=Math.PI/2/* the west rail runs along z */}}
+ /* the cab: a dark base band, sloping glass (an upside-down frustum), mullions, a roof slab */{/* the cab's low base wall: a ring, so the cab floor inside is the walkway level */const BW=M(0x3a4a5a,{roughness:.5});for(const s2 of[-1,1]){B(CW,.6,.2,tx,FL+.6,tz+s2*(CW/2-.1),BW);B(.2,.6,CW-.4,tx+s2*(CW/2-.1),FL+.6,tz,BW)}B(CW-.4,.02,CW-.4,tx,FL+.31,tz,M(0x5a5048,{roughness:.8}))}{const gl=new THREE.Mesh(new THREE.CylinderGeometry((CW+.8)/Math.SQRT2,(CW)/Math.SQRT2,CH-.6,4,1,true),GLs);gl.rotation.y=Math.PI/4;gl.position.set(tx,FL+.9+(CH-.6)/2,tz);g.add(gl);
+  for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]])rod([tx+a*CW/2,FL+.9,tz+b*CW/2],[tx+a*(CW+.8)/2,FL+CH+.3,tz+b*(CW+.8)/2],.06,DK);for(let i=0;i<4;i++){const a=i*Math.PI/2;for(const t of[-1.2,1.2]){const ca=Math.cos(a),sa=Math.sin(a);rod([tx+ca*CW/2-sa*t,FL+.9,tz+sa*CW/2+ca*t],[tx+ca*(CW+.8)/2-sa*t*1.11,FL+CH+.3,tz+sa*(CW+.8)/2+ca*t*1.11],.03,DK)}}}
+ B(CW+1.4,.35,CW+1.4,tx,FL+CH+.47,tz,M(0x3a4a5a,{roughness:.5}));B(CW+1.5,.08,CW+1.5,tx,FL+CH+.32,tz,DK);
+ /* inside the cab: consoles round the glass, two chairs, binoculars, a radio */for(let i=0;i<4;i++){const a=i*Math.PI/2,ca=Math.cos(a),sa=Math.sin(a);const cs=B(CW-1.4,.9,.6,tx+ca*(CW/2-.6),FL+.75,tz+sa*(CW/2-.6),M(0x6a6e74,{roughness:.5}));if(i%2==0)cs.rotation.y=Math.PI/2;const tp=B(CW-1.4,.04,.62,tx+ca*(CW/2-.6),FL+1.22,tz+sa*(CW/2-.6),M(0x2a2a2c));if(i%2==0)tp.rotation.y=Math.PI/2}
+ for(const[x,z]of[[tx+1,tz+1.2],[tx-1.2,tz-1]]){C(.25,.25,.08,x,FL+.75,z,M(0x2a2a2c),null,null,12);C(.03,.03,.45,x,FL+.5,z,STL,null,null,6);B(.45,.4,.06,x,FL+1.0,z-.24,M(0x2a2a2c))}
+ B(.5,.3,.3,tx+2.6,FL+1.39,tz-.5,M(0x3a3a3a));C(.01,.01,.4,tx+2.75,FL+1.7,tz-.55,DK,null,null,4);
+ /* the roof: aerials, a mast with the red light, the rotating beacon on a short stand */const ry=FL+CH+.65;C(.05,.05,4,tx-2.5,ry+2,tz-2.5,STL,null,null,6);C(.03,.03,2.5,tx+2.6,ry+1.25,tz-2.4,STL,null,null,6);for(let i=0;i<4;i++)rod([tx+2.6,ry+2.2-i*.4,tz-2.4],[tx+2.6+.5,ry+2.2-i*.4,tz-2.4],.012,STL);
+ const red=M(0xff2010,{emissive:0xff0000,emissiveIntensity:1});{const b=new THREE.Mesh(new THREE.SphereGeometry(.16,10,8),red);b.position.set(tx-2.5,ry+4.1,tz-2.5);g.add(b)}
+ B(.6,.8,.6,tx,ry+.4,tz,STL);const beacon=new THREE.Group();beacon.position.set(tx,ry+1.05,tz);g.add(beacon);{const hs=new THREE.Mesh(new THREE.CylinderGeometry(.35,.4,.5,14),DK);beacon.add(hs);for(const[s,col]of[[1,0x40ff70],[-1,0xffffff]]){const lens=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.06,14),M(col,{emissive:col,emissiveIntensity:1}));lens.rotation.z=Math.PI/2;lens.position.set(s*.38,0,0);beacon.add(lens);}const cap=new THREE.Mesh(new THREE.ConeGeometry(.4,.2,14),DK);cap.position.y=.35;beacon.add(cap)}beacon.userData.dpKeep=1;beacon.traverse(m=>m.userData.dpKeep=1);
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,beacon,red}}
+
+/* the windsock at (380, -1248): a hinged pole on a base, a striped sock on a swivel ring, a white marker circle of
+   painted segments round it. sk turns on y, so droops on z (see the spec for the anim). */
+function afWindsock(g,wx,wz){const k=afKit(),{B,C,rod}=k.H(g),M=k.M,obs=[],STL=M(0xd8dce0,{metalness:.4,roughness:.35}),WH=M(0xf0ece0,{roughness:.8});
+ for(let i=0;i<12;i++){if(i%3==2)continue;const a=i/12*Math.PI*2;const seg=B(1.5,.05,.4,wx+Math.cos(a)*4,.025,wz+Math.sin(a)*4,WH);seg.rotation.y=-a+Math.PI/2}
+ B(1,.2,1,wx,.1,wz,M(0x9a948a));C(.07,.09,5.6,wx,3,wz,STL,null,null,10);B(.25,.5,.2,wx,1.2,wz+.1,STL);C(.04,.04,.3,wx,1.2,wz+.25,STL,'x',null,8);C(.12,.12,.12,wx,5.8,wz,STL,null,null,10);
+ const sk=new THREE.Group();sk.position.set(wx,5.8,wz);g.add(sk);const ring=new THREE.Mesh(new THREE.TorusGeometry(.45,.035,6,20),STL);ring.rotation.y=Math.PI/2;ring.position.x=.5;sk.add(ring);const arm=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.5,6),STL);arm.rotation.z=Math.PI/2;arm.position.x=.25;sk.add(arm);
+ const so=new THREE.Group();so.position.x=.5;so.rotation.z=Math.PI/2;sk.add(so);for(let i=0;i<5;i++){const r0=.45-i*.065,r1=.45-(i+1)*.065;const sg=new THREE.Mesh(new THREE.CylinderGeometry(r0,r1,.5,16,1,true),M(i%2?0xffffff:0xff5a10,{side:THREE.DoubleSide,roughness:.9}));sg.position.y=-.25-i*.5;so.add(sg)}
+ obs.push({x0:wx-.5,x1:wx+.5,z0:wz-.5,z1:wz+.5});[sk].forEach(o=>o.traverse(m=>m.userData.dpKeep=1));g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,sk,so}}
