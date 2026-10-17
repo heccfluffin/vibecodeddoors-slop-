@@ -590,6 +590,8 @@ R("const hm=mkHeli()","const hm=mkPoliceHeli();hm.userData.mr.userData.dpKeep=1;
 # r620: Fort Blackout's roads are drawn by fbRoad (dx614): xpRoadsBuild paints them on the map but lays no old strip or junction patch under them
 R('for(const[x0,x1,z0,z1]of ps){if(x1-x0<.05||z1-z0<.05)continue;const t=(r.dirt?TD:TA)','for(const[x0,x1,z0,z1]of ps){if(x1-x0<.05||z1-z0<.05)continue;if(r.fb)continue;const t=(r.dirt?TD:TA)')
 R('const R2=q.xroads.filter(r=>!r.dirt);','const R2=q.xroads.filter(r=>!r.dirt&&!r.fb);')
+# r621: the Dark Zone 51 entrance sign faced away from the road
+R("AUTHORISED DARK PERSONNEL ONLY','#1a1a2a',x1+5,-1864,-1.3)","AUTHORISED DARK PERSONNEL ONLY','#1a1a2a',x1+5,-1864,-1.3+Math.PI)")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -603,7 +605,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r620';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r621';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
