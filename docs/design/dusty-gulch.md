@@ -1,4 +1,4 @@
-Status: layout, batches 1-3 and interiors 1-3 (diner, Bob's, saloon) approved by the user 2026-10-17 · bank interior next
+Status: layout, batches 1-3 and interiors 1-4 (diner, Bob's, saloon, bank) approved by the user 2026-10-17 · chapel interior next
 
 # Dusty Gulch rework
 
@@ -139,6 +139,20 @@ fine (it already hangs 5 cm below the lintel).
   and so is the chandelier group (it is built at the game's spot, 424, 3.4, cz).
 - **New obstacles:** none. Everything stands where the game's obstacles already are (bar, piano, tables).
 - Everything here stands on the floor's top, y .18. The bar top is at 1.18.
+
+### Interiors 4: First Dark Bank (approved) · `guBank(g)` → `{obs}`, `guVaultDoor(hinge, VR)` → `{wh, dial}`
+- **Shell call:** unchanged (it keeps its panelling; everything at the walls below 1.2 stands .24 off them).
+- **Remove the game's meshes** (keep every `ob`, `prop`, light, the clock group and the whole vault logic): the eight
+  brass posts and their balls, the two rope cylinders, the plant pot and plant, the teller counter's base box and
+  glass box, the three teller desks and their black boxes.
+- **The vault door:** keep the `hinge` group, the wall pieces, the rings, the collar torus, the VAULT label, the gold,
+  the bags, `dob`, `vopen` and the prop. Instead of adding the door cylinder, the two hinge barrels, the wheel group,
+  the dial and the eight bolt heads to `hinge`, call `const VD = guVaultDoor(hinge, VR)` and use `wh = VD.wh` (the
+  rob code spins `wh`, and it sits where the old wheel did). Everything in it is `dpKeep`.
+- **New obstacles** (push `obs`): the two marble columns (466, cz±5.5), the two writing tables, the two clerks' desks
+  (478, cz±4.5) and the two safe-deposit walls (x 481..489 against the side walls). The way from the door through the
+  ropes, the gap in the counter (cz±1.1) and up to the vault stays clear.
+- Everything here stands on the floor's top, y .18.
 
 ### Coming next
 - **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
