@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-4 approved · batch 5 (middle and restricted zone) next
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-5 approved (Fort Blackout complete, ready to build)
 
 # Fort Blackout rework
 
@@ -238,3 +238,38 @@ no kerbs, with a yellow centre line. The kit's `k.H` now also has `tube`.
 - The fence, guard towers and outer checkpoint are in batch 1. The old dragon's teeth row at z -939 goes; put the new
   chicane at z -1016..-1008 (simple concrete blocks with colliders are fine).
 - `awBase` still draws the runway, its lines, the apron, the windsock and the fleet. Keep those.
+
+**Kit fixes with batch 5:** `fbDress` takes several doors on one side (`gaps`, `dh`, `noCanopy`, `skip`, `nameY`).
+Thin flat slabs near the ground are given a depth nudge automatically (`k.tier`). Painted lines and decals have
+stronger nudges (`k.POL`, `k.PO`), so stacked ground layers don't flicker from far away.
+
+### Batch 5: the middle and the restricted zone (`models/fort-mid.js`), approved
+New globals: `fbHQ, fbCmdBlock, fbBootCamp, fbFuelDepot, fbTent, fbTankPark, fbRange, fbLZ, fbHangarSkin, fbSilo,
+fbRadome`. All of these change looks only. Keep every `ob`, `q.plates`, `prop`, mission spot and animation the game
+has, except where a note below says otherwise. Push any returned `obs`.
+- **`fbHQ(g)`** after HQ's `BLD` (drop its `lab`): the dressing plus a portico on the east door. Its `obs` are the
+  columns and the flagpoles.
+- **`fbCmdBlock(g)`** after `cwBuild` and `bayBuild`: it dresses the command wing (north side, 4 doors) and the bays
+  (south side, 4 roller doors). The 1 m airlock gap between them is left bare. Drop the game's floating window planes
+  on the offices (z0 - 0.17), the "COMMAND WING" and "WRAITH BAYS" signs above the roofs, and the "OFFICE n" plates
+  (the dressing adds its own).
+- **`fbBootCamp(g)`** replaces the boot camp's meshes, not its plates or props: the lane plane, the wire frame and
+  wire, the tyre tori, the wall, the platform, the back-step boxes, the beam, the mud planes, the start post and the
+  finish flag. Keep the drill sergeant and the "BOOT CAMP" sign.
+- **`fbFuelDepot(g)`** replaces the three fuel tank meshes. Keep their obstacles; the bund wall adds its own.
+- **`fbTent(g, x, z)`** at the four tent spots, instead of `mkTent`.
+- **`fbTankPark(g)`** after the tank park step. Drop the old "TANK PARK" label and the four bollards: the canopy posts
+  replace them, with obstacles.
+- **`fbRange(g)`** replaces the berm box. Same footprint and obstacle.
+- **`fbLZ(g)`** draws LZ Bravo's pad and the mortar pits, replacing the sandbag rings. The mortars, props and signs
+  stay.
+- **`fbHangarSkin(g)`** after the hangar walls. Move the "X-13 WRAITH PROGRAMME" sign from x 426.3 to x 425.12, so it
+  sits on the cladding instead of floating 1.3 m off the wall.
+- **`fbSilo(g)`** replaces Silo 1's drum, the dark disc, the hatch box and the four lamp posts. **Set
+  `ML.nuke.hatch` = the returned `hatch`** (an invisible Object3D): the game keeps sliding its x from SX to SX + 9,
+  and the round lid swings open to match. Obstacle: the collar, x 570.8..585.2, z -707.2..-692.8, which is 1.2 m
+  high; its steps are on the west side, x 566.6..570.4. Add a plate on the collar (y 1.2) if players should walk on
+  it. The missile still rises from y -18 through the dark shaft.
+- **`fbRadome(g)`** replaces Radar Station 13's drum and sphere. Keep the plaque prop, and move it to the porch at
+  (442, -694.1).
+- **Ammo bunker and launch control:** `fbDress(..., 'bunker')` from batch 1.

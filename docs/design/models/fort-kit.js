@@ -6,7 +6,8 @@
                             the outside faces, plinth, windows, door frame, canopy and lamp, drainpipes, and a roof by
                             style: 'hut' (pitched corrugated roof, gable stencils), 'flat' (parapet, roof units),
                             'bunker' (earth berm on three sides, blast-door frame). Outside only: rooms are untouched.
-                            b = {x0,x1,z0,z1,h,sd,da,db,name,num}
+                            b = {x0,x1,z0,z1,h,sd,da,db,name,num} and optionally gaps:[[da,db],..] (several doors on
+                            side sd), dh (door height, 2.5), noCanopy, skip:['s',..] (sides left bare), noWin:[..], nameY
      fbWall(g, ax, c, a0, a1, h)   a perimeter wall run: precast panels between pilasters, plinth, coping, razor wire
                             on Y-posts, floodlights. ax 'x' = runs along x at z c; 'z' = along z at x c. Thickness 0.8.
      fbGate(g, x, z)        the main gate on the north wall (gap x-8..x+8): two pylons, the sign beam, two gatehouses,
@@ -57,12 +58,15 @@ function fbKit(){if(fbKit.k)return fbKit.k;const k={};
  k.WIN2=nud(k.WIN,PO2);k.OD2b=nud(k.OD2,PO2);k.CAPb=nud(k.CAP,PO2);k.STL2b=nud(k.STL2,PO2);k.DKb=nud(k.DK,PO2);
  k.VENT=TM(tex(64,64,(x)=>{x.fillStyle='#b8bcc0';x.fillRect(0,0,64,64);x.fillStyle='#4a4e54';for(let i=4;i<64;i+=8)x.fillRect(3,i,58,3.5);x.fillStyle='rgba(255,255,255,.25)';for(let i=7;i<64;i+=8)x.fillRect(3,i,58,1)}),2,{metalness:.4,roughness:.45});
  /* painted lines and decals: lifted 1 cm and drawn with a depth offset so they never flicker on the slab */
- const PO={polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4};k.LINE=M(0xf0ece0,Object.assign({roughness:.8},PO));k.LINEY=M(0xe8c020,Object.assign({roughness:.7},PO));k.PO=PO;
+ /* ground layers are stacked a few cm apart, which is too close for the depth buffer from far away, so each layer
+    gets its own depth nudge: slabs on the ground (roads, pads, floors) a little, painted lines more, decals most */
+ const PO={polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-12},POL={polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8};k.LINE=M(0xf0ece0,Object.assign({roughness:.8},POL));k.LINEY=M(0xe8c020,Object.assign({roughness:.7},POL));k.PO=PO;k.POL=POL;
+ const tierC=new Map();k.tier=(m,t)=>{if(!m||m.polygonOffset)return m;const key=m.uuid+t;if(!tierC.has(key)){const c=m.clone();c.userData=Object.assign({},m.userData);Object.assign(c,t==2?POL:{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-4});tierC.set(key,c)}return tierC.get(key)};
  k.LINK=new THREE.MeshStandardMaterial({map:tex(64,64,(x)=>{x.clearRect(0,0,64,64);x.strokeStyle='#c8ccd0';x.lineWidth=2.5;x.beginPath();x.moveTo(0,32);x.lineTo(32,0);x.lineTo(64,32);x.lineTo(32,64);x.closePath();x.stroke();x.beginPath();x.moveTo(0,0);x.lineTo(0,0);x.stroke()}),transparent:false,alphaTest:.4,side:THREE.DoubleSide,metalness:.6,roughness:.4});k.LINK.userData.s=1/.12;
  k.lab=(s,w,h,bg,fg,fs,font)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.max(32,Math.round(512*h/w));const x=c.getContext('2d');if(bg){x.fillStyle=bg;x.fillRect(0,0,c.width,c.height)}x.fillStyle=fg;const lines=String(s).split('\n');let f=fs||60;const F=()=>'bold '+f+'px '+(font||FONT);x.font=F();while((Math.max(...lines.map(l=>x.measureText(l).width))>480||f*lines.length*1.15>c.height*.92)&&f>10){f-=2;x.font=F()}x.textAlign='center';x.textBaseline='middle';lines.forEach((l,i)=>x.fillText(l,256,c.height/2+(i-(lines.length-1)/2)*f*1.15+2));const t=new THREE.CanvasTexture(c);t.anisotropy=4;return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:!bg,alphaTest:bg?0:.3,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}))};
  k.wuv=(ge,s,ox,oy,oz)=>{const p=ge.attributes.position,n=ge.attributes.normal,uv=ge.attributes.uv;if(!uv)return ge;if(ge.type!=='BoxGeometry'){for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*s,uv.getY(i)*s)}else for(let i=0;i<p.count;i++){const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i)),X=p.getX(i)+(ox||0),Y=p.getY(i)+(oy||0),Z=p.getZ(i)+(oz||0);let u,v;if(ax>=ay&&ax>=az){u=Z;v=Y}else if(ay>=az){u=X;v=Z}else{u=X;v=Y}uv.setXY(i,u*s,v*s)}uv.needsUpdate=true;return ge};
  k.H=g=>{const add=(o,p)=>{(p||g).add(o);return o},S=m=>m&&m.userData&&m.userData.s;
-  const B=(w,h,d,x,y,z,m,p)=>{const ge=new THREE.BoxGeometry(w,h,d);if(S(m))k.wuv(ge,S(m),x,y,z);const o=new THREE.Mesh(ge,m);o.position.set(x,y,z);return add(o,p)};
+  const B=(w,h,d,x,y,z,m,p)=>{if(h<=.061&&y-h/2<.25&&w>.3&&d>.3)m=k.tier(m,h<=.012?2:1);const ge=new THREE.BoxGeometry(w,h,d);if(S(m))k.wuv(ge,S(m),x,y,z);const o=new THREE.Mesh(ge,m);o.position.set(x,y,z);return add(o,p)};
   const C=(r1,r2,h,x,y,z,m,ax,p,seg,open)=>{const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,seg||12,1,!!open),m);o.position.set(x,y,z);if(ax=='x')o.rotation.z=Math.PI/2;else if(ax=='z')o.rotation.x=Math.PI/2;return add(o,p)};
   const rod=(a,b,r,m,p,seg)=>{const A=new THREE.Vector3(...a),Bv=new THREE.Vector3(...b),d=Bv.clone().sub(A);const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),seg||6),m);o.position.copy(A).add(Bv).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return add(o,p)};
   const poly=pts=>{const s=new THREE.Shape();s.moveTo(pts[0][0],pts[0][1]);for(const q of pts.slice(1))s.lineTo(q[0],q[1]);s.lineTo(pts[0][0],pts[0][1]);return s};
@@ -82,22 +86,25 @@ function fbDress(g,b,style){const k=fbKit(),{B,C,rod,slab,L}=k.H(g),{x0,x1,z0,z1
  const ry={n:Math.PI,s:0,w:-Math.PI/2,e:Math.PI/2};/* turns a +z-facing plane to face out of that side */
  const at=(s,u,off)=>{const S=sides[s];return S.along=='x'?[u,S.fixed+S.out*off]:[S.fixed+S.out*off,u]};
  const bunker=st=='bunker';
- for(const s of['n','s','w','e']){const S=sides[s];const lo=S.lo,hi=S.hi;
-  const runs=s==sd?[[lo,da],[db,hi]]:[[lo,hi]];
+ const gaps=b.gaps||(sd?[[da,db]]:[]),dh=b.dh||2.5,skip=b.skip||[],near=(s,u,m)=>s==sd&&gaps.some(([a2,b2])=>u>a2-m&&u<b2+m);
+ for(const s of['n','s','w','e']){const S=sides[s];const lo=S.lo,hi=S.hi;if(skip.includes(s))continue;
+  const runs=[];if(s==sd){let a=lo;for(const[g0,g1]of gaps.slice().sort((p,q)=>p[0]-q[0])){runs.push([a,g0]);a=g1}runs.push([a,hi])}else runs.push([lo,hi]);
   for(const[a,bb]of runs){face(s,a,bb,0,PL,O,T+.05,k.SKINP);face(s,a,bb,PL,h,O,T,k.SKIN)}
-  if(s==sd){face(s,da,db,2.5,h,O,T,k.SKIN);/* door frame: steel jambs and head, painted hazard on bunkers */const fm=bunker?k.HAZ:k.OD2;for(const u of[da,db]){const[px,pz]=at(s,u,-.15+.0);S.along=='x'?B(.14,2.5,.42,u+(u==da?.07:-.07),1.25,S.fixed+S.out*.06,fm):B(.42,2.5,.14,S.fixed+S.out*.06,1.25,u+(u==da?.07:-.07),fm)}
-   S.along=='x'?B(db-da,.14,.42,(da+db)/2,2.43,S.fixed+S.out*.06,fm):B(.42,.14,db-da,S.fixed+S.out*.06,2.43,(da+db)/2,fm);
-   /* canopy, brackets, a lamp under it, a flush concrete pad */const cw=db-da+1.2,cd=bunker?.6:1.3,cy=2.78;const[cx,cz]=at(s,(da+db)/2,cd/2+O+T);S.along=='x'?B(cw,.16,cd,cx,cy,cz,k.CAP):B(cd,.16,cw,cx,cy,cz,k.CAP);
+  if(s==sd)for(const[da,db]of gaps){face(s,da,db,dh,h,O,T,k.SKIN);/* door frame: steel jambs and head, painted hazard on bunkers */const fm=bunker?k.HAZ:k.OD2;for(const u of[da,db]){S.along=='x'?B(.14,dh,.42,u+(u==da?.07:-.07),dh/2,S.fixed+S.out*.06,fm):B(.42,dh,.14,S.fixed+S.out*.06,dh/2,u+(u==da?.07:-.07),fm)}
+   S.along=='x'?B(db-da,.14,.42,(da+db)/2,dh-.07,S.fixed+S.out*.06,fm):B(.42,.14,db-da,S.fixed+S.out*.06,dh-.07,(da+db)/2,fm);
+   if(b.noCanopy)continue;
+   /* canopy, brackets, a lamp under it, a flush concrete pad */const cw=db-da+1.2,cd=bunker?.6:1.3,cy=dh+.28;const[cx,cz]=at(s,(da+db)/2,cd/2+O+T);S.along=='x'?B(cw,.16,cd,cx,cy,cz,k.CAP):B(cd,.16,cw,cx,cy,cz,k.CAP);
    for(const u of[da-.4,db+.4]){const[a1,b1]=at(s,u,O+T),[a2,b2]=at(s,u,cd-.05);rod([a1,cy-.6,b1],[a2,cy-.08,b2],.03,k.STL)}
    {const[lx,lz]=at(s,(da+db)/2,.35);B(.5,.06,.18,lx,cy-.11,lz,k.LIT).rotation.y=S.along=='x'?0:Math.PI/2}
    {const[px,pz]=at(s,(da+db)/2,.9);const pw=db-da+1.6;S.along=='x'?B(pw,.02,1.8,px,.06,pz,k.PLINTH):B(1.8,.02,pw,px,.06,pz,k.PLINTH)}
-   /* the name on a board along the canopy's front edge */if(b.name){const nw=Math.min(cw,7),[bx2,bz2]=at(s,(da+db)/2,cd+O+T+.025);S.along=='x'?B(nw+.1,.46,.05,bx2,cy,bz2,k.OD2):B(.05,.46,nw+.1,bx2,cy,bz2,k.OD2);const[nx,nz]=at(s,(da+db)/2,cd+O+T+.057);L(b.name,nw,.38,bunker?'#e8c020':'#20261c',bunker?'#1a1a1a':'#e8f0d0',60,nx,cy,nz,ry[s])}}
+   /* the name on a board along the canopy's front edge (one door only) */if(b.name&&gaps.length==1){const nw=Math.min(cw,7),[bx2,bz2]=at(s,(da+db)/2,cd+O+T+.025);S.along=='x'?B(nw+.1,.46,.05,bx2,cy,bz2,k.OD2):B(.05,.46,nw+.1,bx2,cy,bz2,k.OD2);const[nx,nz]=at(s,(da+db)/2,cd+O+T+.057);L(b.name,nw,.38,bunker?'#e8c020':'#20261c',bunker?'#1a1a1a':'#e8f0d0',60,nx,cy,nz,ry[s])}}
+  /* several doors: the name on a board high up in the middle of the front */if(s==sd&&b.name&&gaps.length!=1){const nw=Math.min(S.hi-S.lo-2,9),u=(S.lo+S.hi)/2,y=b.nameY||h-.55,[bx2,bz2]=at(s,u,O+T+.025),[nx,nz]=at(s,u,O+T+.057);S.along=='x'?B(nw+.1,.62,.05,bx2,y,bz2,k.OD2b):B(.05,.62,nw+.1,bx2,y,bz2,k.OD2b);L(b.name,nw,.52,'#20261c','#e8d890',70,nx,y,nz,ry[s])}
   /* windows: 1.4 x 1.0 every 4 m, not near the door, not on bunkers */
-  if(!bunker&&h>=3&&!(b.noWin||[]).includes(s)){const len=S.hi-S.lo,n=Math.floor((len-2)/4);for(let i=0;i<n;i++){const u=S.lo+(len-(n-1)*4)/2+i*4;if(s==sd&&u>da-1.6&&u<db+1.6)continue;if(st=='hut'&&s!=sd&&(s=='w'||s=='e'))continue;
+  if(!bunker&&h>=3&&!(b.noWin||[]).includes(s)&&!skip.includes(s)){const len=S.hi-S.lo,n=Math.floor((len-2)/4);for(let i=0;i<n;i++){const u=S.lo+(len-(n-1)*4)/2+i*4;if(near(s,u,1.6))continue;if(st=='hut'&&s!=sd&&(s=='w'||s=='e'))continue;
     const wy=Math.min(1.75,h-1.0),ww=1.4,wh=1.0,off=O+T;const P=(a,y,w2,h2,m,o2,dd)=>{const[x,z]=at(s,a,off+o2);return S.along=='x'?B(w2,h2,dd,x,y,z,m):B(dd,h2,w2,x,y,z,m)};
     P(u,wy,ww,wh,k.WIN2,.006,.012);P(u,wy+wh/2+.04,ww+.16,.08,k.OD2b,.03,.06);P(u,wy-wh/2-.05,ww+.24,.08,k.CAPb,.06,.12);for(const sx of[-1,1])P(u+sx*(ww/2+.04),wy,.08,wh+.16,k.OD2b,.03,.06);P(u,wy,.04,wh,k.OD2b,.02,.03);
     if(st=='hut'&&s!=sd&&i%2==0){P(u+1.6,.95,.9,.6,k.STL2,.3,.6);P(u+1.6,.95,.7,.45,k.DKb,.605,.01)}/* a wall air conditioner under every other back window */}}
-  /* drainpipes at the corners of the long sides */if(!bunker&&(st!='hut'||S.along=='x'))for(const u of[S.lo+.25,S.hi-.25]){if(s==sd&&u>da-1&&u<db+1)continue;const[x,z]=at(s,u,O+T+.07);C(.055,.055,h+.1,x,(h+.1)/2,z,k.OD2,null,null,8)}}
+  /* drainpipes at the corners of the long sides */if(!bunker&&!skip.includes(s)&&(st!='hut'||S.along=='x'))for(const u of[S.lo+.25,S.hi-.25]){if(near(s,u,1))continue;const[x,z]=at(s,u,O+T+.07);C(.055,.055,h+.1,x,(h+.1)/2,z,k.OD2,null,null,8)}}
  /* roofs */
  const rx0=x0-.2,rx1=x1+.2,rz0=z0-.2,rz1=z1+.2,top=h+.3;
  if(st=='flat'){const PH=.7,PT=.2;for(const[w,d,x,z]of[[rx1-rx0,PT,(rx0+rx1)/2,rz0+PT/2],[rx1-rx0,PT,(rx0+rx1)/2,rz1-PT/2],[PT,rz1-rz0-2*PT,rx0+PT/2,(rz0+rz1)/2],[PT,rz1-rz0-2*PT,rx1-PT/2,(rz0+rz1)/2]]){B(w,PH,d,x,top+PH/2,z,k.BLOCK);B(w+(d<w?.12:.12),.07,d+.12,x,top+PH+.035,z,k.CAP)}

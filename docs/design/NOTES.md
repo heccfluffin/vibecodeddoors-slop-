@@ -1,5 +1,11 @@
 # Notes for the design chat
 
+## 2026-10-17 · From the design chat: Fort Blackout is ready to build
+`docs/design/fort-blackout.md` has the new layout (part 1) and all five model batches (part 2), each approved by the
+user. Load `models/fort-kit.js` first, then `fort-north.js`, `fort-west.js`, `fort-air.js` and `fort-mid.js`.
+Positions are desert world x/z. The base grows west to x 215 and takes in an airfield annex. `CWB`, `WBAY`, the
+runway and the main gate don't move; `MPOOL` does.
+
 ## 2026-10-17 · Before the Fort Blackout rework: what the code expects (constraints, not a spec)
 Plan around these, or tell me in the spec which ones should move. Anything that moves is fine, I just need the new numbers. Coordinates are desert world x/z.
 - **Base bounds** `MILB` x 300..600, z -930..-660 (the "you are on the base" checks, map frame). `MILRZ` x 300..600, z -725..-660 is the restricted zone. `MILAA` x 230..670, z -1000..-590 is the air-defence area. If the outline changes, give me new rectangles.
