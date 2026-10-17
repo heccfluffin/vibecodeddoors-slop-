@@ -500,9 +500,9 @@ function fbTower(g,x,z){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;const H=10;
 
 function fbAirOps(g){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;const b={x0:305,x1:345,z0:-962,z1:-936,h:4,sd:'s',da:323,db:327,name:'AIR OPS · BRIEFING · CREW ROOM'};const r=fbShell(g,b,'flat');const top=b.h+.3;
  /* radio mast with dishes on the roof, a weather mast by the door */C(.12,.16,9,312,top+4.5,-955,k.STL,null,null,8);for(const[y,a]of[[top+5,0],[top+6.5,2.1],[top+8,4.2]]){const d=new THREE.Mesh(new THREE.SphereGeometry(.7,14,8,0,Math.PI*2,0,Math.PI/3),k.M(0xe0e0d8,{side:THREE.DoubleSide,metalness:.3}));d.position.set(312+Math.sin(a)*.6,y,-955+Math.cos(a)*.6);d.lookAt(312+Math.sin(a)*3,y,-955+Math.cos(a)*3);d.rotateX(Math.PI/2);g.add(d);rod([312,y,-955],[312+Math.sin(a)*.55,y,-955+Math.cos(a)*.55],.04,k.STL);C(.08,.08,.12,312+Math.sin(a)*.6,y,-955+Math.cos(a)*.6,k.DK,null,null,8)}/* each dish on a short arm */for(const a of[0,2.1,4.2])rod([312,top+.5,-955],[312+Math.sin(a)*3,top,-955+Math.cos(a)*3],.015,k.STL2);
- C(.04,.04,4,331,2,-934,k.STL,null,null,6);C(.15,.15,.12,331,4.05,-934,k.STL2,null,null,10);for(let i=0;i<3;i++){const a=i/3*Math.PI*2;rod([331,4.1,-934],[331+Math.cos(a)*.35,4.1,-934+Math.sin(a)*.35],.012,k.STL);const cup=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6,0,Math.PI*2,0,Math.PI/2),k.STL2);cup.position.set(331+Math.cos(a)*.35,4.1,-934+Math.sin(a)*.35);cup.rotation.z=Math.PI/2;g.add(cup)}
+ /* r617: the weather mast is on the roof (by the door it stood in the service road) */C(.04,.04,4,331,top+2,-938,k.STL,null,null,6);C(.15,.15,.12,331,top+4.05,-938,k.STL2,null,null,10);for(let i=0;i<3;i++){const a=i/3*Math.PI*2;rod([331,top+4.1,-938],[331+Math.cos(a)*.35,top+4.1,-938+Math.sin(a)*.35],.012,k.STL);const cup=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6,0,Math.PI*2,0,Math.PI/2),k.STL2);cup.position.set(331+Math.cos(a)*.35,top+4.1,-938+Math.sin(a)*.35);cup.rotation.z=Math.PI/2;g.add(cup)}
  /* a board by the door with today's flying */B(1.6,1.1,.06,330,1.6,-935.92,k.OD2);L('FLYING TODAY\nRWY 09 · WIND 270/12\nMAJORS AND UP',1.5,1.0,'#1a2016','#d8e8c0',40,330,1.6,-935.885,0);rod([329.3,0,-935.9],[329.3,1.05,-935.9],.03,k.STL);rod([330.7,0,-935.9],[330.7,1.05,-935.9],.03,k.STL);
- r.obs.push({x0:330.8,x1:331.2,z0:-934.2,z1:-933.8});return r}
+ return r}
 
 function fbFuelFarm(g){const k=fbKit(),{B,C,rod,L,tube}=k.H(g),M=k.M;
  /* a pipe run: straight lengths, a ball at each bend, a flange at each free end, a tee sleeve where it meets another pipe
@@ -568,11 +568,11 @@ function fbHQ(g){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;fbDress(g,{x0:320,x1:4
 
 function fbCmdBlock(g){const k=fbKit(),{B,C,rod,L}=k.H(g);
  const doors=[0,1,2,3].map(i=>[430+i*10+5-.7,430+i*10+5+.7]);
- fbDress(g,{x0:430,x1:470,z0:-860,z1:-846,h:3.4,sd:'n',gaps:doors,dh:2.4,skip:['s'],name:'COMMAND WING · GENERAL OFFICERS',nameY:3.08},'flat');
- doors.forEach(([a,b],i)=>L('OFFICE '+(i+1),1.3,.26,'#d8b040','#20261c',60,(a+b)/2+1.45,2.0,-860-.096,Math.PI));
+ /* r617: the game's command wing and bay walls are centred on their lines (they stand 15 cm proud of the outline), so the dressing goes 15 cm further out or it ends up inside them */fbDress(g,{x0:429.85,x1:470.15,z0:-860.15,z1:-846,h:3.4,sd:'n',gaps:doors,dh:2.4,skip:['s'],name:'COMMAND WING · GENERAL OFFICERS',nameY:3.08},'flat');
+ doors.forEach(([a,b],i)=>L('OFFICE '+(i+1),1.3,.26,'#d8b040','#20261c',60,(a+b)/2+1.45,2.0,-860.15-.096,Math.PI));
  const bays=[0,1,2,3].map(i=>[430+i*10+5-3.8,430+i*10+5+3.8]);
- fbDress(g,{x0:430,x1:470,z0:-845,z1:-826,h:5.2,sd:'s',gaps:bays,dh:4.5,noCanopy:true,skip:['n'],name:'WRAITH BAYS · X-13 OWNERS ONLY',nameY:4.85,noWin:['s']},'flat');
- /* bay numbers on the piers and a hazard strip at each door's foot */bays.forEach(([a,b],i)=>{L(String(i+1),1.3,1.3,null,'#f0ece0',380,a-.6,2.6,-826+.06,0);B(b-a,.01,.4,(a+b)/2,.085,-825.6,k.LINEY)});
+ fbDress(g,{x0:429.85,x1:470.15,z0:-845,z1:-825.85,h:5.2,sd:'s',gaps:bays,dh:4.5,noCanopy:true,skip:['n'],name:'WRAITH BAYS · X-13 OWNERS ONLY',nameY:4.85,noWin:['s']},'flat');
+ /* bay numbers on the piers and a hazard strip at each door's foot */bays.forEach(([a,b],i)=>{L(String(i+1),1.3,1.3,null,'#f0ece0',380,a-.6,2.6,-825.85+.06,0);B(b-a,.01,.4,(a+b)/2,.085,-825.6,k.LINEY)});
  return{obs:[]}}
 
 function fbBootCamp(g){const k=fbKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,z=-812;const WD=k.M(0x7a5a34,{roughness:.85}),WD2=k.M(0x5a3e22,{roughness:.85}),MUD=k.M(0x4a3a26,{roughness:.6,metalness:.05}),DIRT=k.M(0x8a7458,{roughness:1}),BW=k.STL2;

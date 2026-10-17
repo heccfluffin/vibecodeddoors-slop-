@@ -167,7 +167,8 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r616** (`main`, released 2026-10-17). r616 = the Fort Blackout rework (`fort-blackout.md`): `dx614` holds the design
+- **Live: r617** (`main`, released 2026-10-17). r617 = command wing/bay dressing moved 15 cm out (their walls are centred on
+  the outline) and the Air Ops weather mast on the roof. r616 = the Fort Blackout rework (`fort-blackout.md`): `dx614` holds the design
   chat's five model files (`fbKit`, `fbDress`, `fbWall`, `fbRoad`... 45 builders) plus the wiring (`milRoads` redefined with
   `FBROADS`, a `milBuild` wrapper for the annex/west strip/plaza, `milArea` covers the annex `FBANX`, a `cwBuild` wrapper for
   `fbCmdBlock`). About 70 build.py R patches (block "r616") swap the base's old meshes for the new ones; direct edits in dx549

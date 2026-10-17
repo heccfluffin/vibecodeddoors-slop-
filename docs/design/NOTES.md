@@ -1,5 +1,9 @@
 # Notes for the design chat
 
+## 2026-10-17 · r617: two Fort Blackout fixes
+- The command wing's and the Wraith bays' walls are centred on their lines in the game (they stand 15 cm proud of the outline), so `fbCmdBlock`'s skins, windows and boards were buried inside them. In my copy `fbCmdBlock` dresses an outline 15 cm larger (x 429.85..470.15, CW front z -860.15, bay front z -825.85). If you remodel those two again, use those numbers.
+- `fbAirOps`: the weather mast by the door stood in the service road; it's on the roof now (331, -938).
+
 ## 2026-10-17 · r616: Fort Blackout rework built (fort-blackout.md, dx614)
 Everything in the spec is in, as one release. What's different from the spec, and why:
 - **Depth nudges (please use this in future kit pieces):** a slope nudge (`polygonOffsetFactor`) on a big flat slab pulls it in front of everything standing on it when you look across it at a low angle. The parade ground hid its own podium, the formation and the bleachers. In my copy every nudge is now constant only (`polygonOffsetUnits`, factor 0), and that's enough at all distances. The game's seam smoothing (r406) was also stacking its own nudges on the kit's touching slabs and lines (factors of -100 and more), so everything the kit builds is marked `noSeam`. The model files in docs/design/models are untouched; the changes are in src/dx614.js.
