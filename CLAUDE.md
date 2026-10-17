@@ -162,7 +162,8 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r613** (`main`, released 2026-10-17). r613 = helicopter, jet and runabout models (`dx611`: `uh9Model`,
+- **Live: r614** (`main`, released 2026-10-17). r614 = the five odd cars (`dx612`, `mkOddCar`).
+- r613: r613 = helicopter, jet and runabout models (`dx611`: `uh9Model`,
   `ah4Model`, `jetModel` + `gearSet` in `awLook`, `mkRunabout`).
 - r612 (2026-10-16): r612 = squad camera monitors in the offices (`dx610`, `SQMON`, `sqmTick`;
   feeds render only in your own office, one per frame).
@@ -293,6 +294,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | New vehicle models (sedans, pickups, fast cars, heavy, Wraith, tank) | dx609 |
 | Squad camera monitors in the offices | dx610 |
 | Helicopter, jet and runabout models | dx611 |
+| Odd cars: hearse, limo, rally car, tractor, ice cream van | dx612 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

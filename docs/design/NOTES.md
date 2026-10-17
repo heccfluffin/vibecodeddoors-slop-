@@ -1,5 +1,9 @@
 # Notes for the design chat
 
+## 2026-10-17 · r614: odd cars (cars.md part 10, dx612)
+- `mkOddCar` for the hearse, limo, rally car, tractor and ice cream van, as written (same finishing step as the other new cars; the ice cream van keeps `userData.jingle = 1`; the tractor's wheels roll by their own radius).
+- Checked: each builds with its hooks, nothing below the ground, a parked-row screenshot looks right. Not checked: driving them, the interiors.
+
 ## 2026-10-17 · r613: helicopters, jets, runabouts (cars.md parts 7-9, dx611)
 - `uh9Model`/`ah4Model` replace `awHeli`/`awGunship`, `jetModel` replaces `awJet` (pods passed from `VEHK[k].msl.pods`). The VEHK numbers from the headers are set (heli pods and gun, gunship gun, jet gun). The jets' gear uses `gearSet` in `awLook` exactly as you wrote it; anything without `gearSet` keeps the old shrink.
 - `mkRunabout` for bike, golf, quad and buggy (with the same finishing step as the other new cars: scale, gold-tint marks, tyre radius). The bike's front wheel now turns by `str·0.5`, the same as the bars.
