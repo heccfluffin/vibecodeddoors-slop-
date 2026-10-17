@@ -85,6 +85,19 @@ values, so the cube's path is the same.
 - **Ladle:** the ladle is now a pot on trunnions inside a bail. `lp` is the pot, at its middle, at y 2.6. It tips
   towards the mould on x as before (`lp.rotation.x = tilt * 1.15`). Its spout faces the mould, and the furnace's tap
   spout runs out over it.
+- **Into the melter:** the old cube slid on past the belt and shrank through the furnace wall. Now it tips over the
+  end drum into the charging door, and the door drops shut behind it. Add `cd` (the door) to `q.crush`, and replace
+  the 'melt' phase with:
+  ```js
+  const u=Math.min(1,C.t/2.4),k=Math.min(1,u/.6);
+  if(C.cube){C.cube.position.x=C.bx1+.2+k*2.4;C.cube.position.y=1.17-Math.max(0,k-.35)*.5;C.cube.rotation.z=-Math.min(1,k*1.6)*.35;
+   if(u>=.6&&C.cube.parent){C.cube.parent.remove(C.cube);C.cube=null}}
+  C.cd.position.y=u<.6?2.95:2.95-Math.min(1,(u-.6)/.25)*1.4;
+  if(u>=1){C.ph='pour';C.t=0;C.lm.visible=true;snd(260,.3);setTimeout(()=>snd(200,.4),300)}
+  ```
+  Keep the sparks at the door. Drop the old scale-down and emissive tint.
+  In 'cool', reopen the door: `C.cd.position.y = 1.55 + Math.min(1, C.t / 1.2) * 1.4`.
+  The mouth glows brighter in 'melt' and in 'pour'.
 - **Pour stream:** `stream.position.y = 1.62; stream.scale.y = 1.6`. The stream is placed at the spout's x (mx + .2).
 
 **Gameplay changes the user asked for:**
