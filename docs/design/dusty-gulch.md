@@ -1,4 +1,4 @@
-Status: layout, batches 1-3 and all five interiors approved by the user 2026-10-17 · water tower, Sunny Acres and the station next
+Status: layout, batches 1-3 and all five interiors and batch 4a (water tower, station) approved by the user 2026-10-17 · Sunny Acres next
 
 # Dusty Gulch rework
 
@@ -167,6 +167,28 @@ fine (it already hangs 5 cm below the lintel).
 - **Animate (optional):** `flames` wobble like the saloon's.
 - The back window's arch frame and the glass above its head are drawn at the game's window height (y 1.2..2.6
   above 0); the rest stands on the floor's top, y .18.
+
+### Batch 4a: water tower and station (approved)
+**Water tower** · `guWaterTower(g, 532, -1500)` → `{obs}` (and the helper `guCurvedSign`)
+- Replaces the game's four leg cylinders, the tank cylinder, the cone roof and the `DUSTY GULCH` label. Keep `loc`.
+- Replace its `ob(tx-3, tx+3, tz-3, tz+3)` with the returned obstacles: four footings and the trough. You can now walk
+  under the tower, between the legs.
+
+**Station** · `guStation(g)` → `{obs, plate}`
+- The rails are at `RAIL.z` -1640 and the cars are 2.8 wide, but the game's platform was centred on z -1629, 6 m from
+  the track. The new platform runs x 420..480, z -1638.4..-1629.4, top y .6.
+- Remove the game's platform box, its six posts, its canopy box, the `DUSTY GULCH / TRAIN STOPS HERE` label (the
+  canopy now carries it on a hanging board) and the bench's four boxes.
+- Replace the platform's `q.plates` entry with the returned `plate`. Push `obs` (the station house, the bench, the
+  luggage cart).
+- Move the timetable prop from `(sx + 8, sz)` to `(458, -1634.9)` (in front of the new board, on the platform). `loc`
+  and the train's stop (`HS` 482, the arrival hint that checks distance to (450, -1629)) can stay as they are.
+
+**The trains' water tank** · `guTrainTank(g, 488, -1634)` → `{obs}`. New, past the platform's east end. Push `obs`
+(four footings). The spout arm is folded up, clear of the train.
+
+**One more thing found in the game's code:** the "taxi stand" hitching rail at (470, -1448) (two posts, a rail and
+`ob(468, 472, -1448.2, -1447.8)`) stands inside the bank's lobby. Remove it; the street has its own rails now.
 
 ### Coming next
 - **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
