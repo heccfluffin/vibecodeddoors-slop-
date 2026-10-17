@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-2 approved · more batches coming
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-3 approved · more batches coming
 
 # Fort Blackout rework
 
@@ -208,3 +208,18 @@ New globals: `fbMotorPool, fbCanopy, fbParade, fbFlagpole, fbPodium, fbBleachers
   (551,-876, 0.75π), (482,-814, -0.25π), (551,-814, 0.25π). Obstacle 1 x 1 m each.
 - The mess hall, recruiting office and latrines use `fbDress(..., 'flat')` from batch 1, with the names as their
   old labels.
+
+**Kit fixes with batch 3:** the building skins use `k.SKIN` / `k.SKINP` (a small polygon offset) because they sit only
+3.5 cm in front of the game's walls; windows, frames, sills and text plates on them use a bigger offset (`k.PO2`).
+`fbDress` takes `b.noWin:['e',...]` to leave windows off a side.
+
+### Batch 3: the west strip (`models/fort-west.js`), approved
+New globals: `fbShell, fbPowerPlant, fbWaterWorks, fbSolar, fbHeliHangar, fbHelipad, fbWindsock, fbFuelPoint, fbPX,
+fbCourt, fbArmoury`. Each builds at its part 1 footprint and returns `{obs}`: push them all to `q.obs`. None have rooms:
+they're closed shells (the core sits 25 cm inside the skin) with closed doors.
+- `fbHeliHangar(g)` is the exception: it's open at the east end with a floor inside, so a helicopter can be parked
+  in it. Its `obs` are the walls and the two door panels.
+- `fbHelipad(g, 275, -848, 'W1')`, `(275,-822,'W2')`, `(275,-796,'W3')`; `fbWindsock(g, 288, -860)`.
+  If you park spare helicopters here, they fly home to their own pad.
+- `fbArmoury(g)` also returns `lamp` (the test cell's red lamp): blink it in an anim if you like.
+- The power plant could later light up when `ML.power` is on, and go dark in an outage. Not needed now.

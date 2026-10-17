@@ -50,10 +50,16 @@ function fbKit(){if(fbKit.k)return fbKit.k;const k={};
   for(let i=0;i<4;i++){x.fillStyle='rgba(30,28,24,.1)';x.beginPath();x.ellipse(rnd()*256,rnd()*256,10+rnd()*20,6+rnd()*10,rnd()*3,0,7);x.fill()}}),1/3.5,{roughness:.95});
  k.PAVE=TM(tex(128,128,(x)=>{x.fillStyle='#b4ab98';x.fillRect(0,0,128,128);x.fillStyle='rgba(80,72,60,.5)';x.fillRect(0,0,128,1.5);x.fillRect(0,0,1.5,128);x.fillRect(0,64,128,1.5);x.fillRect(64,0,1.5,128);for(let i=0;i<600;i++){x.fillStyle='rgba(90,80,64,.12)';x.fillRect(rnd()*128,rnd()*128,1,1)}}),1/1.2,{roughness:.9});
  k.KERB=M(0xc6bfad,{roughness:.85});
+ /* the skin on a building sits a few cm in front of the game's own wall; from far away that's too close for the depth
+    buffer, so skins get a depth nudge, and the things fixed onto skins (windows, frames, boards, signs) a bigger one */
+ const PO2={polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8};k.PO2=PO2;const nud=(m,o)=>{const c=m.clone();Object.assign(c,o);c.userData=Object.assign({},m.userData);return c};
+ k.SKIN=nud(k.BLOCK,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-4});k.SKINP=nud(k.PLINTH,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-4});
+ k.WIN2=nud(k.WIN,PO2);k.OD2b=nud(k.OD2,PO2);k.CAPb=nud(k.CAP,PO2);k.STL2b=nud(k.STL2,PO2);k.DKb=nud(k.DK,PO2);
+ k.VENT=TM(tex(64,64,(x)=>{x.fillStyle='#b8bcc0';x.fillRect(0,0,64,64);x.fillStyle='#4a4e54';for(let i=4;i<64;i+=8)x.fillRect(3,i,58,3.5);x.fillStyle='rgba(255,255,255,.25)';for(let i=7;i<64;i+=8)x.fillRect(3,i,58,1)}),2,{metalness:.4,roughness:.45});
  /* painted lines and decals: lifted 1 cm and drawn with a depth offset so they never flicker on the slab */
  const PO={polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4};k.LINE=M(0xf0ece0,Object.assign({roughness:.8},PO));k.LINEY=M(0xe8c020,Object.assign({roughness:.7},PO));k.PO=PO;
  k.LINK=new THREE.MeshStandardMaterial({map:tex(64,64,(x)=>{x.clearRect(0,0,64,64);x.strokeStyle='#c8ccd0';x.lineWidth=2.5;x.beginPath();x.moveTo(0,32);x.lineTo(32,0);x.lineTo(64,32);x.lineTo(32,64);x.closePath();x.stroke();x.beginPath();x.moveTo(0,0);x.lineTo(0,0);x.stroke()}),transparent:false,alphaTest:.4,side:THREE.DoubleSide,metalness:.6,roughness:.4});k.LINK.userData.s=1/.12;
- k.lab=(s,w,h,bg,fg,fs,font)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.max(32,Math.round(512*h/w));const x=c.getContext('2d');if(bg){x.fillStyle=bg;x.fillRect(0,0,c.width,c.height)}x.fillStyle=fg;const lines=String(s).split('\n');let f=fs||60;const F=()=>'bold '+f+'px '+(font||FONT);x.font=F();while((Math.max(...lines.map(l=>x.measureText(l).width))>480||f*lines.length*1.15>c.height*.92)&&f>10){f-=2;x.font=F()}x.textAlign='center';x.textBaseline='middle';lines.forEach((l,i)=>x.fillText(l,256,c.height/2+(i-(lines.length-1)/2)*f*1.15+2));const t=new THREE.CanvasTexture(c);t.anisotropy=4;return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:!bg,alphaTest:bg?0:.3,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2}))};
+ k.lab=(s,w,h,bg,fg,fs,font)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.max(32,Math.round(512*h/w));const x=c.getContext('2d');if(bg){x.fillStyle=bg;x.fillRect(0,0,c.width,c.height)}x.fillStyle=fg;const lines=String(s).split('\n');let f=fs||60;const F=()=>'bold '+f+'px '+(font||FONT);x.font=F();while((Math.max(...lines.map(l=>x.measureText(l).width))>480||f*lines.length*1.15>c.height*.92)&&f>10){f-=2;x.font=F()}x.textAlign='center';x.textBaseline='middle';lines.forEach((l,i)=>x.fillText(l,256,c.height/2+(i-(lines.length-1)/2)*f*1.15+2));const t=new THREE.CanvasTexture(c);t.anisotropy=4;return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:!bg,alphaTest:bg?0:.3,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-8}))};
  k.wuv=(ge,s,ox,oy,oz)=>{const p=ge.attributes.position,n=ge.attributes.normal,uv=ge.attributes.uv;if(!uv)return ge;if(ge.type!=='BoxGeometry'){for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*s,uv.getY(i)*s)}else for(let i=0;i<p.count;i++){const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i)),X=p.getX(i)+(ox||0),Y=p.getY(i)+(oy||0),Z=p.getZ(i)+(oz||0);let u,v;if(ax>=ay&&ax>=az){u=Z;v=Y}else if(ay>=az){u=X;v=Z}else{u=X;v=Y}uv.setXY(i,u*s,v*s)}uv.needsUpdate=true;return ge};
  k.H=g=>{const add=(o,p)=>{(p||g).add(o);return o},S=m=>m&&m.userData&&m.userData.s;
   const B=(w,h,d,x,y,z,m,p)=>{const ge=new THREE.BoxGeometry(w,h,d);if(S(m))k.wuv(ge,S(m),x,y,z);const o=new THREE.Mesh(ge,m);o.position.set(x,y,z);return add(o,p)};
@@ -77,8 +83,8 @@ function fbDress(g,b,style){const k=fbKit(),{B,C,rod,slab,L}=k.H(g),{x0,x1,z0,z1
  const bunker=st=='bunker';
  for(const s of['n','s','w','e']){const S=sides[s];const lo=S.lo,hi=S.hi;
   const runs=s==sd?[[lo,da],[db,hi]]:[[lo,hi]];
-  for(const[a,bb]of runs){face(s,a,bb,0,PL,O,T+.05,k.PLINTH);face(s,a,bb,PL,h,O,T,k.BLOCK)}
-  if(s==sd){face(s,da,db,2.5,h,O,T,k.BLOCK);/* door frame: steel jambs and head, painted hazard on bunkers */const fm=bunker?k.HAZ:k.OD2;for(const u of[da,db]){const[px,pz]=at(s,u,-.15+.0);S.along=='x'?B(.14,2.5,.42,u+(u==da?.07:-.07),1.25,S.fixed+S.out*.06,fm):B(.42,2.5,.14,S.fixed+S.out*.06,1.25,u+(u==da?.07:-.07),fm)}
+  for(const[a,bb]of runs){face(s,a,bb,0,PL,O,T+.05,k.SKINP);face(s,a,bb,PL,h,O,T,k.SKIN)}
+  if(s==sd){face(s,da,db,2.5,h,O,T,k.SKIN);/* door frame: steel jambs and head, painted hazard on bunkers */const fm=bunker?k.HAZ:k.OD2;for(const u of[da,db]){const[px,pz]=at(s,u,-.15+.0);S.along=='x'?B(.14,2.5,.42,u+(u==da?.07:-.07),1.25,S.fixed+S.out*.06,fm):B(.42,2.5,.14,S.fixed+S.out*.06,1.25,u+(u==da?.07:-.07),fm)}
    S.along=='x'?B(db-da,.14,.42,(da+db)/2,2.43,S.fixed+S.out*.06,fm):B(.42,.14,db-da,S.fixed+S.out*.06,2.43,(da+db)/2,fm);
    /* canopy, brackets, a lamp under it, a flush concrete pad */const cw=db-da+1.2,cd=bunker?.6:1.3,cy=2.78;const[cx,cz]=at(s,(da+db)/2,cd/2+O+T);S.along=='x'?B(cw,.16,cd,cx,cy,cz,k.CAP):B(cd,.16,cw,cx,cy,cz,k.CAP);
    for(const u of[da-.4,db+.4]){const[a1,b1]=at(s,u,O+T),[a2,b2]=at(s,u,cd-.05);rod([a1,cy-.6,b1],[a2,cy-.08,b2],.03,k.STL)}
@@ -86,10 +92,10 @@ function fbDress(g,b,style){const k=fbKit(),{B,C,rod,slab,L}=k.H(g),{x0,x1,z0,z1
    {const[px,pz]=at(s,(da+db)/2,.9);const pw=db-da+1.6;S.along=='x'?B(pw,.02,1.8,px,.06,pz,k.PLINTH):B(1.8,.02,pw,px,.06,pz,k.PLINTH)}
    /* the name on a board along the canopy's front edge */if(b.name){const nw=Math.min(cw,7),[bx2,bz2]=at(s,(da+db)/2,cd+O+T+.025);S.along=='x'?B(nw+.1,.46,.05,bx2,cy,bz2,k.OD2):B(.05,.46,nw+.1,bx2,cy,bz2,k.OD2);const[nx,nz]=at(s,(da+db)/2,cd+O+T+.057);L(b.name,nw,.38,bunker?'#e8c020':'#20261c',bunker?'#1a1a1a':'#e8f0d0',60,nx,cy,nz,ry[s])}}
   /* windows: 1.4 x 1.0 every 4 m, not near the door, not on bunkers */
-  if(!bunker&&h>=3){const len=S.hi-S.lo,n=Math.floor((len-2)/4);for(let i=0;i<n;i++){const u=S.lo+(len-(n-1)*4)/2+i*4;if(s==sd&&u>da-1.6&&u<db+1.6)continue;if(st=='hut'&&s!=sd&&(s=='w'||s=='e'))continue;
+  if(!bunker&&h>=3&&!(b.noWin||[]).includes(s)){const len=S.hi-S.lo,n=Math.floor((len-2)/4);for(let i=0;i<n;i++){const u=S.lo+(len-(n-1)*4)/2+i*4;if(s==sd&&u>da-1.6&&u<db+1.6)continue;if(st=='hut'&&s!=sd&&(s=='w'||s=='e'))continue;
     const wy=Math.min(1.75,h-1.0),ww=1.4,wh=1.0,off=O+T;const P=(a,y,w2,h2,m,o2,dd)=>{const[x,z]=at(s,a,off+o2);return S.along=='x'?B(w2,h2,dd,x,y,z,m):B(dd,h2,w2,x,y,z,m)};
-    P(u,wy,ww,wh,k.WIN,.006,.012);P(u,wy+wh/2+.04,ww+.16,.08,k.OD2,.03,.06);P(u,wy-wh/2-.05,ww+.24,.08,k.CAP,.06,.12);for(const sx of[-1,1])P(u+sx*(ww/2+.04),wy,.08,wh+.16,k.OD2,.03,.06);P(u,wy,.04,wh,k.OD2,.02,.03);
-    if(st=='hut'&&s!=sd&&i%2==0){P(u+1.6,.95,.9,.6,k.STL2,.3,.6);P(u+1.6,.95,.7,.45,k.DK,.605,.01)}/* a wall air conditioner under every other back window */}}
+    P(u,wy,ww,wh,k.WIN2,.006,.012);P(u,wy+wh/2+.04,ww+.16,.08,k.OD2b,.03,.06);P(u,wy-wh/2-.05,ww+.24,.08,k.CAPb,.06,.12);for(const sx of[-1,1])P(u+sx*(ww/2+.04),wy,.08,wh+.16,k.OD2b,.03,.06);P(u,wy,.04,wh,k.OD2b,.02,.03);
+    if(st=='hut'&&s!=sd&&i%2==0){P(u+1.6,.95,.9,.6,k.STL2,.3,.6);P(u+1.6,.95,.7,.45,k.DKb,.605,.01)}/* a wall air conditioner under every other back window */}}
   /* drainpipes at the corners of the long sides */if(!bunker&&(st!='hut'||S.along=='x'))for(const u of[S.lo+.25,S.hi-.25]){if(s==sd&&u>da-1&&u<db+1)continue;const[x,z]=at(s,u,O+T+.07);C(.055,.055,h+.1,x,(h+.1)/2,z,k.OD2,null,null,8)}}
  /* roofs */
  const rx0=x0-.2,rx1=x1+.2,rz0=z0-.2,rz1=z1+.2,top=h+.3;
