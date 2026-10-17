@@ -1,4 +1,4 @@
-Status: layout and batches 1-2 approved by the user 2026-10-17 · more batches coming
+Status: layout and batches 1-3 approved by the user 2026-10-17 · interiors next
 
 # Dusty Gulch rework
 
@@ -72,9 +72,25 @@ New globals: `guFront, guWest`. Call `guWest(g)` after the three west shells.
   boardwalk (no collision needed; they're against the wall).
 - The diner's "OPEN" sign (inside the window) stays.
 
+### Batch 3: the east side (approved) · `guEast(g)` → `{obs}`
+- **Bank** (`guFront` at x 460, flat top 7.6): dressed stone, a heavy cornice, pilasters either side of the door,
+  a navy and gold name board ("EST. 1886 · YOUR GOLD IS SAFE (MOSTLY)"). Openings match the shell's exactly.
+- **Chapel** (`guFront` at x 462, top 6.8 plus a gable to 9.8): white boards, purple trim, a round rose window in
+  the gable. The **belfry** stands on the ridge at (462, cz): four posts, slatted sides, a cap and a four-sided
+  spire with a gold cross. It is open in the middle so **the game's bell (the cone at y 11.5) hangs inside it
+  unchanged**, and the ring-the-bell prop still works. Remove the base's old tower box (`BX(3,10,3)` at y 7.7) and
+  its cone roof at 13.6; keep the bell. A bell rope runs down the front (looks only).
+- **Undertaker's** (new, x 460.4..466, z -1505.6..-1500.6, on the boardwalk): a small closed shop with a stepped
+  front, a shut door with a note, two coffins leaning by it. Its box is in `obs`.
+- **Boot Hill:** a white picket fence along the cemetery's street side (x 460, z -1560..-1506), with an open gate
+  at z -1534.6..-1531.4 under an iron arch and a "BOOT HILL" board on chains. Fence runs are in `obs`. The base's
+  cemetery fence on that side (the merged posts on the x0 side) goes; the other three sides stay. If the base's
+  gate is on another side, keep it and this gate is just a second way in.
+- The street lamp that stood in the new gateway (east side, z -1534) moves to z -1538.5 (already in `guStreet`).
+- In the bank and chapel `shell(...)` calls: `noPorch: 1`, and drop the name sign and its backing board, as on the
+  west side.
+
 ### Coming next
-- Batch 3: the east side fronts (the bank and the chapel with its bell tower), the undertaker's and the cemetery
-  fence.
 - **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
   and the chapel. They keep every prop, mission spot and moving part (the jukebox, Bob, the piano, the vault).
 - Then the water tower, Sunny Acres and the station.
