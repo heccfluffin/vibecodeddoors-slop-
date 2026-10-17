@@ -98,6 +98,12 @@ so it can replace the old branch directly.
   stays in the fork.
 - Wheels roll by `v.v·dt/(w.t.userData.r||K.whr)` as for the other new cars.
 
+## 10. Odd cars (`odd-cars.js`, `mkOddCar(kind, colour)`)
+- The `'hearse'`, `'limo'`, `'rally'`, `'tractor'` and `'icecream'` branches of `mkVehModel` → `mkOddCar(k)`. Same sizes,
+  wheel spots and seats; `userData.sw` with `swAx 'z'`; the ice cream van keeps `userData.jingle = 1`. Skip `vehMore()`.
+- The tractor's front (r 0.32) and rear (r 0.78) wheels differ: roll by `w.t.userData.r` (already done in r611 for the
+  other new cars).
+
 ## Check (short)
 Spawn each: the cab at the bus stop, a cruiser (heat), a townsperson's car. Get in the cab: the camera sits in the
 driver's seat behind the wheel, and the steering wheel turns. Drive: wheels roll and the front wheels steer. One flat
