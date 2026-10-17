@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 (models) in progress
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batch 1 approved · more batches coming
 
 # The Old Quarry rework
 
@@ -60,4 +60,31 @@ On the plan, smaller z is drawn at the top.
   join them.
 
 ## Part 2: models
-Coming in batches.
+
+### Batch 1: the smelting yard and the mine head (`models/quarry-yard.js`), approved
+Load it after `models/fort-kit.js`: it uses `fbKit` for materials and helpers. New globals: `qmKit, qmFurnace,
+qmMoldTable, qmGrinder, qmWinch, qmAssay, qmOreHopper, qmPad, qmTurn`. None of them clash with existing names.
+- **The yard faces the pit.** Build the furnace, the mold table, the grinder and the assay office with
+  `qmTurn(fn, g, x, z, F)`, which turns them about their centre so they face -z (out into the pit, away from the
+  north wall). It returns the same hooks, with the obstacles already mirrored.
+  - Move each one's prop to its new front: the smelt prop to (SM.x, SM.z - 2.6), molds (SM.mx, SM.mz - 1.6),
+    grinder (SM.gx, SM.gz - 2.2), and the assay office's counter side.
+- **Foundations** (`qmPad`, 10 cm concrete). Add a plate at F + 0.1 over each one:
+  - the smelting yard x -240..-202, z -1453..-1440.6, drain 'n';
+  - the mine head x -251.6..-241, z -1456..-1440.6, drain 'w';
+  - the ore hopper x -193.5..-186.5, z -1449.6..-1440.6;
+  - the skip tower x -243.5..-236.5, z -1463.5..-1456.5.
+- **`qmFurnace`** replaces the box, the chimney and the mouth in dx581's smelter block. `SM.mouth` = the returned
+  `mouth`. Keep the overhead rail, the trolley, the crucible and the stream as they are. Note the rail now sits over
+  the furnace's front, so its z mirrors: RZ = z - 0.6.
+- **`qmMoldTable`**: `SM.molds` = the returned `molds` (6 fill meshes, same order).
+- **`qmGrinder`**: `SM.gw` = the returned `gw` (2 wheels, same axis).
+- **`qmWinch(g, -246, -1441.7, F, el)`** replaces the winch house in `qtBuild`. `QA.drum` = `drum` (turn it on x
+  now, not z), `QA.wl` = `wl`, and `QA.exh` = `exh` when diesel. Run the rope to the sheave from `ropeFrom`.
+- **`qmAssay(g, -208, -1447, F)`**, built through `qmTurn`: `QA.bal` = `bal`.
+- **`qmOreHopper(g, QHOP.x, QHOP.z, F)`**: `QA.hop` = `hop`. A chute now runs down into a concrete basin on the pit
+  side.
+  - Call `pour()` whenever ore goes into the hopper (an excavator bucket dumped); rocks slide down the chute into the
+    basin.
+  - Call `tick(dt)` every frame (from the existing `qtTick` is fine). `setFill(0..1)` sets how full the basin looks.
+- Push every returned `obs` to `q.obs`.
