@@ -158,7 +158,8 @@ qmPress, qmLaunder, qmRefinery`. None of them clash with existing names. Every b
 - The hooks are the same: `sk, skb, so, shv, cab2, x, z, TOP, bx, bz, bo`.
 - It also returns `px, pz`, the rock pile. Put the miners round it on the same arc as now, but centred on (px, pz).
   Their spark spot in `qtTick` also becomes (px, pz) instead of (x + 1.2, z - 3).
-- The chute now starts at the head of the tower. The dust puff at the top stays at (x + .6, TOP - .4).
+- The skip now tips into an open head bin on the tower. A round downpipe on brackets carries the ore down, and a short
+  spout drops it into the bunker; the old long chute is gone. Move the top dust puff to (x + 1.0, TOP - 1.3).
 
 **Ore feed:** `const fd = qmOreFeed(g, SM.x - 4, SM.z + 4, F, SM.x - 1, SM.z + .4)`.
 - `QA.feed.hp = fd.hp` and `QA.feed.fl2 = fd.fl2`. The hopper shake in `qtTick` (`hp.position.x = SM.x - 4 + ...`)
