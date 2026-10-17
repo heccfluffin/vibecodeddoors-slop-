@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 (building models) in progress
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batch 1 (base kit) approved · more batches coming
 
 # Fort Blackout rework
 
@@ -137,4 +137,40 @@ Nothing a mission uses is removed. The squad motor pool moves (missions and crim
 constant). The old canopy's vehicles move with it. The parade ground props (flag, inspection) follow item 3.
 
 ## Part 2: building models
-Coming in batches. Each will list its file, its builder function and what it replaces.
+Each batch lists its file, its builder functions and what they replace. Everything is static meshes with opaque
+materials (the fence uses alphaTest, not transparency), so the `DP` batching merges it.
+
+### Batch 1: the base kit (`models/fort-kit.js`), approved
+Shared materials and helpers are in `fbKit()`. New globals: `fbKit, fbDress, fbWall, fbGate, fbCheckpoint, fbFlak,
+fbGuardTower, fbFence, fbRoad, fbLamp, fbSignpost, fbBollard, M_red` (I checked: no clashes).
+- **`fbDress(g, b, style)`** gives the plain `BLD` boxes a new outside: a block skin 5 mm off the outer faces, a plinth,
+  windows, a door frame, a canopy with a lamp and a name board, drainpipes, and a roof by style. It only adds things
+  outside the walls and above the roof slab, so rooms, props and obstacles inside don't change. Call it straight after
+  each `BLD(...)` with the same numbers, and **drop that BLD's `o.lab`** (the name board replaces it):
+  - Huts 1-3: `fbDress(g,{x0:a,x1:b,z0:-922,z1:-902,h:3.4,sd:'s',da,db,name:'HUT '+(i+1),num:i+1},'hut')`
+  - Latrines, Recruiting office, HQ: style `'flat'`, name as the old label.
+  - Ammo bunker and Launch control: style `'bunker'` (earth mound round the three sides without the door, concrete
+    wing walls). Add obstacles for the mounds: the mound reaches `1.1*h` out from each of those walls.
+    The launch control mound must not cover Silo 1 or the radar: trim its east side if it does (or skip the mound on
+    that side, see the code's `ex` per side).
+  - The mess hall, the new motor pool and the west-strip buildings come in batch 2.
+- **`fbWall(g, ax, c, a0, a1, h)`** draws a perimeter wall run (0.8 m thick, 6 m high, panels between pilasters, razor
+  wire, floodlights). In milBuild's 'wall' step, keep the `ob(...)` boxes, but draw each run with `fbWall` instead of
+  `W`'s mesh, the razor tori and the dark top boxes. Runs: north x X0..552 and 568..X1 at z -930; south and east as now;
+  west at the new X0 (215).
+- **`fbGate(g, 560, -930)`** replaces the lintel, its sign, the two gatehouse meshes and the barrier. Keep the
+  gatehouse obstacles (x 548..552 and 568..572, z -929..-925), the soldiers, the "HALT" sign and the visitors' lane.
+  **`ML.arm` = the returned `arm`** (same pivot (552.5, 1.25, -922), still turned on z by the existing anim).
+- **`fbFlak(g, x, z)`** replaces the legs, braces, platform and parapet of each flak tower. The platform top is still
+  y 12.4, where `mkTurret(..., 12.4, 'aa')` goes. Keep the `ob`. The red light: use the returned `beacon` instead of
+  `rl` in the anim (same blink); the glow sprite stays.
+- **`fbGuardTower(g, x, z)`** at (230,-1000) and (598,-1000). Obstacle 3.4 x 3.4 m.
+- **`fbFence(g, x0, z0, x1, z1, h)`** for the annex fence: h 3 everywhere, h 1 across the runway line
+  (x 215, z -998..-962). Add the `ob` boxes along it (0.2 m thick).
+- **`fbCheckpoint(g, 560, -1004)`**: the outer checkpoint booth and barrier. Its `arm` follows the same rule as the
+  main gate's. Booth obstacle 3 x 3 m at (566.5,-1004).
+- **`fbRoad(g, x0, z0, x1, z1, w, {gaps, pave, lamps, lampSide})`** draws each road from part 1 (concrete slabs, lines,
+  kerbs, pavements, lamps every 25 m). If the game's own `road()` also feeds the route grid or the map, keep those
+  calls and only hide their meshes. Kerbs have no colliders.
+- **`fbSignpost(g, x, z, ry, lines)`** at the junctions (for example ['HQ →', '← BARRACKS', 'MOTOR POOL →']).
+  **`fbBollard(g, x, z)`**: across both ends of the plaza walkway, 1.2 m apart.
