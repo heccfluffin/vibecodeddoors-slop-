@@ -1,4 +1,4 @@
-Status: layout and batches 1-3 approved by the user 2026-10-17 · interiors next
+Status: layout, batches 1-3 and interiors 1-3 (diner, Bob's, saloon) approved by the user 2026-10-17 · bank interior next
 
 # Dusty Gulch rework
 
@@ -94,6 +94,51 @@ New globals: `guFront, guWest`. Call `guWest(g)` after the three west shells.
 In `shell(...)` the door frame posts are `BX(.42, 2.5, .1)` at `cz ± 1.35`, so their inner faces sit at `cz ± 1.3`,
 exactly on the wall's cut ends. Move them to `cz ± 1.34` (inner faces 1 cm proud of the wall). The head piece is
 fine (it already hangs 5 cm below the lintel).
+
+### Interiors 1: Rushy's Diner (approved) · `guDiner(g)` → `{fan, tubes, obs}`
+- **Shell call:** add `noPanel: 1` (the diner brings its own wainscot; the shell's panelling and its rail at y 1.12
+  would z-fight with it) and drop `backWin` (the menu board covers that window). `shell` needs `o.noPanel` to skip the
+  panelling and the skirting rail.
+- **Remove the game's meshes** (keep every `ob`, `prop`, label and light): the counter box, the five stools (seat and
+  pole), the two booths (table, post, foot, seats, backs), the pie case's glass box and its three pies, the pie on
+  the counter (two cylinders), the jukebox body and its yellow panel.
+- **Keep:** the OPEN sign, the menu label on the back wall (it gets a chrome frame behind it), Rush, the shell's two
+  lamps, `q.juke`, all the props.
+- **The jukebox now faces into the room (-z).** Move its prop from `(jx, jz + 1)` to `(jx, jz - 1)` and its light `jl`
+  from `jz + .5` to `jz - .5`.
+- **Animate** (in the existing jukebox `anim`): `fan.rotation.y += dt * 2.2` always; when `q.juke.st` is on, cycle
+  each tube's colour (`m.color` / `m.emissive` `setHSL((t * .15 + i * .3) % 1, 1, .6 / .5)`, emissiveIntensity .9),
+  when off set emissiveIntensity .1. The fan is `dpKeep`.
+- **New obstacles** (push `obs`): the back counter (x 404.15..405.3, z -1455.5..-1444) and the two booths under
+  the side windows. The middle booths, counter, stools and jukebox keep the game's obstacles.
+- Pieces stand on y 0 like the game's old ones did.
+
+### Interiors 2: Bob's Bargains (approved) · `guBobs(g)` → `{obs, stoveGlow}`
+- **Shell call:** add `noPanel: 1` (the back shelves' boards would z-fight with the panelling).
+- **Remove the game's meshes** (keep every `ob` and `prop`): the merged shelf frames and merged boxes, the three barrel
+  cylinders, the till (two boxes), the counter box, the four item boxes and their price labels.
+- **Keep:** Bob and his `anim`, the shell's lamps, every prop (buy x4, talk to Bob).
+- **New obstacles** (push `obs`): the display case in front of the counter (x 416.6..417.4, cz±3.4), the hat stand,
+  the stove in the back corner, the two island tables (x 426.45..429.55, cz±3.2 ±.6). The aisle from the door to the
+  counter (cz±2) stays clear.
+- **Animate:** `stoveGlow.emissiveIntensity = .8 + sin(t*11)*.15 + sin(t*27)*.1` (any flicker is fine).
+- Everything here stands on the floor's top, y .18.
+
+### Interiors 3: the Rusty Door saloon (approved) · `guSaloon(g)` → `{obs, flames}`, `guBatwing(sd)`
+- **Shell call:** unchanged (it keeps its panelling; nothing here touches the walls below 1.2).
+- **Remove the game's meshes** (keep every `ob`, `prop`, light and `anim`): the chandelier group's ring, candles,
+  flames and chains (keep its `light`), the three rug boxes, the steer skull group, the two front-wall lamp boxes and
+  globes, the bar box, the back-bar box, its 14 bottles and two shelves, the piano's two boxes, the three tables and
+  their crate stools.
+- **Swinging doors:** keep the hinge groups `h` and their `anim`; replace each leaf box `d` with `h.add(guBatwing(sd))`
+  (the leaf is built in the hinge's own space, same size and place as the old box).
+- **The posters:** move the game's two labels (`p1`, `p2`) from the back wall (they were hidden behind the back bar) to
+  the side wall: `p1` at (412.5, 2.2, -1490.185), `p2` at (414.5, 2.2, -1490.185), both `rotation.y = Math.PI`.
+  `guSaloon` draws their frames and a third poster.
+- **Animate (optional):** each of `flames` can wobble, `f.scale.y = 1 + sin(t*9 + i*1.7) * .15`. Flames are `dpKeep`,
+  and so is the chandelier group (it is built at the game's spot, 424, 3.4, cz).
+- **New obstacles:** none. Everything stands where the game's obstacles already are (bar, piano, tables).
+- Everything here stands on the floor's top, y .18. The bar top is at 1.18.
 
 ### Coming next
 - **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
