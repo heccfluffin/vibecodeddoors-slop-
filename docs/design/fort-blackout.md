@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batch 1 (base kit) approved · more batches coming
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-2 approved · more batches coming
 
 # Fort Blackout rework
 
@@ -174,3 +174,37 @@ fbGuardTower, fbFence, fbRoad, fbLamp, fbSignpost, fbBollard, M_red` (I checked:
   calls and only hide their meshes. Kerbs have no colliders.
 - **`fbSignpost(g, x, z, ry, lines)`** at the junctions (for example ['HQ →', '← BARRACKS', 'MOTOR POOL →']).
   **`fbBollard(g, x, z)`**: across both ends of the plaza walkway, 1.2 m apart.
+
+**Batch 1 fixes (after approval, same file):** painted lines and decals use `k.LINE` / `k.LINEY` (1 cm up plus a
+polygon offset), every text plate from `k.lab` has a polygon offset, and `fbRoad` takes `trim:[t0,t1]` for a road that
+ends at another road (0.3 if that road has only a kerb on this side, 1.8 with a pavement), so kerbs and pavements don't
+overlap at junctions. Give every junction its gap on the through road and its trim on the road that ends.
+
+### Batch 2: motor pool and parade ground (`models/fort-north.js`), approved
+New globals: `fbMotorPool, fbCanopy, fbParade, fbFlagpole, fbPodium, fbBleachers, fbFloodMast`.
+- **`fbMotorPool(g, {x0:495,x1:525,z0:-925,z1:-896, doors:[499,506.5,514,521.5], crewZ:-905})`** replaces `cwShed`'s
+  meshes. It returns `{doors:[{x,m,lt}], obs}`:
+  - push `obs` to `q.obs`;
+  - each door's `m` is 4 m tall and centred at y 2, so the existing `d.m.scale.y = hh/4; d.m.position.y = 4 - hh/2`
+    works unchanged;
+  - `lt` is the door's lamp mesh with its own material.
+  The doors are now in the **south wall**, so the "is a squad vehicle at this door" test changes from z rows on the
+  east wall (`Math.abs(u.v.z-d.rz)<4 && u.v.x > MPOOL.x1-12 ...`) to x columns on the south wall
+  (`Math.abs(u.v.x-d.x)<4 && u.v.z > MPOOL.z1-12 && u.v.z < MPOOL.z1+14`). The vehicles inside park facing south,
+  one per door column.
+- **`fbCanopy(g, 528, 553, -925, -893)`**: the open vehicle canopy and workshop. Push the returned `obs`. It carries
+  the "MOTOR POOL · CORPORALS AND UP" sign, so drop the old one.
+- **`fbParade(g, 480, 553, -878, -812)`**: the square, the marching grid and the badge. It replaces the old painted
+  plane and lines in the 'ground' step.
+- **`fbFlagpole(g, 516, -872)`** returns `{flag, wave}`. **`ML.flag = flag`**. The existing anim keeps setting
+  `flag.position.y` (2 → 11.2). Call `wave(q.rt)` in that anim instead of turning `fl` and `st`. The flag is green
+  with an eye; the old pole and its 0.4 m obstacle go, so give the new base an obstacle of x 515.1..516.9,
+  z -872.9..-871.1.
+- **`fbPodium(g, 516, -866, 0)`** faces south. Its `obs` are in local coordinates (centre ± 3.1 x 1.6) at
+  (516,-866).
+- **`fbBleachers(g, 482, 485.7, -862, -842, 'e')`** replaces the bleacher boxes (build.py:262/343 patches).
+  Obstacle: the whole footprint.
+- **`fbFloodMast(g, x, z, ry)`** at the four corners of the parade ground, aimed in: (482,-876, -0.75π),
+  (551,-876, 0.75π), (482,-814, -0.25π), (551,-814, 0.25π). Obstacle 1 x 1 m each.
+- The mess hall, recruiting office and latrines use `fbDress(..., 'flat')` from batch 1, with the names as their
+  old labels.

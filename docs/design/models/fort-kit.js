@@ -17,7 +17,8 @@
      fbGuardTower(g, x, z)  a steel guard tower with a lookout cab and a searchlight.
      fbFence(g, x0, z0, x1, z1, h)   chain-link on posts with razor wire (h >= 2.5) or a low cable barrier (h < 1.5).
      fbRoad(g, x0, z0, x1, z1, w, o)  an axis-aligned road: concrete slabs, lines, kerbs, optional pavement.
-                            o = {gaps:[[a,b],..] kerb gaps along the road, pave:'l'|'r'|'both', lamps:true}
+                            o = {gaps:[[a,b],..] kerb gaps along the road, pave:'l'|'r'|'both', lamps:true,
+                            trim:[t0,t1] where it ends at another road: that road's kerb + pavement depth (0.3, or 1.8 with pavement)}
      fbLamp(g, x, z, ry), fbSignpost(g, x, z, ry, lines), fbBollard(g, x, z)
    ===================================================================================================== */
 function fbKit(){if(fbKit.k)return fbKit.k;const k={};
@@ -49,8 +50,10 @@ function fbKit(){if(fbKit.k)return fbKit.k;const k={};
   for(let i=0;i<4;i++){x.fillStyle='rgba(30,28,24,.1)';x.beginPath();x.ellipse(rnd()*256,rnd()*256,10+rnd()*20,6+rnd()*10,rnd()*3,0,7);x.fill()}}),1/3.5,{roughness:.95});
  k.PAVE=TM(tex(128,128,(x)=>{x.fillStyle='#b4ab98';x.fillRect(0,0,128,128);x.fillStyle='rgba(80,72,60,.5)';x.fillRect(0,0,128,1.5);x.fillRect(0,0,1.5,128);x.fillRect(0,64,128,1.5);x.fillRect(64,0,1.5,128);for(let i=0;i<600;i++){x.fillStyle='rgba(90,80,64,.12)';x.fillRect(rnd()*128,rnd()*128,1,1)}}),1/1.2,{roughness:.9});
  k.KERB=M(0xc6bfad,{roughness:.85});
+ /* painted lines and decals: lifted 1 cm and drawn with a depth offset so they never flicker on the slab */
+ const PO={polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4};k.LINE=M(0xf0ece0,Object.assign({roughness:.8},PO));k.LINEY=M(0xe8c020,Object.assign({roughness:.7},PO));k.PO=PO;
  k.LINK=new THREE.MeshStandardMaterial({map:tex(64,64,(x)=>{x.clearRect(0,0,64,64);x.strokeStyle='#c8ccd0';x.lineWidth=2.5;x.beginPath();x.moveTo(0,32);x.lineTo(32,0);x.lineTo(64,32);x.lineTo(32,64);x.closePath();x.stroke();x.beginPath();x.moveTo(0,0);x.lineTo(0,0);x.stroke()}),transparent:false,alphaTest:.4,side:THREE.DoubleSide,metalness:.6,roughness:.4});k.LINK.userData.s=1/.12;
- k.lab=(s,w,h,bg,fg,fs,font)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.max(32,Math.round(512*h/w));const x=c.getContext('2d');if(bg){x.fillStyle=bg;x.fillRect(0,0,c.width,c.height)}x.fillStyle=fg;const lines=String(s).split('\n');let f=fs||60;const F=()=>'bold '+f+'px '+(font||FONT);x.font=F();while((Math.max(...lines.map(l=>x.measureText(l).width))>480||f*lines.length*1.15>c.height*.92)&&f>10){f-=2;x.font=F()}x.textAlign='center';x.textBaseline='middle';lines.forEach((l,i)=>x.fillText(l,256,c.height/2+(i-(lines.length-1)/2)*f*1.15+2));const t=new THREE.CanvasTexture(c);t.anisotropy=4;return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:!bg,alphaTest:bg?0:.3}))};
+ k.lab=(s,w,h,bg,fg,fs,font)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.max(32,Math.round(512*h/w));const x=c.getContext('2d');if(bg){x.fillStyle=bg;x.fillRect(0,0,c.width,c.height)}x.fillStyle=fg;const lines=String(s).split('\n');let f=fs||60;const F=()=>'bold '+f+'px '+(font||FONT);x.font=F();while((Math.max(...lines.map(l=>x.measureText(l).width))>480||f*lines.length*1.15>c.height*.92)&&f>10){f-=2;x.font=F()}x.textAlign='center';x.textBaseline='middle';lines.forEach((l,i)=>x.fillText(l,256,c.height/2+(i-(lines.length-1)/2)*f*1.15+2));const t=new THREE.CanvasTexture(c);t.anisotropy=4;return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,transparent:!bg,alphaTest:bg?0:.3,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-2}))};
  k.wuv=(ge,s,ox,oy,oz)=>{const p=ge.attributes.position,n=ge.attributes.normal,uv=ge.attributes.uv;if(!uv)return ge;if(ge.type!=='BoxGeometry'){for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*s,uv.getY(i)*s)}else for(let i=0;i<p.count;i++){const ax=Math.abs(n.getX(i)),ay=Math.abs(n.getY(i)),az=Math.abs(n.getZ(i)),X=p.getX(i)+(ox||0),Y=p.getY(i)+(oy||0),Z=p.getZ(i)+(oz||0);let u,v;if(ax>=ay&&ax>=az){u=Z;v=Y}else if(ay>=az){u=X;v=Z}else{u=X;v=Y}uv.setXY(i,u*s,v*s)}uv.needsUpdate=true;return ge};
  k.H=g=>{const add=(o,p)=>{(p||g).add(o);return o},S=m=>m&&m.userData&&m.userData.s;
   const B=(w,h,d,x,y,z,m,p)=>{const ge=new THREE.BoxGeometry(w,h,d);if(S(m))k.wuv(ge,S(m),x,y,z);const o=new THREE.Mesh(ge,m);o.position.set(x,y,z);return add(o,p)};
@@ -182,9 +185,9 @@ function fbFence(g,x0,z0,x1,z1,h){const k=fbKit(),{B,C,rod}=k.H(g);const len=Mat
 function fbRoad(g,x0,z0,x1,z1,w,o){const k=fbKit(),{B}=k.H(g);o=o||{};const X=Math.abs(x1-x0)>=Math.abs(z1-z0),a0=X?Math.min(x0,x1):Math.min(z0,z1),a1=X?Math.max(x0,x1):Math.max(z0,z1),c=X?z0:x0,len=a1-a0,mid=(a0+a1)/2;
  const P=(u,y,L,hh,W,m,off)=>X?B(L,hh,W,u,y,c+(off||0),m):B(W,hh,L,c+(off||0),y,u,m);
  P(mid,.065,len,.03,w,k.ROAD);
- /* lines: white edge lines, a dashed centre line */for(const sd of[-1,1])P(mid,.0815,len,.004,.12,k.WH,sd*(w/2-.3));for(let u=a0+1.5;u<a1-1;u+=6)P(u+1.5,.0815,3,.004,.12,k.WH,0);
- /* kerbs and pavement, with gaps where other roads join */const gaps=o.gaps||[];const runs=[];let a=a0;for(const[g0,g1]of gaps.slice().sort((p,q)=>p[0]-q[0])){if(g0>a)runs.push([a,g0]);a=Math.max(a,g1)}if(a<a1)runs.push([a,a1]);
- for(const sd of[-1,1]){const pave=o.pave=='both'||(o.pave=='l'&&sd<0)||(o.pave=='r'&&sd>0);for(const[r0,r1]of runs){P((r0+r1)/2,.09,r1-r0,.08,.3,k.KERB,sd*(w/2+.15));if(pave)P((r0+r1)/2,.07,r1-r0,.04,1.5,k.PAVE,sd*(w/2+.3+.75))}}
+ /* lines: white edge lines, a dashed centre line */ /* kerbs and pavement, with gaps where other roads join */const gaps=o.gaps||[];const runs=[];let a=a0;for(const[g0,g1]of gaps.slice().sort((p,q)=>p[0]-q[0])){if(g0>a)runs.push([a,g0]);a=Math.max(a,g1)}if(a<a1)runs.push([a,a1]);/* where this road ends at another one, stop the kerbs and pavement short of that road's kerb and pavement */const tr=o.trim||[0,0];const runsK=runs.map(([r0,r1])=>[Math.max(r0,a0+tr[0]),Math.min(r1,a1-tr[1])]).filter(([r0,r1])=>r1-r0>.05);
+ for(const sd of[-1,1])for(const[r0,r1]of runs)P((r0+r1)/2,.085,r1-r0,.01,.12,k.LINE,sd*(w/2-.3));for(let u=a0+1.5;u<a1-1;u+=6){if(gaps.some(([g0,g1])=>u+3>g0&&u<g1))continue;P(u+1.5,.085,3,.01,.12,k.LINE,0)}
+ for(const sd of[-1,1]){const pave=o.pave=='both'||(o.pave=='l'&&sd<0)||(o.pave=='r'&&sd>0);for(const[r0,r1]of runsK){P((r0+r1)/2,.09,r1-r0,.08,.3,k.KERB,sd*(w/2+.15));if(pave)P((r0+r1)/2,.07,r1-r0,.04,1.5,k.PAVE,sd*(w/2+.3+.75))}}
  if(o.lamps){for(let u=a0+8;u<a1-4;u+=25){if(gaps.some(([g0,g1])=>u>g0-3&&u<g1+3))continue;const sd=o.lampSide||1,off=sd*(w/2+.6);fbLamp(g,X?u:c+off,X?c+off:u,X?(sd>0?0:Math.PI):(sd>0?-Math.PI/2:Math.PI/2))}}
  return g}
 /* a lamp post; ry turns its arm (0 = the arm reaches towards -z) */
