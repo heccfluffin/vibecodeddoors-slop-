@@ -1,4 +1,4 @@
-Status: layout, batches 1-3 and interiors 1-4 (diner, Bob's, saloon, bank) approved by the user 2026-10-17 · chapel interior next
+Status: layout, batches 1-3 and all five interiors approved by the user 2026-10-17 · water tower, Sunny Acres and the station next
 
 # Dusty Gulch rework
 
@@ -153,6 +153,20 @@ fine (it already hangs 5 cm below the lintel).
   (478, cz±4.5) and the two safe-deposit walls (x 481..489 against the side walls). The way from the door through the
   ropes, the gap in the counter (cz±1.1) and up to the vault stays clear.
 - Everything here stands on the floor's top, y .18.
+
+### Interiors 5: the Chapel of the Closed Door (approved) · `guChapel(g)` → `{obs, flames, rope}`
+- **Shell call:** unchanged (it keeps its panelling, stained glass and back window).
+- **Remove the game's meshes:** the aisle runner box, the six altar candles and their flames (keep the light `cl2`
+  and its flicker `anim`), the eight pews (seat, back, two ends each), the altar box and the gold cross (two boxes).
+- **Remove the game's obstacles** for the old pews (`ob(475, 481, pz - .3, pz + .3)`, eight of them) and the altar
+  (`ob(493, 495, cz - .4, cz + .4)`). `guChapel` returns the new ones: 18 pews facing the altar (x 468.5..484.5,
+  either side of a 2 m centre aisle), the altar rail (x 489.6, with a gap at cz±1.1), the altar (turned: x 493.45..494.5,
+  cz±1.25), the pulpit and its steps, the lectern, the organ and the font.
+- **The bell rope** hangs at the ring prop (466, cz-3). In the ring prop's anim you can also swing it:
+  `rope.rotation.z = Math.sin(t * 6) * .12 * Math.max(0, 1 - t / 3)`. It is `dpKeep`.
+- **Animate (optional):** `flames` wobble like the saloon's.
+- The back window's arch frame and the glass above its head are drawn at the game's window height (y 1.2..2.6
+  above 0); the rest stands on the floor's top, y .18.
 
 ### Coming next
 - **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
