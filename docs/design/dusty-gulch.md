@@ -1,4 +1,4 @@
-Status: layout, batches 1-3, all five interiors and batch 4a (water tower, station) approved by the user 2026-10-17 · Sunny Acres next
+Status: approved, all parts (layout, batches 1-4, five interiors) by the user 2026-10-17 · to build
 
 # Dusty Gulch rework
 
@@ -190,7 +190,17 @@ fine (it already hangs 5 cm below the lintel).
 **One more thing found in the game's code:** the "taxi stand" hitching rail at (470, -1448) (two posts, a rail and
 `ob(468, 472, -1448.2, -1447.8)`) stands inside the bank's lobby. Remove it; the street has its own rails now.
 
-### Coming next
-- **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
-  and the chapel. They keep every prop, mission spot and moving part (the jukebox, Bob, the piano, the vault).
-- Then the water tower, Sunny Acres and the station.
+### Batch 4b: Sunny Acres (approved) · `guSunnyAcres(g)` → `{obs, plates, tv, bbq, embers}` (uses `guTrailer`)
+- Replaces the whole game block "SUNNY ACRES trailer park": the four trailer boxes, roofs, windows, doors, steps,
+  wheels, the dish, the flamingo, the BBQ box and pole, and the `sign(...)`. Keep `zone(...)` and `loc(...)`.
+- **Obstacles:** drop the game's trailer and BBQ `ob`s; push the returned `obs` (five trailers, the office trailer,
+  the shower block, fire pit, BBQ, picnic table, light poles, mailboxes, and the fence runs; the fence has a gate gap
+  at the drive, z -1541.2..-1536.8).
+- **Decks:** push `plates` into `q.plates` (y .3) so you step up onto them.
+- **The TV flicker:** put the game's flickering `light(0x80a0ff, ...)` at `tv` (x, y, z) and keep its `anim`.
+- **The BBQ smoke:** move the smoke sprite and its `anim` to `bbq` (x, z), y 1.4 (above the kettle).
+- **Embers (optional):** `embers.emissiveIntensity = .7 + Math.random() * .4` in any anim nearby.
+- The office trailer carries the park's sign on its roof; the gate board on Main Street says the rest.
+
+### Done
+Dusty Gulch is fully designed. Next on the desert list: the airfield and Zone 51.
