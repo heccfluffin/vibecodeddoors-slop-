@@ -13,7 +13,7 @@ I checked these against your constraints note in NOTES.md (2026-10-17).
 
 ### What doesn't move
 - **Main gate** at x 552..568, z -930, and the `WK_GATE` points (561,-990/-962/-938).
-- **`MILB`** x 300..600, z -930..-660; `MILRZ`; `MILAA`.
+- **The north wall** (z -930) and the east and south walls. The **west wall moves** out to x 215 (see "The base grows west").
 - **Runway 09** (`ALB`, centre line z -980, landing from the west, touchdown about x 265).
 - **Command wing** (`CWB`), **Wraith bays** (`WBAY`) and their airlock doors.
 - **HQ, the barracks huts, latrines, recruiting office, mess hall, boot camp, depot, tank park, LZ Bravo, mortars,
@@ -26,10 +26,11 @@ wherever a building faces the road. Lamp posts go every 25 m on one side.
 | Road | Centre line | Notes |
 |---|---|---|
 | Gate Avenue | x 560, z -1004 → -735 | Was -1033.5 → -735. It now starts at the new outer checkpoint (below). |
-| North Street | z -885, x 312 → 560 | Was x 420 → 560, ending under the squad shed. Now it runs the full width past the huts. |
+| North Street | z -885, x 222 → 560 | Was x 420 → 560, ending under the squad shed. Now it runs the full width of the base. |
 | Parade Road | z -805, x 415 → 560 | New. Joins Gate Avenue to the Wraith bay apron (the apron ends at z -814). |
 | Parade Lane | x 475, z -885 → -805 | New. Runs between the command wing (ends x 470) and the parade ground (starts x 480). |
-| South Street | z -735, x 330 → 560 | Was x 470 → 560. |
+| South Street | z -735, x 222 → 560 | Was x 470 → 560. |
+| West Road | x 296, z -885 → -735 | New. Joins North and South Street along the new west strip. |
 | Airside lane | x 491.5, z -940 → -885 | New. Through a new **airside gate**, a gap in the north wall at x 488..495. |
 | Taxiway | z -952, x 513 → 556.5 | New, 8 m. From the jet apron to Gate Avenue. |
 | ~~z -905, x 520 → 560~~ | removed | It ran through the new motor pool canopy. |
@@ -98,12 +99,38 @@ The runway becomes part of the base: a fenced annex joined to the north wall.
 - **"On base" check**: add the annex rectangle **x 215..600, z -1004..-930** to `milArea` (and to the map frame).
   Military rules apply inside it as on the base. `MILAA` already covers it.
 
+### The base grows west
+The base becomes one rectangle with the airfield: the **west wall moves from x 300 to x 215**, in line with the airfield
+fence.
+- **`MILB`** → x **215**..600, z -930..-660. **`MILRZ`** → x **215**..600, z -725..-660 (the restricted fence and its
+  laser gate at x 462..478 stay; the fence just runs further west). **`MILAA`** → x **200**..670, z -1000..-590.
+- **"On base" check** (with the annex above): x 215..600, z -1004..-660, one rectangle.
+- **The old west wall** at x 300 goes, with its razor wire and its sentry sign.
+  - The four west wall turrets move to x 215 (same z: -700, -780, -860, -910).
+  - The NW and SW flak towers follow `X0` (now 221). The RZ sentry signs follow `X0`.
+- **Please check:** no other desert feature sits in x 215..300, z -930..-660 (the milBuild "ground" step already clears
+  dunes inside `MILB`).
+- **New in the strip.** Footprints are below; part 2 brings the models. Until then, plain boxes with the names are fine.
+
+| What | Footprint | Notes |
+|---|---|---|
+| Power plant (generator hall, fuel day tank, cooling fans) | x 225..265, z -924..-898 | Door S. Could later feed the `ML.power` / substation story. |
+| Water treatment and pump house | x 270..290, z -924..-898 | Door S. The water tower stays at (312,-896). |
+| Solar array | x 225..290, z -879..-869 | Low panels on frames, 1.2 m high. |
+| Heliport West hangar | x 222..250, z -858..-834 | Door E, facing the pads. |
+| Helipads W1, W2, W3 | centres (275,-848), (275,-822), (275,-796), radius 9 | Painted H, edge lights. Park spare UH-9 / AH-4 here if you like (they must fly home to their own pad). |
+| Fuel bowser and crew hut | x 228..246, z -826..-818 | |
+| PX store and gym | x 222..260, z -772..-746 | Door E. A shop counter inside is a later idea; for now, closed blinds. |
+| Basketball court | x 266..290, z -770..-748 | Two hoops, painted lines, a low fence. |
+| Armoury and weapons test bunker | x 225..290, z -716..-672 | Inside the restricted zone. Door N. |
+
 ### Map labels (`MAPBN`), name and centre
 HQ (360,-860) · Command Wing (450,-853) · Wraith Bays (450,-835) · Motor Pool (524,-909) · Parade Ground (516,-845) ·
 Barracks (388,-912) · Latrines (474,-916) · Recruiting (586,-910) · Mess Hall (582,-892) · LZ Bravo (582,-848) ·
 Boot Camp (364,-812) · Depot (350,-782) · Tank Park (470,-780) · Range (556,-765) · Hangar 1 (375,-694) ·
 Launch Control (527,-701) · Silo 1 (578,-700) · Radar (442,-700) · Air Ops (325,-949) · Fuel Farm (373,-950) ·
-Shelters (448,-946) · Tower (545,-944) · Runway 09 (385,-980).
+Shelters (448,-946) · Tower (545,-944) · Runway 09 (385,-980) · Power Plant (245,-911) · Water (280,-911) ·
+Heliport West (250,-846) · PX (241,-759) · Armoury (257,-694).
 
 ### Missions
 Nothing a mission uses is removed. The squad motor pool moves (missions and crimes that point at `MPOOL` follow the
