@@ -1,4 +1,4 @@
-Status: shipped in r611
+Status: shipped (parts 1-6 in r611, parts 7-9 in r613)
 
 # New car models
 

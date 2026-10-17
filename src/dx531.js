@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+ ['r613',['New models for the UH-9 and AH-4 helicopters (with real cockpits and cabins) and the F-9 Sabre and X-22 fighters, whose landing gear now folds up properly','New motorbike, golf cart, quad and dune buggy']],
  ['r612',['Your office has a bank of monitors: every squad you send out gets a live camera feed riding along behind the convoy (it circles the site while they work), with their status underneath']],
  ['r611',['New models for almost every vehicle: the cab, the police cruisers and Highway Patrol car, townspeople\'s cars, pickups, the jeep and the monster truck, the sports car, muscle car, hot rod and dragster, the APC, the SWAT truck, the prison vans, El Goblino\'s tow truck, the X-13 Wraith and the battle tank','Wheels roll at the right speed for their size, and tank tracks really run round the wheels']],
  ['r610',['Three police cruisers now patrol the desert roads: town, the airfield and Dusty Gulch, and the quarry side. They stop at junctions, sometimes pull over, and join a chase if you are wanted nearby','Highway Patrol speed checkpoints: limit 70 km/h. A little over is a fine, 110 and up and they chase you. Knocking over cones is not free either','AI cars no longer wreck each other on little bumps, and fix themselves when nobody is around']],

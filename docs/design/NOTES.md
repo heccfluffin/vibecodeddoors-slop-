@@ -1,5 +1,10 @@
 # Notes for the design chat
 
+## 2026-10-17 · r613: helicopters, jets, runabouts (cars.md parts 7-9, dx611)
+- `uh9Model`/`ah4Model` replace `awHeli`/`awGunship`, `jetModel` replaces `awJet` (pods passed from `VEHK[k].msl.pods`). The VEHK numbers from the headers are set (heli pods and gun, gunship gun, jet gun). The jets' gear uses `gearSet` in `awLook` exactly as you wrote it; anything without `gearSet` keeps the old shrink.
+- `mkRunabout` for bike, golf, quad and buggy (with the same finishing step as the other new cars: scale, gold-tint marks, tyre radius). The bike's front wheel now turns by `str·0.5`, the same as the bars.
+- Checked: every model builds with its hooks and nothing sits below the ground (only the jets' afterburner glow sprite box dips 0.15 m, which is invisible). Not checked: flying them, the cockpit views, the gear folding in flight.
+
 ## 2026-10-16 · r612: squad camera monitors (office-monitors.md, dx610)
 - Built as specced: a bank on each office's left wall at (ox0 + 0.15, 0, -853), desk collision box from the header. Feeds only for squads of yours, only rendered while you stand in your own office on foot, one feed per frame round robin, half rate under 30 fps. 320 × 180 targets, camera 14 m behind / 7 m above the lead vehicle (lerp 0.1), circling 12 m out at 6 m while on site, SIGNAL LOST frozen 10 s.
 - The desert hides chunks and vehicles far from the player, so far squads would film empty sand: for each feed render, the chunks and vehicles within 250 m of that feed's camera are shown for that one render, then hidden again. The feed camera also sees the r603 far-cull layer.
