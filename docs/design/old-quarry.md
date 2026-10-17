@@ -1,5 +1,16 @@
 Status: shipped in r618 (2026-10-17): part 1 layout and part 2 batches 1-5. The underground comes later. See NOTES.md.
 
+## Fixes after r618 (2026-10-17, from Claude Code's notes)
+- **Pour misses the molds by 15 cm.** Use **RZ = SM.z - .3** (was SM.z - .6) everywhere RZ appears (the rail, the
+  trolley, the stream). The stream then lands .3 off the molds' centre line, inside the mold (the fills are ±.39 deep).
+  It can't go all the way to SM.z: the rail's stub column would then stand on the flue's collar. Checked in the
+  preview: the column's base plate still clears the flue (1.06 from its centre, collar radius .95), and the A-frame
+  at the far end still clears the mold table and the grinder.
+- **Rubble mound on the ore hopper's basin.** Move the mound at (-188, -1448) to **(-185, -1451)** (in `qtMounds`,
+  dx589). The basin is x -191.6..-188.4, z -1449..-1446.6; the mound (radius 2.2 at full size) now ends at x -187.2.
+  It's nearer the excavator than before (8.6 m from it instead of 12.8), so it's still in reach, and it's clear of the
+  haul truck's path (which starts at (-188, -1458)).
+
 # The Old Quarry rework
 
 The user: the quarry's models are "lazily made". Part 1 tidies the layout, which the user approved from a top-down
