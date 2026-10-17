@@ -1,4 +1,4 @@
-Status: layout, batches 1-3 and interiors 1-3 (diner, Bob's, saloon) approved by the user 2026-10-17 · bank interior next
+Status: approved, all parts (layout, batches 1-4, five interiors) by the user 2026-10-17 · to build
 
 # Dusty Gulch rework
 
@@ -140,7 +140,67 @@ fine (it already hangs 5 cm below the lintel).
 - **New obstacles:** none. Everything stands where the game's obstacles already are (bar, piano, tables).
 - Everything here stands on the floor's top, y .18. The bar top is at 1.18.
 
-### Coming next
-- **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
-  and the chapel. They keep every prop, mission spot and moving part (the jukebox, Bob, the piano, the vault).
-- Then the water tower, Sunny Acres and the station.
+### Interiors 4: First Dark Bank (approved) · `guBank(g)` → `{obs}`, `guVaultDoor(hinge, VR)` → `{wh, dial}`
+- **Shell call:** unchanged (it keeps its panelling; everything at the walls below 1.2 stands .24 off them).
+- **Remove the game's meshes** (keep every `ob`, `prop`, light, the clock group and the whole vault logic): the eight
+  brass posts and their balls, the two rope cylinders, the plant pot and plant, the teller counter's base box and
+  glass box, the three teller desks and their black boxes.
+- **The vault door:** keep the `hinge` group, the wall pieces, the rings, the collar torus, the VAULT label, the gold,
+  the bags, `dob`, `vopen` and the prop. Instead of adding the door cylinder, the two hinge barrels, the wheel group,
+  the dial and the eight bolt heads to `hinge`, call `const VD = guVaultDoor(hinge, VR)` and use `wh = VD.wh` (the
+  rob code spins `wh`, and it sits where the old wheel did). Everything in it is `dpKeep`.
+- **New obstacles** (push `obs`): the two marble columns (466, cz±5.5), the two writing tables, the two clerks' desks
+  (478, cz±4.5) and the two safe-deposit walls (x 481..489 against the side walls). The way from the door through the
+  ropes, the gap in the counter (cz±1.1) and up to the vault stays clear.
+- Everything here stands on the floor's top, y .18.
+
+### Interiors 5: the Chapel of the Closed Door (approved) · `guChapel(g)` → `{obs, flames, rope}`
+- **Shell call:** unchanged (it keeps its panelling, stained glass and back window).
+- **Remove the game's meshes:** the aisle runner box, the six altar candles and their flames (keep the light `cl2`
+  and its flicker `anim`), the eight pews (seat, back, two ends each), the altar box and the gold cross (two boxes).
+- **Remove the game's obstacles** for the old pews (`ob(475, 481, pz - .3, pz + .3)`, eight of them) and the altar
+  (`ob(493, 495, cz - .4, cz + .4)`). `guChapel` returns the new ones: 18 pews facing the altar (x 468.5..484.5,
+  either side of a 2 m centre aisle), the altar rail (x 489.6, with a gap at cz±1.1), the altar (turned: x 493.45..494.5,
+  cz±1.25), the pulpit and its steps, the lectern, the organ and the font.
+- **The bell rope** hangs at the ring prop (466, cz-3). In the ring prop's anim you can also swing it:
+  `rope.rotation.z = Math.sin(t * 6) * .12 * Math.max(0, 1 - t / 3)`. It is `dpKeep`.
+- **Animate (optional):** `flames` wobble like the saloon's.
+- The back window's arch frame and the glass above its head are drawn at the game's window height (y 1.2..2.6
+  above 0); the rest stands on the floor's top, y .18.
+
+### Batch 4a: water tower and station (approved)
+**Water tower** · `guWaterTower(g, 532, -1500)` → `{obs}` (and the helper `guCurvedSign`)
+- Replaces the game's four leg cylinders, the tank cylinder, the cone roof and the `DUSTY GULCH` label. Keep `loc`.
+- Replace its `ob(tx-3, tx+3, tz-3, tz+3)` with the returned obstacles: four footings and the trough. You can now walk
+  under the tower, between the legs.
+
+**Station** · `guStation(g)` → `{obs, plate}`
+- The rails are at `RAIL.z` -1640 and the cars are 2.8 wide, but the game's platform was centred on z -1629, 6 m from
+  the track. The new platform runs x 420..480, z -1638.4..-1629.4, top y .6.
+- Remove the game's platform box, its six posts, its canopy box, the `DUSTY GULCH / TRAIN STOPS HERE` label (the
+  canopy now carries it on a hanging board) and the bench's four boxes.
+- Replace the platform's `q.plates` entry with the returned `plate`. Push `obs` (the station house, the bench, the
+  luggage cart).
+- Move the timetable prop from `(sx + 8, sz)` to `(458, -1634.9)` (in front of the new board, on the platform). `loc`
+  and the train's stop (`HS` 482, the arrival hint that checks distance to (450, -1629)) can stay as they are.
+
+**The trains' water tank** · `guTrainTank(g, 488, -1634)` → `{obs}`. New, past the platform's east end. Push `obs`
+(four footings). The spout arm is folded up, clear of the train.
+
+**One more thing found in the game's code:** the "taxi stand" hitching rail at (470, -1448) (two posts, a rail and
+`ob(468, 472, -1448.2, -1447.8)`) stands inside the bank's lobby. Remove it; the street has its own rails now.
+
+### Batch 4b: Sunny Acres (approved) · `guSunnyAcres(g)` → `{obs, plates, tv, bbq, embers}` (uses `guTrailer`)
+- Replaces the whole game block "SUNNY ACRES trailer park": the four trailer boxes, roofs, windows, doors, steps,
+  wheels, the dish, the flamingo, the BBQ box and pole, and the `sign(...)`. Keep `zone(...)` and `loc(...)`.
+- **Obstacles:** drop the game's trailer and BBQ `ob`s; push the returned `obs` (five trailers, the office trailer,
+  the shower block, fire pit, BBQ, picnic table, light poles, mailboxes, and the fence runs; the fence has a gate gap
+  at the drive, z -1541.2..-1536.8).
+- **Decks:** push `plates` into `q.plates` (y .3) so you step up onto them.
+- **The TV flicker:** put the game's flickering `light(0x80a0ff, ...)` at `tv` (x, y, z) and keep its `anim`.
+- **The BBQ smoke:** move the smoke sprite and its `anim` to `bbq` (x, z), y 1.4 (above the kettle).
+- **Embers (optional):** `embers.emissiveIntensity = .7 + Math.random() * .4` in any anim nearby.
+- The office trailer carries the park's sign on its roof; the gate board on Main Street says the rest.
+
+### Done
+Dusty Gulch is fully designed. Next on the desert list: the airfield and Zone 51.
