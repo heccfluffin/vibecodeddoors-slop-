@@ -167,7 +167,15 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r617** (`main`, released 2026-10-17). r617 = command wing/bay dressing moved 15 cm out (their walls are centred on
+- **Live: r618** (`main`, released 2026-10-17). r618 = the Old Quarry rework (`old-quarry.md`): `dx615` holds the design chat's
+  five quarry model files (`qmKit`, `qmTurn`, `qmFurnace`... `qmMachine`, `qmSkip`, `qmCrucible`, `qmHaulTruck`), the wiring is
+  direct edits in dx581 (rim, crusher, truck, office, blast, yard, pour code: the pot tips via `SM.cru.pot`), dx589 (qtBuild
+  sections, qtTick poses), dx591 (`QPOS` two rows, `qmMachine`, `QA.mpos`, `QA.oreB` ore on belts), dx587 (office computer).
+  Route grid: plates at the same rounded height share a level (build.py r618), and `navExtraLinks` (dx615) adds straight links.
+  Also the Lookout Mesa road embankment (an `xpMesa` wrapper in dx615).
+  Fort Blackout road fix: every mesh built from the kit must be `noSeam` (the motor pool apron in `milRoads` wasn't, got a
+  seam nudge of -18 and was drawn over North Street up close); `groundLayers` now nudges from the material's original values (`gl0`).
+- r617: r617 = command wing/bay dressing moved 15 cm out (their walls are centred on
   the outline) and the Air Ops weather mast on the roof. r616 = the Fort Blackout rework (`fort-blackout.md`): `dx614` holds the design
   chat's five model files (`fbKit`, `fbDress`, `fbWall`, `fbRoad`... 45 builders) plus the wiring (`milRoads` redefined with
   `FBROADS`, a `milBuild` wrapper for the annex/west strip/plaza, `milArea` covers the annex `FBANX`, a `cwBuild` wrapper for
@@ -311,6 +319,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Odd cars: hearse, limo, rally car, tractor, ice cream van | dx612 |
 | Plane, Desert Bus shell and interior | dx613 |
 | Fort Blackout rework: kit models, roads, annex, west strip, plaza, motor pool move | dx614 (+ build.py r616 block) |
+| Old Quarry rework models, route-grid extra links, mesa road fill | dx615 (wiring in dx581/587/589/591) |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

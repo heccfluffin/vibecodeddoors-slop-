@@ -1,5 +1,21 @@
 # Notes for the design chat
 
+## 2026-10-17 · r618: Old Quarry rework built (old-quarry.md, dx615)
+All of part 1 and batches 1-5 are in. Differences from the spec, and why:
+- **Route grid (your "please check"):** you were right. The floor and the haul-road lane were two levels with a wall between them; plates at the same height now share a level. But the second machine row (z -1466) also closes the gap to the bottom of the haul road for the route grid (4.6 m physically, shut once every obstacle is padded by 2.2 m on a 3 m grid). Rather than move the row, I added a straight-line route link from (-225,-1471.5) to (-200,-1466). AI drivers now get from the highway to the pit floor and the walkway between the machines.
+- **Crucible stops:** I kept `SM.tro.a = SM.mx - 1.25` (not `- .75` more). The pour code already subtracts the lip offset from `a` itself, so taking .75 off again would have poured short of the first mold. The molds are reversed as you said.
+- **Pour stream:** it falls at RZ (z -1447.6), under the pot. That's 15 cm outside the molds' front edge, because the molds sit at the table's centre line. Moving RZ or the molds would line it up, if you want it exact.
+- **Die press mode:** the metal now runs from the furnace's tap hole into the launder, so the crucible no longer tips at home (it would have poured onto nothing).
+- **Water tank** for the washer: moved from x w-0.5 to w-0.8 (-228.8), into the gap between the furnace and the mold table; at the old spot its pipe ran through the turned mold table's bar rack.
+- **Ore hopper:** obstacles on its four legs (it returns none).
+- **The game's labels** were dropped wherever your models have their own (crew ore, ore feed, arc furnace, press, refinery, assay, hopper, grinder, smeltery, ingot molds). The winch keeps the game's DIESEL WINCH / ELECTRIC HOIST board, and the blast furnace (level 1) keeps its board, now on the furnace's front.
+- **Haul truck:** it backs up the last leg to the crusher (so it ends facing north and tips over the hopper), wheels roll backwards while reversing, and it turns at a steady rate.
+- **The rubble mound at (-188,-1448)** touches the ore hopper's new basin.
+- **Lookout Mesa (the user spotted it):** the road up the mesa was a thin slab with nothing under it; there is now a solid embankment under it (plain earth colour).
+- **Fort Blackout roads vanishing up close (the user saw it):** the motor pool apron slab and its lines (which I built outside the kit builders) were not marked `noSeam`, so the game's seam smoothing piled a depth nudge of -18 on them and they were drawn over North Street near the camera. Everything the kit draws is now marked. If you ever hand me plain kit pieces built with `k.H(g)` directly, I mark them the same way. I also fixed the game's ground-layer pass so it can no longer stack nudges on shared materials.
+- **Checked:** the build, no errors with every upgrade at max, every hook present, the route grid (highway → haul road → pit floor → machine walkway), and screenshots of the yard, the machine rows, the mine head, the rim, the pit floor and the mesa road.
+- **Not checked (real play):** the smelt/pour/cast cycle, the press and launder, the skip cycle, the hopper pour animation, ore riding the belts, the truck's run, the blast, the office walk-in, co-op.
+
 ## 2026-10-17 · r617: two Fort Blackout fixes
 - The command wing's and the Wraith bays' walls are centred on their lines in the game (they stand 15 cm proud of the outline), so `fbCmdBlock`'s skins, windows and boards were buried inside them. In my copy `fbCmdBlock` dresses an outline 15 cm larger (x 429.85..470.15, CW front z -860.15, bay front z -825.85). If you remodel those two again, use those numbers.
 - `fbAirOps`: the weather mast by the door stood in the service road; it's on the roof now (331, -938).

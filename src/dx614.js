@@ -730,13 +730,15 @@ milRoads=function(X){const g=X.g,{road}=X;
  const n0=g.children.length;for(const r of FBROADS)road(...r.a);
  for(let i=g.children.length-1;i>=n0;i--){const m=g.children[i];if(m.isMesh&&m.geometry&&m.geometry.type=='BoxGeometry')g.remove(m)}
  const rg=new THREE.Group();rg.name='fbRoads';g.add(rg);for(const r of FBROADS){const[x0,z0,x1,z1]=r.a;fbRoad(rg,x0,z0,x1,z1,r.w,r.o)}
- /* the motor pool's apron in front of its doors */{const k=fbKit(),{B}=k.H(rg);B(30,.03,7.5,510,.065,-892.25,k.ROAD);for(const x of[499,506.5,514,521.5])B(.15,.01,7.3,x,.085,-892.25,k.LINEY)}}
+ /* the motor pool's apron in front of its doors */{const k=fbKit(),{B}=k.H(rg);B(30,.03,7.5,510,.065,-892.25,k.ROAD);for(const x of[499,506.5,514,521.5])B(.15,.01,7.3,x,.085,-892.25,k.LINEY)}
+ /* r619: everything in the road group carries its own depth nudge: keep the seam smoothing off it (the apron got -18 and hid North Street) */rg.traverse(o=>{if(o.isMesh)o.userData.noSeam=true})}
 
 /* ---------- the new parts of the base, built straight after the game's own ---------- */
 {const mb16=milBuild;milBuild=function(X,q,g){const had=!!q.mil;const r=mb16.apply(this,arguments);if(had||!q.mil)return r;
-  const T=(nm,f)=>{try{f()}catch(e){conLog('error','Fort Blackout r616 ('+nm+'): '+e.message)}};const k=fbKit();
+  const T=(nm,f)=>{try{f()}catch(e){conLog('error','Fort Blackout r616 ('+nm+'): '+e.message)}};const k=fbKit();const n0=g.children.length;
   T('annex',()=>fbAnnex(X,q,g));T('west strip',()=>fbWestStrip(X,q,g));T('plaza',()=>fbPlaza(X,q,g));
   T('map',()=>{q.mapR.push({x0:FBANX.x0,x1:FBANX.x1,z0:FBANX.z0,z1:FBANX.z1,c:'#c9bc9c'});for(const b of FBMAP)q.mapR.push({x0:b[0],x1:b[1],z0:b[2],z1:b[3],c:b[4]});q.mapBg=null});
+  /* r619: the annex, west strip and plaza pieces built straight from the kit carry their own nudges too */for(let i=n0;i<g.children.length;i++)g.children[i].traverse(o=>{if(o.isMesh)o.userData.noSeam=true});
   return r}}
 /* buildings on the map (the base map draws the walls it finds, but these are solid blocks) */
 const FBMAP=[[225,265,-924,-898,'#5a5e64'],[272,288,-906,-898,'#6a6a52'],[225,290,-879,-869,'#3a4a5a'],[222,250,-858,-834,'#5a5e64'],[266,284,-857,-839,'#5a5c58'],[266,284,-831,-813,'#5a5c58'],[266,284,-805,-787,'#5a5c58'],[228,246,-826,-818,'#6a6a52'],[222,260,-772,-746,'#6a6a52'],[266,290,-770,-748,'#7a5a4a'],[228,268,-712,-680,'#5a5e64'],

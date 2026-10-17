@@ -1,4 +1,4 @@
-Status: approved by the user 2026-10-17: part 1 (layout) and part 2 batches 1-5 (all the surface models), to build. The underground comes later.
+Status: shipped in r618 (2026-10-17): part 1 layout and part 2 batches 1-5. The underground comes later. See NOTES.md.
 
 # The Old Quarry rework
 

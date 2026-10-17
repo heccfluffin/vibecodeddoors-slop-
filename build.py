@@ -251,6 +251,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx611.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx612.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx613.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx614.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx615.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -559,6 +560,12 @@ R(r'''{for(const sd of[-1,1])for(let i=0;i<14;i++){const x=560+sd*(7+i*3.2),z=-9
 # the firing line sign stood on the new Parade Road
 R("sign('FIRING LINE · FIRE EAST ONLY · TARGETS ON THE BERM','#5a2020',520,-803,0,'#ffe0a0');","sign('FIRING LINE · FIRE EAST ONLY · TARGETS ON THE BERM','#5a2020',520,-799,0,'#ffe0a0');")
 # r616 end
+# r618: ground layers: the depth nudge is worked out from the material's ORIGINAL nudge, so materials shared by layers at
+# different heights (cloned one after another) no longer pile nudges on top of each other (Fort Blackout roads had -18)
+R("const f0=m.polygonOffset?m.polygonOffsetFactor:0,u0=m.polygonOffset?m.polygonOffsetUnits:0;m.polygonOffset=true;m.polygonOffsetFactor=f0-1;m.polygonOffsetUnits=u0+u;m.userData=Object.assign({},m.userData,{gl:u});","const b0=m.userData.gl0||[m.polygonOffset?m.polygonOffsetFactor:0,m.polygonOffset?m.polygonOffsetUnits:0],f0=b0[0],u0=b0[1];m.polygonOffset=true;m.polygonOffsetFactor=f0-1;m.polygonOffsetUnits=u0+u;m.userData=Object.assign({},m.userData,{gl:u,gl0:b0});")
+R(" /* which bits of the town can a car actually get to (from the main road)? */const reach=new Uint8Array(W*H);"," /* r618: extra straight-line links (dx615) */if(typeof navExtraLinks=='function')try{navExtraLinks(g,links)}catch(e){}\n /* which bits of the town can a car actually get to (from the main road)? */const reach=new Uint8Array(W*H);")
+# r618: the route grid gives plates at the same height one level (the Old Quarry's floor and its haul-road lane were walled apart)
+R("let pli=0;for(const p of q.plates||[])if(Math.abs(p.y)>2){pli++;rng(p.x0,p.x1,p.z0,p.z1,k=>PL[k]=pli)}","const LVY=new Map();for(const p of q.plates||[])if(Math.abs(p.y)>2){const yk=Math.round(p.y);if(!LVY.has(yk))LVY.set(yk,LVY.size+1);const li=LVY.get(yk);rng(p.x0,p.x1,p.z0,p.z1,k=>PL[k]=li)}")
 
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
@@ -588,7 +595,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r617';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r618';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
