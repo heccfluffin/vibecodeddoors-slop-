@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batch 1 approved · more batches coming
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-2 approved · more batches coming
 
 # The Old Quarry rework
 
@@ -88,3 +88,23 @@ qmMoldTable, qmGrinder, qmWinch, qmAssay, qmOreHopper, qmPad, qmTurn`. None of t
     basin.
   - Call `tick(dt)` every frame (from the existing `qtTick` is fine). `setFill(0..1)` sets how full the basin looks.
 - Push every returned `obs` to `q.obs`.
+
+**Depth nudges:** every model file now uses `polygonOffsetUnits` only (factor 0), as you found works in r616.
+
+### Batch 2: the rim (`models/quarry-rim.js`), approved
+New globals: `qmCrusher, qmOffice, qmFlood, qmEntrance`.
+- **`qmCrusher(g, CR.x, CR.z)`** replaces the crusher block in dx581: the house, hopper, jaw, flywheels, chute,
+  conveyor, trestles, rocks and stockpile. It returns the same hooks, so the existing anim keeps working:
+  - `btx.offset.y -= ...` scrolls the belt; the UVs are flipped so it now runs uphill, the way the rocks go;
+  - `fws` turn on x, `jaw.position.y` bobs, and `rocks` ride along `cv`'s z.
+  - **Also call `tick(dt)` in that anim:** rocks then drop out of the head spout and roll down the pile.
+  - The truck still tips into the hopper (rim at y 6.9).
+  - Push `obs`: the house, and the trestle legs either side of the belt.
+- **`qmOffice(g)`**: the walk-in office at x -134..-122, z -1496..-1485, with the door in the north wall at x -128.
+  Replace the solid box and its obstacle with the returned wall `obs`, and add the floor `plate` (y 0.6).
+  - The steps go down to the ground on the north side.
+  - Move the tycoon computer `kg` to x -133.2 (west wall desk end), z -1487.6, facing east, and its prop to match.
+  - The foreman stands inside at (-125.4, -1488) on the floor plate.
+- **`qmFlood(g, x, z, aimX, aimZ)`** at the four corners: (-263,-1483), (-157,-1483), (-157,-1429), (-263,-1429),
+  aimed at the pit centre (-210,-1456). This replaces the three old towers. Push `obs`.
+- **`qmEntrance(g, -133, -1463, -Math.PI/2)`** replaces the two road signs.

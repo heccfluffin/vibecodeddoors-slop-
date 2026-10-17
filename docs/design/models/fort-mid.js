@@ -97,7 +97,7 @@ function fbLZ(g){const k=fbKit(),{B,C,rod,L}=k.H(g);fbHelipad(g,582,-848,'LZ B')
   for(let c=0;c<2;c++)for(let j=0;j<14;j++){const a=(j+(c?.5:0))/14*Math.PI*2,r=2.75;const b=B(1.15,.32,.55,mx+Math.cos(a)*r,.16+c*.32,mz+Math.sin(a)*r,k.BAG);b.rotation.y=-a+Math.PI/2}}
  return{obs:[]}}
 
-function fbHangarSkin(g){const k=fbKit(),{B,C,rod,L,slab}=k.H(g),M=k.M;const HX0=325,HX1=425,HZ0=-718,HZ1=-670,HH=9,O=.02;const CL=k.M(0x7c8070,{roughness:.6,metalness:.3});CL.map=k.CORR.map;CL.userData.s=.5;Object.assign(CL,{polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-4});
+function fbHangarSkin(g){const k=fbKit(),{B,C,rod,L,slab}=k.H(g),M=k.M;const HX0=325,HX1=425,HZ0=-718,HZ1=-670,HH=9,O=.02;const CL=k.M(0x7c8070,{roughness:.6,metalness:.3});CL.map=k.CORR.map;CL.userData.s=.5;Object.assign(CL,{polygonOffset:true,polygonOffsetFactor:0,polygonOffsetUnits:-4});
  /* cladding on the three closed walls and round the door; a 1.2 m concrete plinth */const wall=(ax,c,a0,a1,out,y0)=>{const len=a1-a0,m=(a0+a1)/2,y=y0||0;if(ax=='x'){B(len,1.2-y,.08,m,(1.2+y)/2,c+out*(O+.04),k.SKINP);B(len,HH-1.2,.06,m,1.2+(HH-1.2)/2,c+out*(O+.03),CL)}else{B(.08,1.2,len,c+out*(O+.04),.6,m,k.SKINP);B(.06,HH-1.2,len,c+out*(O+.03),1.2+(HH-1.2)/2,m,CL)}};
  wall('x',HZ0,HX0-.1,HX1+.1,-1);wall('x',HZ1,HX0-.1,HX1+.1,1);wall('z',HX0,HZ0,HZ1,-1);wall('z',HX1,HZ0,-704,1);wall('z',HX1,-684,HZ1,1);B(.06,HH-7,20,HX1+O+.03,7+(HH-7)/2,-694,CL);
  /* the door frame: a heavy steel portal and a track on the ground for the slabs */for(const z of[-704,-684]){B(.6,7.2,.5,HX1+.3,3.6,z+(z<-694?-.25:.25),k.OD2)}B(.6,.6,21,HX1+.3,7.3,-694,k.OD2);B(.6,.04,40,HX1+.05,.1,-694,k.STL);
