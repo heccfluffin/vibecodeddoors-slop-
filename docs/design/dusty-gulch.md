@@ -1,4 +1,4 @@
-Status: layout, batches 1-3 and interiors 1-2 (diner, Bob's) approved by the user 2026-10-17 · saloon interior next
+Status: layout, batches 1-3 and interiors 1-3 (diner, Bob's, saloon) approved by the user 2026-10-17 · bank interior next
 
 # Dusty Gulch rework
 
@@ -123,6 +123,22 @@ fine (it already hangs 5 cm below the lintel).
   counter (cz±2) stays clear.
 - **Animate:** `stoveGlow.emissiveIntensity = .8 + sin(t*11)*.15 + sin(t*27)*.1` (any flicker is fine).
 - Everything here stands on the floor's top, y .18.
+
+### Interiors 3: the Rusty Door saloon (approved) · `guSaloon(g)` → `{obs, flames}`, `guBatwing(sd)`
+- **Shell call:** unchanged (it keeps its panelling; nothing here touches the walls below 1.2).
+- **Remove the game's meshes** (keep every `ob`, `prop`, light and `anim`): the chandelier group's ring, candles,
+  flames and chains (keep its `light`), the three rug boxes, the steer skull group, the two front-wall lamp boxes and
+  globes, the bar box, the back-bar box, its 14 bottles and two shelves, the piano's two boxes, the three tables and
+  their crate stools.
+- **Swinging doors:** keep the hinge groups `h` and their `anim`; replace each leaf box `d` with `h.add(guBatwing(sd))`
+  (the leaf is built in the hinge's own space, same size and place as the old box).
+- **The posters:** move the game's two labels (`p1`, `p2`) from the back wall (they were hidden behind the back bar) to
+  the side wall: `p1` at (412.5, 2.2, -1490.185), `p2` at (414.5, 2.2, -1490.185), both `rotation.y = Math.PI`.
+  `guSaloon` draws their frames and a third poster.
+- **Animate (optional):** each of `flames` can wobble, `f.scale.y = 1 + sin(t*9 + i*1.7) * .15`. Flames are `dpKeep`,
+  and so is the chandelier group (it is built at the game's spot, 424, 3.4, cz).
+- **New obstacles:** none. Everything stands where the game's obstacles already are (bar, piano, tables).
+- Everything here stands on the floor's top, y .18. The bar top is at 1.18.
 
 ### Coming next
 - **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
