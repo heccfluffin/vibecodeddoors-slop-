@@ -727,8 +727,8 @@ const FBROADS=[
  /* the service road along the north wall */{a:[300,-933.2,403,-933.2],w:5,o:{taxi:true}}];
 milRoads=function(X){const g=X.g,{road}=X;
  /* outside the outer checkpoint the road in keeps its old look */road(560,-1033.5,560,-1004);
- const n0=g.children.length;for(const r of FBROADS)road(...r.a);
- for(let i=g.children.length-1;i>=n0;i--){const m=g.children[i];if(m.isMesh&&m.geometry&&m.geometry.type=='BoxGeometry')g.remove(m)}
+ const n0=g.children.length,xr=X.q.xroads,x0n=xr?xr.length:0;for(const r of FBROADS)road(...r.a);/* r620: flag them so xpRoadsBuild lays no old strip under the new road */if(xr)for(let i=x0n;i<xr.length;i++)xr[i].fb=1;
+ /* r620: take away everything road() drew (its box and its flat textured deck: the deck, 2 cm under the new road with a strong depth nudge, was drawn over it up close) */for(let i=g.children.length-1;i>=n0;i--)g.remove(g.children[i]);
  const rg=new THREE.Group();rg.name='fbRoads';g.add(rg);for(const r of FBROADS){const[x0,z0,x1,z1]=r.a;fbRoad(rg,x0,z0,x1,z1,r.w,r.o)}
  /* the motor pool's apron in front of its doors */{const k=fbKit(),{B}=k.H(rg);B(30,.03,7.5,510,.065,-892.25,k.ROAD);for(const x of[499,506.5,514,521.5])B(.15,.01,7.3,x,.085,-892.25,k.LINEY)}
  /* r619: everything in the road group carries its own depth nudge: keep the seam smoothing off it (the apron got -18 and hid North Street) */rg.traverse(o=>{if(o.isMesh)o.userData.noSeam=true})}

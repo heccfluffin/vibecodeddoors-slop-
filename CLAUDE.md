@@ -167,7 +167,11 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r619** (`main`, 2026-10-17; r619 = the design chat's two Old Quarry fixes: crucible RZ = SM.z-.3, rubble mound at (-185,-1451)). r618 released 2026-10-17. r618 = the Old Quarry rework (`old-quarry.md`): `dx615` holds the design chat's
+- **Live: r620** (2026-10-17). r620 = Goblino's Scrap rework (`scrap-yard.md`) + police helicopter (`cars.md` part 13), both in `dx616`
+  (xpScrap/xpCrusher/crushTick/crushOK/crushStart redefined, `crushPay`, `SYR`, `syTheft` monster truck theft; `mkPoliceHeli` swapped in by
+  build.py). Also the real cause of "Fort roads cull up close": `road()` only records into `q.xroads`, and `xpRoadsBuild` later lays the old
+  textured strip (y .06, factor -8) plus junction patches; Fort roads are flagged `fb` in `milRoads` and skipped (build.py r620 patches).
+- r619 (`main`, 2026-10-17; r619 = the design chat's two Old Quarry fixes: crucible RZ = SM.z-.3, rubble mound at (-185,-1451)). r618 released 2026-10-17. r618 = the Old Quarry rework (`old-quarry.md`): `dx615` holds the design chat's
   five quarry model files (`qmKit`, `qmTurn`, `qmFurnace`... `qmMachine`, `qmSkip`, `qmCrucible`, `qmHaulTruck`), the wiring is
   direct edits in dx581 (rim, crusher, truck, office, blast, yard, pour code: the pot tips via `SM.cru.pot`), dx589 (qtBuild
   sections, qtTick poses), dx591 (`QPOS` two rows, `qmMachine`, `QA.mpos`, `QA.oreB` ore on belts), dx587 (office computer).
@@ -320,6 +324,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Plane, Desert Bus shell and interior | dx613 |
 | Fort Blackout rework: kit models, roads, annex, west strip, plaza, motor pool move | dx614 (+ build.py r616 block) |
 | Old Quarry rework models, route-grid extra links, mesa road fill | dx615 (wiring in dx581/587/589/591) |
+| Goblino's Scrap rework (yard, crusher, ingot pay, monster truck theft), police helicopter | dx616 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

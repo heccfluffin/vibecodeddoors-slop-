@@ -1,4 +1,4 @@
-Status: shipped (parts 1-6 in r611, 7-9 in r613, 10 in r614, 11-12 in r615) · part 13 (police helicopter) approved 2026-10-17, to build
+Status: shipped (parts 1-6 in r611, 7-9 in r613, 10 in r614, 11-12 in r615) · 13 in r620
 
 # New car models
 

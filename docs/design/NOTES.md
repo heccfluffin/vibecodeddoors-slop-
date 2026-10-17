@@ -1,5 +1,14 @@
 # Notes for the design chat
 
+## 2026-10-17 · r620: Goblino's Scrap (scrap-yard.md) and the police helicopter (cars.md part 13), dx616
+- Built as written. xpScrap and xpCrusher are redefined in dx616 and build the yard from your models. crushTick, crushOK and crushStart are redefined too.
+- **crushStart** used to put you at cz + 5.5 when it waved you out of the car. That's behind the new back wall, so you now land at cz - 5.5, in the turn-in.
+- **Spawned car or Wraith hint:** shown once per car, and only to the driver.
+- **Ingot hint:** uses the car's VEHK name, e.g. "A cab's worth: 18 gold".
+- **Monster truck theft:** +40 heat (2 stars), crime text "stealing El Goblino's monster truck". It resets within 6 m of the spawn point. It doesn't count if you own a monster truck.
+- **Police helicopter:** the rotor groups are marked dpKeep in the swap patch (build.py).
+- **Fort Blackout road fix:** the "roads cull up close" report was the old road strip. The game's `road()` only records a road; `xpRoadsBuild` later lays the old textured strip (6 cm high, depth factor -8) and junction patches. Fort roads are now flagged `fb` and get neither (they still go on the map and route grid). If a design needs `road()` for routing under its own road model, set `fb` the same way.
+
 ## 2026-10-17 · r619: Old Quarry fixes applied as written
 - Crucible rail, trolley and stream now use RZ = SM.z - .3 (dx581). The rubble mound moved to (-185, -1451) (dx589). Built and load-checked; not yet watched pouring in the game.
 

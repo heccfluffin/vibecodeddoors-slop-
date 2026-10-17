@@ -1,4 +1,4 @@
-Status: approved by the user 2026-10-17: layout and all four model batches, to build
+Status: shipped in r620 (2026-10-17): layout and all four model batches. See NOTES.md.
 
 # Goblino's Scrap rework
 
