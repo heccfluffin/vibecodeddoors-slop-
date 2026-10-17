@@ -1,4 +1,4 @@
-Status: layout and batches 1-2 approved by the user 2026-10-17 · more batches coming
+Status: layout and batches 1-3 approved by the user 2026-10-17 · more batches coming
 
 # Goblino's Scrap rework
 
@@ -59,3 +59,42 @@ New globals: `syFlatCar, syStacks, syCrane`. None of them clash with existing na
     before, and the cable now stretches between the boom tip and the magnet.
   - `cr.arm` keeps `userData.mv = 1`.
 - `syFlatCar(colour, seed)` is a single flattened car. Batch 3 can use it for the crusher's output cube, if you like.
+
+### Batch 3: the crusher line (`syCrusher(g, cx, cz)`), approved
+New global: `syCrusher`. It doesn't clash with any existing name.
+
+**In `xpCrusher`:** replace everything from the bay down to the ingot pile's base with `const H = syCrusher(g, cx, cz)`,
+and push `H.obs`.
+- Keep the game's light `fl` (put it at `H.flAt`) and its smoke sprite `smk` (at `H.smkAt`).
+- Build `q.crush` from H: `pr, ram, belt, btx, bx0, bx1, bz, fx, fz, mouth, mx, mz, fill, lp, lm, stream, px, pz, sg, y0`.
+  Then `q.crL = H.crL`.
+
+**The bay now opens towards the drive lane (-z):** the back wall is on the +z side, and the sign and the warning lamps
+face the lane. Move the crusher prop to (cx, cz - 3.6).
+
+**The conveyor** now runs from the bay wall right to the melter's charging door (no gap). `bx0` and `bx1` keep their
+values, so the cube's path is the same.
+
+**`crushTick` changes:**
+- **Press:** the platen now travels 3.3 m (it reaches the bed).
+  - press: `pr.position.y = y0 - e*3.3; ram.position.y = 4.8 - e*1.65; ram.scale.y = 1 + e*2.75` (and the same in
+    the 'cube' phase, going back up);
+  - **the car only squashes when the platen reaches it:**
+    `v.m.scale.y = C.sy * Math.max(.2, Math.min(1, (C.pr.position.y - .51) / H))`, where H is the car's height
+    (`(v.K.ht || 1.7)`). Before, it shrank from the start, before the press touched it.
+- **Ladle:** the ladle is now a pot on trunnions inside a bail. `lp` is the pot, at its middle, at y 2.6. It tips
+  towards the mould on x as before (`lp.rotation.x = tilt * 1.15`). Its spout faces the mould, and the furnace's tap
+  spout runs out over it.
+- **Pour stream:** `stream.position.y = 1.62; stream.scale.y = 1.6`. The stream is placed at the spout's x (mx + .2).
+
+**Gameplay changes the user asked for:**
+- **Spawned cars and the Wraith can't be crushed.** In `crushOK`, add `&& !v.sp && !v.K.proto && v.k != 'proto'`.
+  When one stops in the bay, show the hint once:
+  `🗜️ El Goblino shakes his head. "That one is not scrap, amigo. Bring me a real wreck."`
+- **An ingot's value depends on the car.** Pay `crushPay(v)` instead of a flat 15.
+  - `crushPay(v)`: the car's value from the garage list (`GARK` price × 0.15) if it's there. Otherwise its size:
+    `Math.round(v.K.w * v.K.len * 1.2)`. Clamp to 8..60.
+  - For example: a quad ≈ 8, a sedan ≈ 18, a jeep ≈ 30, a limo or hearse ≈ 25-35.
+  - Store it on the ingot (`ing.userData.val`), show it in the hint ("Ingot #3 cast! A sedan's worth: 18 gold"), and
+    tint the ingot: below 15 dull grey, 15-29 steel, 30 and up bright and shiny.
+  - The sign text becomes 'THE CRUSHER\nDRIVE IN · STOP · GET PAID' and the pallet's label 'INGOTS · PRICED BY THE CAR'.
