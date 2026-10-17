@@ -1,4 +1,4 @@
-Status: layout and airfield batch 1 approved by the user 2026-10-17 · airfield batch 2 in review
+Status: layout and airfield batches 1-2 approved by the user 2026-10-17 · airfield batch 3 next
 
 # The airfield and Dark Zone 51
 
@@ -72,3 +72,11 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
 - Edge lights skip x 294..306 (the road crossing, batch 3) and x 317..327 (the taxiway).
 - `lights` is [white, green, red] materials; any night code can raise their `emissiveIntensity`.
 - **The plane spawns at (345, -1257)** (in `xpVehicles`, was (300, -1250)), on stand 2.
+
+### Airfield batch 2 (approved) · `afHangar(g)`, `afFuel(g)`, `afTHangars(g)` → `{obs}` each; `afCropDuster()` → Group
+- Replaces in `xpAirfield`'s hangar block: the two side walls, back wall, roof box, half-cylinder roof, front wall
+  above the door, the AVGAS box and drum and its label, the three crates, and all their `ob`s. Keep the light
+  `light(0xfff0d0, 1.2, 20, hx, H-1, hz)`. The old sign label goes (the new hangar carries it on its front).
+- Push every returned `obs`. The hangar's door opening is x 288..312 (24 m), wide enough for the plane.
+- The hangar floor is a plane at y .06 (nudge -3) over the apron (.04).
+- `afTHangars` builds the crop duster itself (in Hangar 2). It is a model, not a vehicle, with one obstacle box.
