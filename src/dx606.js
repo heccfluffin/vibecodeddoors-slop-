@@ -130,7 +130,7 @@ function mkUplink(){
  return g}
 
 /* ---------- placing it ---------- */
-const UPLK={x:447,z:-693.6,m:null,mode:'',pollT:0,fireEnd:0,cdEnd:0,aim:null};
+const UPLK={x:449.5,z:-693.6,/* r616: clear of the new radome */m:null,mode:'',pollT:0,fireEnd:0,cdEnd:0,aim:null};
 function upBuild(q){const m=mkUplink();let gy=0;try{gy=vehGround(q,UPLK.x,UPLK.z)}catch(e){}m.position.set(UPLK.x,gy,UPLK.z);m.rotation.y=Math.PI;m.userData.dpKeep=1;q.g.add(m);UPLK.m=m;UPLK.q=q;UPLK.mode='';
  /* the model's collision boxes, turned round with it (local x → 447 - x, local z → -693.6 - z) */
  const B=(x0,x1,z0,z1)=>({x0:UPLK.x-x1,x1:UPLK.x-x0,z0:UPLK.z-z1,z1:UPLK.z-z0});

@@ -250,6 +250,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx610.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx611.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx612.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx613.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx614.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -419,6 +420,146 @@ R("if(u.gear){const up=v.air&&v.y-vehGround(q,v.x,v.z)>3;u.gear.scale.y+=((up?.0
 # r615: the Desert Bus outside is busShell (dx613)
 R('B(HW*2+.1,DBFH-.3,ZL+.1,0,(DBFH-.3)/2+.15,ZC,M(0x3a3a3a));\n for(const sd of[-1,1]){B(.36,.18,.05,sd*1.9,DBFH+.3,Z0-.14,hl);B(.36,.18,.05,sd*1.9,DBFH+.3,Z1+.14,tl)}B(HW*2+.2,.2,.15,0,.45,Z0-.16,M(0xc0c4c8,{metalness:.8}));B(HW*2+.2,.2,.15,0,.45,Z1+.16,M(0xc0c4c8,{metalness:.8}));','/* r615: body, lights, bumpers, wheels: busShell (dx613) */')
 R('it.dsign={c:d,t:dp.material.map};const wheels=[];for(const z of[Z0+3,Z0+6.5,Z1-7,Z1-3.5])for(const sd of[-1,1]){/* a wheel arch over each tyre, outside the walls */B(.52,.08,1.36,sd*(HW+.33),1.07,z,M(0xd8701a));B(.06,.34,1.36,sd*(HW+.58),.92,z,M(0xd8701a));const pw=new THREE.Group();pw.position.set(sd*(HW+.33),.5,z);g.add(pw);const t=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,.4,16),dk);t.rotation.z=Math.PI/2;pw.add(t);const hb=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.42,8),M(0xc0c4c8,{metalness:.8}));hb.rotation.z=Math.PI/2;pw.add(hb);wheels.push({p:pw,t,front:z<Z0+5})}','it.dsign={c:d,t:dp.material.map};const wheels=busShell(g,{HW,Z0,Z1,CH:it.CH,FH:DBFH});')
+# r616: FORT BLACKOUT REWORK (dx614, docs/design/fort-blackout.md)
+import os
+if os.environ.get('DUMP'):open(os.environ['DUMP'],'w').write(s)
+# r616 patches, part A: milBuild (the base itself)
+# ground: the new parade square replaces the old painted plane and its lines (the firing line stays)
+R(r'''const pg=AP(new THREE.PlaneGeometry(140,80),M(0x8a8478,{roughness:1}),490,.07,-840);pg.rotation.x=-Math.PI/2;for(const[w,d,x,z]of[[140,.3,490,-880],[140,.3,490,-800],[.3,80,420,-840],[.3,80,560,-840],[.3,72,520,-765]])A(BX(w,.012,d),WH,x,.08,z);''',
+   r'''fbParade(g,480,553,-878,-812);A(BX(.3,.012,72),WH,520,.08,-765);''')
+R(r'''rect(300,600,-725,-660,'#c2b092');rect(420,560,-880,-800,'#bfb39b');''',
+   r'''rect(X0,600,-725,-660,'#c2b092');rect(480,553,-878,-812,'#bfb39b');''')
+# the perimeter wall: same obstacles (plus the airside gap), the new wall runs drawn by fbWall
+R(r'''const h=6,t=.8;W(X0,552,Z0-t/2,Z0+t/2,h);W(568,X1,Z0-t/2,Z0+t/2,h);W(X0,X1,Z1-t/2,Z1+t/2,h);W(X0-t/2,X0+t/2,Z0,Z1,h);W(X1-t/2,X1+t/2,Z0,Z1,h);''',
+   r'''const h=6,t=.8;ob(X0,488,Z0-t/2,Z0+t/2);ob(495,552,Z0-t/2,Z0+t/2);ob(568,X1,Z0-t/2,Z0+t/2);ob(X0,X1,Z1-t/2,Z1+t/2);ob(X0-t/2,X0+t/2,Z0,Z1);ob(X1-t/2,X1+t/2,Z0,Z1);
+  /* r616: the new wall runs; the long runs reach past the corners so the side runs can stop short (no doubled faces) */fbWall(g,'x',Z0,X0-.5,488,h);fbWall(g,'x',Z0,495,552,h);fbWall(g,'x',Z0,568,X1+.5,h);fbWall(g,'x',Z1,X0-.5,X1+.5,h);fbWall(g,'z',X0,Z0+.5,Z1-.5,h);fbWall(g,'z',X1,Z0+.5,Z1-.5,h);const FG=fbGate(g,560,Z0);''')
+R(r'''const RZ=M(0xc0c4c8,{metalness:.9,roughness:.3});for(const[ax,c,a0,a1]of[['x',Z0,X0,552],['x',Z0,568,X1],['x',Z1,X0,X1],['z',X0,Z0,Z1],['z',X1,Z0,Z1]]){for(let u=a0;u<a1;u+=2.4){const r=A(new THREE.TorusGeometry(.35,.04,5,10),RZ,ax=='x'?u:c,h+.35,ax=='x'?c:u);r.rotation.y=ax=='x'?Math.PI/2:0}A(ax=='x'?BX(a1-a0-.1,.5,.9):BX(.9,.5,a1-a0-.1),M(0x3a3c40),ax=='x'?(a0+a1)/2:c,h-.2,ax=='x'?c:(a0+a1)/2)}''','')
+R(r'''A(BX(18,1.2,1.2),CON2,560,6.6,Z0);LB('FORT BLACKOUT · HOME OF THE DARK ARMY · "WE DO NOT ASK TWICE"',16,1,'#20261c','#ffe0a0',560,6.6,Z0+.62,0);''','')
+R(r'''W(gx-2,gx+2,Z0+1,Z0+5,3.4,CON2);A(BX(4.4,.25,4.4),DK,gx,3.55,Z0+3);A(BX(3.2,1,.05),M(0x203040,{emissive:0x081018}),gx,2.3,Z0+1.0-sd*0);A(BX(.05,1,3.2),M(0x203040,{emissive:0x081018}),gx-sd*2,2.3,Z0+3);''',
+   r'''ob(gx-2,gx+2,Z0+1,Z0+5);''')
+R(r'''A(CY(.12,.14,1.3,8),ST,552.5,.65,Z0+8);const arm=A(BX(15,.14,.14),M(0xf0f0f0),0,0,0);const ag=new THREE.Group();ag.position.set(552.5,1.25,Z0+8);g.add(ag);ag.add(arm);arm.position.x=7.5;for(let i=0;i<7;i++){const b=new THREE.Mesh(BX(1,.16,.16),RD);b.position.x=1+i*2;ag.add(b)}ML.arm=ag;''',
+   r'''const ag=FG.arm;ag.userData.dpKeep=1;ML.arm=ag;''')
+# flak towers: the new tower model, the one by Hut 3 moves east to 462
+R(r'''for(const[x,z]of[[X0+6,Z0+6],[X1-6,Z0+6],[X0+6,Z1-6],[X1-6,Z1-6],[450,Z0+6],[450,Z1-6]]){for(const[a,b]of[[-2,-2],[2,-2],[-2,2],[2,2]])A(BX(.4,12,.4),CON2,x+a,6,z+b);for(const y of[4,8])for(const[a,b,c,d]of[[-2,-2,2,-2],[-2,2,2,2],[-2,-2,-2,2],[2,-2,2,2]])A(BX(Math.abs(c-a)||.15,.15,Math.abs(d-b)||.15),ST,(a+c)/2+x,y,(b+d)/2+z);A(BX(6,.4,6),CON,x,12.2,z);for(const sd of[-1,1]){A(BX(6,.9,.1),CON2,x,12.9,z+sd*2.95);A(BX(.1,.9,6),CON2,x+sd*2.95,12.9,z)}ob(x-2.2,x+2.2,z-2.2,z+2.2);''',
+   r'''for(const[x,z]of[[X0+6,Z0+6],[X1-6,Z0+6],[X0+6,Z1-6],[X1-6,Z1-6],[462,Z0+6],[450,Z1-6]]){const FF=fbFlak(g,x,z);ob(x-2.2,x+2.2,z-2.2,z+2.2);''')
+R(r'''const rl=A(new THREE.SphereGeometry(.2,8,6),M(0x400000,{emissive:0xff2020}),x,14.6,z);''',r'''const rl=FF.beacon;''')
+# the west wall turrets follow the wall out to x 215
+R(r'''[300,-700],[300,-780],[300,-860],[300,-910]''',r'''[X0,-700],[X0,-780],[X0,-860],[X0,-910]''')
+# the recruiting office, the huts and the latrines get their new outsides (the name board replaces the old label)
+R(r'''BLD(574,598,-918,-902,3.6,'w',-913,-911,CON,{lab:'RECRUITING OFFICE · ENLIST HERE'});''',
+   r'''BLD(574,598,-918,-902,3.6,'w',-913,-911,CON,{});fbDress(g,{x0:574,x1:598,z0:-918,z1:-902,h:3.6,sd:'w',da:-913,db:-911,name:'RECRUITING OFFICE · ENLIST HERE'},'flat');''')
+R(r'''BLD(a,b,-922,-902,3.4,'s',(a+b)/2-1,(a+b)/2+1,CON,{lab:'HUT '+(i+1)});''',
+   r'''BLD(a,b,-922,-902,3.4,'s',(a+b)/2-1,(a+b)/2+1,CON,{});fbDress(g,{x0:a,x1:b,z0:-922,z1:-902,h:3.4,sd:'s',da:(a+b)/2-1,db:(a+b)/2+1,name:'HUT '+(i+1),num:i+1},'hut');''')
+R(r'''BLD(466,482,-922,-910,3,'s',473,475,CON,{lab:'LATRINES'});''',
+   r'''BLD(466,482,-922,-910,3,'s',473,475,CON,{});fbDress(g,{x0:466,x1:482,z0:-922,z1:-910,h:3,sd:'s',da:473,db:475,name:'LATRINES'},'flat');''')
+# the old motor pool canopy moves east and becomes the new canopy; its vehicles move with it (same order: co-op ids)
+R(r'''for(const[x,z]of[[492,-924],[538,-924],[492,-886],[538,-886]])A(BX(.4,4.6,.4),ST,x,2.3,z);A(BX(50,.2,40),M(0x3a4a3a),515,4.7,-905);LB('MOTOR POOL · CORPORALS AND UP · SIGN THE BOOK',10,.9,'#20261c','#e8f0d0',515,4.2,-885.1,0);''',
+   r'''fbObs(q,fbCanopy(g,528,553,-925,-893).obs);''')
+R(r'''for(let i=0;i<3;i++)mv('jeep',498+i*7,-900,Math.PI,2);mv('truck',524,-900,Math.PI,3);mv('truck',533,-900,Math.PI,3);mv('apc',530,-915,Math.PI/2,4);''',
+   r'''for(let i=0;i<3;i++)mv('jeep',533+i*7.5,-919,Math.PI,2);mv('truck',535,-907,Math.PI,3);mv('truck',547,-907,Math.PI,3);mv('apc',541,-897,Math.PI,4);''')
+# HQ: the dressing and the portico
+R(r'''BLD(320,400,-880,-840,4.2,'e',-862,-858,CON,{lab:'HEADQUARTERS · DARK ARMY · 13TH ARMOURED',floor:M(0x5a5c58,{roughness:.9})});''',
+   r'''BLD(320,400,-880,-840,4.2,'e',-862,-858,CON,{floor:M(0x5a5c58,{roughness:.9})});fbObs(q,fbHQ(g).obs);''')
+# the parade ground: the flagpole and the podium move to the new square
+R(r'''A(CY(.08,.1,12,8),ST2,490,6,-840);ob(489.8,490.2,-840.2,-839.8);const fg=new THREE.Group();fg.position.set(490,11.2,-840);g.add(fg);const fl=new THREE.Mesh(BX(2.4,1.5,.04),M(0x20242a));fl.position.set(1.2,0,0);fg.add(fl);const st=new THREE.Mesh(new THREE.CircleGeometry(.4,5),M(0xffd040));st.position.set(1.2,0,.03);fg.add(st);ML.flag=fg;anim(490,-840,300,dt=>{const o=ML.op;const want=o&&o.id=='flag'?2+o.n*1.15:11.2;fg.position.y+=(want-fg.position.y)*Math.min(1,dt*3);fl.rotation.y=Math.sin(q.rt*3)*.15;st.rotation.y=fl.rotation.y});''',
+   r'''const FP=fbFlagpole(g,516,-872);ob(515.1,516.9,-872.9,-871.1);const fg=FP.flag;fg.userData.dpKeep=1;ML.flag=fg;anim(516,-872,300,dt=>{const o=ML.op;const want=o&&o.id=='flag'?2+o.n*1.15:11.2;fg.position.y+=(want-fg.position.y)*Math.min(1,dt*3);FP.wave(q.rt)});''')
+R(r'''prop(490,-838.5,1.6,''',r'''prop(517.6,-870.4,1.6,''')
+R(r'''A(BX(4,.6,2.4),CON2,490,.3,-862);A(BX(1.2,1,.3),M(0x4a3a2a),490,1.1,-861.2);ob(488,492,-863.2,-860.8);const s=mkSoldier(1);s.position.set(490,1.5,-862.4);s.rotation.y=Math.PI;g.add(s);''',
+   r'''for(const o of fbPodium(g,516,-866,0).obs)ob(516+o.x0,516+o.x1,-866+o.z0,-866+o.z1);const s=mkSoldier(1);s.position.set(516,1.98,-866.4);s.rotation.y=Math.PI;g.add(s);''')
+# inspection: the gate post was inside the new canopy
+R(r'''for(const[x,z,i]of[[551,-911,0],[521,-890,1],''',r'''for(const[x,z,i]of[[556,-917,0],[521,-890,1],''')
+R(r'''o.posts=[[556,-917,'the GATE'],[515,-905,'the MOTOR POOL'],''',r'''o.posts=[[556,-917,'the GATE'],[521,-890,'the MOTOR POOL'],''')
+# X-13 trials: the first gate sat against the south wall in the restricted zone; it is on South Street now
+R(r'''milBeacons(q,o,[[520,-666],[560,-735],''',r'''milBeacons(q,o,[[505,-735],[560,-735],''')
+# r616 patches, part B: boot camp, depot, tank park, restricted zone, patrols, hangar inside
+# boot camp: fbBootCamp draws the course; the plates, props, obstacles, the sign and the drill sergeant stay the game's
+R(r'''T('boot camp',()=>{const z=-812;AP(new THREE.PlaneGeometry(94,26),M(0x8a7a60,{roughness:1}),364,.09,z).rotation.x=-Math.PI/2;sign(''',
+   r'''T('boot camp',()=>{const z=-812;fbBootCamp(g);sign(''')
+R(r'''A(CY(.08,.1,2.4,8),ST,322,1.2,-806);const sl=X.lab('START',1.2,.5,'#e8c020','#1a1a1a');sl.position.set(322,2.1,-806);g.add(sl);''','')
+R(r'''{const WD=M(0x6a4a2a,{roughness:.9}),BW=M(0x6a6e74,{metalness:.8,roughness:.4}),zL=z-4,zR=z+4;for(let x=332;x<=346;x+=2){for(const zz of[zL,zR])A(BX(.16,1.5,.16),WD,x,.75,zz);A(BX(.1,.1,8.2),WD,x,1.2,z)}for(const zz of[zL,zR]){A(BX(14.2,.12,.1),WD,339,1.2,zz);A(BX(14.2,.1,.08),WD,339,.5,zz);ob(331.9,346.1,zz-.12,zz+.12)}''',
+   r'''{const zL=z-4,zR=z+4;for(const zz of[zL,zR])ob(331.9,346.1,zz-.12,zz+.12)}''')
+R(r'''for(let i=0;i<9;i++){const zz=zL+.5+i*.875;A(BX(14,.025,.025),BW,339,1.08,zz);for(let x=332.6;x<346;x+=.9){const b=A(BX(.12,.02,.02),BW,x,1.08,zz);b.rotation.y=.8}}for(let x=333;x<346;x+=2)A(BX(.025,.025,8),BW,x+1,1.08,z);for(let x=332.5;x<346;x+=1.6)for(const zz of[zL+.2,zR-.2]){const c=A(new THREE.TorusGeometry(.22,.025,4,10),BW,x,1.32,zz);c.rotation.y=Math.PI/2}''','')
+R(r'''AP(new THREE.PlaneGeometry(14,8),M(0x4a3a28,{roughness:1}),339,.1,z).rotation.x=-Math.PI/2;''','')
+R(r'''for(const zz of[zL-.6,zR+.6]){A(BX(.12,2.4,.12),WD,330.8,1.2,zz)}A(BX(.12,.5,9.4),WD,330.8,2.5,z);const ws=X.lab('↓ CRAWL UNDER THE WIRE · PRESS C TO CROUCH ↓',8.6,.5,'#5a2020','#ffe0a0');ws.position.set(330.72,2.5,z);ws.rotation.y=-Math.PI/2;g.add(ws);const we=X.lab('WIRE ENDS · ON TO THE TYRES →',3,.4,'#20302a','#e8f0d0');we.position.set(347.5,1.7,zR+.3);g.add(we)}''','')
+R(r'''const t=A(new THREE.TorusGeometry(.5,.18,8,14),DK,x,.2,zz);t.rotation.x=Math.PI/2;q.plates.push({x0:x-.5''',r'''q.plates.push({x0:x-.5''')
+R(r'''A(BX(1.2,2.9,12),M(0x7a6a4a),371.4,1.45,z);for(let i=0;i<5;i++)A(BX(.06,.06,11.5),ST2,370.75,.5+i*.52,z);''','')
+R(r'''for(const[a,b,y]of st){q.plates.push({x0:a,x1:b,z0:z-6,z1:z+6,y});if(a>=374)A(BX(b-a,y,12),M(0x6a5a3a),(a+b)/2,y/2,z)}A(BX(2,.2,12),M(0x8a7a5a),373,2.85,z);const wl=X.lab('↑ THE WALL ↑',2,.4,'#5a2020','#ffe0a0');wl.position.set(371.4,3.4,z-6.1);g.add(wl);''',
+   r'''for(const[a,b,y]of st){const nw=a<370.8;q.plates.push({x0:a,x1:b,z0:z-(nw?1.5:6),z1:z+(nw?1.5:6),y})}''')
+R(r'''AP(new THREE.PlaneGeometry(22,8),M(0x4a3a28,{roughness:1}),389,.1,z).rotation.x=-Math.PI/2;q.plates.push({x0:378.8,x1:380,z0:z-1.5,z1:z+1.5,y:.5});A(BX(1.2,.5,3),M(0x6a5a3a),379.4,.25,z);A(BX(18.4,.12,.5),M(0x8a6a3a),389,.94,z);for(let x=381;x<398;x+=4)A(CY(.06,.06,.9,6),ST,x,.45,z);q.plates.push({x0:380,x1:398.4,z0:z-.25,z1:z+.25,y:1.0});A(BX(1.2,.5,3),M(0x6a5a3a),399,.25,z);q.plates.push({x0:398.4,x1:399.6,z0:z-1.5,z1:z+1.5,y:.5});const bl=X.lab('THE BEAM · DO NOT FALL IN','#5a2020'.length?2.6:2.6,.4,'#5a2020','#ffe0a0');bl.position.set(389,2.2,z-4.2);g.add(bl);''',
+   r'''q.plates.push({x0:378.8,x1:380,z0:z-1.5,z1:z+1.5,y:.5});q.plates.push({x0:380,x1:398.4,z0:z-.25,z1:z+.25,y:1.0});q.plates.push({x0:398.4,x1:399.6,z0:z-1.5,z1:z+1.5,y:.5});''')
+R(r'''A(CY(.06,.08,3,8),ST2,406,1.5,z-2);const ff=new THREE.Mesh(BX(1.2,.8,.03),M(0xc02020));ff.position.set(406.6,2.6,z-2);g.add(ff);const fl2=X.lab('FINISH · PUSH-UPS HERE',2.2,.4,'#e8c020','#1a1a1a');fl2.position.set(406,3.2,z-2.1);g.add(fl2);''','')
+# the ammo bunker: dressed as a bunker, with obstacles for its earth mound (1.1 x its height out from three walls)
+R(r'''BLD(320,350,-792,-772,3.2,'s',334,337,CON2,{lab:'AMMO BUNKER · NO SMOKING · NO RUNNING · NO DROPPING',roof:CON2});''',
+   r'''BLD(320,350,-792,-772,3.2,'s',334,337,CON2,{roof:CON2});fbDress(g,{x0:320,x1:350,z0:-792,z1:-772,h:3.2,sd:'s',da:334,db:337,name:'AMMO BUNKER · NO SMOKING · NO RUNNING · NO DROPPING'},'bunker');{const e=3.2*1.1;ob(320-e,320,-792-e,-772);ob(350,350+e,-792-e,-772);ob(320,350,-792-e,-792)}''')
+R(r'''for(let i=0;i<3;i++){const x=372+i*11;A(CY(4,4,5,20),M(0x8a8a80,{metalness:.4}),x,2.5,-782);A(CY(4.2,4.2,.3,20),DK,x,5.1,-782);A(BX(1.2,1.2,.08),M(0xe8c020),x,2.2,-777.9);ob(x-4,x+4,-786,-778)}''',
+   r'''for(let i=0;i<3;i++){const x=372+i*11;ob(x-4,x+4,-786,-778)}fbObs(q,fbFuelDepot(g).obs);''')
+# the gun pit moves 10 m north, off South Street
+R(r'''for(let i=0;i<10;i++){const a=i/10*Math.PI*2;A(BX(1,.4,.6),SB,400+Math.cos(a)*3,.2,-740+Math.sin(a)*3).rotation.y=-a}for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.2;A(BX(1,.4,.6),SB,400+Math.cos(a)*3,.6,-740+Math.sin(a)*3).rotation.y=-a}mkTurret(400,-740,0,'g');prop(400,-736,2.6,''',
+   r'''for(let i=0;i<10;i++){const a=i/10*Math.PI*2;A(BX(1,.4,.6),SB,400+Math.cos(a)*3,.2,-750+Math.sin(a)*3).rotation.y=-a}for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.2;A(BX(1,.4,.6),SB,400+Math.cos(a)*3,.6,-750+Math.sin(a)*3).rotation.y=-a}mkTurret(400,-750,0,'g');prop(400,-746,2.6,''')
+# the tank park: canopies replace the label and the bollards; the berm is earth now
+R(r'''LB('TANK PARK · 13TH ARMOURED · SERGEANTS AND UP',8,.9,'#20261c','#e8f0d0',470,3.2,-800.27,Math.PI);A(BX(8.3,1.15,.12),M(0x2a3020),470,3.2,-800.15);for(const sx of[465.6,474.4])A(CY(.08,.1,3.75,8),M(0x4a4e54,{metalness:.6}),sx,1.87,-800.12);''',
+   r'''fbObs(q,fbTankPark(g).obs);''')
+R(r'''for(let i=0;i<4;i++)A(BX(.6,.9,.6),CON2,432+i*20,.45,-780);''','')
+R(r'''A(BX(6,3,70),M(0x9a8a60,{roughness:1}),595,1.2,-765).scale.y=1;ob(592,598,-800,-730);''',r'''fbRange(g);ob(592,598,-800,-730);''')
+# patrol tanks: one round the parade ground on the roads, one up and down South Street (the restricted zone one stays)
+R(r'''const loops=[[[421,-869.5],[586,-869.5],[586,-737],[421,-737]],[[312,-892],[412,-892],[412,-733],[312,-733]],''',
+   r'''const loops=[[[475,-885],[556,-885],[556,-805],[475,-805]],[[335,-735],[552,-735]],''')
+# Hangar 1: the cladding and barrel roof; the programme sign sits on the cladding now
+R(r'''LB('X-13 WRAITH PROGRAMME · HANGAR 1 · COLONELS ONLY · ALL OTHERS WILL BE SHOT',14,1.2,'#101418','#40c0ff',425.05,8.05,-694,Math.PI/2);''',
+   r'''fbHangarSkin(g);LB('X-13 WRAITH PROGRAMME · HANGAR 1 · COLONELS ONLY · ALL OTHERS WILL BE SHOT',14,1.2,'#101418','#40c0ff',425.12,8.25,-694,Math.PI/2);''')
+# the simple tool carts were built twice (the interiors add better ones), and one stood in the spares rack
+R(r'''for(const[x,z]of[[350,-712],[400,-712],[350,-676]]){A(BX(1.2,.9,.7),RD,x,.45,z);A(BX(1.3,.05,.8),ST2,x,.92,z);ob(x-.6,x+.6,z-.35,z+.35)}''','')
+# launch control: a bunker with an earth mound; the guards stand either side of the door
+R(r'''BLD(BX0,BX1,BZ0,BZ1,4,'n',540,543,CON2,{lab:'LAUNCH CONTROL · AUTHORISED PERSONNEL · TWO-MAN RULE IN FORCE',floor:M(0x4a4c50,{roughness:.8})});for(const sd of[-1,1]){const s=mkSoldier(0);s.position.set(541.5+sd*2.6,.9,-684.5);s.rotation.y=Math.PI;g.add(s)}''',
+   r'''BLD(BX0,BX1,BZ0,BZ1,4,'n',540,543,CON2,{floor:M(0x4a4c50,{roughness:.8})});fbDress(g,{x0:BX0,x1:BX1,z0:BZ0,z1:BZ1,h:4,sd:'n',da:540,db:543,name:'LAUNCH CONTROL · TWO-MAN RULE'},'bunker');{const e=4*1.1;ob(BX0-e,BX0,BZ0,BZ1+e);ob(BX1,BX1+e,BZ0,BZ1+e);ob(BX0,BX1,BZ1,BZ1+e)}for(const sx of[537,546]){const s=mkSoldier(0);s.position.set(sx,.9,-719.5);s.rotation.y=0;g.add(s)}''')
+# Silo 1: the new collar and the round hatch (the game still slides the stand-in hatch)
+R(r'''const SX=578,SZ=-700;A(CY(6,6.4,1.2,24),CON2,SX,.6,SZ);A(CY(4.6,4.6,.3,24),DK,SX,1.25,SZ);const hatch=A(BX(9.4,.5,9.4),M(0x5a5e64,{metalness:.5}),SX,1.45,SZ);for(const sd of[-1,1])A(BX(9.4,.08,.3),YL,SX,1.72,SZ+sd*4.5);''',
+   r'''const SX=578,SZ=-700;const FS=fbSilo(g),hatch=FS.hatch;''')
+R(r'''ob(SX-6.5,SX+6.5,SZ-6.5,SZ+6.5);''',r'''ob(570.8,585.2,-707.2,-692.8);''')
+R(r'''for(let i=0;i<4;i++){const a=i/4*Math.PI*2+.4;A(BX(.3,2.5,.3),ST,SX+Math.cos(a)*8,1.25,SZ+Math.sin(a)*8);A(BX(.5,.4,.5),M(0x400000,{emissive:0xff2020}),SX+Math.cos(a)*8,2.7,SZ+Math.sin(a)*8)}''','')
+# foot patrols: round the parade ground, along North Street, inside the airfield fence
+R(r'''const paths=[[[330,-895],[460,-895],[460,-870],[330,-870]],[[430,-740],[590,-740],[590,-810],[430,-810]],[[310,-830],[310,-740]]];''',
+   r'''const paths=[[[478,-880],[555,-880],[555,-810],[478,-810]],[[230,-890],[550,-890]],[[220,-999],[595,-999],[595,-933],[220,-933]]];''')
+# the maintenance tank was standing on the refit pad: it moves to the east end of the vehicle bay
+R(r'''hull.position.set(342,.45,-692);''',r'''hull.position.set(395,.45,-700);''')
+R(r'''A(BX(.5,.45,.5),M(0xe8c020),342+dx,.22+FL,-692+dz);ob(339,345,-694,-690);''',r'''A(BX(.5,.45,.5),M(0xe8c020),395+dx,.22+FL,-700+dz);ob(392,398,-702,-698);''')
+R(r'''for(const[x,z,ry]of[[340,-689.2,0],[345.5,-692,Math.PI/2]]){const m=mkSoldier(0);''',r'''for(const[x,z,ry]of[[393,-697.2,0],[398.5,-700,Math.PI/2]]){const m=mkSoldier(0);''')
+R(r'''A(BX(.5,.3,.3),RD,338.5,.15+FL,-689.5);A(CY(.04,.04,.9,6),ST2,338.5,.65+FL,-689.5).rotation.z=.5;''',r'''A(BX(.5,.3,.3),RD,391.5,.15+FL,-697.5);A(CY(.04,.04,.9,6),ST2,391.5,.65+FL,-697.5).rotation.z=.5;''')
+# r616 patches, part C: the fort extras (dpMil)
+# LZ Bravo: the new pad (fbLZ) replaces the old pad, ring, painted H and lights, and the mortar pits' sandbag rings
+R(r'''const pad=A(new THREE.CircleGeometry(10,36),new THREE.MeshStandardMaterial({color:0x5a5c58,roughness:1,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}),hx,.09,hz);pad.rotation.x=-Math.PI/2;''',r'''fbLZ(g);''')
+R(r'''const ring=A(new THREE.RingGeometry(8.6,9.3,36),new THREE.MeshStandardMaterial({color:0xf0ece0,roughness:1,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4}),hx,.1,hz);ring.rotation.x=-Math.PI/2;paint(1,5,hx-2,hz,0xf0ece0,0,.1);paint(1,5,hx+2,hz,0xf0ece0,0,.1);paint(3,1,hx,hz,0xf0ece0,0,.1);
+  for(let i=0;i<8;i++){const a=i/8*Math.PI*2;A(BX(.3,.2,.3),M(0x301000,{emissive:0xff8020}),hx+Math.cos(a)*9.8,.12,hz+Math.sin(a)*9.8)}''','')
+R(r'''for(let k=0;k<12;k++){const a=k/12*Math.PI*2;A(BX(1,.4,.6),SB,mx+Math.cos(a)*2.6,.2,mz+Math.sin(a)*2.6).rotation.y=-a}for(let k=0;k<8;k++){const a=k/8*Math.PI*2+.3;A(BX(1,.4,.6),SB,mx+Math.cos(a)*2.6,.6,mz+Math.sin(a)*2.6).rotation.y=-a}''','')
+# the mess hall's new outside
+R(r'''bld(x0,x1,z0,z1,h,'w',-894.5,-891.5,CON,{lab:'MESS HALL · TODAY: STEW · TOMORROW: STEW · SUNDAY: BIG STEW',lfs:40,roof:CON2,''',
+   r'''fbDress(g,{x0,x1,z0,z1,h,sd:'w',da:-894.5,db:-891.5,name:'MESS HALL · TODAY: STEW'},'flat');bld(x0,x1,z0,z1,h,'w',-894.5,-891.5,CON,{roof:CON2,''')
+# the parade: the formation, the sergeant, the spectators and the bleachers move to the new square; new floodlight masts
+R(r'''{const cx=486,cz=-856;const men=[];''',r'''{const cx=516,cz=-854;const men=[];''')
+R(r'''paint(26,.15,cx,cz-1.5,0xf0ece0,0,.1);paint(26,.15,cx,cz+7.5,0xf0ece0,0,.1);''','')
+R(r'''for(let r=0;r<3;r++){A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),540+r*1,.45+r*.4,-856);A(BX(.6,.08,20),M(0x8a8a90,{metalness:.4}),540.5+r*1,.45+r*.4,-856);A(BX(.1,.45+r*.4,20),DK,540.3+r*1,.22+r*.2,-856)}ob(539.5,543.2,-866,-846);''',
+   r'''fbBleachers(g,482,485.7,-862,-842,'e');ob(482,485.7,-862,-842);''')
+R(r'''for(const[r,z]of[[0,-863],[1,-860.5],[2,-857],[0,-854],[1,-851.5],[2,-849],[1,-864.5],[0,-848.5]]){const x=540.25+r,s=soldier(x,z,0);s.position.y=.9+.49+r*.4;s.rotation.y=Math.atan2(-(486-x),-(-853-z));''',
+   r'''for(const[r,z]of[[0,-859],[1,-856.5],[2,-853],[0,-850],[1,-847.5],[2,-845],[1,-860.5],[0,-844.5]]){const x=485.1-r*1.15,s=soldier(x,z,0);s.position.y=.9+.48+r*.45;s.rotation.y=Math.atan2(-(516-x),-(-852-z));''')
+R(r'''anim(541,-856,90,dt=>{const t=q.rt||0;SP.forEach(''',r'''anim(484,-852,90,dt=>{const t=q.rt||0;SP.forEach(''')
+R(r'''lab('SPECTATORS · CLAP WHEN TOLD',3,.4,'#20261c','#e8f0d0',541.5,1.9,-845.5,0,44);''',r'''lab('SPECTATORS · CLAP WHEN TOLD',3,.4,'#20261c','#e8f0d0',483.9,1.9,-841.4,0,44);''')
+R(r'''for(const[x,z]of[[424,-878],[556,-878],[424,-802],[556,-802]]){A(CY(.12,.16,14,8),ST,x,7,z);for(let i=0;i<4;i++){const a=i*Math.PI/2;A(BX(.5,.3,.3),DK,x+Math.cos(a)*.5,13.6,z+Math.sin(a)*.5)}A(BX(.3,.3,.3),M(0xfff0c0,{emissive:0xfff0c0}),x,13.3,z);const lt=glowSp(0xfff4c0,.7,2.2);lt.position.set(x,13.3,z);g.add(lt);ob(x-.2,x+.2,z-.2,z+.2)}''',
+   r'''for(const[x,z,ry]of[[482,-876,-.75*Math.PI],[551,-876,.75*Math.PI],[482,-814,-.25*Math.PI],[551,-814,.25*Math.PI]]){fbFloodMast(g,x,z,ry);ob(x-.5,x+.5,z-.5,z+.5)}''')
+# tents
+R(r'''const t=mkTent(K,6,4.4);t.position.set(x,0,z);g.add(t);ob(x-3,x+3,z-2.2,z+2.2);''',r'''fbTent(g,x,z);ob(x-3,x+3,z-2.2,z+2.2);''')
+# the old motor pool workshop corner stood where the squad motor pool is now (the canopy has its own workshop)
+R(r'''/* ---- the motor pool workshop corner ---- */{const wx=496,wz=-916;''',r'''/* ---- the motor pool workshop corner (r616: gone, the new canopy has the workshop) ---- */if(0){const wx=496,wz=-916;''')
+# Radar Station 13: the new drum and radome; the plaque moves to the porch
+R(r'''A(CY(4.2,4.4,3,24),CON2,rx,1.5,rz);A(new THREE.SphereGeometry(4.4,14,10),M(0xf0f0ec,{roughness:.9}),rx,6.2,rz);for(let i=0;i<3;i++)A(BX(.6,.5,.6),M(0x6a6a70,{metalness:.5}),rx-3.4+i*1.2,3.3,rz+3.2);A(BX(1.2,2.2,.1),DK,rx,1.1,rz+4.42);''',r'''fbRadome(g);''')
+R(r'''lab('RADAR STATION 13 · WE CAN SEE YOU · WE CAN SEE YOU READING THIS',7,.6,'#20261c','#e8f0d0',rx,3.4,rz+4.45,0,40);prop(rx,rz+5.6,2,''',r'''prop(rx,rz+5.9,2,''')
+# the dragon's teeth move out to the new outer checkpoint (built by dx614); the warning sign moves out too
+R(r'''{for(const sd of[-1,1])for(let i=0;i<14;i++){const x=560+sd*(7+i*3.2),z=-939;for(const zz of[z,z+2.6]){const t=A(new THREE.ConeGeometry(.75,1.1,4),CON2,x+(zz==z?0:1.6),.55,zz);t.rotation.y=Math.PI/4}}
+  sign('CHECKPOINT AHEAD · SLOW · HAVE ID READY\n(TANKS: ALSO HAVE ID READY)','#5a2020',569,-985,Math.PI+.2,'#ffe0a0');''',
+   r'''{sign('CHECKPOINT AHEAD · SLOW · HAVE ID READY\n(TANKS: ALSO HAVE ID READY)','#5a2020',569,-1030,Math.PI+.2,'#ffe0a0');''')
+# the firing line sign stood on the new Parade Road
+R("sign('FIRING LINE · FIRE EAST ONLY · TARGETS ON THE BERM','#5a2020',520,-803,0,'#ffe0a0');","sign('FIRING LINE · FIRE EAST ONLY · TARGETS ON THE BERM','#5a2020',520,-799,0,'#ffe0a0');")
+# r616 end
+
 # r604: ONE FONT EVERYWHERE. Barlow Semi Condensed (SIL Open Font License, src/fonts/) replaces Georgia, Arial, Impact,
 # serif and sans-serif in all CSS and canvas text. Kept on purpose: monospace terminals and readouts, the retro
 # Windows windows (Tahoma) and the Comic Sans jokes. The font is built into the page (works offline) and registered
@@ -447,7 +588,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r615';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r616';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

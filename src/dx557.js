@@ -19,7 +19,7 @@ function cwBuild(q){if(q.cw||!q.g||!q.obs||!q.mil)return;const g=new THREE.Group
  const CON=M(0x8a8c80),IN=M(0xc8c0a8),FL=M(0x5a3a22,{roughness:.6}),WD=M(0x4a2a14,{roughness:.5}),OL=M(0x3a4a2a),GD=M(0xd8b040,{metalness:.8,roughness:.3});
  const cx=(Z.x0+Z.x1)/2,cz=(Z.z0+Z.z1)/2,W=Z.x1-Z.x0,D=Z.z1-Z.z0;A(BX(W,.08,D),FL,cx,.04,cz);A(BX(W+.6,.3,D+.6),M(0x5a5c52),cx,H+.15,cz);
  A(BX(W,H,t),CON,cx,H/2,Z.z1);ob(Z.x0,Z.x1,Z.z1-t/2,Z.z1+t/2);A(BX(t,H,D),CON,Z.x0,H/2,cz);ob(Z.x0-t/2,Z.x0+t/2,Z.z0,Z.z1);A(BX(t,H,D),CON,Z.x1,H/2,cz);ob(Z.x1-t/2,Z.x1+t/2,Z.z0,Z.z1);
- const sg=pdTxt('COMMAND WING · GENERAL OFFICERS',9,.9,'#20261c','#e8d890');sg.position.set(cx,H+.85,Z.z0-.36);sg.rotation.y=Math.PI;g.add(sg);A(BX(9.4,1.1,.2),M(0x20261c),cx,H+.85,Z.z0-.2);
+ 
  for(let i=0;i<4;i++){const ox0=Z.x0+i*10,ox1=ox0+10,oc=ox0+5;if(i>0){A(BX(t,H,D),IN,ox0,H/2,cz);ob(ox0-t/2,ox0+t/2,Z.z0,Z.z1)}
   /* the front wall of each office: a door in the middle and a window either side */const dA=oc-.7,dB=oc+.7;A(BX(dA-ox0,H,t),CON,(ox0+dA)/2,H/2,Z.z0);ob(ox0,dA,Z.z0-t/2,Z.z0+t/2);A(BX(ox1-dB,H,t),CON,(dB+ox1)/2,H/2,Z.z0);ob(dB,ox1,Z.z0-t/2,Z.z0+t/2);A(BX(1.4,H-2.4,t),CON,oc,2.4+(H-2.4)/2,Z.z0);
   for(const sd of[-1,1])A(BX(2,1,.06),new THREE.MeshStandardMaterial({color:0x9ac0e0,transparent:true,opacity:.35}),oc+sd*3,1.7,Z.z0-.17);
@@ -48,11 +48,11 @@ function cwDlg(q){const C=q.cw;if(!C)return;if(!C.offer||C.rollT<=0)cwRoll(q);co
  const body='<p>'+act.length+' of '+cwMax()+' squad'+(cwMax()>1?'s':'')+' deployed'+(cwMax()<3?' (more squads at higher ranks)':'')+'. Squads take vehicles out of the motor pool, drive there, do the job and drive back: you get paid when they return. Follow them if you want to watch.</p>'+(act.length?'<p style="color:#ffd890">'+act.map(s=>'🪖 SQUAD '+s.nm+': '+s.T.nm+' at '+s.loc.nm+' · '+s.st).join('<br>')+'</p>':'')+'<p style="opacity:.75;font-size:12px">New missions come in every five minutes.</p>';
  const btns=C.offer.map((o,i)=>['m'+i,o.T.ic+' <b>'+o.T.nm.toUpperCase()+'</b> · '+o.loc.nm+' · 🪙 '+o.gold+' · '+o.xp+' XP<br><span style="font-weight:normal;font-size:12.5px;opacity:.85">'+o.T.veh.length+' vehicles ('+o.T.veh.join(', ')+') · '+Math.round(o.d)+' m out · '+o.T.work+'</span>',free<=0]);
  milDlg(q,'💻 COMMAND TERMINAL · OFFICE '+(cwSlot(q)+1),body,btns,b=>{const o=C.offer[+b.slice(1)];if(!o)return false;if(C.sq.filter(s=>!s.done).length>=cwMax()){hint('💻 All your squads are out. Wait for one to come home.');return false}C.offer.splice(+b.slice(1),1);cwSend(q,o)})}
-const CWPOOL=[478,-876];
+const CWPOOL=[499,-892],CWPD=[499,506.5,514,521.5];/* r616: the motor pool's four door columns */
 function cwSend(q,o){const C=q.cw,used=new Set(C.sq.filter(s=>!s.done).map(s=>s.nm));const nm=SQN.find(n=>!used.has(n))||'DELTA';
  const lx=o.loc.x,lz=o.loc.z,dx=561-lx,dz=-950-lz,dd=Math.hypot(dx,dz)||1;const dst={x:lx+dx/dd*16,z:lz+dz/dd*16};
- const s={nm,T:o.T,loc:o.loc,gold:o.gold,xp:o.xp,dst,st:'rolling out',ph:'out',wp:[[540,-876],[561,-890],[561,-918],[561,-950],[dst.x,dst.z]],wi:0,v:[],sol:[],t:0,done:0};
- const slot=SQN.indexOf(nm)<0?3:SQN.indexOf(nm);o.T.veh.forEach((k,i)=>{const v=q.addVeh(k,CWPOOL[0]-i*8,CWPOOL[1]-slot*7,-Math.PI/2);v.owner=SV.pid;v.mil=99;v.npc=1;v.nogar=1;v.sqd=1;for(const p of q.props)if(p.veh===v)p.txt=()=>'🪖 Squad '+nm+' ('+o.T.nm+'). They are busy.';s.v.push({v,stuck:0,bT:0})});
+ const s={nm,T:o.T,loc:o.loc,gold:o.gold,xp:o.xp,dst,st:'rolling out',ph:'out',wp:[[CWPD[SQN.indexOf(nm)]||CWPD[3],-886],[561,-886],[561,-918],[561,-950],[dst.x,dst.z]],wi:0,v:[],sol:[],t:0,done:0};
+ const slot=SQN.indexOf(nm)<0?3:SQN.indexOf(nm);o.T.veh.forEach((k,i)=>{const v=q.addVeh(k,CWPD[slot],-900.5-i*7.5,Math.PI);v.owner=SV.pid;v.mil=99;v.npc=1;v.nogar=1;v.sqd=1;for(const p of q.props)if(p.veh===v)p.txt=()=>'🪖 Squad '+nm+' ('+o.T.nm+'). They are busy.';s.v.push({v,stuck:0,bT:0})});
  C.sq.push(s);snd(600,.1);setTimeout(()=>snd(800,.1),120);hint('🪖 SQUAD '+nm+' is rolling out: '+o.T.nm+' at '+o.loc.nm+'. 🪙 '+o.gold+' when they get back.');try{sysLine('🪖 General '+(SV.nm||'')+' sent Squad '+nm+' to '+o.loc.nm)}catch(e){}}
 function cwDrive(q,u,gx,gz,dt,max,dist){const v=u.v;const dx=gx-v.x,dz=gz-v.z,d=Math.hypot(dx,dz),dh=wrapA(Math.atan2(-dx,-dz)-v.h);
  if(u.bT<0){u.bT+=dt;v.K=Object.assign({},VEHK[v.k],{max:6});v.hitO=null;vehPhys(q,v,dt,-.9,Math.sign(dh)||1,true,false);return d}
@@ -67,7 +67,7 @@ function cwTick(q,dt){const C=q.cw;if(!C)return;if(C.rollT>0)C.rollT-=dt;const l
    if(far&&s.v.some((u,i)=>i&&Math.hypot(u.v.x-lead.v.x,u.v.z-lead.v.z)>40)){s.v.forEach((u,i)=>{if(!i)return;u.v.x=lead.v.x+Math.sin(lead.v.h)*8*i;u.v.z=lead.v.z+Math.cos(lead.v.h)*8*i;u.v.h=lead.v.h})}
    if(d<(s.wi==s.wp.length-1?10:7)){s.wi++;if(s.wi>=s.wp.length){if(s.ph=='out'){s.ph='work';s.wt=0;s.st=s.T.work;hint('📻 SQUAD '+s.nm+': "On site at '+s.loc.nm+'. '+s.T.work[0].toUpperCase()+s.T.work.slice(1)+'."');cwWorkStart(q,s)}else{s.done=1;s.st='home';cwPay(q,s)}}}
    if(s.ph=='out'||s.ph=='back')s.st=s.ph=='out'?'en route to '+s.loc.nm:'heading home';if(s.t>600&&s.ph=='back'){s.done=1;cwPay(q,s)}continue}
-  if(s.ph=='work'){s.wt+=dt;for(const u of s.v){u.v.v*=Math.max(0,1-dt*3)}cwWorkTick(q,s,dt);if(s.wt>28){cwWorkEnd(q,s);s.ph='back';s.wi=0;s.wp=[[561,-950],[561,-918],[561,-890],[540,-876],[CWPOOL[0],CWPOOL[1]]];hint('📻 SQUAD '+s.nm+': "Job done. Heading home."')}}}}
+  if(s.ph=='work'){s.wt+=dt;for(const u of s.v){u.v.v*=Math.max(0,1-dt*3)}cwWorkTick(q,s,dt);if(s.wt>28){cwWorkEnd(q,s);s.ph='back';s.wi=0;{const px=CWPD[SQN.indexOf(s.nm)]||CWPD[3];s.wp=[[561,-950],[561,-918],[561,-886],[px,-886],[px,-901]]}hint('📻 SQUAD '+s.nm+': "Job done. Heading home."')}}}}
 function cwWorkStart(q,s){const L=s.v[0].v;s.sol=[];s.props=[];for(let i=0;i<4;i++){const m=mkSoldier(0);const a=i/4*6.283;m.position.set(L.x+Math.cos(a)*4,.9,L.z+Math.sin(a)*4);q.g.add(m);m.userData.a=a;s.sol.push(m)}
  if(s.T.k=='convoy'||s.T.k=='salvage'){for(let i=0;i<4;i++){try{const c=supCrate();c.position.set(s.dst.x+6+i*1.2,.3,s.dst.z+3);q.g.add(c);s.props.push(c)}catch(e){}}}}
 function cwWorkTick(q,s,dt){const L=s.v[0].v,t=s.wt;s.sol.forEach((m,i)=>{let tx,tz;

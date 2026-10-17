@@ -25,7 +25,7 @@ function bayBuild(q){if(q.wbay||!q.g||!q.obs)return;const g=new THREE.Group();q.
  const CON=M(0x7c7e74),RF=M(0x4a4c46),FL=M(0x5a5c56,{polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}),DR=M(0x8a8e92,{metalness:.5}),YL=M(0xd8b020);
  A(X1-X0,.08,D,FL,(X0+X1)/2,.07,cz);A(X1-X0+.6,.3,D+.6,RF,(X0+X1)/2,H+.15,cz);A(X1-X0,H,t,CON,(X0+X1)/2,H/2,Z0);ob(X0,X1,Z0-t/2,Z0+t/2);
  for(let i=0;i<=WBAY.n;i++){const x=X0+i*WBAY.w;A(t,H,D,CON,x,H/2,cz);ob(x-t/2,x+t/2,Z0,Z1)}
- const sgn=pdTxt('WRAITH BAYS · X-13 OWNERS ONLY',9,.8,'#20261c','#e8d890');sgn.position.set((X0+X1)/2,H+.8,Z1+.2);g.add(sgn);A(9.4,1,.15,M(0x20261c),(X0+X1)/2,H+.8,Z1+.05);
+ /* r616: the bay fronts (fbCmdBlock, dx614) carry the name */
  for(let i=0;i<WBAY.n;i++){const cx=bayX(i),dw=7.6,a=cx-dw/2,b=cx+dw/2;
   A(a-(cx-WBAY.w/2),H,t,CON,(cx-WBAY.w/2+a)/2,H/2,Z1);ob(cx-WBAY.w/2,a,Z1-t/2,Z1+t/2);A(cx+WBAY.w/2-b,H,t,CON,(b+cx+WBAY.w/2)/2,H/2,Z1);ob(b,cx+WBAY.w/2,Z1-t/2,Z1+t/2);A(dw,H-4.5,t,CON,cx,4.5+(H-4.5)/2,Z1);
   const dm=A(dw,4.5,.12,DR,cx,2.25,Z1+.05);for(let k=0;k<9;k++){const r=new THREE.Mesh(new THREE.BoxGeometry(dw,.05,.16),M(0x6a6e72,{metalness:.6}));r.position.y=-2.1+k*.5;dm.add(r)}const st=new THREE.Mesh(new THREE.BoxGeometry(dw,.25,.18),YL);st.position.y=-2.1;dm.add(st);
@@ -46,7 +46,7 @@ function bayTick(q,dt){const B=q.wbay;if(!B)return;const mine=bayMine(q),lz=P.z-
 /* ---------- the WRAITH AUTOPILOT, with a planned route ----------
    The desert has a route grid already (the police use it); Fort Blackout sits north of it, so the base gets its own
    small grid here. Out in the desert: plan to the base gate, then through the base to the door, then in. */
-const WKG={x0:300,x1:626,z0:-948,z1:-652,c:2};
+const WKG={x0:213,x1:626,z0:-948,z1:-652,c:2};/* r616: the base reaches x 215 now */
 function bgIn(x,z){return x>WKG.x0&&x<WKG.x1&&z>WKG.z0&&z<WKG.z1}
 function bgGrid(q,skip){const W=Math.ceil((WKG.x1-WKG.x0)/WKG.c),H=Math.ceil((WKG.z1-WKG.z0)/WKG.c),g=new Uint8Array(W*H),R=bgGrid.R||3.1;const obl=q.obs.filter(o=>!(skip.includes(o)||o.off||o.dest||o.veh));/* parked and moving vehicles are in the way too */for(const w of q.vehs||[]){if(w.gone||skip.includes(w)||(q.wkAP&&q.wkAP.v===w)||(q.seat&&q.seat.v===w))continue;if(!bgIn(w.x,w.z))continue;const r=Math.max(w.K.w||2,w.K.len||4)/2;obl.push({x0:w.x-r,x1:w.x+r,z0:w.z-r,z1:w.z+r})}for(const o of obl){if(o.x1<WKG.x0-R||o.x0>WKG.x1+R||o.z1<WKG.z0-R||o.z0>WKG.z1+R)continue;const i0=Math.max(0,Math.floor((o.x0-R-WKG.x0)/WKG.c)),i1=Math.min(W-1,Math.floor((o.x1+R-WKG.x0)/WKG.c)),j0=Math.max(0,Math.floor((o.z0-R-WKG.z0)/WKG.c)),j1=Math.min(H-1,Math.floor((o.z1+R-WKG.z0)/WKG.c));for(let j=j0;j<=j1;j++)for(let k=i0;k<=i1;k++)g[j*W+k]=1}return{g,W,H}}
 function bgPath(q,sx,sz,tx,tz,skip){const{g,W,H}=bgGrid(q,skip||[]);const cell=(x,z)=>{const i=Math.floor((x-WKG.x0)/WKG.c),j=Math.floor((z-WKG.z0)/WKG.c);return i<0||j<0||i>=W||j>=H?-1:j*W+i};const xz=k=>[WKG.x0+(k%W+.5)*WKG.c,WKG.z0+((k/W|0)+.5)*WKG.c];

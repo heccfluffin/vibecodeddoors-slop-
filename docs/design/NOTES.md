@@ -1,5 +1,24 @@
 # Notes for the design chat
 
+## 2026-10-17 · r616: Fort Blackout rework built (fort-blackout.md, dx614)
+Everything in the spec is in, as one release. What's different from the spec, and why:
+- **Depth nudges (please use this in future kit pieces):** a slope nudge (`polygonOffsetFactor`) on a big flat slab pulls it in front of everything standing on it when you look across it at a low angle. The parade ground hid its own podium, the formation and the bleachers. In my copy every nudge is now constant only (`polygonOffsetUnits`, factor 0), and that's enough at all distances. The game's seam smoothing (r406) was also stacking its own nudges on the kit's touching slabs and lines (factors of -100 and more), so everything the kit builds is marked `noSeam`. The model files in docs/design/models are untouched; the changes are in src/dx614.js.
+- **Chicane:** the two rows of teeth are at z -1020 and -1009 (the spec had -1016..-1008), and they overlap by 3.5 m instead of fully. The AI route grid pads every obstacle by 2.2 m on a 3 m grid, and with the spec's spacing it closed the only way through the fence gap. Squads, police and the autopilot would have been locked out of the base.
+- **Airside lane:** 5.6 m wide, not 7. Its east edge would have run into the motor pool's west wall at x 495.
+- **Junctions:** a road that ends at another stops at that road's edge (so no slabs overlap), and the through road has a kerb/pavement gap there, so no trims were needed. Gate Avenue's gaps cut both sides.
+- **Badge:** the ring text on the parade badge read backwards; the letter rotation sign is flipped.
+- **Silo:** the lid and the rams are kept out of the batching (`dpKeep`), or the lid's render hook never runs and it never opens. Checked: it opens.
+- **Tool carts:** I removed the plain set in milBuild instead of the interiors set (bak:6825). The interiors ones are nicer, and one plain cart stood in the spares rack.
+- **Inspection op:** the gate post was inside the new canopy, so it's at the guard post (556,-917) now; the motor pool post is on the new apron (521,-890).
+- **The "leftover beacon" at (520,-666)** was the X-13 trials' first gate (only shown during that op). That gate is on South Street now (505,-735).
+- **Small moves:** the hangar programme sign is at y 8.25 (it clipped the new door header); the FIRING LINE sign moved to z -799 (it stood on Parade Road).
+- **Bounds:** `MILAA` z0 is -1010 (not -1000) so the annex fence is inside it; the visitors' safe lane now starts at the outer checkpoint (z -1010).
+- **Squad vehicles** wait inside the shed in the four door columns, facing south. They drive out through their door onto North Street, and come home the same way.
+- **Kept:** the restricted-zone patrol tank loop; the water tower; the comms tower; the fire truck.
+- **Known:** Air Ops' radio mast obstacle pokes 0.4 m into the south half of the service road at x 331. In the headless renderer two of the command wing's front windows drew without glass.
+- **Checked:** the build, no errors, nothing else in the new west strip (no cacti, rocks, props or vehicles there), no road crosses the new outline; the route grid gets from the highway through the checkpoint to the gate, North Street, the taxiway and the service road; the base grid gets from the gate to every new road, the bay apron and the motor pool apron. Screenshots: overview, gate, checkpoint and airfield, west strip, parade ground, plaza, motor pool, command wing, restricted zone, silo (shut and open).
+- **Not checked (real play):** driving round, squads leaving and coming home through the new shed doors, missions (flag, inspection, patrol, supply run), co-op, frame rate on a real GPU.
+
 ## 2026-10-17 · From the design chat: Fort Blackout is ready to build
 `docs/design/fort-blackout.md` has the new layout (part 1) and all five model batches (part 2), each approved by the
 user. Load `models/fort-kit.js` first, then `fort-north.js`, `fort-west.js`, `fort-air.js` and `fort-mid.js`.

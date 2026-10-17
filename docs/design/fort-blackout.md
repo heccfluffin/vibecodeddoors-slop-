@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-5 approved (Fort Blackout complete, ready to build)
+Status: shipped in r616 (2026-10-17): part 1 layout and part 2 batches 1-5. See NOTES.md for what changed from the spec.
 
 # Fort Blackout rework
 

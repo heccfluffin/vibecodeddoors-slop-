@@ -137,6 +137,11 @@ It then inlines the media, sets `const BUILD='YYYY-MM-DD rNNN'` (that regex is n
   `QT` holds the quarry tycoon upgrades, `qtL(id)` the level, and `SM` the smeltery.
 - Soldiers: `mkSoldier()` models face **-z** at rotation 0. When walking towards (dx, dz), use
   `rotation.y = atan2(-dx, -dz)`. Seated in a vehicle: `rotation.y = v.h`.
+- **Depth nudges:** never put `polygonOffsetFactor` on a big flat slab (it pulls the slab in front of everything standing on
+  it at low angles); use `polygonOffsetUnits` only. The seam smoothing (`seamFix`, r406) nudges every pair of touching flat
+  faces and stacks up; mark meshes that handle their own offsets `userData.noSeam=true` (dx614 does this for the kit).
+  Anything animated by a render hook or moved every frame should be `userData.dpKeep=1` so the batching leaves it alone.
+- **The base has its own route grid** (`bgGrid`/`bgPath`, `WKG`); most of Fort Blackout is south of the desert grid `NAV`.
 - Desert map: `dmapDraw(q, canvas, cx, cz, scale, full)`, `DMAP` (`zm` zoom, `px`/`pz` pan added in r599).
   Click-to-warp is `dmapWarp`.
 
@@ -162,9 +167,14 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r615** (`main`, released 2026-10-17). r615 = the plane and the Desert Bus inside and out (`dx613`: `mkPlane`,
-  `busShell` replaces the bus box/wheels via build.py patches on `mkMegaBus`; `mkMegaInterior`/`megaExtras`/`megaPolish`
-  are redefined whole, with `biKit`/`biMerge`).
+- **Live: r616** (`main`, released 2026-10-17). r616 = the Fort Blackout rework (`fort-blackout.md`): `dx614` holds the design
+  chat's five model files (`fbKit`, `fbDress`, `fbWall`, `fbRoad`... 45 builders) plus the wiring (`milRoads` redefined with
+  `FBROADS`, a `milBuild` wrapper for the annex/west strip/plaza, `milArea` covers the annex `FBANX`, a `cwBuild` wrapper for
+  `fbCmdBlock`). About 70 build.py R patches (block "r616") swap the base's old meshes for the new ones; direct edits in dx549
+  (shelters, tower), dx557 (squad spawn/route `CWPD`), dx572 (`WKG.x0` 213), dx598 (new `MPOOL`, `cwShed`, `cwCrewPath`,
+  doors in the south wall), dx602 (`MAPBN`), dx606 (`UPLK`). `MILB.x0` is 215. build.py can dump the patched text before the
+  r616 block with `DUMP=/path python3 build.py` (handy for writing R patches against already-patched code).
+- r615: the plane and the Desert Bus inside and out (`dx613`).
 - r614: the five odd cars (`dx612`, `mkOddCar`).
 - r613: r613 = helicopter, jet and runabout models (`dx611`: `uh9Model`,
   `ah4Model`, `jetModel` + `gearSet` in `awLook`, `mkRunabout`).
@@ -299,6 +309,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Helicopter, jet and runabout models | dx611 |
 | Odd cars: hearse, limo, rally car, tractor, ice cream van | dx612 |
 | Plane, Desert Bus shell and interior | dx613 |
+| Fort Blackout rework: kit models, roads, annex, west strip, plaza, motor pool move | dx614 (+ build.py r616 block) |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

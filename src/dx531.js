@@ -3,7 +3,8 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
- ['r615',['New plane model with a real cabin','The Desert Bus is rebuilt inside and out: new shell and wheels, and a tidier, more detailed interior']],
+ ['r616',['Fort Blackout is rebuilt: proper roads with kerbs and street lamps, new outsides on every building, a new wall, gate and flak towers','The base grows west: a power plant, water treatment, solar panels, Heliport West, the PX and gym, a basketball court and the armoury','The runway is part of the base now, behind a fence with an outer checkpoint, guard towers, Air Ops, a fuel farm and new aircraft shelters','The squad motor pool moved north of North Street, the parade ground has a new square, podium and flag, and there is a command plaza by HQ','Silo 1 has a round hatch that swings open, plus a new radar dome, hangar, boot camp, tank park, range and LZ Bravo']],
+['r615',['New plane model with a real cabin','The Desert Bus is rebuilt inside and out: new shell and wheels, and a tidier, more detailed interior']],
 ['r614',['New models for the hearse, the stretch limo, the rally car, the tractor and the ice cream van']],
  ['r613',['New models for the UH-9 and AH-4 helicopters (with real cockpits and cabins) and the F-9 Sabre and X-22 fighters, whose landing gear now folds up properly','New motorbike, golf cart, quad and dune buggy']],
  ['r612',['Your office has a bank of monitors: every squad you send out gets a live camera feed riding along behind the convoy (it circles the site while they work), with their status underneath']],
