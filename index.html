@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-17 r618';
+const BUILD='2026-10-17 r619';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15979,6 +15979,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r619',['Old Quarry: the crucible now pours right into the molds','Old Quarry: a rubble pile no longer sits on the ore hopper']],
  ['r618',['The Old Quarry is rebuilt: a new furnace, molds and grinder facing the pit, a crucible that tips on a proper rail, and every tycoon upgrade remodelled','The processing machines stand in two tidy rows with ore riding the belts between them','New crusher and conveyor, a walk-in site office, floodlight towers, a drill rig on the pit floor and a haul truck that backs up to the crusher','The road up Lookout Mesa now sits on a solid embankment instead of floating','Fort Blackout: the roads no longer vanish near you by the motor pool (a slab in front of the shed was drawn over them)']],
 ['r617',['Fort Blackout: the command wing and the Wraith bays show their new walls and windows properly','The weather mast at Air Ops moved onto the roof, out of the service road']],
 ['r616',['Fort Blackout is rebuilt: proper roads with kerbs and street lamps, new outsides on every building, a new wall, gate and flak towers','The base grows west: a power plant, water treatment, solar panels, Heliport West, the PX and gym, a basketball court and the armoury','The runway is part of the base now, behind a fence with an outer checkpoint, guard towers, Air Ops, a fuel farm and new aircraft shelters','The squad motor pool moved north of North Street, the parade ground has a new square, podium and flag, and there is a command plaza by HQ','Silo 1 has a round hatch that swings open, plus a new radar dome, hangar, boot camp, tank park, range and LZ Bravo']],
@@ -18919,7 +18920,7 @@ function mnSurface(X){const{q,g,M,A,ob,prop,lab}=X,F=QD.F;
  /* r618: foundations under the smelting yard, the mine head, the ore hopper and the skip tower (each a walking plate) */
  for(const[a,b,c,d,o]of[[-240,-202,-1453,-1440.6,{drain:'n'}],[-251.6,-241,-1456,-1440.6,{drain:'w'}],[-193.5,-186.5,-1449.6,-1440.6],[-243.5,-236.5,-1463.5,-1456.5]])q.plates.push(qmPad(g,a,b,c,d,F,o).plate);
  /* the smelter (r618: qmFurnace, turned to face the pit), the crucible rail and the trolley with the crucible */{const x=SM.x,z=SM.z;const FU=qmTurn(qmFurnace,g,x,z,F);SM.mouth=FU.mouth;for(const o of FU.obs)ob(o.x0,o.x1,o.z0,o.z1);
-  const RZ=z-.6,RY=F+5.2;for(const o of qmCraneRail(g,x+1.4,SM.mx+3.4,RZ,F,F+3.9).obs)ob(o.x0,o.x1,o.z0,o.z1);
+  const RZ=z-.3,RY=F+5.2;for(const o of qmCraneRail(g,x+1.4,SM.mx+3.4,RZ,F,F+3.9).obs)ob(o.x0,o.x1,o.z0,o.z1);
   const cu=qmCrucible();cu.tro.position.set(x+2.6,RY,RZ);g.add(cu.tro);
   const strm=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,1,6),new THREE.MeshBasicMaterial({color:0xff7020}));strm.visible=false;g.add(strm);SM.tro={g:cu.tro,home:x+2.6,a:SM.mx-1.25,b:SM.mx+1.25,strm,RY,RZ};SM.cru={g:cu.cr,molt:cu.molt,pot:cu.pot};
   prop(x,z-2.6,1.8,()=>smTxt(q),()=>smAct(q))}
@@ -19430,7 +19431,7 @@ qtTick=function(q,dt){QA.sT=(QA.sT||0)-dt;if(QA.sT<=0){QA.sT=1;try{qtScreen(q)}c
  try{qtMoundTick(q,dt)}catch(e){}try{excTick(q,dt)}catch(e){conLog('error','excavator: '+e.message)}};
 /* ---------- rubble mounds and the ore hopper ---------- */
 const QHOP={x:-190,z:-1443.2,n:0};const QMD={L:[]};
-function qtMounds(q,G){QMD.L=[];const GV=new THREE.MeshStandardMaterial({map:qTex('grav'),roughness:1,color:0xd0b890});for(const[x,z]of[[-196,-1452],[-188,-1448],[-182,-1463],[-176,-1449]]){const g=new THREE.Group();g.position.set(x,QD.F,z);G.add(g);const c=new THREE.Mesh(new THREE.ConeGeometry(2.2,1.7,14),GV);c.position.y=.85;g.add(c);for(let k=0;k<6;k++){const r=.25+Math.random()*.4,b=new THREE.Mesh(new THREE.DodecahedronGeometry(r,0),QM(0x8a7458,{roughness:1}));const a=Math.random()*6.28,d=1+Math.random()*1.2;b.position.set(Math.cos(a)*d,r*.4,Math.sin(a)*d);b.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3);g.add(b)}
+function qtMounds(q,G){QMD.L=[];const GV=new THREE.MeshStandardMaterial({map:qTex('grav'),roughness:1,color:0xd0b890});for(const[x,z]of[[-196,-1452],[-185,-1451],[-182,-1463],[-176,-1449]]){const g=new THREE.Group();g.position.set(x,QD.F,z);G.add(g);const c=new THREE.Mesh(new THREE.ConeGeometry(2.2,1.7,14),GV);c.position.y=.85;g.add(c);for(let k=0;k<6;k++){const r=.25+Math.random()*.4,b=new THREE.Mesh(new THREE.DodecahedronGeometry(r,0),QM(0x8a7458,{roughness:1}));const a=Math.random()*6.28,d=1+Math.random()*1.2;b.position.set(Math.cos(a)*d,r*.4,Math.sin(a)*d);b.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3);g.add(b)}
   const glint=[];for(let k=0;k<4;k++){const m=new THREE.Mesh(new THREE.DodecahedronGeometry(.08,0),new THREE.MeshStandardMaterial({color:0xffc830,emissive:0x806000,emissiveIntensity:.8,metalness:.8}));const a=Math.random()*6.28,h=Math.random();m.position.set(Math.cos(a)*2.1*(1-h)*.9,h*1.6,Math.sin(a)*2.1*(1-h)*.9);g.add(m);glint.push(m)}QMD.L.push({g,x,z,n:6,t:0})}}
 function qtMoundTick(q,dt){for(const m of QMD.L){if(m.n<=0){m.t+=dt;if(m.t>150){m.n=6;m.t=0}}const s=m.n<=0?.05:.35+m.n/6*.65;m.g.scale.set(.6+s*.4,s,.6+s*.4);m.g.visible=m.n>0||m.t<1}}
 /* ---------- the excavator, driven ---------- */
