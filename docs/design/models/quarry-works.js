@@ -49,7 +49,7 @@ function qmOreFeed(g,x,z,F,rx,rz){const{k,M,ST,DK,YL,BL,GM}=qmMat(),{B,C,rod,L}=
  const fl2=new THREE.Mesh(new THREE.DodecahedronGeometry(.6,0),M(0x8a7a6a,{roughness:1}));fl2.scale.y=.45;fl2.position.set(0,1.0,0);hp.add(fl2);
  L('ORE FEED',1.2,.28,'#1a1a1a','#e8c020',60,x,F+1.15,z+.79,0);
  /* the charging chute on the hood: an open-topped steel hopper; the belt's head drum hangs just over it */{for(const s2 of[-1,1]){B(.05,.5,.9,rx+s2*.43,F+4.15,rz,GM);B(.9,.5,.05,rx,F+4.15,rz+s2*.43,GM)}for(const s2 of[-1,1]){B(.09,.05,1.0,rx+s2*.45,F+4.42,rz,DK);B(1.0,.05,.09,rx,F+4.42,rz+s2*.45,DK)}B(.9,.08,.9,rx,F+3.94,rz,DK);B(.8,.02,.8,rx,F+4.0,rz,M(0x1a1a1a))}
- qmNS(g);return{hp,fl2,from:[x,F+1.58,z-.6],to:[rx,F+4.66,rz],obs:[{x0:x-.8,x1:x+.8,z0:z-.8,z1:z+.8}]}}
+ qmNS(g);return{hp,fl2,from:[x,F+1.58,z-.6],to:[rx,F+4.98,rz],obs:[{x0:x-.8,x1:x+.8,z0:z-.8,z1:z+.8}]}}
 
 /* ---- the casting robot: a six-axis arm on a pedestal, cable loom along the arm, a gripper; a beacon; a safety rail ---- */
 function qmCastRobot(g,rx,rz,F){const{k,M,ST,DK,YL,OR}=qmMat(),{B,C,rod,L}=k.H(g);const WH=M(0xe4e4e0,{roughness:.5,metalness:.2});
