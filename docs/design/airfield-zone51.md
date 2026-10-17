@@ -1,4 +1,4 @@
-Status: layout approved by the user 2026-10-17 · models coming in batches
+Status: layout and airfield batch 1 approved by the user 2026-10-17 · airfield batch 2 in review
 
 # The airfield and Dark Zone 51
 
@@ -63,4 +63,12 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
 4 helipad, motor pool, floodlights, fuel · 5 the alien and secret things.
 
 ## Part 2: models
-(coming)
+
+### Airfield batch 1 (approved) · `afField(g)` → `{obs, lights}` in `models/airfield.js`
+- Replaces in `xpAirfield`: the runway plane and its canvas, the two number labels, the apron plane, and the merged
+  runway-light spheres. Keep the `rect(...)` map entries and `zone(...)`.
+- Ground layers (all planes with constant depth nudges only): apron .04, shoulders and blast pads .045, taxiway .048,
+  runway .05. The shoulders stop at the runway ends and leave a gap where the taxiway joins, so nothing overlaps.
+- Edge lights skip x 294..306 (the road crossing, batch 3) and x 317..327 (the taxiway).
+- `lights` is [white, green, red] materials; any night code can raise their `emissiveIntensity`.
+- **The plane spawns at (345, -1257)** (in `xpVehicles`, was (300, -1250)), on stand 2.
