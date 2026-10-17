@@ -1,4 +1,4 @@
-Status: layout and airfield batches 1-2 approved by the user 2026-10-17 · airfield batch 3 next
+Status: layout and airfield batches 1-3 approved by the user 2026-10-17 · airfield batch 4 next
 
 # The airfield and Dark Zone 51
 
@@ -80,3 +80,12 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
 - Push every returned `obs`. The hangar's door opening is x 288..312 (24 m), wide enough for the plane.
 - The hangar floor is a plane at y .06 (nudge -3) over the apron (.04).
 - `afTHangars` builds the crop duster itself (in Hangar 2). It is a model, not a vehicle, with one obstacle box.
+
+### Airfield batch 3 (approved) · `afCrossing(g)` → `{obs, flash}`, `afTerminal(g)`, `afCarPark(g)` → `{obs}`
+- **The road:** extend the airfield's dirt road (`road(300, -1033.5, 300, -1210, 1)` in `xpRoads`) no further; the
+  crossing pieces are planes from z -1220 to -1210 and -1244 to -1240 (y .045). The route grid should treat x
+  296.5..303.5 from z -1210 to -1264 as drivable (it already is: the runway and apron are open ground).
+- `flash` is two red materials: alternate them every 0.6 s (`(q.rt / .6 | 0) % 2`), emissiveIntensity 1 and .1.
+- Terminal and car park are new; push their `obs`. The terminal's glass door to the runway stands open (x 322.5..324.5)
+  and the entrance from the road is a doorway in its west wall (z -1206..-1204).
+- New `rect()` map entries if you like: terminal `#e6d6b8`, car park `#b4a080`.
