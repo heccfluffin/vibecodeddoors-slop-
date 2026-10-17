@@ -132,3 +132,43 @@ function syCrusher(g,cx,cz){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;const obs=[
  /* the ingot pallet beside it, and a sign */const px=mx+2.1,pz=mz;B(1.8,.14,1.4,px,.07,pz,M(0x8a6a44,{roughness:.9}));for(const dz of[-.55,0,.55])B(1.8,.04,.12,px,.16,pz+dz,M(0x6a4a2a));L('INGOTS · PRICED BY THE CAR',1.4,.26,'#1a1a1a','#e0e4e8',60,px,.75,pz+.72,0);B(.06,.7,.06,px-.6,.35,pz+.72,DK);B(.06,.7,.06,px+.6,.35,pz+.72,DK);
  g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});
  return{pr,ram,belt,btx,bx0,bx1,bz:cz,fx,fz,mouth,cd,e1,mx,mz,fill,lp,lm,stream,px,pz,sg,crL,y0:4.2,flAt:[e1-.9,2,fz],smkAt:[fx+.4,10.4,fz-.4],obs}}
+
+/* ---- batch 4: the scrap bays, the tyre mountain and rack, the monster truck pad ---- */
+/* three open-fronted concrete bays on the north side (x 114.5..149.5, z -1316..-1303), mouths facing the yard (-z); each holds its heap.
+   Bay 3 is the rummage pile ("DIG IN"); its rummage prop goes at (144, -1318). */
+function syBays(g){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;const obs=[];let sd=2468;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;
+ const Z0=-1316,Z1=-1303,H=2.4,T=.4;B(36,.15,13.4,132,.075,(Z0+Z1)/2,k.PRE);
+ /* the back wall and four dividers, made of interlocking concrete blocks (1.6 x .8 x .8) */const BLK=M(0xb8b2a6,{roughness:.95});const blk=(x,y,z,ry)=>{const b=B(1.56,.76,.76,x,y,z,BLK);b.rotation.y=ry||0;return b};
+ for(let row=0;row<3;row++){const y=.53+row*.8;for(let x=114.5+.8+(row%2)*.8;x<149.6-.7;x+=1.6)blk(x,y,Z1-.4)}obs.push({x0:114.3,x1:149.7,z0:Z1-.8,z1:Z1});
+ for(const dx of[114.5,126.5,138.5,149.5])for(let row=0;row<3;row++){const y=.53+row*.8;for(let z=Z1-.8-.8-(row%2)*.8;z>Z0+.7;z-=1.6)blk(dx,y,z,Math.PI/2)}
+ for(const dx of[114.5,126.5,138.5,149.5])obs.push({x0:dx-.4,x1:dx+.4,z0:Z0+.3,z1:Z1-.8});
+ /* the heaps: bay 1 steel (beams, plates, a drum, rebar), bay 2 copper and brass (wire coils, pipes, radiators), bay 3 everything */
+ const heap=(cx,mats,n,cz)=>{for(let i=0;i<n;i++){const a=r()*Math.PI*2,d=Math.sqrt(r())*4.3,x=cx+Math.cos(a)*d*1.05,z=(cz||-1310.5)+Math.sin(a)*d*.95,h=Math.max(.15,(1-d/4.6))*2.1;const kind=i%5,m=mats[i%mats.length];let o;
+   if(kind==0)o=B(1.2+r()*1.6,.12,.15,x,.3+r()*h,z,m);else if(kind==1)o=B(.8+r()*.8,.06,.6+r()*.6,x,.25+r()*h,z,m);else if(kind==2){o=new THREE.Mesh(new THREE.TorusGeometry(.25+r()*.15,.06,6,14),m);o.position.set(x,.3+r()*h,z);g.add(o)}else if(kind==3){o=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1+r()*1.5,8),m);o.position.set(x,.25+r()*h,z);g.add(o)}else{o=new THREE.Mesh(new THREE.DodecahedronGeometry(.2+r()*.3,0),m);o.position.set(x,.2+r()*h*.8,z);g.add(o)}o.rotation.set(r()*3,r()*3,r()*3)}
+  /* a low mound under it so nothing floats */const md=new THREE.Mesh(new THREE.SphereGeometry(4.4,18,8,0,Math.PI*2,0,Math.PI/2),M(0x5a4a3a,{roughness:1}));md.scale.y=.32;md.position.set(cx,.14,cz||-1310.5);g.add(md)};
+ const STEEL=[M(0x6a6e72,{metalness:.6,roughness:.5}),M(0x7a4a2a,{metalness:.4,roughness:.8}),M(0x4a4e52,{metalness:.6,roughness:.5})],CU=[M(0xb87333,{metalness:.8,roughness:.3}),M(0xc8a040,{metalness:.8,roughness:.3}),M(0x8a5a2a,{metalness:.7,roughness:.4})],MIX=STEEL.concat(CU,[M(0x3a5a8a,{metalness:.4}),M(0xa03030,{metalness:.4})]);
+ heap(120.5,STEEL,60);heap(132.5,CU,60);heap(144,MIX,70);
+ {const dr=C(.3,.3,.9,121.5,.6,-1312.5,M(0x2a5a8a,{metalness:.4}),null,null,14);dr.rotation.z=1.4}
+ /* boards on the back wall */L('STEEL',2.4,.5,'#2a2e34','#e0e4e8',60,120.5,2.05,Z1-.81,0);L('COPPER & BRASS',3.6,.5,'#5a3a1a','#ffd8a0',60,132.5,2.05,Z1-.81,0);L('SCRAP · DIG IN\n(NO REFUNDS)',3.2,.8,'#8a4a2a','#ffe0a0',60,144,1.95,Z1-.81,0);
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{obs,rummage:[144,-1318]}}
+
+/* the tyre mountain (x 64..82, z -1316..-1303): a heaped pile of tyres on a low mound, a few leaning; and a steel rack of stacked tyres beside it */
+function syTyres(g){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;let sd=1357;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;const RB=M(0x1c1c1c,{roughness:.95}),RIM=M(0x8a8e92,{metalness:.7,roughness:.4});
+ const tg=new THREE.TorusGeometry(.42,.17,8,16);const cx=73,cz=-1309.5;const md=new THREE.Mesh(new THREE.SphereGeometry(6,20,8,0,Math.PI*2,0,Math.PI/2),M(0x4a4038,{roughness:1}));md.scale.set(1.45,.42,1.05);md.position.set(cx,0,cz);g.add(md);
+ /* tyres lying on the mound's surface, in rings, more on the lower slopes */const surf=(x,z)=>{const dx=(x-cx)/(6*1.45),dz=(z-cz)/(6*1.05),q=1-dx*dx-dz*dz;return q>0?Math.sqrt(q)*6*.42:0};
+ for(let i=0;i<150;i++){const a=r()*Math.PI*2,d=Math.sqrt(r())*.95,x=cx+Math.cos(a)*d*8.4,z=cz+Math.sin(a)*d*6.1,y=surf(x,z);const t=new THREE.Mesh(tg,RB);t.position.set(x,y+.1,z);t.rotation.set(Math.PI/2+(r()-.5)*.7,(r()-.5)*.5,r()*3);g.add(t)}
+ for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.3,x=cx+Math.cos(a)*8.9,z=cz+Math.sin(a)*6.4;const t=new THREE.Mesh(tg,RB);t.position.set(x,.5,z);t.rotation.set(0,a+Math.PI/2,(r()-.5)*.4);t.rotation.order='YXZ';t.rotation.x=.35;g.add(t)}
+ /* the rack (x 84..86): two bays of steel uprights and beams, tyres standing in rows, a few with rims */const RK=M(0xd86a20,{metalness:.4,roughness:.5});for(const z of[-1316,-1310,-1304])for(const x of[84,86])B(.08,2.4,.08,x,1.2,z,RK);for(const y of[.3,1.2,2.1])for(const x of[84,86])B(.08,.12,12,x,y,-1310,RK);for(const y of[.36,1.26,2.16])B(2,.04,12,85,y,-1310,M(0x6a6e72,{metalness:.5}));
+ for(const y of[.38,1.28])for(let z=-1315.5;z<-1304.3;z+=.42){const t=new THREE.Mesh(tg,RB);t.position.set(85,y+.6,z);t.rotation.y=Math.PI/2;g.add(t);if(((z*10)|0)%3==0){const rm=C(.26,.26,.22,85,y+.6,z,RIM,'z',null,12)}}
+ L('TYRES · 5 🪙 · NO GUARANTEE',2.4,.4,'#1a1a1a','#e8c020',60,84.95,2.6,-1310,-Math.PI/2);
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{obs:[{x0:64,x1:82,z0:-1316,z1:-1303},{x0:83.8,x1:86.2,z0:-1316.2,z1:-1303.8}]}}
+
+/* the monster truck pad (x 158..172, z -1318..-1306): a raised concrete plinth with a ramp on the yard side, flag poles, a banner, spotlights */
+function syMonsterPad(g){const k=fbKit(),{B,C,rod,L}=k.H(g),M=k.M;const cx=165,cz=-1312;
+ B(14,.3,12,cx,.15,cz,k.PRE);B(14.2,.04,12.2,cx,.31,cz,M(0x2a2c30,{roughness:.6}));{const rp=B(4,.06,2.2,cx,.15,cz-7.0,k.PRE);rp.rotation.x=-.14}
+ for(const sx of[-1,1])for(const sz of[-1,1])B(.4,.06,.4,cx+sx*6.6,.34,cz+sz*5.6,M(0xe0b020));
+ /* a checker stripe border painted round the top */{const t=k.tex(256,16,(c,w,h)=>{for(let i=0;i<32;i++){c.fillStyle=i%2?'#e8e8e8':'#1a1a1a';c.fillRect(i*8,0,8,8);c.fillStyle=i%2?'#1a1a1a':'#e8e8e8';c.fillRect(i*8,8,8,8)}});t.repeat.set(4,1);const m=M(0xffffff,{map:t,roughness:.6});for(const[w,d,x,z]of[[13.6,.3,0,-5.8],[13.6,.3,0,5.8],[.3,11.6,-6.8,0],[.3,11.6,6.8,0]]){const s=new THREE.Mesh(new THREE.PlaneGeometry(w,d),m);s.rotation.x=-Math.PI/2;if(d>w){s.rotation.z=Math.PI/2;s.geometry=new THREE.PlaneGeometry(d,w)}s.position.set(cx+x,.335,cz+z);g.add(s)}}
+ /* two flag poles at the back with a banner between them */for(const sx of[-5.5,5.5]){C(.08,.1,6,cx+sx,3.3,cz+5.4,M(0xc8ccd0,{metalness:.8}),null,null,10);C(.14,.14,.12,cx+sx,6.35,cz+5.4,M(0xe0b020),null,null,10)}
+ {const bn=k.lab('THE MONSTER TRUCK\nNOT FOR SALE · ¡NO TOCAR!',10,2.2,'#1a3a8a','#ffe060',60);bn.position.set(cx,4.6,cz+5.38);bn.rotation.y=Math.PI;g.add(bn);B(10.2,.06,.06,cx,5.72,cz+5.4,M(0xc8ccd0,{metalness:.8}));B(10.2,.06,.06,cx,3.48,cz+5.4,M(0xc8ccd0,{metalness:.8}))}
+ /* two spotlights on stands at the front corners, aimed at the truck */for(const sx of[-1,1]){const x=cx+sx*6.2,z=cz-5.2;C(.05,.05,1.2,x,.9,z,M(0x2a2a2a),null,null,8);const hd=C(.18,.22,.35,x,1.55,z,M(0x2a2a2a),null,null,12);hd.rotation.x=-.9;hd.rotation.z=-sx*.5;const ln=new THREE.Mesh(new THREE.CircleGeometry(.17,12),M(0xfff0d0,{emissive:0xfff0d0,emissiveIntensity:1}));ln.position.set(x-sx*.14,1.66,z+.2);ln.lookAt(cx,1.5,cz);g.add(ln)}
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{obs:[{x0:cx-5.7,x1:cx-5.3,z0:cz+5.2,z1:cz+5.6},{x0:cx+5.3,x1:cx+5.7,z0:cz+5.2,z1:cz+5.6}],spawn:[cx,cz,0],y:.33}}/* facing out over the ramp (-z) */

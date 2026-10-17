@@ -1,4 +1,4 @@
-Status: layout and batches 1-3 approved by the user 2026-10-17 · more batches coming
+Status: approved by the user 2026-10-17: layout and all four model batches, to build
 
 # Goblino's Scrap rework
 
@@ -111,3 +111,24 @@ values, so the cube's path is the same.
   - Store it on the ingot (`ing.userData.val`), show it in the hint ("Ingot #3 cast! A sedan's worth: 18 gold"), and
     tint the ingot: below 15 dull grey, 15-29 steel, 30 and up bright and shiny.
   - The sign text becomes 'THE CRUSHER\nDRIVE IN · STOP · GET PAID' and the pallet's label 'INGOTS · PRICED BY THE CAR'.
+
+### Batch 4: the scrap bays, the tyres and the monster truck pad, approved
+New globals: `syBays, syTyres, syMonsterPad`. None of them clash with existing names. Push every returned `obs`.
+- **`const b = syBays(g)`:** three block-built bays (steel / copper & brass / dig in) at x 114.5..149.5,
+  z -1316..-1303.
+  - **The rummage pile moves into bay 3.** In the 'scrap pile' step, drop the 22 pieces, their `ob` and the old
+    "SCRAP · DIG IN" label (the bay has its own board).
+  - Move the rummage prop to `b.rummage` = (144, -1318), at the bay's mouth.
+- **`syTyres(g)`:** replaces the 16 tyre-stack loops and their `ob` in `xpScrap`. It builds the tyre mountain and the
+  rack beside it.
+- **`const mp = syMonsterPad(g)`:** a plinth (top at y .33) with a ramp, a banner, flag poles and spotlights.
+  - **Move the monster truck's spawn** in `xpVehicles` from (150, -1312, π/2) to `mp.spawn` = (165, -1312, 0). It then
+    faces out over the ramp.
+  - The plinth is 30 cm high. Add a `q.plates` entry for it (x 158..172, z -1318..-1306, y .33) so cars sit on it, and
+    a `q.ramps` entry for the ramp (z -1320.1..-1317.9, x 163..167).
+- **Stealing the monster truck makes you wanted (the user asked for this).** If you drive it more than 15 m off its
+  pad and you haven't bought it, El Goblino reports it, like the other theft crimes in dx585. The wanted level goes up
+  by 2 stars, with the hint `🚨 El Goblino: "¡LADRÓN! My monster truck!" The Desert PD are on their way.`
+  - It applies once per theft: the trigger resets when the truck is back on its pad, or after it respawns.
+  - Owning a monster truck from the garage (`garOwned('monster')`) means that one isn't stolen. Only the yard's own
+    truck counts.
