@@ -1,4 +1,4 @@
-Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-3 approved · more batches coming
+Status: part 1 (layout) approved by the user 2026-10-17 · part 2 batches 1-4 approved · more batches coming
 
 # The Old Quarry rework
 
@@ -145,3 +145,50 @@ Load it after `quarry-yard.js`. New global: `qmMachine`. It doesn't clash with a
 
   - The washer's drums now sit at 1.55. Ore drops from the belt into a feed box at the top end, and outlet troughs
     under the drum mouths slope down onto the outgoing belt (towards the middle when there are twin drums).
+- **Ore on the belts (the user asked for this):** while the line is running, show ore riding every ore-line belt between
+  machines, the way the ore feed belt already does. For example, 5 or 6 small rocks per belt, in copper, iron and
+  stone colours, added to `b.cv` and moved along `b.L` in `qtTick2`, visible only while ore is flowing.
+
+### Batch 4: the automation and smelter upgrades (`models/quarry-works.js`), approved
+Load it after `quarry-yard.js`. New globals: `qmGlow, qmMat, qmNS, qmSkip, qmOreFeed, qmCastRobot, qmBlower, qmArc,
+qmPress, qmLaunder, qmRefinery`. None of them clash with existing names. Every builder takes the section group (from
+`qtSec`), so the build-up animation still works. Push every returned `obs`.
+
+**Skip hoist** (crew upgrade): `QA.skip = qmSkip(g, -247, -1453, F, -244.5, -1451.5, -249.5, -1454)`.
+- The hooks are the same: `sk, skb, so, shv, cab2, x, z, TOP, bx, bz, bo`.
+- It also returns `px, pz`, the rock pile. Put the miners round it on the same arc as now, but centred on (px, pz).
+  Their spark spot in `qtTick` also becomes (px, pz) instead of (x + 1.2, z - 3).
+- The chute now starts at the head of the tower. The dust puff at the top stays at (x + .6, TOP - .4).
+
+**Ore feed:** `const fd = qmOreFeed(g, SM.x - 4, SM.z + 4, F, SM.x - 1, SM.z + .4)`.
+- `QA.feed.hp = fd.hp` and `QA.feed.fl2 = fd.fl2`. The hopper shake in `qtTick` (`hp.position.x = SM.x - 4 + ...`)
+  still works.
+- Run the feed belt `qtBelt2(g, fd.from, fd.to, .7, 1.2)`. It now ends at a charging chute on the furnace hood
+  instead of inside it. Drop the old `DK` box at the belt end.
+
+**Casting robot:** `QA.cast = qmCastRobot(g, SM.mx, SM.mz - 1.6, F)`.
+- The joints are the same, but the old poses folded the arm back on itself. In `qtTick`'s `if(QA.cast)` block, use:
+  - idle: `s1=.2, s2=.9, s3=.4`;
+  - ready/pour: `s1=.55, s2=1.2, s3=.6`;
+  - set/cool: `s1=.75 + tap bump (+.12)`, `s2=1.25`, `s3=.6`.
+
+  The yaw code stays as it is. The arm then reaches over the molds.
+
+**Blower** (furnace 1): `QA.fan = qmBlower(g, -236.8, -1451, F, SM.x - 2.2, SM.z - .4).fan`. The duct runs on stands
+into the furnace's west wall.
+
+**Arc furnace** (furnace 2): `QA.arc = qmArc(g, SM.x - .4, SM.z - 1.3, F).arc`.
+- The gantry is over the front half of the furnace, clear of the chimney (SM.x + 1, SM.z + 1) and the crucible rail
+  (RZ = SM.z - .6).
+- In `qtTick`, the spark position changes from `SM.x + a.b, ..., SM.z + .4` to `a.el.position.x, F + 4.0, a.el.position.z`.
+
+**Die press** (mold 2): `QA.press = qmPress(g, SM.mx, SM.mz, F).press`. Its rams stay in their cylinders at full stroke.
+- **Launder:** `QA.laun = qmLaunder(g, [SM.x + 2.12, F + 1.45, SM.z - .3], [SM.mx - 1.3, F + 1.12, SM.mz - .3]).laun`.
+  It now starts at a tap hole on the furnace's east wall and runs in front of the press column, not through it.
+
+**Refinery** (mold 3): `QA.ref = qmRefinery(g, -232, -1452.3, F, SM.x + 1.2, SM.z - .2)`. The hooks are the same:
+`vw, gc, gt, top`.
+- Its pipe climbs the tank's east side, runs over the arc gantry at 7.1 m and drops onto the hood. Nothing stands in
+  front of the firebox door.
+
+**Batch 1 change:** in `qmFurnace` (`quarry-yard.js`), the firebox door leaf is now arched, matching the opening.
