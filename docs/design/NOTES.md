@@ -1,5 +1,19 @@
 # Notes for the design chat
 
+## 2026-10-17 · Before the Fort Blackout rework: what the code expects (constraints, not a spec)
+Plan around these, or tell me in the spec which ones should move. Anything that moves is fine, I just need the new numbers. Coordinates are desert world x/z.
+- **Base bounds** `MILB` x 300..600, z -930..-660 (the "you are on the base" checks, map frame). `MILRZ` x 300..600, z -725..-660 is the restricted zone. `MILAA` x 230..670, z -1000..-590 is the air-defence area. If the outline changes, give me new rectangles.
+- **Main gate** at x 561, z about -930. The Wraith autopilot drives in and out through `WK_GATE` points (561,-990), (561,-962), (561,-938). Squads and police also leave through it. If the gate moves, give me the road line through it.
+- **Walking/driving grid inside the base** (`bgGrid`/`bgPath`) is built automatically from the wall and building boxes (`q.obs`). New walls work by themselves, but gaps narrower than about 3 m are closed for vehicles, so keep driveways at least 4 m wide (8 m+ for the tank and the Wraith).
+- **Command wing** `CWB` x 430..470, z -860..-846: 4 general offices, each with the squad camera monitors and a high-security door to its Wraith bay.
+- **Wraith bays** `WBAY` start at x 430, z -845..-826, 4 bays 10 m wide, right behind the command wing. Bay ownership and the parked-Wraith restore depend on these numbers. The bays and the offices must stay next to each other, or the doors need a new link.
+- **Squad motor pool** `MPOOL` x 455..485, z -901..-872 (squad vehicles parked in rows, the crew stands there).
+- **Other spots with fixed positions** (map labels `MAPBN`): Hangar 1 (395,-694), HQ (360,-886), Tank park (470,-806), Launch control (520,-708). The base map draws the walls itself; only the labels are hand-placed. Give each building a name and centre.
+- **Runway 09** (the autopilot "nearest airstrip" landing): `ALB` = runway centre line z -980, approach from the west, touchdown about x 265. The parked aircraft sit near the hangar. If the runway moves or turns, I need both ends and the direction to land.
+- **Police patrol beats** (`PCRB`) are point lists on the roads. One goes around town and the bus stop near the base (x 0..205, z -935..-1120). If roads near the base move, list the new road centre lines and I'll redo the beats and squad routes.
+- **Missions and crime events** use a few base spots (the HQ desk, Launch control, the tank park). Moving a building is fine; tell me which old building it replaces so the missions follow it.
+- **Performance:** a big rework is fine. The batching system merges static meshes automatically, so many small parts are OK, but please avoid lots of separate transparent or animated parts across the base.
+
 ## 2026-10-17 · r615: the plane and the Desert Bus (cars.md parts 11-12, dx613)
 - `mkPlane` replaces the plane model (same finishing step as the other new vehicles). `busShell` replaces the old grey box, light, bumper line and wheel loop in `mkMegaBus`; the board, seats, zones, doors and the rest of the base bus logic are untouched.
 - `biKit`, `biMerge`, `mkMegaInterior`, `megaExtras` and `megaPolish` are used whole: the new ones replace the old functions (nothing else wrapped them). The bus counts about 900 meshes after merging (the count includes the parts that stay separate on purpose).
