@@ -1,4 +1,4 @@
-Status: layout and batch 1 approved by the user 2026-10-17 · more batches coming
+Status: layout and batches 1-2 approved by the user 2026-10-17 · more batches coming
 
 # Dusty Gulch rework
 
@@ -44,12 +44,37 @@ the steps at .15).
   - Pass `noPorch: 1` to every `shell(...)` call, because the boardwalks replace the porches and their awning posts.
 - **Welcome arch** at z -1430: two log posts at x 441.5 and 458.5, a crossbeam, the painted board both ways, and a cow
   skull. Drop the old `[456, -1432, 'DUSTY GULCH\nPOP. 13...']` street sign from `xpRoads`.
-- **Lamps:** replace the street lamps (the merged posts at x 445/455 every 26 m, now in the middle of the dirt
-  street) with iron lantern posts.
-  - In town (z -1437..-1515) they stand at x 442.8 / 457.2, on the boardwalk edge. Outside town they're at x 442.2 /
-    457.8.
-  - Keep the game's `light(...)` calls, moved to the lantern tops (y 3.6).
+- **Lamps:** replace the street lamps (the merged posts at x 445/455 every 26 m, which are now in the middle of the
+  dirt street).
+  - In town, lanterns hang on iron brackets from the boardwalk edge beams every 7.2 m (x 443.3 / 456.7, y 2.9).
+  - Outside town, iron lantern posts stand at x 442.2 / 457.8.
+  - Keep the game's `light(...)` calls at the lanterns: every second one in town, and every outside post.
+- **Arch braces** run from each post up to the crossbeam.
 - **Hitching rails with water troughs** at (444, -1453), (444, -1478), (444, -1506), (456, -1455) and (456, -1478).
   Drop the old taxi-stand hitching rail at (470, -1448).
 - **Town pump and trough** at (432, -1462). **Broken wagon** at (426, -1486), with one wheel off.
 - The three barrels at (458..460, -1436) can stay.
+
+### Batch 2: the west side fronts (`guWest(g)`), approved
+New globals: `guFront, guWest`. Call `guWest(g)` after the three west shells.
+- In each west `shell(...)` call (the diner, Bob's and the saloon): pass `noPorch: 1` (batch 1), and **drop the name
+  sign** (the `lab(name, ...)` at `fx + dir*.2, H + .75` and its backing board `A(BX(.2, 1.1, ...))`). The false front
+  carries the name now. `shell` could take `o.noSign`.
+- **How the front sits:**
+  - The false front stands .42 out from the wall (x 440.42..440.52), in front of the shell's roof edge and window
+    frames.
+  - Its openings are cut exactly where the shell's are, so the doorway, the windows, the swinging saloon doors and
+    every prop are unchanged.
+  - Linings close the openings back to the wall.
+  - The fronts rise to 7.2 (diner, arched top), 7.0 (Bob's, stepped top) and 8.6 (saloon, flat top with a bracketed
+    cornice and two painted upper windows).
+- **Extras:** the diner's neon "EAT" blade sign, Bob's hanging shingle, and three crates by Bob's door on the
+  boardwalk (no collision needed; they're against the wall).
+- The diner's "OPEN" sign (inside the window) stays.
+
+### Coming next
+- Batch 3: the east side fronts (the bank and the chapel with its bell tower), the undertaker's and the cemetery
+  fence.
+- **Interiors (the user asked for these too):** one batch per building, for the diner, Bob's, the saloon, the bank
+  and the chapel. They keep every prop, mission spot and moving part (the jukebox, Bob, the piano, the vault).
+- Then the water tower, Sunny Acres and the station.
