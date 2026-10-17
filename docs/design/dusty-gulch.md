@@ -1,4 +1,4 @@
-Status: layout, batches 1-3 and all five interiors and batch 4a (water tower, station) approved by the user 2026-10-17 · Sunny Acres next
+Status: layout, batches 1-3, all five interiors and batch 4a (water tower, station) approved by the user 2026-10-17 · Sunny Acres next
 
 # Dusty Gulch rework
 
