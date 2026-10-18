@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batches 1-3 approved · Dino Dan's (batch 4) next · not ready to build yet
+Status: layout approved 2026-10-18 · batches 1-4 approved · railway (batch 5) next · not ready to build yet
 
 # Mirage Lake, the observatory, Dino Dan's and the railway
 
@@ -59,4 +59,12 @@ Batches: 1 lake water, shore, palms, pier, bait shop · 2 beach, lifeguard, snac
 - **The door moved to the west side** (facing the road in). The telescope prop (`[E] Use the big telescope`, same
   lines, same badge) moves to `prop` (598.6, -1480); put the blue `light(...)` there too (y 3.5).
 - The caravan, planets and dish are scenery with small obstacles.
+
+### Batch 4 (approved) · `ddDino(g)` → `{obs, under}`, `ddShop(g)` → `{obs, prop}`, `ddExtras(g)` → `{obs}`; `ddDinoModel(skin, belly)`, `ddLoft`, `ddSkin`
+- Replaces all of `xpDino`'s meshes (the dinosaur group, the shop box, roof, door, windows, label) and both old `ob`s.
+  Keep `zone`, the two `light(...)`s, the road sign at (8,-1880), `loc`.
+- Props: "Buy a postcard" moves to the shop's `prop` (98, -1926.4), same price and lines; "Stand under the dinosaur"
+  stays at (dx+5, dz) = (125, -1935) or use `under` (120, -1935); same lines.
+- The toy dinosaurs in the shop windows and Baby Dan are small copies of `ddDinoModel` (fine to batch: static).
+- Scenery only: egg, dig site, picnic tables, car park.
 
