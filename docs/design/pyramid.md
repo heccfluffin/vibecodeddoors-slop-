@@ -24,3 +24,9 @@ puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the und
 4. The treasure chamber (gold, sarcophagus and mummy, chest, golden mask).
 5. The undercroft: walls, stairs and landing, the Trial of the Jackal, the Trial of the Sun.
 6. The Trial of Song, the Trial of Sand, the tomb.
+
+## Notes for the wiring (batch 1)
+- Keep the game's portal walls (z ±1.6..3.8, 5.5 high) and its roof block (y 3.9..5.5) between x -153 and -133.5;
+  the gateway towers wrap them (tower inner faces at z ±1.75, fronts at x -133.46), the carved panel sits on the roof
+  block's front. Drop the old glyph plane `lt` at `px1+.01` and the old bollards (the gateway has its own, same spots).
+- All carvings are drawn with paths (`pyGlyph`), never hieroglyph font characters (they don't render everywhere).

@@ -39,6 +39,15 @@ function pyKit(){if(pyKit.K)return pyKit.K;const C={};const M=(c,o)=>{const k=c+
   const flame=(x,y,z,s,p)=>{const g=new THREE.Group();g.position.set(x,y,z);(p||par).add(g);const a=new THREE.Mesh(new THREE.ConeGeometry(.16*s,.5*s,8,1,true),MT.flame);a.position.y=.25*s;g.add(a);const b=new THREE.Mesh(new THREE.ConeGeometry(.08*s,.3*s,8,1,true),MT.flame2);b.position.y=.15*s;g.add(b);g.userData.dpKeep=1;g.userData.flick=t=>{const k=1+Math.sin(t*15+x)*.12+Math.sin(t*7.7+z)*.08;g.scale.set(1,k,1)};return g};
   return{A,B,Cy,rod,lab,flame}};
  pyKit.K={M,MT,T,can,boxGeo,H,R};return pyKit.K}
+/* draws one carved sign at (cx,cy), size r, with paths (no font needed): 0 ankh, 1 eye, 2 sun, 3 water, 4 bird, 5 scarab */
+function pyGlyph(x,t,cx,cy,r){x.save();x.translate(cx,cy);x.lineWidth=Math.max(2,r*.16);x.lineCap='round';x.beginPath();
+ if(t==0){x.ellipse(0,-r*.55,r*.3,r*.38,0,0,7);x.moveTo(-r*.6,-r*.1);x.lineTo(r*.6,-r*.1);x.moveTo(0,-r*.17);x.lineTo(0,r)}
+ else if(t==1){x.moveTo(-r*.8,0);x.quadraticCurveTo(0,-r*.7,r*.8,0);x.quadraticCurveTo(0,r*.5,-r*.8,0);x.moveTo(r*.15,0);x.arc(0,0,r*.15,0,7);x.moveTo(-r*.8,-r*.45);x.quadraticCurveTo(0,-r*.95,r*.85,-r*.35);x.moveTo(-r*.1,r*.3);x.lineTo(-r*.3,r*.9);x.quadraticCurveTo(-r*.5,r*1.0,-r*.6,r*.8)}
+ else if(t==2){x.arc(0,0,r*.6,0,7);x.moveTo(r*.15,0);x.arc(0,0,r*.15,0,7)}
+ else if(t==3){for(let j=-1;j<=1;j++){x.moveTo(-r*.8,j*r*.4);for(let i=0;i<4;i++)x.lineTo(-r*.8+(i+.5)*r*.4,j*r*.4+(i%2?r*.15:-r*.15)),x.lineTo(-r*.8+(i+1)*r*.4,j*r*.4)}}
+ else if(t==4){x.ellipse(0,0,r*.45,r*.3,-.3,0,7);x.moveTo(r*.3,-r*.25);x.arc(r*.4,-r*.45,r*.18,0,7);x.moveTo(r*.58,-r*.45);x.lineTo(r*.8,-r*.4);x.moveTo(-r*.4,r*.1);x.lineTo(-r*.85,r*.35);x.moveTo(-r*.1,r*.3);x.lineTo(-r*.15,r*.85);x.moveTo(r*.1,r*.3);x.lineTo(r*.15,r*.85)}
+ else{x.ellipse(0,r*.15,r*.4,r*.5,0,0,7);x.moveTo(r*.25,-r*.45);x.arc(0,-r*.45,r*.25,0,7);x.moveTo(0,-r*.35);x.lineTo(0,r*.65);for(const s of[-1,1]){x.moveTo(s*r*.4,0);x.lineTo(s*r*.8,-r*.3);x.moveTo(s*r*.4,r*.3);x.lineTo(s*r*.8,r*.5)}}
+ x.stroke();x.restore()}
 const pyNoSeam=g=>g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});
 
 /* ---------------------------------------- the faces ---------------------------------------- */
@@ -112,19 +121,20 @@ function pyObelisk(o){o=o||{};const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B}
 function pyGateway(g){const k=pyKit(),{M,MT}=k,{A,B,Cy,rod,lab,flame}=k.H(g),{X,Z}=PYRV,obs=[],flames=[];const x1=X+41.5,x0=X+33.5,TH=7.4,D=x1-x0;
  const ST=new THREE.MeshStandardMaterial({map:k.T.sand,color:0xf0dcb0,roughness:.9});
  /* two battered pylon towers: wider at the foot, sloping inwards, with a torus edge and a cavetto cornice */
- for(const s of[-1,1]){const zi=Z+s*1.6,zo=Z+s*5.0;{const geo=new THREE.BoxGeometry(D,TH,3.25),P=geo.attributes.position,uv=geo.attributes.uv;for(let i=0;i<P.count;i++){if(P.getY(i)>0&&P.getZ(i)*s>0)P.setZ(i,P.getZ(i)-s*.55)}
-   for(let i=0;i<P.count;i++){const f=i/4|0,x=P.getX(i)+(x0+x1)/2,y=P.getY(i)+TH/2,z=P.getZ(i)+Z+s*3.375;uv.setXY(i,(f<2?z:f<4?x:(f==4?x:-x))/2,(f==2||f==3?z:y)/2)}geo.computeVertexNormals();A(geo,ST,(x0+x1)/2,TH/2,Z+s*3.375)}/* inner face 15 cm behind the passage wall (z 1.6), never on its plane */
-  /* carved panels on the front face of each tower */const pn=k.can(256,512,(x,w,h)=>{x.fillStyle='#e0c898';x.fillRect(0,0,w,h);x.strokeStyle='#6a4a20';x.lineWidth=6;x.strokeRect(14,14,w-28,h-28);x.fillStyle='#6a4a20';x.font='bold 120px serif';x.textAlign='center';x.fillText('☥',w/2,190);x.font='bold 90px serif';x.fillText('𓂀',w/2,330);x.fillStyle='#1e3a8a';x.fillRect(30,380,w-60,10);x.fillRect(30,410,w-60,10);x.fillStyle='#a03020';x.fillRect(30,440,w-60,10)});
-  const pm=A(new THREE.PlaneGeometry(2.2,4.2),new THREE.MeshStandardMaterial({map:pn,roughness:.85}),x1+.012+.03,3.2,Z+s*3.25);pm.rotation.y=Math.PI/2;pm.rotation.x=0;
+ for(const s of[-1,1]){const zi=Z+s*1.6,zo=Z+s*5.0;{const geo=new THREE.BoxGeometry(D+.04,TH,3.25),P=geo.attributes.position,uv=geo.attributes.uv;for(let i=0;i<P.count;i++){if(P.getY(i)>0&&P.getZ(i)*s>0)P.setZ(i,P.getZ(i)-s*.55)}
+   for(let i=0;i<P.count;i++){const f=i/4|0,x=P.getX(i)+(x0+x1)/2+.02,y=P.getY(i)+TH/2,z=P.getZ(i)+Z+s*3.375;uv.setXY(i,(f<2?z:f<4?x:(f==4?x:-x))/2,(f==2||f==3?z:y)/2)}geo.computeVertexNormals();A(geo,ST,(x0+x1)/2+.02,TH/2,Z+s*3.375)}/* front 4 cm past the game's portal walls (they end at x1) *//* inner face 15 cm behind the passage wall (z 1.6), never on its plane */
+  /* carved panels on the front face of each tower */const pn=k.can(256,512,(x,w,h)=>{x.fillStyle='#e0c898';x.fillRect(0,0,w,h);x.strokeStyle='#6a4a20';x.lineWidth=6;x.strokeRect(14,14,w-28,h-28);x.strokeStyle='#6a4a20';pyGlyph(x,0,w/2,150,80);pyGlyph(x,1,w/2,300,70);x.fillStyle='#1e3a8a';x.fillRect(30,380,w-60,10);x.fillRect(30,410,w-60,10);x.fillStyle='#a03020';x.fillRect(30,440,w-60,10)});
+  const pm=A(new THREE.PlaneGeometry(2.2,4.2),new THREE.MeshStandardMaterial({map:pn,roughness:.85}),x1+.052,3.2,Z+s*3.25);pm.rotation.y=Math.PI/2;pm.rotation.x=0;
   /* the cornice: a box that leans out, and a rounded edge (torus) below it */const cz=Z+s*(1.6+(5.0-1.6-.55)/2);B(D+.9,.22,3.4,MT.lime,(x0+x1)/2+.15,TH+.11,cz);B(D+.65,.5,3.3,MT.lime,(x0+x1)/2+.125,TH-.24,cz);
-  Cy(.1,.1,2.75,MT.lime,x1+.06,TH-.62,Z+s*(1.84+2.75/2-.05),'z',null,10);rod([x1+.06,0,zo],[x1+.06,TH-.62,zo-s*.55*(TH-.62)/TH],.1,MT.lime,null,10);
+  Cy(.1,.1,2.75,MT.lime,x1+.1,TH-.62,Z+s*(1.84+2.75/2-.05),'z',null,10);rod([x1+.1,0,zo],[x1+.1,TH-.62,zo-s*.55*(TH-.62)/TH],.1,MT.lime,null,10);
   obs.push({x0:x0,x1:x1+.2,z0:Math.min(zi,zo),z1:Math.max(zi,zo)})}
  /* the gate between the towers: lintel with the winged sun, the passage roof, carved jambs */
- B(D+.03,1.4,3.6,MT.lime,(x0+x1)/2+.015,5.5+.7,Z);/* 3 cm proud of the tower fronts */B(.2,.4,4.6,MT.lime,x1+.1,5.7,Z);
+ B(D+.07,1.4,3.6,MT.lime,(x0+x1)/2+.035,5.5+.7,Z);/* 3 cm proud of the tower fronts */B(.2,.4,4.6,MT.lime,x1+.1,5.7,Z);
  {const ws=k.can(1024,256,(x,w,h)=>{x.clearRect(0,0,w,h);const cx=w/2,cy=h/2;for(let i=0;i<7;i++){for(const s of[-1,1]){x.fillStyle=['#1e3a8a','#2a7a8a','#c84020','#1e3a8a','#e8c050','#2a7a8a','#1e3a8a'][i];x.beginPath();x.moveTo(cx+s*70,cy-50+i*14);x.quadraticCurveTo(cx+s*(240+i*30),cy-70+i*10,cx+s*(460-i*20),cy-30+i*12);x.lineTo(cx+s*(440-i*20),cy-16+i*12);x.quadraticCurveTo(cx+s*(240+i*30),cy-50+i*12,cx+s*70,cy-36+i*14);x.fill()}}
   x.fillStyle='#e8b830';x.beginPath();x.arc(cx,cy,64,0,7);x.fill();x.strokeStyle='#8a5a10';x.lineWidth=6;x.stroke();for(const s of[-1,1]){x.fillStyle='#2a8a3a';x.beginPath();x.ellipse(cx+s*80,cy+30,16,40,0,0,7);x.fill();x.fillStyle='#e8b830';x.beginPath();x.arc(cx+s*80,cy-6,12,0,7);x.fill()}});
-  const p=A(new THREE.PlaneGeometry(3.6,.9),new THREE.MeshStandardMaterial({map:ws,transparent:true,roughness:.6}),x1+.045,6.25,Z);p.rotation.y=Math.PI/2}
- {const jt=k.can(128,512,(x,w,h)=>{x.fillStyle='#dcc494';x.fillRect(0,0,w,h);x.fillStyle='#6a4a20';x.font='54px serif';x.textAlign='center';['𓂀','☥','𓆣','𓋹','𓃭','𓇳'].forEach((c,i)=>x.fillText(c,w/2,70+i*78));x.strokeStyle='#6a4a20';x.lineWidth=4;x.strokeRect(8,8,w-16,h-16)});
+  const p=A(new THREE.PlaneGeometry(3.6,.9),new THREE.MeshStandardMaterial({map:ws,transparent:true,roughness:.6}),x1+.085,6.25,Z);p.rotation.y=Math.PI/2}
+ /* a carved panel on the game's portal roof block (y 3.9..5.5, front face at x1) between the door posts */{const tp=k.can(512,256,(x,w,h)=>{x.fillStyle='#d8c090';x.fillRect(0,0,w,h);x.strokeStyle='#6a4a20';x.lineWidth=6;x.strokeRect(10,10,w-20,h-20);[0,5,1,5,0].forEach((t,i)=>pyGlyph(x,t,w/2+(i-2)*92,h/2+10,58))});const p=A(new THREE.PlaneGeometry(3.1,1.5),new THREE.MeshStandardMaterial({map:tp,roughness:.85}),x1+.012,4.7,Z);p.rotation.y=Math.PI/2}
+ {const jt=k.can(128,512,(x,w,h)=>{x.fillStyle='#dcc494';x.fillRect(0,0,w,h);x.strokeStyle='#6a4a20';[1,0,5,0,4,2].forEach((t,i)=>pyGlyph(x,t,w/2,60+i*78,30));x.lineWidth=4;x.strokeRect(8,8,w-16,h-16)});
   for(const s of[-1,1]){B(.3,5.5,.24,MT.lime,x1+.15,2.75,Z+s*1.72);/* in front of the passage wall's end, not level with it */const jp=A(new THREE.PlaneGeometry(.24,4.6),new THREE.MeshStandardMaterial({map:jt,roughness:.8}),x1+.312,2.5,Z+s*1.72);jp.rotation.y=Math.PI/2}}
  /* two braziers on bronze tripods, and the bollards (low stone posts with gold caps) that keep cars out */
  for(const s of[-1,1]){const bx=x1+1.9,bz=Z+s*3.1;for(let i=0;i<3;i++){const a=i/3*Math.PI*2;rod([bx,1.05,bz],[bx+Math.cos(a)*.42,0,bz+Math.sin(a)*.42],.03,M(0x8a6a30,{metalness:.7,roughness:.35}))}Cy(.4,.22,.32,M(0x8a6a30,{metalness:.7,roughness:.35}),bx,1.2,bz,null,null,16);Cy(.36,.36,.02,M(0x1a0e06),bx,1.35,bz,null,null,16);flames.push(flame(bx,1.34,bz,2.2));obs.push({x0:bx-.45,x1:bx+.45,z0:bz-.45,z1:bz+.45})}
