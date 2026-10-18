@@ -252,3 +252,49 @@ function zfRadar(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],STL=M(0x6a6e
   const ball=new THREE.Mesh(new THREE.SphereGeometry(2.6,32,24),M(0xffffff,{roughness:.7}));ball.material.map=afCanvas(256,128,(c,w,h)=>{c.fillStyle='#f0f2f0';c.fillRect(0,0,w,h);c.strokeStyle='rgba(120,130,130,.4)';c.lineWidth=1;for(let i=0;i<=w;i+=w/16){c.beginPath();c.moveTo(i,0);c.lineTo(i,h);c.stroke()}for(let i=0;i<=h;i+=h/8){c.beginPath();c.moveTo(0,i);c.lineTo(w,i);c.stroke()}});ball.position.set(x,H+2.5,z);g.add(ball);
   C(.06,.06,1.2,x,H+5.6,z,STL,null,null,6);{const b=new THREE.Mesh(new THREE.SphereGeometry(.1,8,6),M(0xff2010,{emissive:0xff0000}));b.position.set(x,H+6.25,z);g.add(b)}for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]])B(.6,.3,.6,x+a*1.8,.15,z+b*1.8,CON);obs.push({x0:x-2.1,x1:x+2.1,z0:z-2.1,z1:z+2.1})}
  g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,dish}}
+
+/* ---- batch 4: the helipad, the motor pool, the floodlights, the fuel dump ----
+   zfHelipad(g)   at (-505, -1932), radius 8: a raised concrete disc, the H in a circle, edge lights, a windsock.
+                  Returns {obs, sock} (sock: the sock Group, swing rotation.y like the airfield's).
+   zfMotorPool(g) x -525..-505, z -1852..-1840: a carport canopy on posts, two white unmarked pickups (models only,
+                  built here), a fuel can rack, oil stains. Returns {obs}.
+   zfFloods(g)    five floodlight masts along the south fence (as the game's), lamp heads angled into the base.
+   zfFuel(g)      x -618..-604, z -1946..-1938: two horizontal tanks in a bund, a pump, drums. Returns {obs}. */
+function zfHelipad(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],x=-505,z=-1932,R=8,CON=M(0xa8a49c,{roughness:.95});
+ C(R,R+.2,.3,x,.15,z,CON,null,null,48);const t=afCanvas(512,512,(c,w,h)=>{afTarmac(c,w,h,'#7a7a7c',111);c.strokeStyle='#f0ece0';c.lineWidth=12;c.beginPath();c.arc(w/2,h/2,w*.4,0,7);c.stroke();c.fillStyle='#f0ece0';c.font='bold 300px Arial';c.textAlign='center';c.textBaseline='middle';c.fillText('H',w/2,h/2+10);c.strokeStyle='#e8c030';c.lineWidth=6;c.beginPath();c.arc(w/2,h/2,w*.48,0,7);c.stroke()});
+ const top=new THREE.Mesh(new THREE.CircleGeometry(R-.05,48),new THREE.MeshStandardMaterial({map:t,roughness:1,polygonOffset:true,polygonOffsetUnits:-2}));top.rotation.x=-Math.PI/2;top.position.set(x,.305,z);g.add(top);
+ for(let i=0;i<16;i++){const a=i/16*Math.PI*2;C(.1,.12,.12,x+Math.cos(a)*(R-.3),.36,z+Math.sin(a)*(R-.3),M(0x40ff70,{emissive:0x20ff60,emissiveIntensity:.9}),null,null,10)}
+  /* a ramp up the .3 step on the road side */{const rp=B(2.4,.06,3,x,.15,z+R+1.2,CON);rp.rotation.x=.1}
+ /* the windsock */const wx=x+R+3,wz=z-4;C(.05,.06,4,wx,2,wz,M(0xd8dce0,{metalness:.3}),null,null,8);B(.6,.15,.6,wx,.075,wz,CON);const sock=new THREE.Group();sock.position.set(wx,3.9,wz);g.add(sock);{const so=new THREE.Group();so.position.x=.3;so.rotation.z=Math.PI/2-.25;sock.add(so);for(let i=0;i<4;i++){const sg=new THREE.Mesh(new THREE.CylinderGeometry(.28-i*.05,.28-(i+1)*.05,.4,12,1,true),M(i%2?0xffffff:0xff5a10,{side:THREE.DoubleSide}));sg.position.y=-.2-i*.4;so.add(sg)}const rg=new THREE.Mesh(new THREE.TorusGeometry(.28,.025,6,14),M(0xd8dce0));rg.rotation.z=Math.PI/2;rg.position.x=.3;sock.add(rg)}sock.traverse(m=>m.userData.dpKeep=1);
+ obs.push({x0:wx-.2,x1:wx+.2,z0:wz-.2,z1:wz+.2});g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,sock}}
+
+/* a white unmarked pickup, built facing +z, wheels on y 0 (about 5.2 long) */
+function zfPickup(){const k=zfKit(),M=k.M,g=new THREE.Group(),{B,C}=k.H(g),W=M(0xeef0f0,{roughness:.4,metalness:.2}),DK=M(0x1a1a1c,{roughness:.6}),GL=M(0x1a2a34,{metalness:.3,roughness:.1}),TR=M(0x3a3c40,{roughness:.6});
+ B(1.9,.55,5.2,0,.75,0,W);B(1.86,.85,2.1,0,1.45,.5,W);B(1.7,.7,.06,0,1.5,1.56,GL).rotation.x=-.35;B(1.7,.55,.06,0,1.55,-.56,GL);for(const s of[-1,1])B(.04,.5,1.6,s*.94,1.5,.55,GL);
+ B(1.9,.06,2.6,0,1.05,-1.25,DK);for(const s of[-1,1])B(.06,.4,2.6,s*.92,1.22,-1.25,W);B(1.9,.4,.06,0,1.22,-2.57,W);
+ B(1.95,.25,.15,0,.55,2.62,TR);B(1.95,.25,.15,0,.55,-2.62,TR);for(const s of[-1,1]){B(.4,.15,.04,s*.65,.95,2.61,M(0xfff4d0,{emissive:0x806a40}));B(.15,.3,.04,s*.85,1.05,-2.61,M(0xc01010,{emissive:0x400000}))}
+ for(const[a,b]of[[-1,1.6],[1,1.6],[-1,-1.6],[1,-1.6]]){C(.42,.42,.3,a*.88,.42,b,DK,'x',null,16);C(.22,.22,.32,a*.88,.42,b,M(0x8a8e94,{metalness:.5}),'x',null,12)}
+ B(.6,.06,.4,0,1.92,.4,DK);/* a roof light bar, unlit */
+ g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true}});return g}
+
+function zfMotorPool(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],X0=-525,X1=-505,Z0=-1852,Z1=-1840,STL=M(0x5a5e64,{metalness:.4,roughness:.45});
+ {const t=afCanvas(256,160,(c,w,h)=>{afTarmac(c,w,h,'#6a6a6c',121);c.fillStyle='rgba(20,18,16,.35)';for(const[x,y]of[[70,90],[180,85]]){c.beginPath();c.ellipse(x,y,30,18,0,0,7);c.fill()}c.fillStyle='#e8e8e0';for(let i=0;i<=3;i++)c.fillRect(8+i*80,10,4,h-20)});afPlane(g,X0,X1,Z0,Z1,.04,t,-1)}
+ const H=3.6;for(const x of[X0+.5,X0+10,X1-.5])for(const z of[Z0+.5,Z1-.5]){B(.2,H,.2,x,H/2,z,STL);obs.push({x0:x-.15,x1:x+.15,z0:z-.15,z1:z+.15})}for(const z of[Z0+.5,Z1-.5])B(X1-X0,.3,.25,(X0+X1)/2,H-.1,z,STL);
+ {const rf=B(X1-X0+.6,.1,Z1-Z0+.6,(X0+X1)/2,H+.12,(Z0+Z1)/2,afCorr(k,'#8a8e90',[1,14]));rf.rotation.x=.04}
+ for(const x of[X0+5,X0+15]){const p=zfPickup();p.position.set(x,0,(Z0+Z1)/2+.3);p.rotation.y=Math.PI;g.add(p);obs.push({x0:x-1,x1:x+1,z0:(Z0+Z1)/2-2.3,z1:(Z0+Z1)/2+2.9})}
+ for(let i=0;i<4;i++)B(.35,.45,.18,X1-1.2+((i%2)*.4),.25+((i/2)|0)*.5,Z0+1,M(0xc02020,{roughness:.5}));
+ L('MOTOR POOL · SIGN EVERYTHING OUT · ESPECIALLY THE TRUCKS',6,.35,'#26282b','#ffd040',60,(X0+X1)/2,H-.1,Z1-.5+.13,0);
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+function zfFloods(g){const k=zfKit(),{B,C,rod}=k.H(g),M=k.M,obs=[],STL=M(0x5a5e64,{metalness:.4,roughness:.45});
+ for(let i=0;i<5;i++){const fx=-620+i*35,fz=-1952;C(.14,.2,12,fx,6,fz,STL,null,null,10);B(.8,.4,.8,fx,.2,fz,M(0xa8a49c));B(2.4,.12,.12,fx,11.6,fz,STL);for(const s of[-1,1]){const hd=new THREE.Group();hd.position.set(fx+s*.8,11.4,fz+.15);hd.rotation.x=.5;g.add(hd);const b=new THREE.Mesh(new THREE.BoxGeometry(.7,.5,.25),M(0x2a2c30));hd.add(b);const ln=new THREE.Mesh(new THREE.PlaneGeometry(.6,.4),M(0xfff4e0,{emissive:0xfff0d0,emissiveIntensity:1}));ln.position.z=.13;hd.add(ln)}
+  for(let j=0;j<10;j++)C(.02,.02,.5,fx+.18,1+j*1,fz,STL,'x',null,4);obs.push({x0:fx-.4,x1:fx+.4,z0:fz-.4,z1:fz+.4})}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+function zfFuel(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],X0=-618,X1=-604,Z0=-1946,Z1=-1938,xc=(X0+X1)/2,zc=(Z0+Z1)/2,CON=M(0xa8a49c,{roughness:.95}),TK=M(0x4a5a3a,{roughness:.5,metalness:.2}),STL=M(0x5a5e64,{metalness:.4,roughness:.45});
+ B(X1-X0,.06,Z1-Z0,xc,.03,zc,CON);for(const[w,d,x,z]of[[X1-X0,.25,xc,Z0+.125],[X1-X0,.25,xc,Z1-.125],[.25,Z1-Z0-.5,X0+.125,zc],[.25,Z1-Z0-.5,X1-.125,zc]])B(w,.7,d,x,.35,z,CON);
+ for(const z of[zc-1.8,zc+1.8]){for(const x of[xc-3,xc+3])B(.6,.6,1.6,x,.3,z,CON);C(1.4,1.4,9,xc,1.7,z,TK,'x',null,24);for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(1.4,24,10,0,Math.PI*2,0,Math.PI/2),TK);e.scale.y=.3;e.rotation.z=-s*Math.PI/2;e.position.set(xc+s*4.5,1.7,z);g.add(e)}L('JP-DARK',2.4,.5,null,'#f0e8c0',80,xc,1.7,z+1.405,0);C(.12,.12,.4,xc+2,3.2,z,STL,null,null,10)}
+ rod([xc-4,2.3,zc-1.8],[xc-4,2.3,zc+1.8],.06,STL);B(.7,1.3,.5,X1+1,.65,zc,M(0xe0e0d8));L('PUMP',.6,.2,'#c02020','#ffffff',60,X1+1.26,1.1,zc,Math.PI/2);rod([xc+4.5,1,zc],[X1+.65,1,zc],.06,STL);
+ for(let i=0;i<5;i++)C(.3,.3,.9,X0-1.2,.45,Z0+1+i*.7,M([0x4a5a3a,0x8a2a1a,0x2a4a7a][i%3],{metalness:.3}),null,null,14);
+ L('NO SMOKING · NO OPEN FLAMES · NO SAUCERS',3.2,.35,'#c02020','#ffffff',50,xc,.45,Z1+.01,0);
+ obs.push({x0:X0,x1:X1,z0:Z0,z1:Z1},{x0:X1+.6,x1:X1+1.4,z0:zc-.3,z1:zc+.3},{x0:X0-1.6,x1:X0-.8,z0:Z0+.6,z1:Z0+4.4});g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
