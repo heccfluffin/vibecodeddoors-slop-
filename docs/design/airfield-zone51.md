@@ -1,4 +1,4 @@
-Status: airfield batches 1-4 and Zone 51 batches 1-4 shipped in r623 (2026-10-18) · Zone 51 batch 5 next
+Status: airfield batches 1-4 and Zone 51 batches 1-4 shipped in r623 (2026-10-18) · Zone 51 batch 5 approved 2026-10-18, to build (spec complete)
 
 # The airfield and Dark Zone 51
 
@@ -51,7 +51,8 @@ Remodel of `xpAirfield` and `xpDarkZone` (both in bak519). Models go in `docs/de
 - **Alien and secret things (new):**
   - Crash site x -552..-520, z -1957..-1925: a second saucer nose-down in a crater, tarps, tape, a science tent.
   - The Artifact x -598..-576, z -1858..-1838: a crystal floating in a scaffold cage, humming.
-  - Bunker entrance x -628..-612, z -1858..-1828: a ramp down to a blast door, LEVEL -13; keypad prop says ACCESS DENIED.
+  - Bunker entrance x -628..-612, z -1858..-1828: an earth mound with a concrete portal and a blast door, LEVEL -13
+    (changed from "a ramp down": the ground can't be dug); keypad prop says ACCESS DENIED.
   - Waste pit at (-585, -1948), radius 5: leaking barrels, glowing goo.
   - Listening array x -497..-478, z -1830..-1805: four dishes.
   - Decontamination tent x -500..-488, z -1865..-1857.
@@ -164,3 +165,27 @@ up through the saucer, spinning. New sequence, 6.3 s, input locked as now (`q.ab
 - Also changed after approval, in both hangars: the sliding door leaves and their track beam now sit against the
   front wall (airfield hangar track at z1+.25, leaves at z1-.06+i*.2; Hangar 18 track at z1+.175, leaves at
   z1-.05 / z1+.25). Obstacles updated in the models.
+
+### Zone 51 batch 5 (approved) · the secret stuff, all in `models/zone51.js`
+`zfCrash(g)`, `zfArray(g)`, `zfDecon(g)`, `zfOutside(g)` → `{obs}`; `zfArtifact(g)` → `{obs, crystal, glow}`;
+`zfBunker(g)` → `{obs, keypad:{x,z}}`; `zfWaste(g)` → `{obs, goo}`. Call each once on the Zone 51 group, push all `obs`.
+- **Crash site** (centre -536, -1941): crater decal and rim, a tilted, half-buried copy of `zfSaucer()` with a
+  cracked solid dome and a scorch on the hull, a tarp, caution tape ring (R 13), the "FIELD LAB 2" tent with a
+  laptop table, and a floodlight on a tripod. Static.
+- **The Artifact** (-587, -1848): scaffold cage, tripods, cables, a rack, sign. Per frame (dpKeep on `crystal`):
+  `crystal.rotation.y += dt*.6`, `crystal.position.y = y0 + sin(t*1.2)*.15` (y0 = its built height);
+  `glow.emissiveIntensity = .7 + .3*sin(t*3)` (`glow` is a material). Optional: a quiet hum within 15 m.
+- **Bunker** (x -628..-612, z -1858..-1828): an earth berm running north-south with the concrete portal on its east
+  face (x -614.6), blast door "LEVEL -13 / AUTHORISED LIFEFORMS ONLY", hazard stripe, caged lamps, a short apron road
+  east. Press-E prop at `keypad`: "ACCESS DENIED" (red flash, a buzz). The door never opens. One obstacle box covers
+  the berm and portal.
+- **Waste pit** (-585, -1948): concrete ring R 4.2 with goo, drums, "DO NOT SWIM / DRINK / ASK" sign. Per frame:
+  `goo.emissiveIntensity = .6 + .25*sin(t*1.7)` (a material). Players can't walk into the ring (obstacles).
+- **Listening array** (x -497..-478, z -1830..-1805): four dishes and the "SETI-ISH" hut. Static.
+- **Decon tent** (x -500..-488, z -1865..-1857): inflatable tunnel, open both ends, spray arches, drain grate,
+  lettering on the skin. Obstacles are its two long sides only, so you can walk through it.
+- **Outside the fence:** crop circle decal (28 across, at -450, -1925, y .03, polygonOffsetUnits -2), four cameras on
+  poles along the road in (they face the road) and the "SMILE. YOU ARE BEING WATCHED. ALSO BY US." sign at (-430, -1876.5).
+- **Also changed in `zfSaucer()`** (so Hangar 18's saucer too, already shipped in r623): the small dark seat inside the
+  dome is removed (it showed through the glass as a black blob). Just re-copy the function.
+
