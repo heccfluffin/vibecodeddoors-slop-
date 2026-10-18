@@ -198,21 +198,25 @@ function afTower(g,tx,tz){const k=afKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],CON=M(
  B(.6,.25,.04,tx+1.2,1.6,tz+S/2+.02,M(0x1a1a1a));C(.08,.08,.04,tx+1.2,1.6,tz+S/2+.05,M(0x40c060,{emissive:0x104010}),'z',null,10);/* the intercom box by the door */
  for(let y=4;y<FL;y+=3)B(.04,.9,.25,tx+S/2+.02,y,tz-1.2,M(0x334a5c,{metalness:.3,roughness:.1}));
  obs.push({x0:tx-S/2-.3,x1:tx+S/2+.3,z0:tz-S/2-.3,z1:tz+S/2+.3});
- /* the stair: a steel stair tower beside the walkway. Four flights zig-zag up between landings at each end; each
-    flight has two stringers, open treads and a handrail each side. Columns at the four corners, brackets back to the
-    shaft under every landing. The top landing meets the walkway's edge (FL + .3) where its railing has a gap. */
- {const SW=1.1,sx=tx+(CW+2.2)/2+SW/2+.02,n=4,fh=(FL+.3)/n,R0=1.6,R1=2.7,run=2*R0,len=Math.hypot(run,fh),ang=Math.atan2(fh,run),nt=Math.round(fh/.2),GY=M(0x7a7e84,{metalness:.4,roughness:.5});
-  for(const a of[-1,1])for(const b of[-1,1])B(.14,FL+.3,.14,sx+a*(SW/2+.07),(FL+.3)/2,tz+b*R1,STL);
-  for(let i=0;i<n;i++){const dir=i%2?-1:1,y0=i*fh,y1=y0+fh,za=tz-dir*R0,zb=tz+dir*R0;
-   for(const a of[-1,1]){const sg=B(.06,.28,len,sx+a*(SW/2+.03),(y0+y1)/2,tz,STL);sg.rotation.x=-dir*ang}
-   for(let j=1;j<=nt;j++){const u=(j-.5)/nt,y=y0+fh*j/nt-.02,z=za+(zb-za)*u;B(SW,.04,run/nt+.04,sx,y,z,GY)}
-   for(const a of[-1,1]){rod([sx+a*(SW/2+.03),y0+.95,za],[sx+a*(SW/2+.03),y1+.95,zb],.022,YL);C(.02,.02,.95,sx+a*(SW/2+.03),y1+.475,zb,YL,null,null,6)}
-   /* the landing it arrives at (the top one is the walkway's step-off) */{const lz=tz+dir*(R0+R1)/2;B(SW+.28,.08,R1-R0,sx,y1-.04,lz,GY);B(SW+.28,.12,.08,sx,y1-.1,tz+dir*R1,STL);B(SW+.28,.12,.08,sx,y1-.1,tz+dir*R0,STL);
-    if(i<n-1){/* rails round its outer end and its outer side */rod([sx-SW/2-.03,y1+.95,tz+dir*R0],[sx-SW/2-.03,y1+.95,tz+dir*R1],.022,YL);rod([sx+SW/2+.03,y1+.95,tz+dir*R0],[sx+SW/2+.03,y1+.95,tz+dir*R1],.022,YL);rod([sx-SW/2-.03,y1+.95,tz+dir*R1],[sx+SW/2+.03,y1+.95,tz+dir*R1],.022,YL);for(const a of[-1,1])C(.02,.02,.95,sx+a*(SW/2+.03),y1+.475,tz+dir*R1,YL,null,null,6)}
-    else{rod([sx+SW/2+.03,y1+.95,tz+dir*R0],[sx+SW/2+.03,y1+.95,tz+dir*R1],.022,YL);rod([sx-SW/2-.03,y1+.95,tz+dir*R1],[sx+SW/2+.03,y1+.95,tz+dir*R1],.022,YL);C(.02,.02,.95,sx+SW/2+.03,y1+.475,tz+dir*R1,YL,null,null,6)}
-    /* brackets back to the shaft under the landing */for(const dz of[R0+.15,R1-.15])B(sx-SW/2-.14-(tx+S/2),.14,.1,(sx-SW/2-.14+tx+S/2)/2,y1-.18,tz+dir*dz,STL)}}
-  /* the bottom step-off pad */B(SW+.4,.06,1.2,sx,.03,tz-R0-.6,M(0x9a948a));
-  obs.push({x0:sx-SW/2-.25,x1:sx+SW/2+.25,z0:tz-R1-.1,z1:tz+R1+.1})}
+ /* the stair: a switchback stair tower beside the walkway. Two flight lanes side by side (the outer lane for flights
+    1 and 3 going north, the inner lane for 2 and 4 going south); a landing across both lanes at each end joins them,
+    so you walk up a flight, turn round on the landing and take the next one up beside it. The top flight lands
+    against the walkway's edge, where its railing has a gap. Each flight: two stringers, open treads, a handrail on
+    its open side; a rail runs between the lanes. Four corner columns, X-braces on the outer face. */
+ {const SW=1.0,xin=tx+(CW+2.2)/2+.02,xa=xin+SW/2,xb=xin+SW*1.5+.04,xo=xin+2*SW+.04,xm=(xin+xo)/2,n=4,fh=(FL+.3)/n,R0=1.6,R1=2.7,run=2*R0,len=Math.hypot(run,fh),ang=Math.atan2(fh,run),nt=Math.round(fh/.19),GY=M(0x7a7e84,{metalness:.4,roughness:.5});
+  for(const x of[xin-.07,xo+.07])for(const b of[-1,1])B(.14,FL+.3,.14,x,(FL+.3)/2,tz+b*R1,STL);
+  for(let i=0;i<n;i++){const dir=i%2?-1:1,x=i%2?xa:xb,y0=i*fh,y1=y0+fh,za=tz-dir*R0,zb=tz+dir*R0;
+   for(const a of[-1,1]){const sg=B(.06,.28,len,x+a*(SW/2-.03),(y0+y1)/2,tz,STL);sg.rotation.x=-dir*ang}
+   for(let j=1;j<=nt;j++){const u=(j-.5)/nt,y=y0+fh*j/nt-.02,z=za+(zb-za)*u;B(SW-.12,.04,run/nt+.03,x,y,z,GY)}
+   /* handrails: the outer lane's on its outside, the inner lane's on the walkway side; one between the lanes */
+   const ox=i%2?xin+.03:xo-.03;rod([ox,y0+.95,za],[ox,y1+.95,zb],.022,YL);rod([xm,y0+.95,za],[xm,y1+.95,zb],.022,YL);
+   /* the landing it arrives at: across both lanes, rails round its open end and its outer side */
+   {const lz=tz+dir*(R0+R1)/2;B(xo-xin,.08,R1-R0,xm,y1-.04,lz,GY);B(xo-xin,.14,.1,xm,y1-.15,tz+dir*R1,STL);B(xo-xin,.14,.1,xm,y1-.15,tz+dir*R0,STL);
+    rod([xin,y1+.95,tz+dir*R1],[xo,y1+.95,tz+dir*R1],.022,YL);rod([xo-.03,y1+.95,tz+dir*R0],[xo-.03,y1+.95,tz+dir*R1],.022,YL);if(i<n-1)rod([xin+.03,y1+.95,tz+dir*R0],[xin+.03,y1+.95,tz+dir*R1],.022,YL);
+    for(const px of[xin+.03,xm,xo-.03])C(.02,.02,.95,px,y1+.475,tz+dir*R1,YL,null,null,6)}}
+  /* the X-braces on the outer face and the ends */for(let i=0;i<n;i++){const y0=i*fh+.3,y1=(i+1)*fh-.3,x=xo+.07;rod([x,y0,tz-R1],[x,y1,tz+R1],.025,STL);rod([x,y0,tz+R1],[x,y1,tz-R1],.025,STL)}
+  /* the bottom step-off pad, in front of the first flight */B(SW+.4,.06,1.2,xb,.03,tz-R0-.6,M(0x9a948a));
+  obs.push({x0:xin-.15,x1:xo+.15,z0:tz-R1-.1,z1:tz+R1+.1})}
  /* the walkway round the cab: a slab, a railing */B(CW+2.2,.3,CW+2.2,tx,FL+.15,tz,M(0x9a948a));for(let i=0;i<4;i++){const a=i*Math.PI/2,ca=Math.cos(a),sa=Math.sin(a),h=(CW+2.0)/2;const gap=i==0?[-2.75,-1.55]:null;/* the east side opens where the stair lands */for(let t=-h;t<=h+.01;t+=1.3){if(gap&&t>gap[0]&&t<gap[1])continue;const x=tx+ca*h-sa*t,z=tz+sa*h+ca*t;C(.03,.03,1.0,x,FL+.8,z,YL,null,null,6)}
   if(gap){for(const[a2,b2]of[[-h,gap[0]],[gap[1],h]]){C(.03,.03,1.0,tx+h,FL+.8,tz+(a2==-h?b2:a2),YL,null,null,6);B(.06,.06,b2-a2,tx+h,FL+1.3,tz+(a2+b2)/2,YL)}}else{const r=B(CW+2.0,.06,.06,tx+ca*h,FL+1.3,tz+sa*h,YL);if(i%2==0)r.rotation.y=Math.PI/2/* the west rail runs along z */}}
  /* the cab: a dark base band, sloping glass (an upside-down frustum), mullions, a roof slab */{/* the cab's low base wall: a ring, so the cab floor inside is the walkway level */const BW=M(0x3a4a5a,{roughness:.5});for(const s2 of[-1,1]){B(CW,.6,.2,tx,FL+.6,tz+s2*(CW/2-.1),BW);B(.2,.6,CW-.4,tx+s2*(CW/2-.1),FL+.6,tz,BW)}B(CW-.4,.02,CW-.4,tx,FL+.31,tz,M(0x5a5048,{roughness:.8}))}{const gl=new THREE.Mesh(new THREE.CylinderGeometry((CW+.8)/Math.SQRT2,(CW)/Math.SQRT2,CH-.6,4,1,true),GLs);gl.rotation.y=Math.PI/4;gl.position.set(tx,FL+.9+(CH-.6)/2,tz);g.add(gl);

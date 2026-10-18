@@ -96,5 +96,5 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
 - Anims: `beacon.rotation.y += dt * 1.6`; blink `red.emissiveIntensity` between 1 and .1 each half second (the old
   `bl.visible` toggle); windsock as before: `sk.rotation.y = PI*.75 + sin(rt*.6)*.5`, `so.rotation.z = PI/2 - .2 +
   sin(rt*2.5)*.1`. All three are `dpKeep`.
-- The stair is a stair tower east of the shaft (four flights, landings, handrails); its top landing meets a gap in
+- The stair is a two-lane switchback stair tower east of the walkway (four flights side by side, a landing across both lanes at each end, handrails, X-braces, no arms back to the shaft); its top landing meets a gap in
   the walkway railing. The walkway and stair are looks only (no plates), unless you want players to climb it.
