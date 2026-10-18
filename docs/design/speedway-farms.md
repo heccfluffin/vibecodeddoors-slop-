@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · Speedway batches 1-3 approved (the Speedway is complete) · wind farm next · not ready to build yet
+Status: layout approved 2026-10-18 · Speedway batches 1-3 and the wind farm (batch 4) approved · solar farm (batch 5) next · not ready to build yet
 
 # The Speedway, the wind farm and the solar farm
 
@@ -87,4 +87,14 @@ Also exported: `SPW` (the oval's numbers), `spPt(u, r)`, `spLen()`, `spRibbon(..
 - Floodlights: `lamps.emissiveIntensity` 0.3 by day, 1.6 at night if the desert has a night; add a few
   `light(...)` points if you like (they're aimed at the track centre).
 - The skid pad and the paddock are scenery (no gameplay). Everything else is `noSeam`.
+
+### Wind farm (batch 4, approved) · `wfFarm(g)` → `{obs, rotors, beacon, prop}` in `models/farms.js`; `wfTurbine(ds)`, `WFT`
+- Replaces in `xpWind`: the tower cylinders, nacelle boxes, hub cylinders, hub groups and blades, their `ob`s, the
+  substation box/roof/insulators and their `ob`s. Keep `zone`, `sign('WIND FARM...')`, `loc`.
+- Spin: `for(const r of rotors) r.hub.rotation.z += dt * r.sp` inside the same `anim(...)` distance gate as now (the
+  hubs are dpKeep). `sp` and the start phase are the old ones (`WFT`; turbine 6 is negative).
+- `beacon` (one shared material): blink it, e.g. `emissiveIntensity = (t % 1.5) < .3 ? 2 : .15`.
+- The substation prop (`[E] Read the substation sign`, same three lines) moves to `prop` (-486, -1268.6), at the gate.
+- Push all `obs` (towers 3.8 m boxes, transformer boxes, fence sides with a gap at the gate, transformer, gantry
+  legs, cabinets, hut, poles). The service track and pads are flat gravel (y .04, units -1), no obstacles.
 
