@@ -255,6 +255,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx615.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx616.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx617.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx618.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx619.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -597,6 +598,14 @@ R("AUTHORISED DARK PERSONNEL ONLY','#1a1a2a',x1+5,-1864,-1.3)","AUTHORISED DARK 
 # r623: the airfield and Dark Zone 51 (dx617): the plane on its stand, the new abduction
 R("add('plane',300,-1250,-Math.PI/2)","add('plane',345,-1257,-Math.PI/2)")
 R("/* the saucer */if(q.abd){const a=q.abd;a.t+=dt;if(a.t<2.4){P.dy=a.t*a.t*5;P.yaw+=dt*2.5;if(Math.random()<dt*8)snd(300+a.t*400,.05)}else{const L=(q.locs||[]).filter(l=>!/Dark Zone|Hangar|Gorge|Stunt|Railroad/.test(l.nm));const l=L[Math.random()*L.length|0]||{x:4,z:-1040,nm:'the bus stop'};P.x=l.x+4;P.z=q.OZ+l.z+4;q.fling={vx:0,vz:0,vy:0,y:26,t:0,soft:1};q.safe={x:P.x,z:l.z+4};q.abd=null;try{bsF.style.transition='none';bsF.style.background='#fff';bsF.style.opacity=1;setTimeout(()=>{bsF.style.transition='opacity 1.5s';bsF.style.opacity=0;setTimeout(()=>bsF.style.background='#000',1600)},150)}catch(e){}snd(1500,.3);hint('👽 ...and then they let go. Over '+l.nm+'. From quite high up.');try{badge('ufo')}catch(e){}}}","/* the saucer (r623: dx617) */if(q.abd){try{zfAbdTick(q,dt)}catch(e){conLog('error','abduction: '+e.message);q.abd=null}}")
+# r626: the Desert PD rework (dx619): the cell block moved by (-2.7, -2.0), the court is in the courthouse
+R("const x=pd.x,zb=pd.zb,zc=pd.zc,J=()=>q.jail","const x=pd.x-2.7,zb=pd.zb,zc=pd.zc,J=()=>q.jail")
+R("lx>pd.x-1.5&&lx<pd.x-.5","lx>pd.cdx-.5&&lx<pd.cdx+.5")
+R("inLobby=lz>pd.zp,skLobby=pt.z>pd.zp,skCourt=!skLobby&&pt.x>pd.x+1.7,plCourt=!inLobby&&lx>pd.x+1.7,los=(inLobby===skLobby&&skCourt===plCourt)||(Math.abs(lx-(pd.x-1))<.6&&Math.abs(pt.x-(pd.x-1))<4);","pdRg=(x,z)=>z>pd.zp?(x<78?'office':x>90?'break':'lobby'):(x>92?'records':'cells'),los=pdRg(lx,lz)===pdRg(pt.x,pt.z)||(Math.abs(lx-pd.cdx)<.6&&Math.abs(pt.x-pd.cdx)<4);")
+R("if(C.out=='acq'){gold+=C.fine|0;try{saveGame()}catch(e){}P.x=DPD.X-2;P.z=DPD.Z+5.5+q.OZ;P.dy=0;P.roll=0;P.yaw=Math.PI;","if(C.out=='acq'){gold+=C.fine|0;try{saveGame()}catch(e){}P.x=50;P.z=-1014.5+q.OZ;P.dy=0;P.roll=0;P.yaw=Math.PI;")
+R("P.x>pd.x-8&&P.x<pd.x+8","P.x>(pd.x0||pd.x-8)&&P.x<(pd.x1||pd.x+8)")
+R("road(88,-1016.4,88,-993.5)","road(88,-1013.3,88,-993.5)")
+R("[82,-1014],[83.2,-1014.5]","[60.5,-1029],[61.7,-1029.4]")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -610,7 +619,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-18 r625';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-18 r626';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

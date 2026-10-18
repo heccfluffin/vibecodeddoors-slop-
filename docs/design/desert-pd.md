@@ -1,4 +1,4 @@
-Status: approved 2026-10-18 (layout and batches 1-6) · ready to build
+Status: shipped in r626 (2026-10-18): layout and batches 1-6
 
 # The Desert PD rework (remodel list #22)
 

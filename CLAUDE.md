@@ -167,7 +167,7 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r625** (2026-10-18; r625 = Speedway, wind farm and solar farm rework (`speedway-farms.md`, `dx618`: xpSpeedway/xpRaceTick/xpWind/xpSolar redefined, `SPG`, pit stops `spPitTick`, best stop `SV.xpit`, scoreboard `spScoreRefresh`); r624 = r624 = Zone 51 tank traps removed (zfTraps not called, user's request); r623 = the airfield and Dark Zone 51 rework, all batches incl. Zone 51 batch 5 secrets (`airfield-zone51.md`, `dx617`: xpAirfield and xpDarkZone redefined, `AFX`, `ZFA`, new abduction `zfAbdTick` called from the base's q.abd block via build.py, plane stand (345,-1257)); r622 = r622 = Old Quarry outer wall tops 2 cm under the ground (dx581), they flickered with the desert floor along the rim; r621 = Dark Zone 51 entrance sign turned to face the road, build.py patch). r620 (2026-10-17). r620 = Goblino's Scrap rework (`scrap-yard.md`) + police helicopter (`cars.md` part 13), both in `dx616`
+- **Live: r626** (2026-10-18; r626 = Desert PD rework (`desert-pd.md`, `dx619`: desertPD and pdHQ redefined; cells moved (-2.7,-2.0); courthouse x 42..58 with the court; build.py patches jailProps/laser/LOS (`pdRg`)/courtEnd acq/pdDim (`pd.x0`,`pd.x1`)/driveway road/barrels); r625 = r625 = Speedway, wind farm and solar farm rework (`speedway-farms.md`, `dx618`: xpSpeedway/xpRaceTick/xpWind/xpSolar redefined, `SPG`, pit stops `spPitTick`, best stop `SV.xpit`, scoreboard `spScoreRefresh`); r624 = r624 = Zone 51 tank traps removed (zfTraps not called, user's request); r623 = the airfield and Dark Zone 51 rework, all batches incl. Zone 51 batch 5 secrets (`airfield-zone51.md`, `dx617`: xpAirfield and xpDarkZone redefined, `AFX`, `ZFA`, new abduction `zfAbdTick` called from the base's q.abd block via build.py, plane stand (345,-1257)); r622 = r622 = Old Quarry outer wall tops 2 cm under the ground (dx581), they flickered with the desert floor along the rim; r621 = Dark Zone 51 entrance sign turned to face the road, build.py patch). r620 (2026-10-17). r620 = Goblino's Scrap rework (`scrap-yard.md`) + police helicopter (`cars.md` part 13), both in `dx616`
   (xpScrap/xpCrusher/crushTick/crushOK/crushStart redefined, `crushPay`, `SYR`, `syTheft` monster truck theft; `mkPoliceHeli` swapped in by
   build.py). Also the real cause of "Fort roads cull up close": `road()` only records into `q.xroads`, and `xpRoadsBuild` later lays the old
   textured strip (y .06, factor -8) plus junction patches; Fort roads are flagged `fb` in `milRoads` and skipped (build.py r620 patches).
@@ -330,6 +330,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Goblino's Scrap rework (yard, crusher, ingot pay, monster truck theft), police helicopter | dx616 |
 | Airfield and Dark Zone 51 rework, new abduction ride | dx617 |
 | Speedway (pit stops, start lights, scoreboard), wind farm, solar farm rework | dx618 |
+| Desert PD: station, cells, courthouse, HQ annex, grounds, impound lot | dx619 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

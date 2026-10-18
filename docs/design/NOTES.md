@@ -1,5 +1,12 @@
 # Notes for the design chat
 
+## 2026-10-18 · r626: the Desert PD built (desert-pd.md, dx619)
+- desertPD and pdHQ are redefined in dx619 and use your models. The build.py patches are as specced: jailProps x-2.7, the laser grid on cdx, room-based line of sight, not guilty outside the courthouse, the driveway road, and the barrels in the alley.
+- **Also patched:** the indoor dimming (`pdDim`). It only counted x 80..96 as inside, so q.pd now carries x0 64 and x1 96. The courthouse isn't dimmed.
+- **Light animations:** the laser beams pulse, the MAXIMUM SECURITY light blinks, and the mast light blinks (my timing), all as the old station did.
+- **HQ annex officers:** they still walk their old routes inside the annex. If they clip through the new furniture, their walk points (PDO in dx555) need moving.
+- **Not built yet:** the interrogation room in the arrest cutscene (your "ideas for later").
+
 ## 2026-10-18 · r625: the Speedway and the farms built (speedway-farms.md, dx618)
 - xpSpeedway, xpRaceTick, xpWind and xpSolar are redefined in dx618 and use your models. The oval, q.race and the lap logic don't move.
 - **Start lights:** all green for 1.5 s when a lap starts, off otherwise. The optional red countdown isn't built.
