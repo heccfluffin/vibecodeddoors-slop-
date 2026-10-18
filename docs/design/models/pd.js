@@ -302,7 +302,7 @@ function pdCellBlock(g){const k=pdKit(),I=pdInterior(),{M,MT,can,R}=k,{F,HC}=I,{
  const iz=zb+.15,ix0=S.x0+.15,ix1=S.x1-.15;
  bl('x',ix0,ix1,iz,1,[[74.4,75.4,2.4,3.0],[78.7,79.7,2.4,3.0],[83.1,84.1,2.4,3.0],[89,90,2.4,3.0],[92.6,93.4,2.2,2.8]]);bl('z',iz,zp-.08,ix0,1,[]);bl('z',iz,zp-.08,ix1,-1,[]);
  /* the cell front line: solid with two doors for interrogation and observation, bars for the four cells (with a solid header above 2.6 m) */
- bw('x',ix0,72.5,zc,.18,[[65.6,66.6,0,2.3],[70.4,71.4,0,2.3]]);k.wall(g,'x',72.5,92,zc,HC+.02,.18,UP,[],2,2.6);k.wall(g,'x',72.5,92,zc,2.66,.2,ST,[],2,2.6);
+ bw('x',ix0,72.5,zc,.18,[[65.6,66.6,0,2.3],[70.4,71.4,0,2.3]]);k.wall(g,'x',72.5,92,zc,HC+.02,.18,UP,[],2,2.6);k.wall(g,'x',72.5,92,zc,2.67,.2,ST,[],2,2.585);/* the stripe wraps the header's bottom edge (no face level with it) */
  /* dividers */bw('z',iz,zc-.09,69.3,.16,[[-1030.6,-1028.4,1.0,2.2]]);for(const x of[72.5,77.3,82.1,87])bw('z',iz,zc-.09,x,.18,[]);bw('z',iz,zp-.08,92,.18,[]);
  /* floors: polished concrete in the corridor and cells, a yellow line along the corridor, drains */
  B(92-ix0,.01,zp-.08-(zc+.09),CON,(ix0+92)/2,.025,(zc+.09+zp-.08)/2,null,2);B(92-72.59,.01,zc-.09-iz,CON,(72.59+92)/2,.025,(iz+zc-.09)/2,null,2);B(69.22-ix0,.01,zc-.09-iz,F.linoB,(ix0+69.22)/2,.025,(iz+zc-.09)/2,null,2);B(72.41-69.38,.01,zc-.09-iz,F.carpet,(69.38+72.41)/2,.025,(iz+zc-.09)/2,null,1);B(ix1-92.09,.01,zp-.08-iz,F.linoB,(92.09+ix1)/2,.025,(iz+zp-.08)/2,null,2);
