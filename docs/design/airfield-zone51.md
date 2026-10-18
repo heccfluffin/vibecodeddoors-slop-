@@ -124,7 +124,16 @@ up through the saucer, spinning. New sequence, 6.3 s, input locked as now (`q.ab
 - 3.1 to 3.6 s: fade to white (the existing `bsF` overlay, background #f4fff8).
 - 3.6 to 4.0 s: the hatch closes behind you (u 1 to 0), unseen under the white.
 - 4.0 to 5.6 s: hold white, "👽 ..." in the middle.
-- 5.6 s: do what the old code does at 2.4 s (pick a place, drop you from 26 m with `q.fling` soft, `q.safe`, the hint,
-  the badge), and fade the white out over 0.6 s. Reset the beam to visible.
+- 5.6 s: pick the place as the old code does (`l`, the drop point `D = (l.x+4, l.z+4)`), reset the hangar beam and
+  hatch. **The ride out (new):** a second saucer (`zfSaucer()`, built once and kept hidden; the hangar one stays
+  parked) appears 28 m up, about 200 m from D on the side away from it (or at the hangar, if D is near), its hatch
+  open. Fade the white out over 0.5 s.
+  - 5.6 to 7.8 s: it races to D (eased), banking slightly, spinning. The camera rides 3.6 m under its hatch, looking
+    ahead and down (the land streaking past). Move P with it so the world streams in around you.
+  - 7.8 to 8.2 s: it has stopped over D. You are let go.
+  - 8.2 s on: you fall (the existing `q.fling` from 24 m, soft), looking up at the saucer; at 9.2 s it shoots up
+    and away (rising and accelerating along its heading), and is hidden at 11.6 s.
+  - Then the hint and the badge as before.
+- Its beam cone is never shown during this (you are inside it).
 - Sounds: keep the rising whine (300 + t*400) while rising; a soft clunk when the hatch closes.
 - The preview's "Step into the light" button plays this with the camera.
