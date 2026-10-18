@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batches 1-5 approved · the train (batch 6) next · not ready to build yet
+Status: complete, all approved 2026-10-18 (lake 1-2, observatory, Dino Dan's, railway track and crossings, the train) · ready to build
 
 # Mirage Lake, the observatory, Dino Dan's and the railway
 
@@ -78,4 +78,17 @@ Batches: 1 lake water, shore, palms, pier, bait shop · 2 beach, lifeguard, snac
   `K` has the same fields the old code made (`x, arms[{pv, sd}], lights[], obs[], down, a`), so `xpTrainTick`
   works unchanged. The gate boxes start `off:1` (open), as before.
 - Rail tops stay at y 0.3 and the rails 1.5 m apart, so the train and the handcar sit on them as now.
+
+### Batch 6 (approved) · `rrLoco()`, `rrTender()`, `rrWagon(kind, col, name)`; helpers `rrBogie`, `rrCoupler`
+- Replaces the train cars built in `xpRail` (`car(12, ...)` for the locomotive and the six `car(11, ...)` wagons).
+  Build `q.train` the same way with these groups: loco (len 12), **a new tender (len 7)**, then the six wagons with
+  the old colours and kinds (`i%3==2` 'flat', `i%3==1` 'tank', else 'box' with the name `['DOORS BUT FREIGHT',
+  'GWEEN SODA','EL GOBLINO LOGISTICS','DARK CARGO'][i%4]`). `T.len` grows by 8.2 m; the crossings use `T.len`, fine.
+- **Front is +x now**: don't turn the locomotive (`c.rotation.y = Math.PI` goes). Positions stay
+  `m.position.set(head - off, 0, z)`.
+- Headlight: `TR.hl` at the loco's `userData.lamp` (5.7, 3.75, 0) and pointing ahead (+x); the smoke sprite at
+  `userData.stack` (4.6, 4.8, 0) (the old one was at -3.6 in the turned model, i.e. +3.6 ahead).
+- Wheels: in `xpTrainTick`, `c.m.userData.spin(T.dist)` for every car, where `T.dist += T.v * dt` (optional, but the
+  side rods look best moving).
+- All train meshes are dpKeep (they move every frame).
 
