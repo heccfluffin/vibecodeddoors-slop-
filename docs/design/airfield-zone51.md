@@ -1,4 +1,4 @@
-Status: layout and airfield batches 1-3 approved by the user 2026-10-17 · airfield batch 4 next
+Status: layout and the whole airfield approved by the user 2026-10-18 · Zone 51 next
 
 # The airfield and Dark Zone 51
 
@@ -89,3 +89,12 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
 - Terminal and car park are new; push their `obs`. The terminal's glass door to the runway stands open (x 322.5..324.5)
   and the entrance from the road is a doorway in its west wall (z -1206..-1204).
 - New `rect()` map entries if you like: terminal `#e6d6b8`, car park `#b4a080`.
+
+### Airfield batch 4 (approved) · `afTower(g, 430, -1200)` → `{obs, beacon, red}`, `afWindsock(g, 380, -1248)` → `{obs, sk, so}`
+- Replaces the tower's shaft box, floor, glass box, four posts, roof, mast, red sphere, TOWER label (and its `ob`), and
+  the windsock pole, sock group and cone (and its `ob`). Keep the intercom prop and the tower light.
+- Anims: `beacon.rotation.y += dt * 1.6`; blink `red.emissiveIntensity` between 1 and .1 each half second (the old
+  `bl.visible` toggle); windsock as before: `sk.rotation.y = PI*.75 + sin(rt*.6)*.5`, `so.rotation.z = PI/2 - .2 +
+  sin(rt*2.5)*.1`. All three are `dpKeep`.
+- The stair is a stair tower east of the shaft (four flights, landings, handrails); its top landing meets a gap in
+  the walkway railing. The walkway and stair are looks only (no plates), unless you want players to climb it.
