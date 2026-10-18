@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · Speedway batches 1-3 and the wind farm (batch 4) approved · solar farm (batch 5) next · not ready to build yet
+Status: complete, all approved 2026-10-18 (Speedway batches 1-3, wind farm, solar farm) · ready to build · not ready to build yet
 
 # The Speedway, the wind farm and the solar farm
 
@@ -97,4 +97,16 @@ Also exported: `SPW` (the oval's numbers), `spPt(u, r)`, `spLen()`, `spRibbon(..
 - The substation prop (`[E] Read the substation sign`, same three lines) moves to `prop` (-486, -1268.6), at the gate.
 - Push all `obs` (towers 3.8 m boxes, transformer boxes, fence sides with a gap at the gate, transformer, gantry
   legs, cabinets, hut, poles). The service track and pads are flat gravel (y .04, units -1), no obstacles.
+- Changed after approval: the substation's insulator strings hang on a steel core from the beam (they floated), and
+  the yard gate opens inwards.
+
+### Solar farm (batch 5, approved) · `sfFarm(g)` → `{obs, prop}` in `models/farms.js`
+- Replaces all of `xpSolar`'s meshes: the panel InstancedMesh, the leg InstancedMesh, the hut box at (-50,-1258) and
+  its `ob`, and the ten row `ob`s (sfFarm returns the same ten row lines, now x -196.5..-40.5). Keep `zone`,
+  `q.mapR`, `sign('SOLAR FARM...')` at (-44,-1296), `loc`.
+- The panel prop (`[E] Read the panel`, same three lines) moves to `prop` (-31.5, -1297.2), by the hut door.
+- The panel tables, legs and torque tubes are InstancedMeshes (unculled; keep them out of scenery chunks like `imFix`).
+- The gate leaves stand open outwards along the road edges (x -38, z -1303.5 and -1296.5); fence obstacles leave
+  the gateway open. The road (dirt, to x -42) runs through it.
+- HALT's cart is scenery (one obstacle box).
 

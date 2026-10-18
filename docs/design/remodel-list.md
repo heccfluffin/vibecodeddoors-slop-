@@ -42,7 +42,7 @@ gameplay, build on the existing `DP` batching, and Claude Code makes a git backu
 | 14 | Dusty Gulch (town) | `xpGulch`, `xpMoreTown` |
 | 15 | Fort Blackout buildings | dx55x–dx57x, dx598 |
 | 16 | Airfield, Dark Zone 51 | `xpAirfield`, `xpDarkZone` |
-| 17 | Speedway, scrap yard, crusher, wind and solar farms | `xpSpeedway`, `xpScrap`, `xpCrusher`, `xpWind`, `xpSolar*` |
+| 17 | ~~Speedway, scrap yard, crusher, wind and solar farms~~ (done: scrap-yard.md, speedway-farms.md) | `xpSpeedway`, `xpScrap`, `xpCrusher`, `xpWind`, `xpSolar*` |
 | 18 | Mirage Lake, observatory, dino, railway | `xpLake`, `xpObservatory`, `xpDino`, `xpRail` |
 | 19 | Military vehicles and weapons | tank (in `mkVehModel`), `mkApcModel`, `mkHeli`, `mkICBM`, `mkTurret`, `mkMortar` |
 | 20 | The Pyramid: a full rework, outside, inside and underneath (puzzles, the deep rooms) | `pyrBuild`, `pyrUnder`, `pyrStairs`, `pyrTorch`, `pyrJackal`… (`PYR` at -175, -1040) |
