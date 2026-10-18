@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · Speedway batch 1 approved · batch 2 in preview · not ready to build yet
+Status: layout approved 2026-10-18 · Speedway batches 1-2 approved · batch 3 next · not ready to build yet
 
 # The Speedway, the wind farm and the solar farm
 
@@ -11,8 +11,9 @@ Layout plan: the design chat's "Speedway and Farms" plan page.
 - **The oval does not move**: centre (300, -1830), RX 110, RZ 38, 14 m wide; straights x 228..372; start line x 300
   on the main (north) straight, z -1792, driven east. `q.race` (checkpoints, lap logic, 25 s badge) is unchanged.
 - Tyre walls stay at radius RZ-8 (inner) and RZ+8 (outer), except: the main straight has a concrete wall
-  (x 228..323, z -1784) with a catch fence; the pit lane opens from x 323 to 6 m into the east bend; a low pit wall
-  runs x 330..372 at z -1784.
+  (x 228..303, z -1784) with a catch fence; the pit lane peels off at x 303 and curves in; a low pit wall runs
+  x 330..372 at z -1784; past x 372 the pit exit is an 8 m band round the outside of the east bend that narrows to
+  nothing by 0.6 rad, and the outer tyre wall follows its outside edge (`SPX.rOut`). (Changed during batch 2.)
 - Behind the main straight: grandstand x 250..310, z -1781..-1766; race control tower x 314..322; pit lane
   x 323..378, z -1783.4..-1777; four pit boxes x 332..370; four garages x 328..372, z -1777..-1766.
 - **Pit stops (new):** stop in a pit box (under ~5 km/h) and a crew of four runs out (jack, wheel guns, tyres,
@@ -46,3 +47,30 @@ Also exported: `SPW` (the oval's numbers), `spPt(u, r)`, `spLen()`, `spRibbon(..
   one a second, then green.
 - The tyre InstancedMesh is unculled already (`frustumCulled = false`); leave it out of scenery chunks like `imFix`.
 - The catch fence is a transparent plane (alphaTest): keep it out of DP batching if that breaks transparency (dpKeep).
+
+### Speedway batch 2 (approved) · `spStand(g)` → `{obs, flags}`, `spControl(g)` → `{obs, beacon}`, `spPits(g)` → `{obs, boxes, crewHome, boardAt}`; `mkPitCrew(col)`, `mkWheelGun()`, `mkPitJack()`
+- Replaces in `xpSpeedway`: the three grey grandstand steps and their `ob`, the pits box, its roof, its label and `ob`.
+  Push all `obs`. The race board prop moves to `boardAt` (garage 1's west wall); same text, plus the best pit stop.
+- `flags`: each frame `f.rotation.y = sin(t*1.7 + i) * .25` (they're dpKeep). `beacon`: blink it while a lap is running
+  (emissiveIntensity 1.4 / 0.2 every half second), off otherwise.
+- The seat InstancedMeshes use per-instance colours (`setColorAt`); they're unculled. The grandstand is one obstacle
+  box (you can't climb it).
+- **Pit stops** (new gameplay):
+  - Trigger: you're the driver, your car is within a pit box (`boxes`: |dx| < 3, |dz| < 2) and slower than 5 km/h, and no
+    stop is running. Not for planes, the bus, helicopters.
+  - One crew of four (`mkPitCrew()`, green) waits at `crewHome` facing the lane (rotation.y = 0 faces -z, i.e. the lane).
+    Crew 0 and 1 carry a `mkWheelGun()` in `parts.grip` (gun.rotation.x = -PI/2). The jack (`mkPitJack()`) waits at
+    (box.x + 3.2, -1778.5), turned rotation.y = PI/2.
+  - Timeline from the stop (s), with the car at (bx, bz) facing east:
+    0-0.9 the crew run (pose 'run') to: wheel men (bx+1.4, bz+1.75) and (bx-1.4, bz+1.75) facing -z; jack man
+    (bx+4.6, bz) facing -x (rotation.y = PI/2) pushing the jack in to (bx+3.2, bz); wiper (bx+.6, bz-1.9) facing +z.
+    0.9-1.4 jack man pose 'jack', `lift` 0→1, the car rises 0.15 m. 1.3-3.3 wheel men pose 'gun' (play an air-gun
+    buzz), wiper pose 'wipe' until 3.6 then 'go'. 3.3-3.8 jack down (lift 1→0, car down). 3.8-4.4 the jack man drags
+    the jack north to z -1778.5, clear of the car. At 3.8 `v.dmg = 0` (and any smoke/fire state cleared), show
+    "PIT STOP 3.8 s" (time from stopping to the car coming down) and save the best in `SV.xpit`; "GO!" — the car
+    may leave. The crew stay put until the car has left the box (more than 4 m away), then run home (0.9 s).
+  - Hold the car still (no throttle) from the stop until 3.8 s. If the car leaves early, cancel: crew run home.
+  - The pit lane counts as track for the lap: in `xpRaceTick` treat x 303..400, z -1786..-1776 as inside (`inT`).
+  - Local to the driver (no sync needed; friends just see the car stopped).
+- Pit lane paint is one canvas over the lane shape (note: canvas top = south, see the comment in `spPits`).
+
