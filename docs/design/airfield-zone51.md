@@ -112,3 +112,19 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
   and the two gate posts have obstacles.
 - **Tank traps:** remove the game's three tank traps by the east fence (x1-20); push `zfTraps` obstacles. The weaving
   lane is 3.4 m wide, so AI cars and the player can get through slowly.
+
+### Zone 51 batch 2 (in review) · `zfHangar18(g)` → `{obs, saucer, beam, rim, dome, hatch}`, `zfSaucer()`
+**The new abduction (replaces the `q.abd` block in the base's tick, ~bak519 "the saucer"):** today you rise straight
+up through the saucer, spinning. New sequence, 6.3 s, input locked as now (`q.abd` keeps blocking movement):
+- 0 to 0.6 s: the hatch under the saucer opens (`hatch(u)`, an iris of six blades, u 0 to 1). The beam brightens.
+- 0.6 to 1.4 s: you are drawn smoothly sideways to the middle of the beam (P.x, P.z ease to the saucer's centre).
+- 1.4 to 3.6 s: you rise (eased) until your eyes are 0.7 below the hatch (saucer y - 1.65), slowly turning; the view
+  tilts up to look into the lit well. **Hide the beam cone while you are in it** (`beam.visible = false` from 1.4 s;
+  from inside it only shows its own faces).
+- 3.1 to 3.6 s: fade to white (the existing `bsF` overlay, background #f4fff8).
+- 3.6 to 4.0 s: the hatch closes behind you (u 1 to 0), unseen under the white.
+- 4.0 to 5.6 s: hold white, "👽 ..." in the middle.
+- 5.6 s: do what the old code does at 2.4 s (pick a place, drop you from 26 m with `q.fling` soft, `q.safe`, the hint,
+  the badge), and fade the white out over 0.6 s. Reset the beam to visible.
+- Sounds: keep the rising whine (300 + t*400) while rising; a soft clunk when the hatch closes.
+- The preview's "Step into the light" button plays this with the camera.

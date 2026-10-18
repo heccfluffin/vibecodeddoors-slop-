@@ -112,15 +112,20 @@ function zfSaucer(){const k=zfKit(),M=k.M,g=new THREE.Group();
  const hull=new THREE.MeshStandardMaterial({roughness:.5,metalness:.25,color:0xb4b8c0});hull.map=afCanvas(1024,256,(x,w,h)=>{x.fillStyle='#9ca2ac';x.fillRect(0,0,w,h);x.strokeStyle='rgba(50,56,70,.5)';x.lineWidth=1.5;for(let i=0;i<=32;i++){x.beginPath();x.moveTo(i*w/32,0);x.lineTo(i*w/32,h);x.stroke()}for(const y of[h*.35,h*.7]){x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke()}x.fillStyle='rgba(255,255,255,.12)';for(let i=0;i<32;i+=2)x.fillRect(i*w/32+2,0,w/32-4,h)});
  /* the lathe faces outward only when its profile runs from the bottom up, so each list is reversed here */const prof=(pts)=>new THREE.LatheGeometry(pts.slice().reverse().map(p=>new THREE.Vector2(p[0],p[1])),64);
  g.add(new THREE.Mesh(prof([[0,1.25],[1.6,1.2],[3.2,1.0],[4.7,.7],[5.9,.38],[6.7,.12],[7,0]]),hull));
- {/* the underside a darker grey, so the beam light below doesn't wash it out */const und=hull.clone();und.color=new THREE.Color(0x8a909a);g.add(new THREE.Mesh(prof([[7,0],[6.7,-.12],[5.8,-.42],[4.4,-.72],[2.8,-.9],[0,-.95]]),und))}
+ {/* the underside a darker grey, so the beam light below doesn't wash it out */const und=hull.clone();und.color=new THREE.Color(0x8a909a);g.add(new THREE.Mesh(prof([[7,0],[6.7,-.12],[5.8,-.42],[4.4,-.72],[2.8,-.9],[1.22,-.95]]),und))}/* the underside stops at the hatch's rim, so the hatch opens onto the lit well */
  /* the rim: a thin dark groove with small lights set into it */const groove=new THREE.Mesh(new THREE.TorusGeometry(6.98,.06,8,96),M(0x1a1c24,{metalness:.5,roughness:.3}));groove.rotation.x=Math.PI/2;g.add(groove);
  const rim=[0x60ffb0,0x70b0ff,0xffffff].map(c=>M(c,{emissive:c,emissiveIntensity:1}));for(let i=0;i<36;i++){const a=i/36*Math.PI*2,l=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),rim[i%3]);l.position.set(Math.cos(a)*7.0,0,Math.sin(a)*7.0);g.add(l)}
  /* the dome: a low, tinted canopy on a slim collar */const col=new THREE.Mesh(new THREE.CylinderGeometry(2.05,2.15,.14,48),M(0x30343e,{metalness:.6,roughness:.25}));col.position.y=1.27;g.add(col);
  const dome=new THREE.MeshStandardMaterial({color:0x6ad8b0,emissive:0x1a6a50,emissiveIntensity:.6,transparent:true,opacity:.6,roughness:.05,metalness:.2,depthWrite:false});const dm=new THREE.Mesh(new THREE.SphereGeometry(2,48,16,0,Math.PI*2,0,Math.PI/2),dome);dm.scale.y=.55;dm.position.y=1.32;g.add(dm);
  {const st=new THREE.Mesh(new THREE.CylinderGeometry(.35,.4,.35,16),M(0x1a1c22));st.position.y=1.5;g.add(st)}
- /* underneath: a soft glowing ring and a flush hatch */const ur=new THREE.Mesh(new THREE.TorusGeometry(2.9,.07,8,64),M(0x80ffc0,{emissive:0x40ff90,emissiveIntensity:.8}));ur.rotation.x=Math.PI/2;ur.position.y=-.86;g.add(ur);
- const ht=new THREE.Mesh(new THREE.CircleGeometry(1.2,32),M(0x3a3e48,{metalness:.6,roughness:.3}));ht.rotation.x=Math.PI/2;ht.position.y=-.955;g.add(ht);const hr=new THREE.Mesh(new THREE.TorusGeometry(1.2,.03,6,32),M(0x1a1c24));hr.rotation.x=Math.PI/2;hr.position.y=-.95;g.add(hr);
- g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return{g,rim,dome}}
+ /* underneath: a soft glowing ring, and the hatch: two half-discs that slide apart (hatch(u), u 0 shut .. 1 open);
+    above them a glowing well, so when it opens you see light inside */
+ const ur=new THREE.Mesh(new THREE.TorusGeometry(2.9,.07,8,64),M(0x80ffc0,{emissive:0x40ff90,emissiveIntensity:.8}));ur.rotation.x=Math.PI/2;ur.position.y=-.86;g.add(ur);
+ const hr=new THREE.Mesh(new THREE.TorusGeometry(1.2,.05,6,32),M(0x1a1c24));hr.rotation.x=Math.PI/2;hr.position.y=-.95;g.add(hr);
+ const well=new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.18,.7,32,1,true),new THREE.MeshBasicMaterial({color:0xc8ffe8,side:THREE.BackSide}));well.position.y=-.6;g.add(well);const wtop=new THREE.Mesh(new THREE.CircleGeometry(1.18,32),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide}));wtop.rotation.x=Math.PI/2;wtop.position.y=-.26;g.add(wtop);
+ /* an iris: six blades that turn and shrink into the rim */const HM=M(0x3a3e48,{metalness:.25,roughness:.4,side:THREE.DoubleSide}),blades=[];for(let i=0;i<6;i++){const piv=new THREE.Group();piv.position.y=-.955;piv.rotation.y=i*Math.PI/3;g.add(piv);const b=new THREE.Mesh(new THREE.CircleGeometry(1.19,8,0,Math.PI/3+.02),HM);b.rotation.x=Math.PI/2;piv.add(b);blades.push([piv,b])}
+ const hatch=u=>{u=Math.min(1,Math.max(0,u));for(const[piv,b]of blades){b.scale.setScalar(Math.max(.001,1-u));piv.rotation.y=piv.userData.a0+u*.8}};blades.forEach(([piv],i)=>piv.userData.a0=i*Math.PI/3);
+ g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return{g,rim,dome,hatch}}
 
 function zfHangar18(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],hx=-580,hz=-1915,W=50,D=36,HW=8,RISE=8,z0=hz-D/2,z1=hz+D/2,DW=10,DH=12;
  const SK=afCorr(k,'#8a8e90',[1,10]),SKF=afCorr(k,'#9a9ea0',[12,1]),STL=M(0x4a4e54,{metalness:.5,roughness:.4}),YL=M(0xe8c020,{roughness:.6}),DK=M(0x26282b,{roughness:.6}),CON=M(0x9a948a,{roughness:.95});
@@ -161,4 +166,4 @@ function zfHangar18(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],hx=-580,h
  {const s=k.lab('THE DARK PROJECTS DIVISION\nDOES NOT EXIST',4,.8,'#2a2a3a','#ffffff',50);s.position.set(hx+14,3,z0+.32);g.add(s);B(4.1,.9,.04,hx+14,3,z0+.29,M(0x2a2a3a))}
  /* the saucer, its beam */const SC=zfSaucer();SC.g.position.set(hx,6,hz);g.add(SC.g);const beam=new THREE.Mesh(new THREE.ConeGeometry(3,6,24,1,true),new THREE.MeshBasicMaterial({color:0x80ffc0,transparent:true,opacity:.18,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));beam.position.set(hx,3.1,hz);beam.userData.dpKeep=1;g.add(beam);
  obs.push({x0:hx-2,x1:hx+2,z0:hz-2,z1:hz+2});
- g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,saucer:SC.g,beam,rim:SC.rim,dome:SC.dome}}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,saucer:SC.g,beam,rim:SC.rim,dome:SC.dome,hatch:SC.hatch}}
