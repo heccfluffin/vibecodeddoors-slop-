@@ -55,6 +55,13 @@ Not guilty: you're put outside the courthouse door at (50, -1014.5), facing +z.
   (61.7, -1029.4), in the alley.
 - Impound lot x 138..156, z -1025..-1004 (new, batch 6).
 
+## Ideas for later (the user, 2026-10-18)
+- **Use the interrogation room in the arrest cutscene,** before the court: you're sat at the interrogation table, Seek
+  (or Detective Gloom) leans over the lamp and asks a couple of silly questions, someone watches through the one-way
+  mirror from the observation room, then it cuts to the dock. The spots are ready (`pdCellBlock(g).spots`): your
+  chair `intChair` (65.9, -1029.5, facing +x), the questioner `intCop` (67.7, -1029.5, facing -x), the watcher
+  `obsWatch` (70.6, -1029.5, facing -x, behind the mirror).
+
 ## Batches
 1. The station outside, the courthouse outside, the forecourt. 2. The lobby, office, booking, break room.
 3. The corridor, the cells (A, B, C, D), interrogation and observation. 4. The courtroom. 5. The HQ annex.
