@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · Speedway batch 1 in preview · not ready to build yet
+Status: layout approved 2026-10-18 · Speedway batch 1 approved · batch 2 in preview · not ready to build yet
 
 # The Speedway, the wind farm and the solar farm
 
@@ -33,4 +33,16 @@ Batches: 1 track, kerbs, tyre walls, wall and fence, pit wall, start gantry · 2
 pit lane, crew · 3 entrance, car park, infield, floodlights · 4 wind farm · 5 solar farm.
 
 ## Part 2: models
-(batches are added here as they are approved)
+
+### Speedway batch 1 (approved) · `spTrack(g)` → `{obs, board, lights}` in `models/speedway.js`
+Also exported: `SPW` (the oval's numbers), `spPt(u, r)`, `spLen()`, `spRibbon(...)` (the later batches use them).
+- Replaces in `xpSpeedway`: the two straight planes and the two ring bends, the tyre InstancedMesh and its ~420 `ob`s,
+  the gantry posts/beam/boards, the chequered plane. Keep `zone`, `q.mapR`, `q.race`, `loc`, the sign at (300,-1884).
+  The grandstand, pits and prop go in batch 2.
+- Push all `obs` (tyre stacks are one box per three stacks; the concrete wall, pit wall and the two gantry towers).
+- `q.race.bd = board` (same size and canvas as the old BEST LAP board, so `xpRaceBoard` works unchanged).
+- Start lights: `lights(reds, green)`. Off when idle. When a lap starts (R.i goes to 0): all green for 1.5 s, then off.
+  If you like: while a car sits still within 20 m before the line (x 280..300 on the straight), count down the reds
+  one a second, then green.
+- The tyre InstancedMesh is unculled already (`frustumCulled = false`); leave it out of scenery chunks like `imFix`.
+- The catch fence is a transparent plane (alphaTest): keep it out of DP batching if that breaks transparency (dpKeep).
