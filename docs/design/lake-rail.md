@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batches 1-2 approved · observatory (batch 3) next · not ready to build yet
+Status: layout approved 2026-10-18 · batches 1-3 approved · Dino Dan's (batch 4) next · not ready to build yet
 
 # Mirage Lake, the observatory, Dino Dan's and the railway
 
@@ -51,4 +51,12 @@ Batches: 1 lake water, shore, palms, pier, bait shop · 2 beach, lifeguard, snac
 - `lkBob([...bh.bob, ...buoys.bob], t)` every frame inside the lake's anim gate (swans and buoys are dpKeep).
 - The boathouse jetty is walkable: push `plate` into `q.plates` like the pier.
 - Scenery only: the kiosk, shower, volleyball court, lifeguard tower, boathouse and swans have no gameplay.
+
+### Batch 3 (approved) · `obTower(g)` → `{obs, dome, prop}`, `obDish(g)` → `{obs, dish}`, `obCaravan(g)`, `obPlanets(g)` → `{obs}`; `OBS`
+- Replaces all of `xpObservatory`'s meshes and its `ob`. Keep `zone`, the sign, `loc`.
+- `dome` replaces the old `dm` group: same anim, `dome.rotation.y = sin(rt*.15)*1.2` (the slit is on its -z side, like
+  the old one). Optional: `dish.rotation.y = sin(rt*.1)*.6`. Both are dpKeep.
+- **The door moved to the west side** (facing the road in). The telescope prop (`[E] Use the big telescope`, same
+  lines, same badge) moves to `prop` (598.6, -1480); put the blue `light(...)` there too (y 3.5).
+- The caravan, planets and dish are scenery with small obstacles.
 
