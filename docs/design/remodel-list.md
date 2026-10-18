@@ -53,3 +53,9 @@ gameplay, build on the existing `DP` batching, and Claude Code makes a git backu
 ## Tier 4: hotel rooms
 Rooms are generated (`mkRoomRaw`, `mkHallVar`, `mkWingRoom`, libraries, cellar, sewer, boiler…). These are layout
 code more than models: better done as texture and prop passes than remodels. Later.
+
+## Later (the user, 2026-10-18)
+- **The gameplay loop first:** make playing a lot more fun and fresh, especially the hotel run and the desert mines.
+  Think about what you do minute to minute, goals, rewards and variety, before any more remodels of those two.
+- Then a **hotel remodel** and a **desert mines remodel**.
+
