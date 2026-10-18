@@ -270,19 +270,29 @@ function zfHelipad(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],x=-505,z=-
 
 /* a white unmarked pickup, built facing +z, wheels on y 0 (about 5.2 long) */
 function zfPickup(){const k=zfKit(),M=k.M,g=new THREE.Group(),{B,C}=k.H(g),W=M(0xeef0f0,{roughness:.4,metalness:.2}),DK=M(0x1a1a1c,{roughness:.6}),GL=M(0x1a2a34,{metalness:.3,roughness:.1}),TR=M(0x3a3c40,{roughness:.6});
- B(1.9,.55,5.2,0,.75,0,W);B(1.86,.85,2.1,0,1.45,.5,W);B(1.7,.7,.06,0,1.5,1.56,GL).rotation.x=-.35;B(1.7,.55,.06,0,1.55,-.56,GL);for(const s of[-1,1])B(.04,.5,1.6,s*.94,1.5,.55,GL);
- B(1.9,.06,2.6,0,1.05,-1.25,DK);for(const s of[-1,1])B(.06,.4,2.6,s*.92,1.22,-1.25,W);B(1.9,.4,.06,0,1.22,-2.57,W);
+ B(1.9,.55,5.2,0,.75,0,W);
+ /* the cab: a side profile (rear wall, roof, sloped windscreen down to the bonnet) pushed across the width */
+ {const GLD=GL.clone();GLD.side=THREE.DoubleSide;const sh=new THREE.Shape();sh.moveTo(-.55,1.02);sh.lineTo(1.55,1.02);sh.lineTo(1.0,1.9);sh.lineTo(-.55,1.9);sh.lineTo(-.55,1.02);const ge=new THREE.ExtrudeGeometry(sh,{depth:1.86,bevelEnabled:false});ge.translate(0,0,-.93);const cb=new THREE.Mesh(ge,W);cb.rotation.y=-Math.PI/2;g.add(cb);
+  /* glass laid on its faces: the windscreen on the slope, the back window, a side window each side */const sl=Math.hypot(.55,.88),ang=Math.atan2(.55,.88);const ws=new THREE.Mesh(new THREE.PlaneGeometry(1.66,sl-.16),GL);ws.position.set(0,1.46,1.275+.012*Math.cos(ang));ws.rotation.x=-ang;ws.position.y+=.012*Math.sin(ang);g.add(ws);
+  const bw=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.5),GL);bw.position.set(0,1.55,-.562);bw.rotation.y=Math.PI;g.add(bw);
+  for(const s of[-1,1]){const sw=new THREE.Shape();sw.moveTo(-.4,1.2);sw.lineTo(1.2,1.2);sw.lineTo(.92,1.78);sw.lineTo(-.4,1.78);sw.lineTo(-.4,1.2);const swm=new THREE.Mesh(new THREE.ShapeGeometry(sw),GLD);swm.rotation.y=-Math.PI/2;/* the shape's x runs to +z (the front), like the cab's */swm.position.x=s*.942;g.add(swm)}}
+ B(1.9,.06,2.6,0,1.05,-1.25,DK);for(const s of[-1,1])B(.06,.4,2.6,s*.9,1.235,-1.25,W);/* bed sides inside the body's line, so their faces don't share it */B(1.9,.4,.06,0,1.22,-2.57,W);
  B(1.95,.25,.15,0,.55,2.62,TR);B(1.95,.25,.15,0,.55,-2.62,TR);for(const s of[-1,1]){B(.4,.15,.04,s*.65,.95,2.61,M(0xfff4d0,{emissive:0x806a40}));B(.15,.3,.04,s*.85,1.05,-2.61,M(0xc01010,{emissive:0x400000}))}
  for(const[a,b]of[[-1,1.6],[1,1.6],[-1,-1.6],[1,-1.6]]){C(.42,.42,.3,a*.88,.42,b,DK,'x',null,16);C(.22,.22,.32,a*.88,.42,b,M(0x8a8e94,{metalness:.5}),'x',null,12)}
- B(.6,.06,.4,0,1.92,.4,DK);/* a roof light bar, unlit */
+ B(.6,.06,.4,0,1.93,.4,DK);/* a roof light bar, unlit */
  g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true}});return g}
 
 function zfMotorPool(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],X0=-525,X1=-505,Z0=-1852,Z1=-1840,STL=M(0x5a5e64,{metalness:.4,roughness:.45});
  {const t=afCanvas(256,160,(c,w,h)=>{afTarmac(c,w,h,'#6a6a6c',121);c.fillStyle='rgba(20,18,16,.35)';for(const[x,y]of[[70,90],[180,85]]){c.beginPath();c.ellipse(x,y,30,18,0,0,7);c.fill()}c.fillStyle='#e8e8e0';for(let i=0;i<=3;i++)c.fillRect(8+i*80,10,4,h-20)});afPlane(g,X0,X1,Z0,Z1,.04,t,-1)}
  const H=3.6;for(const x of[X0+.5,X0+10,X1-.5])for(const z of[Z0+.5,Z1-.5]){B(.2,H,.2,x,H/2,z,STL);obs.push({x0:x-.15,x1:x+.15,z0:z-.15,z1:z+.15})}for(const z of[Z0+.5,Z1-.5])B(X1-X0,.3,.25,(X0+X1)/2,H-.1,z,STL);
- {const rf=B(X1-X0+.6,.1,Z1-Z0+.6,(X0+X1)/2,H+.12,(Z0+Z1)/2,afCorr(k,'#8a8e90',[1,14]));rf.rotation.x=.04}
+ /* rafters across the two beams, then a flat sheet roof resting on them, with a fascia board round its edge */for(let x=X0+.5;x<=X1-.4;x+=2.5)B(.12,.18,Z1-Z0,x,H+.14,(Z0+Z1)/2,STL);B(X1-X0+.6,.06,Z1-Z0+.6,(X0+X1)/2,H+.26,(Z0+Z1)/2,afCorr(k,'#8a8e90',[1,14]));for(const z of[Z0-.3,Z1+.3])B(X1-X0+.64,.22,.04,(X0+X1)/2,H+.2,z,M(0xd8dcd8,{roughness:.6}));for(const x of[X0-.3,X1+.3])B(.04,.22,Z1-Z0+.64,x,H+.2,(Z0+Z1)/2,M(0xd8dcd8,{roughness:.6}));
  for(const x of[X0+5,X0+15]){const p=zfPickup();p.position.set(x,0,(Z0+Z1)/2+.3);p.rotation.y=Math.PI;g.add(p);obs.push({x0:x-1,x1:x+1,z0:(Z0+Z1)/2-2.3,z1:(Z0+Z1)/2+2.9})}
- for(let i=0;i<4;i++)B(.35,.45,.18,X1-1.2+((i%2)*.4),.25+((i/2)|0)*.5,Z0+1,M(0xc02020,{roughness:.5}));
+ /* a steel rack of jerrycans: two shelves, three cans each */
+ {const rx=X1-1.6,rz=Z0+1,RED=M(0xb01c18,{roughness:.45,metalness:.15}),DKR=M(0x7a1210,{roughness:.5});for(const e of[-.8,.8])for(const d of[-.22,.22])B(.05,1.3,.05,rx+e,.65,rz+d,STL);for(const y of[.08,.68])B(1.7,.04,.5,rx,y,rz,STL);B(1.7,.04,.04,rx,1.28,rz-.22,STL);
+  const can=(x,y)=>{const cg=new THREE.Group();cg.position.set(x,y,rz);g.add(cg);const{B:CB,rod:CR}=k.H(cg);CB(.17,.46,.34,0,.23,0,RED);/* the pressed X on each side */for(const s of[-1,1])for(const a of[-1,1]){const xb=CB(.01,.5,.04,s*.086,.23,0,DKR);xb.rotation.x=a*.62}CB(.18,.04,.35,0,.02,0,DKR);
+   /* three-bar handle on top, a spout with a cap at the front corner */for(const dz of[-.1,0,.1])CB(.03,.08,.025,0,.5,dz,DKR);CB(.03,.025,.26,0,.545,0,DKR);const sp=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.08,10),M(0x2a2a2a));sp.position.set(0,.5,.13);sp.rotation.x=.5;cg.add(sp);cg.traverse(m=>{if(m.isMesh)m.userData.noSeam=true})};
+  for(const y of[.1,.7])for(let i=0;i<3;i++)can(rx-.55+i*.55,y);
+  obs.push({x0:rx-.9,x1:rx+.9,z0:rz-.3,z1:rz+.3})}
  L('MOTOR POOL · SIGN EVERYTHING OUT · ESPECIALLY THE TRUCKS',6,.35,'#26282b','#ffd040',60,(X0+X1)/2,H-.1,Z1-.5+.13,0);
  g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
 
