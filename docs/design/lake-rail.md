@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batch 1 in preview · not ready to build yet
+Status: layout approved 2026-10-18 · batch 1 approved · batch 2 in preview · not ready to build yet
 
 # Mirage Lake, the observatory, Dino Dan's and the railway
 
@@ -33,3 +33,15 @@ Batches: 1 lake water, shore, palms, pier, bait shop · 2 beach, lifeguard, snac
 3 observatory · 4 Dino Dan's · 5 railway track and crossings · 6 the train.
 
 ## Part 2: models
+
+### Batch 1 (approved) · `lkWater(g)` → `{tick}`, `lkShore(g)` → `{obs, palms}`, `lkPier(g)` → `{obs, plate, rod, lampAt}`, `lkBait(g)` → `{obs, prop}`; `lkPalm(h, lean)`, `LKW`
+- Replaces in `xpLake`: the water circle (keep `q.water`, the vehicle `ob`s and `q.mapR`), the shore ring, the old
+  emissive pulse anim, the pier box/posts/rails/lamp/tackle box/rod and their `ob`s, and the old `q.plates` pier entry
+  (use `plate`, same numbers). Keep the fishing prop (same spot and text); it now turns `rod.rotation.x` (-0.8 resting,
+  -1.2 while waiting) exactly as before. Put the pier `light(...)` at `lampAt`.
+- `tick(t)` every frame inside the lake's `anim(...)` gate (ripples, sparkles). Palms: `p.rotation.z = sin(t*.7+i)*.03`.
+- Water layers sit at y .04 / .045 / .046 with their own polygonOffsetUnits; they are transparent. The ripple and
+  sparkle layers are dpKeep.
+- Bait shop `prop`: optional, e.g. "[E] Read the bait board" with lines like "WORMS: FRESH · BREAD: ALSO FRESH ·
+  WORMS IN BREAD: ASK".
+
