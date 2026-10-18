@@ -189,3 +189,174 @@ function pyRuins(g){const k=pyKit(),{M,MT,R}=k,{A,B,Cy}=k.H(g),obs=[];
  /* a broken statue: a seated figure's legs and feet on its throne, the top half fallen beside it */{const x=-127,z=-995;B(2,1.2,2.6,MT.lime,x,.6,z,null,2);for(const s of[-1,1]){B(.45,1.1,.5,MT.lime,x+s*.35,1.8,z+.8,null,2);B(.5,.2,.8,MT.lime,x+s*.35,1.3,z+1.0,null,2)}B(1.2,.8,.8,MT.lime,x,1.6,z-.2,null,2);const top=A(new THREE.SphereGeometry(.5,12,10),MT.lime,x+2.2,.45,z+.6);top.scale.set(1,.9,1.1);B(1.0,.7,1.6,MT.lime,x+1.9,.35,z-.6,null,2).rotation.y=.4;obs.push({x0:x-1.1,x1:x+2.8,z0:z-1.5,z1:z+1.5})}
  /* fallen casing stones: smooth white blocks, one still showing its polished face */for(const[x,z,ry,s]of[[-221,-1050,.2,1.3],[-222.8,-1048,.9,1],[-220.6,-1052.6,1.4,.9],[-223.5,-1051.2,.5,.8]]){const b=B(1.6*s,.9*s,1.1*s,MT.lime,x,.4*s,z);b.rotation.set(0,ry,.15)}obs.push({x0:-224.6,x1:-219.4,z0:-1053.6,z1:-1046.8});
  pyNoSeam(g);return{obs}}
+
+/* =====================================================================================================
+   Batch 2: the ground floor's walls, ceilings, floor and torches; the entrance hall; the antechamber.
+   The floor plan is the game's own grid (PYF below = the F list in pyrBuild, cells 3.2 m, cx(i)=X-25.6+3.2i),
+   so collision and every prop stay exactly where they are.
+
+   pyFloorplan(g)     every wall face as a painted panel ON the cell line (the game's wall boxes go), a ceiling
+                      tile per floor cell at WH, the floor slab. Faces and ceiling stop at x = X+22 where the game's
+                      portal walls and roof block take over. Returns {ceil (group, for cutaway), faces}.
+   pyPortal(g)        the game's three portal boxes (same sizes and places) in the new stone, world-anchored texture.
+   pyTorch(g,x,z,ry)  a bronze wall torch for the game's torch(x,z,ry) spots; its plate goes into the wall
+                      (the old bracket floated 13 cm off it). Returns the group; userData.glow = where the
+                      game's glow sprite and light go (local).
+   pyDoorFrame(g,ax,at,c,side)  a carved frame on the room side of a doorway.
+   pyEntrance(g)      the entrance hall: door frame into the antechamber, two wall torches (no light).
+   pyAntechamber(g)   four papyrus columns, two guardian statues, door frames on all four doorways.
+                      Returns {obs, torches}.
+   pyStele(), pyScrollTable(), pyJar(), pySkeleton(), pyColumn(), pyGuardian()  models used here and later.
+   ===================================================================================================== */
+const PYF=[[11,16,8,8],[8,11,6,10],[9,9,2,5],[3,9,2,2],[1,2,1,3],[9,9,11,14],[3,9,14,14],[1,2,13,15],[5,7,8,8],[1,4,6,10]];
+const pyCx=i=>PYRV.X-25.6+3.2*i,pyCz=j=>PYRV.Z-25.6+3.2*j;
+const pyIsF=(()=>{const s=new Set();for(const[a,b,c,d]of PYF)for(let i=a;i<=b;i++)for(let j=c;j<=d;j++)s.add(i+','+j);return(i,j)=>s.has(i+','+j)})();
+/* which part of the floor a cell is in (later batches add their own walls on top of this) */
+/* the wall faces with a torch on them: [i, j, di, dj] (the game's eight spots and the two in the hall) */
+const PYTF=[[8,7,-1,0],[8,9,-1,0],[11,6,1,0],[6,2,0,-1],[7,14,0,1],[1,8,-1,0],[1,14,-1,0],[1,2,-1,0],[12,8,0,-1],[14,8,0,1]];
+const pyZone=(i,j)=>i>=12&&j==8?'hall':i>=8&&i<=11&&j>=6&&j<=10?'ante':i>=1&&i<=4&&j>=6&&j<=10?'treasure':j==2&&i>=3?'darts':j==14&&i>=3?'blades':'other';
+
+/* one painted wall panel, 3.2 m wide by WH high (512 x 624 px, 160 px per metre). kind: plain, glyph, walk, boat, eye, offer */
+function pyWallTex(kind,seed){const k=pyKit();const key='w'+kind+(seed|0);if(k[key])return k[key];let sd=(seed|0)*977+13;const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+ const t=k.can(512,624,(x,w,h)=>{const Y=m=>h-m*160;/* metres up the wall to px */
+  x.fillStyle=kind=='plain'?'#d2b98a':'#e2d0a6';x.fillRect(0,0,w,h);for(let i=0;i<9000;i++){x.fillStyle=R()<.5?'rgba(90,60,30,'+R()*.07+')':'rgba(255,248,230,'+R()*.08+')';x.fillRect(R()*w,R()*h,1+R()*3,1+R()*2)}
+  /* stone courses (0.65 m) and joints every 0.8 m, staggered; faint under the plaster of the painted walls */
+  x.strokeStyle=kind=='plain'?'rgba(100,72,40,.45)':'rgba(120,95,60,.14)';x.lineWidth=2;for(let c=0;c<6;c++){const y=Y(c*.65);x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke();for(let u=(c%2)*64;u<w+1;u+=128){x.beginPath();x.moveTo(u,y);x.lineTo(u,Y((c+1)*.65));x.stroke()}}
+  /* the dado: dark ochre with a yellow and a black line */x.fillStyle='#6a4426';x.fillRect(0,Y(.45),w,.45*160);x.fillStyle='#e0b040';x.fillRect(0,Y(.45)-4,w,4);x.fillStyle='#1a120a';x.fillRect(0,Y(.45)-7,w,3);
+  /* the band of coloured blocks, and the kheker frieze along the top */const cols=['#b03020','#1e4a9a','#2a7a4a','#e0b040'];for(let u=0,i=0;u<w;u+=16,i++){x.fillStyle=cols[i%4];x.fillRect(u,Y(3.12),14,.14*160);x.fillStyle='#1a120a';x.fillRect(u+14,Y(3.12),2,.14*160)}
+  x.fillStyle='#1a120a';x.fillRect(0,Y(3.14),w,3);x.fillRect(0,Y(2.98)-1,w,3);
+  for(let u=0,i=0;u<w;u+=32,i++){x.fillStyle=cols[i%3];const y0=Y(3.86),y1=Y(3.2);x.beginPath();x.moveTo(u+6,y1);x.lineTo(u+6,y0+14);x.quadraticCurveTo(u+16,y0-4,u+26,y0+14);x.lineTo(u+26,y1);x.closePath();x.fill();x.fillStyle='#e8d8b0';x.beginPath();x.arc(u+16,y0+30,4,0,7);x.arc(u+16,y0+52,4,0,7);x.fill();x.fillStyle='#1a120a';x.fillRect(u+15,y0+60,2,y1-y0-64)}
+  const top=Y(2.95),bot=Y(.55);
+  if(kind=='glyph'){/* columns of signs between ruled lines */for(let c=0;c<7;c++){const u=36+c*68;x.strokeStyle='rgba(40,30,20,.6)';x.lineWidth=2;x.beginPath();x.moveTo(u-34,top);x.lineTo(u-34,bot);x.stroke();x.strokeStyle=c%2?'#1e4a9a':'#7a3a14';for(let r=0;r<6;r++)pyGlyph(x,(c*3+r*5+(seed|0))%6,u,top+34+r*58,22)}x.beginPath();x.moveTo(36+7*68-34,top);x.lineTo(36+7*68-34,bot);x.stroke()}
+  if(kind=='walk'){/* two people walking with offerings (simple shapes, nobody in particular), a line of signs above */
+   const fig=(cx,s,c,off)=>{const g0=bot,H2=2.0*160*s;x.save();x.translate(cx,g0);x.fillStyle=c;/* legs */x.beginPath();x.moveTo(-6,-H2*.45);x.lineTo(-30,0);x.lineTo(-20,0);x.lineTo(0,-H2*.38);x.lineTo(18,0);x.lineTo(30,0);x.lineTo(8,-H2*.45);x.fill();
+    /* kilt */x.fillStyle='#f2ecdc';x.beginPath();x.moveTo(-18,-H2*.6);x.lineTo(20,-H2*.6);x.lineTo(30,-H2*.4);x.lineTo(-16,-H2*.42);x.fill();x.fillStyle=c;/* body */x.beginPath();x.moveTo(-16,-H2*.6);x.lineTo(-22,-H2*.83);x.lineTo(22,-H2*.83);x.lineTo(14,-H2*.6);x.fill();
+    /* collar */x.fillStyle='#2a7a8a';x.beginPath();x.ellipse(0,-H2*.82,24,10,0,0,Math.PI);x.fill();/* head, wig */x.fillStyle=c;x.beginPath();x.ellipse(6,-H2*.9,13,16,0,0,7);x.fill();x.fillStyle='#14100c';x.beginPath();x.moveTo(-14,-H2*.98);x.quadraticCurveTo(4,-H2*1.04,18,-H2*.96);x.lineTo(16,-H2*.88);x.lineTo(-12,-H2*.82);x.fill();x.fillStyle='#fff';x.fillRect(12,-H2*.92,4,3);
+    /* arms holding the offering out in front */x.strokeStyle=c;x.lineWidth=9;x.lineCap='round';x.beginPath();x.moveTo(18,-H2*.79);x.lineTo(42,-H2*.68);x.lineTo(52,-H2*.78);x.stroke();
+    if(off==0){x.fillStyle='#c8a030';x.beginPath();x.moveTo(40,-H2*.8);x.lineTo(66,-H2*.8);x.lineTo(60,-H2*.92);x.lineTo(46,-H2*.92);x.fill();x.fillStyle='#2a7a4a';x.beginPath();x.arc(53,-H2*.97,9,0,7);x.fill()}else{x.fillStyle='#b03020';x.beginPath();x.ellipse(54,-H2*.88,10,16,0,0,7);x.fill();x.fillStyle='#e0b040';x.fillRect(46,-H2*.98,16,5)}x.restore()};
+   fig(150,1,'#a0582c',0);fig(380,1,'#a0582c',1);x.strokeStyle='#1e4a9a';[0,1,5,2,4].forEach((g2,i)=>pyGlyph(x,g2,90+i*82,top+30,18))}
+  if(kind=='boat'){/* the sun crossing the sky in a boat, water below */x.fillStyle='#7a4a24';x.beginPath();x.moveTo(60,bot-150);x.quadraticCurveTo(256,bot-60,452,bot-150);x.quadraticCurveTo(470,bot-190,486,bot-200);x.lineTo(470,bot-140);x.quadraticCurveTo(256,bot-30,42,bot-140);x.lineTo(26,bot-200);x.quadraticCurveTo(42,bot-190,60,bot-150);x.fill();
+   x.fillStyle='#d8a020';x.fillRect(150,bot-150,212,14);x.fillStyle='#e8b830';x.beginPath();x.arc(256,bot-230,62,0,7);x.fill();x.strokeStyle='#8a5a10';x.lineWidth=5;x.stroke();x.strokeStyle='#2a7a4a';x.lineWidth=6;x.beginPath();x.arc(256,bot-230,74,Math.PI*1.1,Math.PI*1.9);x.stroke();
+   x.strokeStyle='#1e4a9a';x.lineWidth=3;for(let r=0;r<3;r++){x.beginPath();for(let u=20;u<w-20;u+=24){x.lineTo(u,bot-40+r*14);x.lineTo(u+12,bot-50+r*14)}x.stroke()}x.strokeStyle='#7a3a14';[2,0,1,0,2].forEach((g2,i)=>pyGlyph(x,g2,90+i*82,top+34,18))}
+  if(kind=='eye'){x.strokeStyle='#1a120a';x.lineWidth=14;x.lineCap='round';const cy=(top+bot)/2-10;x.beginPath();x.moveTo(110,cy);x.quadraticCurveTo(256,cy-130,400,cy);x.quadraticCurveTo(256,cy+80,110,cy);x.stroke();x.fillStyle='#1e4a9a';x.beginPath();x.arc(256,cy-12,42,0,7);x.fill();x.fillStyle='#1a120a';x.beginPath();x.arc(256,cy-12,20,0,7);x.fill();
+   x.beginPath();x.moveTo(100,cy-80);x.quadraticCurveTo(256,cy-170,420,cy-70);x.stroke();x.beginPath();x.moveTo(230,cy+40);x.lineTo(196,cy+150);x.quadraticCurveTo(170,cy+180,150,cy+140);x.stroke();x.beginPath();x.moveTo(300,cy+40);x.lineTo(330,cy+130);x.lineTo(380,cy+140);x.stroke();
+   x.strokeStyle='#7a3a14';for(let r=0;r<4;r++){pyGlyph(x,r%6,46,top+40+r*70,18);pyGlyph(x,(r+3)%6,466,top+40+r*70,18)}}
+  if(kind=='torch'){/* a wall with a torch on it: carvings at the sides, the middle left clear, soot above the flame */for(const u of[40,110,402,472]){x.strokeStyle=u<256?'#7a3a14':'#1e4a9a';for(let r=0;r<6;r++)pyGlyph(x,(u+r*5)%6,u,top+34+r*58,20)}
+   x.strokeStyle='rgba(40,30,20,.6)';x.lineWidth=2;for(const u of[150,362]){x.beginPath();x.moveTo(u,top);x.lineTo(u,bot);x.stroke()}
+   const sy=Y(2.5),gr=x.createRadialGradient(256,sy-40,4,256,sy-40,110);gr.addColorStop(0,'rgba(20,14,8,.55)');gr.addColorStop(1,'rgba(20,14,8,0)');x.fillStyle=gr;x.beginPath();x.ellipse(256,sy-50,70,130,0,0,7);x.fill()}
+  if(kind=='offer'){/* an offering table piled with bread, jars and lotus flowers */const ty=bot-120;x.fillStyle='#7a4a24';x.fillRect(200,ty,112,12);x.fillRect(250,ty,12,120);x.fillRect(220,bot-8,72,8);
+   x.fillStyle='#d8a050';for(let i=0;i<4;i++){x.beginPath();x.ellipse(214+i*28,ty-16,12,16,0,0,7);x.fill()}x.fillStyle='#b03020';x.beginPath();x.ellipse(232,ty-50,14,20,0,0,7);x.fill();x.fillStyle='#2a7a8a';x.beginPath();x.ellipse(282,ty-50,14,20,0,0,7);x.fill();
+   for(const s of[-1,1]){x.strokeStyle='#2a7a4a';x.lineWidth=4;x.beginPath();x.moveTo(256+s*20,ty-60);x.quadraticCurveTo(256+s*50,ty-120,256+s*70,ty-150);x.stroke();x.fillStyle='#4a8ab0';x.beginPath();x.moveTo(256+s*70,ty-150);x.lineTo(256+s*56,ty-180);x.lineTo(256+s*70,ty-170);x.lineTo(256+s*84,ty-180);x.fill()}
+   for(let r=0;r<5;r++){x.strokeStyle=r%2?'#1e4a9a':'#7a3a14';pyGlyph(x,(r+1)%6,60,top+36+r*62,20);pyGlyph(x,(r+4)%6,452,top+36+r*62,20)}}
+ });t.anisotropy=8;return k[key]=t}
+function pyCeilTex(){const k=pyKit();if(k.ceil)return k.ceil;return k.ceil=k.can(256,256,(x,w,h)=>{x.fillStyle='#16244a';x.fillRect(0,0,w,h);for(let i=0;i<2500;i++){x.fillStyle='rgba(255,255,255,'+Math.random()*.03+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}
+ x.fillStyle='#e8c050';for(let i=0;i<4;i++)for(let j=0;j<4;j++){const cx=32+i*64+(j%2)*32,cy=32+j*64;x.beginPath();for(let a=0;a<10;a++){const r=a%2?5:13,an=a*Math.PI/5-Math.PI/2;x.lineTo(cx+Math.cos(an)*r,cy+Math.sin(an)*r)}x.closePath();x.fill()}},1)}
+function pyStoneMat(){const k=pyKit();if(k.stone)return k.stone;const t=k.can(256,256,(x,w,h)=>{x.fillStyle='#cdb385';x.fillRect(0,0,w,h);for(let i=0;i<5000;i++){x.fillStyle=Math.random()<.5?'rgba(90,60,30,'+Math.random()*.09+')':'rgba(255,248,230,'+Math.random()*.09+')';x.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*3,2)}
+ x.strokeStyle='rgba(100,72,40,.45)';x.lineWidth=2;for(let c=0;c<4;c++){x.beginPath();x.moveTo(0,c*64);x.lineTo(w,c*64);x.stroke();for(let u=(c%2)*51;u<w;u+=102){x.beginPath();x.moveTo(u,c*64);x.lineTo(u,c*64+64);x.stroke()}}},1);
+ /* 256 px = 2.6 m: courses 0.65 m like the painted walls */return k.stone=new THREE.MeshStandardMaterial({map:t,roughness:.9})}
+function pyFloorMat(){const k=pyKit();if(k.flr)return k.flr;const t=k.can(256,256,(x,w,h)=>{x.fillStyle='#b89c6c';x.fillRect(0,0,w,h);for(let i=0;i<6000;i++){x.fillStyle=Math.random()<.5?'rgba(70,50,25,'+Math.random()*.1+')':'rgba(255,245,220,'+Math.random()*.08+')';x.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*3,1+Math.random()*3)}
+ x.strokeStyle='rgba(60,42,20,.55)';x.lineWidth=3;/* 1.6 m slabs, every other row split in two */for(let r=0;r<2;r++){x.beginPath();x.moveTo(0,r*128+1);x.lineTo(w,r*128+1);x.stroke();for(let u=0;u<w;u+=r?64:128){x.beginPath();x.moveTo(u+1,r*128);x.lineTo(u+1,r*128+128);x.stroke()}}
+ for(let i=0;i<8;i++){x.strokeStyle='rgba(60,42,20,.25)';x.lineWidth=1;x.beginPath();let px=Math.random()*w,py=Math.random()*h;x.moveTo(px,py);for(let s=0;s<4;s++){px+=(Math.random()-.5)*30;py+=(Math.random()-.5)*30;x.lineTo(px,py)}x.stroke()}},1);
+ return k.flr=new THREE.MeshStandardMaterial({map:t,roughness:.95})}
+
+function pyFloorplan(g){const k=pyKit(),{X,Z,WH}=PYRV,C=3.2,XC=X+22,ceil=new THREE.Group(),faces=[];g.add(ceil);const mats={};const WM=(kind,sd)=>{const key=kind+sd;return mats[key]||(mats[key]=new THREE.MeshStandardMaterial({map:pyWallTex(kind,sd),roughness:.88}))};
+ /* the kind of painting on each face: the hall alternates people and signs, the antechamber has a scene on each wall */
+ const pick=(i,j,di,dj)=>{if(PYTF.some(t=>t[0]==i&&t[1]==j&&t[2]==di&&t[3]==dj))return 'torch';const z=pyZone(i,j);if(z=='hall')return(i+(dj>0?1:0))%2?'walk':'glyph';
+  if(z=='ante'){if(di<0)return j==6||j==10?'eye':'glyph';if(di>0)return 'glyph';return(i==8||i==11)?'offer':'boat'}
+  if(z=='treasure')return(i+j)%2?'glyph':'offer';return(i+j)%3?'plain':'glyph'};
+ for(let i=0;i<17;i++)for(let j=0;j<17;j++){if(!pyIsF(i,j))continue;const x=pyCx(i),z=pyCz(j);
+  for(const[di,dj]of[[1,0],[-1,0],[0,1],[0,-1]]){if(pyIsF(i+di,j+dj))continue;
+   /* the face sits on the cell line and looks back into the cell; clipped at x = X+22 (the portal takes over) */let a0=-C/2,a1=C/2;const fx=x+di*C/2,fz=z+dj*C/2;
+   if(dj!=0){if(x+a0>=XC)continue;if(x+a1>XC)a1=XC-x}else if(fx>XC)continue;const w=a1-a0;
+   const geo=new THREE.PlaneGeometry(w,WH);const uv=geo.attributes.uv;for(let v=0;v<uv.count;v++)uv.setX(v,uv.getX(v)*w/C);
+   const m=new THREE.Mesh(geo,WM(pick(i,j,di,dj),(i*7+j*3)%4));const ry=di>0?-Math.PI/2:di<0?Math.PI/2:dj>0?Math.PI:0;m.rotation.y=ry;
+   /* along the face, a0..a1 run left to right as seen from the cell */const mid=(a0+a1)/2;if(dj!=0)m.position.set(x+(dj>0?-mid:mid)*-1*(dj>0?1:-1)*-1,WH/2,fz);else m.position.set(fx,WH/2,z);if(dj!=0)m.position.x=x+mid;
+   g.add(m);faces.push({m,i,j,di,dj})}
+  /* the ceiling tile: stars in rooms and corridors alike; clipped like the walls */{let a0=-C/2,a1=C/2;if(x+a0>=XC)continue;if(x+a1>XC)a1=XC-x;const w=a1-a0,geo=new THREE.PlaneGeometry(w,C),uv=geo.attributes.uv;for(let v=0;v<uv.count;v++)uv.setX(v,uv.getX(v)*w/C);
+   const m=new THREE.Mesh(geo,k.ceilM||(k.ceilM=new THREE.MeshStandardMaterial({map:pyCeilTex(),roughness:.8})));m.rotation.x=Math.PI/2;m.position.set(x+(a0+a1)/2,WH,z);ceil.add(m)}}
+ /* the floor: the game's 76 m slab (top at 5 cm), slabs lined up with the cells */{const B2=PYRV.B*2;const geo=k.boxGeo(B2,.06,B2,3.2,[X+.0,.02,Z+.0]);const uv=geo.attributes.uv;for(let v=0;v<uv.count;v++)uv.setXY(v,uv.getX(v)+1.6/3.2*0,uv.getY(v));const m=new THREE.Mesh(geo,pyFloorMat());m.position.set(X,.02,Z);g.add(m)}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{ceil,faces}}
+function pyPortal(g){const k=pyKit(),{X,Z,WH}=PYRV,{B}=k.H(g),px0=X+22,px1=X+41.5,ST=pyStoneMat();
+ for(const sd of[-1,1])B(px1-px0,5.5,2.2,ST,(px0+px1)/2,2.75,Z+sd*2.7,null,2.6);B(px1-px0,1.6,3.2,ST,(px0+px1)/2,WH+.8,Z,null,2.6);pyNoSeam(g)}
+
+function pyTorch(g,x,z,ry){const k=pyKit(),{M}=k,t=new THREE.Group();t.position.set(x,0,z);t.rotation.y=ry;g.add(t);const{B,Cy,rod}=k.H(t);const BR=M(0x8a6a30,{metalness:.75,roughness:.35});
+ /* the plate goes through the wall line (the wall is 15 cm behind the old torch spot) */B(.2,.36,.06,BR,0,2.0,-.14);Cy(.03,.03,.02,BR,0,2.12,-.105,'z',null,8);
+ rod([0,1.94,-.12],[0,2.2,.16],.025,BR);rod([0,2.06,-.12],[0,2.2,.16],.02,BR);/* the cup: open bronze bowl, coals 4 cm under its rim */Cy(.15,.07,.14,M(0x8a6a30,{metalness:.75,roughness:.35,side:THREE.DoubleSide}),0,2.28,.2,null,null,12,true);Cy(.07,.07,.01,BR,0,2.215,.2,null,null,12);Cy(.13,.13,.012,M(0x1a0e06),0,2.31,.2,null,null,12);
+ const f=k.H(t).flame(0,2.31,.2,1.1);t.userData.flame=f;t.userData.glow=[0,2.48,.22];pyNoSeam(t);return t}
+
+/* a frame on the room side of a doorway. ax 'x': the doorway is in a wall on the line x = at, the opening is
+   centred on z = c and the room is on the side 'side' (+1: x > at). ax 'z': the same, turned. */
+function pyDoorFrame(g,ax,at,c,side){const k=pyKit(),{M,MT}=k,{B,A}=k.H(g),{WH}=PYRV;const ST=new THREE.MeshStandardMaterial({map:k.T.lime,color:0xf2e6c8,roughness:.85});
+ const P=(a,b,h,w,d,y)=>ax=='x'?B(d,h,w,ST,at+side*a,y,c+b):B(w,h,d,ST,c+b,y,at+side*a);
+ /* jambs straddle the wall line (from 5 cm behind it to 10 cm in front) and overlap the corridor walls */for(const s of[-1,1])P(.025,s*1.7,WH-.5,.5,.15,(WH-.5)/2);
+ /* the lintel: wider and 2 cm deeper than the jambs, through the ceiling line */P(.03,0,.58,4.0,.19,WH-.27);
+ /* the winged sun painted on its front */const t=k.can(512,64,(x,w,h)=>{x.fillStyle='#ecdcb4';x.fillRect(0,0,w,h);const cx=w/2,cy=h/2;for(let i=0;i<3;i++)for(const s of[-1,1]){x.fillStyle=['#1e4a9a','#b03020','#2a7a4a'][i];x.beginPath();x.moveTo(cx+s*30,cy-14+i*9);x.quadraticCurveTo(cx+s*120,cy-20+i*8,cx+s*230,cy-8+i*8);x.lineTo(cx+s*220,cy-2+i*8);x.quadraticCurveTo(cx+s*120,cy-12+i*8,cx+s*30,cy-6+i*9);x.fill()}x.fillStyle='#e8b830';x.beginPath();x.arc(cx,cy,20,0,7);x.fill()});
+ const p=A(new THREE.PlaneGeometry(3.6,.45),new THREE.MeshStandardMaterial({map:t,roughness:.7}),0,WH-.28,0);const off=.03+.095+.012;if(ax=='x'){p.position.set(at+side*off,WH-.28,c);p.rotation.y=side>0?Math.PI/2:-Math.PI/2}else{p.position.set(c,WH-.28,at+side*off);p.rotation.y=side>0?0:Math.PI}
+ pyNoSeam(g)}
+
+/* a papyrus-bundle column from the floor to the ceiling */
+function pyColumn(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy}=k.H(g),{WH}=PYRV;
+ const st=k.can(256,512,(x,w,h)=>{x.fillStyle='#e2d0a6';x.fillRect(0,0,w,h);for(let i=0;i<3000;i++){x.fillStyle='rgba(90,60,30,'+Math.random()*.07+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}
+  /* the bundle's ridges */for(let u=0;u<w;u+=32){x.fillStyle='rgba(120,90,50,.25)';x.fillRect(u,0,6,h)}/* a panel of signs on the front, coloured bands */x.fillStyle='#e8d8b0';x.fillRect(96,120,64,300);x.strokeStyle='#1e4a9a';[0,1,5,2].forEach((t2,i)=>pyGlyph(x,t2,128,160+i*70,20));
+  const cols=['#1e4a9a','#b03020','#2a7a4a','#e0b040'];for(let b=0;b<4;b++){x.fillStyle=cols[b];x.fillRect(0,40+b*12,w,10);x.fillRect(0,h-30-b*12,w,10)}});
+ const SM=new THREE.MeshStandardMaterial({map:st,roughness:.85});
+ Cy(.62,.66,.16,MT.lime,0,.08,0,null,null,24);/* base */Cy(.42,.46,WH-.95,SM,0,.1+(WH-.95)/2,0,null,null,24);
+ /* the ties under the flower: three rings proud of the shaft */for(let i=0;i<3;i++)Cy(.44,.44,.07,M(0xc89a30,{metalness:.5,roughness:.4}),0,WH-1.0+i*.09,0,null,null,24);
+ /* the open papyrus flower, painted with petals */const pt=k.can(256,128,(x,w,h)=>{x.fillStyle='#2a7a4a';x.fillRect(0,0,w,h);for(let u=0;u<w;u+=32){x.fillStyle='#4a9a6a';x.beginPath();x.moveTo(u,h);x.lineTo(u+16,0);x.lineTo(u+32,h);x.fill();x.fillStyle='#1e4a9a';x.fillRect(u+14,h*.5,4,h*.5)}x.fillStyle='#e0b040';x.fillRect(0,0,w,10)});
+ Cy(.72,.44,.58,new THREE.MeshStandardMaterial({map:pt,roughness:.8}),0,WH-.78+.29-.0,0,null,null,24);
+ /* the abacus: a plain block up through the ceiling line */B(.9,.32,.9,MT.lime,0,WH-.13,0);pyNoSeam(g);return g}
+
+/* a guardian statue: a standing figure in black and gold with a staff, on a plinth, facing +z (our own design) */
+function pyGuardian(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy,rod}=k.H(g);const BK=MT.basalt,GD=MT.gold;
+ B(.9,.3,1.1,MT.lime,0,.15,0);B(.8,.04,1.0,GD,0,.31,0);
+ /* feet, legs striding (left foot forward), the kilt, body, arms, collar */B(.16,.08,.34,BK,-.12,.37,.18);B(.16,.08,.34,BK,.12,.37,-.08);
+ Cy(.08,.07,.78,BK,-.12,.8,.12,null,null,10).rotation.x=-.12;Cy(.08,.07,.78,BK,.12,.8,-.05,null,null,10);
+ {const kl=A(new THREE.CylinderGeometry(.2,.3,.5,4,1),GD,0,1.38,0);kl.rotation.y=Math.PI/4;kl.scale.z=.7;B(.12,.36,.02,GD,0,1.36,.215)}
+ const bd=A(new THREE.CylinderGeometry(.26,.19,.7,12),BK,0,1.95,0);bd.scale.z=.72;A(new THREE.CylinderGeometry(.27,.27,.08,12,1,true),GD,0,2.26,0).scale.z=.75;
+ for(const s of[-1,1]){rod([s*.27,2.22,0],[s*.33,1.82,.06],.06,BK);rod([s*.33,1.82,.06],[s*.31,1.5,.22],.05,BK);A(new THREE.SphereGeometry(.06,8,6),BK,s*.31,1.47,.24)}
+ /* the staff in the left hand, a mace in the right */rod([-.31,.33,.32],[-.31,2.3,.32],.025,GD);A(new THREE.SphereGeometry(.05,8,6),GD,-.31,2.32,.32);rod([.31,1.25,.34],[.31,1.6,.2],.025,GD);A(new THREE.SphereGeometry(.07,8,6),GD,.31,1.24,.35);
+ /* the head in a striped headdress, gold band, eyes */Cy(.08,.09,.16,BK,0,2.36,0,null,null,10);const hd=A(new THREE.SphereGeometry(.15,14,10),BK,0,2.55,.02);hd.scale.set(.9,1.1,1);
+ const nm=k.can(128,128,(x,w,h)=>{for(let i=0;i<10;i++){x.fillStyle=i%2?'#14100c':'#e0b040';x.fillRect(0,i*13,w,13)}});const NM=new THREE.MeshStandardMaterial({map:nm,roughness:.5,metalness:.3});
+ A(new THREE.SphereGeometry(.18,14,10,0,Math.PI*2,0,Math.PI*.55),NM,0,2.6,-.03);for(const s of[-1,1])B(.1,.3,.06,NM,s*.16,2.38,.06).rotation.z=s*.1;B(.3,.035,.04,GD,0,2.68,.13);for(const s of[-1,1])B(.05,.022,.012,M(0xf0f0f0),s*.05,2.57,.175);
+ pyNoSeam(g);return g}
+
+/* an inscribed stele (the game puts its clue picture 18 cm in front of the middle: the face is at 17 cm) */
+function pyStele(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy}=k.H(g);const ST=new THREE.MeshStandardMaterial({map:k.T.lime,color:0xeadcbc,roughness:.85});
+ B(1.6,.16,.6,MT.dark,0,.08,0);B(1.3,2.15,.34,ST,0,.15+2.15/2-.01,0);{const r=A(new THREE.CylinderGeometry(.65,.65,.34,24,1,false,0,Math.PI),ST,0,2.29,0);r.rotation.set(0,Math.PI/2,Math.PI/2)}/* the half above, its flat ends front and back */
+ /* a raised border round the clue picture, clear of it */for(const s of[-1,1])B(.06,1.9,.05,MT.lime,s*.6,1.25,.17);B(1.15,.06,.06,MT.lime,0,.32,.17);B(1.15,.06,.06,MT.lime,0,2.18,.17);/* between the side strips, 5 mm prouder */
+ /* the winged sun in the rounded top */const t=k.can(256,128,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#e8b830';x.beginPath();x.arc(w/2,h*.55,18,0,7);x.fill();for(const s of[-1,1]){x.fillStyle='#1e4a9a';x.beginPath();x.moveTo(w/2+s*20,h*.5);x.quadraticCurveTo(w/2+s*70,h*.3,w/2+s*110,h*.55);x.lineTo(w/2+s*20,h*.62);x.fill()}});
+ const p=A(new THREE.PlaneGeometry(1.1,.55),new THREE.MeshStandardMaterial({map:t,transparent:true,roughness:.7}),0,2.45,.182);pyNoSeam(g);return g}
+/* the antechamber's table with the treasure map: top surface at 0.9 like the game's */
+function pyScrollTable(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy}=k.H(g);const ST=new THREE.MeshStandardMaterial({map:k.T.lime,color:0xe0d0b0,roughness:.85});
+ B(1.0,.2,.5,ST,0,.1,0);B(.7,.6,.36,ST,0,.5,0);B(1.5,.12,.86,ST,0,.84,0);/* the top: 0.78..0.90 */
+ /* the scroll: a sheet with rolled ends, lying on the top */const mp=k.can(256,160,(x,w,h)=>{x.fillStyle='#ecdcac';x.fillRect(0,0,w,h);for(let i=0;i<1500;i++){x.fillStyle='rgba(120,90,40,'+Math.random()*.1+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}
+  x.strokeStyle='#7a5a2a';x.lineWidth=3;x.beginPath();x.moveTo(20,120);x.quadraticCurveTo(80,60,140,90);x.quadraticCurveTo(190,110,220,40);x.setLineDash([6,6]);x.stroke();x.setLineDash([]);x.strokeStyle='#c02020';x.lineWidth=6;x.beginPath();x.moveTo(206,28);x.lineTo(234,52);x.moveTo(234,28);x.lineTo(206,52);x.stroke();
+  x.fillStyle='#7a5a2a';x.beginPath();x.moveTo(30,140);x.lineTo(44,110);x.lineTo(58,140);x.fill();x.strokeStyle='#5a3a14';pyGlyph(x,2,60,40,14)});
+ const sg=new THREE.Group();sg.position.set(0,.9,0);sg.rotation.y=.3;g.add(sg);const s=k.H(sg);s.B(.66,.006,.4,new THREE.MeshStandardMaterial({map:mp,roughness:.9}),0,.003,0);for(const e of[-1,1])s.Cy(.032,.032,.44,M(0xd8c898),e*.35,.032,0,'z',null,10);
+ pyNoSeam(g);return g}
+/* a painted storage jar with a lid, about 1.15 tall like the game's urn */
+function pyJar(lidHead){const k=pyKit(),{M}=k,g=new THREE.Group(),{A}=k.H(g);const pts=[[0,0],[.22,0],[.3,.12],[.36,.4],[.34,.7],[.24,.9],[.2,.96],[.24,1.0],[.0,1.0]].map(p=>new THREE.Vector2(p[0],p[1]));
+ const t=k.can(256,128,(x,w,h)=>{x.fillStyle='#a8603a';x.fillRect(0,0,w,h);x.fillStyle='#1a120a';x.fillRect(0,40,w,4);x.fillRect(0,76,w,4);x.fillStyle='#e8d8b0';for(let u=0;u<w;u+=16){x.beginPath();x.moveTo(u,48);x.lineTo(u+8,70);x.lineTo(u+16,48);x.fill()}x.fillStyle='#1e4a9a';x.fillRect(0,20,w,8)});
+ A(new THREE.LatheGeometry(pts,20),new THREE.MeshStandardMaterial({map:t,roughness:.75}),0,0,0);
+ const lid=A(new THREE.SphereGeometry(.2,14,8,0,Math.PI*2,0,Math.PI/2),M(0xc89a6a,{roughness:.7}),0,.99,0);lid.scale.y=.7;A(new THREE.SphereGeometry(.05,8,6),M(0xc89a6a),0,1.14,0);
+ pyNoSeam(g);return g}
+/* an old skeleton lying on its back along +x (head at -x), with a scrap of cloth; floor top at 5 cm */
+function pySkeleton(){const k=pyKit(),{M}=k,g=new THREE.Group(),{A,B,Cy,rod}=k.H(g),BN=M(0xe0d6bc,{roughness:.7}),y=.05;
+ const sk=A(new THREE.SphereGeometry(.12,12,10),BN,-.85,y+.11,0);sk.scale.set(1.1,.9,.95);B(.1,.05,.12,BN,-.95,y+.04,0);for(const s of[-1,1])A(new THREE.SphereGeometry(.03,6,6),M(0x2a2018),-.93,y+.17,s*.045);
+ rod([-.72,y+.05,0],[.25,y+.05,0],.022,BN);for(let i=0;i<6;i++){const r=A(new THREE.TorusGeometry(.13-.008*i,.012,5,12,Math.PI),BN,-.58+i*.07,y+.03,0);r.rotation.y=Math.PI/2;r.scale.y=.75}
+ {const p=A(new THREE.TorusGeometry(.11,.03,6,12),BN,.3,y+.04,0);p.rotation.x=Math.PI/2;p.scale.set(1.2,1,.6)}
+ for(const s of[-1,1]){rod([-.62,y+.03,s*.16],[-.35,y+.03,s*.28],.02,BN);rod([-.35,y+.03,s*.28],[-.05,y+.03,s*.22],.017,BN);rod([.38,y+.03,s*.1],[.82,y+.03,s*.16],.026,BN);rod([.82,y+.03,s*.16],[1.22,y+.03,s*.1+.03*s],.022,BN);B(.12,.03,.08,BN,1.28,y+.012,s*.13)}
+ const cl=A(new THREE.PlaneGeometry(.5,.6),M(0x8a7a5a,{roughness:1,side:THREE.DoubleSide}),.15,y+.085,.12);cl.rotation.x=-Math.PI/2;cl.rotation.z=.4;
+ /* its torch and a bag dropped beside it */rod([-.3,y+.025,-.5],[.25,y+.025,-.62],.022,M(0x4a3020));A(new THREE.SphereGeometry(.16,10,8),M(0x6a5a3a,{roughness:1}),.6,y+.09,-.45).scale.y=.6;
+ pyNoSeam(g);return g}
+
+function pyEntrance(g){const{X,Z}=PYRV,torches=[];pyDoorFrame(g,'x',X+11.2,Z,-1);/* into the antechamber, on its side */
+ torches.push(pyTorch(g,X+12.8,Z-1.45,0),pyTorch(g,X+19.2,Z+1.45,Math.PI));return{torches}}
+function pyAntechamber(g){const{X,Z}=PYRV,obs=[];
+ pyDoorFrame(g,'x',X-1.6,Z,1);pyDoorFrame(g,'z',Z-8,X+3.2,1);pyDoorFrame(g,'z',Z+8,X+3.2,-1);
+ for(const[x,z]of[[X+.6,Z-4.2],[X+.6,Z+4.2],[X+7.2,Z-4.2],[X+7.2,Z+4.2]]){const c=pyColumn();c.position.set(x,0,z);g.add(c);obs.push({x0:x-.62,x1:x+.62,z0:z-.62,z1:z+.62})}
+ for(const s of[-1,1]){const gd=pyGuardian();gd.position.set(X+10.2,0,Z+s*2.6);gd.rotation.y=-Math.PI/2;g.add(gd);obs.push({x0:X+9.65,x1:X+10.75,z0:Z+s*2.6-.45,z1:Z+s*2.6+.45})}
+ /* the game's own props, remodelled, at the game's spots */const st=pyStele();st.position.set(X+3,0,Z-6.2);g.add(st);
+ const tb=pyScrollTable();tb.position.set(X+3.5,0,Z+5.4);g.add(tb);for(const[x,z]of[[X-1.4,Z-7.4],[X-1.4,Z+7.4],[X+6.4,Z+7.4]]){const j=pyJar();j.position.set(x,0,z);j.rotation.y=x+z;g.add(j)}
+ const sk=pySkeleton();sk.position.set(X+6.4,0,Z-7.0);g.add(sk);
+ return{obs}}

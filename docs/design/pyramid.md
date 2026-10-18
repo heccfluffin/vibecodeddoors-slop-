@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batch 1 (outside) in progress
+Status: layout approved 2026-10-18 · batch 1 (outside) approved · batch 2 (ground floor shell, hall, antechamber) in review
 
 # The Pyramid rework (remodel list #20)
 
@@ -30,3 +30,17 @@ puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the und
   the gateway towers wrap them (tower inner faces at z ±1.75, fronts at x -133.46), the carved panel sits on the roof
   block's front. Drop the old glyph plane `lt` at `px1+.01` and the old bollards (the gateway has its own, same spots).
 - All carvings are drawn with paths (`pyGlyph`), never hieroglyph font characters (they don't render everywhere).
+
+## Notes for the wiring (batch 2)
+- `pyrBuild`: the wall-box loop ("the walls you can see"), the floor box `pyrBox(B*2,.06,B*2)` and the ceiling slab
+  `pyrBox(48.2,.25,48.2)` go; call `pyFloorplan(g)` instead (painted faces on the cell lines, a ceiling tile per floor
+  cell at WH, the same floor slab). The collision loop stays as it is. `PYF` must stay equal to the game's `F`.
+- The portal's three boxes become `pyPortal(g)` (same sizes and places, new stone).
+- `torch(x,z,ry,lit)`: build `pyTorch(g,x,z,ry)` instead of the bracket/stick/cup; put the game's glow sprite at
+  `t.userData.glow` and the PointLight where it was. `PYTF` lists the wall faces with torches; if a torch moves,
+  update it (those faces get a panel with a clear middle and soot above the flame).
+- New: `pyEntrance(g)` (hall door frame, two unlit torches at (X+12.8, Z-1.45) and (X+19.2, Z+1.45) with glow
+  sprites, no lights) and `pyAntechamber(g)` (columns, guardians, door frames; push its `obs`).
+- Antechamber props swap their meshes, spots and E prompts unchanged: stele 0 → `pyStele()` at the same place and
+  `ry` (keep the clue plane at z .18); table + scroll → `pyScrollTable()` at (X+3.5, Z+5.4); the three urns →
+  `pyJar()`; the bones → `pySkeleton()` at (X+6.4, Z-7.0). The other two steles use `pyStele()` too.
