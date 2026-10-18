@@ -101,8 +101,7 @@ function pdStationShell(g){const k=pdKit(),{MT,M,wall,win}=k,{A,B,Cy,rod,lab}=k.
  for(const x of[82.3,89.7]){const p=A(new THREE.CircleGeometry(.36,28),new THREE.MeshStandardMaterial({map:star,roughness:.5,metalness:.3}),x,5.45,S.zf+t/2+.012)}
  /* the main door: two glass doors standing open inward, a transom, the frame */
  {const z=S.zf;for(const u of[DOOR[0]+.04,DOOR[1]-.04])B(.08,2.55,t+.04,MT.frame,u,1.275,z);B(DOOR[1]-DOOR[0],.08,t+.04,MT.frame,(DOOR[0]+DOOR[1])/2,2.51,z);
-  for(const s of[-1,1]){const hx=s<0?DOOR[0]+.08:DOOR[1]-.08;const dg=new THREE.Group();dg.position.set(hx,0,z-t/2);dg.rotation.y=s<0?1.35:-1.35;g.add(dg);const d=k.H(dg);const w=.5;d.B(w,2.3,.04,MT.frame,-s*w/2,1.17,0);d.A(new THREE.PlaneGeometry(w-.1,2.1),MT.glass,-s*w/2,1.2,.025);d.B(.03,.3,.04,MT.steel,-s*(w-.08),1.1,.05)}
-  lab('PUSH',.3,.1,null,'#e8e8e8',0,86,2.38,z+t/2+.025,0)}
+  for(const s of[-1,1]){const hx=s<0?DOOR[0]+.08:DOOR[1]-.08;const dg=new THREE.Group();dg.position.set(hx,0,z-t/2);dg.rotation.y=s<0?1.35:-1.35;g.add(dg);const d=k.H(dg);const w=.5;/* frame: two stiles, top and bottom rails, glass between */for(const u of[.03,w-.03])d.B(.06,2.43,.045,MT.frame,-s*u,1.235,0);d.B(w,.06,.045,MT.frame,-s*w/2,2.42,0);d.B(w,.16,.045,MT.frame,-s*w/2,.1,0);d.A(new THREE.PlaneGeometry(w-.12,2.21),MT.glass,-s*w/2,1.29,0);d.B(.03,.3,.04,MT.steel,-s*(w-.09),1.1,.045);d.lab('PUSH',.24,.08,null,'#e8e8e8',0,-s*w/2,1.32,.003,0)}}
  /* the portico: two columns, a canopy, POLICE on the fascia, lights underneath; blue lamps by the door */
  {const z0=S.zf+t/2,z1=-1014.6,x0=84.4,x1=87.6;B(x1-x0,.26,z1-z0,MT.trim,(x0+x1)/2,3.08,(z0+z1)/2);B(x1-x0+.04,.32,.08,MT.navy,(x0+x1)/2,3.08,z1+.03);lab('POLICE',2.4,.26,null,'#ffffff',0,86,3.08,z1+.072,0,null,{glow:.6});
   for(const x of[84.75,87.25]){Cy(.13,.15,2.95,MT.trim,x,1.475,-1015,null,null,16);B(.36,.12,.36,MT.stone,x,.06,-1015);B(.34,.1,.34,MT.trim,x,2.9,-1015);obs.push({x0:x-.2,x1:x+.2,z0:-1015.2,z1:-1014.8})}
