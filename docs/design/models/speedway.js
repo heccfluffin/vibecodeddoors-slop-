@@ -16,7 +16,9 @@ const SPW={cx:300,cz:-1830,RX:110,RZ:38,TW:14};
 /* the pit exit: past the end of the pit wall (x 372) the pit lane carries on round the outside of the east bend as an
    8 m band and narrows to nothing by SPX.a1 (0.6 rad, about 26 m round), so even the dragster can merge. The outer
    tyre wall follows the band's outside edge: radius 53.5 at the start of the bend, back to 46 at a1. */
-const SPX={a1:.6,rOut:a=>46+7.5*Math.max(0,1-a/.6)};
+/* the pit entry: the main straight's concrete wall ends at x 303; the pit lane peels off the track edge there and
+   curves in past race control (whose front is z -1781) to its full width (north edge z -1777) by x 326 */
+const SPX={wallEnd:303,a1:.6,rOut:a=>46+7.5*Math.max(0,1-a/.6)};
 /* a point on the oval: u = metres along the centre line, from the west end of the main straight, driving east;
    r = distance from the line through the two bend centres (38 is the centre line, 31 and 45 the edges) */
 function spPt(u,r){const{cx,cz,RX,RZ}=SPW,S=2*(RX-RZ),P=2*S+2*Math.PI*RZ;u=((u%P)+P)%P;
@@ -71,7 +73,7 @@ function spTrack(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,
   belt(RZ-8+.49,0,P);g.add(new THREE.Mesh(spRibbon(S+a0*RZ,S+SPX.a1*RZ,u=>SPX.rOut((u-S)/RZ)-.49,0,0,6,[.04,.86]),BM));belt(RZ+8-.49,S+SPX.a1*RZ,P)}
  /* ---- the concrete wall along the main straight (x 228..323): a jersey barrier, white, with sponsor boards on the
     track side and a catch fence leaning over the track ---- */
- {const CW=M(0xdcd8d0,{roughness:.9}),wx0=cx-S/2,wx1=323,wl=wx1-wx0;
+ {const CW=M(0xdcd8d0,{roughness:.9}),wx0=cx-S/2,wx1=SPX.wallEnd,wl=wx1-wx0;
   slab([[-.3,0],[.3,0],[.3,.08],[.11,.32],[.11,1.05],[-.11,1.05],[-.11,.32],[-.3,.08]],wl,CW,(wx0+wx1)/2,0,NZ,Math.PI/2);
   obs.push({x0:wx0,x1:wx1,z0:NZ-.3,z1:NZ+.3});
   /* sponsor boards on the upright part, facing the track (south) */
@@ -175,18 +177,18 @@ function spControl(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],x0=31
  const beacon=M(0xffa020,{emissive:0xff8000,emissiveIntensity:.3,roughness:.3});C(.18,.2,.3,x0+1,cy1+.57,z1-1,beacon,null,null,12);C(.22,.22,.06,x0+1,cy1+.45,z1-1,DK,null,null,12);
  obs.push({x0,x1,z0,z1});g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,beacon}}
 
-function spPits(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,RX,RZ}=SPW,S=2*(RX-RZ),PX0=323,PX1=cx+S/2+(RZ+7)*Math.sin(SPX.a1)+1,ZE=cz+(RZ+7)*Math.cos(SPX.a1)-1,PZ1=-1777,GZ0=-1777,GZ1=-1766,GX0=328,GW=11;
+function spPits(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,RX,RZ}=SPW,S=2*(RX-RZ),PX0=SPX.wallEnd,PX1=cx+S/2+(RZ+7)*Math.sin(SPX.a1)+1,ZE=cz+(RZ+7)*Math.cos(SPX.a1)-1,PZ1=-1777,GZ0=-1777,GZ1=-1766,GX0=328,GW=11;
  const WH=M(0xf0ece4,{roughness:.8}),DK=M(0x2a2c30,{metalness:.3,roughness:.5}),STL=M(0x6a6e74,{metalness:.35,roughness:.5}),GRN=M(0x2a9a3a,{roughness:.6});
  /* ---- the pit lane: one flat shape from the track's outer edge (radius 45) back to z -1777, painted concrete ---- */
- {/* along the track's outer edge to the merge point, then back along the band's outside edge (the tyre wall's inside) */const pts=[[PX0,PZ1],[PX0,cz+RZ+7]];for(let i=0;i<=24;i++){const a=SPX.a1*i/24;pts.push([cx+S/2+(RZ+7)*Math.sin(a),cz+(RZ+7)*Math.cos(a)])}for(let i=24;i>=0;i--){const a=SPX.a1*i/24,rr=Math.max(RZ+7,SPX.rOut(a)-.5);pts.push([cx+S/2+rr*Math.sin(a),cz+rr*Math.cos(a)])}
+ {/* along the track's outer edge to the merge point, then back along the band's outside edge (the tyre wall's inside) */const pts=[];pts.push([PX0,cz+RZ+7]);for(let i=0;i<=24;i++){const a=SPX.a1*i/24;pts.push([cx+S/2+(RZ+7)*Math.sin(a),cz+(RZ+7)*Math.cos(a)])}for(let i=24;i>=0;i--){const a=SPX.a1*i/24,rr=Math.max(RZ+7,SPX.rOut(a)-.5);pts.push([cx+S/2+rr*Math.sin(a),cz+rr*Math.cos(a)])}/* the north edge west to the entry curve, then the curve (a quadratic from (320,-1781.5) to (326,-1777)) and the taper down to the track edge at x 303 */pts.push([326,PZ1]);for(let t=1;t>=0;t-=.1){const u=1-t;pts.push([u*u*320+2*u*t*323.6+t*t*326,u*u*-1781.5+2*u*t*-1781.5+t*t*PZ1])}pts.push([PX0,cz+RZ+7]);
   const sh=new THREE.Shape();pts.forEach(([x,z],i)=>i?sh.lineTo(x,-z):sh.moveTo(x,-z));const ge=new THREE.ShapeGeometry(sh);const uv=ge.attributes.uv,ps=ge.attributes.position;for(let i=0;i<ps.count;i++)uv.setXY(i,(ps.getX(i)-PX0)/(PX1-PX0),1-(-ps.getY(i)-ZE)/(PZ1-ZE));
-  const W=1024,H=Math.round(1024*(PZ1-ZE)/(PX1-PX0)),pxm=W/(PX1-PX0),X=x=>(x-PX0)*pxm,Z=z=>(z-ZE)*pxm;/* canvas top = south: seen from above in three.js (x right), +z is down the screen */
+  const W=2048,H=Math.round(2048*(PZ1-ZE)/(PX1-PX0)),pxm=W/(PX1-PX0),X=x=>(x-PX0)*pxm,Z=z=>(z-ZE)*pxm;/* canvas top = south: seen from above in three.js (x right), +z is down the screen */
   const t=afCanvas(W,H,(c)=>{afTarmac(c,W,H,'#9a9894',21);c.fillStyle='#f2efe6';/* the lane's back line */c.fillRect(0,Z(PZ1-.45)-4,W,4);
    /* pit boxes: yellow frames with a number, a stop bar at the front */for(let i=0;i<4;i++){const bx=336+i*10;c.strokeStyle='#f0c020';c.lineWidth=5;c.strokeRect(X(bx-4),Z(-1783.1),8*pxm,5*pxm);c.fillStyle='#f0c020';c.fillRect(X(bx+3.6),Z(-1783.1),.3*pxm,5*pxm);c.font='bold '+Math.round(2.2*pxm)+'px Arial';c.textAlign='center';c.textBaseline='middle';c.save();c.translate(X(bx-1.6),Z(-1780.6));c.rotate(Math.PI/2);c.fillText(String(i+1),0,0);c.restore();c.fillStyle='rgba(30,30,30,.25)';c.fillRect(X(bx-2.5),Z(-1781.8),5*pxm,1.4*pxm)}
-   /* PIT, then the 60 limit in its own red ring, one after the other down the lane, both read by a driver heading east (tops of the letters point east) */c.textAlign='center';c.textBaseline='middle';c.fillStyle='#f2efe6';c.font='bold '+Math.round(2.4*pxm)+'px Arial';c.save();c.translate(X(325.2),Z(-1780.3));c.rotate(Math.PI/2);c.fillText('PIT',0,0);c.restore();c.fillStyle='#f2efe6';c.beginPath();c.arc(X(329.4),Z(-1780.3),1.45*pxm,0,7);c.fill();c.strokeStyle='#d82828';c.lineWidth=.32*pxm;c.beginPath();c.arc(X(329.4),Z(-1780.3),1.3*pxm,0,7);c.stroke();c.fillStyle='#1a1a1a';c.font='bold '+Math.round(1.3*pxm)+'px Arial';c.save();c.translate(X(329.4),Z(-1780.3));c.rotate(Math.PI/2);c.fillText('60',0,.05*pxm);c.restore();
+   /* PIT, then the 60 limit in its own red ring, one after the other down the lane, both read by a driver heading east (tops of the letters point east) */c.textAlign='center';c.textBaseline='middle';c.fillStyle='#f2efe6';c.font='bold '+Math.round(2.4*pxm)+'px Arial';c.save();c.translate(X(327.4),Z(-1780.3));c.rotate(Math.PI/2);c.fillText('PIT',0,0);c.restore();c.fillStyle='#f2efe6';c.beginPath();c.arc(X(330.4),Z(-1780.3),1.45*pxm,0,7);c.fill();c.strokeStyle='#d82828';c.lineWidth=.32*pxm;c.beginPath();c.arc(X(330.4),Z(-1780.3),1.3*pxm,0,7);c.stroke();c.fillStyle='#1a1a1a';c.font='bold '+Math.round(1.3*pxm)+'px Arial';c.save();c.translate(X(330.4),Z(-1780.3));c.rotate(Math.PI/2);c.fillText('60',0,.05*pxm);c.restore();
    /* chevrons along the exit band, pointing the way round */c.fillStyle='#f2efe6';for(let i=0;i<3;i++){const a=.05+i*.08,rr=RZ+7+3.2*(1-i*.2),px=cx+S/2+rr*Math.sin(a),pz=cz+rr*Math.cos(a);c.save();c.translate(X(px),Z(pz));c.rotate(a);const s=pxm;c.rotate(-a);c.beginPath();c.moveTo(-.35*s,-1.4*s);c.lineTo(.45*s,0);c.lineTo(-.35*s,1.4*s);c.lineTo(.05*s,1.4*s);c.lineTo(.85*s,0);c.lineTo(.05*s,-1.4*s);c.closePath();c.fill();c.restore()}});
   const m=new THREE.Mesh(ge,new THREE.MeshStandardMaterial({map:t,roughness:.95,polygonOffset:true,polygonOffsetUnits:-1}));m.rotation.x=-Math.PI/2;m.position.y=.05;g.add(m)}
- /* PIT IN and PIT OUT signs */for(const[x,z,t,ry]of[[324.2,-1776.2,'PIT IN · 60',-Math.PI/2],[372+55*Math.sin(.12),cz+55*Math.cos(.12),'PIT OUT',Math.PI/2]]){C(.05,.05,2.6,x,1.3,z,STL,null,null,8);L(t,1.6,.5,'#1a1a1a','#ffffff',50,x,2.4,z-.06,Math.PI);obs.push({x0:x-.15,x1:x+.15,z0:z-.15,z1:z+.15})}
+ /* PIT IN and PIT OUT signs */for(const[x,z,t,ry]of[[306,-1782.6,'PIT IN · 60',-Math.PI/2],[372+55*Math.sin(.12),cz+55*Math.cos(.12),'PIT OUT',Math.PI/2]]){C(.05,.05,2.6,x,1.3,z,STL,null,null,8);L(t,1.6,.5,'#1a1a1a','#ffffff',50,x+(ry<0?-.06:0),2.4,z-(ry<0?0:.06),ry<0?ry:Math.PI);obs.push({x0:x-.15,x1:x+.15,z0:z-.15,z1:z+.15})}
  /* ---- four garages ---- */
  const tyreM=M(0x1c1c1e,{roughness:.95});
  for(let i=0;i<4;i++){const gx0=GX0+i*GW,gx1=gx0+GW,gxc=(gx0+gx1)/2,H=4.6;
