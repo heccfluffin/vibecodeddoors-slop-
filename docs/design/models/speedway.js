@@ -277,7 +277,7 @@ function spInfield(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,c
  const teams=[['TEAM GOBLINO','#3a8a2a','#f0d020'],['DOORS RACING','#1a1a2a','#ffe040'],['HALT MOTORSPORT','#a02020','#ffffff']];
  teams.forEach(([nm,bg,fg],i)=>{const tx=262+i*24,tz=-1850.5,TL=13,TW=2.5,TH=2.9,y0=1.1;
   /* the box with the team livery on both sides */B(TL,TH,TW,tx,y0+TH/2,tz,M(bg,{roughness:.55}));for(const s of[-1,1]){const lb=k.lab(nm,TL-1.5,1.2,null,fg,90);lb.position.set(tx,y0+TH*.6,tz+s*(TW/2+.012));lb.rotation.y=s<0?Math.PI:0;g.add(lb)}
-  B(TL,.08,TW+.02,tx,y0+TH-.04,tz,M(0xd8d8d8));B(TL+.05,.25,TW+.05,tx,y0+.12,tz,DK);
+  /* a roof cap sitting on top, a little wider all round */B(TL+.06,.08,TW+.06,tx,y0+TH+.04,tz,M(0xd8d8d8));B(TL+.05,.25,TW+.05,tx,y0+.12,tz,DK);
   /* wheels at the back, landing legs at the front */for(const dx of[TL/2-1.6,TL/2-2.8])for(const s of[-1,1]){const w=C(.5,.5,.32,tx+dx,.5,tz+s*(TW/2-.25),tyreM,'z',null,14);C(.28,.28,.34,tx+dx,.5,tz+s*(TW/2-.25),M(0xb0b4b8,{metalness:.6}),'z',null,10)}
   for(const s of[-1,1]){B(.12,y0,.12,tx-TL/2+2,y0/2,tz+s*(TW/2-.3),STL);B(.4,.05,.4,tx-TL/2+2,.025,tz+s*(TW/2-.3),STL)}
   /* the awning: a sloping canvas from the trailer's top edge, out 4 m on two legs */const aw=4,ay0=y0+TH-.15,ay1=2.4,A=Math.hypot(aw,ay0-ay1);const cv=afCanvas(64,64,(c,w,h)=>{c.fillStyle=bg;c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.18)';for(let j=0;j<w;j+=16)c.fillRect(j,0,8,h)});
