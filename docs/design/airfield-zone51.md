@@ -1,4 +1,4 @@
-Status: layout and the whole airfield approved by the user 2026-10-18 · Zone 51 next
+Status: layout and the whole airfield and Zone 51 batch 1 approved by the user 2026-10-18 · Zone 51 batch 2 in review
 
 # The airfield and Dark Zone 51
 
@@ -98,3 +98,17 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
   sin(rt*2.5)*.1`. All three are `dpKeep`.
 - The stair is a two-lane switchback stair tower east of the walkway (four flights side by side, a landing across both lanes at each end, handrails, X-braces, no arms back to the shaft); its top landing meets a gap in
   the walkway railing. The walkway and stair are looks only (no plates), unless you want players to climb it.
+
+### Zone 51 batch 1 (approved) · `models/zone51.js`: `zfFence(g)`, `zfGate(g)`, `zfTraps(g)` → `{obs}`, `zfTower(g, x, z)` → `{pv, obs}`
+- Load after `airfield.js` (it uses `afCanvas`, `afPlane`, `afTarmac`). New global `DZB` (the bounds and gaps).
+- Replaces `xpDarkZone`'s fence block (the four chain-link planes, merged posts, warning labels, `sign(...)`, the
+  "psst" label) and its tower block (legs, platform, cab, posts, roof, searchlight drum, beam, pivot). Keep the
+  tower lights and the sweeping anim on the returned `pv` (same rotations as now).
+- **Fence obstacles:** the west side is now one run with an opening for the Screech hole (z -1801.2..-1800, height
+  1.45, a ragged tear in the mesh). Players walk through it as before.
+- **The gate:** replace the game's gate group `gg` with the returned `gate` (same spot), keep
+  `ob(x1-.3, x1+.3, -1873.5, -1866.5, {m: gate, kd: 'gate'})`, `q.dzGate` and the "Try the gate" prop. `arm` is the
+  boom barrier (looks only; lift it with `rotation.x = -1.45` when the gate is down, if you like). The guard post
+  and the two gate posts have obstacles.
+- **Tank traps:** remove the game's three tank traps by the east fence (x1-20); push `zfTraps` obstacles. The weaving
+  lane is 3.4 m wide, so AI cars and the player can get through slowly.
