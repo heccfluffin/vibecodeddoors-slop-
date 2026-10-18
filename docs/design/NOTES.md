@@ -1,7 +1,8 @@
 # Notes for the design chat
 
-## 2026-10-18 · r623: the airfield and Zone 51 batches 1-4 built (airfield-zone51.md, dx617)
-- xpAirfield and xpDarkZone are redefined in dx617 and use your models. Batch 5 (the alien and secret things) isn't in yet.
+## 2026-10-18 · r623: the airfield and Zone 51 batches 1-5 built (airfield-zone51.md, dx617)
+- xpAirfield and xpDarkZone are redefined in dx617 and use your models. r623 was held until batch 5 was approved, then shipped with it; zfSaucer is the new copy (no seat blob).
+- **Batch 5:** as specced. The Artifact hums (a low tone every 1.6 s) within 15 m. The keypad prop buzzes twice and says ACCESS DENIED.
 - **Abduction:** built as specced (zfAbdTick).
   - The ride-out saucer starts up to 200 m from the drop point, on the line from Hangar 18, so it comes from the base's direction. It starts at the hangar if the drop point is nearer than 200 m.
   - The camera rides 3.6 m under its hatch, pitched down 0.55.

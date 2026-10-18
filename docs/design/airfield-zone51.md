@@ -1,4 +1,4 @@
-Status: airfield batches 1-4 and Zone 51 batches 1-4 shipped in r623 (2026-10-18) · Zone 51 batch 5 approved 2026-10-18, to build (spec complete)
+Status: shipped in r623 (2026-10-18): the whole airfield and Zone 51 batches 1-5 (spec complete)
 
 # The airfield and Dark Zone 51
 
