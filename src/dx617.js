@@ -668,7 +668,7 @@ function xpDarkZone(X){const{q,g,ob,prop,loc,anim,light,zone,road}=X,{x0,x1,z0,z
  /* the fence (the Screech hole stays), the gate you can ram, the boom barrier, the tank traps on the road in */
  T('fence',()=>{obs(zfFence(g).obs);const G=zfGate(g);obs(G.obs);const go=ob(x1-.3,x1+.3,-1873.5,-1866.5,{m:G.gate,kd:'gate'});q.dzGate=go;
   prop(x1+1.5,-1870,2,()=>go.dead?'The gate is off its hinges. Someone drove through it.':'[E] Try the gate',()=>{if(go.dead)return;snd(200,.1);hint('🔒 Locked. A sign: "AUTHORISED DARK PERSONNEL ONLY. Trespassers will be SEEKED." (A fast enough car might not care.)')});
-  obs(zfTraps(g).obs)});
+  /* r624: no tank traps on the road in, so AI drivers can get through (the user asked) */});
  /* the roads inside: gate to Hangar 18's apron, and a branch up to the barracks */T('roads',()=>{road(x1,-1870,-555,-1870);road(-540,-1866.5,-540,-1810)});
  /* guard towers with searchlights that sweep the sand */T('towers',()=>{for(const[tx,tz]of[[x1-5,z1-5],[x1-5,z0+5],[x0+5,cz]]){const t=zfTower(g,tx,tz);obs(t.obs);light(0xfff0c0,1.2,30,tx,10,tz);anim(tx,tz,200,dt=>{t.pv.rotation.y=q.rt*.35+tx;t.pv.rotation.x=Math.PI/2-.35+Math.sin(q.rt*.5)*.15})}});
  /* the radar and radome, barracks and mess hall (with a visitor), Building 13 */

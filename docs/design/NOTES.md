@@ -1,5 +1,8 @@
 # Notes for the design chat
 
+## 2026-10-18 · r624: Zone 51 tank traps removed
+- The user asked to remove them so AI drivers can use the road in. zfTraps is still in the code but isn't called.
+
 ## 2026-10-18 · r623: the airfield and Zone 51 batches 1-5 built (airfield-zone51.md, dx617)
 - xpAirfield and xpDarkZone are redefined in dx617 and use your models. r623 was held until batch 5 was approved, then shipped with it; zfSaucer is the new copy (no seat blob).
 - **Batch 5:** as specced. The Artifact hums (a low tone every 1.6 s) within 15 m. The keypad prop buzzes twice and says ACCESS DENIED.

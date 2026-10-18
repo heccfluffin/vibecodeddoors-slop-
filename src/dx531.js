@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r624',['Dark Zone 51: the tank traps on the road in are gone, so other drivers can get through']],
 ['r623',['The airfield is rebuilt: a proper runway with lights, a taxiway and apron, an arched hangar, T-hangars with an old crop duster, a terminal with a café, a car park, a new control tower and a road across the runway with flashing lights','The plane now waits on its stand on the apron','Dark Zone 51 is rebuilt: a new fence and gate (still rammable), tank traps on the road in, new guard towers, Hangar 18 and its saucer, barracks, a mess hall with a polite visitor, Building 13, a radar and radome, a helipad, a motor pool and a fuel dump','Stepping into the saucer\'s light is a whole new ride now','Zone 51 has secrets now: a crashed saucer, a humming crystal, a bunker that will not let you in, a glowing waste pit, a listening array, a decon tent, and a crop circle outside']],
 ['r622',['Old Quarry: no more flickering on the ground along the pit rim']],
 ['r621',['The DARK ZONE 51 sign now faces the road']],
