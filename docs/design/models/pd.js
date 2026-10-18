@@ -460,3 +460,76 @@ function pdCourtRoom(g){const k=pdKit(),I=pdInterior(),{M,MT,can,R}=k,{A,B,Cy,ro
   Cy(.3,.3,.05,WD2,li+.05,3.0,-1026,'x',null,24);const cp=A(new THREE.CircleGeometry(.27,24),new THREE.MeshStandardMaterial({map:ck,roughness:.6}),li+.081,3.0,-1026);cp.rotation.y=Math.PI/2}
  pdNoSeam(g);
  return{obs,wig,gav,spots:{judge:{x:50,y:1.56,z:-1028.85,ry:Math.PI},dock:{x:50,z:-1024.2},address:{x:50,z:-1026.3},jury:[{x:56.2,z:-1027.6},{x:56.2,z:-1026.0},{x:56.2,z:-1024.4}],juryRy:-Math.PI/2,juryFloor:.18,tim:{x:45,y:.7,z:-1027.6},exit:{x:50,z:-1014.5,yaw:Math.PI}}}}
+
+/* =====================================================================================================
+   Batch 5, the HQ annex (PDH: x 106..134, z -1025..-1013), in the station's style.
+   pdAnnex(g)  outside: stucco on a stone plinth, navy band, cornice, parapet, framed windows, glass double doors
+               under a canopy, the HQ sign, roof kit. Inside: dispatch (curved console, three live screens, the radio
+               rack), the bullpen (four desks, glass-topped partitions), briefing (the live whiteboard, a podium,
+               chairs with writing arms), the evidence cage (real chain-link, a door, shelves of boxes, the rubber
+               duck), the coffee corner. Returns {obs, scr:[3], wb, map}: scr and wb are planes with
+               userData.cv / userData.tx like pdTxt's, so the game's screen and whiteboard drawing code works as is.
+   Officers keep their spots: Darla (109.2, -1020.6) and Dusty (119.6, -1022.4) have chairs there now.
+   ===================================================================================================== */
+function pdAnnex(g){const k=pdKit(),I=pdInterior(),{M,MT,can,R,wall,win}=k,{F}=I,{A,B,Cy,rod,lab}=k.H(g),obs=[];const x0=106,x1=134,z0=-1025,z1=-1013,t=.3,H=4.2,PH=4.85,HC=3.3;
+ const DOOR=[118.8,121.2],FW=[[108.8,113.2],[126.8,131.2]];
+ const ow=(axis,a0,a1,c,holes)=>{obs.push(...wall(g,axis,a0,a1,c,PH,t,MT.stucco,holes,2))};
+ ow('x',x0-t/2,x1+t/2,z1,[...FW.map(([a,b])=>[a,b,1.0,2.6]),[DOOR[0],DOOR[1],0,2.55]]);ow('x',x0-t/2,x1+t/2,z0,[]);ow('z',z0+t/2,z1-t/2,x0,[]);ow('z',z0+t/2,z1-t/2,x1,[[-1016.3,-1014.3,1.0,2.6]]);
+ for(const[a,b]of FW)win(g,'x',a,b,z1,1.0,2.6,t,1);win(g,'z',-1016.3,-1014.3,x1,1.0,2.6,t,1);
+ const band=(y0,y1,pr,mat,gaps)=>{const yc=(y0+y1)/2,hh=y1-y0,d=pr+.01;const seg=(axis,a0,a1,c,out,gp)=>{let cuts=[[a0,a1]];for(const[u,v]of gp||[]){const n=[];for(const[p,q]of cuts){if(v<=p||u>=q){n.push([p,q]);continue}if(u>p)n.push([p,u]);if(v<q)n.push([v,q])}cuts=n}const cc=c+out*(t/2+pr/2-.005);for(const[p,q]of cuts)B(...(axis=='x'?[q-p,hh,d]:[d,hh,q-p]),mat,...(axis=='x'?[(p+q)/2,yc,cc]:[cc,yc,(p+q)/2]),null,mat===MT.stone?1:2)};
+  seg('x',x0-t/2-pr,x1+t/2+pr,z1,1,gaps);seg('x',x0-t/2-pr,x1+t/2+pr,z0,-1);seg('z',z0-t/2+.001,z1+t/2-.001,x0,-1);seg('z',z0-t/2+.001,z1+t/2-.001,x1,1)};
+ band(0,.6,.04,MT.stone,[[DOOR[0]-.02,DOOR[1]+.02]]);band(3.1,3.32,.03,MT.navy);band(4.15,4.32,.07,MT.trim);band(PH,PH+.08,.06,MT.trim);
+ for(const x of[106.35,116.5,123.5,133.65])B(.5,4.15-.6,.08,MT.stucco,x,.6+(4.15-.6)/2,z1+t/2+.04,null,2);
+ B(x1-x0-t,.22,z1-z0-t,MT.roof,(x0+x1)/2,H+.11,(z0+z1)/2,null,3);for(const[x,z]of[[112,-1020],[128,-1021]]){B(1.6,.9,1.1,M(0xb8b8b0,{metalness:.4,roughness:.5}),x,H+.22+.45,z);Cy(.42,.42,.04,MT.dark,x,H+.22+.92,z,null,null,18)}
+ B(x1-x0,.02,z1-z0,MT.conc,(x0+x1)/2,.01,(z0+z1)/2,null,2);
+ /* the entrance: glass double doors, a canopy on tie rods, the HQ sign, blue lamps */
+ {const z=z1;for(const u of[DOOR[0]+.04,DOOR[1]-.04])B(.08,2.55,t+.04,MT.frame,u,1.275,z);B(DOOR[1]-DOOR[0],.08,t+.04,MT.frame,(DOOR[0]+DOOR[1])/2,2.51,z);
+  for(const s of[-1,1]){const hx=s<0?DOOR[0]+.08:DOOR[1]-.08;const dg=new THREE.Group();dg.position.set(hx,0,z-t/2);dg.rotation.y=s<0?1.35:-1.35;g.add(dg);const d=k.H(dg);const w=1.04;for(const u of[.03,w-.03])d.B(.06,2.43,.045,MT.frame,-s*u,1.235,0);d.B(w,.06,.045,MT.frame,-s*w/2,2.42,0);d.B(w,.16,.045,MT.frame,-s*w/2,.1,0);d.A(new THREE.PlaneGeometry(w-.12,2.21),MT.glass,-s*w/2,1.29,0);d.B(.03,.4,.04,MT.steel,-s*(w-.09),1.1,.045)}
+  const cz0=z1+t/2,cz1=-1011.9;B(3.6,.2,cz1-cz0,MT.trim,120,2.95,(cz0+cz1)/2);B(3.64,.26,.06,MT.navy,120,2.95,cz1+.03);lab('DESERT PD · HQ',2.6,.22,null,'#ffffff',0,120,2.95,cz1+.062,0,null,{glow:.5});for(const x of[118.4,121.6])rod([x,2.95,cz1+.05],[x,3.9,z1+t/2+.02],.02,MT.steel);
+  for(const x of[118.45,121.55]){B(.22,.3,.22,MT.blueL,x,2.3,cz0+.15);B(.26,.04,.26,MT.dark,x,2.47,cz0+.15);B(.26,.04,.26,MT.dark,x,2.13,cz0+.15)}
+  lab('HEADQUARTERS',4.6,.42,null,'#22305a',0,120,4.58,z1+t/2+.012,0)}
+ B(x1-x0+.6,.03,.9,MT.pave,(x0+x1)/2,.015,z1+t/2+.45,null,2);/* a strip of pavement along the front */
+ /* ---- inside ---- */
+ I.lining(g,'x',x0+.15,x1-.15,z1-.15,-1,[...FW.map(([a,b])=>[a,b,1.0,2.6]),[DOOR[0],DOOR[1],0,2.55]]);I.lining(g,'x',x0+.15,x1-.15,z0+.15,1,[]);I.lining(g,'z',z0+.15,z1-.15,x0+.15,1,[]);I.lining(g,'z',z0+.15,z1-.15,x1-.15,-1,[[-1016.3,-1014.3,1.0,2.6]]);
+ I.room(g,x0+.15,x1-.15,z0+.15,z1-.15,F.carpet,{fs:1});
+ /* the partitions: panelled to 1.2 m, glass above to 2.4, steel posts */for(const px of[115.5,125]){B(.12,1.2,6.6,MT.navy,px,.6,-1021.5);B(.16,.06,6.64,MT.frame,px,1.23,-1021.5);A(new THREE.PlaneGeometry(6.6,1.14),MT.glass,px,1.83,-1021.5).rotation.y=Math.PI/2;B(.08,.06,6.64,MT.frame,px,2.42,-1021.5);for(const z of[-1024.8,-1022.6,-1020.4,-1018.2])B(.08,2.45,.08,MT.frame,px,1.22,z);obs.push({x0:px-.08,x1:px+.08,z0:-1024.8,z1:-1018.2})}
+ /* DISPATCH: the curved console with the three live screens and a radio rack, Darla's chair */
+ const scr=[];{for(let i=0;i<3;i++){const z=-1022.2+i*1.6,a=(i-1)*.18;const sg=new THREE.Group();sg.position.set(106.75,0,z);sg.rotation.y=-a;g.add(sg);const s2=k.H(sg);s2.B(.9,.78,1.55,MT.navy,.25,.39,0);s2.B(1.0,.05,1.6,M(0x2a2a2e,{roughness:.4}),.3,.8,0);s2.B(.08,.82,1.32,MT.dark,-.05,1.45,0);
+   const c=document.createElement('canvas');c.width=512;c.height=320;const tx=new THREE.CanvasTexture(c);const sp=new THREE.Mesh(new THREE.PlaneGeometry(1.2,.75),new THREE.MeshBasicMaterial({map:tx}));sp.position.set(-.005,1.45,0);sp.rotation.y=Math.PI/2;sg.add(sp);sp.userData.cv=c;sp.userData.tx=tx;{const x=c.getContext('2d');x.fillStyle='#06120a';x.fillRect(0,0,512,320)}scr.push(sp);sp.userData.dpKeep=1;
+   s2.B(.4,.02,.15,MT.dark,.45,.83,0);}
+  obs.push({x0:106.2,x1:107.7,z0:-1023.1,z1:-1018.2});
+  {const x=107.0,z=-1024.35;B(.6,1.8,.6,MT.dark,x,.9,z);for(let i=0;i<5;i++){B(.5,.25,.02,M(0x2a2a2e),x,.4+i*.3,z+.305);for(let j=0;j<4;j++)A(new THREE.SphereGeometry(.015,6,4),M([0x30ff60,0xffa020,0x30ff60,0xff3030][(i+j)%4],{emissive:[0x30ff60,0xffa020,0x30ff60,0xff3030][(i+j)%4]}),x-.18+j*.06,.4+i*.3,z+.32)}Cy(.01,.01,.6,MT.steel,x+.2,2.1,z,null,null,5);obs.push({x0:x-.32,x1:x+.32,z0:z-.32,z1:z+.32})}
+  lab('DISPATCH',2.0,.32,'#22305a','#ffffff',0,x0+.165,2.75,-1020.6,Math.PI/2);
+  {const c=new THREE.Group();c.position.set(109.2,0,-1020.6);c.rotation.y=Math.PI/2;g.add(c);const q=k.H(c);q.B(.5,.08,.5,MT.dark,0,.5,0);q.B(.5,.6,.08,MT.dark,0,.85,.25);q.Cy(.03,.03,.45,MT.steel,0,.25,0,null,null,6);for(let i=0;i<5;i++){const a=i/5*Math.PI*2;q.rod([0,.04,0],[Math.cos(a)*.28,.04,Math.sin(a)*.28],.02,MT.steel)}}
+  /* a headset on the console, a mug */B(.08,.12,.04,MT.dark,107.4,.9,-1021.4);Cy(.04,.035,.1,M(0xd04060),107.5,.86,-1019.6,null,null,10)}
+ /* THE BULLPEN: four desks (Dusty sits at the south-west one), chairs, monitors, lamps, trays */
+ const desk=(x,z,chairZ)=>{B(1.6,.05,.8,MT.wood,x,.75,z);for(const s of[-.75,.75])B(.05,.73,.75,MT.dark,x+s,.37,z);B(.55,.36,.04,MT.dark,x,1.0,z-.25);B(.51,.32,.01,M(0x3060a0,{emissive:0x183050}),x,1.0,z-.225);B(.12,.12,.08,MT.dark,x,.83,z-.27);B(.4,.02,.13,MT.dark,x,.785,z);
+  B(.3,.06,.24,M(0x3a3a40),x+.55,.81,z-.15);for(let i=0;i<3;i++)B(.22,.005,.3,M(0xf4f0e6),x+.55,.845+i*.008,z-.15);Cy(.04,.035,.1,M(0xffffff),x-.55,.83,z+.1,null,null,10);rod([x-.65,.78,z-.3],[x-.65,1.15,z-.25],.01,MT.dark);B(.12,.06,.16,MT.dark,x-.65,1.17,z-.18).rotation.x=.4;
+  const c=new THREE.Group();c.position.set(x,0,chairZ);g.add(c);const q=k.H(c);q.B(.48,.08,.48,M(0x22305a),0,.5,0);q.B(.48,.55,.07,M(0x22305a),0,.83,.24);q.Cy(.03,.03,.45,MT.steel,0,.25,0,null,null,6);for(let i=0;i<5;i++){const a=i/5*Math.PI*2;q.rod([0,.04,0],[Math.cos(a)*.27,.04,Math.sin(a)*.27],.02,MT.steel)}obs.push({x0:x-.8,x1:x+.8,z0:z-.4,z1:z+.4})};
+ desk(119.6,-1023.25,-1022.4);desk(122.6,-1023.25,-1022.45);desk(119.6,-1020.4,-1019.6);desk(122.6,-1020.4,-1019.6);
+ {const t2=can(512,256,(c,w,h)=>{c.fillStyle='#e8e4d8';c.fillRect(0,0,w,h);c.fillStyle='#a01010';c.font='bold 40px DoorsSans,Arial';c.textAlign='center';c.fillText('MOST WANTED',w/2,46);for(let i=0;i<4;i++){c.fillStyle='#3a2a1a';c.fillRect(30+i*120,70,90,110);c.fillStyle='#f0e6c8';c.font='bold 50px DoorsSans,Arial';c.fillText('?',75+i*120,145);c.fillStyle='#202020';c.font='bold 18px DoorsSans,Arial';c.fillText(['SPEEDSTER','JEFF','THE BUS','???'][i],75+i*120,210)}});B(2.0,1.0,.04,MT.wood,120.5,1.8,z0+.19);A(new THREE.PlaneGeometry(1.9,.92),new THREE.MeshStandardMaterial({map:t2,roughness:.9}),120.5,1.8,z0+.212)}
+ /* BRIEFING: the live whiteboard on the east wall, a podium (Mesa stands behind it), chairs with writing arms */
+ const wbc=document.createElement('canvas');wbc.width=512;wbc.height=228;const wbt=new THREE.CanvasTexture(wbc);{const x=wbc.getContext('2d');x.fillStyle='#f4f4f0';x.fillRect(0,0,512,228)}
+ const wb=A(new THREE.PlaneGeometry(3.6,1.6),new THREE.MeshBasicMaterial({map:wbt}),x1-.15-.065,1.7,-1019);/* 2.5 cm in front of its frame */wb.rotation.y=-Math.PI/2;wb.userData.cv=wbc;wb.userData.tx=wbt;wb.userData.dpKeep=1;B(.05,1.72,3.72,M(0xc0c4c8,{metalness:.5}),x1-.15-.012,1.7,-1019);B(.1,.04,1.2,M(0xc0c4c8,{metalness:.5}),x1-.15-.07,.88,-1019);for(const[i,c]of[[0,0xc02020],[1,0x2040c0],[2,0x202020]])Cy(.012,.012,.12,M(c),x1-.15-.08,.92,-1019.3+i*.15,'z',null,6);
+ {const x=130.4,z=-1019;B(.6,1.1,.5,MT.wood,x,.55,z);B(.7,.05,.6,M(0x4a2a14),x,1.13,z).rotation.z=.12;star:{const sb=k.can(128,128,(c,w,h)=>{c.fillStyle='#22305a';c.beginPath();c.arc(64,64,62,0,7);c.fill();c.fillStyle='#d8a830';c.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?22:52;c.lineTo(64+Math.cos(a)*r,64+Math.sin(a)*r)}c.fill()});const p=A(new THREE.CircleGeometry(.18,20),new THREE.MeshStandardMaterial({map:sb}),x-.255,.75,z);p.rotation.y=-Math.PI/2}obs.push({x0:x-.3,x1:x+.3,z0:z-.25,z1:z+.25})}
+ for(const[x,z]of[[129,-1017],[129,-1019],[129,-1021],[127.4,-1018],[127.4,-1020]]){const c=new THREE.Group();c.position.set(x,0,z);c.rotation.y=-Math.PI/2;g.add(c);const q=k.H(c);q.B(.46,.05,.46,M(0x2a3a6a),0,.46,0);q.B(.46,.45,.05,M(0x2a3a6a),0,.72,.21);for(const u of[-.19,.19])for(const v of[-.19,.19])q.B(.03,.45,.03,MT.steel,u,.22,v);q.B(.3,.03,.4,MT.wood,.3,.68,-.05);q.B(.03,.22,.03,MT.steel,.3,.56,.12)}
+ {rod([127.5,HC,-1019],[127.5,3.0,-1019],.02,MT.dark);B(.4,.15,.35,M(0xe8e8e4),127.5,2.92,-1019);Cy(.05,.05,.04,M(0x101010),127.7,2.92,-1019,'x',null,10)}
+ lab('BRIEFING',1.4,.26,'#22305a','#ffffff',0,129.5,2.75,z0+.166,0);
+ /* THE EVIDENCE CAGE: chain-link panels on a steel frame, a door, shelves of labelled boxes, a rubber duck */
+ {const cx0=129.2,cx1=133.8,cz0=z0+.15,cz1=-1021.7,ch=2.6;const mesh=can(64,64,(x,w,h)=>{x.clearRect(0,0,w,h);x.strokeStyle='#a8acb0';x.lineWidth=3;for(let i=-1;i<3;i++){x.beginPath();x.moveTo(i*32,0);x.lineTo(i*32+64,64);x.stroke();x.beginPath();x.moveTo(i*32+64,0);x.lineTo(i*32,64);x.stroke()}});mesh.wrapS=mesh.wrapT=THREE.RepeatWrapping;
+  const CL=(w,h)=>{const t2=mesh.clone();t2.needsUpdate=true;t2.repeat.set(w/.12,h/.12);return new THREE.MeshStandardMaterial({map:t2,transparent:true,alphaTest:.4,side:THREE.DoubleSide,metalness:.6,roughness:.4})};
+  const FR=M(0x6a6e74,{metalness:.6,roughness:.4});const dA=130.2,dB=131.1;
+  for(const[a,b]of[[cx0,dA],[dB,cx1]]){A(new THREE.PlaneGeometry(b-a,ch),CL(b-a,ch),(a+b)/2,ch/2,cz1)}{const p=A(new THREE.PlaneGeometry(cz1-cz0,ch),CL(cz1-cz0,ch),cx0,ch/2,(cz0+cz1)/2);p.rotation.y=Math.PI/2}
+  A(new THREE.PlaneGeometry(cx1-cx0,cz1-cz0),CL(cx1-cx0,cz1-cz0),(cx0+cx1)/2,ch,(cz0+cz1)/2).rotation.x=Math.PI/2;
+  for(const[x,z]of[[cx0,cz1],[dA,cz1],[dB,cz1],[cx0,cz0+.03]])B(.06,ch,.06,FR,x,ch/2,z);B(cx1-cx0,.06,.06,FR,(cx0+cx1)/2,ch,cz1);B(.06,.06,cz1-cz0,FR,cx0,ch,(cz0+cz1)/2);
+  {const dg=new THREE.Group();dg.position.set(dA,0,cz1);dg.rotation.y=-1.2;g.add(dg);const d=k.H(dg);d.A(new THREE.PlaneGeometry(.88,2.2),CL(.88,2.2),.46,1.15,0);for(const u of[.03,.89])d.B(.04,2.2,.04,FR,u,1.15,0);for(const y of[.07,2.23])d.B(.9,.04,.04,FR,.46,y,0);d.B(.06,.12,.06,M(0xd8a830,{metalness:.8}),.82,1.1,.03)}
+  for(let i=0;i<3;i++){B(4.0,.04,.5,FR,131.6,.6+i*.7,cz0+.3);for(let j=0;j<4;j++){const b=B(.42,.3,.36,M([0xa08060,0x8a6a4a,0xc0a070][(i+j)%3],{roughness:.9}),130.2+j*.95,.77+i*.7,cz0+.3);b.rotation.y=(R()-.5)*.1;lab('CASE '+(100+i*4+j),.3,.06,null,'#202020',0,130.2+j*.95,.77+i*.7,cz0+.3+.181,0)}}for(const s of[-1,1])B(.04,2.2,.5,FR,131.6+s*2,1.1,cz0+.3);
+  {const dk=new THREE.Group();dk.position.set(131.6,2.0+.04,cz0+.4);g.add(dk);const d=k.H(dk);d.A(new THREE.SphereGeometry(.08,12,10),M(0xf0d020),0,.06,0).scale.set(1.2,.8,1);d.A(new THREE.SphereGeometry(.05,10,8),M(0xf0d020),.05,.14,0);d.B(.05,.02,.04,M(0xe08020),.11,.14,0)}
+  lab('EVIDENCE · DO NOT EAT',2.2,.3,'#c02020','#ffffff',0,(cx0+cx1)/2,2.35,cz1+.035,0);obs.push({x0:cx0,x1:cx1,z0:cz0,z1:cz1+.05})}
+ /* THE COFFEE CORNER by the front: a counter, the machine, donuts, a fridge */
+ {B(1.4,.8,.6,MT.wood,116.6,.4,-1013.6);B(1.45,.04,.65,M(0x2a2a2e,{roughness:.4}),116.6,.82,-1013.6);B(.36,.5,.32,MT.dark,116.2,1.09,-1013.65);Cy(.07,.07,.14,M(0x3a2a20,{transparent:true,opacity:.8}),116.2,.92,-1013.45,null,null,10);B(.5,.06,.32,M(0xf0e0c8),116.95,.87,-1013.6);
+  for(let i=0;i<4;i++){const d=A(new THREE.TorusGeometry(.05,.025,8,14),M([0xd06090,0xc08040,0x6040a0,0xe0c040][i]),116.8+i*.1,.92,-1013.6);d.rotation.x=Math.PI/2}
+  B(.7,1.7,.65,M(0xe8e8ec,{metalness:.3,roughness:.4}),115.15,.85,-1013.62);B(.03,.5,.03,MT.steel,115.48,1.2,-1013.28);obs.push({x0:114.8,x1:117.3,z0:-1013.95,z1:-1013.25});lab('COFFEE IS NOT EVIDENCE',.9,.12,null,'#22305a',0,116.6,1.9,z1-.15-.012,Math.PI)}
+ /* signs over the rooms on the back wall */
+ pdNoSeam(g);
+ return{obs,scr,wb,map:[[x0,x1,z0,z1,'#4a5a8a']]}}
