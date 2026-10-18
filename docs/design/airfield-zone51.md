@@ -1,4 +1,4 @@
-Status: layout and the whole airfield and Zone 51 batches 1-2 approved by the user 2026-10-18 · Zone 51 batch 3 next
+Status: layout and the whole airfield and Zone 51 batches 1-3 approved by the user 2026-10-18 · Zone 51 batch 4 next
 
 # The airfield and Dark Zone 51
 
@@ -142,3 +142,15 @@ up through the saucer, spinning. New sequence, 6.3 s, input locked as now (`q.ab
 - Its beam cone is never shown during this (you are inside it).
 - Sounds: keep the rising whine (300 + t*400) while rising; a soft clunk when the hatch closes.
 - The preview's "Step into the light" button plays this with the camera.
+
+### Zone 51 batch 3 (approved) · `zfBarracks(g)` → `{obs, visitor}`, `zfB13(g)` → `{obs, vats}`, `zfRadar(g)` → `{obs, dish}`
+(also `zfHut`, `zfVisitor`)
+- Replaces `xpDarkZone`'s radar block (plinth, dish group, stand, its `ob` and anim: spin the returned `dish` instead,
+  `rotation.y = q.rt * .4`) and the two barracks boxes, roofs, windows, doors, labels and their `ob`s.
+- **Building 13 is new** (x -528..-500, z -1814..-1796); the radome (-612, -1822) is new. Push all `obs`.
+- **The visitor:** add a prop at (-549.6, -1797.5), radius 1.5, "[E] Talk to the visitor", lines like:
+  "He nods politely. He does not look up from his jelly." · "\"The food here is... an experience.\"" ·
+  "\"Do not tell them I can leave whenever I like.\"" · "He offers you some jelly. It glows. You decline."
+- `vats`: pulse `emissiveIntensity = .5 + .3 * sin(rt*2 + i)` (optional). Building 13's roof pieces are tagged
+  `userData.b13roof` (the preview hides them to look inside; the game keeps them).
+- The huts' doors and the blast door are looks only (the insides are reachable only in the preview).
