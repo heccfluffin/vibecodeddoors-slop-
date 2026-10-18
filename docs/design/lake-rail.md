@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batch 1 approved · batch 2 in preview · not ready to build yet
+Status: layout approved 2026-10-18 · batches 1-2 approved · observatory (batch 3) next · not ready to build yet
 
 # Mirage Lake, the observatory, Dino Dan's and the railway
 
@@ -44,4 +44,11 @@ Batches: 1 lake water, shore, palms, pier, bait shop · 2 beach, lifeguard, snac
   sparkle layers are dpKeep.
 - Bait shop `prop`: optional, e.g. "[E] Read the bait board" with lines like "WORMS: FRESH · BREAD: ALSO FRESH ·
   WORMS IN BREAD: ASK".
+
+### Batch 2 (approved) · `lkBeach(g)` → `{obs}`, `lkBoathouse(g)` → `{obs, bob, plate}`, `lkBuoys(g)` → `{bob}`, `lkSailboat()`, `lkBob(list, t)`; parts `lkUmbrella`, `lkLounger`, `lkSwan`
+- Replaces in `xpLake`: the four umbrellas/loungers and their `ob`s, the lifeguard chair, its `ob` and label, and the
+  old box sailboat (put `lkSailboat()` in its place and keep the same drift/rock `anim`).
+- `lkBob([...bh.bob, ...buoys.bob], t)` every frame inside the lake's anim gate (swans and buoys are dpKeep).
+- The boathouse jetty is walkable: push `plate` into `q.plates` like the pier.
+- Scenery only: the kiosk, shower, volleyball court, lifeguard tower, boathouse and swans have no gameplay.
 
