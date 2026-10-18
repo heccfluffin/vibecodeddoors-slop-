@@ -18,7 +18,9 @@ const SPW={cx:300,cz:-1830,RX:110,RZ:38,TW:14};
    tyre wall follows the band's outside edge: radius 53.5 at the start of the bend, back to 46 at a1. */
 /* the pit entry: the main straight's concrete wall ends at x 303; the pit lane peels off the track edge there and
    curves in past race control (whose front is z -1781) to its full width (north edge z -1777) by x 326 */
-const SPX={wallEnd:303,a1:.6,rOut:a=>46+7.5*Math.max(0,1-a/.6)};
+/* the crossing: a gravel road from the entrance crosses the back straight into the infield; both tyre walls have a
+   gap there (x 294..306) */
+const SPX={cross:[294,306],wallEnd:303,a1:.6,rOut:a=>46+7.5*Math.max(0,1-a/.6)};
 /* a point on the oval: u = metres along the centre line, from the west end of the main straight, driving east;
    r = distance from the line through the two bend centres (38 is the centre line, 31 and 45 the edges) */
 function spPt(u,r){const{cx,cz,RX,RZ}=SPW,S=2*(RX-RZ),P=2*S+2*Math.PI*RZ;u=((u%P)+P)%P;
@@ -60,17 +62,19 @@ function spTrack(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,
   const top=afCanvas(64,64,(x,w,h)=>{x.fillStyle='#1c1c1e';x.fillRect(0,0,w,h);x.fillStyle='#08080a';x.beginPath();x.arc(32,32,19,0,7);x.fill();x.strokeStyle='#2c2c30';x.lineWidth=3;x.beginPath();x.arc(32,32,26,0,7);x.stroke()});
   const TM=[new THREE.MeshStandardMaterial({map:side,roughness:.95}),new THREE.MeshStandardMaterial({map:top,roughness:.95}),new THREE.MeshStandardMaterial({color:0x101012})];
   const ge=new THREE.CylinderGeometry(.47,.47,.84,12,1);const pts=[];
-  const walk=(r,u0,u1)=>{let prev=null,acc=1;for(let u=u0;u<=u1;u+=.05){const p=spPt(u,r);if(prev)acc+=Math.hypot(p[0]-prev[0],p[1]-prev[1]);prev=p;if(acc>=.98){acc=0;pts.push(p)}}};
+  /* runs: each unbroken piece of wall, so an obstacle box never bridges a gap or jumps from one wall to the other */const runs=[];let run=null;const brk=()=>{run=null};const put=p=>{if(p[1]<SPW.cz&&p[0]>SPX.cross[0]&&p[0]<SPX.cross[1]){brk();return}if(!run){run=[];runs.push(run)}run.push(p);pts.push(p)};
+  const walk=(r,u0,u1)=>{brk();let prev=null,acc=1;for(let u=u0;u<=u1;u+=.05){const p=spPt(u,r);if(prev)acc+=Math.hypot(p[0]-prev[0],p[1]-prev[1]);prev=p;if(acc>=.98){acc=0;put(p)}}};
   /* the outer wall round the pit exit: radius SPX.rOut, starting just past the garages' corner */
-  const walkV=(u0,u1)=>{let prev=null,acc=1;for(let u=u0;u<=u1;u+=.05){const p=spPt(u,SPX.rOut((u-S)/RZ));if(prev)acc+=Math.hypot(p[0]-prev[0],p[1]-prev[1]);prev=p;if(acc>=.98){acc=0;pts.push(p)}}};
-  const a0=.06;walk(RZ-8,0,P-.5);walkV(S+a0*RZ,S+SPX.a1*RZ);walk(RZ+8,S+SPX.a1*RZ+.98,P-.05);
+  const walkV=(u0,u1)=>{let prev=null,acc=1;for(let u=u0;u<=u1;u+=.05){const p=spPt(u,SPX.rOut((u-S)/RZ));if(prev)acc+=Math.hypot(p[0]-prev[0],p[1]-prev[1]);prev=p;if(acc>=.98){acc=0;put(p)}}};
+  const a0=.06;walk(RZ-8,0,P-.5);brk();walkV(S+a0*RZ,S+SPX.a1*RZ);walk(RZ+8,S+SPX.a1*RZ+.98,P-.05);
   const im=new THREE.InstancedMesh(ge,TM,pts.length),mm=new THREE.Matrix4();pts.forEach((p,i)=>{mm.makeTranslation(p[0],.42,p[1]);im.setMatrixAt(i,mm)});im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;g.add(im);
-  /* obstacles: one box per three stacks */for(let i=0;i<pts.length;i+=3){const grp=pts.slice(i,i+3),xs=grp.map(p=>p[0]),zs=grp.map(p=>p[1]);obs.push({x0:Math.min(...xs)-.47,x1:Math.max(...xs)+.47,z0:Math.min(...zs)-.47,z1:Math.max(...zs)+.47})}
+  /* obstacles: one box per three stacks, never across a gap */for(const rn of runs)for(let i=0;i<rn.length;i+=3){const grp=rn.slice(i,i+3),xs=grp.map(p=>p[0]),zs=grp.map(p=>p[1]);obs.push({x0:Math.min(...xs)-.47,x1:Math.max(...xs)+.47,z0:Math.min(...zs)-.47,z1:Math.max(...zs)+.47})}
   /* the belt: a strap round the track side of each wall, red and white in 3 m blocks, bolted at the top */
   const bt=spRep(afCanvas(32,256,(x,w,h)=>{for(let i=0;i<2;i++){x.fillStyle=i?'#f0ece4':'#c42424';x.fillRect(0,i*h/2,w,h/2)}x.fillStyle='rgba(0,0,0,.25)';x.fillRect(0,0,w,2);x.fillRect(0,h-2,w,2);x.fillStyle='rgba(0,0,0,.35)';for(let i=0;i<8;i++){x.fillRect(4,i*32+14,3,3);x.fillRect(w-7,i*32+14,3,3)}}));
   const BM=new THREE.MeshStandardMaterial({map:bt,roughness:.8,side:THREE.DoubleSide});
   const belt=(r,u0,u1)=>g.add(new THREE.Mesh(spRibbon(u0,u1,r,0,0,6,[.04,.86]),BM));
-  belt(RZ-8+.49,0,P);g.add(new THREE.Mesh(spRibbon(S+a0*RZ,S+SPX.a1*RZ,u=>SPX.rOut((u-S)/RZ)-.49,0,0,6,[.04,.86]),BM));belt(RZ+8-.49,S+SPX.a1*RZ,P)}
+  const ub0=S+Math.PI*RZ+(cx+S/2-SPX.cross[1]),ub1=S+Math.PI*RZ+(cx+S/2-SPX.cross[0]);/* the back straight runs east to west, so the gap's u range is from x 306 down to 294 */
+  belt(RZ-8+.49,0,ub0-.3);belt(RZ-8+.49,ub1+.3,P);g.add(new THREE.Mesh(spRibbon(S+a0*RZ,S+SPX.a1*RZ,u=>SPX.rOut((u-S)/RZ)-.49,0,0,6,[.04,.86]),BM));belt(RZ+8-.49,S+SPX.a1*RZ,ub0-.3);belt(RZ+8-.49,ub1+.3,P)}
  /* ---- the concrete wall along the main straight (x 228..323): a jersey barrier, white, with sponsor boards on the
     track side and a catch fence leaning over the track ---- */
  {const CW=M(0xdcd8d0,{roughness:.9}),wx0=cx-S/2,wx1=SPX.wallEnd,wl=wx1-wx0;
@@ -239,3 +243,64 @@ function mkPitCrew(col){const g=new THREE.Group(),M=(c,o)=>new THREE.MeshStandar
   else if(n=='go'){R(P.armR,0,0,1.4+Math.sin(t*5)*.25);R(P.elbowR,0);R(P.armL,.1);R(P.head,0,.15)}
   else{/* idle */const s=Math.sin(t*1.6);R(P.chest,.02*s);R(P.armL,.05,0,-.08);R(P.armR,.05,0,.08);R(P.head,0,Math.sin(t*.4)*.3)}};
  g.userData.pose('idle',0);g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
+
+/* ===================================================================================================== batch 3
+   spEntrance(g)  the way in from the Southern Pass: a gravel road (x 296.5..303.5) up to the track and on across the
+                  back straight into the infield, an entrance arch over it at z -1888, a ticket booth, a gravel car
+                  park (x 240..292, z -1895..-1880) with bays, kerbs, two lamp posts and a sign, and CROSSING signs at
+                  the track. Returns {obs}. (Drop the base's sign at (300,-1884).)
+   spInfield(g)   the paddock (three team trailers with awnings, tables, tool chests, tyre stacks, x 250..330,
+                  z -1852..-1838), the skid pad at (360,-1830), the scoreboard facing the grandstand, four portaloos.
+                  Returns {obs, score, scoreDraw}: score is the board's face mesh; scoreDraw(lap, pit) returns a new
+                  CanvasTexture for it (lap and pit in seconds or 0): score.material.map = scoreDraw(SV.xlap, SV.xpit).
+   spFloods(g)    six floodlight masts round the oval. Returns {obs, lamps} (lamps: the glowing material).
+   ===================================================================================================== */
+function spEntrance(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,RZ}=SPW,STL=M(0x6a6e74,{metalness:.35,roughness:.5}),WH=M(0xf0ece4,{roughness:.8}),RD=M(0xc42828,{roughness:.6});
+ const gravel=(x0,x1,z0,z1,lines)=>{const W=Math.round(Math.min(1024,(x1-x0)*20)),H=Math.round(Math.min(1024,(z1-z0)*20));const t=afCanvas(W,H,(c,w,h)=>{let sd=31;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;c.fillStyle='#a89474';c.fillRect(0,0,w,h);for(let i=0;i<w*h/6;i++){const v=r();c.fillStyle=v<.4?'rgba(70,56,40,.25)':v<.7?'rgba(230,220,200,.25)':'rgba(140,120,96,.3)';c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}if(lines)lines(c,w/(x1-x0))});return afPlane(g,x0,x1,z0,z1,.04,t,-1)};
+ /* the road: Southern Pass edge to the track, and across the infield side to the paddock */gravel(296.5,303.5,-1896.5,cz-RZ-7);gravel(296.5,303.5,cz-RZ+7,-1852);
+ /* the arch: two brick-red pillars, a lattice beam, the name on both sides and chequered flags */{const z=-1888,ph=6.2;for(const x of[294.8,305.2]){B(1.2,ph,1.2,x,ph/2,z,RD);B(1.4,.25,1.4,x,ph+.12,z,WH);B(1.4,.3,1.4,x,.15,z,WH);obs.push({x0:x-.6,x1:x+.6,z0:z-.6,z1:z+.6})}
+  B(12.4,1.6,.5,300,ph-.6,z,M(0x1a1a1a));for(const s of[-1,1])L('DUSTY GULCH SPEEDWAY',9,1.1,'#1a1a1a','#ffe040',80,300,ph-.6,z+s*.26,s<0?Math.PI:0);
+  for(const x of[294.8,305.2]){C(.03,.03,1.6,x,ph+1.05,z,STL,null,null,6);const t=afCanvas(64,40,(c,w,h)=>{for(let a=0;a<8;a++)for(let b=0;b<5;b++){c.fillStyle=(a+b)%2?'#f4f2ec':'#161616';c.fillRect(a*8,b*8,8,8)}});const f=new THREE.Mesh(new THREE.PlaneGeometry(.9,.56),new THREE.MeshStandardMaterial({map:t,side:THREE.DoubleSide}));f.position.set(x+(x<300?-.47:.47),ph+1.55,z);g.add(f)}}
+ /* the ticket booth east of the road */{const bx=308,bz=-1889;B(3,2.6,3,bx,1.3,bz,WH);B(3.3,.2,3.3,bx,2.7,bz,RD);B(.04,.9,1.6,bx-1.52,1.5,bz,M(0x34404a,{roughness:.1}));B(.08,.06,1.7,bx-1.53,1.03,bz,WH);B(.4,.06,1.6,bx-1.7,1.02,bz,WH);
+  L('TICKETS\nFREE · WE FORGOT TO CHARGE',2.6,.7,'#c42828','#ffffff',50,bx,2.25,bz-1.52,Math.PI);obs.push({x0:bx-1.5,x1:bx+1.5,z0:bz-1.5,z1:bz+1.5})}
+ /* the car park: gravel with white bays, a kerb round it, lamp posts and a sign */{const x0=240,x1=292,z0=-1895,z1=-1880;gravel(x0,x1,z0,z1,(c,pm)=>{c.fillStyle='rgba(240,236,228,.85)';for(let x=x0+2;x<=x1-2;x+=3){c.fillRect((x-x0)*pm,0,3,5*pm);c.fillRect((x-x0)*pm,(z1-z0-5)*pm,3,5*pm)}c.fillRect(2*pm,5*pm,(x1-x0-4)*pm,3);c.fillRect(2*pm,(z1-z0-5)*pm,(x1-x0-4)*pm,3)});
+  for(const[a,b,c2,d]of[[x0,x1,z0,z0],[x0,x1,z1,z1],[x0,x0,z0,z1]])B(Math.abs(b-a)+.25,.15,Math.abs(d-c2)+.25,(a+b)/2,.075,(c2+d)/2,M(0xd8d4cc));
+  for(const lx of[255,277]){C(.08,.1,6,lx,3,-1887.5,STL,null,null,8);B(.2,.15,1.2,lx,6,-1887.5+.4,STL);B(.16,.04,.6,lx,5.92,-1887.5+.7,M(0xfff4d0,{emissive:0xffe0a0,emissiveIntensity:.8}));obs.push({x0:lx-.15,x1:lx+.15,z0:-1887.65,z1:-1887.35})}
+  {const sx=288,sz=-1879;for(const dx of[-1,1])C(.05,.05,2.4,sx+dx,1.2,sz,STL,null,null,8);L('SPEEDWAY PARKING\nPARK NICELY',2.4,.9,'#2a6a3a','#ffffff',50,sx,2.2,sz-.04,Math.PI)}}
+ /* CROSSING signs either side of the track, facing the road */for(const[z,ry]of[[cz-RZ-9.5,Math.PI],[cz-RZ+9.5,0]]){const x=304.6;C(.05,.05,2.2,x,1.1,z,STL,null,null,8);L('CROSSING\nLOOK BOTH WAYS',1.4,.7,'#f0c020','#1a1a1a',50,x,2,z+(ry?-.04:.04),ry);obs.push({x0:x-.12,x1:x+.12,z0:z-.12,z1:z+.12})}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+function spScoreDraw(lap,pit){const f=v=>v?Math.floor(v/60)+':'+(v%60).toFixed(1).padStart(4,'0'):'--:--';return afCanvas(1024,320,(c,w,h)=>{c.fillStyle='#101012';c.fillRect(0,0,w,h);c.fillStyle='#ffe040';c.font='bold 64px Arial';c.textAlign='center';c.textBaseline='middle';c.fillText('DUSTY GULCH SPEEDWAY',w/2,58);c.fillStyle='#2a2a2e';c.fillRect(30,108,w-60,4);
+ c.font='bold 54px Arial';c.textAlign='left';c.fillStyle='#e8e8e8';c.fillText('BEST LAP',60,170);c.fillText('BEST PIT STOP',60,250);c.textAlign='right';c.fillStyle='#40ff80';c.fillText(f(lap),w-60,170);c.fillStyle='#40d0ff';c.fillText(pit?pit.toFixed(1)+' s':'--.-',w-60,250)})}
+function spInfield(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,RZ}=SPW,STL=M(0x6a6e74,{metalness:.35,roughness:.5}),WH=M(0xf0ece4,{roughness:.8}),DK=M(0x2a2c30,{metalness:.3,roughness:.5}),tyreM=M(0x1c1c1e,{roughness:.95});
+ /* the paddock: three team trailers side by side, back to the infield road, awnings out the front (north) */
+ const teams=[['TEAM GOBLINO','#3a8a2a','#f0d020'],['DOORS RACING','#1a1a2a','#ffe040'],['HALT MOTORSPORT','#a02020','#ffffff']];
+ teams.forEach(([nm,bg,fg],i)=>{const tx=262+i*24,tz=-1850.5,TL=13,TW=2.5,TH=2.9,y0=1.1;
+  /* the box with the team livery on both sides */B(TL,TH,TW,tx,y0+TH/2,tz,M(bg,{roughness:.55}));for(const s of[-1,1]){const lb=k.lab(nm,TL-1.5,1.2,null,fg,90);lb.position.set(tx,y0+TH*.6,tz+s*(TW/2+.012));lb.rotation.y=s<0?Math.PI:0;g.add(lb)}
+  B(TL,.08,TW+.02,tx,y0+TH-.04,tz,M(0xd8d8d8));B(TL+.05,.25,TW+.05,tx,y0+.12,tz,DK);
+  /* wheels at the back, landing legs at the front */for(const dx of[TL/2-1.6,TL/2-2.8])for(const s of[-1,1]){const w=C(.5,.5,.32,tx+dx,.5,tz+s*(TW/2-.25),tyreM,'z',null,14);C(.28,.28,.34,tx+dx,.5,tz+s*(TW/2-.25),M(0xb0b4b8,{metalness:.6}),'z',null,10)}
+  for(const s of[-1,1]){B(.12,y0,.12,tx-TL/2+2,y0/2,tz+s*(TW/2-.3),STL);B(.4,.05,.4,tx-TL/2+2,.025,tz+s*(TW/2-.3),STL)}
+  /* the awning: a sloping canvas from the trailer's top edge, out 4 m on two legs */const aw=4,ay0=y0+TH-.15,ay1=2.4,A=Math.hypot(aw,ay0-ay1);const cv=afCanvas(64,64,(c,w,h)=>{c.fillStyle=bg;c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.18)';for(let j=0;j<w;j+=16)c.fillRect(j,0,8,h)});
+  const am=new THREE.Mesh(new THREE.PlaneGeometry(TL-1,A),new THREE.MeshStandardMaterial({map:cv,side:THREE.DoubleSide,roughness:.8}));am.position.set(tx,(ay0+ay1)/2,tz+TW/2+aw/2);am.rotation.x=-Math.PI/2+Math.atan2(ay0-ay1,aw);g.add(am);
+  for(const dx of[-(TL-1)/2,(TL-1)/2]){rod([tx+dx,0,tz+TW/2+aw],[tx+dx,ay1,tz+TW/2+aw],.03,STL,null,6);rod([tx+dx,ay1,tz+TW/2+aw],[tx+dx,ay0,tz+TW/2+.02],.02,STL,null,5)}
+  /* under it: a table, two chairs, a tool chest, a tyre stack */B(1.6,.05,.8,tx-2,.74,tz+TW/2+2,WH);for(const[a,b]of[[-.7,-.3],[.7,-.3],[-.7,.3],[.7,.3]])C(.02,.02,.72,tx-2+a,.36,tz+TW/2+2+b,STL,null,null,6);for(const dx of[-2.7,-1.3]){B(.42,.04,.42,tx+dx,.45,tz+TW/2+2.75,M(0x2a2c30));B(.42,.42,.04,tx+dx,.66,tz+TW/2+2.96,M(0x2a2c30));for(const[a,b]of[[-.18,-.18],[.18,-.18],[-.18,.18],[.18,.18]])C(.015,.015,.45,tx+dx+a,.22,tz+TW/2+2.75+b,STL,null,null,5)}
+  B(1,1,.55,tx+2.5,.5,tz+TW/2+.6,M(0xc42828,{roughness:.45,metalness:.2}));for(let n=0;n<4;n++)C(.33,.33,.26,tx+4.5,.13+n*.26,tz+TW/2+1.2,tyreM,null,null,14);
+  obs.push({x0:tx-TL/2,x1:tx+TL/2,z0:tz-TW/2,z1:tz+TW/2})});
+ /* the skid pad: a round concrete pad with doughnut marks, cones round it */{const px=360,pz=cz,R=9;const t=afCanvas(512,512,(c,w,h)=>{afTarmac(c,w,h,'#9c9a96',41);c.strokeStyle='rgba(20,20,20,.35)';for(let i=0;i<14;i++){c.lineWidth=6+Math.random()*8;c.beginPath();c.arc(w/2+(Math.random()-.5)*60,h/2+(Math.random()-.5)*60,90+Math.random()*120,0,7);c.stroke()}});
+  const m=new THREE.Mesh(new THREE.CircleGeometry(R,48),new THREE.MeshStandardMaterial({map:t,roughness:.9,polygonOffset:true,polygonOffsetUnits:-1}));m.rotation.x=-Math.PI/2;m.position.set(px,.04,pz);g.add(m);
+  for(let i=0;i<12;i++){const a=i/12*Math.PI*2,x=px+Math.cos(a)*(R+.6),z=pz+Math.sin(a)*(R+.6);C(.02,.16,.42,x,.21,z,M(0xff6a10,{roughness:.6}),null,null,10);C(.06,.06,.06,x,.3,z,WH,null,null,10);B(.34,.03,.34,x,.015,z,M(0xff6a10))}
+  L('SKID PAD\nDOUGHNUTS ONLY',2,.8,'#1a1a1a','#ffffff',50,px,1.6,pz+R+1.6,0);for(const dx of[-.8,.8])C(.04,.04,1.5,px+dx,.75,pz+R+1.62,STL,null,null,6)}
+ /* the scoreboard: a big board on two lattice legs, facing the grandstand (north) */let score;{const sx=300,sz=-1810,W=16,H=5,Y=6;for(const dx of[-6,6]){const lx=sx+dx;for(const[a,b]of[[-.3,-.3],[.3,-.3],[-.3,.3],[.3,.3]])rod([lx+a,0,sz+b],[lx+a,Y,sz+b],.04,STL,null,6);for(let y=.4;y+1<=Y;y+=1)for(const[a0,b0,a1,b1]of[[-.3,-.3,.3,-.3],[.3,-.3,.3,.3],[.3,.3,-.3,.3],[-.3,.3,-.3,-.3]])rod([lx+a0,y,sz+b0],[lx+a1,y+1,sz+b1],.015,STL,null,4);B(.9,.12,.9,lx,.06,sz,M(0xa8a49c));obs.push({x0:lx-.45,x1:lx+.45,z0:sz-.45,z1:sz+.45})}
+  B(W+.4,H+.4,.5,sx,Y+H/2,sz,DK);score=new THREE.Mesh(new THREE.PlaneGeometry(W,H),new THREE.MeshBasicMaterial({map:spScoreDraw(0,0)}));score.position.set(sx,Y+H/2,sz+.26);g.add(score);score.userData.dpKeep=1}
+ /* portaloos */for(let i=0;i<4;i++){const px=226+i*1.6,pz=-1842;B(1.3,2.3,1.3,px,1.15,pz,M(0x2a6ac8,{roughness:.6}));B(1.36,.12,1.36,px,2.36,pz,M(0xe8ecf0));B(.9,1.9,.03,px,1.05,pz+.665,M(0x1a4a98));B(.12,.08,.02,px+.3,1.1,pz+.69,M(0x20c040,{emissive:0x10a030,emissiveIntensity:.5}))}obs.push({x0:225.3,x1:231.5,z0:-1842.65,z1:-1841.35});
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,score,scoreDraw:spScoreDraw}}
+
+function spFloods(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],STL=M(0x8a8e94,{metalness:.35,roughness:.5}),DK=M(0x2a2c30,{metalness:.3,roughness:.5});
+ const lamps=M(0xfff8e8,{emissive:0xfff0d0,emissiveIntensity:.3,roughness:.3});const{cx,cz}=SPW;
+ for(const[x,z]of[[185,-1878],[312,-1879],[415,-1878],[185,-1782],[415,-1782],[230,-1782]]){const H=22;C(.22,.4,H,x,H/2,z,STL,null,null,12);B(1.2,.4,1.2,x,.2,z,M(0xa8a49c));
+  /* ladder up one side */for(let y=.6;y<H-1;y+=.4)B(.4,.03,.03,x,y,z+.48,STL);for(const s of[-1,1])rod([x+s*.2,.5,z+.48],[x+s*.2,H-1,z+.48],.015,STL,null,4);
+  /* the head: a frame of 2 x 4 lamps, turned to face the track's centre */const hd=new THREE.Group();hd.position.set(x,H+.6,z);hd.lookAt(cx,H+.6-6,cz);g.add(hd);
+  const fr=new THREE.Mesh(new THREE.BoxGeometry(3.2,1.5,.12),DK);hd.add(fr);for(let a=0;a<4;a++)for(let b=0;b<2;b++){const lp=new THREE.Group();lp.position.set(-1.2+a*.8,-.38+b*.76,.18);hd.add(lp);const bx=new THREE.Mesh(new THREE.BoxGeometry(.6,.55,.3),DK);lp.add(bx);const gl=new THREE.Mesh(new THREE.PlaneGeometry(.5,.45),lamps);gl.position.z=.152;lp.add(gl)}
+  const rail=new THREE.Mesh(new THREE.BoxGeometry(3.4,.05,.6),STL);rail.position.set(0,-.95,-.15);hd.add(rail);
+  obs.push({x0:x-.6,x1:x+.6,z0:z-.6,z1:z+.6})}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,lamps}}
