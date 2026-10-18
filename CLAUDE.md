@@ -167,7 +167,7 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 6. Current state
 
-- **Live: r622** (2026-10-17; r622 = Old Quarry outer wall tops 2 cm under the ground (dx581), they flickered with the desert floor along the rim; r621 = Dark Zone 51 entrance sign turned to face the road, build.py patch). r620 (2026-10-17). r620 = Goblino's Scrap rework (`scrap-yard.md`) + police helicopter (`cars.md` part 13), both in `dx616`
+- **Live: r623** (2026-10-18; r623 = the airfield and Dark Zone 51 rework, batches 1-4 (`airfield-zone51.md`, `dx617`: xpAirfield and xpDarkZone redefined, `AFX`, `ZFA`, new abduction `zfAbdTick` called from the base's q.abd block via build.py, plane stand (345,-1257)); r622 = r622 = Old Quarry outer wall tops 2 cm under the ground (dx581), they flickered with the desert floor along the rim; r621 = Dark Zone 51 entrance sign turned to face the road, build.py patch). r620 (2026-10-17). r620 = Goblino's Scrap rework (`scrap-yard.md`) + police helicopter (`cars.md` part 13), both in `dx616`
   (xpScrap/xpCrusher/crushTick/crushOK/crushStart redefined, `crushPay`, `SYR`, `syTheft` monster truck theft; `mkPoliceHeli` swapped in by
   build.py). Also the real cause of "Fort roads cull up close": `road()` only records into `q.xroads`, and `xpRoadsBuild` later lays the old
   textured strip (y .06, factor -8) plus junction patches; Fort roads are flagged `fb` in `milRoads` and skipped (build.py r620 patches).
@@ -249,6 +249,9 @@ Use `--use-gl=swiftshader` **only**. Adding `--enable-webgl --ignore-gpu-blockli
 
 ## 7. Pending requests from the user (not done yet)
 
+**Optimisation is on hold (user, 2026-10-18):** the user will send a new "master prompt" (maybe as a text file) once the
+current design work is done. Don't start optimisation work, even if the design chat asks for it, until that arrives.
+
 The user asked the remaining performance work to:
 - cull distant and off-screen objects;
 - pause inactive areas only if that won't break timers, enemies, physics or other game logic;
@@ -325,6 +328,7 @@ They said no three.js upgrade is needed if the game runs fine. Don't start one w
 | Fort Blackout rework: kit models, roads, annex, west strip, plaza, motor pool move | dx614 (+ build.py r616 block) |
 | Old Quarry rework models, route-grid extra links, mesa road fill | dx615 (wiring in dx581/587/589/591) |
 | Goblino's Scrap rework (yard, crusher, ingot pay, monster truck theft), police helicopter | dx616 |
+| Airfield and Dark Zone 51 rework, new abduction ride | dx617 |
 | Quarry, mine core, smeltery, excavator, drill rig, headframe, cage | dx581 |
 | Mine biomes, parkour, magma | dx588 |
 | Quarry tycoon | dx587, dx589 |

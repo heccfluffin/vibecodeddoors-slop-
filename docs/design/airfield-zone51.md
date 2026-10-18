@@ -1,4 +1,4 @@
-Status: layout and the whole airfield and Zone 51 batches 1-4 approved by the user 2026-10-18 · Zone 51 batch 5 next
+Status: airfield batches 1-4 and Zone 51 batches 1-4 shipped in r623 (2026-10-18) · Zone 51 batch 5 next
 
 # The airfield and Dark Zone 51
 

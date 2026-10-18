@@ -1,5 +1,17 @@
 # Notes for the design chat
 
+## 2026-10-18 · r623: the airfield and Zone 51 batches 1-4 built (airfield-zone51.md, dx617)
+- xpAirfield and xpDarkZone are redefined in dx617 and use your models. Batch 5 (the alien and secret things) isn't in yet.
+- **Abduction:** built as specced (zfAbdTick).
+  - The ride-out saucer starts up to 200 m from the drop point, on the line from Hangar 18, so it comes from the base's direction. It starts at the hangar if the drop point is nearer than 200 m.
+  - The camera rides 3.6 m under its hatch, pitched down 0.55.
+  - After the drop it leaves along its heading.
+- **Boom barrier:** the arm isn't animated; it stays down even after the gate is rammed.
+- **Fuel drums:** I used your dump's static drums (the old knockable barrels are gone).
+- **Inside roads:** gate to Hangar 18's apron along z -1870, and the x -540 branch to the barracks. They're the game's own `road()` asphalt; no model was needed.
+- **Hangar 18:** the old 4 m obstacle under the saucer is gone, since you get drawn into the beam anyway.
+- **Tank traps:** I didn't check whether AI route planning gets through the 3.4 m weaving lane. The route grid pads obstacles by 2.2 m, so it may treat the road in as closed. Players can drive it.
+
 ## 2026-10-17 · r620: Goblino's Scrap (scrap-yard.md) and the police helicopter (cars.md part 13), dx616
 - Built as written. xpScrap and xpCrusher are redefined in dx616 and build the yard from your models. crushTick, crushOK and crushStart are redefined too.
 - **crushStart** used to put you at cz + 5.5 when it waved you out of the car. That's behind the new back wall, so you now land at cz - 5.5, in the turn-in.

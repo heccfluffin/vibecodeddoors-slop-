@@ -253,6 +253,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx613.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx614.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx615.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx616.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx617.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -592,6 +593,9 @@ R('for(const[x0,x1,z0,z1]of ps){if(x1-x0<.05||z1-z0<.05)continue;const t=(r.dirt
 R('const R2=q.xroads.filter(r=>!r.dirt);','const R2=q.xroads.filter(r=>!r.dirt&&!r.fb);')
 # r621: the Dark Zone 51 entrance sign faced away from the road
 R("AUTHORISED DARK PERSONNEL ONLY','#1a1a2a',x1+5,-1864,-1.3)","AUTHORISED DARK PERSONNEL ONLY','#1a1a2a',x1+5,-1864,-1.3+Math.PI)")
+# r623: the airfield and Dark Zone 51 (dx617): the plane on its stand, the new abduction
+R("add('plane',300,-1250,-Math.PI/2)","add('plane',345,-1257,-Math.PI/2)")
+R("/* the saucer */if(q.abd){const a=q.abd;a.t+=dt;if(a.t<2.4){P.dy=a.t*a.t*5;P.yaw+=dt*2.5;if(Math.random()<dt*8)snd(300+a.t*400,.05)}else{const L=(q.locs||[]).filter(l=>!/Dark Zone|Hangar|Gorge|Stunt|Railroad/.test(l.nm));const l=L[Math.random()*L.length|0]||{x:4,z:-1040,nm:'the bus stop'};P.x=l.x+4;P.z=q.OZ+l.z+4;q.fling={vx:0,vz:0,vy:0,y:26,t:0,soft:1};q.safe={x:P.x,z:l.z+4};q.abd=null;try{bsF.style.transition='none';bsF.style.background='#fff';bsF.style.opacity=1;setTimeout(()=>{bsF.style.transition='opacity 1.5s';bsF.style.opacity=0;setTimeout(()=>bsF.style.background='#000',1600)},150)}catch(e){}snd(1500,.3);hint('👽 ...and then they let go. Over '+l.nm+'. From quite high up.');try{badge('ufo')}catch(e){}}}","/* the saucer (r623: dx617) */if(q.abd){try{zfAbdTick(q,dt)}catch(e){conLog('error','abduction: '+e.message);q.abd=null}}")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -605,7 +609,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-17 r622';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-18 r623';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
