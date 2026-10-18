@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batch 1 (outside) and batch 2 (front rooms) approved · batch 3 (cells) next
+Status: layout approved 2026-10-18 · batches 1-3 approved (outside, front rooms, cells) · batch 4 (courtroom) next
 
 # The Desert PD rework (remodel list #22)
 
