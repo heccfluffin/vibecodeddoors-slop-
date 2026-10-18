@@ -22,19 +22,24 @@ function zfFence(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],{x0,x1,z0,z1
  const link=afCanvas(64,64,(x,w,h)=>{x.clearRect(0,0,w,h);x.strokeStyle='rgba(205,210,215,.95)';x.lineWidth=1.6;for(let i=-64;i<128;i+=8){x.beginPath();x.moveTo(i,0);x.lineTo(i+64,64);x.stroke();x.beginPath();x.moveTo(i+64,0);x.lineTo(i,64);x.stroke()}});link.wrapS=link.wrapT=THREE.RepeatWrapping;
  const posts=[],arms=[],wire=M(0x9a9ea4,{metalness:.6,roughness:.35});
  /* one straight run from a to b (along x or z), its outward side is `out` (+1/-1 on the other axis) */
- const run=(ax,az,bx,bz,out)=>{const L2=Math.hypot(bx-ax,bz-az),alongX=Math.abs(bx-ax)>.01;const t=link.clone();t.needsUpdate=true;t.repeat.set(L2/2,H/2);
-  const m=new THREE.Mesh(new THREE.PlaneGeometry(L2,H-.15),new THREE.MeshBasicMaterial({map:t,transparent:true,side:THREE.DoubleSide,depthWrite:false,alphaTest:.2}));m.position.set((ax+bx)/2,(H-.15)/2+.08,(az+bz)/2);m.rotation.y=alongX?0:Math.PI/2;g.add(m);
+ const panel=(ax,az,bx,bz,y0,y1)=>{const L2=Math.hypot(bx-ax,bz-az),alongX=Math.abs(bx-ax)>.01;const t=link.clone();t.needsUpdate=true;t.repeat.set(L2/2,(y1-y0)/2);const m=new THREE.Mesh(new THREE.PlaneGeometry(L2,y1-y0),new THREE.MeshBasicMaterial({map:t,transparent:true,side:THREE.DoubleSide,depthWrite:false,alphaTest:.2}));m.position.set((ax+bx)/2,(y0+y1)/2,(az+bz)/2);m.rotation.y=alongX?0:Math.PI/2;g.add(m)};
+ const run=(ax,az,bx,bz,out,hole)=>{const L2=Math.hypot(bx-ax,bz-az),alongX=Math.abs(bx-ax)>.01;
+  if(!hole)panel(ax,az,bx,bz,.08,H-.07);else{/* along z only: mesh either side of the hole, and over it */panel(ax,az,ax,hole[0],.08,H-.07);panel(ax,hole[1],bx,bz,.08,H-.07);panel(ax,hole[0],ax,hole[1],hole[2],H-.07)}
   const n=Math.max(1,Math.round(L2/3));for(let i=0;i<=n;i++){const px=ax+(bx-ax)*i/n,pz=az+(bz-az)*i/n;B(.18,H,.18,px,H/2,pz,CON);
    /* the outward-leaning arm on top */const ox=alongX?0:out*.55,oz=alongX?out*.55:0;rod([px,H-.05,pz],[px+ox,H+.5,pz+oz],.03,STL)}
   /* top rail, bottom tension wire, three barbed strands on the arms, the razor coil along them */
   rod([ax,H-.1,az],[bx,H-.1,bz],.035,STL);rod([ax,.12,az],[bx,.12,bz],.012,wire);
   for(const f of[.35,.7,1]){const ox=alongX?0:out*.55*f,oz=alongX?out*.55*f:0;rod([ax+ox,H-.05+.55*f,az+oz],[bx+ox,H-.05+.55*f,bz+oz],.008,wire)}
   {const ox=alongX?0:out*.3,oz=alongX?out*.3:0,cx=(ax+bx)/2+ox,cz=(az+bz)/2+oz,turns=Math.round(L2/.35),pts=[];for(let i=0;i<=turns*8;i++){const u=i/(turns*8),a=u*turns*Math.PI*2,r=.26;const along=-L2/2+u*L2;const lx=alongX?along:Math.sin(a)*r,lz=alongX?Math.sin(a)*r:along;pts.push(new THREE.Vector3(cx+lx,H+.35+Math.cos(a)*r,cz+lz))}const tb=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),turns*8,.01,3),wire);g.add(tb)}
-  obs.push({x0:Math.min(ax,bx)-.15,x1:Math.max(ax,bx)+.15,z0:Math.min(az,bz)-.15,z1:Math.max(az,bz)+.15})};
- run(x0,z0,x1,z0,-1);run(x0,z1,x1,z1,1);run(x0,z0,x0,DZB.hz0,-1);run(x0,DZB.hz1,x0,z1,-1);run(x1,z0,x1,DZB.gz0-.6,1);run(x1,DZB.gz1+.6,x1,z1,1);
- /* the Screech hole: the chain-link cut and peeled back either side, the "psst" note */
- {const x=x0,zc=(DZB.hz0+DZB.hz1)/2;for(const s of[-1,1]){const t=link.clone();t.needsUpdate=true;t.repeat.set(.5,.6);const fl=new THREE.Mesh(new THREE.PlaneGeometry(1,1.2),new THREE.MeshBasicMaterial({map:t,transparent:true,side:THREE.DoubleSide,depthWrite:false,alphaTest:.2}));fl.position.set(x-.35,.6,zc+s*.9);fl.rotation.y=Math.PI/2+s*.9;g.add(fl)}
-  /* the note is tied to the chain-link just north of the hole */B(.03,.5,1,x-.06,1.2,-1799.25,M(0x1a1a1a));for(const dz of[-.4,.4])rod([x-.04,1.47,-1799.25+dz],[x,1.6,-1799.25+dz],.006,wire);const n=k.lab('psst. this way.\n– S',1,.5,'#1a1a1a','#f0f0f0',50);n.position.set(x-.08,1.2,-1799.25);n.rotation.y=-Math.PI/2;g.add(n)}
+  if(!hole)obs.push({x0:Math.min(ax,bx)-.15,x1:Math.max(ax,bx)+.15,z0:Math.min(az,bz)-.15,z1:Math.max(az,bz)+.15});else obs.push({x0:ax-.15,x1:ax+.15,z0:az,z1:hole[0]},{x0:ax-.15,x1:ax+.15,z0:hole[1],z1:bz})};
+ run(x0,z0,x1,z0,-1);run(x0,z1,x1,z1,1);run(x0,z0,x0,z1,-1,[DZB.hz0,DZB.hz1,1.45]);/* the west side runs unbroken; only the mesh has the hole */run(x1,z0,x1,DZB.gz0-.6,1);run(x1,DZB.gz1+.6,x1,z1,1);
+  /* the Screech hole: a low hole cut in the mesh (1.2 wide, 1.45 high), its flap bent outward and up from the top edge,
+    cut wire ends round the edge, the "psst" note tied on beside it */
+ {const x=x0,za=DZB.hz0,zb=DZB.hz1,zc=(za+zb)/2,HH=1.45,t=link.clone();t.needsUpdate=true;t.repeat.set(.6,.7);
+  const fg=new THREE.PlaneGeometry(1.2,HH,1,8);{const p=fg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i),u=(HH/2-y)/HH,ang=u*1.5;p.setXYZ(i,p.getX(i),HH/2-Math.sin(ang)*HH*.75,(1-Math.cos(ang))*HH*.75)}fg.computeVertexNormals()}
+  const fl=new THREE.Mesh(fg,new THREE.MeshBasicMaterial({map:t,transparent:true,side:THREE.DoubleSide,depthWrite:false,alphaTest:.2}));fl.rotation.y=-Math.PI/2;fl.position.set(x,HH/2,zc);g.add(fl);
+  for(let i=0;i<9;i++){const z=za+.05+i*.137;rod([x,.1,z],[x-.04,.16,z+.04],.006,wire)}for(let i=0;i<9;i++){const y=.2+i*.135;for(const zz of[za+.02,zb-.02])rod([x,y,zz],[x-.04,y+.05,zz+(zz<zc?.05:-.05)],.006,wire)}
+  B(.03,.5,1,x-.06,1.2,-1798.7,M(0x1a1a1a));for(const dz of[-.4,.4])rod([x-.04,1.47,-1798.7+dz],[x,1.6,-1798.7+dz],.006,wire);const n=k.lab('psst. this way.\n– S',1,.5,'#1a1a1a','#f0f0f0',50);n.position.set(x-.08,1.2,-1798.7);n.rotation.y=-Math.PI/2;g.add(n)}
  /* warning signs every 30 m, on the outside face */const SG=['RESTRICTED AREA\nDARK ZONE 51','NO TRESPASSING\nTRESPASSERS WILL BE SEEKED','USE OF DARK FORCE\nAUTHORISED','TURN AROUND\n(THIS MEANS YOU, HALT)','PHOTOGRAPHY\nPROHIBITED','KEEP OUT\nNOTHING TO SEE HERE'];let si=0;
  const sign=(x,z,ry)=>{const sg=new THREE.Group();sg.position.set(x,1.7,z);sg.rotation.y=ry;g.add(sg);const bd=new THREE.Mesh(new THREE.BoxGeometry(1.4,.9,.03),M(0xf0ece4));sg.add(bd);const l=k.lab(SG[si++%SG.length],1.3,.8,'#ffffff','#c01818',40);l.position.z=.02;sg.add(l);const bar=new THREE.Mesh(new THREE.BoxGeometry(1.4,.16,.035),M(0xc01818));bar.position.y=.37;sg.add(bar)};
  for(let x=x0+15;x<x1;x+=30){sign(x,z0-.1,Math.PI);sign(x,z1+.1,0)}for(let z=z0+15;z<z1;z+=30){if(Math.abs(z-(-1800.6))>4)sign(x0-.1,z,-Math.PI/2);if(z<DZB.gz0-3||z>DZB.gz1+3)sign(x1+.1,z,Math.PI/2)}
