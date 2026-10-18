@@ -205,7 +205,7 @@ function zfVisitor(){const k=zfKit(),M=k.M,g=new THREE.Group();const SKIN=M(0x9a
  /* a little badge on the suit */const bd=k.lab('VISITOR',.12,.04,'#f0e8c0','#1a1a1a',60);bd.position.set(.07,.82,.135);g.add(bd);
  g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
 
-function zfBarracks(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],z0=-1806.5,z1=-1797.5,zc=(z0+z1)/2,STL=M(0x5a6a4a,{metalness:.3,roughness:.5}),WD=k.BOARD,BL=M(0x4a5a3a,{roughness:1});
+function zfBarracks(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],z0=-1806.5,z1=-1797.5,zc=(z0+z1)/2,STL=M(0x5a6a4a,{metalness:.3,roughness:.5}),WD=M(0x8a6a48,{roughness:.8}),BL=M(0x4a5a3a,{roughness:1});/* the kit has no board material here, so plain wood */
  const A=zfHut(g,-581,-559,z0,z1,'BARRACKS D','#6a7258'),Bm=zfHut(g,-555,-544,z0,z1,'MESS HALL (DARK MEALS)','#727a62');obs.push(...A.obs,...Bm.obs);
  /* inside the barracks: bunks along the back, a locker row, a flag; floor */{const t=afCanvas(128,128,(x,w,h)=>{afTarmac(x,w,h,'#8a8478',81)});t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(4,2);afPlane(g,-581,-559,z0+.1,z1-.1,.31,t,-2)}
  for(let i=0;i<5;i++){const x=-578+i*4.2,z=z0+1.4;for(const y of[.6,1.6]){B(2,.12,.9,x,y,z,BL);B(2,.08,.9,x,y+.1,z,M(0xd8d0b8,{roughness:1}));B(.4,.1,.6,x-.75,y+.18,z,M(0xf0ece4))}for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]])B(.05,1.9,.05,x+a*.98,.95+.3,z+b*.42,STL)}
@@ -213,7 +213,7 @@ function zfBarracks(g){const k=zfKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],z0=-1806.
  /* inside the mess hall: a serving counter, two long tables with benches, the visitor at the far end of one */{const t=afCanvas(128,128,(x,w,h)=>{x.fillStyle='#d8d0c0';x.fillRect(0,0,w,h);x.fillStyle='#b8a888';for(let i=0;i<8;i++)for(let j=0;j<8;j++)if((i+j)%2)x.fillRect(i*16,j*16,16,16)});t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(3,2);afPlane(g,-555,-544,z0+.1,z1-.1,.31,t,-2)}
  B(4,1.0,.7,-549.5,.8,z0+1.0,M(0xb8bcc0,{metalness:.3}));B(4.1,.05,.8,-549.5,1.32,z0+1.0,M(0x9a9ea4,{metalness:.4}));for(let i=0;i<4;i++){B(.6,.12,.4,-551+i*1,1.4,z0+1.0,M(0x8a8e94,{metalness:.4}))}
  let visitor;for(const tz of[zc-.2,zc+1.8]){const tx=-551;B(4,.06,.9,tx,1.05,tz,WD);for(const e of[-1.8,1.8])B(.08,.72,.8,tx+e,.66,tz,M(0x3a3e42));for(const s of[-1,1]){B(4,.06,.3,tx,.72,tz+s*.7,WD);for(const e of[-1.8,1.8])B(.06,.42,.06,tx+e,.51,tz+s*.7,M(0x3a3e42))}obs.push({x0:tx-2,x1:tx+2,z0:tz-.9,z1:tz+.9})}
- {visitor=zfVisitor();visitor.position.set(-549.6,.31+.29,zc+1.8+.72);visitor.rotation.y=Math.PI;g.add(visitor);/* his tray: a jelly in a bowl, a cup */B(.4,.03,.3,-549.6,1.1,zc+1.8+.1,M(0x7a8a9a));C(.08,.06,.06,-549.5,1.14,zc+1.8+.1,M(0x60ffb0,{emissive:0x208050,transparent:true,opacity:.85}),null,null,12);C(.05,.04,.1,-549.75,1.16,zc+1.8+.05,M(0xf0ece4),null,null,10)}
+ {visitor=zfVisitor();visitor.position.set(-549.6,.35,zc+1.8+.72);/* his thighs rest on the bench top (.75) */visitor.rotation.y=Math.PI;g.add(visitor);/* his tray: a jelly in a bowl, a cup */B(.4,.03,.3,-549.6,1.1,zc+1.8+.1,M(0x7a8a9a));C(.08,.06,.06,-549.5,1.14,zc+1.8+.1,M(0x60ffb0,{emissive:0x208050,transparent:true,opacity:.85}),null,null,12);C(.05,.04,.1,-549.75,1.16,zc+1.8+.05,M(0xf0ece4),null,null,10)}
  L('TODAY: MYSTERY MEAT\n(WE GENUINELY DO NOT KNOW)',2.6,.6,'#1a1a1e','#f0e0a0',44,-549.5,2.6,z0+.6,0);
  g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,visitor}}
 
