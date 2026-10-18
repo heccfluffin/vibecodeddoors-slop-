@@ -213,11 +213,11 @@ const pyCx=i=>PYRV.X-25.6+3.2*i,pyCz=j=>PYRV.Z-25.6+3.2*j;
 const pyIsF=(()=>{const s=new Set();for(const[a,b,c,d]of PYF)for(let i=a;i<=b;i++)for(let j=c;j<=d;j++)s.add(i+','+j);return(i,j)=>s.has(i+','+j)})();
 /* which part of the floor a cell is in (later batches add their own walls on top of this) */
 /* the wall faces with a torch on them: [i, j, di, dj] (the game's eight spots and the two in the hall) */
-const PYTF=[[8,7,-1,0],[8,9,-1,0],[11,6,1,0],[6,2,0,-1],[7,14,0,1],[1,8,-1,0],[1,14,-1,0],[1,2,-1,0],[12,8,0,-1],[14,8,0,1]];
-const pyZone=(i,j)=>i>=12&&j==8?'hall':i>=8&&i<=11&&j>=6&&j<=10?'ante':i>=1&&i<=4&&j>=6&&j<=10?'treasure':j==2&&i>=3?'darts':j==14&&i>=3?'blades':'other';
+const PYTF=[[8,7,-1,0],[8,9,-1,0],[11,6,1,0],[6,2,0,-1],[7,14,0,1,.8],[1,8,-1,0],[1,14,-1,0],[1,2,-1,0],[12,8,0,-1],[14,8,0,1]];/* 5th: the torch sits that far right of the panel's middle (seen from the room) */
+const pyZone=(i,j)=>i>=1&&i<=2&&j>=1&&j<=3?'clueN':i>=1&&i<=2&&j>=13&&j<=15?'clueS':i>=12&&j==8?'hall':i>=8&&i<=11&&j>=6&&j<=10?'ante':i>=1&&i<=4&&j>=6&&j<=10?'treasure':j==2&&i>=3?'darts':j==14&&i>=3?'blades':'other';
 
 /* one painted wall panel, 3.2 m wide by WH high (512 x 624 px, 160 px per metre). kind: plain, glyph, walk, boat, eye, offer */
-function pyWallTex(kind,seed){const k=pyKit();const key='w'+kind+(seed|0);if(k[key])return k[key];let sd=(seed|0)*977+13;const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+function pyWallTex(kind,seed,op){op=op||{};const k=pyKit();const key='w'+kind+(seed|0)+JSON.stringify(op);if(k[key])return k[key];let sd=(seed|0)*977+13;const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
  const t=k.can(512,624,(x,w,h)=>{const Y=m=>h-m*160;/* metres up the wall to px */
   x.fillStyle=kind=='plain'?'#d2b98a':'#e2d0a6';x.fillRect(0,0,w,h);for(let i=0;i<9000;i++){x.fillStyle=R()<.5?'rgba(90,60,30,'+R()*.07+')':'rgba(255,248,230,'+R()*.08+')';x.fillRect(R()*w,R()*h,1+R()*3,1+R()*2)}
   /* stone courses (0.65 m) and joints every 0.8 m, staggered; faint under the plaster of the painted walls */
@@ -243,7 +243,20 @@ function pyWallTex(kind,seed){const k=pyKit();const key='w'+kind+(seed|0);if(k[k
    x.strokeStyle='#7a3a14';for(let r=0;r<4;r++){pyGlyph(x,r%6,46,top+40+r*70,18);pyGlyph(x,(r+3)%6,466,top+40+r*70,18)}}
   if(kind=='torch'){/* a wall with a torch on it: carvings at the sides, the middle left clear, soot above the flame */for(const u of[40,110,402,472]){x.strokeStyle=u<256?'#7a3a14':'#1e4a9a';for(let r=0;r<6;r++)pyGlyph(x,(u+r*5)%6,u,top+34+r*58,20)}
    x.strokeStyle='rgba(40,30,20,.6)';x.lineWidth=2;for(const u of[150,362]){x.beginPath();x.moveTo(u,top);x.lineTo(u,bot);x.stroke()}
-   const sy=Y(2.5),gr=x.createRadialGradient(256,sy-40,4,256,sy-40,110);gr.addColorStop(0,'rgba(20,14,8,.55)');gr.addColorStop(1,'rgba(20,14,8,0)');x.fillStyle=gr;x.beginPath();x.ellipse(256,sy-50,70,130,0,0,7);x.fill()}
+   const su=256+(op.o||0)*160,sy=Y(2.5),gr=x.createRadialGradient(su,sy-40,4,su,sy-40,110);gr.addColorStop(0,'rgba(20,14,8,.55)');gr.addColorStop(1,'rgba(20,14,8,0)');x.fillStyle=gr;x.beginPath();x.ellipse(su,sy-50,70,130,0,0,7);x.fill()}
+  if(kind=='darts'){/* rows of dart holes at 0.8..2.0 m, warning signs above */for(let r=0;r<5;r++)for(let c=0;c<13;c++){const u=16+c*40+(r%2)*20,y=Y(.8+r*.3);x.fillStyle='rgba(60,40,20,.5)';x.beginPath();x.arc(u+1,y+1,9,0,7);x.fill();x.fillStyle='#0c0806';x.beginPath();x.arc(u,y,6,0,7);x.fill()}
+   x.strokeStyle='#b03020';[1,0,1,0].forEach((t2,i)=>pyGlyph(x,t2,96+i*106,top+34,20))}
+  if(kind=='scribe'){/* a scribe sitting cross-legged with a papyrus on his knees (nobody in particular) */const cx=256,g0=bot-6;x.fillStyle='#a0582c';x.beginPath();x.ellipse(cx,g0-40,90,40,0,Math.PI,0);x.fill();x.fillStyle='#f2ecdc';x.beginPath();x.ellipse(cx,g0-44,84,30,0,Math.PI,0);x.fill();
+   x.fillStyle='#a0582c';x.beginPath();x.moveTo(cx-40,g0-60);x.lineTo(cx-46,g0-170);x.lineTo(cx+40,g0-170);x.lineTo(cx+34,g0-60);x.fill();x.beginPath();x.ellipse(cx,g0-200,24,28,0,0,7);x.fill();x.fillStyle='#14100c';x.beginPath();x.ellipse(cx,g0-212,28,22,0,Math.PI,0);x.fill();x.fillRect(cx-28,g0-212,10,30);x.fillRect(cx+18,g0-212,10,30);
+   x.fillStyle='#ecdcac';x.fillRect(cx-60,g0-82,120,16);x.strokeStyle='#a0582c';x.lineWidth=10;x.lineCap='round';x.beginPath();x.moveTo(cx-38,g0-150);x.lineTo(cx-56,g0-90);x.moveTo(cx+38,g0-150);x.lineTo(cx+50,g0-92);x.stroke();
+   x.strokeStyle='#1e4a9a';for(let r=0;r<5;r++){pyGlyph(x,(r+2)%6,60,top+36+r*62,20);pyGlyph(x,(r+5)%6,452,top+36+r*62,20)}}
+  if(kind=='scarab'){/* a big scarab rolling the sun */const cx=256,cy=(top+bot)/2+20;x.fillStyle='#e8b830';x.beginPath();x.arc(cx,cy-120,50,0,7);x.fill();x.strokeStyle='#8a5a10';x.lineWidth=5;x.stroke();
+   x.fillStyle='#1e4a9a';x.beginPath();x.ellipse(cx,cy+20,62,80,0,0,7);x.fill();x.fillStyle='#2a6ab0';x.beginPath();x.ellipse(cx,cy-60,40,24,0,0,7);x.fill();x.strokeStyle='#0c1a3a';x.lineWidth=4;x.beginPath();x.moveTo(cx,cy-40);x.lineTo(cx,cy+100);x.stroke();
+   x.strokeStyle='#1e4a9a';x.lineWidth=8;for(const s of[-1,1]){x.beginPath();x.moveTo(cx+s*50,cy-50);x.lineTo(cx+s*80,cy-90);x.moveTo(cx+s*60,cy+10);x.lineTo(cx+s*100,cy);x.moveTo(cx+s*55,cy+60);x.lineTo(cx+s*95,cy+100);x.stroke()}
+   x.strokeStyle='#7a3a14';for(let r=0;r<5;r++){pyGlyph(x,(r+5)%6,60,top+36+r*62,20);pyGlyph(x,r%6,452,top+36+r*62,20)}}
+  if(kind=='blades'){x.lineWidth=2;for(const c of[0,1,5,6]){const u=36+c*68;x.strokeStyle=c%2?'#1e4a9a':'#7a3a14';for(let r=0;r<6;r++)pyGlyph(x,(c*3+r*5)%6,u,top+34+r*58,22)}}
+  if(op.slit){/* the slot the swinging blade passes through, at the middle of the panel, 1.0..2.1 m up */x.fillStyle='rgba(30,20,10,.5)';x.fillRect(250,Y(2.15),14,1.2*160);x.fillStyle='#050302';x.fillRect(252,Y(2.1),9,1.1*160);
+   x.strokeStyle='#b03020';x.lineWidth=4;x.beginPath();x.moveTo(200,Y(2.4));x.lineTo(312,Y(2.4));x.stroke()}
   if(kind=='offer'){/* an offering table piled with bread, jars and lotus flowers */const ty=bot-120;x.fillStyle='#7a4a24';x.fillRect(200,ty,112,12);x.fillRect(250,ty,12,120);x.fillRect(220,bot-8,72,8);
    x.fillStyle='#d8a050';for(let i=0;i<4;i++){x.beginPath();x.ellipse(214+i*28,ty-16,12,16,0,0,7);x.fill()}x.fillStyle='#b03020';x.beginPath();x.ellipse(232,ty-50,14,20,0,0,7);x.fill();x.fillStyle='#2a7a8a';x.beginPath();x.ellipse(282,ty-50,14,20,0,0,7);x.fill();
    for(const s of[-1,1]){x.strokeStyle='#2a7a4a';x.lineWidth=4;x.beginPath();x.moveTo(256+s*20,ty-60);x.quadraticCurveTo(256+s*50,ty-120,256+s*70,ty-150);x.stroke();x.fillStyle='#4a8ab0';x.beginPath();x.moveTo(256+s*70,ty-150);x.lineTo(256+s*56,ty-180);x.lineTo(256+s*70,ty-170);x.lineTo(256+s*84,ty-180);x.fill()}
@@ -259,9 +272,10 @@ function pyFloorMat(){const k=pyKit();if(k.flr)return k.flr;const t=k.can(256,25
  for(let i=0;i<8;i++){x.strokeStyle='rgba(60,42,20,.25)';x.lineWidth=1;x.beginPath();let px=Math.random()*w,py=Math.random()*h;x.moveTo(px,py);for(let s=0;s<4;s++){px+=(Math.random()-.5)*30;py+=(Math.random()-.5)*30;x.lineTo(px,py)}x.stroke()}},1);
  return k.flr=new THREE.MeshStandardMaterial({map:t,roughness:.95})}
 
-function pyFloorplan(g){const k=pyKit(),{X,Z,WH}=PYRV,C=3.2,XC=X+22,ceil=new THREE.Group(),faces=[];g.add(ceil);const mats={};const WM=(kind,sd)=>{const key=kind+sd;return mats[key]||(mats[key]=new THREE.MeshStandardMaterial({map:pyWallTex(kind,sd),roughness:.88}))};
+function pyFloorplan(g){const k=pyKit(),{X,Z,WH}=PYRV,C=3.2,XC=X+22,ceil=new THREE.Group(),faces=[];g.add(ceil);const mats={};const WM=(kind,sd,op)=>{const key=kind+sd+JSON.stringify(op||{});return mats[key]||(mats[key]=new THREE.MeshStandardMaterial({map:pyWallTex(kind,sd,op),roughness:.88}))};
  /* the kind of painting on each face: the hall alternates people and signs, the antechamber has a scene on each wall */
- const pick=(i,j,di,dj)=>{if(PYTF.some(t=>t[0]==i&&t[1]==j&&t[2]==di&&t[3]==dj))return 'torch';const z=pyZone(i,j);if(z=='hall')return(i+(dj>0?1:0))%2?'walk':'glyph';
+ const pick=(i,j,di,dj)=>{const z=pyZone(i,j),sl=z=='blades'&&i>=4&&i<=7&&dj!=0;const tf=PYTF.find(t=>t[0]==i&&t[1]==j&&t[2]==di&&t[3]==dj);if(tf)return['torch',{o:tf[4]||0,slit:sl}];
+  if(z=='darts'&&dj!=0&&i>=3&&i<=8)return 'darts';if(sl)return['blades',{slit:1}];if(z=='clueN')return(i+j)%2?'scribe':'glyph';if(z=='clueS')return(i+j)%2?'scarab':'glyph';if(z=='hall')return(i+(dj>0?1:0))%2?'walk':'glyph';
   if(z=='ante'){if(di<0)return j==6||j==10?'eye':'glyph';if(di>0)return 'glyph';return(i==8||i==11)?'offer':'boat'}
   if(z=='treasure')return(i+j)%2?'glyph':'offer';return(i+j)%3?'plain':'glyph'};
  for(let i=0;i<17;i++)for(let j=0;j<17;j++){if(!pyIsF(i,j))continue;const x=pyCx(i),z=pyCz(j);
@@ -269,7 +283,7 @@ function pyFloorplan(g){const k=pyKit(),{X,Z,WH}=PYRV,C=3.2,XC=X+22,ceil=new THR
    /* the face sits on the cell line and looks back into the cell; clipped at x = X+22 (the portal takes over) */let a0=-C/2,a1=C/2;const fx=x+di*C/2,fz=z+dj*C/2;
    if(dj!=0){if(x+a0>=XC)continue;if(x+a1>XC)a1=XC-x}else if(fx>XC)continue;const w=a1-a0;
    const geo=new THREE.PlaneGeometry(w,WH);const uv=geo.attributes.uv;for(let v=0;v<uv.count;v++)uv.setX(v,uv.getX(v)*w/C);
-   const m=new THREE.Mesh(geo,WM(pick(i,j,di,dj),(i*7+j*3)%4));const ry=di>0?-Math.PI/2:di<0?Math.PI/2:dj>0?Math.PI:0;m.rotation.y=ry;
+   const pk=pick(i,j,di,dj),m=new THREE.Mesh(geo,Array.isArray(pk)?WM(pk[0],(i*7+j*3)%4,pk[1]):WM(pk,(i*7+j*3)%4));const ry=di>0?-Math.PI/2:di<0?Math.PI/2:dj>0?Math.PI:0;m.rotation.y=ry;
    /* along the face, a0..a1 run left to right as seen from the cell */const mid=(a0+a1)/2;if(dj!=0)m.position.set(x+(dj>0?-mid:mid)*-1*(dj>0?1:-1)*-1,WH/2,fz);else m.position.set(fx,WH/2,z);if(dj!=0)m.position.x=x+mid;
    g.add(m);faces.push({m,i,j,di,dj})}
   /* the ceiling tile: stars in rooms and corridors alike; clipped like the walls */{let a0=-C/2,a1=C/2;if(x+a0>=XC)continue;if(x+a1>XC)a1=XC-x;const w=a1-a0,geo=new THREE.PlaneGeometry(w,C),uv=geo.attributes.uv;for(let v=0;v<uv.count;v++)uv.setX(v,uv.getX(v)*w/C);
@@ -279,10 +293,10 @@ function pyFloorplan(g){const k=pyKit(),{X,Z,WH}=PYRV,C=3.2,XC=X+22,ceil=new THR
 function pyPortal(g){const k=pyKit(),{X,Z,WH}=PYRV,{B}=k.H(g),px0=X+22,px1=X+41.5,ST=pyStoneMat();
  for(const sd of[-1,1])B(px1-px0,5.5,2.2,ST,(px0+px1)/2,2.75,Z+sd*2.7,null,2.6);B(px1-px0,1.6,3.2,ST,(px0+px1)/2,WH+.8,Z,null,2.6);pyNoSeam(g)}
 
-function pyTorch(g,x,z,ry){const k=pyKit(),{M}=k,t=new THREE.Group();t.position.set(x,0,z);t.rotation.y=ry;g.add(t);const{B,Cy,rod}=k.H(t);const BR=M(0x8a6a30,{metalness:.75,roughness:.35});
+function pyTorch(g,x,z,ry,wo){wo=wo==null?.15:wo;const k=pyKit(),{M}=k,t0=new THREE.Group();t0.position.set(x,0,z);t0.rotation.y=ry;g.add(t0);const t=new THREE.Group();t.position.z=.15-wo;t0.add(t);t0.userData=t.userData;const{B,Cy,rod}=k.H(t);const BR=M(0x8a6a30,{metalness:.75,roughness:.35});
  /* the plate goes through the wall line (the wall is 15 cm behind the old torch spot) */B(.2,.36,.06,BR,0,2.0,-.14);Cy(.03,.03,.02,BR,0,2.12,-.105,'z',null,8);
  rod([0,1.94,-.12],[0,2.2,.16],.025,BR);rod([0,2.06,-.12],[0,2.2,.16],.02,BR);/* the cup: open bronze bowl, coals 4 cm under its rim */Cy(.15,.07,.14,M(0x8a6a30,{metalness:.75,roughness:.35,side:THREE.DoubleSide}),0,2.28,.2,null,null,12,true);Cy(.07,.07,.01,BR,0,2.215,.2,null,null,12);Cy(.13,.13,.012,M(0x1a0e06),0,2.31,.2,null,null,12);
- const f=k.H(t).flame(0,2.31,.2,1.1);t.userData.flame=f;t.userData.glow=[0,2.48,.22];pyNoSeam(t);return t}
+ const f=k.H(t).flame(0,2.31,.2,1.1);t.userData.flame=f;t.userData.glow=[0,2.48,.37-wo];pyNoSeam(t0);return t0}
 
 /* a frame on the room side of a doorway. ax 'x': the doorway is in a wall on the line x = at, the opening is
    centred on z = c and the room is on the side 'side' (+1: x > at). ax 'z': the same, turned. */
@@ -360,3 +374,74 @@ function pyAntechamber(g){const{X,Z}=PYRV,obs=[];
  const tb=pyScrollTable();tb.position.set(X+3.5,0,Z+5.4);g.add(tb);for(const[x,z]of[[X-1.4,Z-7.4],[X-1.4,Z+7.4],[X+6.4,Z+7.4]]){const j=pyJar();j.position.set(x,0,z);j.rotation.y=x+z;g.add(j)}
  const sk=pySkeleton();sk.position.set(X+6.4,0,Z-7.0);g.add(sk);
  return{obs}}
+
+/* the portal passage the game uses as its long entrance hall (x X+22..X+41.5, z ±1.6): painted panels 1 cm off its
+   walls, a starry ceiling 1 cm under its roof block, the game's four torches (pyrTorch spots: x X+31.5 and X+37.5,
+   both sides, on the wall face; the one at X+37.5 on the -z side is lit). Returns {torches, lit}. */
+function pyPassage(g){const k=pyKit(),{X,Z,WH}=PYRV,{A}=k.H(g),torches=[];const segs=[[22,23.5,'glyph'],[23.5,26.7,'walk'],[26.7,29.9,'glyph'],[29.9,33.1,'torch'],[33.1,35.9,'walk'],[35.9,39.1,'torch'],[39.1,41.5,'glyph']];
+ for(const sd of[-1,1])for(const[a,b,kind]of segs){const w=b-a,geo=new THREE.PlaneGeometry(w,WH),uv=geo.attributes.uv;for(let v=0;v<uv.count;v++)uv.setX(v,uv.getX(v)*w/3.2+(1-w/3.2)/2);
+  const m=A(geo,new THREE.MeshStandardMaterial({map:pyWallTex(kind,sd>0?1:2),roughness:.88}),X+(a+b)/2,WH/2,Z+sd*1.59);m.rotation.y=sd>0?Math.PI:0}
+ {const geo=new THREE.PlaneGeometry(19.5,3.2),uv=geo.attributes.uv;for(let v=0;v<uv.count;v++)uv.setX(v,uv.getX(v)*19.5/3.2);const t=pyCeilTex().clone();t.needsUpdate=true;t.wrapS=t.wrapT=THREE.RepeatWrapping;const m=A(geo,new THREE.MeshStandardMaterial({map:t,roughness:.8}),X+31.75,WH-.01,Z);m.rotation.x=Math.PI/2}
+ for(const sd of[-1,1])for(const x of[X+31.5,X+37.5])torches.push(pyTorch(g,x,Z+sd*1.6,sd>0?Math.PI:0,0));pyNoSeam(g);return{torches,lit:torches[1]}}
+
+/* =====================================================================================================
+   Batch 3: the dart and blade corridors, the sealed door and its dials, the two clue rooms, the scarab trapdoor.
+   ===================================================================================================== */
+/* the dart corridor's floor stones: the game keeps its tiles (RW-.06 x .06 x LW-.06 at y .06) and swaps the two
+   materials for these. The cracked one is easy to read once you know, not at a glance. */
+function pyDartMats(){const k=pyKit();if(k.dm)return k.dm;const tile=cr=>k.can(128,96,(x,w,h)=>{x.fillStyle='#c8ae7e';x.fillRect(0,0,w,h);for(let i=0;i<1400;i++){x.fillStyle=Math.random()<.5?'rgba(70,50,25,'+Math.random()*.1+')':'rgba(255,245,220,'+Math.random()*.1+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}
+ x.strokeStyle='rgba(60,42,20,.6)';x.lineWidth=4;x.strokeRect(2,2,w-4,h-4);if(cr){x.strokeStyle='#3a2810';x.lineWidth=2.5;x.beginPath();x.moveTo(20,14);x.lineTo(50,40);x.lineTo(42,76);x.moveTo(50,40);x.lineTo(96,52);x.lineTo(112,84);x.moveTo(74,46);x.lineTo(80,20);x.stroke();x.fillStyle='rgba(30,20,10,.35)';x.beginPath();x.arc(50,40,5,0,7);x.fill()}
+});return k.dm={safe:new THREE.MeshStandardMaterial({map:tile(0),roughness:.9}),cracked:new THREE.MeshStandardMaterial({map:tile(1),roughness:.95})}}
+/* a dart, pointing +z, 0.35 long (the game flies it along z) */
+function pyDart(){const k=pyKit(),{M}=k,g=new THREE.Group(),{A,Cy}=k.H(g);Cy(.012,.012,.3,M(0x4a3020),0,0,-.02,'z',null,6);const tp=A(new THREE.ConeGeometry(.02,.07,6),M(0x8a8a8a,{metalness:.8,roughness:.3}),0,0,.165);tp.rotation.x=Math.PI/2;
+ for(let i=0;i<3;i++){const f=A(new THREE.PlaneGeometry(.05,.08),M(0xc02020,{side:THREE.DoubleSide}),0,0,-.14);f.rotation.set(0,Math.PI/2,0);f.rotation.order='ZYX';f.rotation.z=i*Math.PI/3;f.position.set(Math.cos(i*Math.PI/3+Math.PI/2)*0,0,-.14)}g.userData.dpKeep=1;return g}
+/* the blade corridor: a pendulum's parts in its pivot group (the game's pv at (bx, WH-.05, zc) swings round x):
+   bronze rod, crescent axe head (flat in the swing plane, edge down), a hub. Replaces arm, bl and cap. */
+function pyBlade(){const k=pyKit(),{M}=k,g=new THREE.Group(),{A,Cy}=k.H(g);const BR=M(0x8a6a30,{metalness:.75,roughness:.35}),ST=M(0xc4c8d0,{metalness:.5,roughness:.35}),ED=M(0xf4f6fa,{metalness:.55,roughness:.2});/* not too metallic: there's nothing to reflect down here */
+ Cy(.06,.06,.15,BR,0,0,0,'x',null,12);/* the eye round the axle */Cy(.032,.032,2.82,BR,0,-1.47,0,null,null,8);for(const y of[-.6,-1.4,-2.2])Cy(.05,.05,.06,BR,0,y,0,null,null,10);
+ /* the crescent: outer arc r .62 below the hub, inner arc cut out, horns curling up */ {const sh2=new THREE.Shape();const N=24;for(let i=0;i<=N;i++){const a=Math.PI*(1.04+.92*i/N);sh2.lineTo(Math.cos(a)*.62,Math.sin(a)*.62)}for(let i=N;i>=0;i--){const a=Math.PI*(1.12+.76*i/N);sh2.lineTo(Math.cos(a)*.5,Math.sin(a)*.5+.22)}
+  const geo=new THREE.ExtrudeGeometry(sh2,{depth:.03,bevelEnabled:true,bevelThickness:.008,bevelSize:.012,bevelSegments:1});geo.translate(0,0,-.015);const b=A(geo,ST,0,-2.92,0);b.rotation.y=Math.PI/2;
+  /* the bright edge */const eg=new THREE.TorusGeometry(.62,.012,4,24,Math.PI*.92);const e=A(eg,ED,0,-2.92,0);e.rotation.set(0,Math.PI/2,0);e.rotation.order='YXZ';e.rotation.z=Math.PI*1.04}
+ Cy(.09,.09,.12,BR,0,-2.92,0,'x',null,14);Cy(.05,.05,.3,BR,0,-2.72,0,null,null,8);g.userData.dpKeep=1;pyNoSeam(g);return g}
+/* the static part above each pendulum: two bronze cheeks through the ceiling, the axle, a dark slot in the ceiling
+   along the swing. Replaces the DK box at (bx, WH-.06, zc). */
+function pyBladeMount(g,bx,zc){const k=pyKit(),{M}=k,{A,B,Cy}=k.H(g),{WH}=PYRV;const BR=M(0x8a6a30,{metalness:.75,roughness:.35});
+ for(const s of[-1,1])B(.03,.24,.24,BR,bx+s*.1,WH-.07,zc);Cy(.025,.025,.26,BR,bx,WH-.05,zc,'x',null,8);B(.36,.05,.36,BR,bx,WH-.0,zc);
+ const sl=A(new THREE.PlaneGeometry(.12,2.9),new THREE.MeshBasicMaterial({color:0x050302}),bx,WH-.01,zc);sl.rotation.x=Math.PI/2;pyNoSeam(g)}
+/* the sealed door: the slab the game sinks (0.5 x WH x 3.2, centred on (sx+.25, WH/2, Z)) as a group with its
+   carvings, and a frame on the corridor side in front of it. The dials stay the game's, on this face at sx+.5. */
+function pySealedSlab(){const k=pyKit(),{M,MT}=k,{WH}=PYRV,g=new THREE.Group(),{A,B}=k.H(g);const t=k.can(512,624,(x,w,h)=>{x.fillStyle='#cdb385';x.fillRect(0,0,w,h);for(let i=0;i<6000;i++){x.fillStyle=Math.random()<.5?'rgba(70,50,25,'+Math.random()*.1+')':'rgba(255,245,220,'+Math.random()*.08+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}
+  x.strokeStyle='#5a3a14';x.lineWidth=6;x.strokeRect(16,16,w-32,h-32);x.strokeRect(30,30,w-60,h-60);/* the dial panel, the cartouche above, a big eye */x.fillStyle='rgba(90,60,25,.25)';x.fillRect(60,h-1.95*160,w-120,.95*160);x.strokeRect(60,h-1.95*160,w-120,.95*160);
+  x.strokeStyle='#5a3a14';x.lineWidth=5;x.beginPath();x.ellipse(w/2,h-2.85*160,150,52,0,0,7);x.stroke();x.fillStyle='#1e4a9a';x.strokeStyle='#1e4a9a';[1,5,0].forEach((t2,i)=>pyGlyph(x,t2,w/2-80+i*80,h-2.85*160,24));x.strokeStyle='#5a3a14';[0,1,2,3].forEach(i=>pyGlyph(x,(i+3)%6,90+i*110,h-.5*160,24))});
+ const FM=new THREE.MeshStandardMaterial({map:t,roughness:.88});const ST=pyStoneMat();const mats=[FM,ST,ST,ST,ST,ST];/* the +x face (box group 0) carries the carvings */
+ const m=new THREE.Mesh(new THREE.BoxGeometry(.5,WH,3.2),mats);g.add(m);pyNoSeam(g);return g}
+function pySealedFrame(g,sx){const k=pyKit(),{B,A}=k.H(g),{Z,WH}=PYRV;const ST=new THREE.MeshStandardMaterial({map:k.T.lime,color:0xf2e6c8,roughness:.85});
+ /* jambs from just inside the slab's face to 15 cm in front, over its edges (opening 2.9 m: the dials sit inside ±1.35) */for(const s of[-1,1])B(.2,WH-.6,.5,ST,sx+.55,(WH-.6)/2,Z+s*1.7);B(.24,.62,4.0,ST,sx+.55,WH-.29,Z);
+ const lt=k.can(512,64,(x,w,h)=>{x.fillStyle='#ecdcb4';x.fillRect(0,0,w,h);x.strokeStyle='#5a3a14';[0,5,1,2,1,5,0].forEach((t2,i)=>pyGlyph(x,t2,w/2+(i-3)*64,h/2,18))});const p=A(new THREE.PlaneGeometry(3.6,.5),new THREE.MeshStandardMaterial({map:lt,roughness:.7}),sx+.682,WH-.3,Z);p.rotation.y=Math.PI/2;pyNoSeam(g)}
+/* a dial for the sealed door, in the game's dg group: ring + stone disc, front at x .025 (the game's symbol face is at .035) */
+function pyDial(){const k=pyKit(),{M}=k,g=new THREE.Group(),{Cy,A}=k.H(g);Cy(.3,.3,.05,M(0x8a6a30,{metalness:.75,roughness:.35}),0,0,0,'x',null,24);/* dials are 0.7 apart: ring + notches stay inside 0.345 */for(let i=0;i<8;i++){const a=i/8*Math.PI*2;const n=A(new THREE.BoxGeometry(.04,.05,.05),M(0x6a4a20,{metalness:.6}),0,Math.cos(a)*.32,Math.sin(a)*.32);n.rotation.x=a}
+ A(new THREE.ConeGeometry(.04,.08,4),M(0xf0c040,{metalness:.8}),.04,.36,0).rotation.x=Math.PI;g.userData.dpKeep=1;pyNoSeam(g);return g}
+/* the scarab trapdoor (SW room, centre (cx(2), cz(13))): the slab the game slides (2.3 x .12 x 2.3, centre y .07), a
+   stone surround with a dark gap, and the opening under it: steps painted going down into the dark (y .056). */
+function pyTrapSlab(){const k=pyKit(),g=new THREE.Group();const t=k.can(256,256,(x,w,h)=>{x.fillStyle='#bfa070';x.fillRect(0,0,w,h);for(let i=0;i<2500;i++){x.fillStyle='rgba(70,50,25,'+Math.random()*.1+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}x.strokeStyle='#5a3a14';x.lineWidth=5;x.strokeRect(10,10,w-20,h-20);
+  /* the scarab, its keyhole in the shell */const cx=w/2,cy=h/2;x.fillStyle='#1e4a9a';x.beginPath();x.ellipse(cx,cy+12,40,52,0,0,7);x.fill();x.beginPath();x.ellipse(cx,cy-46,26,16,0,0,7);x.fill();x.strokeStyle='#1e4a9a';x.lineWidth=6;for(const s of[-1,1]){x.beginPath();x.moveTo(cx+s*34,cy-20);x.lineTo(cx+s*60,cy-44);x.moveTo(cx+s*40,cy+16);x.lineTo(cx+s*70,cy+10);x.moveTo(cx+s*34,cy+50);x.lineTo(cx+s*60,cy+76);x.stroke()}
+  x.fillStyle='#e8b830';x.beginPath();x.arc(cx,cy-82,16,0,7);x.fill();x.fillStyle='#050302';x.beginPath();x.arc(cx,cy+4,8,0,7);x.fill();x.fillRect(cx-4,cy+4,8,22);x.fillStyle='#5a3a14';x.font='bold 18px DoorsSans,Arial';x.textAlign='center';x.fillText('SEALED',cx,h-26)});
+ const T=new THREE.MeshStandardMaterial({map:t,roughness:.9}),ST=pyStoneMat();g.add(new THREE.Mesh(new THREE.BoxGeometry(2.3,.12,2.3),[ST,ST,T,ST,ST,ST]));pyNoSeam(g);return g}
+function pyTrapFrame(g,hx,hz){const k=pyKit(),{B,A}=k.H(g);const ST=new THREE.MeshStandardMaterial({map:k.T.dark,roughness:.95});
+ /* the surround: 1 cm clear of the slab all round, so a dark line shows */for(const s of[-1,1]){B(2.82,.1,.24,ST,hx,.05,hz+s*1.28);B(.24,.1,2.32,ST,hx+s*1.28,.05,hz)}
+ const t=k.can(128,128,(x,w,h)=>{x.fillStyle='#000';x.fillRect(0,0,w,h);for(let i=0;i<5;i++){const y=12+i*24;x.fillStyle='rgba(120,90,50,'+(.5-i*.1)+')';x.fillRect(16,y,w-32,10);x.fillStyle='rgba(60,40,20,'+(.4-i*.08)+')';x.fillRect(16,y+10,w-32,6)}});
+ const p=A(new THREE.PlaneGeometry(2.32,2.32),new THREE.MeshBasicMaterial({map:t}),hx,.056,hz);p.rotation.x=-Math.PI/2;pyNoSeam(g)}
+/* a scarab statue on a pedestal, facing +z */
+function pyScarabStatue(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B}=k.H(g);B(.7,.7,.7,MT.lime,0,.35,0);B(.78,.06,.78,MT.gold,0,.73,0);
+ const bd=A(new THREE.SphereGeometry(.26,16,12),MT.lapis,0,.92,-.03);bd.scale.set(1,.55,1.3);A(new THREE.SphereGeometry(.13,12,8),MT.lapis,0,.88,.3).scale.set(1,.6,.8);A(new THREE.SphereGeometry(.11,12,10),MT.gold,0,1.13,.32);
+ for(const s of[-1,1])for(const z of[-.18,0,.18]){const l=A(new THREE.CylinderGeometry(.018,.018,.28,5),MT.gold,s*.26,.84,z);l.rotation.z=s*1.1}pyNoSeam(g);return g}
+/* the scribe's things in the north clue room: a low table with ink and reed pens, a shelf of scrolls, baskets */
+function pyScribeCorner(g,x,z,ry){const k=pyKit(),{M,MT}=k,t=new THREE.Group();t.position.set(x,0,z);t.rotation.y=ry;g.add(t);const{A,B,Cy,rod}=k.H(t);const W=MT.wood;
+ B(1.2,.06,.6,W,0,.42,0);for(const a of[-.5,.5])for(const b of[-.22,.22])B(.06,.39,.06,W,a,.195,b);Cy(.05,.05,.08,M(0x1a1a1a),.3,.49,-.1,null,null,10);Cy(.05,.05,.08,M(0xb03020),.42,.49,-.1,null,null,10);
+ for(let i=0;i<3;i++){const p=rod([-.2+i*.05,.455,.05],[-.05+i*.05,.455,.2],.006,M(0x6a5a2a))}B(.5,.004,.34,M(0xecdcac),-.2,.452,-.05);
+ /* the shelf against the wall behind (wall 1.25 m behind the table: the shelf's back goes 2 cm into it) */B(1.54,1.6,.03,W,0,.8,-1.24);for(const a of[-.785,.785])B(.03,1.6,.38,W,a,.8,-1.04);B(1.6,.03,.38,W,0,1.615,-1.04);/* back through the wall line, sides, top */for(let r=0;r<3;r++){B(1.55,.04,.36,M(0x5a3a22),0,.3+r*.5,-1.05);for(let i=0;i<6;i++)Cy(.05,.05,.3,M(0xe8d8a8),-.6+i*.24,.37+r*.5,-1.05,'z',null,8)}
+ for(const[a,b,r]of[[.8,.4,.22],[.95,-.2,.17]]){Cy(r,r*.85,r*1.2,M(0xa8844a,{roughness:1}),a,r*.6+.05,b,null,null,12)}pyNoSeam(t);return t}
+/* the two clue rooms' own things (their steles are the game's, built with pyStele): the scribe's corner against the
+   south wall of the north room, a scarab statue in the south room beside the trapdoor. Returns {obs}. */
+function pyClueRooms(g){const obs=[];const x1=pyCx(1),zs=pyCz(3)+1.6;pyScribeCorner(g,x1,zs-1.25,Math.PI);obs.push({x0:x1-.8,x1:x1+.8,z0:zs-1.6,z1:zs})/* table and shelf */;
+ const st=pyScarabStatue();st.position.set(x1,0,pyCz(13)-1.0);g.add(st);obs.push({x0:x1-.4,x1:x1+.4,z0:pyCz(13)-1.4,z1:pyCz(13)-.6});return{obs}}

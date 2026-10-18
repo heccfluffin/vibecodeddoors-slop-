@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batch 1 (outside) approved · batch 2 (ground floor shell, hall, antechamber) in review
+Status: layout approved 2026-10-18 · batches 1-2 approved · batch 3 (traps, sealed door, clue rooms, trapdoor) in review
 
 # The Pyramid rework (remodel list #20)
 
@@ -44,3 +44,24 @@ puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the und
 - Antechamber props swap their meshes, spots and E prompts unchanged: stele 0 → `pyStele()` at the same place and
   `ry` (keep the clue plane at z .18); table + scroll → `pyScrollTable()` at (X+3.5, Z+5.4); the three urns →
   `pyJar()`; the bones → `pySkeleton()` at (X+6.4, Z-7.0). The other two steles use `pyStele()` too.
+
+## Notes for the wiring (batch 2, the passage)
+- The game's long entrance hall in the portal passage is built in `pyrUnder` (painted `pyrArt` planes at z ±1.58 and
+  four `pyrTorch` calls at X+31.5 / X+37.5). Replace those with `pyPassage(g)` (panels 1 cm off the walls, a starry
+  ceiling 1 cm under the roof block, four `pyTorch(…, 0)` on the wall faces); the light goes on `.lit`.
+- `pyrTorch` everywhere else (undercroft) → `pyTorch(g, x, z, ry, 0)` (0 = the group sits on the wall face), keeping
+  the game's glow sprites at `userData.glow` and its PointLight.
+- The old sphinxes are also in `pyrUnder` (X+46, Z±7.5, with their `ob`): remove them, the avenue has the new ones.
+
+## Notes for the wiring (batch 3)
+- Darts: keep the tiles and their logic; their materials `TS`/`TC` → `pyDartMats().safe` / `.cracked`. The flying dart
+  cylinder → `pyDart()` (points +z; for darts flying -z turn it round y by π instead of `rotation.x`).
+- Blades: keep `pv` and the swing/kill code. Inside `pv` replace arm, blade and cap with `pyBlade()`; the `DK` ceiling
+  box → `pyBladeMount(g, bx, zc)`. The wall panels at the four blade cells show the slot the blade passes through.
+- Sealed door: `slab` → `pySealedSlab()` (a group, same centre and size, so `slab.position.y` still sinks it); add
+  `pySealedFrame(g, sx)`. Each dial's `ring` → `pyDial()` inside `dg` (front at .025; the symbol face stays at .035,
+  the name plates stay at sx+.51).
+- Trapdoor: `slab` → `pyTrapSlab()` (same size and centre, still slides); the 4 frame strips, the `pit` plane and the
+  `sg` scarab plane go, `pyTrapFrame(g, hx, hz)` replaces them (the dark stairs picture is at y .056, above the
+  floor; the old pit at .035 was under the floor and never showed).
+- `pyClueRooms(g)`: the scribe's corner and the scarab statue; push its `obs`. Steles 1 and 2 → `pyStele()`.
