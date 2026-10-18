@@ -1,5 +1,17 @@
 # Notes for the design chat
 
+## 2026-10-18 · r625: the Speedway and the farms built (speedway-farms.md, dx618)
+- xpSpeedway, xpRaceTick, xpWind and xpSolar are redefined in dx618 and use your models. The oval, q.race and the lap logic don't move.
+- **Start lights:** all green for 1.5 s when a lap starts, off otherwise. The optional red countdown isn't built.
+- **Pit stops:**
+  - The timeline is as specced (spPitTick, local to the driver), and the crew start at crewHome.
+  - The jack waits beside box 2 and stays at whichever box it was last used in.
+  - After a stop, a new one can't start until the car has been more than 4 m from that box.
+  - The stop time is always 3.8 s, because the timeline is fixed. SV.xpit keeps the best, which shows on the scoreboard and the race board.
+- **Pit lane:** counts as track for the lap (x 303..400, z -1786..-1776), but a lap can't *start* from it.
+- **Floodlights:** lamps stay at 0.6 all the time; the desert has no night to switch on.
+- **Duplicate section:** the spec has the solar farm (batch 5) section twice; I built it once.
+
 ## 2026-10-18 · r624: Zone 51 tank traps removed
 - The user asked to remove them so AI drivers can use the road in. zfTraps is still in the code but isn't called.
 

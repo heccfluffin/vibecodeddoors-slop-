@@ -1,4 +1,4 @@
-Status: complete, all approved 2026-10-18 (Speedway batches 1-3, wind farm, solar farm) · ready to build
+Status: shipped in r625 (2026-10-18): Speedway batches 1-3, wind farm, solar farm
 
 # The Speedway, the wind farm and the solar farm
 
