@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batches 1-4 approved · railway (batch 5) next · not ready to build yet
+Status: layout approved 2026-10-18 · batches 1-5 approved · the train (batch 6) next · not ready to build yet
 
 # Mirage Lake, the observatory, Dino Dan's and the railway
 
@@ -67,4 +67,15 @@ Batches: 1 lake water, shore, palms, pier, bait shop · 2 beach, lifeguard, snac
   stays at (dx+5, dz) = (125, -1935) or use `under` (120, -1935); same lines.
 - The toy dinosaurs in the shop windows and Baby Dan are small copies of `ddDinoModel` (fine to batch: static).
 - Scenery only: egg, dig site, picnic tables, car park.
+
+### Batch 5 (approved) · `rrTrack(g, x0, x1, z, gaps)`, `rrCrossing(g, cx)` → `{K, obs}`, `rrPoles(g)` → `{obs}`; `RRZ`, `RRX`
+- Replaces in `xpRail`: the sleeper InstancedMesh, the two rail boxes, the ballast plane, and the whole crossing loop
+  (posts, light spheres, labels, arm pivots and their `ob`s). Keep `rect(...)` for the map, the sign, `loc`.
+- Main line: `rrTrack(g, -DXB, DXB, RAIL.z, RRX.map(x => [x-3.6, x+3.6]))`. The Dusty Gulch siding (in the base's
+  station block, `sz2 = z-9`, x 400..540) can use `rrTrack(g, 400, 540, sz2, [])` instead of its own sleepers/rails.
+  All of these meshes are `noChunk` like the old ones (they're 1.3 km long).
+- Crossings: `for (const cx of RRX) { const c = rrCrossing(g, cx); q.xings.push(c.K); c.obs.forEach(o => q.obs.push(o)) }`.
+  `K` has the same fields the old code made (`x, arms[{pv, sd}], lights[], obs[], down, a`), so `xpTrainTick`
+  works unchanged. The gate boxes start `off:1` (open), as before.
+- Rail tops stay at y 0.3 and the rails 1.5 m apart, so the train and the handcar sit on them as now.
 
