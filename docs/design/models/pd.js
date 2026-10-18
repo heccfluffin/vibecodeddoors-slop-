@@ -527,9 +527,9 @@ function pdAnnex(g){const k=pdKit(),I=pdInterior(),{M,MT,can,R,wall,win}=k,{F}=I
   {const dk=new THREE.Group();dk.position.set(131.6,2.0+.04,cz0+.4);g.add(dk);const d=k.H(dk);d.A(new THREE.SphereGeometry(.08,12,10),M(0xf0d020),0,.06,0).scale.set(1.2,.8,1);d.A(new THREE.SphereGeometry(.05,10,8),M(0xf0d020),.05,.14,0);d.B(.05,.02,.04,M(0xe08020),.11,.14,0)}
   lab('EVIDENCE · DO NOT EAT',2.2,.3,'#c02020','#ffffff',0,(cx0+cx1)/2,2.35,cz1+.035,0);obs.push({x0:cx0,x1:cx1,z0:cz0,z1:cz1+.05})}
  /* THE COFFEE CORNER by the front: a counter, the machine, donuts, a fridge */
- {B(1.4,.8,.6,MT.wood,116.6,.4,-1013.6);B(1.45,.04,.65,M(0x2a2a2e,{roughness:.4}),116.6,.82,-1013.6);B(.36,.5,.32,MT.dark,116.2,1.09,-1013.65);Cy(.07,.07,.14,M(0x3a2a20,{transparent:true,opacity:.8}),116.2,.92,-1013.45,null,null,10);B(.5,.06,.32,M(0xf0e0c8),116.95,.87,-1013.6);
+ {B(1.4,.8,.6,MT.wood,116.6,.4,-1013.6);B(1.45,.04,.65,M(0x2a2a2e,{roughness:.4}),116.6,.82,-1013.6);B(.36,.5,.32,MT.dark,116.2,1.09,-1013.65);/* the pot and the controls face into the room (-z) */Cy(.07,.07,.14,M(0x3a2a20,{transparent:true,opacity:.8}),116.2,.92,-1013.86,null,null,10);B(.2,.06,.01,M(0x30ff60,{emissive:0x10a030}),116.2,1.22,-1013.815);B(.5,.06,.32,M(0xf0e0c8),116.95,.87,-1013.6);
   for(let i=0;i<4;i++){const d=A(new THREE.TorusGeometry(.05,.025,8,14),M([0xd06090,0xc08040,0x6040a0,0xe0c040][i]),116.8+i*.1,.92,-1013.6);d.rotation.x=Math.PI/2}
-  B(.7,1.7,.65,M(0xe8e8ec,{metalness:.3,roughness:.4}),115.15,.85,-1013.62);B(.03,.5,.03,MT.steel,115.48,1.2,-1013.28);obs.push({x0:114.8,x1:117.3,z0:-1013.95,z1:-1013.25});lab('COFFEE IS NOT EVIDENCE',.9,.12,null,'#22305a',0,116.6,1.9,z1-.15-.012,Math.PI)}
+  B(.7,1.7,.65,M(0xe8e8ec,{metalness:.3,roughness:.4}),115.15,.85,-1013.62);B(.03,.5,.03,MT.steel,115.45,1.2,-1013.97);/* the handle on the front, towards the room */obs.push({x0:114.8,x1:117.3,z0:-1013.95,z1:-1013.25});lab('COFFEE IS NOT EVIDENCE',.9,.12,null,'#22305a',0,116.6,1.9,z1-.15-.012,Math.PI)}
  /* signs over the rooms on the back wall */
  pdNoSeam(g);
  return{obs,scr,wb,map:[[x0,x1,z0,z1,'#4a5a8a']]}}
