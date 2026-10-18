@@ -1,4 +1,4 @@
-Status: layout and the whole airfield and Zone 51 batches 1-3 approved by the user 2026-10-18 · Zone 51 batch 4 next
+Status: layout and the whole airfield and Zone 51 batches 1-4 approved by the user 2026-10-18 · Zone 51 batch 5 next
 
 # The airfield and Dark Zone 51
 
@@ -154,3 +154,13 @@ up through the saucer, spinning. New sequence, 6.3 s, input locked as now (`q.ab
 - `vats`: pulse `emissiveIntensity = .5 + .3 * sin(rt*2 + i)` (optional). Building 13's roof pieces are tagged
   `userData.b13roof` (the preview hides them to look inside; the game keeps them).
 - The huts' doors and the blast door are looks only (the insides are reachable only in the preview).
+
+### Zone 51 batch 4 (approved) · `zfHelipad(g)` → `{obs, sock}`, `zfMotorPool(g)`, `zfFloods(g)`, `zfFuel(g)` → `{obs}`
+(also `zfPickup()`, a white pickup model, not a vehicle)
+- Replaces `xpDarkZone`'s floodlight masts and lamp boxes (keep their `light(...)`s) and the six fuel barrels (their
+  `ob`s had `kd:'barrel'` so they could be knocked: the new fuel dump's drums are static; if you want them knockable,
+  keep the game's barrels instead of the dump's five drums). Helipad and motor pool are new. Push all `obs`.
+- `sock`: swing like the airfield windsock (`rotation.y = PI*.75 + sin(rt*.6)*.5`). dpKeep.
+- Also changed after approval, in both hangars: the sliding door leaves and their track beam now sit against the
+  front wall (airfield hangar track at z1+.25, leaves at z1-.06+i*.2; Hangar 18 track at z1+.175, leaves at
+  z1-.05 / z1+.25). Obstacles updated in the models.
