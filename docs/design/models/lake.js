@@ -143,7 +143,7 @@ function lkSwan(col){const g=new THREE.Group(),M=lkKit().M,W=M(col||0xf4f4f0,{ro
  const ck=new THREE.Mesh(new THREE.CylinderGeometry(.62,.55,.2,20),M(dark?0x1a1a1e:0xd8dadc,{roughness:.6}));ck.scale.set(1,1,1.05);ck.position.set(0,.72,.25);g.add(ck);
  const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.1,.4),M(0x2a6ac8,{roughness:.6}));seat.position.set(0,.86,.45);g.add(seat);const bs=new THREE.Mesh(new THREE.BoxGeometry(.9,.32,.08),M(0x2a6ac8,{roughness:.6}));bs.position.set(0,1.05,.66);bs.rotation.x=-.2;g.add(bs);
  for(const sx of[-1,1]){const w=new THREE.Mesh(new THREE.SphereGeometry(1,16,10),W);w.scale.set(.22,.36,1.05);w.position.set(sx*.74,.62,.3);w.rotation.set(-.25,0,sx*-.15);g.add(w)}
- const tail=new THREE.Mesh(new THREE.ConeGeometry(.32,.75,10),W);tail.rotation.x=-1.1;tail.position.set(0,.85,1.45);g.add(tail);
+ /* the tail: its base sunk into the back of the body, the tip sweeping back and up */const tail=new THREE.Mesh(new THREE.ConeGeometry(.32,.75,10),W);tail.rotation.x=1.1;tail.position.set(0,.55+.375*Math.cos(1.1),1.0+.375*Math.sin(1.1));g.add(tail);
  const neck=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0,.55,-1.05),new THREE.Vector3(0,1.15,-1.3),new THREE.Vector3(0,1.75,-1.1),new THREE.Vector3(0,2.05,-1.25)]),20,.15,12),W);g.add(neck);
  const nb=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),W);nb.scale.set(1,.9,1.1);nb.position.set(0,.55,-1.05);g.add(nb);
  const hd=new THREE.Mesh(new THREE.SphereGeometry(.21,14,10),W);hd.position.set(0,2.08,-1.3);hd.scale.set(.9,.9,1.25);g.add(hd);const bk=new THREE.Mesh(new THREE.ConeGeometry(.08,.32,10),M(dark?0xd82020:0xf08020));bk.rotation.x=-Math.PI/2;bk.position.set(0,2.03,-1.62);g.add(bk);
