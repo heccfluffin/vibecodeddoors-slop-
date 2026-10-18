@@ -80,7 +80,7 @@ function spTrack(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,
   for(const f of[.02,.5,.98]){const y=fy0+(fy1-fy0)*f,z=NZ-lean*f;C(.02,.02,wl,(wx0+wx1)/2,y,z-.03,FM,'x',null,6)}
   /* the wall's open end at the pit entry: yellow and black chevrons */{const t=afCanvas(64,64,(x,w,h)=>{x.fillStyle='#f0c020';x.fillRect(0,0,w,h);x.fillStyle='#1a1a1a';for(let i=-2;i<4;i++){x.beginPath();x.moveTo(0,i*22);x.lineTo(w/2,i*22+16);x.lineTo(w,i*22);x.lineTo(w,i*22+10);x.lineTo(w/2,i*22+26);x.lineTo(0,i*22+10);x.fill()}});const e=new THREE.Mesh(new THREE.PlaneGeometry(.22,.72),new THREE.MeshStandardMaterial({map:t,roughness:.7}));e.rotation.y=Math.PI/2;e.position.set(wx1+.006,.68,NZ);g.add(e)}}
  /* ---- the pit wall (x 330..372): a lower, straight concrete wall with a red and white top, chevrons on its nose ---- */
- {const px0=330,px1=cx+S/2,CW=M(0xd4d0c8,{roughness:.9});B(px1-px0,.95,.4,(px0+px1)/2,.475,NZ,CW);B(px1-px0,.06,.42,(px0+px1)/2,.98,NZ,M(0xc42424,{roughness:.7}));for(let x=px0+1;x<px1;x+=2)B(1,.061,.425,x,.98,NZ,M(0xf0ece4,{roughness:.7}));
+ {const px0=330,px1=cx+S/2,CW=M(0xd4d0c8,{roughness:.9});B(px1-px0,.95,.4,(px0+px1)/2,.475,NZ,CW);/* the red and white top: one painted cap, 1 m blocks */{const t=spRep(afCanvas(64,8,(x,w,h)=>{x.fillStyle='#c42424';x.fillRect(0,0,w/2,h);x.fillStyle='#f0ece4';x.fillRect(w/2,0,w/2,h)}));t.repeat.set((px1-px0)/2,1);const cm=new THREE.MeshStandardMaterial({map:t,roughness:.7});const cap=new THREE.Mesh(new THREE.BoxGeometry(px1-px0,.06,.42),[cm,cm,cm,cm,cm,cm]);cap.position.set((px0+px1)/2,.98,NZ);g.add(cap)}
   {const t=afCanvas(64,64,(x,w,h)=>{x.fillStyle='#f0c020';x.fillRect(0,0,w,h);x.fillStyle='#1a1a1a';for(let i=-2;i<4;i++){x.beginPath();x.moveTo(0,i*22);x.lineTo(w/2,i*22+16);x.lineTo(w,i*22);x.lineTo(w,i*22+10);x.lineTo(w/2,i*22+26);x.lineTo(0,i*22+10);x.fill()}});const e=new THREE.Mesh(new THREE.PlaneGeometry(.4,.9),new THREE.MeshStandardMaterial({map:t,roughness:.7}));e.rotation.y=-Math.PI/2;e.position.set(px0-.006,.47,NZ);g.add(e)}
   obs.push({x0:px0,x1:px1,z0:NZ-.2,z1:NZ+.2})}
  /* ---- the chequered line across the track at x 300 ---- */
@@ -194,8 +194,7 @@ function spPits(g){const k=spKit(),{B,C,rod,slab,L}=k.H(g),M=k.M,obs=[],{cx,cz,R
   /* air hose reel by the door */C(.25,.25,.12,gx0+.6,1.6,GZ0+.6,M(0xe8c020),'x',null,14);
   /* the garage number on the fascia */obs.push({x0:gx0,x1:gx0+.25,z0:GZ0,z1:GZ1});obs.push({x0:gx0,x1:gx1,z0:GZ1-.9,z1:GZ1})}
  obs.push({x0:GX0+4*GW-.25,x1:GX0+4*GW,z0:GZ0,z1:GZ1});
- /* the fascia across all four: green with the sign, numbers over each door */{const fx0=GX0,fx1=GX0+4*GW;B(fx1-fx0+.2,.9,.2,(fx0+fx1)/2,5.05,GZ0-.05,GRN);L('PITS · TYRES · GWEEN SODA',16,.62,null,'#ffffff',70,(fx0+fx1)/2,5.05,GZ0-.16,Math.PI);
-  for(let i=0;i<4;i++){const gxc=GX0+i*GW+GW/2;L(String(i+1),.6,.6,'#f0c020','#1a1a1a',80,gxc-GW/2+.8,5.05,GZ0-.16,Math.PI)}}
+ /* the fascia across all four: green with the sign, numbers over each door */{const fx0=GX0,fx1=GX0+4*GW;B(fx1-fx0+.2,.9,.2,(fx0+fx1)/2,5.05,GZ0-.05,GRN);L('PITS · TYRES · GWEEN SODA',18,.7,'#2a9a3a','#ffffff',80,(fx0+fx1)/2,5.05,GZ0-.16,Math.PI);}
  /* the race board on garage 1's west wall, facing west */{const bx=GX0-.02,bz=-1771;B(.06,1.6,2.6,bx-.03,1.7,bz,M(0x4a3a2a));L('RACE BOARD\nBEST LAP · BEST PIT STOP\nLAP UNDER 25 s = BADGE',2.4,1.4,'#f4f0e4','#1a1a1a',44,bx-.065,1.7,bz,-Math.PI/2)}
  const boxes=[0,1,2,3].map(i=>({x:336+i*10,z:-1780.6,n:i+1})),crewHome=[0,1,2,3].map(i=>({x:342.5+i*1.6,z:-1777.6}));
  g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,boxes,crewHome,boardAt:{x:GX0-1.2,z:-1771}}}
