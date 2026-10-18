@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · Speedway batches 1-2 approved · batch 3 next · not ready to build yet
+Status: layout approved 2026-10-18 · Speedway batches 1-3 approved (the Speedway is complete) · wind farm next · not ready to build yet
 
 # The Speedway, the wind farm and the solar farm
 
@@ -73,4 +73,18 @@ Also exported: `SPW` (the oval's numbers), `spPt(u, r)`, `spLen()`, `spRibbon(..
   - The pit lane counts as track for the lap: in `xpRaceTick` treat x 303..400, z -1786..-1776 as inside (`inT`).
   - Local to the driver (no sync needed; friends just see the car stopped).
 - Pit lane paint is one canvas over the lane shape (note: canvas top = south, see the comment in `spPits`).
+
+### Speedway batch 3 (approved) · `spEntrance(g)` → `{obs}`, `spInfield(g)` → `{obs, score, scoreDraw}`, `spFloods(g)` → `{obs, lamps}`
+- Drop the base's sign at (300,-1884) (the arch replaces it). The dirt road `road(300,-1896.5,300,-1880,1)` can stay or
+  go: the entrance lays its own gravel from the Southern Pass to the track, and on from the back straight's inner edge
+  to the paddock (x 296.5..303.5, z -1861..-1852).
+- **Crossing (changes batch 1):** both tyre walls now have a gap at x 294..306 on the back straight (`SPX.cross`), so
+  cars can drive into the infield. `spTrack` already leaves it out (stacks, belts and obstacles).
+- **Bug fixed in `spTrack`:** obstacle boxes are now made per unbroken run of tyres; before, a box could join the end
+  of the inner wall to the start of the outer one (an invisible wall across the track). Use the current file.
+- Scoreboard: `score.material.map = scoreDraw(SV.xlap, SV.xpit)` on build and whenever either record changes
+  (dispose the old map). It's dpKeep.
+- Floodlights: `lamps.emissiveIntensity` 0.3 by day, 1.6 at night if the desert has a night; add a few
+  `light(...)` points if you like (they're aimed at the track centre).
+- The skid pad and the paddock are scenery (no gameplay). Everything else is `noSeam`.
 
