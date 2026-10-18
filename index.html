@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-18 r623';
+const BUILD='2026-10-18 r624';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15979,6 +15979,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r624',['Dark Zone 51: the tank traps on the road in are gone, so other drivers can get through']],
 ['r623',['The airfield is rebuilt: a proper runway with lights, a taxiway and apron, an arched hangar, T-hangars with an old crop duster, a terminal with a café, a car park, a new control tower and a road across the runway with flashing lights','The plane now waits on its stand on the apron','Dark Zone 51 is rebuilt: a new fence and gate (still rammable), tank traps on the road in, new guard towers, Hangar 18 and its saucer, barracks, a mess hall with a polite visitor, Building 13, a radar and radome, a helipad, a motor pool and a fuel dump','Stepping into the saucer\'s light is a whole new ride now','Zone 51 has secrets now: a crashed saucer, a humming crystal, a bunker that will not let you in, a glowing waste pit, a listening array, a decon tent, and a crop circle outside']],
 ['r622',['Old Quarry: no more flickering on the ground along the pit rim']],
 ['r621',['The DARK ZONE 51 sign now faces the road']],
@@ -26246,7 +26247,7 @@ function xpDarkZone(X){const{q,g,ob,prop,loc,anim,light,zone,road}=X,{x0,x1,z0,z
  /* the fence (the Screech hole stays), the gate you can ram, the boom barrier, the tank traps on the road in */
  T('fence',()=>{obs(zfFence(g).obs);const G=zfGate(g);obs(G.obs);const go=ob(x1-.3,x1+.3,-1873.5,-1866.5,{m:G.gate,kd:'gate'});q.dzGate=go;
   prop(x1+1.5,-1870,2,()=>go.dead?'The gate is off its hinges. Someone drove through it.':'[E] Try the gate',()=>{if(go.dead)return;snd(200,.1);hint('🔒 Locked. A sign: "AUTHORISED DARK PERSONNEL ONLY. Trespassers will be SEEKED." (A fast enough car might not care.)')});
-  obs(zfTraps(g).obs)});
+  /* r624: no tank traps on the road in, so AI drivers can get through (the user asked) */});
  /* the roads inside: gate to Hangar 18's apron, and a branch up to the barracks */T('roads',()=>{road(x1,-1870,-555,-1870);road(-540,-1866.5,-540,-1810)});
  /* guard towers with searchlights that sweep the sand */T('towers',()=>{for(const[tx,tz]of[[x1-5,z1-5],[x1-5,z0+5],[x0+5,cz]]){const t=zfTower(g,tx,tz);obs(t.obs);light(0xfff0c0,1.2,30,tx,10,tz);anim(tx,tz,200,dt=>{t.pv.rotation.y=q.rt*.35+tx;t.pv.rotation.x=Math.PI/2-.35+Math.sin(q.rt*.5)*.15})}});
  /* the radar and radome, barracks and mess hall (with a visitor), Building 13 */
