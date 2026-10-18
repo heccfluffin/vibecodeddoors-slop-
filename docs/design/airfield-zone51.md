@@ -1,4 +1,4 @@
-Status: layout and the whole airfield and Zone 51 batch 1 approved by the user 2026-10-18 · Zone 51 batch 2 in review
+Status: layout and the whole airfield and Zone 51 batches 1-2 approved by the user 2026-10-18 · Zone 51 batch 3 next
 
 # The airfield and Dark Zone 51
 
@@ -113,7 +113,12 @@ windsock. Zone 51: 1 fence, gate, traps, towers · 2 Hangar 18 and the saucer ·
 - **Tank traps:** remove the game's three tank traps by the east fence (x1-20); push `zfTraps` obstacles. The weaving
   lane is 3.4 m wide, so AI cars and the player can get through slowly.
 
-### Zone 51 batch 2 (in review) · `zfHangar18(g)` → `{obs, saucer, beam, rim, dome, hatch}`, `zfSaucer()`
+### Zone 51 batch 2 (approved) · `zfHangar18(g)` → `{obs, saucer, beam, rim, dome, hatch}`, `zfSaucer()`
+- Replaces `xpDarkZone`'s Hangar 18 block meshes (floor, walls, roof, cylinder roof, label, front wall pieces, the
+  saucer group and its lights, the beam, the two labels). Keep the four hangar lights, the saucer light `ul`, `loc`s, the
+  prop, and the anim (now on the returned `saucer`/`beam`; `rim` materials can pulse). The saucer is built at
+  (-580, 6, -1915), so the anim's `position.y = 6 + sin(...)` still works. Push `obs`.
+
 **The new abduction (replaces the `q.abd` block in the base's tick, ~bak519 "the saucer"):** today you rise straight
 up through the saucer, spinning. New sequence, 6.3 s, input locked as now (`q.abd` keeps blocking movement):
 - 0 to 0.6 s: the hatch under the saucer opens (`hatch(u)`, an iris of six blades, u 0 to 1). The beam brightens.
