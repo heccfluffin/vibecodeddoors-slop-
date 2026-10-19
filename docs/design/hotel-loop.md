@@ -1,4 +1,4 @@
-Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks approved · ready to build (`models/hotel.js`) · the lift lobby in review
+Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks approved · ready to build (`models/hotel.js`) · the lift lobby approved · ready to build · creature rules in review
 
 # The hotel: how the run plays now, and what to change
 
@@ -238,17 +238,47 @@ not needed: the hotel's fake doors already do that job.
 - **The looks are texture and light swaps** in the existing room builder: each floor maps the room textures (`TX` keys such as wall, floor, ceil) to its own set, plus a light tint. No new room layouts are needed. The streak rooms (offices, archive, stairwell) keep their own looks.
 - **Part 1's ranges change when floors are on**, so each chase sits inside one floor: Seek 1 in 27..38, Seek 2 in 52..64. Jeff stays in 41..47 or 52..58. The back room stays in 80..92.
 
-## D. Three creatures in the hotel, with the game's existing models
-- **Halt** (floor 2 and later; `entModel('halt')`):
-  - a long dim corridor with Halt at the far end;
-  - now and then "TURN AROUND" flashes: walk backwards until it fades. Walking forward while it's up costs 30 HP and pushes you back.
-  - Reach the far door to end it.
-- **Timothy** (floor 3 and later; the game's Timothy model): about 1 drawer in 50 has him. He jumps out at your face: 5 damage, and the drawer is empty. A Lucky Find perk owner sees a leg poking out first.
-- **Eyes** (floor 4; `entModel('eyes')`):
-  - floats in some rooms. While it's on your screen within 12 m, you lose 10 HP a second and the screen tints;
-  - look away, or hide;
-  - a crucifix sends it away for the rest of the room.
-- **Fake doors** (the game's own; the Dupe job): more of them on floor 4 (part 1's x1.5 already does this).
+## D. Three creatures in the hotel, with the game's existing models (rules in review, preview "Halt, Timothy and Eyes")
+The models are `entModel('halt')`, `entModel('tim')` and `entModel('eyes')` exactly as they are (no new models).
+Every chance roll below uses `hflRng(nn * 977 + salt)` (or a number drawn while the room is generated, which is
+seeded), so every co-op player gets the same rooms and the same Timothy drawers.
+
+### Halt (floor 2 and up)
+- **Where:** a plain hall room (the kind that gets the floor dressing) on floor 2-4, 1 in 20, never within 8 doors of
+  another Halt, never in a Seek chase, a lift lobby, a locked room or a dark room. Not in the first 2 rooms of a floor.
+- **The room:** L 44, HX 3 (6 m wide), HY 4, no furniture, no side rooms. The floor's own look, but the lamps are dim
+  blue (light 0x5a90ff at .22, glow parts emissive 0x203858), ambient 0x0a1428 at .6, fog 0x02040a 2..14.
+  Halt has a blue point light (0x60c0ff, 1.1, 8 m) and bobs 8 cm.
+- **How it plays** (each player runs their own Halt; it is only drawn for them):
+  - Halt hovers about 12 m ahead of you, never past the exit door minus 2 m.
+  - First flash 3 s after you enter, then every 3.5-6 s: a low hum, then **TURN AROUND** (big blue text, blue screen
+    tint) for 2.2 s while Halt rushes at you.
+  - You must walk **back at least 1.5 m** (towards the door you came in by) before it fades. If not: 30 HP, a blue
+    flash and you are pushed 3 m back. Then Halt drops back to 12 m ahead.
+  - No flashes once you are within 5 m of the exit door. Opening the exit door ends it.
+  - A crucifix works as everywhere else: when Halt would hit you, it is used up and Halt is gone for the room.
+
+### Timothy (floor 3 and up)
+- **Where:** any dresser drawer (`drs` entries made by the room's dresser loop, not chests or archive drawers) on floor
+  3-4: 1 in 50. A Timothy drawer has no loot.
+- **Opening it:** the drawer slides as normal; at 0.2 s Timothy pops out and leaps at the player's face over 0.35 s
+  (growing to 1.6x), 5 damage, a short screen shake and a squeak; he is gone by 1.4 s. The drawer then counts as
+  emptied (`d.o = 2`).
+- **Lucky Find perk:** a Timothy drawer shows one bent leg hooked over the top edge of the drawer front (two thin
+  segments, the model's leg colour 0x2a1a0a), so you can skip it.
+- **Co-op:** the drawer is the same for everyone. The player who opens it is bitten; the others see Timothy jump out
+  (`mpDrSend` already syncs the open).
+
+### Eyes (floor 4)
+- **Where:** a plain hall room on floor 4, 1 in 12, never within 6 doors of another Eyes, not with Halt, not in the
+  lift lobby or a Seek chase. Dark rooms are allowed (it glows).
+- **Placement:** one Eyes at (0, 2.2, -L x 0.55), bobbing 8 cm, always facing the nearest player, with a purple point
+  light (0xa060ff, .9, 9 m). Same spot for every co-op player.
+- **The rule:** while Eyes is **on your screen** (its centre projects inside the view with a 5% margin and is in front
+  of the camera), **within 12 m**, with no wall in between, and you are not hiding: you lose 10 HP a second (2.5 every
+  0.25 s), the screen gets a pulsing purple edge tint, and a whisper plays. Looking away stops it at once.
+- **A crucifix** is used on the first damage tick: Eyes bursts (purple sparks) and is gone for the rest of the room.
+- It never moves and never follows you into the next room.
 
 ## B1. The floor looks (model: `docs/design/models/hotel.js`, approved)
 Floor 1 stays exactly as it is now. Floors 2-4 change only textures, trim colours, the hall lamps, the light tint and
@@ -282,7 +312,7 @@ the fog, plus a little dressing. No layout, obstacle, door or furniture changes.
 - Not checked: the game's wing pieces and the end-wall trim already have end faces that meet (the checker flags them
   on floor 1 too); nothing new adds to that.
 
-## B2. The lift lobby and the lift (model: `hotel.js`, `hflLift` and the lobby things; in review)
+## B2. The lift lobby and the lift (model: `hotel.js`, `hflLift` and the lobby things; approved)
 - **Rooms 25, 51 and 75** are lift lobbies (so floor 3 is now 52-74). HX 5, HY 4.2, L 15, built as a hotelW hall in the
   look of the floor you are **leaving**, with a marble floor (`hflMarbleT`, 2 m tiles) and two ceiling lamps
   (z -2 and -10). No wardrobes, no side rooms, no events, no Jeff/Figure/locked roll in these rooms.
