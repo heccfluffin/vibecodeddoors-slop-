@@ -18,7 +18,7 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 
-In review: `quarry-underground.md` (the mine under the Old Quarry: three levels built from pieces; plan and layout generator `models/quarry-under.js`).
+In progress: `quarry-underground.md` (the mine under the Old Quarry: plan approved; model batches 1-5 to come, don't build yet).
 
 Still to design: the desert mines loop and remodel.
 

@@ -1,4 +1,4 @@
-Status: plan in review (2026-10-19), 88 room versions added the same day · preview "Quarry Underground Plan" (claude.ai artifact YMAf9xif5xPEjRLr9aNz3W)
+Status: plan approved by the user 2026-10-19 (layout, the shift, 88 room versions) · part 2 (models) in progress: batch 1 next
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -239,14 +239,19 @@ in) and the sealed station's bulkhead wheels.
   every 5:20 while nobody goes down), and built over a few frames during the cage ride, level 1 first.
 
 ### 6. Model batches (part 2)
-1. **The kit and level 1:** tunnel profile and extruder, timber sets, lagging, rails and sleepers, lamps on a wire,
-   signposts, working face, shaft station (with the cage stop, gates, tool board, shift clock, map board), drive,
-   bend, junctions, pillar round, stope, crib room, powder magazine, collapsed drift, pump room, ladderway.
-2. **Level 2:** cave profile, cave passage, bend, fork, rock island, crystal grotto, fungus grotto, flooded gallery,
-   chasm hall, stalactite hall, stream crossing, the spiral decline.
-3. **Level 3:** dark rock set, basalt gallery, magma chamber, dark cave, the Geode, hot seam, old shaft, ore pass.
-4. **The shift:** dynamite and crates, rubble and the rockfall, the gas cloud, lunchbox and notes, fossils, the level
-   map board and minimap drawing, the Shaft sinking upgrade and the cage panel.
+Models go in `models/quarry-under-kit.js` (the kit and the builders) and further `models/quarry-under-*.js` files.
+1. **The kit, tunnels and stations:** materials and textures, the world-position noise, the tunnel extruder (arched
+   profile, fillets, timber sets, lagging, rails, lamps on a wire), room shells with doorways and portal frames,
+   working faces, ore veins, signposts, the three level-1 stations, drive, bend, T junction, crossroads, dug tunnels,
+   the pillar round (3 versions), the ladderway and the spiral decline. Previewed as a whole level 1 built from
+   the generator.
+2. **Level 1 rooms:** stope (6 versions), crib room (4), powder magazine (3), collapsed drift (3), pump room (4).
+3. **Level 2:** cave profile, passages, bend, fork, rock island, the level-2 stations, crystal grotto, fungus grotto,
+   flooded gallery, chasm hall, stalactite hall, stream crossing, ore pass (all versions).
+4. **Level 3:** dark rock set, the level-3 stations, basalt gallery, magma chamber, dark cave, the Geode, hot seam,
+   old shaft (all versions).
+5. **The shift:** dynamite and crates, rubble and the rockfall, the gas cloud, the raft, zip line, lunchbox, notes,
+   tags, fossils, the level map board and minimap drawing, the Shaft sinking upgrade and the cage panel.
 
 ## Checks
 - Every level is one connected place, reachable on foot from the cage on level 1 (the generator guarantees it; test
