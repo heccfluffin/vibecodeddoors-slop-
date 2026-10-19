@@ -1,4 +1,4 @@
-Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks and the elevator next
+Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks in review (`models/hotel.js`) · the elevator next
 
 # The hotel: how the run plays now, and what to change
 
@@ -249,6 +249,38 @@ not needed: the hotel's fake doors already do that job.
   - look away, or hide;
   - a crucifix sends it away for the rest of the room.
 - **Fake doors** (the game's own; the Dupe job): more of them on floor 4 (part 1's x1.5 already does this).
+
+## B1. The floor looks (model: `docs/design/models/hotel.js`, in review)
+Floor 1 stays exactly as it is now. Floors 2-4 change only textures, trim colours, the hall lamps, the light tint and
+the fog, plus a little dressing. No layout, obstacle, door or furniture changes.
+
+| | Walls | Lower panels | Floor | Ceiling | Lamps | Dressing |
+|---|---|---|---|---|---|---|
+| 2 Old Wing | faded green striped paper, bare-plaster patches, a cleaner square where a picture hung | grey-green painted, chipped | worn green carpet, threadbare patches | yellowed, cracked, an old water ring | old glass bowls, dimmer (.58) | cobwebs in the wall/ceiling crease and the 4 corners, up to 4 strips of paper peeling off |
+| 3 Staff & Service | cream 25 cm tiles, one teal row at 1.5 m | teal tiles | speckled lino, scuffs | painted, plain | twin-tube strip lights (cool white, .75) | two pipes along one side of the ceiling (copper and a lagged one) bending up into the ceiling at each end, hangers every 2 m; up to 3 staff signs |
+| 4 Deep Hotel | dark red paper with water running down from the ceiling, mould | near-black wood, a wet tide line | dark red carpet, wet patches | stained, brown rings | bare bulbs on cords that flicker (`hflFlick`), 1 in 5 dead | 2-4 puddles, each under a ceiling stain with a drip falling into it and a ripple |
+
+**Wiring notes**
+- `HFL[f]` holds everything per floor: `tx` (texture key swaps), `trim` (colour swaps for the rail 0x6e4326, the
+  baseboard 0x2a1608 and the crown 0xd8c8a8), `lamp` {c, i, dead, flick}, `amb` [colour, intensity], `fog` [colour, near, far].
+- Register `hflTex(f)` into `TX` once at load under the `tx` names (hfWall2... hfDoor4). While a hall room of floor f
+  is built (the rooms where `hotelW` is true, and their side rooms), `T(k,a,b)` uses `HFL[f].tx[k]` when it has one.
+  **The new wall tiles are 4 m tall**: for a wall key, halve b (`T(key, a, b/2)`), and the piece over an opening
+  (`wOff(...,.5)`) needs offset .75 instead of .5. Wainscot, floor, ceiling and door keep the game's repeats.
+- Trim: swap the three colours in `box()`/`boxMat` during the same build (a Map lookup on number colours).
+- Lamps: on floors 2-4 the hall lamp box (`box(0,LYz,z,1.2,.12,.5,0xfff0c0,0xffd890)`, the hotelW branch only) becomes
+  `hflLamp(f, HY>4 ? HY-4 : 0)`, its group placed at (0, HY-.04, z) (1 cm into the ceiling); the `mkLight` goes to
+  y = HY-.04+`at` with `HFL[f].lamp` colour and intensity. Floor 4: 1 lamp in 5 is dead (light 0, bulb emissive 0);
+  the rest run `hflFlick(lampNo, t)` on both the light and the bulb's `emissiveIntensity`.
+- Light and fog: on entering a room of floor f set the ambient light (`S` has one AmbientLight, 0x2a2014 .7 now) and
+  `S.fog`/`S.background` from `HFL[f]`. Rooms with their own look (offices, archive, stairwell, library, catwalks...)
+  keep what they do now.
+- Dressing: after a hotelW hall is built, `hflDress(f, {g:G, L, HX, HY, zA:.95, zB:ez+.05, occ, open:wg, seed:nn})`;
+  run its `anims` each frame while the room exists. **It uses its own random numbers** (`hflRng`, seeded from the room
+  number), never `Math.random`, so co-op rooms stay identical. Everything it makes is decoration (no obstacles).
+  Mark it all `userData.noSeam=true`.
+- Not checked: the game's wing pieces and the end-wall trim already have end faces that meet (the checker flags them
+  on floor 1 too); nothing new adds to that.
 
 ## Order of work, once this plan is OK
 1. The floor looks: a preview of one hallway in all four looks.
