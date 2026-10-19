@@ -284,28 +284,111 @@ function penDeliveries(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g);
   for(const x of[-397,-395.6,-394.2]){const cg=new THREE.Group();cg.position.set(x,1.1,-837.3);g.add(cg);const q=k.H(cg);q.B(1.0,.05,.8,MT.galv,0,.06,0);penLinkBox(cg,0,.1,0,1.0,1.5,.8);for(const[a,b]of[[-.49,-.39],[.49,-.39],[-.49,.39],[.49,.39]])q.B(.03,1.5,.03,MT.galv,a,.85,b);q.B(.8,.5,.6,M(0xc8a878),0,.35,0)}
   Cy(.04,.04,1.6,MT.galv,-399.4,1.1+.8,-836.1,null,null,6);lab('KITCHEN DELIVERIES',1.6,.3,'#20242a','#e8e0c8',-399.4,2.5,-836.13,Math.PI)}
  penNoSeam(g)}
-/* --- the courtyard inside the inner wall --- */
+/* --- the courtyard inside the inner wall. Redone 2026-10-19: the game's later yard code (penYard, penSecure, penMess,
+   penActBuild) already fills a lot of it; those things are remodelled in place (penYardGame below), and the new things
+   only go where nothing of the game's is: the stores row by the inner gate, the washing lines on the east side, the
+   yard guard booth, the chess tables, the rest shelter beside the planters --- */
 function penForklift(){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B,Cy,rod}=k.H(g),Y=M(0xe0b020,{roughness:.5});/* along z, the forks to +z */
  B(1.2,.9,2.0,Y,0,.75,-.3);B(1.1,.5,.6,MT.dark,0,.5,-1.25);for(const s of[-1,1]){rod([s*.5,1.2,.4],[s*.5,2.2,.4],.04,MT.dark);rod([s*.5,1.2,-.9],[s*.5,2.2,-.9],.04,MT.dark)}B(1.1,.06,1.4,MT.dark,0,2.22,-.25);
  for(const s of[-1,1])B(.1,2.4,.12,MT.steel,s*.35,1.2,.8);B(.9,.1,.1,MT.steel,0,.4,.85);for(const s of[-1,1])B(.12,.05,1.1,MT.steel,s*.3,.12,1.4);B(.5,.6,.5,MT.dark,0,1.35,-.4);
  for(const[x,z,r]of[[-.6,.5,.33],[.6,.5,.33],[-.6,-1.0,.26],[.6,-1.0,.26]])Cy(r,r,.24,MT.black,x,r*.985,z,'x',null,14);penNoSeam(g);return g}
 function penCourtyard(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g);
- /* an exercise cage (x -495..-483, z -724..-712): chain link on posts, a door, a pull-up bar inside */{const x0=-495,x1=-483,z0=-724,z1=-712,H=3.4;for(let x=x0;x<=x1+.01;x+=3)for(const z of[z0,z1])Cy(.05,.05,H,MT.galv,x,H/2,z,null,null,8);for(let z=z0+3;z<z1;z+=3)for(const x of[x0,x1])Cy(.05,.05,H,MT.galv,x,H/2,z,null,null,8);
-  const pan=(ax,c,a0,a1)=>{const L=a1-a0,geo=new THREE.PlaneGeometry(L,H-.1),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*L/.35,uv.getY(i)*(H-.1)/.35);const m=A(geo,MT.link,ax=='x'?(a0+a1)/2:c,H/2,ax=='x'?c:(a0+a1)/2);if(ax=='z')m.rotation.y=Math.PI/2};
-  pan('x',z0,x0,x1);pan('x',z1,x0,-490.6);pan('x',z1,-489.4,x1);pan('z',x0,z0,z1);pan('z',x1,z0,z1);for(const[ax,c,a0,a1]of[['x',z0,x0,x1],['x',z1,x0,x1],['z',x0,z0,z1],['z',x1,z0,z1]])Cy(.035,.035,a1-a0,MT.galv,ax=='x'?(a0+a1)/2:c,H-.02,ax=='x'?c:(a0+a1)/2,ax=='x'?'x':'z',null,6);
-  for(const s of[-1,1])Cy(.06,.06,2.6,MT.steel,-489+s*1.2,1.3,-718,null,null,8);Cy(.025,.025,2.5,MT.galv,-489,2.5,-718,'x',null,8);penBench(g,-492.5,-715,0,2.4)}
- {const f=penForklift();f.position.set(-460,0,-718);f.rotation.y=Math.PI/2;g.add(f);penPallets(g,-456,-717,3,0);penPallets(g,-456,-719.4,5,.1)}
- /* a guard booth (x -392..-386): a small cabin with windows all round, a roof, a traffic cone */{const x=-389,z=-718;B(2.6,1.0,2.6,MT.con2,x,.5,z,null,2);for(const s of[-1,1]){B(2.4,1.1,.04,MT.glass,x,1.55,z+s*1.3);B(.04,1.1,2.4,MT.glass,x+s*1.3,1.55,z)}for(const[a,b]of[[-1.25,-1.25],[1.25,-1.25],[-1.25,1.25],[1.25,1.25]])B(.12,1.2,.12,MT.dark,x+a,1.6,z+b);B(3.0,.2,3.0,MT.dark,x,2.3,z);
-  A(new THREE.ConeGeometry(.2,.6,12),M(0xe86a20),-386.6,.3,-716.2)}
- /* supply cages (x -495..-485, z -822..-816) on a pad */{B(10,.12,6,MT.con2,-490,.06,-819,null,2);for(const x of[-493,-487]){const cg=new THREE.Group();cg.position.set(x,.12,-819);g.add(cg);const q=k.H(cg);for(const[a,b]of[[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]])q.B(.06,2.2,.06,MT.galv,a,1.1,b);q.B(2.86,.05,2.86,MT.galv,0,2.2,0);penLinkBox(cg,0,.05,0,2.8,2.1,2.8);
+ /* the stores row by the inner gate (z -822..-816): supply cages on a pad, the forklift and its pallets, the power box */
+ {B(10,.12,6,MT.con2,-421,.06,-819,null,2);for(const x of[-424,-418]){const cg=new THREE.Group();cg.position.set(x,.12,-819);g.add(cg);const q=k.H(cg);for(const[a,b]of[[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]])q.B(.06,2.2,.06,MT.galv,a,1.1,b);q.B(2.86,.05,2.86,MT.galv,0,2.2,0);penLinkBox(cg,0,.05,0,2.8,2.1,2.8);
   for(const[a,b,h]of[[-.6,-.6,.9],[.6,-.5,.7],[-.5,.6,.6],[.5,.6,1.0]])q.B(.9,h,.9,M(0xc8a878),a,h/2+.0,b)}}
- /* benches either side of the gate path */penBench(g,-460,-819,0,2.6);penBench(g,-420,-819,0,2.6);
- /* outdoor washing lines (x -495..-482, z -790..-770): T posts, lines, orange washing pegged on */{const P=[];for(let i=0;i<5;i++){const z=-788+i*4.5;for(const x of[-494.5,-482.5]){Cy(.05,.05,2.2,MT.galv,x,1.1,z,null,null,8);Cy(.03,.03,1.2,MT.galv,x,2.15,z,'z',null,6)}
-   for(const dz of[-.5,.5])Cy(.006,.006,12,MT.white,-488.5,2.12,z+dz,'x',null,4);for(let j=0;j<5;j++){const c=A(new THREE.PlaneGeometry(.6,.8),M((j+i)%3?0xe86a20:0xe8e8e4,{side:THREE.DoubleSide,roughness:1}),-492.5+j*2.1,1.7,z+(j%2?.5:-.5));c.userData.cloth=1}}}
- /* the power box (x -490.5..-486.5, z -757..-753): a green cabinet in a small fenced pen */{B(1.6,1.5,.9,M(0x2a5a3a,{metalness:.3}),-488.5,.75,-755);B(1.7,.08,1.0,M(0x1a3a24),-488.5,1.54,-755);lab('⚡ DANGER',.6,.3,'#e8c020','#1a1a1a',-488.5,1.1,-754.54,0);
-  for(const[x0,z0,x1,z1]of[[-490.4,-756.9,-486.6,-756.9],[-490.4,-753.1,-488.9,-753.1],[-488.1,-753.1,-486.6,-753.1],[-490.4,-756.9,-490.4,-753.1],[-486.6,-756.9,-486.6,-753.1]]){const L=Math.hypot(x1-x0,z1-z0),geo=new THREE.PlaneGeometry(L,1.6),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*L/.35,uv.getY(i)*1.6/.35);const m=A(geo,MT.link,(x0+x1)/2,.85,(z0+z1)/2);if(x0==x1)m.rotation.y=Math.PI/2}
-  for(const[x,z]of[[-490.4,-756.9],[-486.6,-756.9],[-490.4,-753.1],[-486.6,-753.1]])Cy(.04,.04,1.7,MT.galv,x,.85,z,null,null,6)}
+ {const f=penForklift();f.position.set(-410,0,-819);f.rotation.y=Math.PI/2;g.add(f);penPallets(g,-406,-817.8,3,0);penPallets(g,-406,-820.2,5,.1)}
+ /* the power box (x -400..-396): a green cabinet in a small fenced pen, its gate side facing the yard (+z) */{const cx=-398,cz=-819;B(1.6,1.5,.9,M(0x2a5a3a,{metalness:.3}),cx,.75,cz);B(1.7,.08,1.0,M(0x1a3a24),cx,1.54,cz);lab('⚡ DANGER',.6,.3,'#e8c020','#1a1a1a',cx,1.1,cz+.46,0);
+  for(const[x0,z0,x1,z1]of[[-1.9,-1.9,1.9,-1.9],[-1.9,1.9,-.4,1.9],[.4,1.9,1.9,1.9],[-1.9,-1.9,-1.9,1.9],[1.9,-1.9,1.9,1.9]]){const L=Math.hypot(x1-x0,z1-z0),geo=new THREE.PlaneGeometry(L,1.6),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*L/.35,uv.getY(i)*1.6/.35);const m=A(geo,MT.link,cx+(x0+x1)/2,.85,cz+(z0+z1)/2);if(x0==x1)m.rotation.y=Math.PI/2}
+  for(const[x,z]of[[-1.9,-1.9],[1.9,-1.9],[-1.9,1.9],[1.9,1.9],[-.4,1.9],[.4,1.9]])Cy(.04,.04,1.7,MT.galv,cx+x,.85,cz+z,null,null,6)}
+ /* outdoor washing lines (x -400..-388, z -790..-770) on the laundry's side: T posts, two lines each, washing pegged on */{for(let i=0;i<5;i++){const z=-788+i*4.5;for(const x of[-399.5,-388.5]){Cy(.05,.05,2.2,MT.galv,x,1.1,z,null,null,8);Cy(.03,.03,1.2,MT.galv,x,2.15,z,'z',null,6)}
+   for(const dz of[-.5,.5])Cy(.006,.006,11,MT.white,-394,2.12,z+dz,'x',null,4);for(let j=0;j<5;j++){const c=A(new THREE.PlaneGeometry(.6,.8),M((j+i)%3?0xe86a20:0xe8e8e4,{side:THREE.DoubleSide,roughness:1}),-397.9+j*1.95,1.7,z+(j%2?.5:-.5));c.userData.cloth=1}}}
+ /* the yard guard booth (x -390.3..-387.7, z -719.3..-716.7), its door facing the yard */penGuardBooth(g,-389,-718,2.6,-1,'YARD POST');A(new THREE.ConeGeometry(.2,.6,12),M(0xe86a20),-391.2,.3,-716.2);
+ /* chess tables (x -435..-409, z -714..-711): a concrete table with a board on top and four stools, in a row */for(const x of[-434,-426,-418,-410]){const z=-712.5;Cy(.12,.16,.7,MT.con2,x,.35,z,null,null,12);Cy(.45,.45,.06,MT.con2,x,.73,z,null,null,20);
+   {const t=k.can(128,128,(c,w,h)=>{for(let i=0;i<8;i++)for(let j=0;j<8;j++){c.fillStyle=(i+j)%2?'#3a3430':'#d8d0c0';c.fillRect(i*16,j*16,16,16)}});const p=A(new THREE.PlaneGeometry(.5,.5),new THREE.MeshStandardMaterial({map:t,roughness:.8}),x,.77,z);p.rotation.x=-Math.PI/2}
+   for(const[a,b]of[[.8,0],[-.8,0],[0,.8],[0,-.8]]){Cy(.06,.08,.42,MT.con2,x+a,.21,z+b,null,null,8);Cy(.18,.18,.06,MT.con2,x+a,.45,z+b,null,null,14)}}
+ /* the rest shelter beside the planters (x -484..-468, z -815..-811): a steel roof on six posts, two benches and a bin */{for(const x of[-483.5,-476,-468.5])for(const z of[-814.6,-811.4])B(.12,2.6,.12,MT.steel,x,1.3,z);B(16.4,.08,4.4,MT.galv,-476,2.64,-813);for(const s of[-1,1])B(16.44,.2,.04,MT.dark,-476,2.6,-813+s*2.22);
+   penBench(g,-480,-813,0,2.4);penBench(g,-472,-813,0,2.4);Cy(.25,.22,.8,M(0x2a5a3a),-476,.4,-813,null,null,12)}
  penNoSeam(g)}
+
+/* ---------------- the game's later courtyard things (penYard, penSecure), remodelled in place ---------------- */
+/* a guard booth, w x w, a concrete base to 1 m, glass all round, a steel door on one x side (dx = +1 or -1), a sign over it */
+function penGuardBooth(g,x,z,w,dx,txt){const k=penKit(),{MT,M}=k,{B,Cy,lab}=k.H(g),h=w/2;
+ B(w,1,w,MT.con2,x,.5,z,null,2);for(const s of[-1,1]){B(w-.2,1.22,.04,MT.glass,x,1.6,z+s*(h-.03));B(.04,1.22,w-.2,MT.glass,x+s*(h-.03),1.6,z)}
+ for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1]])B(.14,1.24,.14,MT.dark,x+a*(h-.07),1.6,z+b*(h-.07));B(w+.3,.2,w+.3,MT.dark,x,2.31,z);
+ /* the door on the x side: steel, a small window, a handle */const dxp=x+dx*(h+.025);B(.05,2.06,.9,MT.steel,dxp,1.03,z);B(.02,.4,.5,MT.glass,dxp+dx*.03,1.6,z);B(.04,.04,.14,MT.dark,dxp+dx*.045,1.0,z+.3);
+ lab(txt,w*.7,.17,'#20242a','#e8e0c8',x+dx*(h+.16),2.31,z,dx>0?Math.PI/2:-Math.PI/2);
+ /* inside on the counter: a monitor and a radio; a lamp on the roof */B(.4,.3,.05,MT.dark,x,1.15,z-h+.35);B(.15,.22,.08,MT.black,x+.5,1.11,z-h+.3);Cy(.1,.12,.15,M(0xfff0c0,{emissive:0xffd080}),x,2.485,z,null,null,10);penNoSeam(g)}
+function penPlanter(g,x,z){const k=penKit(),{MT,M}=k,{A,B}=k.H(g);B(2,.6,1,MT.con2,x,.3,z,null,2);B(1.86,.02,.86,M(0x4a3626,{roughness:1}),x,.605,z);
+ for(let i=0;i<3;i++){const sx=x-.6+i*.6;for(const[a,b,r,c]of[[0,0,.3,0x5e7040],[.15,.12,.22,0x6e8248],[-.14,-.1,.2,0x52643a]]){const m=A(new THREE.IcosahedronGeometry(r,0),M(c,{roughness:1,flatShading:true}),sx+a*(i%2?-1:1),.62+r*.75,z+b);m.scale.y=.85;m.rotation.y=i+a*7}}penNoSeam(g)}
+/* an air-con unit on a plinth; returns the fan (spin it about y) */
+function penACUnit(g,x,z){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),C=M(0xb8bcc0,{metalness:.4,roughness:.45});B(2.1,.1,2.1,MT.con2,x,.05,z);B(2,1.3,2,C,x,.75,z);
+ for(const s of[-1,1])for(let i=0;i<8;i++)B(.04,.06,1.7,MT.dark,x+s*1.0,.3+i*.13,z);Cy(.74,.74,.08,MT.dark,x,1.44,z,null,null,24,true);for(const r of[0,Math.PI/2])B(1.46,.02,.03,MT.dark,x,1.49+r*.004,z).rotation.y=r;
+ const f=new THREE.Group();f.position.set(x,1.43,z);g.add(f);for(const r of[0,Math.PI/2]){const b=new THREE.Mesh(new THREE.BoxGeometry(1.3,.02,.18),M(0x5a5a60));b.rotation.y=r+.3;b.position.y=r*.004;f.add(b)}penNoSeam(g);return f}
+function penTank(g,x,z){const k=penKit(),{MT,M}=k,{A,B,Cy,rod}=k.H(g);Cy(1.4,1.4,.1,MT.con2,x,.05,z,null,null,24);Cy(1.2,1.2,2.9,M(0x7a8a6a,{metalness:.3,roughness:.6}),x,1.55,z,null,null,28);
+ for(const y of[.8,1.8,2.6]){const t=A(new THREE.TorusGeometry(1.21,.03,6,40),MT.dark,x,y,z);t.rotation.x=Math.PI/2}Cy(.15,1.25,.35,MT.dark,x,3.175,z,null,null,28);
+ /* a ladder on the yard side (-x), on two stand-offs */for(const s of[-1,1])Cy(.025,.025,2.9,MT.galv,x-1.3,1.55,z+s*.2,null,null,6);for(let y=.4;y<3;y+=.3)Cy(.015,.015,.4,MT.galv,x-1.3,y,z,'z',null,6);for(const y of[.7,2.5])for(const s of[-1,1])B(.16,.04,.04,MT.galv,x-1.25,y,z+s*.2);
+ /* the outlet pipe into the ground */rod([x+1.15,.5,z],[x+1.6,.5,z],.07,MT.galv);rod([x+1.6,.57,z],[x+1.6,-.05,z],.07,MT.galv);penNoSeam(g)}
+/* a 6 m security light; returns the spot for the game's glow */
+function penLightPole(g,x,z){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g);Cy(.25,.3,.25,MT.con2,x,.125,z,null,null,12);Cy(.08,.12,6,MT.galv,x,3.1,z,null,null,10);B(.8,.3,.4,MT.dark,x,6.0,z);B(.7,.02,.3,M(0xfff4c8,{emissive:0xfff0c0}),x,5.84,z);penNoSeam(g);return[x,5.75,z]}
+/* the exercise cage (the game's x -498..-482, z -792..-768, its gate in the east side at z -781.2..-778.8): posts, chain
+   link, top rails, razor coil on three sides, a rubber floor, two weight benches, a dumbbell rack, a pull-up bar, a
+   punching bag on a stand. Returns {bag}: a group pivoting at the top of the chain (swing it with rotation.z). */
+function penGymCage(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g);const x0=-498,x1=-482,z0=-792,z1=-768,H=3.2,D0=-781.2,D1=-778.8;
+ {const m=A(new THREE.PlaneGeometry(x1-x0-.3,z1-z0-.3),M(0x3a4a3e,{roughness:1}),(x0+x1)/2,.085,(z0+z1)/2);m.rotation.x=-Math.PI/2}
+ const post=(x,z,h)=>{Cy(.05,.05,h||3.4,MT.galv,x,(h||3.4)/2,z,null,null,8);Cy(.1,.12,.1,MT.con2,x,.05,z,null,null,10)};
+ for(let x=x0;x<=x1+.01;x+=4)for(const z of[z0,z1])post(x,z,(x==x1&&z==z1)?4.3:3.4);for(let z=z0+4;z<z1-.01;z+=4){post(x0,z,z==-780?3.9:3.4);if(z<D0-.1||z>D1+.1)post(x1,z)}
+ const pan=(ax,c,a0,a1)=>{const L=a1-a0,geo=new THREE.PlaneGeometry(L,H-.1),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*L/.35,uv.getY(i)*(H-.1)/.35);const m=A(geo,MT.link,ax=='x'?(a0+a1)/2:c,.05+(H-.1)/2,ax=='x'?c:(a0+a1)/2);if(ax=='z')m.rotation.y=Math.PI/2};
+ pan('x',z0,x0,x1);pan('x',z1,x0,x1);pan('z',x0,z0,z1);pan('z',x1,z0,D0);pan('z',x1,D1,z1);
+ for(const[ax,c,a0,a1]of[['x',z0,x0,x1],['x',z1,x0,x1],['z',x0,z0,z1],['z',x1,z0,z1]])Cy(.035,.035,a1-a0,MT.galv,ax=='x'?(a0+a1)/2:c,H-.02,ax=='x'?c:(a0+a1)/2,ax=='x'?'x':'z',null,6);
+ for(const[ax,c,a0,a1]of[['x',z0,x0,x1],['x',z1,x0,x1],['z',x0,z0,z1]]){const L=a1-a0,coil=Cy(.22,.22,L,MT.coil,ax=='x'?(a0+a1)/2:c,H+.23,ax=='x'?c:(a0+a1)/2,ax=='x'?'x':'z',null,10,true);const uv=coil.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setY(i,uv.getY(i)*L/1.6)}
+ /* the gate's frame: square posts and a header over the gap */for(const z of[D0-.05,D1+.05])B(.1,H,.1,MT.steel,x1,H/2,z);B(.12,.1,D1-D0+.18,MT.steel,x1,H-.15,(D0+D1)/2);
+ /* two weight benches (the game's at x -494, z -788 and -783) */for(const z of[-788,-783]){const x=-494;B(.08,.42,1.0,MT.steel,x,.21,z+.1);B(.32,.08,1.2,M(0xa02020),x,.46,z+.1);for(const e of[-.35,.55])B(.5,.05,.08,MT.steel,x,.025,z+e);
+  for(const s of[-.5,.5]){B(.06,1.15,.06,MT.steel,x+s,.575,z-.55);B(.12,.04,.4,MT.steel,x+s,.02,z-.55);B(.08,.06,.12,MT.steel,x+s,1.06,z-.48)}Cy(.02,.02,1.7,MT.steel,x,1.1,z-.5,'x',null,8);for(const s of[-1,1]){Cy(.22,.22,.06,MT.dark,x+s*.72,1.1,z-.5,'x',null,16);Cy(.035,.035,.04,MT.steel,x+s*.66,1.1,z-.5,'x',null,8)}}
+ /* the dumbbell rack (the game's at x -497.3, z -776): two shelves, eight dumbbells */{const x=-497.3,z=-776;for(const[a,b]of[[-.22,-1.17],[.22,-1.17],[-.22,1.17],[.22,1.17]])B(.05,.9,.05,MT.steel,x+a,.45,z+b);for(const y of[.45,.85]){B(.5,.04,2.4,MT.steel,x,y,z);for(let i=0;i<4;i++){const dz=-.85+i*.57,dy=y+.02+.07;Cy(.016,.016,.3,MT.steel,x,dy,z+dz,'x',null,6);for(const s of[-1,1])Cy(.07,.07,.08,MT.dark,x+s*.12,dy,z+dz,'x',null,10)}}}
+ /* the pull-up bar (the game's posts at x -490.5, z -772 and -770) */{const x=-490.5;for(const z of[-772,-770]){B(.1,2.7,.1,MT.steel,x,1.35,z);B(.3,.02,.3,MT.steel,x,.01,z)}Cy(.03,.03,2.06,MT.galv,x,2.55,-771,'z',null,8)}
+ /* the punching bag (the game's at x -486, z -788) on an A-frame stand */{const y=3.0;for(const xe of[-487.4,-484.6]){rod([xe,0,-788.8],[xe,y+.05,-788],.04,MT.steel);rod([xe,0,-787.2],[xe,y+.05,-788],.04,MT.steel)}B(3.0,.1,.1,MT.steel,-486,y+.05,-788);
+  var bag=new THREE.Group();bag.position.set(-486,y,-788);g.add(bag);const ch=new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,.42,6),MT.galv);ch.position.y=-.2;bag.add(ch);const bg=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,1.1,16),M(0x8a2a1a,{roughness:.7}));bg.position.y=-.95;bag.add(bg);const cap=new THREE.Mesh(new THREE.CylinderGeometry(.29,.29,.08,16),MT.dark);cap.position.y=-.43;bag.add(cap)}
+ /* the sign on the east fence, clamped to the chain link */B(.04,.9,2.8,MT.dark,-481.9,2.6,-786);for(const a of[-1.2,1.2])for(const b of[-.3,.3])B(.1,.06,.06,MT.steel,-481.95,2.6+b,-786+a);lab('EXERCISE YARD\n1 HOUR PER DAY',2.6,.8,'#20242a','#e8e0c8',-481.87,2.6,-786,Math.PI/2);
+ /* the arm for the PA speaker on the west fence (x -498, z -780) and the arm for the CCTV dome on the north-east corner post */B(.36,.06,.06,MT.steel,-497.8,3.6,-780);B(.06,.06,.5,MT.steel,-482,4.1,-768.2);Cy(.025,.025,.17,MT.steel,-482,4.03,-768.4,null,null,6);
+ penNoSeam(g);return{bag}}
+/* the half basketball court (the game's 16 x 12 at x -452, z -716, the hoop at the +z end): lines and a hoop that faces the court */
+function penHalfCourt(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),cx=-452,cz=-716;
+ const t=k.can(512,384,(x,w,h)=>{x.fillStyle='#7a4a3a';x.fillRect(0,0,w,h);for(let i=0;i<3000;i++){x.fillStyle='rgba(0,0,0,'+Math.random()*.08+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}const s=32;/* px per metre; the hoop end (+z) is the canvas bottom */
+  x.strokeStyle='#ece8dc';x.lineWidth=4;x.strokeRect(4,4,w-8,h-8);x.fillStyle='#8a3a2a';x.fillRect(w/2-2.45*s,h-4-5.8*s,4.9*s,5.8*s);x.strokeRect(w/2-2.45*s,h-4-5.8*s,4.9*s,5.8*s);
+  x.beginPath();x.arc(w/2,h-4-5.8*s,1.8*s,0,Math.PI*2);x.stroke();x.beginPath();x.arc(w/2,h-4-1.575*s,6.75*s,Math.PI+.21,-.21);x.stroke();x.beginPath();x.moveTo(w/2-6.6*s,h-4);x.lineTo(w/2-6.6*s,h-4-2.99*s);x.moveTo(w/2+6.6*s,h-4);x.lineTo(w/2+6.6*s,h-4-2.99*s);x.stroke();x.beginPath();x.arc(w/2,4,1.8*s,0,Math.PI);x.stroke()});
+ const p=A(new THREE.PlaneGeometry(16,12),new THREE.MeshStandardMaterial({map:t,roughness:.9}),cx,.085,cz);p.rotation.x=-Math.PI/2;
+ const zp=cz+6.6;Cy(.1,.12,3.5,MT.steel,cx,1.75,zp,null,null,10);Cy(.25,.28,.1,MT.steel,cx,.05,zp,null,null,12);B(.12,.12,.3,MT.steel,cx,3.3,cz+6.45);B(1.8,1.05,.06,M(0xf0f0f0),cx,3.4,cz+6.3);B(.59,.45,.03,M(0xd04020),cx,3.17,cz+6.255);B(.12,.03,.1,MT.steel,cx,3.03,cz+6.21);
+ const r=A(new THREE.TorusGeometry(.24,.02,6,20),M(0xe06020,{metalness:.5}),cx,3.05,cz+5.95);r.rotation.x=Math.PI/2;A(new THREE.CylinderGeometry(.24,.16,.4,12,1,true),M(0xf0f0f0,{transparent:true,opacity:.6,side:THREE.DoubleSide,wireframe:true}),cx,2.84,cz+5.95);penNoSeam(g)}
+/* the guard catwalk along the north inner wall (the game's deck x -492..-388 at z -701.6, 4.6 up): a grated deck that runs
+   into the wall, brackets, the game's eight posts, a railing on the yard side, a stair down at the east end */
+function penCatwalk(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod}=k.H(g),x0=-492,x1=-388,zw=-700.4,zf=-702.4,top=4.675;
+ if(!k.grate)k.grate=new THREE.MeshStandardMaterial({map:k.can(64,64,(x,w,h)=>{x.fillStyle='#4a5058';x.fillRect(0,0,w,h);x.fillStyle='#22262a';for(let i=0;i<8;i++)for(let j=0;j<8;j++)x.fillRect(i*8+2,j*8+2,5,5)},1),metalness:.4,roughness:.6});
+ B(x1-x0,.1,zw+.02-zf,k.grate,(x0+x1)/2,top-.05,(zw+.02+zf)/2,null,.25);B(x1-x0-.02,.16,.08,MT.steel,(x0+x1)/2,top-.13,zf-.02);
+ for(let x=x0+2;x<x1;x+=4){rod([x,top-1.0,zw+.02],[x,top-.1,zf+.3],.04,MT.steel);B(.2,.3,.04,MT.steel,x,top-1.0,zw-.0+.0-.02+.04)}
+ for(let x=x0+2;x<x1;x+=8){B(.16,top-.1,.16,MT.steel,x,(top-.1)/2,-702.3);B(.32,.02,.32,MT.steel,x,.08,-702.3)}
+ for(let x=x0+.03;x<=x1-.02;x+=2)B(.05,1.05,.05,MT.steel,Math.min(x,x1-.03),top+.525,zf+.04);for(const y of[top+1.05,top+.55])Cy(.025,.025,x1-x0,MT.steel,(x0+x1)/2,y,zf+.04,'x',null,6);B(x1-x0,.12,.012,MT.yellow,(x0+x1)/2,top+.06,zf+.01);
+ for(const y of[top+1.05,top+.55])Cy(.025,.025,zw-zf+.02,MT.steel,x0+.03,y,(zw+zf)/2,'z',null,6);
+ /* the stair: 21 treads down along +x against the wall, stringers, a handrail on the yard side */{const zs0=-702.4,zs1=-701.4,n=21,rs=top/(n+1),gs=.3;for(let i=1;i<=n;i++){B(gs+.02,.04,.96,k.grate,x1+(i-.5)*gs,top-i*rs-.02,(zs0+zs1)/2)}
+  const xe=x1+(n+.3)*gs;for(const z of[zs0+.03,zs1-.03])rod([x1,top,z],[xe,0,z],.05,MT.steel,null,4);rod([x1,top+1.0,zs0+.03],[xe,1.0,zs0+.03],.025,MT.steel);for(const u of[.35,.7])rod([x1+(xe-x1)*u,top*(1-u),zs0+.03],[x1+(xe-x1)*u,top*(1-u)+1.0,zs0+.03],.022,MT.steel)}
+ /* a drop rod for the game's CCTV dome under the deck (x -440, z -701.2), an arm for the PA horn on the wall (x -440, z -700.8) */Cy(.025,.025,top-.1-3.945,MT.steel,-440,(top-.1+3.945)/2,-701.2,null,null,6);B(.08,.08,.36,MT.steel,-440,3.6,-700.55);
+ penNoSeam(g)}
+/* the sally port at the block exit (the game's metal detector arch at x -415, z -738.6, the glass cage out to z -735.2):
+   the arch, a glass and steel porch from the wall to the cage's end, a roof, a floor mat. Returns {light} (the bar over the
+   arch: the game turns it green or red) */
+function penSallyPort(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g),x=-415,z=-738.6,zw=-739.84,ze=-735.2,C=M(0xd8d8d0,{roughness:.6});const GL=M(0x9ab8c8,{transparent:true,opacity:.32,metalness:.2,roughness:.1,depthWrite:false});
+ for(const s of[-1,1]){B(.3,2.4,.42,C,x+s*.85,1.2,z);B(.02,1.6,.1,M(0x103018,{emissive:0x10a030}),x+s*.695,1.3,z)}B(2.04,.32,.42,C,x,2.56,z);const light=B(.6,.08,.04,M(0x203020,{emissive:0x20c040}),x,2.45,z+.23);
+ /* the porch: corner and middle posts, glass between, rails, the roof with a fascia */for(const s of[-1,1]){for(const pz of[zw+.04,(zw+ze)/2,ze-.04])B(.08,2.7,.08,MT.steel,x+s*1.6,1.35,pz);for(const[a,b]of[[zw+.08,(zw+ze)/2-.04],[(zw+ze)/2+.04,ze-.08]])B(.03,2.55,b-a,GL,x+s*1.6,1.355,(a+b)/2);for(const y of[.05,2.66])B(.06,.06,ze-zw-.16,MT.steel,x+s*1.6,y,(zw+ze)/2)}
+ B(3.4,.08,ze-zw+.12,MT.dark,x,2.74,(zw+ze)/2+.06);B(3.44,.3,.04,MT.dark,x,2.6,ze+.14);lab('SALLY PORT · ONE AT A TIME · ARMS OUT',2.6,.24,'#2a2a2e','#e8c020',x,2.6,ze+.17,0);
+ {const t=k.can(256,384,(c,w,h)=>{c.fillStyle='#2e3034';c.fillRect(0,0,w,h);c.fillStyle='#e8c020';for(const s of[-1,1]){c.beginPath();c.ellipse(w/2+s*22,h*.62,12,26,0,0,7);c.fill()}c.fillRect(10,h*.42,w-20,6)});const m=A(new THREE.PlaneGeometry(3.1,ze-zw-.1),new THREE.MeshStandardMaterial({map:t,roughness:.95}),x,.085,(zw+ze)/2);m.rotation.x=-Math.PI/2}
+ penNoSeam(g);return{light}}
+/* an arm from a wall to one of the game's CCTV domes (dome at x, y, z; the wall at wx or wz) */
+function penDomeArm(g,x,y,z,wx,wz){const k=penKit(),{MT}=k,{B,Cy}=k.H(g);if(wx!=null)B(Math.abs(x-wx)+.03,.06,.06,MT.steel,(x+wx)/2,y+.2,z);else B(.06,.06,Math.abs(z-wz)+.03,MT.steel,x,y+.2,(z+wz)/2);Cy(.025,.025,.17,MT.steel,x,y+.12,z,null,null,6);penNoSeam(g)}
+/* all of the above at the game's spots. Returns the handles: {bag, fans:[3], glows:[4 light poles], sally:{light}} */
+function penYardGame(g){const r={};r.bag=penGymCage(g).bag;penHalfCourt(g);for(let x=-494;x<=-458;x+=6)penPlanter(g,x,-818);penGuardBooth(g,-454,-823,2.4,1,'GATE CONTROL');
+ r.fans=[-790,-782,-774].map(z=>penACUnit(g,-384.5,z));for(const z of[-760,-752])penTank(g,-384.5,z);r.glows=[[-486,-805],[-394,-805],[-486,-735],[-394,-735]].map(([x,z])=>penLightPole(g,x,z));
+ for(const x of[-468,-436])penBench(g,x,-704,0,2.4);for(const[x,z]of[[-490,-722],[-480,-722],[-490,-713],[-480,-713]])penPicnic(g,x,z,0);penCatwalk(g);r.sally=penSallyPort(g);
+ penDomeArm(g,-470.4,3.9,-770,-470.12,null);penDomeArm(g,-470.4,3.9,-790,-470.12,null);penDomeArm(g,-409.6,3.9,-748,-409.88,null);penDomeArm(g,-409.6,3.9,-790,-409.88,null);return r}
+
 /* --- the game's own yard things, remodelled in place --- */
 /* the basketball court (the game's 14 x 9 at (-470, -845)) with lines, and its two hoops (the game's posts at x -/+ 6.5) */
 function penCourt(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g);const t=k.can(512,330,(x,w,h)=>{x.fillStyle='#7a4a3a';x.fillRect(0,0,w,h);for(let i=0;i<3000;i++){x.fillStyle='rgba(0,0,0,'+Math.random()*.08+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}x.strokeStyle='#ece8dc';x.lineWidth=4;x.strokeRect(8,8,w-16,h-16);x.beginPath();x.moveTo(w/2,8);x.lineTo(w/2,h-8);x.stroke();x.beginPath();x.arc(w/2,h/2,40,0,7);x.stroke();for(const s of[0,1]){x.beginPath();x.arc(s?w-8:8,h/2,120,s?Math.PI/2:-Math.PI/2,s?Math.PI*1.5:Math.PI/2,false);x.stroke();x.strokeRect(s?w-8-90:8,h/2-40,90,80)}});
@@ -370,12 +453,22 @@ function penBlockOutside(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),Bk=PENV.B,
   x.fillStyle='#4a4c50';x.fillRect(0,h-28,w,28);for(const u of[64,192,320,448]){x.fillStyle='#14181c';x.fillRect(u-8,30,16,70);x.fillStyle='#6a6e74';for(let i=0;i<3;i++)x.fillRect(u-8+i*7,30,2,70);x.fillRect(u-12,26,24,4);x.fillRect(u-12,100,24,4)}},1);
  const FM=new THREE.MeshStandardMaterial({map:t,roughness:.9});
  const face=(ax,c,a0,a1,ry)=>{const L=a1-a0,geo=new THREE.PlaneGeometry(L,H),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)*L/8);const m=A(geo,FM,ax=='x'?(a0+a1)/2:c,H/2,ax=='x'?c:(a0+a1)/2);m.rotation.y=ry};
- face('x',Bk.z0-o,Bk.x0-.15,Bk.x1+.15,Math.PI);face('z',Bk.x0-o,Bk.z0-.15,Bk.z1+.15,-Math.PI/2);face('z',Bk.x1+o,Bk.z0-.15,Bk.z1+.15,Math.PI/2);
+ face('x',Bk.z0-o,Bk.x0-.15,Bk.x1+.15,Math.PI);face('z',Bk.x0-o,Bk.z0-.15,-766.15,-Math.PI/2);face('z',Bk.x0-o,-741.85,Bk.z1+.15,-Math.PI/2);/* the west side stops at the mess hall (z -766.15..-741.85), which has its own doorway into the block */face('z',Bk.x1+o,Bk.z0-.15,Bk.z1+.15,Math.PI/2);
  face('x',Bk.z1+o,Bk.x0-.15,-416.4,0);face('x',Bk.z1+o,-413.6,Bk.x1+.15,0);/* the exit side, round its frame */
- /* the exit: frame, canopy on brackets, keypad, lamp; the game's door slides into the wall's thickness */for(const x of[-416.25,-413.75])B(.3,2.75,.36,MT.steel,x,1.375,Bk.z1);B(2.84,.3,.4,MT.steel,-415,2.72,Bk.z1);/* the lintel 3 cm over the door's top, a little deeper than the jambs */B(3.2,.12,1.4,MT.dark,-415,3.3,Bk.z1+.7);for(const s of[-1,1])B(.06,.5,.06,MT.steel,-415+s*1.5,3.0,Bk.z1+1.2);
- B(.2,.28,.05,M(0x2a2e34),-412.9,1.4,Bk.z1+.19);B(.14,.14,.02,M(0x60ff80,{emissive:0x208030}),-412.9,1.42,Bk.z1+.22);B(2.6,.15,1.0,MT.con2,-415,.075,Bk.z1+.65);
+ /* the exit: frame, canopy on brackets, keypad, lamp; the game's door slides into the wall's thickness */for(const x of[-416.25,-413.75])B(.3,2.75,.36,MT.steel,x,1.375,Bk.z1);B(2.84,.3,.4,MT.steel,-415,2.72,Bk.z1);/* the lintel 3 cm over the door's top, a little deeper than the jambs *//* (no canopy: the sally port's porch roofs the door) */
+ B(.2,.28,.05,M(0x2a2e34),-412.9,1.4,Bk.z1+.19);B(.14,.14,.02,M(0x60ff80,{emissive:0x208030}),-412.9,1.42,Bk.z1+.22);
  /* downpipes at the corners */for(const[x,z]of[[Bk.x0-.3,Bk.z0-.3],[Bk.x1+.3,Bk.z0-.3],[Bk.x0-.3,Bk.z1+.3],[Bk.x1+.3,Bk.z1+.3]])Cy(.07,.07,H+.2,MT.galv,x,(H+.2)/2,z,null,null,8);
  /* the roof: the game's slab stays (4.6..4.9, 60.6 square); a parapet round it, units and ducts on top */for(const[ax,c]of[['x',Bk.z0-.15],['x',Bk.z1+.15],['z',Bk.x0-.15],['z',Bk.x1+.15]]){if(ax=='x')B(60.6,.5,.3,MT.con2,-440,5.15,c);else B(.3,.5,60,MT.con2,c,5.15,-770)}
  for(const[x,z]of[[-455,-790],[-440,-770],[-425,-750]]){B(4,1.6,2.6,MT.galv,x,4.9+.8,z);B(4.04,.1,2.64,MT.dark,x,6.55,z);for(const s of[-1,1])Cy(.6,.6,.1,MT.dark,x+s*1,6.62,z,null,null,16)}
  B(.8,.8,24,MT.galv,-448,5.3,-776);B(18,.8,.8,MT.galv,-440,5.3,-764);for(const[x,z]of[[-462,-752],[-418,-792]]){Cy(.3,.3,1.2,MT.galv,x,5.5,z,null,null,12);Cy(.45,.45,.15,MT.dark,x,6.15,z,null,null,12)}
  penNoSeam(g)}
+/* the mess hall from outside (the game's PMESS: x -498..-470, z -766..-742, 4.6 high, roof slab 4.6..4.9): a plain
+   facade skin 1 cm off its three outer walls, a parapet round its roof, frames and bars round the four slit windows
+   (z -762, -756, -750, -744, 3.4 up), an arm for the PA horn on the west wall (z -754) */
+function penMessOutside(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),H=4.6,X0=-498,Z0=-766,Z1=-742,o=.16;
+ if(!k.facP)k.facP=new THREE.MeshStandardMaterial({map:k.can(512,256,(x,w,h)=>{x.fillStyle='#8e8c86';x.fillRect(0,0,w,h);for(let i=0;i<6000;i++){x.fillStyle=Math.random()<.5?'rgba(40,40,40,'+Math.random()*.08+')':'rgba(255,255,255,'+Math.random()*.06+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}x.strokeStyle='rgba(40,40,40,.35)';x.lineWidth=2;for(let i=0;i<=4;i++){x.beginPath();x.moveTo(i*128,0);x.lineTo(i*128,h);x.stroke()}x.beginPath();x.moveTo(0,h*.5);x.lineTo(w,h*.5);x.stroke();x.fillStyle='#4a4c50';x.fillRect(0,h-28,w,28)},1),roughness:.9});
+ const face=(ax,c,a0,a1,ry)=>{const L=a1-a0,geo=new THREE.PlaneGeometry(L,H),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)*L/8);const m=A(geo,k.facP,ax=='x'?(a0+a1)/2:c,H/2,ax=='x'?c:(a0+a1)/2);m.rotation.y=ry};
+ face('x',Z0-.15-.01,X0-.16,-470.16,Math.PI);face('x',Z1+.15+.01,X0-.16,-470.16,0);face('z',X0-o,Z0-.16,Z1+.16,-Math.PI/2);
+ B(27.85,.5,.3,MT.con2,-484.225,5.15,Z0);B(27.85,.5,.3,MT.con2,-484.225,5.15,Z1);B(.3,.5,Z1-Z0-.3,MT.con2,X0,5.15,(Z0+Z1)/2);
+ for(const z of[-762,-756,-750,-744]){const x=X0-o;B(.02,1.1,1.54,M(0x2a3a44,{emissive:0x304050,roughness:.2}),x-.01,3.4,z);for(const y of[2.81,3.99])B(.06,.08,1.7,MT.steel,x-.03,y,z);for(const s of[-1,1])B(.06,1.1,.08,MT.steel,x-.03,3.4,z+s*.81);for(let i=0;i<4;i++)Cy(.02,.02,1.1,MT.dark,x-.05,3.4,z-.45+i*.3,null,null,6);B(.12,.04,1.8,MT.con2,x-.06,2.75,z)}
+ B(.1,.08,.08,MT.steel,-498.19,3.6,-754);penNoSeam(g)}

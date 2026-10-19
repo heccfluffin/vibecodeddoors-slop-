@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-19 · batch 1 approved · batch 2 (yard, courtyard, inner wall, workshop, block outside) in review
+Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved, its courtyard re-planned (in review) · batch 3 (cells, corridor A, cameras) next
 
 # The Dark Penitentiary rework (remodel list #23)
 
@@ -35,14 +35,20 @@ routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**
 | Line-up boxes painted on the ground | x -504..-490, z -840..-834 |
 | Benches and a weights pile | x -460..-452, z -840..-834 |
 | Kitchen delivery dock | x -400..-388, z -840..-834 |
-| Exercise cage | x -495..-483, z -724..-712 |
-| Forklift and pallets | x -462..-454, z -721..-715 |
-| Inner guard booth | x -392..-386, z -721..-715 |
-| Supply cages | x -495..-485, z -822..-816 |
-| Benches | x -464..-456, z -820..-818 |
-| Benches | x -424..-416, z -820..-818 |
-| Outdoor washing lines | x -495..-482, z -790..-770 |
-| Power box | x -490.5..-486.5, z -757..-753 |
+| Stores row: supply cages on a pad | x -426..-416, z -822..-816 |
+| Stores row: forklift and pallets | x -412..-405, z -821..-817 |
+| Stores row: power box in a fenced pen | x -400..-396, z -821..-817 |
+| Outdoor washing lines (laundry side) | x -400..-388, z -789..-769 |
+| Yard guard booth | x -390.3..-387.7, z -719.3..-716.7 |
+| Chess tables with stools | x -435..-409, z -713.5..-711.5 |
+| Rest shelter with benches, by the planters | x -484..-468, z -815.3..-810.7 |
+
+**The courtyard was re-planned on 2026-10-19.** The first plan missed the game's later yard code: `penYard` (exercise
+cage, half court, picnic tables, planters, gate control booth, AC units, water tanks, light poles, benches),
+`penSecure` (catwalk, PA horns, CCTV domes, the sally port, the head-count board), `penMess` (the mess hall on the
+block's west side) and `penActBuild` (gym, yard and laundry activities). All of those stay where they are and are
+remodelled in place. The new courtyard things above are checked against them too (and against the yard walkers' paths
+at z -732 and -705, the three yard inmates, the guard loop and the gate path): nothing overlaps.
 
 ## Batches
 1. The fences, the watchtowers, the front gate and gatehouse, everything outside the fence.
@@ -117,7 +123,40 @@ routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**
 - **Inner gate** (`igate` DOOR, x -446..-434 at z -830): the slab mesh → `penInnerGate()`, positioned where the slab
   is (y 3.4) and moved the same way; drop the `scale.y` of 2.6 (the model is already 12 x 6.76). It rides 2 cm up on
   the steel track that `penInnerWall` lays in the gap.
-- **Cell Block D outside:** `penBlockOutside(g)` adds a facade skin 1 cm off every outer wall, the exit door's frame,
-  canopy, keypad and apron (the exit DOOR at x -416..-414 is unchanged and still slides into the wall), downpipes, and
+- **Courtyard (re-planned):** `penCourtyard(g)` now builds only the new things (stores row, washing lines, yard booth,
+  chess tables, rest shelter); give each its footprint from the table as an obstacle (the chess stools and the shelter's
+  posts can be small boxes). The catwalk stair needs one too: x -388..-381.5, z -702.5..-701.3.
+- **The game's later yard, remodelled in place** (`penYardGame(g)` builds all of it and returns the handles; or call the
+  parts). Hide the old meshes, keep every obstacle, prompt, activity and anim position:
+  - `penYard` exercise cage → `penGymCage(g)` (posts, link, rails, razor coil, rubber floor, the two weight benches, the
+    dumbbell rack, the pull-up bar, the punching bag on an A-frame; the old cage floor paint goes). It returns `{bag}`:
+    swing that group with `rotation.z` instead of the old bag mesh. penSecure's cage torus wire goes (the coil is in the
+    model). The PA horn on the west fence (-497.6, -780) and the CCTV dome by the north-east corner (-482, -768.4) now
+    have arms on taller posts.
+  - half court → `penHalfCourt(g)` (paint and hoop; the hoop faces the court, the ball anim is unchanged).
+  - the picnic tables move into a tidy 2 x 2 grid: `penPicnic` at (-490, -722), (-480, -722), (-490, -713), (-480, -713)
+    (obstacles 2.6 x 1.9 at the new spots; they were scattered).
+  - planters → `penPlanter(g, x, -818)` for x -494..-458 step 6; gate control booth → `penGuardBooth(g, -454, -823, 2.4,
+    1, 'GATE CONTROL')` (move its glow sprite down to y 2.0, it was inside the roof; the old label goes, it is in the
+    model); AC units → `penACUnit(g, -384.5, z)` (returns the fan: spin it about y instead of the old blade); water tanks →
+    `penTank(g, -384.5, z)`; light poles → `penLightPole(g, x, z)` (returns the glow spot); the two benches →
+    `penBench(g, x, -704, 0, 2.4)`.
+  - `penSecure` catwalk → `penCatwalk(g)`: the deck now runs into the wall (no gap), brackets, the eight posts, a
+    railing, and a **stair down at the east end** (x -388..-381.6) so the guard up there has a way up. It also has the
+    drop rod for the CCTV dome under it (-440, -701.2) and an arm for the PA horn (-440, -700.8). Move the "NO CLIMBING"
+    sign to z -700.38 and the "INMATES ESCORTED / YARD CLOSES AT DUSK" sign (penYard) to z -700.38: both hung in the air.
+  - the sally port → `penSallyPort(g)`: the arch, a glass porch from the block wall out to z -735.2 (extend its two side
+    obstacles back to the wall, z -739.85), a roof, the floor mat. It returns `{light}`: use it as the arch's red/green
+    light. The SALLY PORT sign is in the model (on the porch's front); the old one floated over the arch.
+  - CCTV domes on the block walls (-470.4, -770), (-470.4, -790), (-409.6, -748), (-409.6, -790): `penDomeArm(g, x, 3.9,
+    z, wallX, null)` with wallX -470.12 / -409.88 (they hung 25 cm off the walls). The PA horn on the mess hall's west
+    wall gets its arm in `penMessOutside`.
+- **The mess hall from outside:** `penMessOutside(g)`: a plain facade skin on its three outer walls, a parapet round
+  its roof, frames, glass and bars outside the four slit windows. Its own wall corners overlap each other (the game's
+  shell); the skin covers that.
+- **Cell Block D outside:** `penBlockOutside(g)` adds a facade skin 1 cm off every outer wall (on the west side only
+  outside the mess hall, so its doorway stays open), the exit door's frame,
+  keypad (no canopy and apron any more: the sally port's porch covers the door; the exit DOOR at x -416..-414 is
+  unchanged and still slides into the wall), downpipes, and
   a parapet, AC units and ducts on the roof (the game's roof slab stays). The CELL BLOCK D signs go 20 cm off the
   walls (they were inside the new skin), the two warning signs on the inner wall to `I.z0 - .45`.
