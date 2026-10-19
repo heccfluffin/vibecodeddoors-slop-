@@ -620,13 +620,19 @@ function pyPriest(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy,rod}=k.
  for(const s of[-1,1]){B(.06,.025,.02,M(0x14100c),s*.065,2.83,.17);rod([s*.25,2.48,0],[s*.3,2.12,.12],.055,SK);rod([s*.3,2.12,.12],[s*.18,1.95,.3],.05,SK)}B(.08,.03,.02,M(0x3a1a0a),0,2.7,.17);/* the mouth that sings */
  const sis=new THREE.Group();sis.position.set(.18,1.95,.32);g.add(sis);k.H(sis).rod([0,-.15,0],[0,.08,0],.018,G.gold);k.H(sis).A(new THREE.TorusGeometry(.08,.012,6,16,Math.PI),G.gold,0,.08,0);/* a sistrum */
  B(.5,.1,.06,G.gold,0,2.53,.17);pyNoSeam(g);return g}
-/* a wall lever for the Trial of Sand. sd = which wall (-1 west, +1 east), as the game's lever list. The plate goes into the
-   wall (wall at bx(i)+sd*1.6); the game's handle group h sits 8 cm in front of it: put pyLeverHandle() in h. */
-function pyLeverPlate(g,x,y,z,sd){const k=pyKit(),{M}=k,{B,A,Cy}=k.H(g);const BR=M(0x5a4a30,{metalness:.6,roughness:.5});B(.2,.9,.56,BR,x+sd*.1,y,z);/* from the lever's spot back through the wall line */
- const t=k.can(64,128,(c,w,h)=>{c.fillStyle='#4a3a24';c.fillRect(0,0,w,h);c.fillStyle='#0a0806';c.fillRect(w/2-5,10,10,h-20);c.strokeStyle='#c8a050';c.lineWidth=3;c.strokeRect(4,4,w-8,h-8)});const p=A(new THREE.PlaneGeometry(.5,.84),new THREE.MeshStandardMaterial({map:t,roughness:.6}),x-sd*.012,y,z);p.rotation.y=sd>0?-Math.PI/2:Math.PI/2;
- Cy(.04,.04,.1,BR,x-sd*.05,y,z,'x',null,10);pyNoSeam(g)}
-function pyLeverHandle(){const k=pyKit(),{M}=k,g=new THREE.Group(),{Cy,A,rod}=k.H(g);Cy(.06,.06,.1,M(0x6a5a40,{metalness:.6}),0,0,0,'x',null,12);rod([0,0,0],[0,.72,0],.03,M(0x6a5a40,{metalness:.5,roughness:.4}));A(new THREE.SphereGeometry(.09,12,8),M(0xc01818,{roughness:.4}),0,.75,0);
- for(let i=0;i<2;i++){const b=A(new THREE.TorusGeometry(.04,.008,4,10),M(0xc8a050,{metalness:.6}),0,.25+i*.2,0);b.rotation.x=Math.PI/2}g.userData.dpKeep=1;pyNoSeam(g);return g}
+/* a wall lever for the Trial of Sand, a proper throw lever. sd = which wall (-1 west, +1 east) as in the game's list;
+   x = the game's lever spot (bx(i)+sd*1.45), the wall 15 cm behind it. The game's handle group h sits 8 cm in front
+   of the plate and turns round z (an axle along the wall): two bronze cheeks hold that axle, the handle sticks out
+   from the wall. With the angles swapped in the spec (start -sd*.6, pulled +sd*.6) it starts up at 45 degrees and
+   pulls down to 24 degrees below level, always clear of the wall. */
+function pyLeverPlate(g,x,y,z,sd){const k=pyKit(),{M}=k,{B,A,Cy}=k.H(g);const BR=M(0x5a4a30,{metalness:.6,roughness:.5}),BZ=M(0x8a6a30,{metalness:.7,roughness:.35});
+ B(.2,.7,.5,BR,x+sd*.1,y,z);/* the plate, from the lever spot back through the wall line */
+ const t=k.can(128,180,(c,w,h)=>{c.fillStyle='#4a3a24';c.fillRect(0,0,w,h);c.strokeStyle='#c8a050';c.lineWidth=5;c.strokeRect(6,6,w-12,h-12);c.fillStyle='#c8a050';c.beginPath();c.moveTo(w/2-22,h-70);c.lineTo(w/2+22,h-70);c.lineTo(w/2,h-30);c.fill();c.fillRect(w/2-6,h-110,12,42);c.font='bold 22px DoorsSans,Arial';c.textAlign='center';c.fillText('PULL',w/2,34)});
+ const p=A(new THREE.PlaneGeometry(.46,.66),new THREE.MeshStandardMaterial({map:t,roughness:.6}),x-sd*.012,y,z+.0);p.rotation.y=sd>0?-Math.PI/2:Math.PI/2;
+ /* two cheeks out from the plate to just past the axle (1 cm into the plate), the axle along z through both */for(const s2 of[-1,1]){const c=B(.2,.26,.02,BZ,x-sd*.09,y,z+s2*.07);}Cy(.022,.022,.2,BZ,x-sd*.08,y,z,'z',null,10);pyNoSeam(g)}
+function pyLeverHandle(sd){const k=pyKit(),{M}=k,g=new THREE.Group(),{Cy,A,rod}=k.H(g);const a=.185,dx=-sd*Math.cos(a),dy=Math.sin(a),L=.62;
+ Cy(.045,.045,.1,M(0x6a5a40,{metalness:.6}),0,0,0,'z',null,12);/* the hub on the axle, between the cheeks */rod([0,0,0],[dx*L,dy*L,0],.03,M(0x6a5a40,{metalness:.5,roughness:.4}));A(new THREE.SphereGeometry(.08,12,8),M(0xc01818,{roughness:.4}),dx*(L+.05),dy*(L+.05),0);
+ for(let i=0;i<2;i++){const b=A(new THREE.TorusGeometry(.04,.008,4,10),M(0xc8a050,{metalness:.6}),dx*(.2+i*.18),dy*(.2+i*.18),0);b.rotation.y=Math.PI/2;b.rotation.z=0;b.lookAt(dx*10,dy*10,0)}g.userData.dpKeep=1;pyNoSeam(g);return g}
 /* the sand: materials for the game's rising sand box and its four falling streams (scroll their map.offset.y) */
 function pySandMats(){const k=pyKit();if(k.sm)return k.sm;const t=k.can(256,256,(x,w,h)=>{x.fillStyle='#d8b070';x.fillRect(0,0,w,h);for(let i=0;i<8000;i++){x.fillStyle=Math.random()<.5?'rgba(150,110,50,'+Math.random()*.2+')':'rgba(255,240,200,'+Math.random()*.2+')';x.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*2,1)}for(let i=0;i<10;i++){x.strokeStyle='rgba(150,110,50,.25)';x.lineWidth=2;x.beginPath();x.moveTo(0,i*26);for(let u=0;u<w;u+=16)x.lineTo(u,i*26+Math.sin(u*.05+i)*6);x.stroke()}},1);
  const f=k.can(64,256,(x,w,h)=>{x.clearRect(0,0,w,h);for(let i=0;i<60;i++){const u=Math.random()*w;x.fillStyle='rgba(220,180,110,'+(.3+Math.random()*.5)+')';x.fillRect(u,Math.random()*h,1+Math.random()*3,20+Math.random()*80)}},1);

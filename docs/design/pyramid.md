@@ -100,8 +100,10 @@ puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the und
   wobbled and lit through `d.material.emissive`); the label planes' material → `pyGongLabel(k)` (signs drawn; the
   game's '𓂀' label needed a font some PCs lack). The priest's parts → `pyPriest()` in `pr` (same spot and turn).
   The HUD and caption texts that print `SY[k]` are unchanged.
-- Sand: each lever's base box → `pyLeverPlate(g, x, Y+1.4, z, sd)`; in `h`, the handle and knob → `pyLeverHandle()`
-  (same pivot and swing). The sand box's material → `pySandMats().sand` (the game already scrolls its map); the four
+- Sand: each lever's base box → `pyLeverPlate(g, x, Y+1.4, z, sd)` (plate, two cheeks, the axle along z); in `h`, the
+  handle and knob → `pyLeverHandle(sd)` (same pivot). **Swap the lever angles**: start and reset `h.rotation.z = -sd*.6`,
+  pulled `+sd*.6`. Then a lever starts up at 45° and pulls down to 24° below level; with the old angles the pulled
+  handle went 34 cm into the wall. The sand box's material → `pySandMats().sand` (the game already scrolls its map); the four
   fall columns' material → `pySandMats().fall` (scroll `map.offset.y -= dt*1.5` while pouring). Add
   `pySandCracks(g)`. **Move the Sand tablet** from (bx(18), bz(10)-1.25, ry 0) to (bx(18)-1.58, bz(10)+.2, ry π/2):
   it hung 10 cm in front of the Song gate, so it floated in the open doorway once the gate sank.
