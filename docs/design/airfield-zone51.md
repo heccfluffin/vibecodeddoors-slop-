@@ -1,4 +1,15 @@
-Status: shipped in r623 (2026-10-18): the whole airfield and Zone 51 batches 1-5 (spec complete)
+Status: shipped in r623 (2026-10-18): the whole airfield and Zone 51 batches 1-5 (spec complete) · one fix waiting (2026-10-19, below)
+
+## Fix after r623 (2026-10-19, the user's screenshot): the crop duster's wing edge z-fights
+In `afCropDuster` (dx617, same text as `models/airfield.js`), three numbers. The green wing stripe ended exactly on the
+wing's back edge (both faces at z -0.40), the wing tips ended on the wing's front and back edges, and the tailplane
+stripe was exactly as wide as the tailplane. Now the stripe wraps 1 cm round the back edge, the tips are 2 cm deeper
+than the wing, the tail stripe is 2 cm wider, and the tailwheel sits on the ground (it hovered 6 mm). Checked with the
+z-fight checker: 6 pairs before, none after.
+- `B(12.02,.17,.3,0,1.05,-.25,GR);for(const s of[-1,1])B(.1,.18,1.8,s*6,1.05,.5,Y2);`
+  → `B(12.02,.17,.32,0,1.05,-.25,GR);for(const s of[-1,1])B(.1,.18,1.84,s*6.01,1.05,.5,Y2);`
+- `B(3.6,.09,.2,0,1.8,-3.45,GR);` → `B(3.62,.09,.2,0,1.8,-3.45,GR);`
+- `C(.12,.12,.08,0,.12,-3.9,DK,'x',null,10);` → `C(.12,.12,.08,0,.115,-3.9,DK,'x',null,10);`
 
 # The airfield and Dark Zone 51
 

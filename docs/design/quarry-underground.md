@@ -1,0 +1,256 @@
+Status: plan in review (2026-10-19), 88 room versions added the same day · preview "Quarry Underground Plan" (claude.ai artifact YMAf9xif5xPEjRLr9aNz3W)
+
+# The Old Quarry underground: the quarry mine, rebuilt
+
+The user, 2026-10-19: design the Old Quarry's underground (the mine under the headframe), before the desert mines.
+Part 1 is this plan (layout and how a shift plays). Part 2 brings the models in batches, each with a preview and the
+user's OK, in `docs/design/models/quarry-under*.js`.
+The layout generator is already written: `models/quarry-under.js` (`ugGen(seed)`, pure data, no THREE). The preview
+draws its real output.
+
+## What's there now (survey of r632)
+- **The generator is a 37 x 37 grid of 4 m squares** (`mnGen`, dx588:21): a 3 x 3 landing at the cage, 7 random-walk
+  tunnels, 7-9 round caverns (crystal, magma, flood, fungus, dark), one level at y -40.
+- **Look:** square walls and corners, roofs stair-stepped (random height per square), rock texture stretched about
+  9 times on tall walls, dotted seams between wall pieces, floating stalactites and cones, a cone standing in a lava
+  pool, lava rivers running through the cave walls and out of the mine, flooded galleries that render black with
+  you standing on the water, rock pillars that are stacks of balls. No light except your helmet lamp.
+- **Play:** wander, break veins (E), carry 10-30 ore back to the minecart at the cage, ride up, smelt. Five minutes,
+  then the mine collapses and anyone inside loses what they carry. Biomes and distance decide the ore. There's no
+  reason to go one way rather than another, no way to find your way back except memory, and nothing happens during
+  a shift.
+- **Cost:** 3,200-6,700 separate meshes per mine, 30-50 copies of the lava texture, and a new mine is built every
+  5 min 20 s whether anyone goes down or not (a 0.2-1.4 s hitch).
+
+## The plan
+
+### 1. Three levels
+The mine stays in the same box (72 m each side of the shaft, `MN.ox, MN.oz` = -247, -1446) and goes deeper:
+
+| Level | Floor y | Feel | Ore |
+|---|---|---|---|
+| 1 · Old Workings | -40 (as now) | timbered drives, rails, lamps on a wire, the miners' rooms | copper and iron, some silver |
+| 2 · The Caves | -52 | natural caves the miners broke into: crystal, fungus, water, chasms | silver, gold, crystal |
+| 3 · The Deep | -64 | hot, dark rock: magma, basalt, the dark cave, the Geode | gold, crystal, diamond, uranium |
+
+- The shaft goes down to level 3, with a **shaft station** on every level.
+- **The cage always stops at level 1.** A new tycoon upgrade, **Shaft sinking** (🕳️: "Level 1 only" / "Stops at
+  level 2" 300 gold / "Stops at level 3" 900 gold), opens the cage gates on the levels below. The ride takes
+  the `qtRide()` time for level 1, plus half of it again for each extra level.
+- Without the upgrade you walk down: every level has a **spiral decline** (a ramp that spirals 12 m down round a rock
+  core, about 1 in 4.5) or a **ladderway** at the end of a straight main drive from the station, and sometimes a second
+  ladderway elsewhere. The cage panel shows the levels; locked ones say "Shaft sinking needed".
+
+### 2. Built from pieces, not squares
+`ugGen(seed)` lays out each level from **pieces**: tunnels, junctions and rooms, joined at openings ("ends") that sit on
+even metres and face one of four ways. All of its randomness comes from the seed (Park-Miller, like `mnRnd`), so every
+co-op player gets the same mine. It takes about 12 ms.
+1. Stations on all three levels (16 m square on level 1, 12 m below).
+2. **The ways down first:** from a station, a straight main drive (12-28 m), then the spiral decline (70%) or a
+   ladderway. On the level below, a main drive is dug from that station to where it arrives (A* on a 2 m lattice,
+   straight runs preferred), so every level is one connected place.
+3. **Then each level grows** from its open ends, far ends more often (so it spreads out): after a room or a station
+   comes a tunnel; a cave fork may open straight into a room; rooms are tried first while the level is short of them;
+   a dead-end room is never put on the last open ends; 2 m of rock between pieces. Level 1 aims for 17-24 pieces and
+   5 rooms, level 2 for 15-22 and 5, level 3 for 13-20 and 4.
+4. Open ends that nothing fits become **working faces**: a rock face with 2-3 veins, the tunnel's last timber set.
+5. **Ways round:** pillar rounds (level 1) and rock islands (levels 2-3) are pieces that split and rejoin, and two
+   dead ends close to each other can be joined by a dug tunnel. About 2-3 per mine.
+6. Rooms and junctions are mirrored at random, so two of a kind don't look the same.
+7. **The 1-in-100 old shaft** to the Desert Mines (dx597) moves to level 3: its timbered portal is set into the
+   working face farthest from the shaft (so it needs no room of its own).
+
+Measured over 300 seeds: pieces per level 21 / 16 / 14, rooms 3.2 / 4.1 / 3.9, 2.7 ways round, 1.6 ladderways;
+93% of seeds work first time and the rest on a later try (the generator tries up to 8 times; all 300 work).
+
+Coordinates in the plan: metres from the shaft, forward is -z (desert-local x = `MN.ox + x`, z = `MN.oz + z`).
+`ugWorld(p)` gives each piece's floor shapes in those coordinates (paths with a width, blobs, rectangles), which the
+models, the collision, the minimap and the station map board all use.
+
+### 3. The pieces
+Level 1 · Old Workings
+| Piece | Size | What it is |
+|---|---|---|
+| Shaft station | 16 x 16 | The cage, the minecart bay, a tool board, the shift clock, the level map board, a bench. Exits on all four sides. |
+| Drive | 4 x 12-26 | Timbered tunnel (a set every 3 m), rails, lamps on a wire. |
+| Bend | radius 6 | A curved drive. |
+| T junction, crossroads | 8 x 8 | With a signpost. |
+| Pillar round | 20 x 28 | The drive goes all the way round a 12 x 16 ore pillar: veins on every face, two ways past. |
+| Stope | 14 x 18 | A worked-out ore chamber, timber cribs holding the roof, rough benches of rock, lots of veins, often a big seam. |
+| Crib room | 8 x 10, dead end | The miners' break room: benches, a table with lunch tins, a stove, lockers. A lunchbox to find. |
+| Powder magazine | 6 x 9, dead end | Behind a heavy door: dynamite crates. |
+| Collapsed drift | 4 x 12 | Broken timbers, a rubble heap to squeeze past on one side. |
+| Pump room | 10 x 10 | An old pump over a flooded sump. |
+
+Level 2 · The Caves
+| Piece | Size | What it is |
+|---|---|---|
+| Cave passage, cave bend | 4.6 wide | Natural passages, never quite straight. |
+| Cave fork | 12 x 10 | The cave splits two or three ways. |
+| Rock island | 20 x 24 | The passage splits round a rock island and joins again. |
+| Crystal grotto | 16 x 20 | Glowing crystal clusters, silver and crystal veins. |
+| Fungus grotto | 20 x 20 | Giant mushrooms, moss, vines and glowworms (today's lush fungus, done properly). |
+| Flooded gallery | 10 x 24 | Knee-deep water you wade through (you stand in it, slower), a plank walkway along one side. |
+| Chasm hall | 14 x 20 | A fissure across the cave: a rope bridge, or three stepping stones to jump. |
+| Stalactite hall | 20 x 20 | Columns, flowstone and stalactites, a path between them. |
+| Stream crossing | 6 x 12 | A stream runs across the passage: stepping stones. |
+| Ore pass | 6 x 8, dead end | A grate over a chute: ore dropped in lands in the cage's minecart. Levels 2 and 3. |
+
+Level 3 · The Deep
+| Piece | Size | What it is |
+|---|---|---|
+| Cave passage, bend, fork, rock island | | As level 2, in dark rock. |
+| Basalt gallery | 6 x 16 | Black basalt columns and glowing cracks. |
+| Magma chamber | 24 x 24 | A lava river with a stone bridge, geysers, a lava lake with stepping stones to a diamond island, basalt. |
+| Dark cave | 18 x 18 | Pitch black without the LED headlamp: glowworms, a chasm with a plank bridge. |
+| The Geode | 12 x 15, dead end | A round room lined with giant crystals. Gems. |
+| Hot seam | 6 x 9, dead end | Glowing green rock, uranium, Geiger clicks. |
+| Old shaft | in a working face | The 1-in-100 way down to the Desert Mines, door 60 (dx597's portal). |
+
+The links: the **spiral decline** (16 x 16, on both levels: in at one side, a full turn and a half down round the
+core, out facing back the way you came) and the **ladderway** (4 x 8: a raise with ladders and a landing every 4 m;
+hold W to climb, S to go down, like the existing climbing).
+
+### 3b. Versions of every room (the user, 2026-10-19: "variations for the main rooms so we get more stuff", then
+"a few more variations ... of every room that can spawn down here", "make sure nothing overlaps and looks good")
+Every room that can come up, the shaft stations included, has 2-6 versions: **88 in all** (`UGV` in
+`models/quarry-under.js`, picked by `ugVariant`; stations pick theirs in `ugStation`). Only plain tunnels, junctions
+and the links don't vary. A version keeps its room's size and exits, so the layout rules don't change; it changes
+what's inside and how it plays. A mine uses a version it hasn't used yet when the same room comes up again, and rooms
+and junctions are mirrored at random on top.
+
+**Checked:** `models/quarry-under-check.js` (`node quarry-under-check.js`) tests every version with several rolls of
+its random parts (483 rooms):
+- solid things (columns, cribs, puffballs, carts, desks...) stand inside the floor, 20 cm clear of the wall, don't
+  overlap each other, and don't stand in lava, chasms, pits or deep water;
+- chasms and lava rivers stay in the room (their ends may run up to 1.5 m into the wall, never through it);
+- nothing solid within 1.5 m of a doorway, no hazard within 1.2 m of one;
+- the entry, every exit and every goal (the lava-lake island, the obsidian island, ledges, the far side of the
+  sinkhole, the fossil wall, the gold by the lavafall) can be walked to: floor, shallow water, bridges, ledges,
+  catwalks, the raft rope, the zip line, or stepping stones no more than a short jump apart.
+It reports "all clear". It caught 12 problems in the first rooms (columns in walls, a lava river at a side exit, the
+lava-lake island with no stepping stones, the lavafall's columns blocking its side exit); all fixed.
+The model batches must keep to the same rules (the checker reads the same tables the models will).
+
+Level 1 · Old Workings
+| Room | Versions |
+|---|---|
+| Shaft station | **Pit bottom**: The cage stops here. Minecart bay, tool board, shift clock, the level map board, a bench.<br>**Timbered station**: Heavy square timbers, an old ore chute from the stopes above, a tally board with the miners' brass tags.<br>**Brick station**: A brick-lined hall with an arched roof, a tally office window and a big painted LEVEL 1. |
+| Stope | **Cribbed stope**: Timber cribs hold up the roof over rough rock benches. Lots of veins, often a big seam.<br>**Shrinkage stope**: A tall stope half full of broken ore. Climb the timber ladder to a high ledge with rich veins.<br>**Glory hole**: A raise up to the quarry floor lets a shaft of daylight in. Dust in the light, veins round the walls.<br>**Flooded stope**: Still, deep water over the bottom. Walk the edge or the plank walkway; veins above the waterline.<br>**Catwalk stope**: A deep open stope you cross on a timber catwalk. Veins on the walls beside it; don't look down.<br>**Cut-and-fill stope**: A floor of packed sand fill, an ore chute up one wall and a scraper winch with its cable across the room. |
+| Crib room | **Crib room**: The miners' break room: benches, a table with lunch tins, a stove. A lunchbox to find.<br>**Lamp room**: Racks of old cap lamps on chargers and a board of brass tags. One tag has a name you'll know.<br>**Foreman's office**: A desk, a safe, maps on the walls and the foreman's logbook (lore). The safe holds a shift bonus.<br>**First-aid station**: A stretcher, a cabinet and a first-aid kit you can carry: your next fall, gas or burn costs you nothing. |
+| Powder magazine | **Powder magazine**: Behind a heavy door: crates of dynamite. Take up to 3 sticks.<br>**Blasting store**: A plunger box and reels of wire: dynamite set from here goes off when you push the plunger, no fuse wait.<br>**Flooded magazine**: Ankle-deep water and crates gone soft. One stick is still dry, up on the top shelf. |
+| Collapsed drift | **Collapsed drift**: Broken timbers and a rubble heap to squeeze past on one side.<br>**Buried cart**: A cave-in half buried a loaded minecart: dig it out (6 swings) for a pile of ore.<br>**Propped drift**: A forest of emergency props holding up a cracked roof. Dust trickles when you pass. |
+| Pump room | **Pump room**: An old pump over a deep, flooded sump.<br>**Winder room**: The big drum and brake of an old winze hoist, cables running into a fenced hole in the floor.<br>**Mine workshop**: A forge, an anvil, a drill press, broken carts waiting for repair.<br>**Compressor room**: A big air compressor thumping away, pipes off along the drives. Switch it off (E) and listen to the mine. |
+| Pillar round | **Pillar round**: A drive all the way round an ore pillar: veins on every face, and two ways past.<br>**Rail loop**: The rails run round the pillar; an old ore train is parked on one side.<br>**Ore bins**: Timber ore bins stand against the far side of the pillar, full of sorted ore to bag. |
+
+Level 2 · The Caves
+| Room | Versions |
+|---|---|
+| Shaft station | **Cave station**: Rough rock round a timber platform at the cage, the level map board, a lamp on a wire.<br>**Pumping station**: Big pumps and pipes climbing the shaft wall, thumping away; puddles everywhere.<br>**Refuge station**: A steel door into a refuge chamber with air bottles: gas can't follow you in here. |
+| Cave fork (levels 2, 3) | **Cave fork**: The cave splits.<br>**Boulder fork**: A huge boulder that fell from the roof sits where the cave splits.<br>**Dripstone fork**: Two columns and a dripping roof where the cave splits. |
+| Rock island (levels 2, 3) | **Rock island**: The cave splits round a rock island and joins again: two ways past.<br>**Crystal island**: The island is one great crystal pillar, lit from inside.<br>**Mushroom island**: Giant mushrooms grow on the island, their caps reaching over the passage.<br>**Flooded round**: Ankle-deep water all the way round the island, and drips that ring like bells. |
+| Crystal grotto | **Crystal grotto**: Glowing crystal clusters, silver and crystal veins.<br>**Crystal pool**: A still, glowing pool ringed with crystals. The rarest crystals grow under the water's edge (wade in).<br>**Selenite beams**: Giant crystal beams cross the cave at all angles: duck under some, climb over others.<br>**Frost grotto**: Pale blue crystals furred with frost and a cold mist at knee height. Your breath shows.<br>**Crystal columns**: Huge six-sided crystal columns from floor to roof, a maze of light. |
+| Fungus grotto | **Fungus grotto**: Giant mushrooms, moss, vines and glowworms.<br>**Puffball hollow**: Puffballs as big as cars. Hit one and it bursts in a cloud of glowing spores (harmless, slow to clear).<br>**Glow pond**: A deep pond lit from below, lily pads, mushrooms round the edge, frogs that go quiet when you come close.<br>**Shelf-fungus wall**: Giant shelf fungi grow up one wall like steps: climb them to a high ledge with gold.<br>**Root hall**: Thick pale roots hang from the roof to the floor, glowing at the tips. Something far above is very thirsty. |
+| Flooded gallery | **Flooded gallery**: Knee-deep water you wade through, a plank walkway along one side.<br>**Underground lake**: Too deep to wade. Pull the rope raft across (hold E); it takes up to four.<br>**Drowned drift**: An old timbered drive the water took: rails under the surface, a sunken minecart, waist-deep in the middle.<br>**Waterfall gallery**: A waterfall pours out of a crack in the wall into a deep plunge pool. Spray, a roar, the path past it. |
+| Chasm hall | **Chasm hall**: A rope bridge over a fissure, or jump the stones.<br>**Broken bridge**: The bridge has fallen. Edge round the end of the fissure on a narrow ledge, or make a long jump.<br>**Trestle crossing**: A wide fissure crossed by the miners' old timber trestle, rails and all. It creaks.<br>**Zip line**: A rusty miners' zip line: grab the handle (E) and slide over. Coming back, take the ledge round the end. |
+| Stalactite hall | **Stalactite hall**: Columns, flowstone and stalactites, a path between them.<br>**Rimstone terraces**: Stepped pools of still water down the cave, each one rimmed with stone. Walk the rims.<br>**Cathedral**: A huge, tall dome round one giant column. Your lamp doesn't reach the roof.<br>**Fossil wall**: A giant fossil skeleton in the cave wall, half dug out long ago. Fossils to take (the assay office buys them).<br>**Echo chamber**: A tall, round, empty cave where every sound comes back three times. Someone left a bell on a post: ring it (E). |
+| Stream crossing | **Stream crossing**: A stream crosses the passage: stepping stones.<br>**Plank footbridge**: A fast, deep stream across the passage and a plank footbridge with a rope rail.<br>**Stream tunnel**: For a stretch the passage IS the stream: wade with the current, ankle-deep. |
+| Ore pass (levels 2, 3) | **Ore pass**: A grate over a chute: ore dropped in lands in the cage's minecart, no walk back.<br>**Grizzly**: A steel grizzly (a grid of bars) over the chute and a sledgehammer for big lumps. Same quick trip to the cart.<br>**Skip loader**: A little skip on rails at the chute's lip: fill it, push it over (E), and the ore goes to the cart. |
+
+Level 3 · The Deep
+| Room | Versions |
+|---|---|
+| Shaft station | **Deep station**: Dark rock, a heavy steel cage gate, a water barrel and a warning board: HOT GROUND.<br>**Hot station**: Big fans push cool air down the shaft; an ice-water barrel and a thermometer in the red.<br>**Sealed station**: Steel bulkheads at every exit, opened with a big wheel (E). Someone sealed this level once. |
+| Magma chamber | **Magma chamber**: A lava river with a stone bridge, geysers, a lava lake with stepping stones to a diamond island.<br>**Lavafall**: Lava pours down one wall into a glowing pool. A basalt shelf runs round it to gold in the hot wall.<br>**Crust field**: A floor of cooled crust over live lava. Dark patches are safe; glowing ones burn (you're pushed off and drop 2 ore).<br>**Obsidian moat**: A ring of lava round an island of black glass. One stone bridge; diamond and gold on the island.<br>**Lava channel**: A channel of lava sweeps round one side of the chamber; a stone bridge over it to the side passage, heat shimmer everywhere. |
+| Dark cave | **Dark cave**: Pitch black without the LED headlamp. A chasm and glowworms.<br>**Sinkhole**: A round, bottomless shaft in the middle of the cave. The path goes round the rim; the best veins are on the far side.<br>**Glowworm grotto**: Still black water and a roof full of glowworms. A narrow path round the edge; turn your lamp off to see it.<br>**The maze**: A forest of rock pillars. Easy to lose your way: the signposts don't reach in here.<br>**Bat roost**: Thousands of bats under a high roof. Shine your lamp up and they pour out past you; slippery guano underfoot. |
+| The Geode | **Amethyst geode**: A round room lined with giant purple crystals. Gems.<br>**Celestine geode**: Pale blue crystals and a hum you feel more than hear. Gems.<br>**Citrine geode**: Golden crystals, and gold in the rock between them. Gems.<br>**Smoky quartz geode**: Dark, smoky crystals that drink your lamplight, with a few clear ones that blaze. Gems. |
+| Hot seam | **Hot seam**: Glowing green rock, uranium, Geiger clicks.<br>**Green spring**: A steaming pool tinted green by the rock round it. Uranium in the walls, and the clicks get fast.<br>**Core shed**: Boxes of glowing drill cores stacked by the walls and an old core drill. Some cores are worth taking. |
+| Basalt gallery | **Basalt gallery**: Black basalt columns and glowing cracks.<br>**Steam vents**: Vents in the floor hiss and puff steam that hides the way for a few seconds at a time.<br>**Obsidian tube**: Glassy black walls that throw your lamplight back at you, and sharp edges underfoot. |
+
+New things to play with from the versions (batch 4): the rope raft (hold E to pull, up to four aboard, synced like a
+door), the zip line (one way, E), the catwalk, burning crust (a floor patch that pushes you off and costs 2 ore),
+puffball spores (a cloud like the gas, harmless), the foreman's safe (40-80 gold, once per mine), the first-aid kit
+(cancels your next loss), the brass tag (each player's own name, a collectible), the blasting store's plunger,
+the bell in the echo chamber, the buried cart (6 swings for a pile of ore), the refuge chamber (gas can't follow you
+in) and the sealed station's bulkhead wheels.
+
+### 4. How a shift plays
+- **The shift is 6:00** (was 5:00): warnings at 1:00, 0:30, 0:10 as now; at 0:00 the mine collapses and anyone still
+  inside is dug out without what they carry, as now. A new mine 20 s later.
+- **The deeper, the richer, the further.** Level 1 is copper and iron with some silver; level 2 silver, gold and
+  crystal; level 3 gold, crystal, diamond and uranium. Without Shaft sinking the walk back from level 3 is a real
+  decision against the clock.
+- **Ore by place** (vein weights, replacing `MNB[b].ore`):
+  | Where | cu | fe | ag | au | cr | dm | ur |
+  |---|---|---|---|---|---|---|---|
+  | Level 1 | .40 | .40 | .15 | .05 | | | |
+  | Level 2 caves | .10 | .20 | .35 | .20 | .15 | | |
+  | Crystal grotto | | .10 | .40 | .15 | .35 | | |
+  | Flooded gallery | | .30 | .50 | .20 | | | |
+  | Level 3 | | .10 | .15 | .40 | .25 | | |
+  | Lava lake island, the Geode | | | | | .40 | .60 | |
+  | Hot seam | | | | .30 | | | .70 |
+  Veins sit on the walls about one per 5 m of tunnel wall; stopes, pillar rounds and working faces have two to three
+  times as many. Big seams (8 swings, five times the ore) go in stopes, pillars and working faces.
+- **Finding your way:** a **signpost** at every junction and station exit points back to the cage with the distance
+  ("⬅ CAGE 64 m", along the tunnels). The **level map board** at each station shows the whole level. The **minimap**
+  underground draws the pieces you've walked through on your level (and friends' dots), with the banner
+  "LEVEL 2 · THE CAVES" (the desert-map minimap banner, used underground).
+- **The rockfall:** once per shift, at a time between 1:30 and 3:20 (from the seed), one side of a pillar round or
+  rock island falls in with a rumble (camera shake, dust, a hint "A rockfall on level 1!"). Rubble fills the tunnel:
+  dig through it (8 swings) or go round the other side. If the mine has no rounds or islands, it falls on a dug
+  tunnel or a plain one.
+- **Dynamite:** the powder magazine has crates. Take up to 3 sticks (E). E on rubble or a big seam to set one: a 4 s
+  fuse, then the rubble is gone, or the big seam gives all its ore at once (and the clock loses 20 s). Anyone within
+  4 m is knocked down and drops half their ore. Sticks don't go up in the cage; leftovers go back in the crate.
+- **Gas pockets (levels 2 and 3):** 4% of veins (from the seed and the vein's number) let out gas when broken: a
+  yellow-green cloud about 6 m across for 25 s. Inside it the screen tints and a breath bar drains over 6 s; if it
+  empties you pass out and the crew drag you out with half your ore. Walk out and it refills.
+- **Finds:** a lunchbox in the crib room (15-40 gold and a note from an old miner), 1-2 fossils in level 2 walls
+  (sell at the assay office for 60 gold), gems in the Geode (crystal and diamond veins). The notes are short lore
+  lines; they come with batch 4.
+- **The ore pass:** drop what you carry down the grate and it goes into the cage's minecart, the same as dumping at the
+  cage. One in about half the mines, on level 2 or 3.
+- **Kept as now:** the cage, headframe and shaft up top; dumping at the minecart; the cart rides up with you; the
+  smeltery chain; the foreman's mining shift (12 ore); falling into a chasm (half your ore) or lava (all of it);
+  the mine's own jump (`MNJ`); the LED headlamp for dark caves; co-op: the leader sends the seed, state and clock,
+  broken veins go by their number in the vein list.
+
+### 5. How it should look (for the model batches)
+- **Tunnels are extruded along their paths**, not boxes: level 1 an arched profile 4 m wide and 3.4 m high with timber
+  sets, lagging boards and rails; caves a rougher profile 4.6 m wide whose rock is pushed in and out by a noise taken
+  from the **world position**, so two pieces that meet have the same edge (no gaps, no seams). Dug-tunnel corners get
+  a 4 m radius.
+- **Caverns are one shell each:** floor, walls and a domed roof in one mesh, with a few stalactites and columns, the
+  roof height changing smoothly (no stair steps).
+- **Openings:** every end has a frame (timber on level 1, a rock lip in caves) that covers the joint between pieces.
+- **Rock texture in world metres** on every surface (no stretching), with a second, larger blotch layer so it doesn't
+  repeat every 4 m.
+- **Light:** the helmet lamp as now, plus **four real lights** that move to the nearest light sources (lanterns, lava,
+  big crystals, glowing mushrooms) within 25 m. The number of lights never changes (so nothing recompiles). Fog per
+  level: level 1 warm brown, level 2 blue-grey, level 3 red-black.
+- **Water you stand in:** the flooded gallery's floor is 0.4 m below the water; your eyes drop with it and you move at
+  70% speed.
+- **Cost:** each piece builds one merged mesh per material (rock, timber, metal, glow), about 5 per piece, so a mine
+  is around 300 meshes instead of 3,200-6,700. Small repeated things (crystals, mushrooms, cones) are instanced.
+  Materials and textures are shared (no copies per lava pool). This is how the pieces are built, not a new batching
+  system; the mine stays out of the `DP` batching as now.
+- **Built only when needed:** the mine is generated when someone first calls the cage after the last collapse (not
+  every 5:20 while nobody goes down), and built over a few frames during the cage ride, level 1 first.
+
+### 6. Model batches (part 2)
+1. **The kit and level 1:** tunnel profile and extruder, timber sets, lagging, rails and sleepers, lamps on a wire,
+   signposts, working face, shaft station (with the cage stop, gates, tool board, shift clock, map board), drive,
+   bend, junctions, pillar round, stope, crib room, powder magazine, collapsed drift, pump room, ladderway.
+2. **Level 2:** cave profile, cave passage, bend, fork, rock island, crystal grotto, fungus grotto, flooded gallery,
+   chasm hall, stalactite hall, stream crossing, the spiral decline.
+3. **Level 3:** dark rock set, basalt gallery, magma chamber, dark cave, the Geode, hot seam, old shaft, ore pass.
+4. **The shift:** dynamite and crates, rubble and the rockfall, the gas cloud, lunchbox and notes, fossils, the level
+   map board and minimap drawing, the Shaft sinking upgrade and the cage panel.
+
+## Checks
+- Every level is one connected place, reachable on foot from the cage on level 1 (the generator guarantees it; test
+  a few hundred seeds).
+- Two co-op players get the same mine from the same seed.
+- No gaps where pieces meet, no floating stalactites, nothing standing in lava, the water at your knees.
+- The mine builds without a hitch during the cage ride, and isn't built when nobody goes down.
