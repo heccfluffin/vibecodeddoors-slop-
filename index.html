@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-19 r628';
+const BUILD='2026-10-19 r629';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15979,6 +15979,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r629',['Desert performance, step 1: the game no longer works out the position of every hidden object each frame (about 70,000 of them), only the things it can actually draw. Nothing is removed and nothing looks different']],
 ['r628',['The Dark Penitentiary yard is rebuilt: the running track, chapel, the hole, staff quarters, garden, incinerator, stores and courtyard games','New in the yard: a greenhouse, a van and fuel pump, deliveries, washing lines, chess tables and a rest shelter','The doubled flag, kennels, bus and car park are gone','Every escape still works the same way']],
 ['r627',['The Dark Penitentiary is rebuilt: new fences with razor wire, watchtowers whose searchlights follow the beams, a proper front gate with a gatehouse and barrier, a new gate control room and visitation block','Inside: new cells (yours is D-5) with real doors and a meal hatch, painted walls, a corridor with a guard desk, new cameras, the vent ducts and fans, a full laundry, the break room, the control room and the hall','The yard: the inner wall and its gate, the workshop, the basketball courts, the exercise cage, the catwalk with a stair, the sally port porch, and everything outside the fence (bus, car park, kennels, water tower, bunker)','Every escape works exactly as before: same spots, same tools, same guards']],
 ['r626',['The Desert PD is twice the size: booking (get your mugshot taken), Chief Seek\'s office, a bigger lobby, a break room, four cells, interrogation and a one-way mirror','The court has moved into its own courthouse next door. Found not guilty? You walk out of the courthouse doors','The HQ annex, car park, flagpole and Biscuit\'s kennel are rebuilt, and there is a new impound lot']],
@@ -20188,7 +20189,7 @@ const PL_FAR=6;
 /* rays (roof checks, aiming, clicking) still see culled objects */
 {for(const fn of['intersectObject','intersectObjects']){const f0=THREE.Raycaster.prototype[fn];THREE.Raycaster.prototype[fn]=function(){try{this.layers.enable(PL_FAR)}catch(e){}return f0.apply(this,arguments)}}}
 /* a fingerprint of a whole part of the desert: where its pieces are, and how many there are */
-function perfRootFP(r){let h=0,n=0;r.traverse(o=>{if(o.isMesh){const e=o.matrixWorld.elements;h+=e[12]*1.3+e[13]*2.1+e[14]*.7+e[0]+e[10];n++}});return Math.round(h*100)+'/'+n}
+function perfRootFP(r){let h=0,n=0;/* r629: full update first (the per-frame one skips hidden parts) */try{r.updateMatrixWorld(true)}catch(e){}r.traverse(o=>{if(o.isMesh){const e=o.matrixWorld.elements;h+=e[12]*1.3+e[13]*2.1+e[14]*.7+e[0]+e[10];n++}});return Math.round(h*100)+'/'+n}
 function perfLate(q){const D=q.dp;if(!D||!D.merged||!D.roots||typeof DP=='undefined'||!DP._mergeRoot)return;const now=performance.now(),known=new Set(D.roots.concat(D.movers||[]));const veh=new Set((q.vehs||[]).map(v=>v.m));
  /* vehicles built after the first pass (the parked aircraft and trucks at the base, for example): batched as movers, checked every frame like the others */
  for(const v of q.vehs||[]){const o=v.m;if(!o||known.has(o)||o.userData.dpLate||o.userData.dpRecs||v.gone||v.wreck||!o.parent)continue;o.userData.dpLate=1;try{o.updateMatrixWorld(true);const k=DP._mergeRoot(q,o,DP.cfg().lam,false);if(o.userData.dpRecs&&o.userData.dpRecs.length){o.userData.dpVeh=1;(D.movers||(D.movers=[])).push(o);PERF.stats.late+=k[0];PERF.stats.lateMeshes+=k[1]}}catch(e){conLog('error','late batching (vehicle): '+e.message)}}
@@ -20204,7 +20205,7 @@ function perfCull(q){const cam=C.position,root=q.g;let far=1e9;try{if(S.fog&&S.f
   const walk=(o,inChunk)=>{for(const c of o.children){if(veh.has(c))continue;const ch=inChunk||!!(c.userData&&c.userData.chunk);if(c.children.length)walk(c,ch);else if(!ch&&(c.isMesh||c.isSprite)&&!c.isInstancedMesh)L.push(c)}};walk(root,false)}
  const v=new THREE.Vector3();for(let k=0;k<400&&PERF.li<L.length;k++,PERF.li++){const o=L[PERF.li];if(!o.parent)continue;const mask=o.layers.mask,isFar=mask===(1<<PL_FAR);if(!isFar&&mask!==1)continue;
   /* measured from the middle of what is drawn, not from where the object sits (a batch sits at its group's origin, which can be far from the things in it) */
-  let r=1;v.setFromMatrixPosition(o.matrixWorld);try{if(o.isSprite)r=Math.max(o.scale.x,o.scale.y);else{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere){r=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld)}}}catch(e){}
+  let r=1;if(typeof mwFresh==='function')mwFresh(o);v.setFromMatrixPosition(o.matrixWorld);try{if(o.isSprite)r=Math.max(o.scale.x,o.scale.y);else{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere){r=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld)}}}catch(e){}
 const d=v.distanceTo(cam)-r,lim=Math.min(far,r<1.2?PERF_D[0]:r<4?PERF_D[1]:1e9),want=d>lim;
   if(want&&!isFar){o.layers.set(PL_FAR);PERF.stats.culled++}else if(!want&&isFar){o.layers.set(0);PERF.stats.culled--}}}
 /* ---------- run it from the desert's own update ---------- */
@@ -28734,6 +28735,49 @@ function penAnim(q,dt){const W=q.penW;if(!W)return;W.t=(W.t||0)+dt;const t=W.t,p
  const D=W.dozer;if(D){D.t+=dt;/* he is sat down, chin on his chest, snoring; when he turns round his head comes up */try{const rg=D.m.children[0].userData.rig;if(rg){rg.legs.forEach(l=>{l.p.rotation.x=-1.45;l.s.rotation.x=1.5});rg.arms.forEach(a=>{a.p.rotation.x=-.5;a.e.rotation.x=.9});rg.body.rotation.x=.12;rg.head.rotation.x=D.turn>0?-.1:.5+Math.sin(D.t*1.1)*.08;rg.head.rotation.z=D.turn>0?0:.15}}catch(e){}if(D.turn>0){D.turn-=dt;D.m.rotation.y+=(-Math.PI/2-D.m.rotation.y)*Math.min(1,dt*6);if(D.turn<=0)D.next=5+Math.random()*6}else{D.m.rotation.y+=(Math.PI/2-D.m.rotation.y)*Math.min(1,dt*6);D.next-=dt;if(D.next<1.2&&!D.yawn&&on&&Math.hypot(P.x+460,P.z-q.OZ+768)<9){D.yawn=1;snd(160,.3);hint('🥱 *The guard stretches and yawns...*')}if(D.next<=0){D.turn=2.2;D.yawn=0}}D.card.visible=!(on&&pn.it.card)}
  if(on){const gm=W.grateM;gm.visible=!pn.grate;if(W.grate2)W.grate2.visible=!!pn.grate;W.grateO.off=pn.grate?1:0;W.trayM.visible=!!pn.tray;W.spoonM.visible=!!pn.tray&&!pn.it.spoon;for(const k in W.doors){const dr=W.doors[k];const want=dr.open?1:0;dr.o.off=dr.open?1:0;const sl=(dr.b-dr.a)*want;if(dr.axis=='x')dr.m.position.x=dr.x0+sl;else dr.m.position.z=dr.z0+sl;dr.lt.material.emissive.setHex(dr.open?0x00a020:0xc00000)}}}
 
+
+/* =====================================================================================================
+   r629: DESERT PERFORMANCE, STEP 1: only work out the positions of things that can be drawn.
+   Every frame three.js recalculates the world position (the "matrix") of every object in the scene, hidden or not.
+   The desert has about 70,000 objects and only about 5,000 are drawn at a time: most of the rest are in scenery
+   chunks that are hidden because they are far away, or are pieces already drawn as part of a batch.
+   Now, while the renderer draws the frame, the desert skips:
+     - anything hidden (and everything inside it): it is worked out again the moment it is shown, before it is drawn;
+     - single pieces that were merged into a batch (layer DP.HID): the batch is what is drawn.
+   Vehicles are never skipped (they move and lots of code reads their parts). Nothing else changes: no object is
+   removed, hidden or moved, and the hotel, the mine and everything outside the desert work exactly as before.
+   Code that reads positions gets them fresh first (mwFresh): the raycasts into the desert (garage roof check,
+   speed checkpoint ground height), localToWorld/worldToLocal, Box3.setFromObject, the batching watchdog
+   (memDirty, build.py patch), the sprite culler (dpSprites, build.py patch), the distance culler (perfCull, dx599)
+   and the late batcher's stillness check (perfRootFP, dx599). Calls like obj.updateMatrixWorld(true) made by the
+   game itself always do the full update, as before: only the renderer's own per-frame update skips.
+   Turn it off with ?nomwx in the address, or MWX.on=false in the console, to compare.
+   ===================================================================================================== */
+const MWX={on:!/[?&]nomwx/.test(location.search),used:0,fr:0,inR:0,skipped:0,fresh:0};
+const _mwP=THREE.Object3D.prototype.updateMatrixWorld;
+/* the same as three.js r128's updateMatrixWorld, but it leaves out what cannot be drawn this frame */
+function mwWalk(o,force){if(o.matrixAutoUpdate)o.updateMatrix();
+ if(o.matrixWorldNeedsUpdate||force){if(o.parent===null)o.matrixWorld.copy(o.matrix);else o.matrixWorld.multiplyMatrices(o.parent.matrixWorld,o.matrix);o.matrixWorldNeedsUpdate=false;force=true}
+ const ch=o.children;for(let i=0,l=ch.length;i<l;i++){const c=ch[i];
+  if(c.__mwKeep||c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
+  if(!c.visible){c.__mwSk=MWX.fr;MWX.skipped++;continue}
+  if(c.layers.mask===4&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
+  mwWalk(c,force)}}
+function mwDesertUMW(force){if(MWX.on&&MWX.inR){MWX.used=1;MWX.fr++;MWX.skipped=0;mwWalk(this,force)}else _mwP.call(this,force)}
+/* the renderer is the only caller of the scene's own update (the game never calls it), so that is when skipping is allowed */
+S.updateMatrixWorld=function(force){MWX.inR=1;try{_mwP.call(this,force)}finally{MWX.inR=0}};
+/* is o inside the desert (and not inside a vehicle)? */
+function mwIn(o){for(let p=o;p;p=p.parent){if(p.__mwx)return true}return false}
+/* make o's world matrix up to date if the last render skipped it or one of its parents */
+function mwFresh(o){if(!MWX.used||!o||o.__mwKeep||o.__mwx)return;const leaf=o.isMesh&&!o.isSprite&&o.layers.mask===4&&!o.children.length;let chain=!o.visible||o.__mwSk===MWX.fr;
+ for(let p=o.parent;p;p=p.parent){if(p.__mwKeep)return;if(p.__mwx){if(chain){o.updateWorldMatrix(true,false);MWX.fresh++}else if(leaf){if(o.matrixAutoUpdate)o.updateMatrix();o.matrixWorld.multiplyMatrices(o.parent.matrixWorld,o.matrix);MWX.fresh++}return}if(!p.visible||p.__mwSk===MWX.fr)chain=true}}
+/* readers that use matrixWorld directly */
+{const P0=THREE.Object3D.prototype;const l0=P0.localToWorld,w0=P0.worldToLocal;P0.localToWorld=function(v){mwFresh(this);return l0.call(this,v)};P0.worldToLocal=function(v){mwFresh(this);return w0.call(this,v)};
+ const b0=THREE.Box3.prototype.setFromObject;THREE.Box3.prototype.setFromObject=function(o){mwFresh(o);return b0.apply(this,arguments)};
+ for(const fn of['intersectObject','intersectObjects']){const f0=THREE.Raycaster.prototype[fn];THREE.Raycaster.prototype[fn]=function(o){if(MWX.used){const L=Array.isArray(o)?o:[o];for(const x of L)if(x&&x.isObject3D&&mwIn(x)){x.updateWorldMatrix(true,true);MWX.fresh++}}return f0.apply(this,arguments)}}}
+/* hook the desert root in, and keep the vehicles out of the skipping */
+{const ru=busRoamUpd;busRoamUpd=function(q,dt){try{if(q&&q.g&&!q.g.__mwx){q.g.__mwx=1;q.g.updateMatrixWorld=mwDesertUMW}if(q&&q.vehs)for(const v of q.vehs)if(v&&v.m)v.m.__mwKeep=1;if(q&&q.heli&&q.heli.m)q.heli.m.__mwKeep=1}catch(e){}return ru.apply(this,arguments)}}
+
 </script><script>
 /* ======================================================================================================
    r500: THE DESERT, POLISHED. A layer on top of the desert code (every hook is wrapped in try/catch, so a
@@ -28882,7 +28926,7 @@ xpCull=function(q,force){if(!q.chunks)return;if(!force&&(q.cullT=(q.cullT||0)-1)
  q.chunkVis=vis;for(const v of q.vehs||[]){if(v.gone||vehOnHwy(v))continue;const on=Math.hypot(px-v.x,pz-v.z)<R+60;if(v.m.visible!==on){v.m.visible=on;if(on&&v.m.userData.dpRecs)newly.push(v.m)}}
  try{dpSprites(q,R)}catch(e){}try{dpWatch(q,newly)}catch(e){err('watchdog',e)}};
 function dpSprites(q,R){const D=q.dp;if(!D)return;if(!D.sprites){D.sprites=[];q.g.traverse(o=>{if(o.isSprite&&o.scale.x<30&&!(o.userData&&(o.userData.noChunk||o.userData.dpKeep))&&o!==BUS._sun)D.sprites.push(o)})}
- const cx=C.position.x,cz=C.position.z,R2=(R+20)*(R+20),L=D.sprites;for(let i=L.length-1;i>=0;i--){const s=L[i];if(!s.parent){L.splice(i,1);continue}const e=s.matrixWorld.elements,dx=e[12]-cx,dz=e[14]-cz,far=dx*dx+dz*dz>R2;if(far!==!!s.userData.dpFar){s.userData.dpFar=far;s.layers.set(far?DP.HID:0)}}}
+ const cx=C.position.x,cz=C.position.z,R2=(R+20)*(R+20),L=D.sprites;for(let i=L.length-1;i>=0;i--){const s=L[i];if(!s.parent){L.splice(i,1);continue}if(typeof mwFresh==='function')mwFresh(s);const e=s.matrixWorld.elements,dx=e[12]-cx,dz=e[14]-cz,far=dx*dx+dz*dz>R2;if(far!==!!s.userData.dpFar){s.userData.dpFar=far;s.layers.set(far?DP.HID:0)}}}
 /* vehicles out of sight skip their per-frame model update */
 {const vr0=vehRender;vehRender=function(q,v,dt){if(v.m&&!v.m.visible&&!(q.seat&&q.seat.v===v)&&!(q.inBus&&q.inBus.v===v)&&v.netT==null&&!v.K.bus)return;return vr0(q,v,dt)}}
 /* the minimap redraws every 0.2 s instead of 0.1 s on a phone */
@@ -28918,7 +28962,7 @@ function buildMerged(inv,mems,hasMap){let nv=0,ni=0;for(const m of mems){const g
   if(g.index){const ia=g.index.array,kk=g.index.count;for(let i=0;i<kk;i++)idx[io+i]=ia[i]+vo;io+=kk}else{for(let i=0;i<n;i++)idx[io+i]=vo+i;io+=n}vo+=n}
  const out=new THREE.BufferGeometry();out.setAttribute('position',new THREE.BufferAttribute(pos,3));out.setAttribute('normal',new THREE.BufferAttribute(nor,3));out.setAttribute('color',new THREE.BufferAttribute(col,3));if(uv)out.setAttribute('uv',new THREE.BufferAttribute(uv,2));out.setIndex(new THREE.BufferAttribute(idx,1));out.computeBoundingSphere();return out}
 function snapMem(rec,o){_mA.multiplyMatrices(rec.inv,o.matrixWorld);const m=o.material,t=m.map||null;return{o,m:Float32Array.from(_mA.elements),mat:m,geo:o.geometry,col:m.color.getHex(),emi:m.emissive?m.emissive.getHex():0,ei:m.emissiveIntensity,op:m.opacity,map:t,mv:t?t.version:0,tr:t?[t.repeat.x,t.repeat.y,t.offset.x,t.offset.y,t.rotation]:null,pv:o.geometry.attributes.position.version}}
-function memDirty(rec,m){const o=m.o;if(!o.parent||!o.visible)return 1;let p=o.parent;while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;if(o.material!==m.mat||o.geometry!==m.geo)return 1;const mt=o.material;if(!mt.visible||mt.color.getHex()!==m.col||(mt.emissive&&mt.emissive.getHex()!==m.emi)||mt.opacity!==m.op||mt.emissiveIntensity!==m.ei||(mt.map||null)!==m.map||o.geometry.attributes.position.version!==m.pv)return 1;
+function memDirty(rec,m){const o=m.o;if(!o.parent||!o.visible)return 1;let p=o.parent;while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;if(typeof mwFresh==='function')mwFresh(o);if(o.material!==m.mat||o.geometry!==m.geo)return 1;const mt=o.material;if(!mt.visible||mt.color.getHex()!==m.col||(mt.emissive&&mt.emissive.getHex()!==m.emi)||mt.opacity!==m.op||mt.emissiveIntensity!==m.ei||(mt.map||null)!==m.map||o.geometry.attributes.position.version!==m.pv)return 1;
  if(m.map){const t=m.map,r=m.tr;if(t.version!==m.mv||t.repeat.x!==r[0]||t.repeat.y!==r[1]||t.offset.x!==r[2]||t.offset.y!==r[3]||t.rotation!==r[4])return 1}
  _mA.multiplyMatrices(rec.inv,o.matrixWorld);const e=_mA.elements,s=m.m;for(let i=0;i<16;i++)if(Math.abs(e[i]-s[i])>2.5e-3)return 1;return 0}
 function dpMergeRoot(q,root,lam,shallow){root.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(root.matrixWorld).invert();const groups=new Map(),skip=new Set([q.sky,q.zsky,BUS._sky,q.sand,q.zstar,q.bg].filter(Boolean));
