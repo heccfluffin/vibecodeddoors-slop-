@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) in review
+Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) approved · ready to build · batch 2 (floor 2's rooms) in review
 
 # The hotel remodel: more room types and more turns
 
@@ -94,7 +94,7 @@ hiding and Rush still work.
 ### 5. The bug fix
 - The type roll uses the whole list (suites and service rooms come back), and the new floor pools replace that list.
 
-## Batch 1 (models: `docs/design/models/hotel-rooms.js`, needs `hotel.js` loaded first; preview "Hotel Rooms 1")
+## Batch 1 (approved; models: `docs/design/models/hotel-rooms.js`, needs `hotel.js` loaded first; preview "Hotel Rooms 1")
 ### How the room models plug in
 - Every builder is `hrmXxx(g, o)` with `o = {L, HX, HY, seed, mat(key, a, b), floorNo}` and builds into `g` (the room
   group `G`) in room-local coordinates (entry wall z 1, exit wall ez = -L-1, floor y 0). It returns:
@@ -143,6 +143,22 @@ hiding and Rush still work.
   room pool" above; types not built yet are left out until their batch ships). Floor 1 now: rooms, L, L2, suite,
   svc, garden, ball, guest corridor x2, lounge, restaurant, games, and the grand staircase (once per floor, door 8+).
 - The roll index uses the list's real length (`Math.random()*list.length|0`), so suites and service rooms appear.
+
+## Batch 2 (floor 2's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 2", in the Old Wing look)
+New return fields: `noLamps` (the room lights itself: skip the centre lamps, use `lamps`), `noFloor` (skip the game's
+floor box), `noCeil` (skip the game's ceiling), `noEvents` (no Rush or Ambush in this room), `musicBox` (a point for
+the music-box sound), and `anims` callbacks now get `(dt, t, cam)` (the camera position).
+
+| Room | Size | What's in it | Notes |
+|---|---|---|---|
+| `hrmChapel` chapel | L 24, HX 5, HY 6 | 11 rows of pews either side of the aisle, a dais (.2 m) with a stone altar, cloth, candlesticks and a book, iron candle stands, a lectern, a round stained-glass window over the exit door, a hymn board, three hanging iron lanterns | `rf` = `hrmChapelRF` (the dais). The **confessional** at the back is two hiding spots (`ward` entries with `booth: 1`: use the wardrobe hide logic; the curtains don't need to move). `noLamps`. Can turn. |
+| `hrmTheatre` theatre | L 26, HX 6, HY 6.5 | an entry landing, 12 rows of red seats stepping down (aisles in the middle and both sides), the pit, a centre stair up to the stage, footlights, a gilt proscenium, red curtains and valance, a chair in a spotlight, the ghost light, sconces | `noFloor` (it builds its floors and the walls below y 0), `rf` = `hrmTheatreRF(z, x)`, `noLamps`. Seat rows and the stage edge (except the stair) are obstacles. Wardrobes in the wings. No turn (the exit is on the stage). |
+| `hrmPortraits` portrait hall | L 26, HX 3, HY 6 | six big portraits with gilt frames and picture lights, alternating sides; **their pupils follow you** (in `anims`); a suit of armour with a halberd on a plinth opposite each; brass posts and red ropes keep you to the middle; a runner | `noEvents` (the ropes leave nowhere to hide until the far end, where there are two wardrobes). No turn. |
+| `hrmNursery` nursery | L 20, HX 4.5, HY 3.6 | a paper frieze of ducks and clouds, a letter rug, a rocking horse that rocks by itself, a cot with a turning mobile, toy blocks (and a little tower), a tea table with small chairs and cups, a dollhouse, a toy train going round its oval track, a toy chest, a music box with a turning dancer on a shelf | `musicBox`: play a short music-box tune when a player comes within 4 m (once per visit). The toy cupboard is a `ward` spot. Can turn. |
+| `hrmConservatory` dead conservatory | L 24, HX 5, walls 3 m | glass clerestory (3-4 m) and a pitched glass roof to a 6 m ridge on iron frames, glass gables, ~10% of panes missing and some cracked, brick planters of dead plants, a dead tree in a round planter, a stone path, a stone bench, pots, a watering can, a dry basin, broken glass, dead creepers, two lanterns, cold moonlight | build with HY 3 and `noCeil`; `noLamps`. The glass is transparent (`depthWrite: false`). Two potting-shed `ward` spots. Can turn. |
+
+- The guest corridor's wardrobe spot (batch 1) now faces into the bedroom (`ry` 0).
+- Checker: clean apart from the usual trim end faces against walls, and the preview's stand-in wardrobes.
 
 ## Work in batches (each with a preview, like the prison)
 1. **Batch 1:** the turn and jog-room rules, the floor pools, the bug fix, and the floor 1 rooms (1-5).
