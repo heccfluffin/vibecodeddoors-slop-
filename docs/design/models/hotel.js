@@ -196,3 +196,119 @@ function hflSign(g,x,y,z,ry,txt){const lines=txt.split('\n'),w=1.0,h=lines.lengt
  const c=document.createElement('canvas');c.width=256;c.height=Math.round(256*h/w);const x2=c.getContext('2d');x2.fillStyle='#e8e4d4';x2.fillRect(0,0,c.width,c.height);x2.fillStyle='#1e4a2c';x2.fillRect(4,4,c.width-8,c.height-8);
  x2.fillStyle='#f4f0e0';x2.textAlign='center';x2.textBaseline='middle';let fs=34;const fit=()=>{x2.font='bold '+fs+'px DoorsSans,Arial,sans-serif';return lines.every(l=>x2.measureText(l).width<224)};while(!fit()&&fs>12)fs--;lines.forEach((l,i)=>x2.fillText(l,128,c.height/2+(i-(lines.length-1)/2)*fs*1.1));
  const lb=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:.7}));lb.position.z=.035;sg.add(lb);return sg}
+
+/* ================= the elevator break (hotel-loop.md B2) =================
+   The lift lobby is rooms 25, 51 and 75. It has the look of the floor you are leaving (the floor-look swaps above),
+   a marble floor, a vending machine, the next-floor board, a bench, a plant and the guest book (the game saves there).
+   The lift is a THROUGH car: you walk in at the front, the front doors close, the ride plays, and the BACK doors open
+   onto the next floor's first room. Nothing actually moves: the car shakes and the dials turn.
+
+   hflLift(o)   the lift unit. Local origin = the middle of the room's end-wall plane on the floor (the game's (DX,0,ez)),
+                the lobby is towards +z. It builds the front wall across the room at z = HFLD (with the landing doors,
+                the call buttons, the dial and two sconces), the shaft, the car, and the back landing doors in the
+                room's own end-wall hole (1.6 x 3 m, where the exit door normally goes).
+                o = {HX, HY, mat(key,a,b) -> material for 'wall'/'wains', col(c) -> trim colour, from, to}
+                returns {g, car, set(t) (0..1 door/ride state helpers below), ...}
+   hflVend(), hflBoard(next), hflBook(), hflBench(), hflPlant(dead), hflSconce()   the lobby things (back on z 0, facing +z)
+   hflMarbleT()  the lobby floor texture (2 m x 2 m tile)                                                         */
+const HFLD=2.6;
+function hflB(g,w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);g.add(o);return o}
+function hflMarbleT(){return hflM.marbleT||(hflM.marbleT=hflCan(256,256,501,(x,R)=>{for(let r=0;r<4;r++)for(let c=0;c<4;c++){const dk=(r+c)%2;x.fillStyle=dk?'#243c34':'#bdb59f';x.fillRect(c*64,r*64,64,64);
+   x.strokeStyle=dk?'rgba(170,200,180,.35)':'rgba(120,110,95,.35)';x.lineWidth=1;for(let k=0;k<3;k++){x.beginPath();let px=c*64+R()*64,py=r*64;x.moveTo(px,py);for(let i=0;i<8;i++){px+=R()*14-7;py+=8+R()*2;x.lineTo(Math.max(c*64,Math.min(c*64+64,px)),Math.min(r*64+64,py))}x.stroke()}}
+  x.fillStyle='#9a8a60';for(let i=0;i<=256;i+=64){x.fillRect(i-1,0,2,256);x.fillRect(0,i-1,256,2)}},300))}
+/* car walls inside: dark wood panels under a brass rail line, plain upper panels */
+function hflCarT(){return hflM.carT||(hflM.carT=hflCan(256,256,502,(x,R)=>{x.fillStyle='#4a2e1a';x.fillRect(0,0,256,256);for(let i=0;i<50;i++){x.strokeStyle='rgba(20,10,4,.3)';x.beginPath();const y=R()*256;x.moveTo(0,y);x.lineTo(256,y+R()*4-2);x.stroke()}
+  for(const px of[10,134]){x.fillStyle='#5a3820';x.fillRect(px,14,112,228);x.strokeStyle='rgba(0,0,0,.45)';x.lineWidth=3;x.strokeRect(px,14,112,228);x.strokeStyle='rgba(220,170,100,.22)';x.lineWidth=1;x.strokeRect(px+7,21,98,214)}},300))}
+/* a canvas plane: draw(ctx,w,h) now, and again with redraw() */
+function hflPlane(g,w,h,pw,ph,draw,emis){const c=document.createElement('canvas');c.width=pw;c.height=ph;const x=c.getContext('2d'),t=new THREE.CanvasTexture(c);
+ const m=new THREE.MeshStandardMaterial({map:t,roughness:.6,transparent:true,alphaTest:.5,emissive:emis?0xffffff:0,emissiveMap:emis?t:null,emissiveIntensity:emis||0});const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),m);g.add(p);
+ p.userData.redraw=(...a)=>{x.clearRect(0,0,pw,ph);draw(x,pw,ph,...a);t.needsUpdate=true};p.userData.redraw();return p}
+/* the half-moon floor dial above a landing door: brass, floors 1-4, a needle (rotation.z: 1 = left .. 4 = right) */
+function hflDial(g){const d=new THREE.Group();g.add(d);const br=hflMat('brassL',{color:0xb08a40,roughness:.35,metalness:.5});
+ const face=hflPlane(d,.84,.42,256,128,(x,w,h)=>{x.fillStyle='#e8dcb8';x.beginPath();x.arc(128,126,120,Math.PI,0);x.fill();x.strokeStyle='#5a4420';x.lineWidth=4;x.stroke();
+  x.fillStyle='#2a2010';x.font='bold 26px DoorsSans,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';for(let i=1;i<=4;i++){const a=Math.PI-(i-1)/3*Math.PI*.8-Math.PI*.1;x.fillText(String(i),128+Math.cos(a)*92,126-Math.sin(a)*92)}
+  x.beginPath();x.arc(128,126,14,0,7);x.fill()});face.geometry.translate(0,.21,0);face.position.z=.012;
+ const rim=new THREE.Mesh(new THREE.TorusGeometry(.43,.015,6,24,Math.PI),br);rim.position.z=.01;d.add(rim);hflB(d,.9,.03,.05,br,0,0,.02);
+ const nd=new THREE.Group();nd.position.z=.022;d.add(nd);const n=hflB(nd,.012,.3,.006,hflMat('needle',{color:0x1a1408,roughness:.5}),0,.15,0);
+ d.userData.set=fl=>{nd.rotation.z=Math.PI*.4-(fl-1)/3*Math.PI*.8};d.userData.set(1);return d}
+/* one leaf of a sliding door pair: brass-edged steel */
+function hflLeaf(g,w,h,t,m){const l=new THREE.Group();g.add(l);hflB(l,w,h,t,m,0,h/2,0);hflB(l,.015,h+.02,t+.02,hflMat('brassL'),w/2-.0115,h/2,0);return l}
+function hflLift(o){const{HX,HY}=o,D=HFLD,g=new THREE.Group(),br=hflMat('brassL',{color:0xb08a40,roughness:.35,metalness:.5}),st=hflMat('liftSteel',{color:0x6a6e72,roughness:.55,metalness:.45}),dk=hflMat('shaft',{color:0x1c1c1e,roughness:1});
+ const col=o.col||(c=>c),tex=o.mat;
+ /* the front wall across the room, with a 1.6 x 3 m hole, the lobby trim on its lobby face */
+ const tp=(sx,ins,x0,h,d,m,y,z)=>{const x1=HX-ins,w=x1-x0;hflB(g,w,h,d,m(w),sx*(x0+x1)/2,y,z)};
+ for(const sx of[-1,1]){tp(sx,0,.8,HY,.1,w=>tex('wall',w/4,HY/2),HY/2,D);tp(sx,.08,.8,1,.06,w=>tex('wains',w/1.2,1),.5,D+.08);
+  tp(sx,.105,.79,.07,.07,()=>hflMat('t'+col(0x6e4326),{color:col(0x6e4326)}),1.03,D+.1);tp(sx,.11,.785,.14,.08,()=>hflMat('t'+col(0x2a1608),{color:col(0x2a1608)}),.07,D+.09)}
+ hflB(g,1.6,HY-3,.1,tex('wall',.4,(HY-3)/2),0,(3+HY)/2,D);hflB(g,2*HX-.2,.14,.08,hflMat('t'+col(0xd8c8a8),{color:col(0xd8c8a8)}),0,HY-.07,D+.09);
+ /* a portal in a 1.6 x 3 m hole: dark wood around a 1.2 x 2.4 opening, a brass frame, the dial, landing doors behind */
+ const portal=(z,s)=>{const P=new THREE.Group();P.position.z=z;P.rotation.y=s>0?0:Math.PI;g.add(P);const wd=hflMat('portalWd',{color:0x3a2414,roughness:.7});
+  hflB(P,.2,3,.1,wd,-.7,1.5,0);hflB(P,.2,3,.1,wd,.7,1.5,0);hflB(P,1.2,.6,.1,wd,0,2.7,0);
+  for(const sx of[-1,1])hflB(P,.07,2.45,.13,br,sx*.625,1.225,0);hflB(P,1.34,.07,.14,br,0,2.425,0);
+  hflB(P,1.3,.012,.18,st,0,.006,-.02);
+  const dial=hflDial(P);dial.position.set(0,2.5,.05);
+  const lv=[];for(const sx of[-1,1]){const l=hflLeaf(P,.62,2.4,.03,st);l.position.set(sx*.31,.012,-.08);if(sx>0)l.children[1].position.x=-l.children[1].position.x;lv.push(l)}
+  return{P,dial,lv}};
+ const front=portal(D,1),back=portal(0,-1);
+ /* the shaft: side walls and a lid over the car, all dark */
+ for(const sx of[-1,1])hflB(g,.05,HY,D-.1,dk,sx*1.32,HY/2,D/2);hflB(g,2.6,.05,D-.1,dk,0,3.05,D/2);
+ /* the car */
+ const car=new THREE.Group();g.add(car);const cw=hflMat('carW',{map:hflCarT(),roughness:.8}),cf=hflMat('carF',{color:0x3a1418,roughness:1}),cc=hflMat('carC',{color:0xd8d0b8,roughness:.8});
+ hflB(car,2.1,.08,D-.24,cf,0,-.02,D/2);for(const[z0,z1]of[[.11,.2],[D-.2,D-.11]])hflB(car,1.3,.05,z1-z0-.01,st,0,.005,(z0+z1)/2);
+ for(const sx of[-1,1])hflB(car,.05,2.7,D-.4,cw,sx*1.025,1.37,D/2);hflB(car,2.1,.06,D-.24,cc,0,2.75,D/2);
+ const lp=hflB(car,1.4,.04,D-1.2,hflMat('carLamp',{color:0xfff4e0,emissive:0xe8d4b0,roughness:.5}),0,2.71,D/2);
+ for(const[zc,s]of[[.18,1],[D-.18,-1]]){for(const sx of[-1,1])hflB(car,.45,2.7,.04,cw,sx*.825,1.37,zc);hflB(car,1.2,.37,.04,cw,0,2.535,zc)}
+ /* brass handrails on the side walls, on short brackets */
+ for(const sx of[-1,1]){const r=hflCy(car,.02,.02,D-1,br,sx*.93,.95,D/2,10);r.rotation.x=Math.PI/2;for(const z of[.7,D-.7]){const b=hflCy(car,.012,.012,.08,br,sx*.965,.95,z,8);b.rotation.z=Math.PI/2}}
+ /* the car doors, front and back */
+ const cdoor=z=>{const lv=[];for(const sx of[-1,1]){const l=hflLeaf(car,.62,2.33,.03,st);l.position.set(sx*.31,.03,z);if(sx>0)l.children[1].position.x=-l.children[1].position.x;lv.push(l)}return lv};
+ const cdF=cdoor(D-.13),cdB=cdoor(.13);
+ /* the button panel inside, right of the front door; and a display over each car door */
+ const cop=hflPlane(car,.18,.5,64,176,(x,w,h,at,to)=>{x.fillStyle='#2a2a2c';x.fillRect(0,0,w,h);x.fillStyle='#101010';x.fillRect(8,6,48,24);x.fillStyle='#ff9a30';x.font='bold 20px monospace';x.textAlign='center';x.textBaseline='middle';x.fillText(String(at||1),32,19);
+  for(let i=4;i>=1;i--){const y=44+(4-i)*32;x.beginPath();x.arc(32,y,12,0,7);x.fillStyle=i==to?'#ffd070':'#b8b0a0';x.fill();x.fillStyle='#202020';x.font='bold 15px monospace';x.fillText(String(i),32,y+1)}},1);
+ cop.position.set(.75,1.3,D-.212);cop.rotation.y=Math.PI;
+ hflB(car,.22,.54,.02,br,.75,1.3,D-.195);
+ const disp=[];for(const[z,ry]of[[D-.212,Math.PI],[.212,0]]){const p=hflPlane(car,.3,.12,128,52,(x,w,h,at,dir)=>{x.fillStyle='#0c0c0c';x.fillRect(0,0,w,h);x.fillStyle='#ff9a30';x.font='bold 36px monospace';x.textAlign='center';x.textBaseline='middle';x.fillText((dir>0?'▲ ':dir<0?'▼ ':'')+(at||1),64,28)},1);p.position.set(0,2.52,z);p.rotation.y=ry;disp.push(p)}
+ /* the call buttons and two sconces on the lobby side */
+ const cb=new THREE.Group();cb.position.set(1.1,1.3,D+.05);g.add(cb);hflB(cb,.14,.3,.02,br,0,0,.005);const up=hflCy(cb,.03,.03,.02,hflMat('btn',{color:0xe8e0c8,emissive:0,roughness:.4}),0,.06,.02,16);up.rotation.x=Math.PI/2;const dn=hflCy(cb,.03,.03,.02,hflMat('btn'),0,-.06,.02,16);dn.rotation.x=Math.PI/2;up.material=up.material.clone();
+ const sc=[];for(const sx of[-1.6,1.6]){const s=hflSconce();s.g.position.set(sx,2.15,D+.05);g.add(s.g);sc.push(s)}
+ return{g,car,lamp:lp,front,back,cdF,cdB,cop,disp,call:up,sconces:sc,
+  /* doors: 0 shut .. 1 open, for one side ('f' or 'b'), car and landing together */
+  doors(side,k){const L=side=='f'?front.lv:back.lv,Cd=side=='f'?cdF:cdB;L.forEach((l,i)=>{const sx=i?1:-1;l.position.x=sx*(.31+.61*k)});Cd.forEach((l,i)=>{const sx=i?1:-1;l.position.x=sx*(.31+.61*k)})},
+  show(at,to,dir){cop.userData.redraw(at,to);disp.forEach(p=>p.userData.redraw(at,dir));front.dial.userData.set(at);back.dial.userData.set(at)}}}
+function hflSconce(){const g=new THREE.Group(),br=hflMat('brassL');hflB(g,.12,.2,.02,br,0,0,.005);const a=hflCy(g,.012,.012,.12,br,0,-.02,.07,8);a.rotation.x=Math.PI/2;
+ const sh=new THREE.Mesh(new THREE.CylinderGeometry(.06,.1,.16,16,1,true),hflMat('shade',{color:0xf0e0c0,emissive:0xc89040,side:THREE.DoubleSide,roughness:.6}));sh.position.set(0,.06,.13);g.add(sh);
+ const cup=hflCy(g,.03,.03,.04,br,0,-.04,.13,10);return{g,glow:sh}}
+/* the vending machine (gold): 1 m wide, 1.9 m tall, .8 m deep; back on z 0 */
+function hflVend(){const g=new THREE.Group(),body=hflMat('vendB',{color:0x5a1420,roughness:.5,metalness:.3}),gd=hflMat('gold',{color:0xc8a040,roughness:.35,metalness:.5});
+ hflB(g,1,1.86,.78,body,0,.95,.39);for(const sx of[-1,1])hflB(g,.06,.04,.7,hflMat('vendFt',{color:0x1a1a1a}),sx*.42,.02,.39);
+ const win=hflPlane(g,.62,1.1,160,284,(x,w,h)=>{x.fillStyle='#1c1410';x.fillRect(0,0,w,h);const it=[['#e04030','#f0c040'],['#3070d0','#f0f0f0'],['#40a040','#202020'],['#f0a020','#802010'],['#a040c0','#f0e0ff']];
+  for(let r=0;r<5;r++){x.fillStyle='#8a8a8a';x.fillRect(4,r*56+50,w-8,3);for(let c=0;c<4;c++){const[a,b]=it[(r+c)%5],cx=12+c*37;x.fillStyle=a;x.fillRect(cx,r*56+12,26,38);x.fillStyle=b;x.fillRect(cx+4,r*56+20,18,8);x.fillStyle='#f0e0b0';x.font='9px monospace';x.fillText(String.fromCharCode(65+r)+(c+1),cx+6,r*56+55)}}},.55);
+ win.position.set(-.13,1.08,.806);hflB(g,.66,1.14,.02,gd,-.13,1.08,.785);
+ const pnl=hflPlane(g,.24,.62,64,166,(x,w,h)=>{x.fillStyle='#2a0a10';x.fillRect(0,0,w,h);x.fillStyle='#f0c040';x.font='bold 14px DoorsSans,Arial,sans-serif';x.textAlign='center';x.fillText('GOLD',32,22);x.fillText('ONLY',32,38);
+  x.fillStyle='#101010';x.fillRect(22,48,20,30);x.fillStyle='#c8a040';x.fillRect(30,52,4,22);for(let r=0;r<4;r++)for(let c=0;c<3;c++){x.fillStyle='#d8d0c0';x.fillRect(10+c*16,90+r*17,12,12)}});
+ pnl.position.set(.33,1.2,.792);
+ const top=hflPlane(g,.92,.2,256,56,(x,w,h)=>{x.fillStyle='#c8a040';x.fillRect(0,0,w,h);x.fillStyle='#3a0a12';x.font='bold 34px DoorsSans,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('SNAX · GOLD',128,30)},.35);top.position.set(0,1.76,.792);
+ hflB(g,.6,.2,.02,hflMat('flap',{color:0x161616,roughness:.6}),-.13,.38,.785);hflB(g,.64,.03,.03,gd,-.13,.49,.795);
+ return{g,glow:win}}
+/* the next-floor board: 2.2 x 1.4 m, a wood frame, cream card */
+function hflBoard(next){const g=new THREE.Group(),F=HFL[next]||HFL[2];hflB(g,2.24,1.44,.04,hflMat('boardFr',{color:0x3a2210,roughness:.6}),0,0,.015);
+ const LIVE={2:'Rush · Screech · Ambush · Seek · Halt',3:'Seek · Timothy in the drawers · more stairwells',4:'Everything · Eyes · more fake doors'};
+ const p=hflPlane(g,2.08,1.28,416,256,(x,w,h)=>{x.fillStyle='#ece2c4';x.fillRect(0,0,w,h);x.strokeStyle='#8a6a30';x.lineWidth=3;x.strokeRect(10,10,w-20,h-20);x.fillStyle='#4a3418';x.textAlign='center';x.textBaseline='middle';
+  x.font='bold 22px DoorsSans,Arial,sans-serif';x.fillText('NEXT FLOOR',w/2,40);x.font='bold 44px DoorsSans,Arial,sans-serif';x.fillStyle='#2a1a08';x.fillText(next+' · '+F.n.toUpperCase(),w/2,96);
+  x.font='24px DoorsSans,Arial,sans-serif';x.fillStyle='#4a3418';x.fillText(F.sub,w/2,140);x.fillRect(w/2-90,166,180,2);x.font='bold 18px DoorsSans,Arial,sans-serif';x.fillText('WHAT LIVES THERE',w/2,190);x.font='21px DoorsSans,Arial,sans-serif';x.fillText(LIVE[next]||'',w/2,222)});p.position.z=.046;
+ return{g}}
+/* the guest book on a lectern with a little brass lamp (green once the game has saved) */
+function hflBook(){const g=new THREE.Group(),wd=hflMat('lect',{color:0x4a2a14,roughness:.6}),br=hflMat('brassL');
+ hflB(g,.5,.04,.4,wd,0,.02,0);hflB(g,.12,1.0,.12,wd,0,.54,0);const top=new THREE.Group();top.position.set(0,1.08,0);top.rotation.x=.3;g.add(top);hflB(top,.6,.04,.44,wd,0,0,0);hflB(top,.58,.04,.04,wd,0,.03,.215);
+ const bR=hflRng(55),bk=hflPlane(top,.48,.32,128,86,(x,w,h)=>{x.fillStyle='#f0e8d4';x.fillRect(0,0,w,h);x.fillStyle='#6a4a2a';x.fillRect(62,0,4,h);x.strokeStyle='rgba(40,40,80,.55)';x.lineWidth=1;for(let i=0;i<8;i++){const y=14+i*9;x.beginPath();x.moveTo(8,y);x.lineTo(8+20+bR()*30,y);x.stroke();x.beginPath();x.moveTo(72,y);x.lineTo(80+bR()*36,y);x.stroke()}});
+ bk.rotation.x=-Math.PI/2;bk.position.y=.05;hflB(top,.5,.02,.34,hflMat('bookC',{color:0x5a1418}),0,.03,0);
+ const ar=hflCy(top,.008,.008,.22,br,.26,.13,-.16,6);const sh=new THREE.Mesh(new THREE.SphereGeometry(.05,12,8,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:0x2a6a3a,emissive:0x0,roughness:.4,side:THREE.DoubleSide}));sh.position.set(.26,.24,-.16);top.add(sh);
+ return{g,glow:sh}}
+function hflBench(){const g=new THREE.Group(),wd=hflMat('benchW',{color:0x5a3a20,roughness:.6}),ir=hflMat('benchI',{color:0x1e1e1e,roughness:.6,metalness:.4});
+ for(let i=0;i<4;i++)hflB(g,1.6,.03,.09,wd,0,.45,.12+i*.11);for(let i=0;i<3;i++)hflB(g,1.6,.09,.03,wd,0,.62+i*.12,.03);
+ for(const sx of[-.7,.7]){hflB(g,.04,.44,.04,ir,sx,.22,.5);hflB(g,.04,.88,.04,ir,sx,.44,.02);hflB(g,.03,.04,.52,ir,sx,.41,.27)}return{g}}
+function hflPlant(dead){const g=new THREE.Group(),pot=hflCy(g,.22,.17,.45,hflMat('pot',{color:0x8a4a2a,roughness:.8}),0,.225,0,20);hflCy(g,.2,.2,.02,hflMat('soil',{color:0x2a1c10}),0,.43,0,20);
+ const lm=hflMat(dead?'leafD':'leaf',{color:dead?0x6a5a30:0x2f6a32,roughness:.8,side:THREE.DoubleSide}),R=hflRng(dead?9:8);
+ for(let i=0;i<9;i++){const a=i/9*Math.PI*2+R()*.3,len=.5+R()*.3,lf=new THREE.Mesh(new THREE.PlaneGeometry(.12,len,1,4),lm),P=lf.geometry.attributes.position;
+  for(let k=0;k<P.count;k++){const v=(P.getY(k)+len/2)/len;P.setZ(k,-v*v*(dead?.45:.22));P.setX(k,P.getX(k)*(1-v*.7))}lf.geometry.translate(0,len/2,0);lf.geometry.computeVertexNormals();
+  const p=new THREE.Group();p.position.set(Math.cos(a)*.06,.43,Math.sin(a)*.06);p.rotation.y=-a+Math.PI/2;g.add(p);lf.rotation.x=dead?-.9:-.45;p.add(lf)}return{g}}

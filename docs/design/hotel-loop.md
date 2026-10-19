@@ -1,4 +1,4 @@
-Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks in review (`models/hotel.js`) · the elevator next
+Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks approved · ready to build (`models/hotel.js`) · the lift lobby in review
 
 # The hotel: how the run plays now, and what to change
 
@@ -227,10 +227,10 @@ not needed: the hotel's fake doors already do that job.
 |---|---|---|---|
 | 1 · Guest Floors | 1-24 | today's hotel: wood, wallpaper, carpet | Rush; Screech from 10 |
 | 2 · The Old Wing | 26-50 (library at 50) | faded green wallpaper, peeling and dusty, dimmer lamps, cobwebs | + Ambush, Seek's first chase, **Halt** |
-| 3 · Staff & Service | 51-74 | cream tiles, lino floors, pipes on the ceiling, strip lights, staff signs | + Seek's second chase, **Timothy** in drawers, more Creak stairwells |
+| 3 · Staff & Service | 52-74 | cream tiles, lino floors, pipes on the ceiling, strip lights, staff signs | + Seek's second chase, **Timothy** in drawers, more Creak stairwells |
 | 4 · The Deep Hotel | 76-99, then the boiler at 100 | dark red, water stains, puddles, lights that flicker | everything, + **Eyes** and more fake doors |
 
-- **The elevator break** comes at doors 25 and 75, and right after the library (between 50 and 51).
+- **The elevator break** is rooms 25, 51 (right after the library) and 75: each is a lift lobby (B2 below).
   - You step into an elevator lobby: a lift, a vending machine (gold), and a board with the next floor's name and what lives there.
   - The game saves there.
   - The doors close, then a 15-20 s ride with the floor counter ticking and a little shake; you can hear the next floor before you see it.
@@ -250,7 +250,7 @@ not needed: the hotel's fake doors already do that job.
   - a crucifix sends it away for the rest of the room.
 - **Fake doors** (the game's own; the Dupe job): more of them on floor 4 (part 1's x1.5 already does this).
 
-## B1. The floor looks (model: `docs/design/models/hotel.js`, in review)
+## B1. The floor looks (model: `docs/design/models/hotel.js`, approved)
 Floor 1 stays exactly as it is now. Floors 2-4 change only textures, trim colours, the hall lamps, the light tint and
 the fog, plus a little dressing. No layout, obstacle, door or furniture changes.
 
@@ -281,6 +281,36 @@ the fog, plus a little dressing. No layout, obstacle, door or furniture changes.
   Mark it all `userData.noSeam=true`.
 - Not checked: the game's wing pieces and the end-wall trim already have end faces that meet (the checker flags them
   on floor 1 too); nothing new adds to that.
+
+## B2. The lift lobby and the lift (model: `hotel.js`, `hflLift` and the lobby things; in review)
+- **Rooms 25, 51 and 75** are lift lobbies (so floor 3 is now 52-74). HX 5, HY 4.2, L 15, built as a hotelW hall in the
+  look of the floor you are **leaving**, with a marble floor (`hflMarbleT`, 2 m tiles) and two ceiling lamps
+  (z -2 and -10). No wardrobes, no side rooms, no events, no Jeff/Figure/locked roll in these rooms.
+- **The lift** (`hflLift({HX, HY, mat, col})`) sits at the end: group at (DX, 0, ez). It builds a full-width front
+  wall at z = ez + `HFLD` (2.6) with the lobby trim, the landing doors in a dark-wood portal with a brass frame, the
+  half-moon floor dial, the call buttons and two sconces; the shaft walls; the car; and the back portal, which fits the
+  room's normal 1.6 x 3 m exit-door hole. **The back landing doors replace the exit door** (no `pv` door leaf in
+  these rooms). `mat(key,a,b)` must return the room's wall/wainscot material (so the floor swaps apply), `col(c)` the
+  trim colour swap.
+- **It is a through car**: in at the front, out at the back onto the next room. Nothing moves, so no physics or
+  teleport: the car shakes (`car.position` jitter, 4 mm) and the dials turn.
+- **The ride** (the preview's timings): when every player in the run is inside the car (|x| < 1, z between ez+.2 and
+  ez+2.4), or 30 s after the first one steps in, the front doors close (1.5 s, `doors('f', k)`). Players left in the lobby
+  are moved into the car just before the doors shut (simplest co-op answer; the plan's "catch up" is not needed then).
+  Then 12 s "up": `show(at, to, 1)` updates the display, the button panel and both dials (`front.dial`/`back.dial`
+  `.userData.set(f + p)`), the car shakes with a 0.3 s light dip half-way, the next floor's sounds fade in. Ding, then
+  the back doors open (1.5 s, `doors('b', k)`). The next room (nn+1) is built while the doors are shut.
+- **Collision**: the front wall is solid except the 1.2 m door gap while the front doors are open; the car's side and
+  end walls (inside x ±1, z ez+.2..ez+2.4) are solid except the open door gaps; the shaft is closed.
+- **The lobby things**, back on the wall face, facing into the room:
+  - `hflVend()` vending machine (1 x 1.9 x .8 m), left wall at z -4. E opens the gold shop from part 1 (E).
+  - `hflBoard(next)` next-floor board, right wall at z -5, y 2.2. Text comes from `HFL[next]` and its list of what lives there.
+  - `hflBook()` guest book lectern, right side (HX-1.2, z -9), facing the room. Walking up to it saves (or the room
+    saves on entry; the lamp `glow` turns green, emissive 0x30ff60, once saved).
+  - `hflBench()` left wall at z -8; `hflPlant(dead)` in both front corners (dead plants in the floor-3 lobby).
+- All lobby text canvases use `hflRng` or fixed text, never `Math.random`.
+- Checker: clean apart from the game's own trim end faces (the same as every hall) and the dial rim ends, which sit
+  inside its base bar.
 
 ## Order of work, once this plan is OK
 1. The floor looks: a preview of one hallway in all four looks.
