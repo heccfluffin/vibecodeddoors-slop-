@@ -1,4 +1,4 @@
-Status: batches 1-5 shipped in r627 · batch 6 (the game's dpPen remodelled, the held-back yard re-planned) in review
+Status: batches 1-5 shipped in r627 · batch 6 (the game's dpPen remodelled, the held-back yard re-planned) approved · ready to build
 
 # The Dark Penitentiary rework (remodel list #23)
 
