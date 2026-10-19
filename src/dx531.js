@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r631',['Lag test window (F9): new spike catcher. Every frame that takes much longer than usual is listed with what caused it, and it goes in Copy report. Open the window before you go to the desert to catch the spikes when you arrive']],
 ['r630',['New LAG TEST window: press F9 (or type /lag). It shows your FPS, a frame-time graph and exactly where each frame\'s time goes, has switches to hide things for a moment to see what is heavy, a "Find the lag" button that tests it all by itself, and Copy report to send the results']],
 ['r629',['Desert performance, step 1: the game no longer works out the position of every hidden object each frame (about 70,000 of them), only the things it can actually draw. Nothing is removed and nothing looks different']],
 ['r628',['The Dark Penitentiary yard is rebuilt: the running track, chapel, the hole, staff quarters, garden, incinerator, stores and courtyard games','New in the yard: a greenhouse, a van and fuel pump, deliveries, washing lines, chess tables and a rest shelter','The doubled flag, kennels, bus and car park are gone','Every escape still works the same way']],
