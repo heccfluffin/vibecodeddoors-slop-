@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) approved · ready to build · batch 2 (floor 2's rooms) approved · ready to build · batch 3 (floor 3's rooms) approved · ready to build · batch 4 (floor 4's rooms) in review
+Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) approved · ready to build · batch 2 (floor 2's rooms) approved · ready to build · batch 3 (floor 3's rooms) approved · ready to build · batch 4 (floor 4's rooms) approved · ready to build (all batches done)
 
 # The hotel remodel: more room types and more turns
 
@@ -180,7 +180,7 @@ have `cabinet: 1` (a filing cabinet: use the drawer loot logic); `noShell` (the 
   tunnels have them, and the turn system already bends the rest.
 - Checker: clean apart from the usual trim end faces and the preview's stand-in wardrobes.
 
-## Batch 4 (floor 4's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 4", in the Deep Hotel look)
+## Batch 4 (approved; floor 4's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 4", in the Deep Hotel look)
 | Room | Size | What's in it | Notes |
 |---|---|---|---|
 | `hrmPool` drained pool | L 28, HX 7, HY 6 | an empty tiled pool (|x| < 4, z -5..-22): eight steps down the whole width at each end, the floor slopes from 1.2 m to 2.2 m deep and back; lane lines, old green water in the deep end, dead leaves, depth marks, chrome ladders; a tiled deck round it with coping, a springboard, a lifeguard chair, loungers | `noFloor`, `rf` = `hrmPoolRF(z, x)`. The tank's long sides are obstacles, so you go down the steps (or round the deck). Two changing-booth wardrobes on the near deck; the side walls by the tank are in `occ`. Can turn. |

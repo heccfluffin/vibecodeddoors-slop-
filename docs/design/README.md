@@ -11,7 +11,7 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `lake-rail.md` | the lake, the observatory, Dino Dan's, the railway, crossings and the train | `models/lake.js` |
 | `weapons.md` | the weapons | `models/weapons.js` |
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
-| `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (batches 1-3 approved, 4 in review) | `models/hotel-rooms.js` (needs `hotel.js`) |
+| `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
 
 Still to design: the desert map and minimap redo (next), the desert mines loop and remodel, the Old Quarry's underground.
 
