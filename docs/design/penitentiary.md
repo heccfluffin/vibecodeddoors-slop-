@@ -100,7 +100,7 @@ routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**
   touches a game spot: the gate path, the hides, the fence cut points, the guard routes and the exit door's apron were
   kept clear (checked with a script).
 - **Basketball court:** the game's 14 x 9 slab and its hoop posts at (-470, -845) → `penCourt(g)` (same spot, lines,
-  two hoops with backboards and nets).
+  two hoops with backboards and nets, facing the court; the posts stay at the game's spots).
 - **Floodlight poles** (`-520 + 32 i`, z -848, 9 m): → `penFloodMast(g, x, z)` (a tapered mast with a ladder and two
   lamps facing +z). The two lamp faces are at (x -/+ .6, 9.25, z + .49): put the game's glows there.
 - **Workshop** (x -366..-358, z -765..-755): walls, roof, door and props → `penWorkshop(g)`. Its west front now has
