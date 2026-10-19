@@ -257,6 +257,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx617.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx618.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx619.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx620.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx621.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -609,6 +610,9 @@ R("road(88,-1016.4,88,-993.5)","road(88,-1013.3,88,-993.5)")
 R("[82,-1014],[83.2,-1014.5]","[60.5,-1029],[61.7,-1029.4]")
 # r628: the prison yard extras (dpPen) are a local function of the r500 block: its batch 6 remodel replaces the base text in place
 _i=s.index('function dpPen(q,g){');_j=s.index('\n/* ======================= FORT BLACKOUT: a helipad',_i);s=s[:_i]+open(S+'dx620dp.js').read()+s[_j:]
+# r629: desert performance step 1 (dx621): the batching watchdog and the sprite culler get fresh positions for anything the per-frame update skipped
+R("while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;","while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;if(typeof mwFresh==='function')mwFresh(o);")
+R("const s=L[i];if(!s.parent){L.splice(i,1);continue}const e=s.matrixWorld.elements","const s=L[i];if(!s.parent){L.splice(i,1);continue}if(typeof mwFresh==='function')mwFresh(s);const e=s.matrixWorld.elements")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -622,7 +626,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r628';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r629';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
