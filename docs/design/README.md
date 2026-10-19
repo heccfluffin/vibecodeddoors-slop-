@@ -1,5 +1,20 @@
 # Design specs
 
+## Ready to build (approved by the user, not in the game yet) · updated 2026-10-19
+Claude Code: these are waiting. Each spec's own status line and wiring notes say what's in it.
+| Spec | What it is | Models |
+|---|---|---|
+| `pyramid.md` | the pyramid: layout and batches 1-6 | `models/pyr.js` |
+| `crash-site.md` | the crash site | `models/crash.js` |
+| `dusty-gulch.md` | Dusty Gulch: layout, batches 1-4, five interiors | `models/gulch.js` |
+| `hangar-1.md` | Hangar 1: layout and all four batches | `models/hangar-1.js` |
+| `lake-rail.md` | the lake, the observatory, Dino Dan's, the railway, crossings and the train | `models/lake.js` |
+| `weapons.md` | the weapons | `models/weapons.js` |
+| `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
+| `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (batches 1-3 approved, 4 in review) | `models/hotel-rooms.js` (needs `hotel.js`) |
+
+Still to design: the desert map and minimap redo (next), the desert mines loop and remodel, the Old Quarry's underground.
+
 This folder is how the design chat (Claude in the claude.ai app) and Claude Code work together on DOORS.
 
 - **The design chat writes specs here.** One Markdown file per feature or fix (for example `office-monitors.md`).
