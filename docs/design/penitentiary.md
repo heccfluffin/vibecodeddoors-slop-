@@ -1,4 +1,4 @@
-Status: shipped in r627 (2026-10-19): batches 1-5, EXCEPT the new yard and courtyard things (penRecreation, penGardens, penServices, penDeliveries, penCourtyard): held back, they collide with the game's dpPen (see NOTES.md)
+Status: batches 1-5 shipped in r627 · batch 6 (the game's dpPen remodelled, the held-back yard re-planned) in review
 
 # The Dark Penitentiary rework (remodel list #23)
 
@@ -277,3 +277,56 @@ Cell Block D's cell row is built in `penBuild` ("the cell block"), then dressed 
 - Checked: no z-fighting in any of these rooms. The checker calls some attached parts "floating" because nothing is
   straight under them (door stiles, drawer fronts, the modesty panel, the vending machine's drawer); they are all
   fixed to something.
+
+## Batch 6: the game's dpPen, remodelled, and the held-back yard re-planned (2026-10-19)
+r627 held back penRecreation, penGardens, penServices, penDeliveries and penCourtyard because they landed on the
+game's `dpPen` ("Filling the prison yards"). The user's call: **keep all of dpPen and remodel it in place; remove its
+four duplicates and move their props to the remodelled ones.** `penYardDp(g)` builds everything below and returns
+`{lap, genFan, incGlow, candles}`. Checked with a script against every game thing in the prison (dpPen, penYard,
+penSecure, penMess, penBuild, the hides, the walkers' paths, the guard routes, the fences and walls): nothing
+overlaps. The only flags are the game's own gate staff hut, which is 1.4 m inside the fence (fine, it's the game's), and
+the phone bank, which is on the wall on purpose. The checker finds no z-fighting in any of it.
+
+**dpPen's duplicates go** (batch 1 already remodelled the originals):
+- its flag (-456, -856);
+- its K-9 run with its kennels and dogs: move the "Whistle at the dogs" prop and the dogs' chase/bark anim to batch 1's kennels at (-556, -760) and their two dogs;
+- its second bus and bus bay (-424, -872): move the "🚌 The inmate transport" prop to batch 1's bus at (-472, -871);
+- its visitors' car park (x -502..-458, z -878..-866) and its three cars: batch 1's car park (x -411..-381) stays. The "VISITOR PARKING" sign can go on it.
+
+**dpPen remodelled** (keep every obstacle, prop, anim and inmate; hide the old meshes; where something moves, move its obstacles and props with it):
+- **Running track** → `penTrack(g)`.
+  - dpPen's ring ran through its own garden, hole and chapel, so the north side now runs at **z -678..-675**, north of them. The ring is x -507..-373, z -837..-675, 3 m wide.
+  - Move the jogger's corners to the returned `lap`.
+  - Its two benches move into the infield, (-502.2, -820) and (-377.8, -710) (the west one stood in the vehicle compound).
+- **Gate staff hut** → `penGateHut(g)`: windows, a drinks machine, a table with a kettle, a chair under the officer, an AC unit. Its tea prop stays.
+- **Water tower** (-358, -822) → batch 1's `penWaterTower()`.
+- **Generator shed** → `penGenShed(g)`, **moved to x -369..-360.5** (z -804..-797, door x -365.8..-363.8). It sat on the dumpster hiding spot at x -372. It returns the fan blades: spin them with `rotation.x`.
+- **Stores** → `penStoresYard(g)`: pallets, crates, forklift and sign at dpPen's spots.
+- **Incinerator** → `penIncinerator(g)`. It returns the door slot's glow material. The smoke puffs and the "Look into the incinerator" prop stay.
+- **Garden** → `penGardenBeds(g)`, **moved west to gx -533** (beds x -533..-510): the track ran through it. Move the gardener (-523, -681), his prop (-521, -690), the scarecrow and the bed obstacles by the same -13 in x. The wheelbarrow goes to (-503, -691) in the track's infield.
+- **The hole** → `penHole(g)`: a closed steel door with a hatch (replaces dpPen's door slab), barred slits, roof vents, a red lamp. The "Listen at the door" prop stays.
+- **The chapel** → `penChapel(g)`:
+  - a pitched roof with gables, a bell cote with a cross, coloured windows, six pews, an altar with five candles, a lectern and a carpet;
+  - it returns the candle flames;
+  - the chaplain, the praying inmate and "Light a candle" (−5 s off your sentence) stay.
+- **Vehicle compound** → `penCompound(g)`: an asphalt pad, the kerbs on dpPen's kerb obstacles, its three vans (batch 2's `penVan`) and the sign. The sign moves inside the entrance at (-510, -819.5), because the track runs past outside. dpPen's cop car stays.
+- **Staff quarters** → `penStaffQuarters(g)`: windows, beds and lockers, a table and chairs, a TV, an AC unit, a dish, a patio with chairs, a barbecue and a cool box. The officer and the barbecue prop stay. **Move the "supply crates" hiding spot** (penPolish2, x -515, z -770: it cut into this building) to (-511.5, -768), with its exit at (-509.8, -768).
+- **Junk corner** → `penJunk(g)`.
+- **Courtyard:**
+  - the handball wall → `penHandballC(g)`; the shelter → `penShelterC(g)`; ping-pong → `penPingPongC(g)` (their inmates stay);
+  - the mural moves to **x -380.44, z -794** (it was behind a buttress) inside `penMuralFrame(g)`;
+  - the phone bank moves to **x -467** (it sat in a buttress at x -458) as `penPhoneBank(g)`. The inmate on the phone and the prop move by -7 in x;
+  - the two horn poles → `penSpeakerPole(g, x, z, ry)`.
+
+**The held-back yard, re-planned** (now fine to wire):
+- **penRecreation is dropped.** The far yard is dpPen's garden, hole and chapel.
+- **penGardens** keeps only the greenhouse, moved beside the garden (x -481..-471, z -694..-686). The raised beds and the water tank are dropped.
+- **penServices:**
+  - the van and fuel pump move to z -732..-722, because dpPen's stores are at -743..-734;
+  - the bins and compost stay;
+  - the tyres and scrap move to z -779..-771, because dpPen's water tower is at -822.
+- **penDeliveries:** the whole row moves to **z -844..-838** to clear the track (z -837..-834), and the line-up boxes move +2 in x. The crates hide (-412, -840) is untouched.
+- **penCourtyard:**
+  - the stores row moves west to clear dpPen's handball wall (x -404..-396): cages x -429..-419, forklift x -417..-410.3, power box x -409..-405;
+  - the washing lines move to z -790..-772 to clear dpPen's ping-pong at z -768.
+- Obstacles for all of these: the footprints above.
