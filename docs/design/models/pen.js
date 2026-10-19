@@ -127,7 +127,7 @@ function penGateControl(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g),x0=-429
  B(x1-x0,.06,z1-z0,M(0x5a5c58),(x0+x1)/2,.03,(z0+z1)/2);B(6.5,.3,5.5,MT.dark,(x0+x1)/2,H+.15,(z0+z1)/2);
  B(x1-x0+.3,H,.3,MT.con2,(x0+x1)/2,H/2,z0,null,2);for(const x of[x0,x1])B(.3,H,z1-z0-.3,MT.con2,x,H/2,(z0+z1)/2,null,2);
  B(-426.65-x0+.15,H,.3,MT.con2,(x0-.15-426.65)/2,H/2,z1,null,2);B(x1+.15+425.35,H,.3,MT.con2,(x1+.15-425.35)/2,H/2,z1,null,2);B(1.3,H-2.2,.3,MT.con2,-426,2.2+(H-2.2)/2,z1,null,2);
- for(const s of[-1,1])B(.12,2.28,.4,MT.steel,-426+s*.69,1.14,z1);B(1.52,.12,.44,MT.steel,-426,2.24,z1);/* the door frame, round the opening */
+ for(const s of[-1,1])B(.12,2.26,.4,MT.steel,-426+s*.69,1.13,z1);B(1.52,.12,.44,MT.steel,-426,2.22,z1);/* the lintel's underside at 2.16, 5 mm over the door leaf's top *//* the door frame, round the opening */
  B(.3,.3,.06,M(0x2a2e34),-424.9,1.4,z1+.18);B(.2,.2,.02,M(0x60ff80,{emissive:0x208030}),-424.9,1.4,z1+.215);/* a keypad by the door */
  const leaf=new THREE.Group(),L=k.H(leaf);L.B(1.22,2.15,.08,M(0x4a5058,{metalness:.6,roughness:.4}),.61,1.08,0);L.B(.3,.4,.02,MT.glass,.61,1.6,.05);L.Cy(.025,.025,.14,MT.galv,1.05,1.05,.07,'z',leaf,8);
  /* inside: the console against the south wall, its sloping panel, the two buttons, the lamps, a slit window onto the gate */B(1.8,1.0,.6,M(0x3a4048,{metalness:.5}),-426,.5,z0+.5);const pnl=B(1.7,.5,.08,M(0x1a1e22),-426,1.2,z0+.25);pnl.rotation.x=-.4;
