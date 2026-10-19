@@ -445,3 +445,65 @@ function pyScribeCorner(g,x,z,ry){const k=pyKit(),{M,MT}=k,t=new THREE.Group();t
    south wall of the north room, a scarab statue in the south room beside the trapdoor. Returns {obs}. */
 function pyClueRooms(g){const obs=[];const x1=pyCx(1),zs=pyCz(3)+1.6;pyScribeCorner(g,x1,zs-1.25,Math.PI);obs.push({x0:x1-.8,x1:x1+.8,z0:zs-1.6,z1:zs})/* table and shelf */;
  const st=pyScarabStatue();st.position.set(x1,0,pyCz(13)-1.0);g.add(st);obs.push({x0:x1-.4,x1:x1+.4,z0:pyCz(13)-1.4,z1:pyCz(13)-.6});return{obs}}
+
+/* =====================================================================================================
+   Batch 4: the treasure chamber (cells i1..4, j6..10: x X-24..X-11.2, z Z-8..Z+8). The game's things keep their
+   spots, sizes and moving parts; these replace their meshes:
+   pyGoldPile(s)       the four heaps gp(x,z,s): coins, bars, a goblet, gems (base on the floor, about 0.6 s high)
+   pySarcophagus()     the trough (1.2 x 0.9 x 2.6, open on top, centre on the floor) for `sar`
+   pySarcLid()         the lid for `lid` (1.3 x 2.7, bottom at -0.09 like the game's box), a carved figure, head to -z
+   pyMummy()           the mummy for `mum` (group at (tx,.6,Z+2.95), userData.tr = the part that sits up)
+   pyChest() / pyChestLid()  the chest body (1.1 x .7 x .7, hollow, coins inside) and its lid (1.14 x .18 x .74)
+   pyPedestal()        the mask's pedestal (.8 x 1.1 x .8, top at 1.1)
+   pyMask()            the golden mask for `mask` (faces +z inside its group, chin at -0.35 like the game's)
+   pyTreasureRoom(g)   the dressing: a gilded shrine, jars, feather fans by the sarcophagus, chariot wheels.
+   ===================================================================================================== */
+function pyGoldMats(){const k=pyKit();if(k.gm)return k.gm;const t=k.can(128,128,(x,w,h)=>{x.fillStyle='#d8a828';x.fillRect(0,0,w,h);for(let i=0;i<220;i++){const cx=Math.random()*w,cy=Math.random()*h,r=5+Math.random()*4;x.fillStyle=['#f0c848','#c89020','#ffe070'][i%3];x.beginPath();x.ellipse(cx,cy,r,r*.6,Math.random()*3,0,7);x.fill();x.strokeStyle='rgba(120,80,10,.6)';x.lineWidth=1;x.stroke()}},1);
+ return k.gm={heap:new THREE.MeshStandardMaterial({map:t,color:0xffffff,metalness:.6,roughness:.4,emissive:0x2a1a00}),gold:k.M(0xf0c040,{metalness:.65,roughness:.3,emissive:0x2a1c00})}}
+function pyGoldPile(s){s=s||1;const k=pyKit(),{M}=k,g=new THREE.Group(),{A,B}=k.H(g),G=pyGoldMats();let sd=Math.round(s*1000);const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};
+ /* the heap: a lumpy cone, its foot 5 cm under the floor so no edge shows */{const geo=new THREE.ConeGeometry(.7*s,.65*s,18,4);const P=geo.attributes.position;for(let i=0;i<P.count;i++){const y=P.getY(i);if(y<.32*s&&y>-.32*s){const f=1+(R()-.5)*.18;P.setX(i,P.getX(i)*f);P.setZ(i,P.getZ(i)*f)}}geo.computeVertexNormals();A(geo,G.heap,0,.325*s-.05,0)}
+ /* loose coins round the foot and on the slope */{const im=new THREE.InstancedMesh(new THREE.CylinderGeometry(.045,.045,.012,10),G.gold,40),m4=new THREE.Matrix4(),q=new THREE.Quaternion(),e=new THREE.Euler(),p=new THREE.Vector3(),sc=new THREE.Vector3(1,1,1);
+  for(let i=0;i<40;i++){const a=R()*Math.PI*2;let r,y;if(i<22){r=(.75+R()*.6)*s;y=.056}else{const t=R()*.7;r=.7*s*(1-t)*.98;y=.65*s*t-.05+.012}e.set((R()-.5)*(i<22?.1:.9),R()*3,(R()-.5)*(i<22?.1:.9));q.setFromEuler(e);p.set(Math.cos(a)*r,y,Math.sin(a)*r);m4.compose(p,q,sc);im.setMatrixAt(i,m4)}g.add(im)}
+ /* bars, a goblet, two gems */for(let i=0;i<3;i++){const b=B(.24,.06,.1,G.gold,(.8+i*.12)*s*Math.cos(i*2),.08,(.8+i*.12)*s*Math.sin(i*2));b.rotation.y=i}
+ {const pts=[[0,0],[.06,0],[.06,.01],[.015,.03],[.015,.12],[.07,.16],[.08,.24],[0,.2]].map(p=>new THREE.Vector2(p[0],p[1]));A(new THREE.LatheGeometry(pts,14),G.gold,.3*s,.5*s-.05,.2*s).rotation.z=.15}
+ A(new THREE.IcosahedronGeometry(.06,0),M(0xc01030,{metalness:.2,roughness:.1,emissive:0x300008}),-.2*s,.55*s,.25*s);A(new THREE.IcosahedronGeometry(.05,0),M(0x1040c0,{metalness:.2,roughness:.1,emissive:0x080830}),.1*s,.45*s,-.35*s);
+ pyNoSeam(g);return g}
+function pySarcophagus(){const k=pyKit(),{M}=k,g=new THREE.Group(),{A,B}=k.H(g),G=pyGoldMats();const t=k.can(512,128,(x,w,h)=>{x.fillStyle='#e0b038';x.fillRect(0,0,w,h);const c=['#1e4a9a','#b03020','#2a7a4a'];for(let i=0;i<3;i++){x.fillStyle=c[i];x.fillRect(0,14+i*10,w,6);x.fillRect(0,h-20-i*10,w,6)}
+  x.strokeStyle='#5a3a10';for(let i=0;i<8;i++)pyGlyph(x,i%6,32+i*64,h/2,16)});const SM=new THREE.MeshStandardMaterial({map:t,metalness:.45,roughness:.4,emissive:0x1a1000});
+ /* open box: floor, sides and ends (walls 8 cm), inside dark */const IN=M(0x2a1e10,{roughness:1});B(1.04,.42,2.44,SM,0,.21,0);/* filled up to 0.42 so the mummy (bottom at .44) lies on it */for(const s of[-1,1]){B(.08,.9,2.6,SM,s*.56,.45,0);B(1.04,.9,.08,SM,0,.45,s*1.26)}B(1.04,.01,2.44,IN,0,.425,0);
+ /* a plinth under it */B(1.4,.04,2.8,M(0x3a2a18),0,.02,0);pyNoSeam(g);return g}
+function pySarcLid(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy}=k.H(g),G=pyGoldMats();B(1.3,.08,2.7,G.gold,0,-.05,0);/* bottom at -0.09 */
+ const body=A(new THREE.SphereGeometry(1,20,12,0,Math.PI*2,0,Math.PI/2),G.gold,0,-.01,.25);body.scale.set(.5,.2,1.15);
+ const nm=k.can(128,128,(x,w,h)=>{for(let i=0;i<10;i++){x.fillStyle=i%2?'#1e3a8a':'#e8c050';x.fillRect(0,i*13,w,13)}});const hd=A(new THREE.SphereGeometry(.3,16,10,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({map:nm,roughness:.5,metalness:.3}),0,-.01,-.95);hd.scale.set(1.1,.7,1.1);
+ const face=A(new THREE.SphereGeometry(.17,14,10),G.gold,0,.16,-.98);face.scale.set(1,.55,1.1);for(const s of[-1,1])B(.07,.02,.025,M(0x101010),s*.07,.255,-.95);B(.06,.04,.12,G.gold,0,.2,-.8);
+ /* crossed arms with a crook and a flail */for(const s of[-1,1]){const a=B(.5,.06,.1,G.gold,0,.18+s*.008,-.35+s*.06);a.rotation.y=s*.5}/* one arm over the other */const CR=MT.lapis;Cy(.02,.02,.6,CR,-.12,.22,-.45,'z',null,6).rotation.y=.4;Cy(.02,.02,.6,CR,.12,.22,-.45,'z',null,6).rotation.y=-.4;
+ /* a band of signs down the legs */const bt=k.can(64,256,(x,w,h)=>{x.fillStyle='#e8c050';x.fillRect(0,0,w,h);x.strokeStyle='#1e3a8a';for(let i=0;i<5;i++)pyGlyph(x,i%6,w/2,26+i*50,14)});const bp=A(new THREE.PlaneGeometry(.22,1.0),new THREE.MeshStandardMaterial({map:bt,roughness:.5}),0,.205,.55);bp.rotation.x=-Math.PI/2-.08;
+ g.userData.dpKeep=1;pyNoSeam(g);return g}
+function pyMummy(){const k=pyKit(),{M}=k,g=new THREE.Group(),{A,Cy}=k.H(g);const t=k.can(128,128,(x,w,h)=>{x.fillStyle='#ddd2b2';x.fillRect(0,0,w,h);for(let i=0;i<18;i++){x.strokeStyle=i%3?'rgba(120,100,70,.5)':'rgba(70,55,35,.6)';x.lineWidth=2+Math.random()*2;x.beginPath();const y=i*8+Math.random()*4;x.moveTo(0,y);x.lineTo(w,y+(Math.random()-.5)*14);x.stroke()}},1);
+ const W=new THREE.MeshStandardMaterial({map:t,roughness:1});const legs=A(new THREE.CylinderGeometry(.16,.12,1.3,10),W,0,0,.7);legs.rotation.x=Math.PI/2;legs.scale.x=1.3;A(new THREE.SphereGeometry(.13,10,8),W,0,0,1.36).scale.set(1.2,.8,.8);
+ const tr=new THREE.Group();g.add(tr);const T=k.H(tr);T.A(new THREE.CylinderGeometry(.22,.18,.75,12),W,0,.4,0).scale.z=.75;const hd=T.A(new THREE.SphereGeometry(.17,12,10),W,0,.92,0);hd.scale.set(1,1.15,1.05);
+ for(const s of[-1,1]){T.A(new THREE.SphereGeometry(.035,6,6),new THREE.MeshBasicMaterial({color:0xff3020}),s*.065,.95,.155);const a=T.Cy(.06,.05,.6,W,s*.28,.62,.28,'z',null,8);a.rotation.x=Math.PI/2-.1;/* a loose bandage end */const b=T.A(new THREE.PlaneGeometry(.06,.3),new THREE.MeshStandardMaterial({map:t,side:THREE.DoubleSide}),s*.3,.5,.55);b.rotation.x=.4}
+ g.userData.tr=tr;g.userData.dpKeep=1;pyNoSeam(g);return g}
+function pyChest(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B}=k.H(g),G=pyGoldMats();const W=new THREE.MeshStandardMaterial({map:k.T.canvas,color:0x7a4422,roughness:.75});
+ B(1.0,.06,.6,W,0,.03,0);/* between the walls */for(const s of[-1,1]){B(.05,.7,.7,W,s*.525,.35,0);B(1.0,.7,.05,W,0,.35,s*.325)}/* the walls; the coins inside at .58 */B(1.0,.02,.6,G.heap,0,.58,0);
+ for(const x of[-.35,.35])for(const s of[-1,1])B(.08,.7,.012,G.gold,x,.35,s*.357);/* bands, 7 mm off the walls */B(.16,.16,.02,G.gold,0,.55,.362);
+ pyNoSeam(g);return g}
+function pyChestLid(){const k=pyKit(),g=new THREE.Group(),{A,B}=k.H(g),G=pyGoldMats();const W=new THREE.MeshStandardMaterial({map:k.T.canvas,color:0x7a4422,roughness:.75});
+ B(1.14,.06,.74,W,0,-.06,0);const half=(r,h,open)=>{const geo=new THREE.CylinderGeometry(r,r,h,14,1,open,-Math.PI/2,Math.PI);geo.rotateX(-Math.PI/2);geo.rotateY(Math.PI/2);return geo};/* top half, axis along x */
+ {const geo=half(.37,1.14,false);geo.scale(1,.324,1);A(geo,W,0,-.03,0)}for(const x of[-.35,.35]){const geo=half(.375,.08,true);geo.scale(1,.34,1);const b=A(geo,G.gold,x,-.03,0);b.material=G.gold}g.userData.dpKeep=1;pyNoSeam(g);return g}
+function pyPedestal(){const k=pyKit(),{MT}=k,g=new THREE.Group(),{B,Cy}=k.H(g),G=pyGoldMats();B(.8,.16,.8,MT.lime,0,.08,0);Cy(.26,.3,.8,MT.lapis,0,.56,0,null,null,16);for(const y of[.2,.94])Cy(.31,.31,.05,G.gold,0,y,0,null,null,16);B(.7,.12,.7,MT.lime,0,1.04,0);pyNoSeam(g);return g}
+function pyMask(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy}=k.H(g),G=pyGoldMats();const nm=k.can(128,128,(x,w,h)=>{for(let i=0;i<12;i++){x.fillStyle=i%2?'#1e3a8a':'#f0c040';x.fillRect(0,i*11,w,11)}});const NM=new THREE.MeshStandardMaterial({map:nm,metalness:.4,roughness:.35});
+ /* the headdress: a striped hood falling to the shoulders, a wide collar, the gold face */const hd=A(new THREE.SphereGeometry(.26,18,12,0,Math.PI*2,0,Math.PI*.62),NM,0,.08,-.04);hd.scale.set(1.15,1.2,1);for(const s of[-1,1]){const l=B(.1,.36,.08,NM,s*.21,-.12,.04);l.rotation.z=s*.12}
+ const col=A(new THREE.CylinderGeometry(.22,.3,.1,18,1,false,-Math.PI/2,Math.PI),NM,0,-.3,0);col.scale.z=.7;
+ const f=A(new THREE.SphereGeometry(.2,16,12),G.gold,0,.0,.06);f.scale.set(.85,1.12,.75);for(const s of[-1,1]){B(.08,.022,.02,M(0x14100c),s*.07,.05,.205);B(.1,.012,.012,MT.lapis,s*.07,.08,.2)}B(.04,.07,.04,G.gold,0,-.01,.22);B(.08,.012,.012,M(0x8a3a20),0,-.08,.2);
+ Cy(.035,.025,.16,NM,0,-.2,.16,null,null,8);/* the beard */B(.12,.03,.05,G.gold,0,.2,.14);/* the brow band */g.userData.dpKeep=1;pyNoSeam(g);return g}
+function pyTreasureRoom(g){const k=pyKit(),{M,MT}=k,{A,B,Cy,rod}=k.H(g),{X,Z}=PYRV,G=pyGoldMats(),obs=[];const tx=X-17.6;
+ /* a gilded shrine against the north wall: a box with a curved roof, doors, panels */{const z0=Z-8,sg=new THREE.Group();sg.position.set(tx,0,z0+.66);g.add(sg);const s=k.H(sg);s.B(2.2,.18,1.3,MT.dark,0,.09,0);s.B(1.9,1.8,1.1,G.gold,0,1.08,0);
+  {const geo=new THREE.CylinderGeometry(1,1,1.96,16,1,false,-Math.PI/2,Math.PI);geo.rotateX(-Math.PI/2);geo.rotateY(Math.PI/2);geo.scale(1,.35,.58);s.A(geo,G.gold,0,1.98,0)}/* a curved roof, its long axis along x */
+  const dt=k.can(256,256,(x,w,h)=>{x.fillStyle='#e8b830';x.fillRect(0,0,w,h);x.strokeStyle='#7a5010';x.lineWidth=5;x.strokeRect(8,8,w/2-12,h-16);x.strokeRect(w/2+4,8,w/2-12,h-16);x.strokeStyle='#1e3a8a';pyGlyph(x,1,w/4,h/3,30);pyGlyph(x,1,w*3/4,h/3,30);pyGlyph(x,0,w/4,h*2/3,26);pyGlyph(x,0,w*3/4,h*2/3,26)});
+  const d=s.A(new THREE.PlaneGeometry(1.4,1.5),new THREE.MeshStandardMaterial({map:dt,metalness:.4,roughness:.35}),0,1.05,.562);obs.push({x0:tx-1.15,x1:tx+1.15,z0:z0-.02,z1:z0+1.35})}
+ /* jars along the south wall */for(let i=0;i<5;i++){const j=pyJar();const x=X-21+i*1.25;if(Math.abs(x-tx)<.6)continue;j.position.set(x,0,Z+7.45);j.scale.setScalar(.8+((i*37)%5)*.06);g.add(j)}obs.push({x0:X-21.5,x1:X-15.6,z0:Z+7.0,z1:Z+8})
+ /* two feather fans on poles at the sarcophagus's head */for(const s of[-1,1]){const x=tx+s*1.0,z=Z+1.25;Cy(.05,.06,.06,G.gold,x,.08,z,null,null,10);rod([x,.1,z],[x,2.3,z],.025,G.gold);
+  const fan=A(new THREE.CircleGeometry(.45,16,0,Math.PI),new THREE.MeshStandardMaterial({map:k.can(128,64,(x2,w,h)=>{for(let i=0;i<9;i++){x2.fillStyle=['#e8e0d0','#1e3a8a','#b03020'][i%3];x2.beginPath();x2.moveTo(w/2,h);x2.lineTo(i*w/9,0);x2.lineTo((i+1)*w/9,0);x2.fill()}}),side:THREE.DoubleSide,roughness:.9}),x,2.25,z);fan.rotation.y=Math.PI/2;obs.push({x0:x-.1,x1:x+.1,z0:z-.1,z1:z+.1})}
+ /* chariot wheels leaning on the east wall */for(let i=0;i<2;i++){const wg=new THREE.Group();wg.position.set(X-11.2-.12-i*.12,.55,Z+4.0+i*.5);wg.rotation.set(0,Math.PI/2,0);wg.rotation.order='YXZ';wg.rotation.x=-.18;g.add(wg);const w=k.H(wg);w.A(new THREE.TorusGeometry(.5,.04,6,24),MT.wood,0,0,0);for(let s2=0;s2<12;s2++){const a=s2*Math.PI/6;w.rod([Math.cos(a)*.07,Math.sin(a)*.07,0],[Math.cos(a)*.47,Math.sin(a)*.47,0],.015,MT.wood)}/* spokes from the hub out */w.Cy(.08,.08,.12,G.gold,0,0,0,'z',null,10)}obs.push({x0:X-11.6,x1:X-11.2,z0:Z+3.4,z1:Z+5.1});
+ pyNoSeam(g);return{obs}}

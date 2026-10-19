@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batches 1-2 approved · batch 3 (traps, sealed door, clue rooms, trapdoor) in review
+Status: layout approved 2026-10-18 · batches 1-3 approved · batch 4 (treasure chamber) in review
 
 # The Pyramid rework (remodel list #20)
 
@@ -65,3 +65,13 @@ puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the und
   `sg` scarab plane go, `pyTrapFrame(g, hx, hz)` replaces them (the dark stairs picture is at y .056, above the
   floor; the old pit at .035 was under the floor and never showed).
 - `pyClueRooms(g)`: the scribe's corner and the scarab statue; push its `obs`. Steles 1 and 2 → `pyStele()`.
+
+## Notes for the wiring (batch 4, the treasure chamber)
+- `gp(x,z,s)` → add `pyGoldPile(s)` at (x, 0, z) instead of its cone and five coins (the coins were under the floor).
+- `sar` → `pySarcophagus()` at (tx, 0, Z+3.2) (open on top, filled to .42 so the mummy lies on it); `lid` →
+  `pySarcLid()` at (tx, .99, Z+3.2), same moves (`position`, `rotation.z`); `mum` → `pyMummy()` at the same spot,
+  its `userData.tr` is the part that sits up.
+- `ch` → `pyChest()` at (cx(1)+.3, 0, Z-2.6); `chl` → `pyChestLid()` at (cx(1)+.3, .79, Z-2.6), same open move.
+- `ped` → `pyPedestal()` at (cx(1)-.6, 0, Z+.6); the mask group's children → `pyMask()` (same group, same sway, same
+  glow sprite; hide the group as now when taken).
+- New: `pyTreasureRoom(g)` (shrine, jars, fans, chariot wheels); push its `obs`. The gold light stays as it is.
