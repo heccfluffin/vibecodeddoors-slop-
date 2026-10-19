@@ -1,4 +1,4 @@
-Status: approved · ready to build (2026-10-19): layout and batches 1-5
+Status: shipped in r627 (2026-10-19): batches 1-5, EXCEPT the new yard and courtyard things (penRecreation, penGardens, penServices, penDeliveries, penCourtyard): held back, they collide with the game's dpPen (see NOTES.md)
 
 # The Dark Penitentiary rework (remodel list #23)
 

@@ -5,7 +5,7 @@
    ===================================================================================================== */
 const PVB={x:-419,z:-872,x0:-424,x1:-414,z0:-876,z1:-868},PVIS={len:60};
 function pvBail(t){return Math.max(1500,Math.round(1500+ (t||0)/60*150))}
-function pvBuild(q){if(q.pvB)return;q.pvB=1;const g=q.g,M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85},o||{})),A=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);g.add(o);return o},BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+function pvBuild(q){if(q.pvB)return;q.pvB=1;const g=q.g,M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85},o||{})),BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d);/* r627: the block itself is the design chat's model (penVisitation); the old meshes below are only built if it fails */let PVM=0;try{if(typeof penVisitation=='function'){penVisitation(g);PVM=1}}catch(e){conLog('error','visitation model: '+e.message)}const A=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);if(!PVM)g.add(o);return o};
  const B=PVB,CW2=M(0x8a8a84),FL=M(0x5a5c58),H=3.2,ob=(x0,x1,z0,z1)=>q.obs.push({x0,x1,z0,z1});
  A(BX(B.x1-B.x0,.06,B.z1-B.z0),FL,B.x,.03,B.z);A(BX(B.x1-B.x0+.4,.3,B.z1-B.z0+.4),M(0x4a4a46),B.x,H+.15,B.z);
  A(BX(B.x1-B.x0,H,.3),CW2,B.x,H/2,B.z0);ob(B.x0,B.x1,B.z0-.15,B.z0+.15);A(BX(B.x1-B.x0,H,.3),CW2,B.x,H/2,B.z1);ob(B.x0,B.x1,B.z1-.15,B.z1+.15);
@@ -14,7 +14,7 @@ function pvBuild(q){if(q.pvB)return;q.pvB=1;const g=q.g,M=(c,o)=>new THREE.MeshS
  /* the glass and the counter */A(BX(B.x1-B.x0-.3,1.0,.5),M(0x6a6a66),B.x+.15,.5,B.z);ob(B.x0+.15,B.x1,B.z-.3,B.z+.3);const gl=A(BX(B.x1-B.x0-.3,2.2,.06),new THREE.MeshStandardMaterial({color:0xa8c8e0,transparent:true,opacity:.28,metalness:.3,roughness:.05}),B.x+.15,2.1,B.z);
  for(let i=0;i<4;i++){const x=B.x0+1.6+i*2.2;A(BX(.06,2.2,.5),M(0x4a4a46),x+1.1,2.1,B.z);for(const sd of[-1,1]){A(new THREE.CylinderGeometry(.22,.22,.08,12),M(0x2a3a5a),x,.55,B.z+sd*1.0);A(new THREE.CylinderGeometry(.04,.04,.5,6),M(0x2a2a2a),x,.27,B.z+sd*1.0);const ph=A(BX(.12,.25,.08),M(0x1a1a1a),x+.5,1.5,B.z+sd*.3)}}
  const lab=(t,w,h,x,y,z,ry,bg,fg)=>{const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const k=c.getContext('2d');k.fillStyle=bg;k.fillRect(0,0,c.width,c.height);k.fillStyle=fg;k.font='bold '+Math.round(c.height*.32)+'px Georgia';k.textAlign='center';k.textBaseline='middle';t.split('\n').forEach((l,i,a)=>k.fillText(l,256,c.height/2+(i-(a.length-1)/2)*c.height*.38));const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}));m.position.set(x,y,z);m.rotation.y=ry;g.add(m);return m};
- lab('VISITATION\nTHE DARK PENITENTIARY',3.4,.9,B.x0-.17,H+.9,B.z0+2,-Math.PI/2,'#14181e','#ffd040');lab('VISITS · 60 SECONDS\nBAIL · ASK AT THE GLASS',2.4,.6,B.x0-.17,2.6,B.z0+2,-Math.PI/2,'#e8e0c8','#202020');
+ lab('VISITATION\nTHE DARK PENITENTIARY',3.4,.9,B.x0-.17,H+.9,B.z0+2,-Math.PI/2,'#14181e','#ffd040');lab('VISITS · 60 SECONDS\nBAIL · ASK AT THE GLASS',2.4,.6,B.x0-.17,1.9,-870,-Math.PI/2,'#e8e0c8','#202020');
  q.props.push({x:B.x0+2.2,z:B.z-1.4,r:2,txt:()=>q.pvis?'':'[E] 📞 Visit an inmate / pay bail',act:()=>pvDlg(q)});q.obsDirty=1}
 function pvInmates(q){const now=Date.now(),R=q.vnet?q.vnet.rem:{};return Object.keys(R).filter(id=>R[id].pst&&now-R[id].pstT<9000)}
 function pvDlg(q){const ids=pvInmates(q),R=q.vnet.rem;if(q.pen&&q.pen.on)return;
