@@ -1,4 +1,4 @@
-Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks approved · ready to build (`models/hotel.js`) · the lift lobby approved · ready to build · creature rules in review
+Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D creatures) plan approved · floor looks approved · ready to build (`models/hotel.js`) · the lift lobby approved · ready to build · creature rules approved · part 2 ready to build
 
 # The hotel: how the run plays now, and what to change
 
@@ -233,12 +233,12 @@ not needed: the hotel's fake doors already do that job.
 - **The elevator break** is rooms 25, 51 (right after the library) and 75: each is a lift lobby (B2 below).
   - You step into an elevator lobby: a lift, a vending machine (gold), and a board with the next floor's name and what lives there.
   - The game saves there.
-  - The doors close, then a 15-20 s ride with the floor counter ticking and a little shake; you can hear the next floor before you see it.
-  - In co-op the lift waits for everyone, or leaves after 30 s with whoever is in it, and the rest catch up at the next floor's first room.
+  - The doors close, then a 12 s ride with the dials turning and a little shake; you can hear the next floor before you see it (B2 has the exact timings).
+  - In co-op the lift waits for everyone, or leaves 30 s after the first player steps in; anyone still in the lobby is moved into the car just before the doors shut.
 - **The looks are texture and light swaps** in the existing room builder: each floor maps the room textures (`TX` keys such as wall, floor, ceil) to its own set, plus a light tint. No new room layouts are needed. The streak rooms (offices, archive, stairwell) keep their own looks.
 - **Part 1's ranges change when floors are on**, so each chase sits inside one floor: Seek 1 in 27..38, Seek 2 in 52..64. Jeff stays in 41..47 or 52..58. The back room stays in 80..92.
 
-## D. Three creatures in the hotel, with the game's existing models (rules in review, preview "Halt, Timothy and Eyes")
+## D. Three creatures in the hotel, with the game's existing models (rules approved, preview "Halt, Timothy and Eyes")
 The models are `entModel('halt')`, `entModel('tim')` and `entModel('eyes')` exactly as they are (no new models).
 Every chance roll below uses `hflRng(nn * 977 + salt)` (or a number drawn while the room is generated, which is
 seeded), so every co-op player gets the same rooms and the same Timothy drawers.
@@ -342,7 +342,43 @@ the fog, plus a little dressing. No layout, obstacle, door or furniture changes.
 - Checker: clean apart from the game's own trim end faces (the same as every hall) and the dial rim ends, which sit
   inside its base bar.
 
-## Order of work, once this plan is OK
+## B3. What lives where (part 2 on top of part 1), and the build order
+**Floors are on** for a normal hotel run only: not the desert mines, not the multiplayer lobby, not a Daily run with
+its own rules. The floor comes from the door number alone, so every co-op player agrees:
+`hflFloor(nn) = nn<=24 ? 1 : nn<=50 ? 2 : nn<=74 ? 3 : 4` (25, 51 and 75 are the lift lobbies; 100 is the boiler,
+which keeps its own look). When floors are on, they replace part 1's four door bands (C): floor 1 uses the 1-14 column
+for doors 1-14 and the 15-39 column for 15-24; floors 2, 3 and 4 use the 15-39, 40-69 and 70-99 columns.
+
+| | Floor 1 (1-24) | Floor 2 (26-50) | Floor 3 (52-74) | Floor 4 (76-99) |
+|---|---|---|---|---|
+| Doors between Rush/Ambush | 6, then 4 from 15 | 4 | 4 | 3 |
+| Event chance in an eligible room | .30, then .45 from 15 | .45 | .50 | .55 |
+| of which Ambush | 0 | .25 | .25 | .35 |
+| Dark rooms (Screech) | 0 before 10, .08, then .12 from 15 | .12 | .18 | .26 |
+| Fake doors and fake side doors | x0.5 | x1 | x1 | x1.5 |
+| Seek chase | - | one, starting in 27..38 | one, starting in 52..64 | - |
+| Jeff's shop | - | 41..47 | or 52..58 | - |
+| Halt corridor (1 in 20 plain halls, 8-door gap) | - | yes | yes | yes |
+| Timothy (1 in 50 dresser drawers) | - | - | yes | yes |
+| Eyes room (1 in 12 plain halls, 6-door gap) | - | - | - | yes |
+| The back room | - | - | - | 80..92 |
+| Look (B1) | as now | Old Wing | Staff & Service | Deep Hotel |
+
+- A room never gets two of: Halt, Eyes, a Seek chase, Jeff, a lift lobby, the back room. Halt and Eyes rooms are never
+  dark rolls, locked rooms or event rooms (no Rush or Ambush in them); Timothy can be in any room with dressers.
+- Rush and Ambush do not run in the lift lobby. Screech does not appear in Halt or Eyes rooms.
+
+**Build order for Claude Code** (each step can ship on its own):
+1. `hflFloor`, the floor bands replacing part 1's door bands, the moved ranges (Seek, Jeff), the lobby rooms at 25/51/75
+   built as plain halls for now (exit door as normal).
+2. The floor looks (B1): textures, trim, lamps, light and fog, dressing.
+3. The lift lobby and the lift (B2), with the save, the vending machine and the ride; co-op wait and pull-in.
+4. Halt, then Timothy, then Eyes (D).
+5. Changelog lines (for players): "The hotel now has four floors, each with its own look", "Take the lift between
+   floors: it saves your run", "New on the upper floors: Halt, Timothy and Eyes". Add the floors and the three
+   creatures to How to play (the dx605 tabs), one short line each.
+
+## Order of work, once this plan is OK (all four done 2026-10-19)
 1. The floor looks: a preview of one hallway in all four looks.
 2. The elevator lobby and the lift (model and preview).
 3. The creature rules: Halt's corridor, Timothy's drawers, the Eyes rooms (no models to make).
