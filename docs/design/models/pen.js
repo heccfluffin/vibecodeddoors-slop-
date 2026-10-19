@@ -137,7 +137,9 @@ function penBunker(g,bx,bz){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g);const SB=M
  for(let row=0;row<4;row++)for(let i=0;i<14;i++){const a=Math.PI+(i+(row%2)*.5)/13.5*Math.PI;const s=A(new THREE.SphereGeometry(1,12,8),SB,bx+Math.cos(a)*3,.17+row*.3,bz+Math.sin(a)*2);s.scale.set(.46,.18,.26);s.rotation.y=-a+Math.PI/2}/* a sandbag: a squashed sphere */
  for(const s of[-1,1])B(.2,1.4,.2,M(0x6a4a2a),bx+s*1.8,.7,bz+1.4);B(4.2,.18,2.6,M(0x6a4a2a),bx,1.45,bz+.4);B(4.0,.3,2.4,SB,bx,1.69,bz+.4);penNoSeam(g)}
 function penJeep(){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B,Cy,rod}=k.H(g),O=M(0x4a5a3a,{roughness:.7});/* 2 x 3.6, along z, front +z */
- B(1.9,.7,3.6,O,0,.85,0);B(1.8,.06,1.2,MT.glass,0,1.55,.6).rotation.x=-.3;rod([-.85,1.2,.5],[-.85,1.9,-.4],.03,MT.dark);rod([.85,1.2,.5],[.85,1.9,-.4],.03,MT.dark);rod([-.85,1.9,-.4],[.85,1.9,-.4],.03,MT.dark);
+ B(1.9,.7,3.6,O,0,.85,0);/* the body, open on top behind the windscreen */
+ /* the windscreen: an upright frame tilted back a little, glass inside it */{const w=new THREE.Group();w.position.set(0,1.2,.55);w.rotation.x=-.22;g.add(w);const q=k.H(w);for(const s of[-1,1])q.B(.06,.55,.06,O,s*.86,.275,0);q.B(1.66,.06,.05,O,0,.52,0);q.B(1.66,.06,.07,O,0,.03,0);q.B(1.6,.43,.02,MT.glass,0,.275,0)/* bars between the posts */}
+ /* two seats and a roll bar behind them */for(const s of[-1,1]){B(.6,.12,.55,MT.dark,s*.45,1.26,-.35);B(.56,.55,.12,MT.dark,s*.45,1.5,-.6)}for(const s of[-1,1])rod([s*.85,1.2,-.9],[s*.85,1.95,-.9],.035,MT.dark);rod([-.85,1.95,-.9],[.85,1.95,-.9],.035,MT.dark);
  for(const[x,z]of[[-1,1.2],[1,1.2],[-1,-1.2],[1,-1.2]]){Cy(.42,.42,.3,MT.black,x,.41,z,'x',null,14);Cy(.24,.24,.32,O,x,.41,z,'x',null,10)}B(.5,.5,.2,MT.black,0,1.0,-1.88);Cy(.3,.3,.15,MT.black,0,1.05,-1.95,'z',null,12);
  for(const s of[-1,1])Cy(.1,.1,.04,M(0xfff0c0,{emissive:0xffe0a0}),s*.6,.95,1.81,'z',null,10);penNoSeam(g);return g}
 function penOutside(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g),F=PENV.F;const r={dogs:[]};
