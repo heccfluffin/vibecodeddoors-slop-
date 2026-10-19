@@ -528,3 +528,218 @@ function hrmCrackT(){return HRM.crkT||(HRM.crkT=(()=>{const c=document.createEle
  for(let r=8;r<40;r+=10){x.beginPath();x.arc(cx,cy,r,0,7);x.stroke()}return new THREE.CanvasTexture(c)})())}
 function hrmFlagT(){return HRM.flagT||(HRM.flagT=hflCan(256,256,661,(x,R)=>{x.fillStyle='#4a4238';x.fillRect(0,0,256,256);for(let r=0;r<4;r++){let c=r%2?-32:0;while(c<256){const w=48+R()*48,v=R()*20-10;x.fillStyle='rgb('+(140+v)+','+(132+v)+','+(118+v)+')';x.fillRect(c+3,r*64+3,w-6,58);c+=w}}
   for(let i=0;i<40;i++){x.fillStyle='rgba(60,70,40,'+R()*.4+')';x.fillRect(R()*256,R()*256,3,3)}},400))}
+
+/* ======================================================================================================
+   BATCH 3: floor 3 (Staff & Service): kitchen, laundry hall, boiler tunnels, switchboard, staff canteen, linen stores
+   ====================================================================================================== */
+const hrmSteel=()=>hrmM('steel',{color:0xb4b8bc,roughness:.35,metalness:.5}),hrmBlack=()=>hrmM('blackS',{color:0x1a1a1c,roughness:.5,metalness:.3});
+/* a piece of furniture against a wall: a group at the wall face (side s, along z at z), local +z into the room,
+   local x along the wall */
+function hrmOnWall(g,s,HX,z,inset){const w=new THREE.Group();w.position.set(s*(HX-.05-(inset||0)),0,z);w.rotation.y=s>0?-Math.PI/2:Math.PI/2;g.add(w);return w}
+/* wall x-range of something d deep standing against side s */
+const hrmWX=(s,HX,d)=>s>0?[HX-.05-d,HX-.05]:[-HX+.05,-HX+.05+d];
+/* a bank of n staff lockers (each .4 wide, 1.9 tall, .5 deep), on a wall group; returns the local x of each door */
+function hrmLockers(w,n,x0,col){const m=hrmM('locker'+(col||0),{color:col||0x4a6a7a,roughness:.5,metalness:.35}),dk=hrmM('lockerD',{color:0x2a3a44,roughness:.5,metalness:.3}),xs=[];
+ hflB(w,n*.4+.02,1.9,.5,m,x0+n*.2,.95+.05,.25);hflB(w,n*.4,.1,.48,dk,x0+n*.2,.05,.24);
+ for(let i=0;i<n;i++){const xc=x0+.2+i*.4;xs.push(xc);hflB(w,.37,1.84,.02,m,xc,1.0,.505);for(let k=0;k<4;k++)hflB(w,.2,.012,.008,dk,xc,1.7+k*.035,.516);hflB(w,.03,.12,.03,hrmBrass(),xc+.13,1.05,.525);
+  const lb=hflPlane(w,.08,.04,32,16,(x,W,H)=>{x.fillStyle='#e8e0c8';x.fillRect(0,0,W,H);x.fillStyle='#202020';x.font='bold 12px monospace';x.textAlign='center';x.fillText(String(11+i),W/2,12)});lb.position.set(xc,1.55,.522)}
+ return xs}
+
+/* ===================== 11. kitchen ===================== */
+function hrmKitchen(g,o){const R=hflRng(o.seed*31+11),HX=o.HX,L=o.L,ez=-L-1,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[],lamps:[]};const st=hrmSteel(),bk=hrmBlack(),s=R()<.5?-1:1;
+ /* the range: six stoves under a long hood on side s */
+ const rg=hrmOnWall(g,s,HX,-10);for(let i=0;i<6;i++){const xc=-3+i*1.0+.5;hflB(rg,.98,.86,.75,st,xc,.43,.375);hflB(rg,.98,.04,.75,bk,xc,.88,.375);
+  for(const[a,b]of[[-.22,.2],[.22,.2],[-.22,.52],[.22,.52]]){const r=new THREE.Mesh(new THREE.TorusGeometry(.09,.012,6,16),hrmM('burner',{color:0x3a3a3a,metalness:.4,roughness:.5}));r.rotation.x=Math.PI/2;r.position.set(xc+a,.905,b);rg.add(r)}
+  hflB(rg,.8,.42,.02,bk,xc,.42,.755);const wn=hflB(rg,.5,.18,.012,hrmM('ovenW',{color:0x201a14,roughness:.1,emissive:i==2?0x401808:0}),xc,.45,.767);hflCy(rg,.012,.012,.6,st,xc,.68,.79,6).rotation.z=Math.PI/2;
+  for(let k=0;k<4;k++){const kn=hflCy(rg,.022,.022,.03,bk,xc-.3+k*.2,.78,.76,10);kn.rotation.x=Math.PI/2}
+  if(i%2==0){const pz=.2+(i%4?0:.32);hflCy(rg,.15,.15,.24,st,xc-.22,1.04,pz,16);hflCy(rg,.155,.155,.02,st,xc-.22,1.17,pz,16);hflCy(rg,.02,.02,.04,bk,xc-.22,1.2,pz,8)}
+  if(i==3){hflCy(rg,.14,.12,.05,bk,xc+.22,.935,.52,16);const hd=hflB(rg,.3,.025,.035,bk,xc+.22,.95,.79)}}
+ hflB(rg,6.2,.5,.95,st,0,2.25,.475);hflB(rg,6.22,.06,.97,st,0,1.99,.485);hflB(rg,1.0,1.12,.5,st,0,3.04,.25);out.obs.push({x0:hrmWX(s,HX,.8)[0],x1:hrmWX(s,HX,.8)[1],z0:-13.1,z1:-6.9});out.occ.push({s,z:-10,h:3.2});
+ out.lamps.push({x:s*(HX-.6),y:1.9,z:-10,c:0xf0f4ff,i:.35,d:6});
+ /* the sinks on the other wall */
+ const sk=hrmOnWall(g,-s,HX,-7.5);hflB(sk,4.0,.88,.7,st,0,.44,.35);for(const xc of[-1.1,0,1.1]){hflB(sk,.64,.012,.48,hrmM('basin',{color:0x3a3e42,roughness:.3,metalness:.5}),xc,.89,.36);hrmBx(sk,xc-.34,xc+.34,.88,.9,.1,.14,st);
+  hflCy(sk,.018,.018,.32,st,xc,1.05,.12,8);const sp=new THREE.Mesh(new THREE.TorusGeometry(.1,.015,6,12,Math.PI),st);sp.position.set(xc,1.2,.2);sp.rotation.y=Math.PI/2;sk.add(sp)}
+ hflB(sk,4.0,.6,.02,hrmM('splash',{color:0xd8d8d0,roughness:.3}),0,1.2,.012);out.obs.push({x0:hrmWX(-s,HX,.72)[0],x1:hrmWX(-s,HX,.72)[1],z0:-9.55,z1:-5.45});out.occ.push({s:-s,z:-7.5,h:2.2});
+ /* two steel prep tables down the middle with a lower shelf, boards and bowls, a pan rack over each */
+ for(const[z0,z1]of[[-4.5,-9],[-11,-15.5]]){const zc=(z0+z1)/2,ln=z0-z1;hrmBx(g,-.5,.5,.88,.92,z1,z0,st);hrmBx(g,-.46,.46,.2,.23,z1+.04,z0-.04,st);for(const x of[-.46,.46])for(const z of[z0-.04,z1+.04])hflCy(g,.02,.02,.88,st,x,.44,z,8);
+  hrmBx(g,-.3,.1,.92,.95,zc-.35,zc+.05,hrmM('board',{color:0xc8a070,roughness:.7}));hflCy(g,.16,.1,.1,st,.2,.97,zc+.8,14);hflB(g,.12,.22,.08,hrmDark(),-.25,1.03,zc-1.2);
+  const rk=new THREE.Group();rk.position.set(0,o.HY-.04,zc);g.add(rk);for(const z of[-ln/2+.3,ln/2-.3])for(const x of[-.3,.3])hflCy(rk,.008,.008,1.2,st,x,-.6,z,6);
+  for(const x of[-.3,.3]){const b=hflCy(rk,.015,.015,ln-.4,st,x,-1.2,0,8);b.rotation.x=Math.PI/2}
+  for(let i=0;i<8;i++){const pz=-ln/2+.6+i*(ln-1.2)/7,px=i%2?.3:-.3,pan=new THREE.Group();pan.position.set(px,-1.24,pz);rk.add(pan);hflCy(pan,.006,.006,.08,st,0,-.04,0,6);
+   if(i%3==0){hflB(pan,.03,.3,.02,bk,0,-.23,0);hflCy(pan,.13,.11,.04,bk,0,-.45,0,16).rotation.x=Math.PI/2}else{hflCy(pan,.11,.11,.15,st,0,-.2,0,14);hflB(pan,.02,.02,.18,st,0,-.12,.17)}}
+  out.obs.push({x0:-.55,x1:.55,z0:z1-.05,z1:z0+.05})}
+ /* the walk-in cold room door on the sinks' wall near the end (a hiding spot), a COLD ROOM sign */
+ const cz=-19.5,cd=hrmOnWall(g,-s,HX,cz);hflB(cd,1.5,2.4,.08,st,0,1.2,.03);hflB(cd,1.2,2.1,.06,hrmM('coldDoor',{color:0xc8ccd0,roughness:.4,metalness:.4}),0,1.07,.09);
+ hflB(cd,.08,.5,.08,bk,.45,1.1,.16);hflB(cd,.3,.06,.06,bk,.35,1.1,.2);for(const y of[.4,1.8])hflB(cd,.12,.18,.05,bk,-.6,y,.13);
+ const sg=hflPlane(cd,.6,.16,120,32,(x,w,h)=>{x.fillStyle='#1a4a8a';x.fillRect(0,0,w,h);x.fillStyle='#f0f4ff';x.font='bold 20px DoorsSans,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('COLD ROOM',w/2,h/2+1)});sg.position.set(0,2.27,.082);
+ const th=hflPlane(cd,.12,.12,32,32,(x,w,h)=>{x.fillStyle='#e8e8e0';x.beginPath();x.arc(16,16,15,0,7);x.fill();x.strokeStyle='#202020';x.lineWidth=2;x.beginPath();x.moveTo(16,16);x.lineTo(8,10);x.stroke()});th.position.set(.45,1.6,.131);
+ out.ward.push({x:(-s)*(HX-.4),z:cz,ry:-s>0?Math.PI/2:-Math.PI/2,cold:1,noModel:1});out.trimGaps.push({s:-s,z0:cz-.8,z1:cz+.8});out.occ.push({s:-s,z:cz,h:1});
+ /* two staff lockers by the door (hiding spots) and bins, a mop bucket */
+ const lk=hrmOnWall(g,s,HX,-2.2);const xs=hrmLockers(lk,4,-.8);out.obs.push({x0:hrmWX(s,HX,.52)[0],x1:hrmWX(s,HX,.52)[1],z0:-3.05,z1:-1.35});out.occ.push({s,z:-2.2,h:1});
+ for(const i of[1,2])out.ward.push({x:s*(HX-.35),z:-2.2+(s>0?xs[i]:-xs[i]),ry:s>0?Math.PI/2:-Math.PI/2,locker:1,noModel:1});
+ for(const[x,z]of[[-s*3.8,-16.5],[-s*3.3,-16.5]]){hflCy(g,.25,.22,.75,hrmM('bin',{color:0x3a4a3a,roughness:.6}),x,.375,z,14);out.obs.push({x0:x-.28,x1:x+.28,z0:z-.28,z1:z+.28})}
+ hflCy(g,.2,.18,.32,hrmM('mopB',{color:0xd8b020,roughness:.6}),s*3.6,.16,-17.5,14);hrmRod(g,[s*3.6,.3,-17.5],[s*3.75,1.4,-17.6],.012,hrmM('mop',{color:0x8a6a40}));out.obs.push({x0:s*3.6-.25,x1:s*3.6+.25,z0:-17.75,z1:-17.25});
+ return out}
+
+/* ===================== 12. laundry hall ===================== */
+function hrmLaundryHall(g,o){const R=hflRng(o.seed*31+12),HX=o.HX,L=o.L,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[]};const wm=hrmM('washer',{color:0xd8d8d0,roughness:.4,metalness:.2}),st=hrmSteel();
+ for(const s of[-1,1]){/* six big washers, then three stacks of dryers */
+  for(let i=0;i<6;i++){const z=-3-i*1.35,w=hrmOnWall(g,s,HX,z);hflB(w,1.2,1.35,.9,wm,0,.675,.45);hflB(w,1.2,.3,.06,hrmM('wPanel',{color:0x5a6a72,roughness:.5}),0,1.2,.93);
+   const dr=new THREE.Mesh(new THREE.TorusGeometry(.3,.05,8,24),st);dr.position.set(0,.68,.92);w.add(dr);const gl=hflCy(w,.28,.28,.02,hrmM('wGlass',{color:0x203038,roughness:.05,transparent:true,opacity:.6}),0,.68,.92,24);gl.rotation.x=Math.PI/2;
+   const dm=new THREE.Mesh(new THREE.CircleGeometry(.26,20),hrmM('wDrum'+(i%3),{color:[0x8a2a2a,0x2a4a7a,0xd8d0b8][i%3],roughness:.9}));dm.position.set(0,.68,.905);w.add(dm);if(i%2==0)out.anims.push((dt,t)=>{dm.rotation.z=t*(2+i)});
+   for(let k=0;k<3;k++)hflCy(w,.025,.025,.02,hrmBlack(),-.35+k*.12,1.2,.97,10).rotation.x=Math.PI/2}
+  for(let i=0;i<3;i++){const z=-12.2-i*1.35,w=hrmOnWall(g,s,HX,z);for(const y of[0,1.05]){hflB(w,1.2,1.0,.85,wm,0,y+.5,.425);const dr=new THREE.Mesh(new THREE.TorusGeometry(.26,.04,8,24),st);dr.position.set(0,y+.55,.86);w.add(dr);
+    const gl=hflCy(w,.24,.24,.02,hrmM('wGlass'),0,y+.55,.86,24);gl.rotation.x=Math.PI/2;hflB(w,.4,.08,.012,hrmBlack(),.3,y+.92,.856)}}
+  out.obs.push({x0:hrmWX(s,HX,.95)[0],x1:hrmWX(s,HX,.95)[1],z0:-15.6,z1:-2.35});out.occ.push({s,z:-9,h:6.7})}
+ /* folding tables and laundry carts down the middle */
+ for(const z of[-5,-16.5]){hrmBx(g,-.6,.6,.86,.9,z-1.4,z+1.4,st);for(const x of[-.55,.55])for(const dz of[-1.35,1.35])hflCy(g,.02,.02,.86,st,x,.43,z+dz,8);
+  for(let k=0;k<4;k++)hrmBx(g,-.4+k*.2,-.25+k*.2,.9,.95-(k%2)*.02,z-.5+k*.1,z-.2+k*.1,hrmM('fold'+(k%3),{color:[0xe8e4d8,0xa8c0d8,0xd8c8a8][k%3],roughness:.95}));out.obs.push({x0:-.65,x1:.65,z0:z-1.45,z1:z+1.45})}
+ for(const[x,z]of[[2.1,-8],[-2.2,-12.5],[1.9,-19.5]]){const c=hrmCart();c.position.set(x,0,z);c.rotation.y=R()*.6-.3;g.add(c);out.obs.push({x0:x-.45,x1:x+.45,z0:z-.65,z1:z+.65})}
+ /* lines of sheets across the hall, swaying; you walk through them */
+ const sh=[hrmM('sheetW',{color:0xece8de,roughness:.95,side:THREE.DoubleSide}),hrmM('sheetB',{color:0xb8c8d8,roughness:.95,side:THREE.DoubleSide}),hrmM('sheetS',{map:hflCan(64,64,670,(x)=>{x.fillStyle='#ece8de';x.fillRect(0,0,64,64);x.fillStyle='#8aa0c0';for(let i=0;i<64;i+=16)x.fillRect(i,0,6,64)},0),roughness:.95,side:THREE.DoubleSide})];
+ for(const z of[-8.8,-11.2,-13.6,-19]){hrmRod(g,[-HX+.05,2.55,z],[HX-.05,2.55,z],.006,hrmM('line',{color:0xc8c0b0}));for(const x of[-HX+.15,HX-.15])hflB(g,.06,.06,.06,st,x,2.55,z);
+  const gap=(R()*4|0);for(let k=0;k<4;k++){if(k==gap)continue;const gm=new THREE.PlaneGeometry(1.5,1.7,6,6),P=gm.attributes.position;for(let i=0;i<P.count;i++)P.setZ(i,Math.sin(P.getX(i)*5)*.04*(1-(P.getY(i)+.85)/1.7*.3));gm.translate(0,-.85,0);gm.computeVertexNormals();
+   const sm=new THREE.Mesh(gm,sh[(k+gap)%3]);sm.position.set(-3+k*2,2.56,z);g.add(sm);const ph=k*1.7+z;out.anims.push((dt,t)=>{sm.rotation.x=Math.sin(t*.9+ph)*.06})}}
+ /* two linen cupboards at the far end: hiding spots */
+ for(const s of[-1,1])out.ward.push({x:s*(HX-.4),z:-L+2.5,ry:s>0?Math.PI/2:-Math.PI/2});
+ return out}
+/* a canvas laundry cart on castors */
+function hrmCart(){const c=new THREE.Group(),fr=hrmM('cartF',{color:0x6a7078,metalness:.4,roughness:.5}),cv=hrmM('canvas',{color:0xb8b0a0,roughness:1,side:THREE.DoubleSide});
+ for(const[a,b]of[[-.38,-.58],[.38,-.58],[-.38,.58],[.38,.58]]){hflCy(c,.04,.04,.04,hrmBlack(),a,.04,b,10).rotation.z=Math.PI/2;hflCy(c,.012,.012,.8,fr,a,.48,b,6)}
+ hrmBx(c,-.4,.4,.86,.88,-.6,.6,fr);const bag=new THREE.Mesh(new THREE.BoxGeometry(.76,.62,1.16,1,1,1),cv);bag.position.y=.56;c.add(bag);
+ const top=new THREE.Mesh(new THREE.BoxGeometry(.7,.12,1.05),hrmM('fold0',{color:0xe8e4d8,roughness:.95}));top.position.y=.8;c.add(top);return c}
+
+/* ===================== 13. boiler tunnels: their own shell, a low tunnel with two bends ===================== */
+/* path (room-local): from the door (0,1) down to z -7, across to x J, down to z -15, back to x 0, down to the exit.
+   Half-width 1.3, height 2.6. Concrete. Pipes along the ceiling follow the bends. Returns path, inside(x,z), lamps. */
+function hrmPathOutline(P,w){const n=P.length,d=[];for(let i=0;i<n-1;i++){const dx=P[i+1][0]-P[i][0],dz=P[i+1][1]-P[i][1],l=Math.hypot(dx,dz);d.push([dx/l,dz/l])}
+ const nl=v=>[v[1],-v[0]],side=(sg)=>P.map((p,i)=>{const a=d[Math.max(0,i-1)],b=d[Math.min(n-2,i)];if(i==0||i==n-1){const m=nl(i==0?b:a);return[p[0]+sg*w*m[0],p[1]+sg*w*m[1]]}const ma=nl(a),mb=nl(b);return[p[0]+sg*w*(ma[0]+mb[0]),p[1]+sg*w*(ma[1]+mb[1])]});
+ return{L:side(1),R:side(-1)}}
+function hrmConcT(){return HRM.concT||(HRM.concT=hflCan(256,256,680,(x,R)=>{x.fillStyle='#7a7672';x.fillRect(0,0,256,256);for(let i=0;i<3000;i++){x.fillStyle='rgba('+(R()<.5?'0,0,0':'255,255,255')+','+R()*.08+')';x.fillRect(R()*256,R()*256,2,2)}
+  x.strokeStyle='rgba(40,38,34,.35)';x.lineWidth=2;x.beginPath();x.moveTo(0,128);x.lineTo(256,128);x.moveTo(128,0);x.lineTo(128,256);x.stroke();
+  for(let k=0;k<3;k++){const sx=R()*256;let g2=x.createLinearGradient(0,0,0,200);g2.addColorStop(0,'rgba(60,45,30,.35)');g2.addColorStop(1,'rgba(60,45,30,0)');x.fillStyle=g2;x.fillRect(sx,0,8+R()*20,200)}},300))}
+function hrmTunnels(g,o){const R=hflRng(o.seed*31+13),L=o.L,ez=-L-1,J=o.J||4.5,W=1.3,H=2.6,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[],lamps:[],noShell:1,DX:0};
+ const P=[[0,1],[0,-7],[J,-7],[J,-15],[0,-15],[0,ez]],ol=hrmPathOutline(P,W),cm=new THREE.MeshStandardMaterial({map:hrmConcT(),roughness:.95});
+ /* floor and ceiling: one slab per path leg (rectangles that overlap at the bends) */
+ const legs=[];for(let i=0;i<P.length-1;i++){const[a,b]=[P[i],P[i+1]];const x0=Math.min(a[0],b[0])-W,x1=Math.max(a[0],b[0])+W,z0=Math.min(a[1],b[1])-(i==P.length-2?0:W),z1=Math.max(a[1],b[1])+(i==0?0:W);legs.push([x0,x1,z0,z1])}
+ /* floor and ceiling as single outlines (no overlaps): the outline polygon */
+ const poly=[...ol.L,...ol.R.slice().reverse()];for(const[y,up]of[[0,1],[H,0]]){const sh=new THREE.Shape();poly.forEach((p,i)=>{const v=up?-p[1]:p[1];i?sh.lineTo(p[0],v):sh.moveTo(p[0],v)});const gm=new THREE.ShapeGeometry(sh);gm.rotateX(up?-Math.PI/2:Math.PI/2);
+  const Pp=gm.attributes.position,U=gm.attributes.uv;for(let i=0;i<Pp.count;i++)U.setXY(i,Pp.getX(i)/2,Pp.getZ(i)/2);const ms=new THREE.Mesh(gm,cm);ms.position.y=y;g.add(ms)}
+ /* walls along both outlines (each piece axis-aligned, its UVs from room coordinates) */
+ for(const line of[ol.L,ol.R])for(let i=0;i<line.length-1;i++){const[a,b]=[line[i],line[i+1]];if(Math.abs(a[0]-b[0])<.01){const zs=[a[1],b[1]].sort((p,q)=>p-q);hrmSlab(g,a[0]-.05,a[0]+.05,0,H,zs[0]-.05,zs[1]+.05,cm)}else{const xs=[a[0],b[0]].sort((p,q)=>p-q);hrmSlab(g,xs[0]-.05,xs[1]+.05,0,H,a[1]-.05,a[1]+.05,cm)}}
+ /* the end walls: the exit wall with its 1.6 x 3 m hole would be taller than the tunnel, so the hole is 1.6 x 2.4 here */
+ for(const[x0,x1]of[[-W,-.8],[.8,W]])hrmSlab(g,x0,x1,0,H,ez-.05,ez+.05,cm);hrmSlab(g,-.8,.8,2.4,H,ez-.05,ez+.05,cm);out.doorH=2.4;
+ /* the previous room's door is 3 m tall: close the gap above this tunnel's ceiling, just inside the entry */
+ hrmSlab(g,-W,W,H+.01,3.15,.88,.94,cm);
+ /* a drain channel down the middle of each leg */
+ for(let i=0;i<P.length-1;i++){const[a,b]=[P[i],P[i+1]],gr=hrmM('drain',{color:0x2a2a2c,metalness:.4,roughness:.6});if(Math.abs(a[0]-b[0])<.01){const zs=[a[1],b[1]].sort((p,q)=>p-q);hrmBx(g,a[0]-.12,a[0]+.12,0,.012,zs[0]+.2,zs[1]-.2,gr)}else{const xs=[a[0],b[0]].sort((p,q)=>p-q);hrmBx(g,xs[0]+.14,xs[1]-.14,0,.012,a[1]-.12,a[1]+.12,gr)}}
+ /* pipes under the ceiling, following the path with rounded bends: a lagged one, a copper one, a red one */
+ const pipe=(off,y,r,m)=>{const pts=hrmPathOutline(P,1).L.map((p,i)=>[P[i][0]+(p[0]-P[i][0])*off,P[i][1]+(p[1]-P[i][1])*off]),cp=new THREE.CurvePath(),V=(p)=>new THREE.Vector3(p[0],y,p[1]),rr=.6;
+  let cur=V(pts[0]);for(let i=1;i<pts.length-1;i++){const a=V(pts[i-1]),b=V(pts[i]),c=V(pts[i+1]),da=b.clone().sub(a).normalize(),db=c.clone().sub(b).normalize(),p1=b.clone().sub(da.clone().multiplyScalar(rr)),p2=b.clone().add(db.clone().multiplyScalar(rr));
+   cp.add(new THREE.LineCurve3(cur,p1));cp.add(new THREE.QuadraticBezierCurve3(p1,b,p2));cur=p2}cp.add(new THREE.LineCurve3(cur,V(pts[pts.length-1])));
+  const tb=new THREE.Mesh(new THREE.TubeGeometry(cp,240,r,10,false),m);g.add(tb);return pts};
+ const lag=hrmM('lag',{color:0xcfcfc6,roughness:.9}),cu=hrmM('cu',{color:0xa8683e,roughness:.45,metalness:.5}),red=hrmM('redP',{color:0x9a2a24,roughness:.5,metalness:.3});
+ pipe(.75,H-.3,.09,lag);pipe(.5,H-.18,.04,cu);pipe(-.72,H-.22,.05,red);
+ /* the pipes start and end in the end walls; hangers every 2 m along each leg */
+ for(let i=0;i<P.length-1;i++){const[a,b]=[P[i],P[i+1]],len=Math.hypot(b[0]-a[0],b[1]-a[1]),ux=(b[0]-a[0])/len,uz=(b[1]-a[1])/len,nx=uz,nz=-ux;
+  for(let t=1;t<len-.8;t+=2){const cx=a[0]+ux*t,cz=a[1]+uz*t;for(const[off,y,r]of[[.75,H-.3,.09],[.5,H-.18,.04],[-.72,H-.22,.05]]){const px=cx+nx*off,pz=cz+nz*off;hflCy(g,.007,.007,H-(y+r)+.02,hrmM('rod3',{color:0x5a5e60,roughness:.5,metalness:.5}),px,(H+.02+y+r)/2,pz,6)}}}
+ /* valve wheels, gauges, a warning sign, steam */
+ const vw=(x,z,y,ry)=>{const v=new THREE.Group();v.position.set(x,y,z);v.rotation.y=ry;g.add(v);const t=new THREE.Mesh(new THREE.TorusGeometry(.14,.015,6,20),red);v.add(t);hflB(v,.28,.014,.012,red,0,0,0);hflB(v,.014,.28,.024,red,0,0,0);hflCy(v,.02,.02,.2,hrmSteel(),0,0,-.1,8).rotation.x=Math.PI/2};
+ vw(-W+.06+.2,-3,1.5,Math.PI/2);vw(J+W-.26,-11,1.5,-Math.PI/2);
+ const gauge=(x,z,ry)=>{const p=hflPlane(g,.18,.18,48,48,(c,w,h)=>{c.fillStyle='#e8e4d8';c.beginPath();c.arc(24,24,23,0,7);c.fill();c.strokeStyle='#202020';c.lineWidth=3;c.stroke();c.beginPath();c.moveTo(24,24);c.lineTo(36,14);c.stroke();c.fillStyle='#c02020';c.fillRect(30,36,10,3)});p.position.set(x,1.7,z);p.rotation.y=ry;p.material.transparent=true};
+ gauge(W-.05-.012,-4.5,-Math.PI/2);gauge(J-W+.05+.012,-12.5,Math.PI/2);
+ const ws=hflPlane(g,.5,.34,100,68,(c,w,h)=>{c.fillStyle='#e8c020';c.fillRect(0,0,w,h);c.fillStyle='#101010';c.fillRect(4,4,w-8,16);c.fillStyle='#e8c020';c.font='bold 13px DoorsSans,Arial,sans-serif';c.textAlign='center';c.fillText('DANGER',w/2,17);c.fillStyle='#101010';c.font='bold 15px DoorsSans,Arial,sans-serif';c.fillText('HOT PIPES',w/2,40);c.font='11px DoorsSans,Arial,sans-serif';c.fillText('DO NOT TOUCH',w/2,58)});ws.position.set(J/2,1.6,-7+W-.05-.012);ws.rotation.y=Math.PI;
+ const stm=new THREE.SpriteMaterial({map:hrmGlowT(),color:0xd8dce0,transparent:true,opacity:0,depthWrite:false});for(const[x,z]of[[J*.5,-7],[J*.5,-15+.6]]){const sp=new THREE.Sprite(stm.clone());sp.position.set(x,H-.5,z);sp.scale.set(.9,.9,1);g.add(sp);const ph=x+z;out.anims.push((dt,t)=>{const u=((t*.5+ph)%3)/3;sp.material.opacity=u<.7?Math.sin(u/.7*Math.PI)*.35:0;sp.position.y=H-.55-u*.5;sp.scale.setScalar(.5+u*1.1)})}
+ /* caged bulkhead lamps on the ceiling down the path */
+ for(let i=0;i<P.length-1;i++){const[a,b]=[P[i],P[i+1]],len=Math.hypot(b[0]-a[0],b[1]-a[1]);for(let t=len/2;t<len;t+=99){const x=a[0]+(b[0]-a[0])*t/len,z=a[1]+(b[1]-a[1])*t/len;const lp=new THREE.Group();lp.position.set(x,H,z);g.add(lp);
+  hflCy(lp,.1,.1,.04,hrmBlack(),0,-.02,0,12);const gb=new THREE.Mesh(new THREE.SphereGeometry(.08,12,8,0,Math.PI*2,Math.PI/2,Math.PI/2),hrmM('bulkG',{color:0xfff0c8,emissive:0xe0c080,transparent:true,opacity:.9}));gb.position.y=-.04;lp.add(gb);
+  for(let k=0;k<4;k++){const c=new THREE.Mesh(new THREE.TorusGeometry(.09,.006,4,12,Math.PI),hrmBlack());c.position.y=-.04;c.rotation.y=k*Math.PI/4;c.rotation.x=Math.PI;lp.add(c)}out.lamps.push({x,y:H-.3,z,c:0xffe8c0,i:.55,d:8})}}
+ out.path=P;out.inside=(x,z)=>legs.some(([x0,x1,z0,z1])=>x>x0+.3&&x<x1-.3&&z>z0+.3&&z<z1-.3);
+ /* a hiding spot: a maintenance cupboard in the far bend */
+ out.ward.push({x:J+W-.35,z:-13.5,ry:Math.PI/2});
+ return out}
+function hrmGlowT(){return HRM.glowT||(HRM.glowT=(()=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d'),gr=x.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=gr;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c)})())}
+
+/* ===================== 14. switchboard ===================== */
+function hrmJackT(){return HRM.jackT||(HRM.jackT=hflCan(128,192,690,(x,R)=>{x.fillStyle='#3a2a1a';x.fillRect(0,0,128,192);x.fillStyle='#2a1e12';x.fillRect(6,6,116,180);
+  for(let r=0;r<14;r++)for(let c=0;c<9;c++){x.fillStyle='#0a0806';x.beginPath();x.arc(14+c*12.5,14+r*12.5,3,0,7);x.fill();if(R()<.15){x.fillStyle=R()<.5?'#e8a020':'#e04020';x.beginPath();x.arc(14+c*12.5,19+r*12.5,1.6,0,7);x.fill()}}
+  x.fillStyle='#d8c8a0';for(let r=0;r<14;r+=3)x.fillRect(8,9+r*12.5,112,1)},120))}
+function hrmSwitchboard(g,o){const R=hflRng(o.seed*31+14),HX=o.HX,L=o.L,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[]};const wd=hrmDark(),pan=hrmM('jack',{map:hrmJackT(),roughness:.7}),cord=hrmM('cord',{color:0x1a1a1a,roughness:.7});
+ for(const s of[-1,1]){const w=hrmOnWall(g,s,HX,-9);const n=8;for(let i=0;i<n;i++){const xc=-4.2+i*1.2;hflB(w,1.18,.78,.62,wd,xc,.39,.31);const ks=hflB(w,1.16,.04,.32,hrmM('keyshelf',{color:0x2a1a0e,roughness:.6}),xc,.8,.5);ks.rotation.x=.15;
+   hflB(w,1.18,1.6,.12,wd,xc,1.6,.06);const p=hflPlane(w,1.04,1.44,1,1,()=>{});p.material=pan;p.position.set(xc,1.62,.125);
+   for(let k=0;k<5;k++){const b=hflCy(w,.012,.014,.05,hrmBrass(),xc-.4+k*.2,.85,.5,8)}
+   /* two patch cords from the key shelf up to the jacks */
+   for(let k=0;k<2;k++){const a=new THREE.Vector3(xc-.3+k*.5,.86,.52),b=new THREE.Vector3(xc-.4+R()*.8,1.1+R()*1.1,.14),cv=new THREE.QuadraticBezierCurve3(a,new THREE.Vector3((a.x+b.x)/2,.55,.42),b);w.add(new THREE.Mesh(new THREE.TubeGeometry(cv,12,.006,4,false),cord))}
+   if(i%2==0){const ch=hrmSwivel();ch.position.set(xc,0,1.15);ch.rotation.y=Math.PI+R()*.5-.25;w.add(ch)}
+   if(i%3==1){const hs=new THREE.Mesh(new THREE.TorusGeometry(.08,.01,6,14,Math.PI),hrmBlack());hs.position.set(xc+.45,2.2,.14);w.add(hs);for(const sx of[-1,1])hflCy(w,.03,.03,.03,hrmBlack(),xc+.45+sx*.08,2.2,.15,10).rotation.x=Math.PI/2}}
+  out.obs.push({x0:hrmWX(s,HX,.68)[0],x1:hrmWX(s,HX,.68)[1],z0:-13.85,z1:-4.15});out.occ.push({s,z:-9,h:5})}
+ /* the supervisor's desk with a typewriter, a green lamp and a ringing telephone */
+ const dz=-16.8,dx=-1.8;hrmBx(g,dx-.8,dx+.8,.72,.76,dz-.4,dz+.4,wd);for(const x of[dx-.75,dx+.75])hrmBx(g,x-.04,x+.04,0,.72,dz-.38,dz+.38,wd);
+ hrmBx(g,dx-.25,dx+.15,.76,.88,dz-.15,dz+.12,hrmM('typew',{color:0x2a2e2a,roughness:.4,metalness:.3}));hrmBx(g,dx-.27,dx+.17,.88,.93,dz+.0,dz+.08,hrmBlack());const pp=hflB(g,.22,.18,.005,hrmM('paper',{color:0xf0ece0}),dx-.05,.98,dz+.05);pp.rotation.x=-.2;
+ hflCy(g,.07,.08,.02,hrmBrass(),dx+.6,.77,dz-.2,10);hflCy(g,.008,.008,.3,hrmBrass(),dx+.6,.92,dz-.2,6);const lsh=hflB(g,.3,.06,.12,hrmM('greenL',{color:0x1a5a2a,emissive:0x0a2a10,roughness:.3}),dx+.6,1.08,dz-.2);out.lamps=[{x:dx+.6,y:1.0,z:dz-.1,c:0xfff0c0,i:.3,d:4}];
+ const ph=new THREE.Group();ph.position.set(dx+.45,.76,dz+.15);g.add(ph);hflCy(ph,.07,.08,.03,hrmBlack(),0,.015,0,12);hflCy(ph,.015,.02,.28,hrmBlack(),0,.17,0,8);hflCy(ph,.04,.025,.05,hrmBlack(),0,.32,0,10);
+ const rc=new THREE.Group();rc.position.set(.06,.22,0);ph.add(rc);hflCy(rc,.018,.015,.13,hrmBlack(),0,0,0,8);hflCy(rc,.028,.02,.05,hrmBlack(),0,-.08,0,10);
+ out.anims.push((dt,t)=>{const r=(t%5)<1.2;ph.rotation.z=r?Math.sin(t*60)*.03:0;rc.rotation.z=r?Math.sin(t*55)*.06:0});out.phone={x:dx+.45,y:.9,z:dz+.15};
+ const sch=hrmSwivel();sch.position.set(dx,0,dz+.75);sch.rotation.y=Math.PI;g.add(sch);out.obs.push({x0:dx-.85,x1:dx+.85,z0:dz-.45,z1:dz+.45});
+ /* filing cabinets (drawers) and a sign */
+ for(const[x,z]of[[1.8,-16.6],[2.4,-16.6]]){const fc=new THREE.Group();fc.position.set(x,0,z);g.add(fc);hflB(fc,.5,1.3,.6,hrmM('filing',{color:0x6a7068,roughness:.5,metalness:.3}),0,.65,0);for(let k=0;k<4;k++){hflB(fc,.44,.28,.012,hrmM('filingD',{color:0x7a8078,roughness:.5,metalness:.3}),0,.17+k*.31,.306);hflB(fc,.12,.02,.02,hrmBrass(),0,.25+k*.31,.32)}}
+ out.dres.push({x:2.1,z:-16.6,s:1,cabinet:1});out.obs.push({x0:1.5,x1:2.7,z0:-16.95,z1:-16.25});
+ const sg=hflPlane(g,1.6,.28,256,44,(x,w,h)=>{x.fillStyle='#2a1a0e';x.fillRect(0,0,w,h);x.fillStyle='#e8d8a8';x.font='bold 22px DoorsSans,Arial,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('SWITCHBOARD · SILENCE PLEASE',w/2,h/2+1)});sg.position.set(0,3.3,.95-.012);sg.rotation.y=Math.PI;
+ /* a cable tray down the middle of the ceiling */
+ const tray=new THREE.Group();tray.position.set(0,o.HY-.35,-9);g.add(tray);for(const x of[-.2,.2])hflB(tray,.02,.08,10,hrmSteel(),x,0,0);for(let z=-4.8;z<5;z+=.4)hflB(tray,.4,.015,.03,hrmSteel(),0,-.03,z);
+ for(let k=0;k<4;k++){const c=hflCy(tray,.025,.025,10,cord,-.12+k*.08,.0,0,8);c.rotation.x=Math.PI/2}for(const z of[-4.5,0,4.5])for(const x of[-.2,.2])hflCy(tray,.006,.006,.35,hrmSteel(),x,.17,z,6);
+ for(const s of[-1,1])out.ward.push({x:s*(HX-.4),z:-2,ry:s>0?Math.PI/2:-Math.PI/2});
+ return out}
+/* an operator's swivel chair, facing local -z */
+function hrmSwivel(){const c=new THREE.Group(),bk=hrmBlack();for(let k=0;k<5;k++){const a=k/5*Math.PI*2;hrmRod(c,[0,.08,0],[Math.cos(a)*.28,.04,Math.sin(a)*.28],.015,bk);hflCy(c,.025,.025,.03,bk,Math.cos(a)*.28,.025,Math.sin(a)*.28,8)}
+ hflCy(c,.025,.025,.4,hrmSteel(),0,.28,0,8);hflB(c,.44,.07,.42,hrmM('chairS',{color:0x3a2a20,roughness:.8}),0,.5,0);hflB(c,.4,.42,.06,hrmM('chairS'),0,.8,.2);hflB(c,.04,.3,.04,bk,0,.6,.2);return c}
+
+/* ===================== 15. staff canteen ===================== */
+function hrmCanteen(g,o){const R=hflRng(o.seed*31+15),HX=o.HX,L=o.L,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[]};const s=R()<.5?-1:1,st=hrmSteel(),top=hrmM('formica',{color:0xd8cfb8,roughness:.5}),leg=hrmM('tleg',{color:0x3a3e42,roughness:.5,metalness:.4});
+ /* the serving counter on side s: steel top with food wells, a sneeze guard, a tray slide; an urn behind */
+ const sv=hrmOnWall(g,s,HX,-7.5);hflB(sv,7,.95,.8,hrmM('counterF',{color:0x8a9aa0,roughness:.4,metalness:.3}),0,.475,1.4);hflB(sv,7.04,.04,.84,st,0,.97,1.4);
+ for(let i=0;i<6;i++){hflB(sv,.9,.012,.5,hrmM('well'+(i%3),{color:[0x8a5a2a,0xc8a040,0x6a8a3a][i%3],roughness:.9}),-2.6+i*1.04,.997,1.4)}
+ for(const x of[-3.2,0,3.2])hflCy(sv,.012,.012,.45,st,x,1.22,1.75,6);const gl=hflB(sv,6.5,.02,.42,hrmM('guard',{color:0xc8dce0,roughness:.05,transparent:true,opacity:.35,depthWrite:false}),0,1.45,1.6);gl.rotation.x=-.5;
+ hflB(sv,7,.03,.3,st,0,.9,1.95);for(const x of[-3.6,-3.3])hflCy(sv,.012,.012,.9,st,x+0,.45,1.95,6);
+ for(let k=0;k<8;k++)hflB(sv,.45,.012,.33,hrmM('tray',{color:0x8a3a2a,roughness:.6}),-3.2,.995+k*.014,1.2);
+ hflB(sv,7,.9,.6,st,0,.45,.3);const urn=hflCy(sv,.18,.18,.5,st,1.5,1.15,.3,16);hflCy(sv,.03,.03,.06,hrmBlack(),1.5,1.0,.5,8).rotation.x=Math.PI/2;
+ hflCy(sv,.12,.1,.2,st,-1,1.0,.3,14);out.obs.push({x0:hrmWX(s,HX,1.85)[0],x1:hrmWX(s,HX,1.85)[1],z0:-11.05,z1:-3.95});out.occ.push({s,z:-7.5,h:3.6});
+ /* long tables with benches, two columns of three */
+ for(const xc of[-s*3.2,-s*.6])for(const z of[-4,-8,-12]){hrmBx(g,xc-.4,xc+.4,.72,.76,z-1.2,z+1.2,top);for(const dz of[-1,1])hrmBx(g,xc-.03,xc+.03,0,.72,z+dz*1.05-.03,z+dz*1.05+.03,leg);hrmBx(g,xc-.3,xc+.3,.1,.14,z-1.06,z+1.06,leg);
+  for(const sd of[-1,1]){hrmBx(g,xc+sd*.65-.14,xc+sd*.65+.14,.43,.47,z-1.2,z+1.2,top);for(const dz of[-1,1])hrmBx(g,xc+sd*.65-.02,xc+sd*.65+.02,0,.43,z+dz*1.05-.02,z+dz*1.05+.02,leg);hrmBx(g,xc+sd*.42,xc+sd*.62,.12,.15,z-1.05,z+1.05,leg)}
+  if(R()<.6){const tx=xc+(R()-.5)*.3,tz=z+(R()-.5)*1.4;hflB(g,.45,.014,.33,hrmM('tray'),tx,.767,tz);hflCy(g,.1,.1,.012,hrmM('plate',{color:0xf8f8f0,roughness:.3}),tx-.08,.78,tz,14);hflCy(g,.035,.03,.09,hrmM('mug',{color:0xd8e0e8,roughness:.4}),tx+.13,.818,tz+.08,10)}
+  out.obs.push({x0:xc-.85,x1:xc+.85,z0:z-1.25,z1:z+1.25})}
+ /* lockers along the other wall at the far end (two are hiding spots), a notice board, bins */
+ const lw=hrmOnWall(g,-s,HX,-17);const xs=hrmLockers(lw,8,-1.6,0x5a6a4a);out.obs.push({x0:hrmWX(-s,HX,.52)[0],x1:hrmWX(-s,HX,.52)[1],z0:-18.65,z1:-15.35});out.occ.push({s:-s,z:-17,h:1.8});
+ for(const i of[2,5])out.ward.push({x:-s*(HX-.35),z:-17+(-s>0?xs[i]:-xs[i]),ry:-s>0?Math.PI/2:-Math.PI/2,locker:1,noModel:1});
+ const nb=hrmOnWall(g,s,HX,-15);hflB(nb,1.4,.9,.03,hrmM('cork',{color:0xa87a4a,roughness:1}),0,1.7,.015);for(let k=0;k<6;k++){const pp=hflB(nb,.15,.22,.004,hrmM('note'+(k%4),{color:[0xf0ece0,0xf0e080,0xa0d0f0,0xf0b0c0][k%4]}),-.5+k*.2,1.62+(k%2)*.12-.06,.033+(k%2)*.005);pp.rotation.z=(R()-.5)*.12}
+ out.occ.push({s,z:-15,h:.8});
+ for(const z of[-14.6,-15.4])hflCy(g,-0+.22,.2,.7,hrmM('bin',{color:0x3a4a3a,roughness:.6}),s*(HX-.4),.35,z-1.2,14);out.obs.push({x0:hrmWX(s,HX,.6)[0],x1:hrmWX(s,HX,.6)[1],z0:-16.9,z1:-15.5});
+ /* a wall clock over the counter */
+ const ck=hflPlane(g,.4,.4,64,64,(x,w,h)=>{x.fillStyle='#f0ece0';x.beginPath();x.arc(32,32,30,0,7);x.fill();x.strokeStyle='#202020';x.lineWidth=3;x.stroke();for(let i=0;i<12;i++){const a=i/12*Math.PI*2;x.fillRect(32+Math.sin(a)*24-1,32-Math.cos(a)*24-2,2,4)}x.beginPath();x.moveTo(32,32);x.lineTo(32,12);x.moveTo(32,32);x.lineTo(44,36);x.stroke()});ck.material.transparent=true;
+ ck.position.set(s*(HX-.05-.012),2.7,-7.5);ck.rotation.y=s>0?-Math.PI/2:Math.PI/2;
+ return out}
+
+/* ===================== 16. linen stores ===================== */
+function hrmLinen(g,o){const R=hflRng(o.seed*31+16),HX=o.HX,L=o.L,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[]};const fr=hrmM('shelfF',{color:0x6a7078,roughness:.5,metalness:.35}),sh=hrmM('shelfB',{color:0x8a8e92,roughness:.6,metalness:.2});
+ const cols=[0xece8de,0xd8e4ee,0xe8dcc8,0xb8c8d8,0xd8c8d8],stacks=cols.map(()=>[]);
+ /* three runs of double-sided shelving along the room, with gaps to cross between them */
+ const runs=[[-3,[[-8,-9.6],[-15,-16.6]]],[0,[[-11.3,-12.9]]],[3,[[-8,-9.6],[-15,-16.6]]]];
+ for(const[x,gaps]of runs){let za=-4;const segs=[];for(const[g0,g1]of gaps){segs.push([za,g0]);za=g1}segs.push([za,-21]);
+  for(const[z0,z1]of segs){const zc=(z0+z1)/2,ln=z0-z1;for(const sx of[-1,1])for(const sz of[z0-.03,z1+.03])hrmBx(g,x+sx*.35-.03,x+sx*.35+.03,0,2.6,sz-.03,sz+.03,fr);
+   for(let k=0;k<5;k++){const y=.12+k*.58;hrmBx(g,x-.36,x+.36,y,y+.03,z1+.02,z0-.02,sh);if(k<4)for(const sx of[-1,1])for(let zz=z0-.25;zz>z1+.2;zz-=.48){if(R()<.15)continue;const n=1+(R()*4|0),ci=(R()*cols.length)|0;for(let j=0;j<n;j++)stacks[ci].push([x+sx*.17,y+.03+.045+j*.09,zz])}}
+   out.obs.push({x0:x-.4,x1:x+.4,z0:z1,z1:z0})}
+  /* the end labels */
+  const lb=['SHEETS · KING','TOWELS · BATH','PILLOWCASES','TABLE LINEN','BLANKETS'][(x+3)/3|0];const p=hflPlane(g,.6,.18,128,38,(c,w,h)=>{c.fillStyle='#1e4a2c';c.fillRect(0,0,w,h);c.fillStyle='#f0ece0';c.font='bold 18px DoorsSans,Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(lb,w/2,h/2+1)});p.position.set(x,2.45,-4+.022);hrmBx(g,x-.32,x+.32,2.35,2.55,-4.0,-3.99+.0,fr)}
+ stacks.forEach((list,i)=>{if(list.length)hrmInst(g,.3,.09,.42,hrmM('linen'+i,{color:cols[i],roughness:1}),list)});
+ /* a rolling ladder on the middle run, laundry bags, the check-in desk by the door */
+ const lz=-6.5;
+ const ld=new THREE.Group();ld.position.set(.42,0,lz);g.add(ld);for(const sz of[-.22,.22]){hrmRod(ld,[.55,0,sz],[-.03,2.4,sz],.02,fr);hflCy(ld,.04,.04,.03,hrmBlack(),.55,.04,sz,10).rotation.x=Math.PI/2}for(let k=1;k<9;k++){const t=k/9;hflCy(ld,.012,.012,.44,fr,.55-.58*t,2.4*t,0,6).rotation.x=Math.PI/2}
+ out.obs.push({x0:.4,x1:1.05,z0:lz-.3,z1:lz+.3});
+ for(const[x,z]of[[-1.5,-6],[1.6,-18],[-1.4,-19.5]]){const b=new THREE.Mesh(new THREE.SphereGeometry(.35,12,10),hrmM('bag',{color:0xb8b0a0,roughness:1}));b.scale.set(1,.85,1);b.position.set(x,.3,z);g.add(b);hflCy(g,.06,.12,.12,hrmM('bag'),x,.6,z,10);out.obs.push({x0:x-.38,x1:x+.38,z0:z-.38,z1:z+.38})}
+ const s=R()<.5?-1:1,dk=new THREE.Group();dk.position.set(s*3.4,0,-1.6);dk.rotation.y=s>0?-Math.PI/2:Math.PI/2;g.add(dk);hflB(dk,1.6,1.05,.6,hrmM('deskL',{color:0x6a5a48,roughness:.6}),0,.525,0);hflB(dk,1.7,.04,.7,hrmDark(),0,1.07,0);
+ const ledger=hflPlane(dk,.36,.26,72,52,(c,w,h)=>{c.fillStyle='#e8e0c8';c.fillRect(0,0,w,h);c.fillStyle='#4a3a2a';c.fillRect(34,0,3,h);c.strokeStyle='rgba(40,40,80,.5)';for(let i=0;i<7;i++){c.beginPath();c.moveTo(4,6+i*6);c.lineTo(30,6+i*6);c.moveTo(40,6+i*6);c.lineTo(68,6+i*6);c.stroke()}});ledger.rotation.x=-Math.PI/2;ledger.position.set(-.2,1.102,.05);
+ const bell=new THREE.Mesh(new THREE.SphereGeometry(.05,12,8,0,Math.PI*2,0,Math.PI/2),hrmBrass());bell.position.set(.4,1.09,.1);dk.add(bell);out.obs.push({x0:s*3.4-.35,x1:s*3.4+.35,z0:-2.45,z1:-.75});
+ /* two linen cupboards at the far end: hiding spots */
+ for(const sd of[-1,1])out.ward.push({x:sd*(HX-.4),z:-L+2.5,ry:sd>0?Math.PI/2:-Math.PI/2});
+ return out}
