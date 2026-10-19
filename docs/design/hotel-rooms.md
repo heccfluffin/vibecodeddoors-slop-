@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) approved · ready to build · batch 2 (floor 2's rooms) in review
+Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) approved · ready to build · batch 2 (floor 2's rooms) approved · ready to build · batch 3 (floor 3's rooms) in review
 
 # The hotel remodel: more room types and more turns
 
@@ -144,7 +144,7 @@ hiding and Rush still work.
   svc, garden, ball, guest corridor x2, lounge, restaurant, games, and the grand staircase (once per floor, door 8+).
 - The roll index uses the list's real length (`Math.random()*list.length|0`), so suites and service rooms appear.
 
-## Batch 2 (floor 2's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 2", in the Old Wing look)
+## Batch 2 (approved; floor 2's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 2", in the Old Wing look)
 New return fields: `noLamps` (the room lights itself: skip the centre lamps, use `lamps`), `noFloor` (skip the game's
 floor box), `noCeil` (skip the game's ceiling), `noEvents` (no Rush or Ambush in this room), `musicBox` (a point for
 the music-box sound), and `anims` callbacks now get `(dt, t, cam)` (the camera position).
@@ -159,6 +159,26 @@ the music-box sound), and `anims` callbacks now get `(dt, t, cam)` (the camera p
 
 - The guest corridor's wardrobe spot (batch 1) now faces into the bedroom (`ry` 0).
 - Checker: clean apart from the usual trim end faces against walls, and the preview's stand-in wardrobes.
+
+## Batch 3 (floor 3's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 3", in the Staff & Service look)
+New fields: `ward` entries can have `noModel: 1` (the room already shows the hiding place: a staff locker or the
+cold-room door; use the hide logic but don't place the game's wardrobe), `locker: 1`, `cold: 1`; `dres` entries can
+have `cabinet: 1` (a filing cabinet: use the drawer loot logic); `noShell` (the room builds its whole shell);
+`doorH` (the exit door is this tall; scale the door leaf); `phone` (a point for a ringing-telephone sound).
+
+| Room | Size | What's in it | Notes |
+|---|---|---|---|
+| `hrmKitchen` kitchen | L 24, HX 5, HY 3.6 | six stoves under a long steel hood (pots, a frying pan, one oven glowing), three sinks with taps, two steel prep tables with boards and bowls, pan racks hanging over them, bins and a mop bucket | hiding: the **cold room** door near the end (`cold`, `noModel`) and two of four **staff lockers** by the door (`locker`, `noModel`). Can turn. |
+| `hrmLaundryHall` laundry hall | L 26, HX 5, HY 4 | six big washers a side (some drums turning), three stacks of dryers a side, two folding tables with folded linen, three laundry carts, **four lines of hanging sheets across the hall** that sway; you walk through them (not obstacles) | two linen-cupboard wardrobes at the far end. Can turn. |
+| `hrmTunnels` boiler tunnels | L 22, path half-width 1.3, height 2.6 | a low concrete tunnel with **two bends** (down, across 4.5 m, down, back across, down to the exit), a drain channel, three pipes under the ceiling that follow the bends, hangers, two red valve wheels, gauges, a DANGER HOT PIPES sign, steam puffs at the bends, caged bulkhead lamps | `noShell`: it builds everything. Use `path` for Rush/Ambush, `inside(x, z)` for the walls, `lamps`. The exit door is 1.6 x 2.4 (`doorH`); a header fills the gap over the previous room's 3 m door. One maintenance-cupboard wardrobe in the far bend. No turn. |
+| `hrmSwitchboard` switchboard | L 20, HX 4.5, HY 3.6 | eight switchboard sections a side (jack panels with lamps, key shelves, patch cords, headsets, swivel chairs), a supervisor's desk with a typewriter, a green lamp and a **ringing telephone** (it shakes; `phone` for the sound), two filing cabinets (`dres`, `cabinet`), a cable tray, a SILENCE PLEASE sign | two wardrobes by the door. Can turn. |
+| `hrmCanteen` staff canteen | L 22, HX 5, HY 3.6 | a serving counter with food wells, a sneeze guard, a tray slide, trays, an urn; six long tables with benches (some trays, plates and mugs left out); eight lockers at the far end (two are hiding spots), a notice board, bins, a clock | Can turn. |
+| `hrmLinen` linen stores | L 24, HX 5, HY 4 | three runs of double-sided steel shelving full of folded linen, with **gaps to cross between them** (a small maze), end labels, a rolling ladder, laundry bags, a check-in desk with a ledger and a bell | two linen cupboards at the far end. Can turn. |
+
+- The floor-3 strip light's end caps (hotel.js) are a little taller now so the tubes sit inside them.
+- No inner bends in the laundry hall, linen stores or guest corridor after all (the plan's "inner corners"): the boiler
+  tunnels have them, and the turn system already bends the rest.
+- Checker: clean apart from the usual trim end faces and the preview's stand-in wardrobes.
 
 ## Work in batches (each with a preview, like the prison)
 1. **Batch 1:** the turn and jog-room rules, the floor pools, the bug fix, and the floor 1 rooms (1-5).

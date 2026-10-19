@@ -128,7 +128,7 @@ function hflLamp(f,drop){drop=drop||0;const g=new THREE.Group(),glow=[];let at=-
   at=d-.45}
  else if(f==3){/* a twin-tube strip light across the hall, like the game's lamp box */
   const hm=hflMat('strip',{color:0xe6e6e0,roughness:.5});const hb=new THREE.Mesh(new THREE.BoxGeometry(1.3,.06,.22),hm);hb.position.y=d-.03;g.add(hb);
-  for(const sx of[-.64,.64]){const c=new THREE.Mesh(new THREE.BoxGeometry(.03,.05,.18),hflMat('stripEnd',{color:0xb8b8b2,roughness:.6}));c.position.set(sx,d-.08,0);g.add(c)}
+  for(const sx of[-.64,.64]){const c=new THREE.Mesh(new THREE.BoxGeometry(.03,.065,.18),hflMat('stripEnd',{color:0xb8b8b2,roughness:.6}));c.position.set(sx,d-.0875,0);g.add(c)}
   for(const sz of[-.05,.05]){const t=new THREE.Mesh(new THREE.CylinderGeometry(.017,.017,1.28,10),hflMat('tube',{color:0xf4f8ff,emissive:0xdcecff,roughness:.3}));t.rotation.z=Math.PI/2;t.position.set(0,d-.09,sz);g.add(t);glow.push(t)}
   at=d-.35}
  else if(f==4){/* a bare bulb on a cord */
