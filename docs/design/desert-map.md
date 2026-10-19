@@ -37,7 +37,7 @@ map code to update. `mapBaseDraw` and the hard-coded penitentiary boxes are repl
 - Rebuild the background when the obstacle count in any area changes (as dx602:32 does for the base), so late-built
   things (the PD HQ annex, the water tanks, the command wing) appear.
 - The ground shapes builders push (`q.mapR`: roads, the lake, the gorge, the mesa, the track, the solar panels, the
-  base's ground layers) stay. Exact duplicates are drawn once. The oasis water and the meteor crater become ordinary
+  base's ground layers) stay. Exact duplicates are drawn once. The oasis water and the meteor crater (moving to (140, -970), meteor-crater.md) become ordinary
   `q.mapR` entries (`circ: 1`) pushed by their builders instead of hard-coded lines in `dmapBg`.
 - Roads get `road: 'asphalt' | 'dirt'` on their `q.mapR` entry; the two magic colours stay as the fallback.
 - The sand, dunes and speckles stay part of the world-sized background (`dmapBg`), so they scale and pan with the

@@ -349,4 +349,4 @@ function ugWorld(p){
  const shp=p.d.shp.map(s=>s.k=='path'?Object.assign({},s,{pts:s.pts.map(q=>T(q[0],q[1]))}):s.k=='blob'||s.k=='ring'?Object.assign({},s,(()=>{const c=T(s.cx,s.cz),sw=p.r%2==1;return{cx:c[0],cz:c[1],rx:sw?s.rz:s.rx,rz:sw?s.rx:s.rz}})()):s.k=='rect'?Object.assign({},s,(()=>{const a=T(s.x0,s.z0),b=T(s.x1,s.z1);return{x0:Math.min(a[0],b[0]),x1:Math.max(a[0],b[0]),z0:Math.min(a[1],b[1]),z1:Math.max(a[1],b[1])}})()):s);
  return{shp,T};
 }
-if(typeof module!='undefined')module.exports={UGL,UGP,UGV,UGB,ugGen,ugWorld,ugRot,ugRng,ugStation};
+if(typeof module!='undefined'&&typeof window=='undefined')module.exports={UGL,UGP,UGV,UGB,ugGen,ugWorld,ugRot,ugRng,ugStation};
