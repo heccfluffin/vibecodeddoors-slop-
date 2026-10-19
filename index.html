@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-19 r635';
+const BUILD='2026-10-19 r636';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -4876,7 +4876,7 @@ function holDecor(th){if(HOL.g){if(HOL.g.parent)HOL.g.parent.remove(HOL.g);try{d
    Everyone on board is thrown clear; when El Goblino's tow truck turns up, the bus is (somehow) back in one piece and you are
    shoved back inside for the tow. ---- */
 function busBlowApart(q,v){if(v.bp)return;v.m.updateMatrixWorld(true);q.g.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(q.g.matrixWorld).invert(),list=[];
- v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible||o.isInstancedMesh)return;const mt=o.material;if(!mt||Array.isArray(mt)||mt.isSpriteMaterial||mt.blending===THREE.AdditiveBlending||mt.transparent&&mt.opacity<.3)return;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const r=(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:.2)*(o.matrixWorld.getMaxScaleOnAxis?o.matrixWorld.getMaxScaleOnAxis():1);if(r>9)return;list.push({o,r})});
+ v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible||o.isInstancedMesh||o.userData.dpMerged)return;const mt=o.material;if(!mt||Array.isArray(mt)||mt.isSpriteMaterial||mt.blending===THREE.AdditiveBlending||mt.transparent&&mt.opacity<.3)return;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const r=(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:.2)*(o.matrixWorld.getMaxScaleOnAxis?o.matrixWorld.getMaxScaleOnAxis():1);if(r>9)return;list.push({o,r})});
  list.sort((a,b)=>b.r-a.r);const big=list.slice(0,lowFx()?40:70),rest=list.slice(70).sort(()=>Math.random()-.5).slice(0,lowFx()?10:40),parts=[];
  for(const it of big.concat(rest)){const o=it.o,mx=new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld),p=new THREE.Vector3(),qu=new THREE.Quaternion(),sc=new THREE.Vector3();mx.decompose(p,qu,sc);const mat=o.material.clone();if(mat.color&&Math.random()<.7)mat.color.multiplyScalar(.25+Math.random()*.4);if(mat.emissive)mat.emissive.setHex(0);mat.transparent=false;mat.opacity=1;
   const m=new THREE.Mesh(o.geometry,mat);m.position.copy(p);m.quaternion.copy(qu);m.scale.copy(sc);q.g.add(m);const dx=p.x-v.x,dz=p.z-v.z,d=Math.hypot(dx,dz)||1,f=(10+Math.random()*18)/(1+it.r*.35);
@@ -7302,7 +7302,7 @@ function vehBlow(q,v,mine){if(v.wreck)return;if(v.mil&&milArea(v.x,v.z)&&!MILX){
  if(q.seat&&q.seat.v===v){const i=q.seat.i;v.occ[i]=null;if(i==0)vehEngine(q,0);q.seat=null;P.roll=0;const a=Math.random()*6.3;q.fling={vx:Math.cos(a)*7,vz:Math.sin(a)*7,vy:9,y:P.dy+1,t:0};hint('💥 KABOOM! The car blows up and you go FLYING. (You are fine. Somehow.)')}
  if(mine)vehNet(q,{k:'wr',v:v.id});v.occ=v.occ.map(()=>null)}
 function vehShatter(q,v){const parts=[];v.m.updateMatrixWorld(true);q.g.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(q.g.matrixWorld).invert(),list=[];
- v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible)return;const mt=o.material;if(!mt||mt.isSpriteMaterial||mt.blending===THREE.AdditiveBlending)return;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const ms=o.matrixWorld.getMaxScaleOnAxis?o.matrixWorld.getMaxScaleOnAxis():1;list.push({o,r:(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:.2)*ms})});
+ v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible||o.userData.dpMerged)return;const mt=o.material;if(!mt||mt.isSpriteMaterial||mt.blending===THREE.AdditiveBlending)return;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const ms=o.matrixWorld.getMaxScaleOnAxis?o.matrixWorld.getMaxScaleOnAxis():1;list.push({o,r:(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:.2)*ms})});
  list.sort((a,b)=>b.r-a.r);for(const it of list.slice(0,lowFx()?24:44)){const o=it.o,mx=new THREE.Matrix4().multiplyMatrices(inv,o.matrixWorld),p=new THREE.Vector3(),qu=new THREE.Quaternion(),sc=new THREE.Vector3();mx.decompose(p,qu,sc);
   const mat=Array.isArray(o.material)?o.material[0].clone():o.material.clone();if(mat.color&&Math.random()<.65)mat.color.multiplyScalar(.3+Math.random()*.35);if(mat.emissive)mat.emissive.setHex(0);const m=new THREE.Mesh(o.geometry,mat);m.position.copy(p);m.quaternion.copy(qu);m.scale.copy(sc);q.g.add(m);
   const dx=p.x-v.x,dz=p.z-v.z,d=Math.hypot(dx,dz)||1,f=(5+Math.random()*10)/(1+it.r*.7);parts.push({m,vx:dx/d*f+(Math.random()-.5)*5,vz:dz/d*f+(Math.random()-.5)*5,vy:7+Math.random()*10/(1+it.r*.4),rx:(Math.random()-.5)*14,ry:(Math.random()-.5)*9,rz:(Math.random()-.5)*14,rest:0,r:Math.min(.5,it.r*.35),fire:Math.random()<.3?3+Math.random()*6:0})}
@@ -15979,6 +15979,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r636',['When a vehicle blows up, every flying piece is a real part of it now: some parts used to fly off twice']],
 ['r635',['Vehicle batching: the moving parts of every vehicle (wheels, steering wheels, turrets, gun barrels, rotors, missiles, the Wraith\'s radar) are now drawn as a few pieces each instead of dozens. About a third fewer draw calls at the Fort, the airfield and the bus stop. They look and move exactly as before','Lag test window: the buttons stay put now (they sat under text that kept changing length), and it shows your render scale (if the game lowered its resolution because frames were slow, which makes it blurry; /gfx high keeps it sharp)']],
 ['r634',['Warping from the map now takes you to the place\'s phone booth when it has one. The prison\'s marker used to drop you inside the cell block, where you could not warp out again','You can warp out of the prison area again unless you are actually a prisoner','Dark Penitentiary control room: the floodlight and inner gate switches are on the wall now (they floated over the console), and the console buttons are no longer stretched']],
 ['r633',['Cars that spawn while you play (traffic, police, squads...) are now sent to your graphics card while they are still far away, so they no longer cause a hitch when they come into view','The officers walking outside the police station no longer walk backwards']],
