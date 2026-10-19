@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) approved · ready to build · batch 2 (floor 2's rooms) approved · ready to build · batch 3 (floor 3's rooms) in review
+Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) approved · ready to build · batch 2 (floor 2's rooms) approved · ready to build · batch 3 (floor 3's rooms) approved · ready to build · batch 4 (floor 4's rooms) in review
 
 # The hotel remodel: more room types and more turns
 
@@ -160,7 +160,7 @@ the music-box sound), and `anims` callbacks now get `(dt, t, cam)` (the camera p
 - The guest corridor's wardrobe spot (batch 1) now faces into the bedroom (`ry` 0).
 - Checker: clean apart from the usual trim end faces against walls, and the preview's stand-in wardrobes.
 
-## Batch 3 (floor 3's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 3", in the Staff & Service look)
+## Batch 3 (approved; floor 3's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 3", in the Staff & Service look)
 New fields: `ward` entries can have `noModel: 1` (the room already shows the hiding place: a staff locker or the
 cold-room door; use the hide logic but don't place the game's wardrobe), `locker: 1`, `cold: 1`; `dres` entries can
 have `cabinet: 1` (a filing cabinet: use the drawer loot logic); `noShell` (the room builds its whole shell);
@@ -179,6 +179,17 @@ have `cabinet: 1` (a filing cabinet: use the drawer loot logic); `noShell` (the 
 - No inner bends in the laundry hall, linen stores or guest corridor after all (the plan's "inner corners"): the boiler
   tunnels have them, and the turn system already bends the rest.
 - Checker: clean apart from the usual trim end faces and the preview's stand-in wardrobes.
+
+## Batch 4 (floor 4's rooms; models appended to `hotel-rooms.js`; preview "Hotel Rooms 4", in the Deep Hotel look)
+| Room | Size | What's in it | Notes |
+|---|---|---|---|
+| `hrmPool` drained pool | L 28, HX 7, HY 6 | an empty tiled pool (|x| < 4, z -5..-22): eight steps down the whole width at each end, the floor slopes from 1.2 m to 2.2 m deep and back; lane lines, old green water in the deep end, dead leaves, depth marks, chrome ladders; a tiled deck round it with coping, a springboard, a lifeguard chair, loungers | `noFloor`, `rf` = `hrmPoolRF(z, x)`. The tank's long sides are obstacles, so you go down the steps (or round the deck). Two changing-booth wardrobes on the near deck; the side walls by the tank are in `occ`. Can turn. |
+| `hrmBathhouse` bathhouse | L 24, HX 5.5, HY 4.5 | its own tiled floor with **two baths sunk into it** (murky water 25 cm down, a step inside, a raised rim, a dripping brass spout, steam drifting up), slatted benches with towels on hooks, wooden buckets | `noFloor`. The baths' rims are obstacles. **Three curtained changing booths** are the hiding spots (`booth: 1`). Can turn. |
+| `hrmCollapsed` collapsed floor | L 24, HX 4.5, HY 4 | the floor is gone from z -5 to -17: joists across the hole (some broken), **two planks wide of walkway that zig-zags across them**, ragged broken boards at both edges; 2 m below, the room under it (rubble, a fallen chandelier, a broken bed, a dim red light) and **a rubble slope up to the far floor**; torn caution tape and a FLOOR UNSAFE sign | `noFloor`, `rf` = `hrmCollapsedRF(z, x)`: off the planks you fall 2 m (no damage), and the slope brings you back up. Both walls over the hole are in `occ` (wardrobes only on the solid floor). No turn. |
+| `hrmSunken` sunken lounge | L 24, HX 6, HY 4 | three steps down at z -5, a wet dark lounge at -.45 m with standing water, three steps up at z -17; a dead fireplace with ash, charred logs and a dark mirror, three sofas in a U on a rug, a coffee table, a knocked-over floor lamp, a dead palm, a drinks cart | `noFloor`, `rf` = `hrmSunkenRF(z)`. Wardrobes on the upper floors at each end. Can turn. |
+
+- The "flooded ballroom" in the pool table above is the game's existing flood room on floor 4; no new model.
+- Checker: clean apart from the usual trim end faces, faces hidden under floors, and the preview's stand-in wardrobes.
 
 ## Work in batches (each with a preview, like the prison)
 1. **Batch 1:** the turn and jog-room rules, the floor pools, the bug fix, and the floor 1 rooms (1-5).

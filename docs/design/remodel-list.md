@@ -63,4 +63,7 @@ code more than models: better done as texture and prop passes than remodels. Lat
   first step of the hotel remodel.
 - 2026-10-19: the hotel loop (parts 1 and 2: floors, looks, lift lobby, Halt/Timothy/Eyes) is fully designed and
   ready to build. Next: the hotel room-type remodel (more room types, more turns), then the desert mines loop.
+- **The user, 2026-10-19: redo the desert map and the minimap** so every place shows properly after the reworks
+  (the layouts have changed: Fort Blackout, the quarry, the scrap yard, the airfield and Zone 51, the speedway and
+  farms, the PD, the penitentiary). Queued right after the hotel room batches, before the desert mines loop.
 
