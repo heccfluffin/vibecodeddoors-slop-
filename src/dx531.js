@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r633',['Cars that spawn while you play (traffic, police, squads...) are now sent to your graphics card while they are still far away, so they no longer cause a hitch when they come into view','The officers walking outside the police station no longer walk backwards']],
 ['r632',['Desert warm-up: the desert is now sent to your graphics card a little at a time, nearest first, while the bus drives you in and while you play, instead of all at once the first time you see it. Far fewer freezes when you reach a new place (the Fort, the quarry, the prison...). The loading screen is not any longer']],
 ['r631',['Lag test window (F9): new spike catcher. Every frame that takes much longer than usual is listed with what caused it, and it goes in Copy report. Open the window before you go to the desert to catch the spikes when you arrive']],
 ['r630',['New LAG TEST window: press F9 (or type /lag). It shows your FPS, a frame-time graph and exactly where each frame\'s time goes, has switches to hide things for a moment to see what is heavy, a "Find the lag" button that tests it all by itself, and Copy report to send the results']],
