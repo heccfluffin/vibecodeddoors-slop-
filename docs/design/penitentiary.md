@@ -57,11 +57,13 @@ routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**
   `{visible: true}` as `m` there so the cut code still works. Keep every obstacle and both `P0.fence`/`P0.fenceO`
   lists exactly as now. After `ring()`, call `penFenceTop(g)` once (posts, arms, strands, razor coil; static).
 - Towers: replace the legs, cab, roof and windows with `penTower(g, x, z)`; keep the 4 x 4 obstacle but pass `null`
-  as its mesh. Put the glow sprite in `head` at (0, 0, .45). Each frame in `penAnim`, turn each tower's `head` to the
-  nearest outer searchlight circle: `head.lookAt(L.c.position)` (keep the towers in `P0.towers`).
+  as its mesh. Put the glow sprite in `head` (the lamp drum) at (0, 0, .45). Each frame in `penAnim`, aim each tower's
+  light at the nearest outer searchlight circle with its `aim(x, y, z)` (the yoke turns, the drum tips; keep the towers
+  in `P0.towers`).
 - Front gate: the gate slab, the gatehouse box and roof, and the road and its dashes go; `penFrontGate(g)` builds the
-  pylons, the gantry behind the big sign (the sign stays), both sliding gates, the gatehouse, the raised barrier and the
-  road. Keep the gatehouse obstacle (pass `null` as its mesh).
+  two side walls (x -447.5..-445 and -435..-432.5, z -864..-859: add them as obstacles), the gantry behind the big sign
+  (the sign stays), both sliding gates, the gatehouse, the raised barrier and the road. **The gatehouse moves** so it
+  doesn't overlap the west wall: its obstacle becomes x -451.4..-447.4, z -864.2..-860.2 (`W(...,4,null)`).
 - `penPolish2` outside: the bus → `penBus()` at (-472, 0, -871); the car park, its lines and the three cars, the three
   barriers, the spike strip, the bunker's sandbags and the jeep, the water tower, the generator → `penOutside(g)`
   (all at the game's spots; keep every obstacle). The flag pole → `penFlagpole()` at (-453, 0, -871) (the waving flag
