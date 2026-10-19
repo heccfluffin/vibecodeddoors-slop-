@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batches 1-3 approved · batch 4 (treasure chamber) in review
+Status: layout approved 2026-10-18 · batches 1-4 approved · batch 5 (undercroft, Jackal, Sun) in review
 
 # The Pyramid rework (remodel list #20)
 
@@ -75,3 +75,22 @@ puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the und
 - `ped` → `pyPedestal()` at (cx(1)-.6, 0, Z+.6); the mask group's children → `pyMask()` (same group, same sway, same
   glow sprite; hide the group as now when taken).
 - New: `pyTreasureRoom(g)` (shrine, jars, fans, chariot wheels); push its `obs`. The gold light stays as it is.
+
+## Notes for the wiring (batch 5, the undercroft)
+- `pyrUnder`: the wall-box loop, the floor box, the ceiling slab and the beam loop go; call `pyUnderplan(g)` (painted
+  faces on the cell lines, worn and darker; ceiling tiles; beams on odd columns running into the walls; the floor slab,
+  top at Y). `PYFB` must stay equal to `FB`; `PYUT` lists the `T(...)` torch walls.
+- `T(i,j,side,lit)`: `pyrTorch` → `pyTorch(g, x, z, ry, .048)` at the same spot, `t.position.y = Y` (its wall is
+  4.8 cm behind, the game's x/z use *.97). Lights and glow sprites as now.
+- `art(lines, icons, x, z, ry, w, h)`: keep the plane, its material → `pyTablet(lines, w, h)` (same words, the icons
+  are drawn as signs). Move the Jackal clue tablet (bx(12), bz(13)-1.58) to x bx(12)+.25: the closed gate covers
+  its left 20 cm.
+- Stairs: the nine step boxes and the black `sh` plane → `pyUnderStairs(g)` (steps wall to wall with nosings, a
+  stone-lined opening over cell (4,14), which has no ceiling tile). The bones → `pyLandingDressing(g)`.
+- `gate(k, ...)`: the slab → `pyGateSlab(x1-x0, HH, z1-z0, k)` (k = 'jackal' | 'sun' | 'song' | 'tomb'), same place,
+  still sinks by `position.y`.
+- Jackal: the altar box + gold top → `pyAltar()` at (ax, Y, az) (keep the fire glow sprite); `pyrJackal(M, red, 1.1)`
+  → `pyJackal({red, scale: 1.1, round: true})` (round plinth because they turn; eyes at y 2.51, z .36 for the glow).
+- Sun: the gold reflector → `pySunSource()` at (sx, by, sz) (keep the shaft box and glow); the disc and its 12 rays →
+  `pySunTarget()` at (tx, by, bz(3)-1.6), and use its `userData.disc` as `disc` (its emissive lights up as now).
+  Mirrors: the pedestal → `pyMirrorStand()` in `gr`; the frame and the two mirror faces → `pyMirrorHead()` in `piv`.
