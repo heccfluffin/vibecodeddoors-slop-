@@ -13,7 +13,9 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
 
-Still to design: the desert map and minimap redo (next), the desert mines loop and remodel, the Old Quarry's underground.
+In review: `desert-map.md` (the desert map and minimap redo; tables and reference renderer in `models/desert-map.js`).
+
+Still to design: the desert mines loop and remodel, the Old Quarry's underground.
 
 This folder is how the design chat (Claude in the claude.ai app) and Claude Code work together on DOORS.
 
