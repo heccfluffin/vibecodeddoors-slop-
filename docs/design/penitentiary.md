@@ -1,9 +1,9 @@
-Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved, its courtyard re-planned (in review) · batch 3 (cells, corridor A, cameras) next
+Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved (courtyard re-planned, approved) · batch 3 (cells, corridor A, cameras) in review
 
 # The Dark Penitentiary rework (remodel list #23)
 
 Same prison, same place and size (`PENA`, `PENF`, `PENI`, `PENB` unchanged). **Every gameplay spot stays where it is**:
-the walls and doors guards and cameras see through (`P0.walls`, `P0.doors`), your cell D-4 (bunk, meal slot, vent
+the walls and doors guards and cameras see through (`P0.walls`, `P0.doors`), your cell D-5 (bunk, meal slot, vent
 grate), the vent maze lanes and fans, the laundry baskets, the dozing guard and his keycard, the control room switches,
 the note, the workshop toolbox, the cuttable fence sections (`P0.fence`), the searchlight paths, the cameras, the guard
 routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**.
@@ -53,7 +53,7 @@ at z -732 and -705, the three yard inmates, the guard loop and the gate path): n
 ## Batches
 1. The fences, the watchtowers, the front gate and gatehouse, everything outside the fence.
 2. The yard and the courtyard (the table above), the inner wall, the workshop, Cell Block D's outside.
-3. The eleven cells (your cell D-4), corridor A, the cameras.
+3. The eleven cells (your cell D-5: the game relabelled it in r392), corridor A, the cameras.
 4. The vent maze and the fans, the laundry.
 5. The break room, the control room, the mess hall, the hiding spots.
 
@@ -160,3 +160,37 @@ at z -732 and -705, the three yard inmates, the guard loop and the gate path): n
   unchanged and still slides into the wall), downpipes, and
   a parapet, AC units and ducts on the roof (the game's roof slab stays). The CELL BLOCK D signs go 20 cm off the
   walls (they were inside the new skin), the two warning signs on the inner wall to `I.z0 - .45`.
+
+## Notes for the wiring (batch 3: the cells, corridor A, the cameras)
+Cell Block D's cell row is built in `penBuild` ("the cell block"), then dressed by `penPolish` (your cell),
+`penPolish3` (r392: numbers, the meal hatch, the yellow line, conduits, lamp cages, beacons, the guard post) and
+`penPolish4` (r394: food on the tray, the ball). Keep every obstacle, prop, anim and position; swap the meshes:
+- **Walls:** the back wall (`WL('x', -787, ...)` and penPolish's two fill pieces round the vent), the 12 dividers and the
+  open space over the bars → `penCellWalls(g)`: painted walls (a world-anchored two-tone paint, so the bands line up),
+  the back wall with the vent hole lined and framed, dividers into the ceiling, a header over the bars (2.8..4.61) with
+  the D-1..D-11 plates (yours red) and a green status lamp per cell. Drop penPolish3's D-n labels and green dots (and the
+  old hidden D-4 label) and penPolish's frame round the vent.
+- **Fronts:** the bars, the rails and the invisible door slab → `penCellFront(g, i)` for each cell and a door from
+  `penCellDoor(meal)` at (x + 2, 0, -780.88) (it hangs from a track on the header). The doors are separate groups, so
+  they can slide later (for example when the guards march you out); today they stay shut like the game's.
+- **Your meal hatch:** penPolish3's port, slot, shelf and flap go; your door is `penCellDoor(true)`: a real opening at
+  .86..1.02 the tray passes through, a shelf each side, and its `flap` (open with `flap.rotation.x = open * 1.35`, the
+  same as the game's anim). The tray and spoon stay the game's (tray at y .88).
+- **What is in the cells:** the bunk blocks, mattresses and toilet boxes → `penCellFit(g, i)` (the bunk spot, the
+  toilet spot and your bed spot are unchanged). In your cell drop penPolish's sink and tap, shelf, cup, book, pillow,
+  blanket and drain (all in the model now). Keep the tally marks, the 🎾 label and the ball. Move each cell's glow sprite
+  to (x + 2, 4.35, -784), under its new ceiling light.
+- **The vent grate:** `P0.grateM` → `penVentGrate()` at (-450, .6, -786.82) (penPolish's screws go, they are in it);
+  `grate2` → another `penVentGrate()` lying on the floor: `rotation.order = 'YXZ'`, `rotation.set(-PI/2, .4, 0)`,
+  position (-451.2, .05, -786.2). `penCells(g)` does all of the above and returns `{doors, flap, grate, grate2}`.
+- **Corridor A:** `penCorridorA(g)`: the ceiling lamps (`penCeilLamp`, the game's spots; drop penPolish3's lamp cages;
+  the same lamp works for the -760 and -746 rows), trapeze hangers for penPolish3's three conduits (the pipes stay; they
+  hung in the air), a fire hose cabinet in the west nook, and the guard post → `penGuardDesk` at the game's desk
+  (-411.1, -776.9), same obstacle. It returns `{screen}` (the desk monitor's face) if you want to show a feed on it.
+  Move penPolish3's first alarm beacon from (-468, -778.5) to the block's west wall (-470, -778.5, facing +x): there is
+  no wall at x -468 there, so it floated.
+- **Cameras:** penPolish's camera bodies → `penCamera()`: put `cam` at the game's (x, 3.8, z), turn it with
+  `rotation.y` as now (`C2.m = cam`), blink its `led` as now. Its plate is on the ceiling (the old mount stopped 22 cm
+  short).
+- Checked: no z-fighting anywhere in the row, the corridor or the cameras. The checker flags the grate's back plate and
+  screws as "floating" because they sit inside its own frame; they are attached.

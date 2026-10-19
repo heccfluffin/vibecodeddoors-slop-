@@ -472,3 +472,105 @@ function penMessOutside(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),H=4.6,X0=-4
  B(27.85,.5,.3,MT.con2,-484.225,5.15,Z0);B(27.85,.5,.3,MT.con2,-484.225,5.15,Z1);B(.3,.5,Z1-Z0-.3,MT.con2,X0,5.15,(Z0+Z1)/2);
  for(const z of[-762,-756,-750,-744]){const x=X0-o;B(.02,1.1,1.54,M(0x2a3a44,{emissive:0x304050,roughness:.2}),x-.01,3.4,z);for(const y of[2.81,3.99])B(.06,.08,1.7,MT.steel,x-.03,y,z);for(const s of[-1,1])B(.06,1.1,.08,MT.steel,x-.03,3.4,z+s*.81);for(let i=0;i<4;i++)Cy(.02,.02,1.1,MT.dark,x-.05,3.4,z-.45+i*.3,null,null,6);B(.12,.04,1.8,MT.con2,x-.06,2.75,z)}
  B(.1,.08,.08,MT.steel,-498.19,3.6,-754);penNoSeam(g)}
+
+/* ======================================= batch 3: the cells, corridor A, the cameras ======================================= */
+/* the game's cell row: 11 cells, 4 m each from x -468, z -787 (back wall) .. -781 (bars); the game numbers them D-1..D-11
+   from the west; yours is D-5 (i = 4, x -452..-448). The block's ceiling (its roof slab) is at 4.6. */
+const PENC={X0:-468,N:11,W:4,ZB:-787,ZF:-781,H:4.6,MINE:4};
+/* wall paint: a dark skirting, pale green to 1.2 m, a dark green stripe, cream above, painted block joints. World-anchored
+   (one texture = 4.6 m, so the bands sit at the same height on every piece) */
+function penCellPaint(){const k=penKit();if(k.cpaint)return k.cpaint;const t=k.can(256,256,(x,w,h)=>{const m=v=>h-v/4.6*h;
+  x.fillStyle='#c4bfaf';x.fillRect(0,0,w,h);x.fillStyle='#7a9486';x.fillRect(0,m(1.2),w,m(.12)-m(1.2));x.fillStyle='#3c5a4a';x.fillRect(0,m(1.26),w,m(1.2)-m(1.26));x.fillStyle='#3a3c40';x.fillRect(0,m(.12),w,h-m(.12));
+  x.strokeStyle='rgba(60,55,45,.18)';x.lineWidth=1;for(let r=0;r<23;r++){const y=m(r*.2);x.beginPath();x.moveTo(0,y);x.lineTo(w,y);x.stroke();for(let c=0;c<12;c++){const u=(c*.4+(r%2)*.2)/4.6*w;x.beginPath();x.moveTo(u,y);x.lineTo(u,m(r*.2+.2));x.stroke()}}
+  for(let i=0;i<2500;i++){x.fillStyle=Math.random()<.5?'rgba(40,40,30,'+Math.random()*.06+')':'rgba(255,255,255,'+Math.random()*.05+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}
+  const g2=x.createLinearGradient(0,m(.6),0,h);g2.addColorStop(0,'rgba(0,0,0,0)');g2.addColorStop(1,'rgba(40,30,20,.18)');x.fillStyle=g2;x.fillRect(0,m(.6),w,h-m(.6))},1);
+ return k.cpaint=new THREE.MeshStandardMaterial({map:t,roughness:.85})}
+/* the walls of the cell row: the back wall (with the vent hole in yours, lined with steel and framed), the 12 dividers
+   (into the ceiling), the header over the bars (2.8..4.61) with a number plate and a status lamp per cell, the steel caps
+   on the dividers' front ends */
+function penCellWalls(g){const k=penKit(),{MT,M}=k,{B,Cy,lab}=k.H(g),PT=penCellPaint(),{X0,N,W,ZB,ZF,H}=PENC,x1=X0+N*W,ST=M(0x7a8088,{metalness:.5,roughness:.4});
+ const BW=(a,b,y0,y1)=>B(b-a,y1-y0,.3,PT,(a+b)/2,(y0+y1)/2,ZB,null,4.6);
+ BW(X0-.14,-450.6,0,H);BW(-449.4,x1+.14,0,H);BW(-450.6,-449.4,1.05,H);BW(-450.6,-449.4,0,.15);
+ /* the vent hole: steel lining inside, a frame on the cell side */B(1.2,.02,.28,ST,-450,1.04,ZB);B(1.2,.02,.28,ST,-450,.16,ZB);for(const s of[-1,1])B(.02,.86,.28,ST,-450+s*.59,.6,ZB);
+ B(1.44,.12,.06,ST,-450,.09,ZB+.18);B(1.44,.1,.06,ST,-450,1.1,ZB+.18);for(const s of[-1,1])B(.1,.9,.06,ST,-450+s*.67,.6,ZB+.18);
+ for(let i=0;i<=N;i++){const x=X0+i*W;B(.24,H+.02,ZF-ZB,PT,x,(H+.02)/2,(ZB+ZF)/2,null,4.6);B(.3,2.8,.16,ST,x,1.4,ZF)}
+ B(x1-X0+.28,H+.01-2.8,.2,PT,(X0+x1)/2,2.8+(H+.01-2.8)/2,ZF,null,4.6);
+ for(let i=0;i<N;i++){const x=X0+i*W,mine=i==PENC.MINE;B(.62,.28,.02,MT.dark,x+2,3.2,ZF+.11);lab('D-'+(i+1),.56,.24,mine?'#5a2020':'#20242a','#e8e0c8',x+2,3.2,ZF+.13,0);
+  const l=Cy(.06,.06,.04,M(0x103018,{emissive:0x30e050}),x+3.3,3.2,ZF+.12,'z',null,12)}
+ penNoSeam(g)}
+/* the fixed bars either side of each door: a frame post each side of the doorway, three flat rails, six round bars */
+function penCellFront(g,i){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),x=PENC.X0+i*PENC.W,z=PENC.ZF,ST=M(0x7a8088,{metalness:.5,roughness:.4});
+ for(const px of[x+1.36,x+2.64])B(.08,2.8,.1,ST,px,1.4,z);
+ for(const[a,b]of[[x+.15,x+1.32],[x+2.68,x+3.85]]){for(const y of[.1,1.0,2.0])B(b-a,.06,.05,ST,(a+b)/2,y,z);for(let j=0;j<6;j++)Cy(.022,.022,2.8,ST,a+(j+.5)*(b-a)/6,1.4,z,null,null,6)}
+ /* the lock box on the hinge-side post */B(.12,.28,.08,MT.dark,x+1.27,1.15,z+.08);penNoSeam(g)}
+/* a sliding cell door, 1.28 wide, hung from a track on the header (the track and hangers are part of it). Its origin is the
+   door's middle on the floor; put it at (x + 2, 0, -780.88). With meal = true it has the meal hatch (yours): an opening at
+   .86..1.02, a shelf inside and one outside for the tray, and a flap. Returns {door, flap}: the flap's hinge is its
+   bottom edge; open it with flap.rotation.x (1.35 = down and open, like the game's) */
+function penCellDoor(meal){const k=penKit(),{MT,M}=k,d=new THREE.Group(),{B,Cy}=k.H(d),ST=M(0x7a8088,{metalness:.5,roughness:.4}),w=1.28,hw=w/2;
+ for(const s of[-1,1])B(.06,2.72,.05,ST,s*(hw-.03),1.40,0);B(w-.12,.06,.05,ST,0,2.73,0);B(w-.12,.36,.03,ST,0,.22,0);B(w-.12,.05,.05,ST,0,1.9,0);
+ B(1.4,.08,.08,MT.dark,0,2.84,.02);for(const s of[-1,1]){B(.08,.1,.03,MT.dark,s*.45,2.77,.02);Cy(.035,.035,.04,MT.steel,s*.45,2.84,.065,'z',null,10)}
+ const bx=[-.48,-.29,-.097,.097,.29,.48];let flap=null;
+ if(!meal){for(const x of bx){Cy(.02,.02,1.5,ST,x,1.15,0,null,null,6);Cy(.02,.02,.8,ST,x,2.3,0,null,null,6)}}
+ else{for(const x of bx){if(Math.abs(x)<.2){Cy(.02,.02,.42,ST,x,.61,0,null,null,6);Cy(.02,.02,.84,ST,x,1.48,0,null,null,6)}else Cy(.02,.02,1.5,ST,x,1.15,0,null,null,6);Cy(.02,.02,.8,ST,x,2.3,0,null,null,6)}
+  /* the hatch: sill, head, sides; the shelves; the flap */B(.6,.04,.06,ST,0,.84,0);B(.6,.04,.06,ST,0,1.04,0);for(const s of[-1,1])B(.04,.16,.06,ST,s*.28,.94,0);
+  B(.56,.03,.6,ST,0,.845,-.33);B(.56,.03,.32,ST,0,.845,.19);for(const s of[-1,1]){B(.03,.12,.3,ST,s*.25,.77,-.33);B(.03,.12,.2,ST,s*.25,.77,.15)}
+  flap=new THREE.Group();flap.position.set(0,.86,.045);d.add(flap);const fp=new THREE.Mesh(new THREE.BoxGeometry(.56,.17,.02),M(0x8a9098,{metalness:.5,roughness:.35}));fp.position.y=.085;flap.add(fp);const hd=new THREE.Mesh(new THREE.BoxGeometry(.14,.03,.03),MT.dark);hd.position.set(0,.14,.025);flap.add(hd)}
+ penNoSeam(d);return{door:d,flap}}
+/* the steel vent grate of your cell (the game's P0.grateM): 1.2 x .9, louvres and four screws. Put it at (-450, .6,
+   -786.82); a second one lies on the floor once it is off (the game's grate2): rotation.order 'YXZ', set(-PI/2, .4, 0) at
+   (-451.2, .05, -786.2) */
+function penVentGrate(){const k=penKit(),{M}=k,g=new THREE.Group(),{B,Cy}=k.H(g),GM=M(0x8a9098,{metalness:.5,roughness:.4}),DK=M(0x1e2024);
+ for(const y of[-.425,.425])B(1.2,.05,.04,GM,0,y,0);for(const s of[-1,1])B(.05,.8,.04,GM,s*.575,0,0);for(let i=0;i<6;i++){const s=B(1.09,.06,.02,GM,0,-.33+i*.132,-.005);s.rotation.x=.5}
+ B(1.1,.8,.005,DK,0,0,-.017);for(const[sx,sy]of[[-.52,-.38],[.52,-.38],[-.52,.38],[.52,.38]])Cy(.025,.025,.02,M(0xb0b4b8,{metalness:.6}),sx,sy,.03,'z',null,8);penNoSeam(g);return g}
+/* what is in a cell: a steel bunk on the west wall with a mattress, pillow and blanket; a steel toilet and basin in the back
+   corner (the game's toilet spot x+3.4, z -786.4); a shelf over the bunk's head; a desk and stool on the east wall (not in
+   yours: the ball bounces off that wall); a caged light on the ceiling (put the game's glow at (x+2, 4.35, -784)). Each
+   cell is a little different (by number, not random). D-10 is empty. */
+function penCellFit(g,i){const k=penKit(),{MT,M}=k,{A,B,Cy,rod}=k.H(g),x=PENC.X0+i*PENC.W,mine=i==PENC.MINE,vac=i==9,SS=M(0xa0a6ac,{metalness:.5,roughness:.35}),ST=M(0x7a8088,{metalness:.5,roughness:.4});
+ const BL=[0x6e7276,0x2a3a5a,0x6a4a2a,0x4a5a3a,0xd86a20,0x5a2a2a,0x6e7276,0x2a3a5a,0x4a5a3a,0,0x6a4a2a][i];
+ /* the bunk */B(.92,.06,2.0,ST,x+.58,.42,-784.5);B(.04,.12,1.98,ST,x+1.06,.4,-784.5);for(const z of[-785.3,-783.7])rod([x+.12,.03,z],[x+.9,.39,z],.025,ST);
+ if(vac){Cy(.2,.2,.84,M(0x4a6a7a,{roughness:.8}),x+.58,.65,-785.2,'x',null,14);B(.5,.12,.1,MT.dark,x+.6,.51,-783.8)}
+ else{B(.86,.12,1.9,M(0x4a6a7a,{roughness:.8}),x+.58,.51,-784.5);B(.55,.1,.32,M(0xe8e4dc,{roughness:1}),x+.55,.62,-785.2);
+  if(mine||i%3==1)B(.88,.03,1.2,M(BL,{roughness:1}),x+.58,.585,-784.05);else B(.6,.08,.4,M(BL,{roughness:1}),x+.58,.61,-783.75)}
+ /* the toilet and basin */B(.6,1.0,.35,SS,x+3.4,.5,-786.675);B(.44,.012,.22,MT.dark,x+3.4,1.006,-786.66);Cy(.015,.015,.13,SS,x+3.4,1.065,-786.8,null,null,6);B(.03,.03,.08,SS,x+3.4,1.10,-786.75);for(const s of[-1,1])Cy(.025,.025,.02,MT.dark,x+3.4+s*.15,.85,-786.495,'z',null,8);
+ Cy(.2,.16,.4,SS,x+3.4,.2,-786.3,null,null,16);const ts=A(new THREE.TorusGeometry(.15,.035,6,16),SS,x+3.4,.41,-786.3);ts.rotation.x=Math.PI/2;Cy(.12,.12,.01,MT.dark,x+3.4,.405,-786.3,null,null,14);
+ /* the shelf over the bunk's head, and what is on it */B(.8,.03,.26,ST,x+.55,1.65,-786.72);for(const s of[.25,.85])B(.03,.15,.2,ST,x+s,1.56,-786.75);
+ if(!vac){const it=[[0,1],[1,0],[2,2],[0,2],[1,1],[2,0],[1,2],[0,0],[2,1],[0,0],[1,0]][i];for(let b=0;b<1+it[0];b++)B(.04,.22-b*.02,.16,M([0x8a2a2a,0x2a4a7a,0x3a5a3a][b]),x+.25+b*.05,1.665+(.22-b*.02)/2,-786.7);
+  if(it[1]>0)Cy(.045,.04,.11,M(mine?0xe8e0d0:[0xe8e0d0,0x3a6aa0,0xd8a020][i%3]),x+.62,1.72,-786.7,null,null,10);if(it[1]>1)B(.12,.16,.06,M(0x5a8a5a),x+.82,1.745,-786.72)}
+ /* the desk and stool on the east wall */if(!mine){B(.5,.04,.9,SS,x+3.63,.76,-783.6);for(const z of[-783.9,-783.3])rod([x+3.88,.4,z],[x+3.45,.74,z],.02,SS);Cy(.04,.06,.44,SS,x+3.1,.22,-783.6,null,null,8);Cy(.17,.17,.05,SS,x+3.1,.465,-783.6,null,null,14);
+  if(!vac&&i%2==0)B(.3,.03,.22,M(0xe8e4d8),x+3.62,.795,-783.7);if(!vac&&i%4==1){const cb=k.can(64,64,(c,w,h)=>{for(let a=0;a<8;a++)for(let b=0;b<8;b++){c.fillStyle=(a+b)%2?'#3a3430':'#d8d0c0';c.fillRect(a*8,b*8,8,8)}});B(.3,.02,.3,M(0x6a4a2a),x+3.62,.79,-783.5);const p=A(new THREE.PlaneGeometry(.28,.28),new THREE.MeshStandardMaterial({map:cb}),x+3.62,.81,-783.5);p.rotation.x=-Math.PI/2}}
+ /* pictures on the wall over the bunk (plain colour prints) and a calendar on the back wall */if(!vac){const n=(i*7)%4;for(let j=0;j<n;j++){const p=A(new THREE.PlaneGeometry(.18,.24),M([0xc8b080,0x80a0c0,0xc09090,0x90b090][(i+j)%4],{roughness:.9}),x+.13,1.3+(j%2)*.08,-785.0+j*.3);p.rotation.y=Math.PI/2}
+  if(i%2){const t=k.can(64,96,(c,w,h)=>{c.fillStyle='#f0ece0';c.fillRect(0,0,w,h);c.fillStyle='#a02020';c.fillRect(0,0,w,22);c.strokeStyle='#888';for(let a=0;a<7;a++)for(let b=0;b<5;b++)c.strokeRect(2+a*8.5,28+b*13,8.5,13);c.strokeStyle='#202020';c.lineWidth=2;for(let a=0;a<(i*3)%9+3;a++){c.beginPath();c.moveTo(3+(a%7)*8.5,29+(a/7|0)*13);c.lineTo(10+(a%7)*8.5,40+(a/7|0)*13);c.stroke()}});A(new THREE.PlaneGeometry(.3,.45),new THREE.MeshStandardMaterial({map:t,roughness:.9}),x+2.3,1.6,-786.84)}}
+ /* the caged ceiling light */Cy(.18,.18,.04,MT.dark,x+2,4.58,-784,null,null,14);const ln=A(new THREE.SphereGeometry(.13,12,6,0,Math.PI*2,0,Math.PI/2),M(0xfff4d8,{emissive:0xffe8c0}),x+2,4.56,-784);ln.rotation.x=Math.PI;for(const r of[0,Math.PI/2])B(.29,.015,.015,MT.dark,x+2,4.42+r*.0035,-784).rotation.y=r;for(const[a,b]of[[.15,0],[-.15,0],[0,.15],[0,-.15]])B(.015,.18,.015,MT.dark,x+2+a,4.49,-784+b);
+ if(mine)Cy(.12,.12,.012,MT.dark,-450.2,.036,-784.2,null,null,14);
+ penNoSeam(g)}
+/* all eleven cells. Returns {doors:[11 groups], flap (yours), grate, grate2} */
+function penCells(g){penCellWalls(g);const r={doors:[]};for(let i=0;i<PENC.N;i++){penCellFront(g,i);penCellFit(g,i);const d=penCellDoor(i==PENC.MINE);d.door.position.set(PENC.X0+i*PENC.W+2,0,-780.88);g.add(d.door);r.doors.push(d.door);if(d.flap)r.flap=d.flap}
+ r.grate=penVentGrate();r.grate.position.set(-450,.6,-786.82);g.add(r.grate);r.grate2=penVentGrate();r.grate2.rotation.order='YXZ';r.grate2.rotation.set(-Math.PI/2,.4,0);r.grate2.position.set(-451.2,.05,-786.2);r.grate2.visible=false;g.add(r.grate2);return r}
+
+/* ---------------- corridor A ---------------- */
+/* a caged strip light against the ceiling (the game's lamps at x -464..-416 every 8 m, z -778.5; the same rows at -760 and
+   -746 in the other rooms can use it too) */
+function penCeilLamp(g,x,z){const k=penKit(),{MT,M}=k,{B}=k.H(g);B(1.3,.08,.36,MT.dark,x,4.56,z);B(1.2,.02,.28,M(0xfff8e0,{emissive:0xfff0c0}),x,4.515,z);for(let j=-2;j<=2;j++)B(.015,.1,.36,MT.dark,x+j*.28,4.47,z);for(const s of[-1,1])B(1.3,.015,.015,MT.dark,x,4.435,z+s*.165);penNoSeam(g)}
+/* the guard post at the corridor's east end (the game's desk at x -411.1, z -776.9; same footprint): a steel desk with a
+   drawer pedestal, a monitor on a stand, a keyboard, the log book, a mug, a chair */
+function penGuardDesk(g,x,z){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),D=M(0x3a3e44,{metalness:.4,roughness:.5});
+ B(1.7,.05,.9,M(0x8a8e94,{metalness:.3}),x,.875,z);B(.5,.85,.8,D,x+.55,.425,z);for(let j=0;j<3;j++)B(.4,.02,.02,MT.steel,x+.55,.25+j*.26,z+.4);for(const s of[-1,1])if(s<0)B(.05,.85,.8,D,x-.8,.425,z);B(1.075,.5,.03,D,x-.2375,.55,z-.4);
+ B(.08,.23,.08,MT.dark,x,1.035,z-.25);B(.25,.02,.18,MT.dark,x,.91,z-.25);B(.56,.36,.05,MT.dark,x,1.33,z-.25);const sc=A(new THREE.PlaneGeometry(.5,.3),new THREE.MeshBasicMaterial({color:0x2a6a4a}),x,1.33,z-.215);
+ B(.45,.02,.15,MT.dark,x,.91,z+.05);B(.3,.03,.22,M(0x6a2a1a),x+.45,.915,z+.1);Cy(.04,.035,.09,M(0xe8e0d0),x-.5,.945,z+.1,null,null,10);
+ /* the chair */Cy(.04,.04,.4,MT.dark,x,.25,z+.85,null,null,8);B(.45,.06,.45,MT.dark,x,.48,z+.85);B(.45,.47,.05,MT.dark,x,.735,z+1.06);for(const r of[0,Math.PI/2])B(.5,.03,.04,MT.dark,x,.03+r*.004,z+.85).rotation.y=r;penNoSeam(g);return sc}
+/* the corridor: lamps, trapeze hangers for the game's three conduits (they floated), a fire hose cabinet in the west nook,
+   the guard desk. Returns the desk's screen */
+function penCorridorA(g){const k=penKit(),{MT,M}=k,{B,Cy,lab}=k.H(g);for(let x=-464;x<-412;x+=8)penCeilLamp(g,x,-778.5);
+ for(let x=-466;x<-411;x+=4){B(.05,.05,1.2,MT.steel,x,4.18,-778.35);for(const z of[-778.92,-777.78])Cy(.012,.012,.4,MT.steel,x,4.4,z,null,null,6)}
+ B(.25,1.0,.9,M(0xb02020),-469.725,1.4,-784);B(.02,.65,.6,MT.glass,-469.59,1.325,-784);lab('FIRE HOSE',.6,.14,'#ffffff','#b02020',-469.59,1.78,-784,Math.PI/2);
+ const sc=penGuardDesk(g,-411.1,-776.9);penNoSeam(g);return{screen:sc}}
+/* ---------------- the cameras ---------------- */
+/* a ceiling camera. Its origin is the pan pivot: put it at the game's (x, 3.8, z) and turn it with rotation.y as the game
+   does (the lens looks along +z); the plate is on the ceiling (4.6). Returns {cam, led} */
+function penCamera(){const k=penKit(),{MT,M}=k,c=new THREE.Group(),{B,Cy}=k.H(c),WH=M(0xe0e0e4,{roughness:.4,metalness:.3}),GR=M(0x5a5a60,{metalness:.5,roughness:.4});
+ Cy(.13,.13,.03,GR,0,.785,0,null,null,14);Cy(.03,.03,.62,GR,0,.46,0,null,null,8);Cy(.07,.07,.1,GR,0,.1,0,null,null,12);B(.06,.08,.06,GR,0,.02,0);
+ const t=new THREE.Group();t.position.y=-.06;t.rotation.x=.3;c.add(t);const q=k.H(t);q.B(.22,.2,.44,WH,0,0,0);q.B(.28,.03,.54,M(0xc8c8cc,{metalness:.4}),0,.115,.05);q.Cy(.075,.085,.12,MT.dark,0,-.01,.27,'z',null,14);
+ const gl=new THREE.Mesh(new THREE.CircleGeometry(.06,14),new THREE.MeshBasicMaterial({color:0x2040a0}));gl.position.set(0,-.01,.336);t.add(gl);const led=new THREE.Mesh(new THREE.SphereGeometry(.022,6,6),new THREE.MeshBasicMaterial({color:0xff2020}));led.position.set(.09,.06,.2);t.add(led);
+ penNoSeam(c);return{cam:c,led}}
