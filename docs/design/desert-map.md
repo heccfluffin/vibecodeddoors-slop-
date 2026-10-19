@@ -60,7 +60,18 @@ map code to update. `mapBaseDraw` and the hard-coded penitentiary boxes are repl
 - Inside Fort Blackout, base-building names within 70 m.
 - Same scale as now (2 px a metre), same size and spot on screen.
 
-### 5. Under the hood
+### 5. Smooth zoom (the user, 2026-10-19)
+- Zoom **glides** to its target instead of jumping: each frame `zm += (target - zm) * (1 - exp(-dt * 14))`, snapping
+  when within .002. The world point under the cursor (or between two fingers) stays under it while it glides.
+- Mouse wheel: the target is multiplied by `exp(-deltaY * .0022)` (deltaY clamped to ±300; line-mode wheels x33), so
+  trackpads zoom smoothly and a mouse notch is about x1.25 as now. Pinch: the target follows the finger spread. The
+  + / - buttons (if any) step x1.6.
+- Zoom range 1 to 6. Below 1.35 the view slides back towards the whole-map centre, reaching it at 1 (no snap).
+- `prefers-reduced-motion`: jump straight to the target.
+- The map only redraws while the zoom is moving (then at frame rate), as the drag does now.
+- Reference: `zoomTo` and `glide` in the preview (`models/desert-map.js` has the renderer; the glide is ~15 lines).
+
+### 6. Under the hood
 - One view constant (`DMAPV = {cx: 0, cz: -1310, span: 1460}` or similar) used by every place that needs the full
   map's centre and scale (the five spots above), so they can't drift apart.
 - The `MAJ` regex goes; the label class comes from `cls()`, `AREAS` and `DROP`. Warp (`dmapWarpWire`) uses the same
@@ -69,7 +80,7 @@ map code to update. `mapBaseDraw` and the hard-coded penitentiary boxes are repl
   (it uses `&&` now, so it only skips things far on both axes).
 - Redraw rate unchanged.
 
-### 6. When new places are built
+### 7. When new places are built
 Add an `AREAS` row when a new place goes in (with its kind), and nothing else: its buildings appear by themselves.
 The rows for the pyramid, the crash site, the lake, the observatory and Dino Dan's are already in (they exist now and
 keep their footprints in their specs). Hangar 1 is inside Fort Blackout. Dusty Gulch keeps its footprint.

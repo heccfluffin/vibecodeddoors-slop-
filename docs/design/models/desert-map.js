@@ -115,3 +115,17 @@ function drawMini(){draw(mm,{cx:me.x,cz:me.z,s:2,z:9},{round:1,mini:1,me});const
  document.getElementById('where').textContent=t;const[t1,t2]=t.split(' · ');mx.save();const F=getComputedStyle(document.body).getPropertyValue('--disp');mx.font='700 20px '+F;const w1=mx.measureText(t1.toUpperCase()).width;mx.font='600 16px '+F;const w2=t2?mx.measureText(t2).width:0,w=Math.min(220,Math.max(w1,w2)+20),h=t2?50:30;
  mx.fillStyle='rgba(43,34,24,.85)';mx.beginPath();mx.roundRect?mx.roundRect(150-w/2,30,w,h,6):mx.rect(150-w/2,30,w,h);mx.fill();mx.fillStyle='#f8f0e0';mx.textAlign='center';mx.textBaseline='middle';mx.font='700 20px '+F;mx.fillText(t1.toUpperCase(),150,46,w-12);if(t2){mx.font='600 16px '+F;mx.fillStyle='#e8d8b0';mx.fillText(t2,150,68,w-12)}mx.restore()}
 function redraw(){V.s=900/1460*V.z;draw(cv,V,{me});drawMini()}
+
+/* ----- the zoom glide (from the preview; cv is the 900 px map canvas, V the view, redraw() draws) ----- */
+/* ---------- zoom, pan, click: zoom glides to its target and keeps the point under the cursor still ---------- */
+const HOME={cx:0,cz:-1310},ZM={t:1,ax:0,az:0,px:450,py:450,raf:0,last:0};
+const scaleOf=z=>900/1460*z;
+function zoomTo(f,px,py){const r=cv.getBoundingClientRect(),sx=900/r.width;ZM.px=px*sx;ZM.py=py*sx;ZM.ax=(ZM.px-450)/V.s+V.cx;ZM.az=(ZM.py-450)/V.s+V.cz;
+ ZM.t=Math.max(1,Math.min(6,ZM.t*f));if(!ZM.raf){ZM.last=performance.now();ZM.raf=requestAnimationFrame(glide)}}
+function glide(now){const dt=Math.min(.05,(now-ZM.last)/1000);ZM.last=now;const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,k=reduce?1:1-Math.exp(-dt*14);
+ V.z+=(ZM.t-V.z)*k;if(Math.abs(ZM.t-V.z)<.002)V.z=ZM.t;V.s=scaleOf(V.z);
+ /* keep the anchor under the cursor; as the zoom comes back to 1, slide home */
+ const cx=ZM.ax-(ZM.px-450)/V.s,cz=ZM.az-(ZM.py-450)/V.s,h=Math.max(0,Math.min(1,(1.35-V.z)/.35));V.cx=cx+(HOME.cx-cx)*h;V.cz=cz+(HOME.cz-cz)*h;
+ redraw();if(V.z!==ZM.t||h>0&&h<1){ZM.raf=requestAnimationFrame(glide)}else ZM.raf=0}
+cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),d=e.deltaMode==1?e.deltaY*33:e.deltaY;zoomTo(Math.exp(-Math.max(-300,Math.min(300,d))*.0022),e.clientX-r.left,e.clientY-r.top)},{passive:false});
+document.getElementById('zin').onclick=()=>zoomTo(1.6,cv.clientWidth/2,cv.clientHeight/2);document.getElementById('zout').onclick=()=>zoomTo(1/1.6,cv.clientWidth/2,cv.clientHeight/2);
