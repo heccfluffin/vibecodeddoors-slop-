@@ -743,3 +743,155 @@ function hrmLinen(g,o){const R=hflRng(o.seed*31+16),HX=o.HX,L=o.L,out={obs:[],oc
  /* two linen cupboards at the far end: hiding spots */
  for(const sd of[-1,1])out.ward.push({x:sd*(HX-.4),z:-L+2.5,ry:sd>0?Math.PI/2:-Math.PI/2});
  return out}
+
+/* ======================================================================================================
+   BATCH 4: floor 4 (the Deep Hotel): drained pool, bathhouse, collapsed floor, sunken lounge
+   ====================================================================================================== */
+function hrmTileT(base,grout,seed,dirt){return HRM['tile'+seed]||(HRM['tile'+seed]=hflCan(256,256,seed,(x,R)=>{for(let r=0;r<8;r++)for(let c=0;c<8;c++){const v=R()*14-7;x.fillStyle='rgb('+(base[0]+v)+','+(base[1]+v)+','+(base[2]+v)+')';x.fillRect(c*32,r*32,32,32)}
+  x.fillStyle=grout;for(let i=0;i<=256;i+=32){x.fillRect(i-1,0,2,256);x.fillRect(0,i-1,256,2)}
+  for(let i=0;i<(dirt||6);i++){x.fillStyle='rgba(60,50,30,'+(.08+R()*.15)+')';hflBlob(x,R,R()*256,R()*256,10+R()*30,8+R()*24,12);x.fill()}
+  x.strokeStyle='rgba(30,30,30,.5)';x.lineWidth=1;for(let k=0;k<4;k++){let px=R()*256,py=R()*256;x.beginPath();x.moveTo(px,py);for(let i=0;i<6;i++){px+=R()*14-7;py+=R()*14-7;x.lineTo(px,py)}x.stroke()}},400))}
+/* a wall strip below the floor (rooms that go down): x from x0 to x1 at the wall line, y from y0 to 0 */
+function hrmLowWall(g,s,HX,z0,z1,y0,m){hrmBx(g,s>0?HX-.05:-HX-.05,s>0?HX+.05:-HX+.05,y0,0,z1,z0,m)}
+
+/* ===================== 17. drained pool ===================== */
+/* L 28, HX 7, HY 6. The tank is |x| < 4 from z -5 to -22: steps down the whole width at the near end (to -1.2), the
+   floor slopes to -2.2 in the middle and back up, steps up at the far end. The deck goes round it. The tank sides
+   are obstacles (no walking off the deck into the tank), the ends are the steps. */
+const HRMP={x:4,z0:-5,z1:-22,st:8,tr:.25,ri:.15,sh:-1.2,dp:-2.2};
+function hrmPoolRF(z,x){const P=HRMP;if(Math.abs(x||0)>=P.x||z>P.z0||z<P.z1)return 0;const a=P.z0-z,b=z-P.z1,sl=P.st*P.tr;
+ if(a<sl)return-Math.min(P.st,Math.floor(a/P.tr)+1)*P.ri;if(b<sl)return-Math.min(P.st,Math.floor(b/P.tr)+1)*P.ri;
+ const m0=P.z0-sl-4,m1=P.z1+sl+3;if(z>m0)return P.sh;if(z<m1)return P.sh;const zc=(m0+m1)/2,hw=(m0-m1)/2;const t=Math.min(1,Math.max(0,(hw-Math.abs(z-zc))/2.5));return P.sh+(P.dp-P.sh)*t}
+function hrmPool(g,o){const P=HRMP,R=hflRng(o.seed*31+17),HX=o.HX,L=o.L,ez=-L-1,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[],lamps:[],rf:hrmPoolRF,noFloor:1};
+ const tile=new THREE.MeshStandardMaterial({map:hrmTileT([150,186,196],'#5a6a70',701,10),roughness:.5}),deck=new THREE.MeshStandardMaterial({map:hrmTileT([196,190,176],'#6a6458',702,8),roughness:.7}),cop=hrmM('coping',{color:0xd8d4c8,roughness:.6}),bot=-2.5;
+ /* the deck: near end, far end, and the two sides */
+ hrmSlab(g,-HX,HX,bot,0,P.z0,1,deck);hrmSlab(g,-HX,HX,bot,0,ez,P.z1,deck);for(const s of[-1,1])hrmSlab(g,s>0?P.x:-HX,s>0?HX:-P.x,bot,0,P.z1,P.z0,deck);
+ /* the tank floor: steps at both ends, then the floor in strips that follow the slope */
+ for(let k=0;k<P.st;k++){const y=-(k+1)*P.ri;hrmSlab(g,-P.x,P.x,bot,y,P.z0-(k+1)*P.tr,P.z0-k*P.tr,tile);hrmSlab(g,-P.x,P.x,bot,y,P.z1+k*P.tr,P.z1+(k+1)*P.tr,tile);
+  for(const z of[P.z0-k*P.tr,P.z1+k*P.tr])hrmBx(g,-P.x+.01,P.x-.01,y+P.ri-.03,y+P.ri+.006,z-.03,z+.03,cop)}
+ const za=P.z0-P.st*P.tr,zb=P.z1+P.st*P.tr;for(let z=za;z>zb+.001;z-=.5){const z2=Math.max(zb,z-.5),y=hrmPoolRF((z+z2)/2,0);hrmSlab(g,-P.x,P.x,bot,y,z2,z,tile)}
+ /* lane lines on the tank floor, the old water in the deep end, leaves */
+ for(const x of[-2,0,2])for(let z=za-.3;z>zb+.3;z-=.5){const z2=z-.5,y=hrmPoolRF(z-.25,0);hrmBx(g,x-.12,x+.12,y,y+.008,z2+.02,z-.02,hrmM('lane',{color:0x1a3a5a,roughness:.5}))}
+ const pd=new THREE.Mesh(new THREE.CircleGeometry(1.6,28),hrmM('poolW',{color:0x1a2a1a,roughness:.05,metalness:.3,transparent:true,opacity:.85}));pd.rotation.x=-Math.PI/2;pd.scale.set(1.4,1,1);pd.position.set(.4,P.dp+.022,(za+zb)/2);g.add(pd);
+ for(let i=0;i<20;i++){const z=za-R()*(za-zb),y=hrmPoolRF(z,0),l=new THREE.Mesh(new THREE.PlaneGeometry(.1,.06),hrmM('leaf',{color:[0x6a4a20,0x4a3a18][i%2],roughness:.9,side:THREE.DoubleSide}));l.rotation.x=-Math.PI/2;l.rotation.z=R()*6;l.position.set((R()-.5)*7,y+.012,z);g.add(l)}
+ /* the tank's side walls (tiled) are the deck slabs' faces; coping along the edges; the edges are obstacles */
+ for(const s of[-1,1]){hrmBx(g,s>0?P.x-.02:-P.x-.28,s>0?P.x+.28:-P.x+.02,0,.06,P.z1-.02,P.z0+.02,cop);out.obs.push({x0:s*P.x-.12,x1:s*P.x+.12,z0:P.z1,z1:P.z0})}
+ for(const z of[P.z0,P.z1])hrmBx(g,-P.x-.29,P.x+.29,0,.066,z==P.z0?z-.02:z-.28,z==P.z0?z+.28:z+.02,cop);
+ /* depth marks on the tank walls, chrome ladders on the sides (decoration) */
+ for(const[z,t]of[[za-1,'1.2 M'],[(za+zb)/2,'2.2 M'],[zb+1,'1.2 M']])for(const s of[-1,1]){const y=hrmPoolRF(z,0);const p=hflPlane(g,.5,.18,100,36,(c,w,h)=>{c.fillStyle='rgba(0,0,0,0)';c.clearRect(0,0,w,h);c.fillStyle='#1a2a4a';c.font='bold 28px DoorsSans,Arial,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(t,w/2,h/2+1)});p.material.transparent=true;p.position.set(s*(P.x-.012),Math.min(-.35,y+.9),z);p.rotation.y=s>0?-Math.PI/2:Math.PI/2}
+ const chrome=hrmM('chrome',{color:0xd0d4d8,roughness:.15,metalness:.5});for(const s of[-1,1]){const z=-12+s*2.5,lad=new THREE.Group();lad.position.set(s*P.x,0,z);g.add(lad);
+  for(const dz of[-.25,.25]){const cv=new THREE.CatmullRomCurve3([new THREE.Vector3(s*.35,0,dz),new THREE.Vector3(s*.2,.9,dz),new THREE.Vector3(-s*.15,.7,dz),new THREE.Vector3(-s*.15,-1.6,dz)]);lad.add(new THREE.Mesh(new THREE.TubeGeometry(cv,24,.025,8,false),chrome))}
+  for(const y of[-.5,-1,-1.5]){const r=hflCy(lad,.015,.015,.5,chrome,-s*.15,y,0,6);r.rotation.x=Math.PI/2}}
+ /* a springboard on one side, a lifeguard chair on the other */
+ const s=R()<.5?-1:1,bz=-13;const sb=new THREE.Group();sb.position.set(s*(P.x+1.7),0,bz);g.add(sb);hflB(sb,.5,.6,.5,cop,0,.3,0);
+ const board=hflB(sb,3.2,.06,.5,hrmM('board2',{color:0x3a6a8a,roughness:.5}),-s*1.3,.65,0);board.rotation.z=s*.04;out.obs.push({x0:s*(P.x+1.7)-.3,x1:s*(P.x+1.7)+.3,z0:bz-.3,z1:bz+.3});
+ const lg=new THREE.Group();lg.position.set(-s*(P.x+1.5),0,-12);g.add(lg);const lw=hrmM('lgW',{color:0xe8e4d8,roughness:.6});for(const[a,b]of[[-.35,-.3],[.35,-.3],[-.35,.3],[.35,.3]])hrmRod(lg,[a,0,b],[a*.7,1.8,b*.7],.03,lw);
+ hflB(lg,.6,.06,.5,lw,0,1.8,0);hflB(lg,.58,.6,.06,lw,0,2.1,.21);for(let k=1;k<5;k++)hflB(lg,.55,.04,.06,lw,0,k*.36,-.28);out.obs.push({x0:-s*(P.x+1.5)-.4,x1:-s*(P.x+1.5)+.4,z0:-12.4,z1:-11.6});
+ /* loungers on the side decks */
+ for(const[x,z]of[[s*(P.x+1.6),-7.5],[-s*(P.x+1.6),-17],[-s*(P.x+1.6),-7.5]]){const ln=new THREE.Group();ln.position.set(x,0,z);g.add(ln);hflB(ln,.6,.06,1.9,lw,0,.35,0);const bk=hflB(ln,.6,.06,.7,lw,0,.55,.85);bk.rotation.x=.6;for(const[a,b]of[[-.27,-.85],[.27,-.85],[-.27,.6],[.27,.6]])hflCy(ln,.02,.02,.32,chrome,a,.16,b,6);out.obs.push({x0:x-.35,x1:x+.35,z0:z-1,z1:z+1.2})}
+ /* the deck walls below 0 aren't seen; the room walls are the game's. Two changing booths on the near deck: hiding spots */
+ for(const sd of[-1,1])out.ward.push({x:sd*(HX-.4),z:-2.5,ry:sd>0?Math.PI/2:-Math.PI/2});
+ out.occ.push({s:-1,z:-13.5,h:9},{s:1,z:-13.5,h:9});
+ return out}
+
+/* ===================== 18. bathhouse ===================== */
+/* L 24, HX 5.5, HY 4.5. A tiled floor (its own, with two baths sunk into it: murky water, a step inside, a brass
+   spout), slatted benches, three changing booths (hiding spots), towels on hooks, buckets, drifting steam. */
+function hrmBathhouse(g,o){const R=hflRng(o.seed*31+18),HX=o.HX,L=o.L,ez=-L-1,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[],lamps:[],noFloor:1};
+ const tile=new THREE.MeshStandardMaterial({map:hrmTileT([200,200,190],'#7a7a70',711,12),roughness:.45}),inT=new THREE.MeshStandardMaterial({map:hrmTileT([60,110,110],'#2a4040',712,6),roughness:.4}),bot=-.9;
+ const baths=[[-1.6,-8.5],[1.6,-15.5]],BW=1.4,BL=1.7;
+ /* the floor: the whole room minus the two bath holes, as strips */
+ const holes=baths.map(([x,z])=>[x-BW,x+BW,z-BL,z+BL]);const xs=[-HX,...holes.flatMap(h=>[h[0],h[1]]),HX].sort((a,b)=>a-b);
+ for(let i=0;i<xs.length-1;i++){const xa=xs[i],xb=xs[i+1];if(xb-xa<.01)continue;const cut=holes.filter(h=>h[0]<xb-.01&&h[1]>xa+.01).sort((p,q)=>q[3]-p[3]);let zt=1;for(const h of cut){if(zt-h[3]>.01)hrmSlab(g,xa,xb,bot,0,h[3],zt,tile);zt=h[2]}if(zt-ez>.01)hrmSlab(g,xa,xb,bot,0,ez,zt,tile)}
+ /* the baths: tiled inside, a step, water at -.25, a raised rim (an obstacle), a spout */
+ const wm=hrmM('bathW',{color:0x2a3a30,roughness:.05,metalness:.2,transparent:true,opacity:.8});
+ for(const[x,z]of baths){hrmSlab(g,x-BW,x+BW,bot,-.6,z-BL,z+BL,inT);hrmSlab(g,x-BW,x+BW,-.6,-.3,z+BL-.4,z+BL,inT);
+  const w=new THREE.Mesh(new THREE.PlaneGeometry(BW*2,BL*2),wm);w.rotation.x=-Math.PI/2;w.position.set(x,-.25,z);g.add(w);
+  const rim=hrmM('rim',{color:0xd8d0c0,roughness:.5});hrmBx(g,x-BW-.2,x+BW+.2,0,.25,z+BL,z+BL+.2,rim);hrmBx(g,x-BW-.2,x+BW+.2,0,.25,z-BL-.2,z-BL,rim);hrmBx(g,x-BW-.2,x-BW,0,.25,z-BL,z+BL,rim);hrmBx(g,x+BW,x+BW+.2,0,.25,z-BL,z+BL,rim);
+  out.obs.push({x0:x-BW-.2,x1:x+BW+.2,z0:z-BL-.2,z1:z+BL+.2});
+  const sp=new THREE.Group();sp.position.set(x,0,z-BL-.1);g.add(sp);hflCy(sp,.06,.07,.5,hrmBrass(),0,.5,0,10);const sn=new THREE.Mesh(new THREE.TorusGeometry(.12,.025,8,12,Math.PI/2),hrmBrass());sn.position.set(0,.75,.12);sn.rotation.y=-Math.PI/2;sp.add(sn);
+  const drip=new THREE.Mesh(new THREE.SphereGeometry(.015,6,6),hrmM('drop',{color:0xc8d0d8,transparent:true,opacity:.7}));sp.add(drip);out.anims.push((dt,t)=>{const u=(t*1.3+x)%1;drip.position.set(0,.63-u*.88,.24)});
+  /* steam over the water */
+  for(let k=0;k<3;k++){const st=new THREE.Sprite(new THREE.SpriteMaterial({map:hrmGlowT(),color:0xe0e4e8,transparent:true,opacity:0,depthWrite:false}));st.scale.set(1.4,1.4,1);g.add(st);const ph=k*1.1+x;out.anims.push((dt,t)=>{const u=((t*.25+ph)%3)/3;st.position.set(x+Math.sin(ph*3)*.6,.1+u*2.2,z+Math.cos(ph*2)*.8);st.material.opacity=Math.sin(u*Math.PI)*.22;st.scale.setScalar(1+u*1.6)})}}
+ /* slatted benches along one wall, towels on hooks above */
+ const s=R()<.5?-1:1;for(const z of[-5,-11.5,-18]){const b=hrmOnWall(g,s,HX,z);for(let k=0;k<4;k++)hflB(b,2.2,.03,.08,hrmM('slat',{color:0x9a7a50,roughness:.7}),0,.45,.12+k*.1);for(const x of[-1,1])hflB(b,.06,.45,.42,hrmM('slat'),x,.225,.25);
+  for(let k=0;k<3;k++){hflCy(b,.012,.012,.08,hrmBrass(),-.7+k*.7,1.7,.04,6).rotation.x=Math.PI/2;const tw=hflB(b,.32,.6,.04,hrmM('towel'+k,{color:[0xe8e4dc,0x8ab0c0,0xd8b8a8][k],roughness:1}),-.7+k*.7,1.4,.1)}
+  out.obs.push({x0:hrmWX(s,HX,.5)[0],x1:hrmWX(s,HX,.5)[1],z0:z-1.15,z1:z+1.15});out.occ.push({s,z,h:1.3})}
+ /* three changing booths on the other wall: hiding spots (curtained) */
+ const bw=hrmOnWall(g,-s,HX,-12);for(let k=0;k<3;k++){const xc=-1.4+k*1.4;hflB(bw,.05,2.2,1.1,hrmDark(),xc-.68,1.1,.55);if(k==2)hflB(bw,.05,2.2,1.1,hrmDark(),xc+.68,1.1,.55);
+  const cg=new THREE.PlaneGeometry(1.25,1.9,10,1),Pc=cg.attributes.position;for(let i=0;i<Pc.count;i++)Pc.setZ(i,Math.sin(Pc.getX(i)*24)*.025);cg.computeVertexNormals();const c=new THREE.Mesh(cg,hrmM('bcurt',{color:0x3a5a5a,roughness:.95,side:THREE.DoubleSide}));c.position.set(xc,1.15,1.08);bw.add(c);
+  hflCy(bw,.012,.012,1.4,hrmBrass(),xc,2.12,1.08,6).rotation.z=Math.PI/2;out.ward.push({x:-s*(HX-.05)+s*.55,z:-12+(-s>0?xc:-xc),ry:-s>0?Math.PI/2:-Math.PI/2,booth:1})}
+ hflB(bw,4.25,.06,1.12,hrmDark(),0,2.23,.56);out.obs.push({x0:hrmWX(-s,HX,1.12)[0],x1:hrmWX(-s,HX,1.12)[1],z0:-14.15,z1:-9.85});out.occ.push({s:-s,z:-12,h:2.3});
+ /* wooden buckets with ladles */
+ for(const[x,z]of[[s*3.2,-8],[-s*3,-19]]){hflCy(g,.2,.17,.3,hrmM('bucket',{color:0x8a6a40,roughness:.7}),x,.15,z,14);for(const y of[.06,.24]){const r=new THREE.Mesh(new THREE.TorusGeometry(.19,.01,4,20),hrmM('iron'));r.rotation.x=Math.PI/2;r.position.set(x,y,z);g.add(r)}out.obs.push({x0:x-.24,x1:x+.24,z0:z-.24,z1:z+.24})}
+ return out}
+
+/* ===================== 19. collapsed floor ===================== */
+/* L 24, HX 4.5, HY 4. Between z -5 and -17 the floor has fallen into the room below (2 m down). Joists still cross the
+   hole; planks laid on them make a walkway that zig-zags across. Step off and you fall 2 m (no harm); a rubble slope
+   at the far end of the room below climbs back up to the far floor. */
+const HRMF={z0:-5,z1:-17,low:-2,pw:.32,path:[[-2,-5],[-2,-9.8],[1.6,-9.8],[1.6,-13.4],[-.6,-13.4],[-.6,-17]],ramp:[-14.4,-17,-.6,1.0]};
+function hrmCollapsedRF(z,x){const F=HRMF;x=x||0;if(z>F.z0||z<F.z1)return 0;const P=F.path;for(let i=0;i<P.length-1;i++){const[a,b]=[P[i],P[i+1]];const x0=Math.min(a[0],b[0])-F.pw,x1=Math.max(a[0],b[0])+F.pw,z0=Math.min(a[1],b[1])-F.pw,z1=Math.max(a[1],b[1])+F.pw;if(x>x0&&x<x1&&z>z0&&z<z1)return .03}
+ const[ra,rb,rx0,rx1]=F.ramp;if(x>rx0&&x<rx1&&z<ra&&z>rb)return F.low+(F.low*-1)*(ra-z)/(ra-rb);return F.low}
+function hrmCollapsed(g,o){const F=HRMF,R=hflRng(o.seed*31+19),HX=o.HX,L=o.L,ez=-L-1,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[],lamps:[],rf:hrmCollapsedRF,noFloor:1};
+ const bot=F.low-.2,wood=hrmM('joist',{color:0x5a3e26,roughness:.8}),plank=hrmM('plank',{color:0x8a6a44,roughness:.8});
+ /* the floor that's left: near and far, each with a ragged edge of broken boards */
+ const near=new THREE.Mesh(new THREE.BoxGeometry(HX*2,.1,1-F.z0),o.mat('floor',HX,(1-F.z0)/2));near.position.set(0,-.05,(1+F.z0)/2);g.add(near);const far=new THREE.Mesh(new THREE.BoxGeometry(HX*2,.1,F.z1-ez),o.mat('floor',HX,(F.z1-ez)/2));far.position.set(0,-.05,(F.z1+ez)/2);g.add(far);
+ for(const[ze,dir]of[[F.z0,-1],[F.z1,1]])for(let x=-HX+.1;x<HX-.1;x+=.18){const ln=.1+R()*.6;const b=hflB(g,.16,.03,ln,plank,x+.09,-.015-R()*.02,ze+dir*ln/2);b.rotation.x=dir*(R()*.25);if(R()<.3)b.rotation.z=(R()-.5)*.3}
+ /* the joists across the hole (some broken short) */
+ for(let z=F.z0-.6;z>F.z1+.3;z-=1.2){const br=R()<.25,s=R()<.5?-1:1;const x0=br?(s<0?-HX:HX-1.2-R()*1.5):-HX,x1=br?(s<0?-HX+1.2+R()*1.5:HX):HX;hrmBx(g,x0+.0,x1,-.22,0,z-.075,z+.075,wood);
+  if(br){const e=s<0?x1:x0,hb=hflB(g,.6,.2,.15,wood,e+(s<0?.25:-.25),-.35,z);hb.rotation.z=s*.5}}
+ /* joists also under the plank walkway everywhere it needs them, and the planks themselves */
+ const P=F.path;for(let i=0;i<P.length-1;i++){const[a,b]=[P[i],P[i+1]];if(Math.abs(a[0]-b[0])<.01){const zs=[a[1],b[1]].sort((p,q)=>p-q);for(const dx of[-.17,.17])hrmBx(g,a[0]+dx-.15,a[0]+dx+.15,0,.03,zs[0]-(i?.32:.0),zs[1]+(i?.32:.15),plank)}
+  else{const xs=[a[0],b[0]].sort((p,q)=>p-q);hrmBx(g,xs[0]-.32,xs[1]+.32,-.22,0,a[1]-.09,a[1]+.09,wood);for(const dz of[-.16,.16])hrmBx(g,xs[0]+.32,xs[1]-.32,.0,.03,a[1]+dz-.15,a[1]+dz+.15,plank)}}
+ /* the room below: floor, walls down to -2.2, rubble, a fallen chandelier, a broken bed, the rubble slope up */
+ hrmBx(g,-HX,HX,bot,F.low,F.z1-.1,F.z0+.1,hrmM('lowF',{color:0x2a2420,roughness:1}));for(const s of[-1,1])hrmLowWall(g,s,HX,F.z0,F.z1,bot,hrmM('lowW',{color:0x3a302a,roughness:1}));
+ for(const z of[F.z0,F.z1])hrmBx(g,-HX,HX,bot,-.1,z-(z==F.z0?-.0:.1)-.0,z+(z==F.z0?.1:0),hrmM('lowW'));
+ const rub=hrmM('rubble',{color:0x5a4a3c,roughness:1});for(let i=0;i<26;i++){const b=hflB(g,.2+R()*.5,.1+R()*.3,.2+R()*.5,i%3?rub:plank,(R()-.5)*HX*1.7,F.low+.08,F.z0-.6-R()*(F.z0-F.z1-1.2));b.rotation.set(R()*.4,R()*3,R()*.4)}
+ const ch=new THREE.Group();ch.position.set(1.8,F.low,-7.2);ch.rotation.z=.3;g.add(ch);const cr=new THREE.Mesh(new THREE.TorusGeometry(.6,.03,6,24),hrmBrass());cr.rotation.x=Math.PI/2;cr.position.y=.12;ch.add(cr);for(let k=0;k<6;k++){const a=k/6*Math.PI*2;hflCy(ch,.015,.015,.12,hrmCream(),Math.cos(a)*.6,.2,Math.sin(a)*.6,6)}
+ const bed=new THREE.Group();bed.position.set(-2.6,F.low,-13);bed.rotation.y=.3;g.add(bed);hflB(bed,1.4,.3,2,hrmDark(),0,.15,0);const bm=hflB(bed,1.3,.2,1.9,hrmM('sheet'),0,.38,0);bm.rotation.z=.12;hflB(bed,1.4,.9,.08,hrmDark(),0,.45,-1);
+ const[ra,rb,rx0,rx1]=F.ramp;for(let k=0;k<8;k++){const z0=ra-(ra-rb)*k/8,z1=ra-(ra-rb)*(k+1)/8,y=F.low-F.low*(k+1)/8;hrmBx(g,rx0,rx1,bot,y,z1,z0,rub)}
+ for(let i=0;i<10;i++){const b=hflB(g,.3+R()*.4,.2+R()*.2,.3+R()*.4,rub,(R()<.5?rx0-.25:rx1+.25),F.low+.1+R()*1.2,ra-R()*(ra-rb));b.rotation.set(R(),R()*3,R())}
+ out.lamps.push({x:0,y:F.low+1,z:(F.z0+F.z1)/2,c:0xff9060,i:.35,d:8});
+ /* torn caution tape across the near edge, a DANGER sign */
+ const tape=hrmM('tape',{color:0xe8c020,roughness:.6,side:THREE.DoubleSide});for(const s of[-1,1]){const p0=new THREE.Vector3(s*(HX-.05),1.0,F.z0+.3),p1=new THREE.Vector3(s*1.7,.014,F.z0+.6);const tb=new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(p0,new THREE.Vector3(s*2.8,.3,F.z0+.4),p1),12,.012,3,false),tape);g.add(tb)}
+ const sg=hflPlane(g,.6,.4,90,60,(c,w,h)=>{c.fillStyle='#f0e8d0';c.fillRect(0,0,w,h);c.fillStyle='#c02020';c.fillRect(0,0,w,18);c.fillStyle='#f0e8d0';c.font='bold 14px DoorsSans,Arial,sans-serif';c.textAlign='center';c.fillText('DANGER',w/2,14);c.fillStyle='#202020';c.font='bold 11px DoorsSans,Arial,sans-serif';c.fillText('FLOOR UNSAFE',w/2,36);c.fillText('KEEP OUT',w/2,52)});sg.position.set(-(HX-.05-.012),1.6,F.z0+1.2);sg.rotation.y=Math.PI/2;
+ out.occ.push({s:-1,z:(F.z0+F.z1)/2,h:6.2},{s:1,z:(F.z0+F.z1)/2,h:6.2});
+ return out}
+
+/* ===================== 20. sunken lounge ===================== */
+/* L 24, HX 6, HY 4. Three steps down (.15 each) at z -5..-6, a wet lounge at -.45 from -6 to -17, three steps up. */
+const HRMS={a:-5,b:-17,n:3,tr:.34,ri:.15};
+function hrmSunkenRF(z){const S=HRMS,lo=-S.n*S.ri;if(z>S.a)return 0;if(z>S.a-S.n*S.tr)return-Math.min(S.n,Math.floor((S.a-z)/S.tr)+1)*S.ri;if(z>S.b+S.n*S.tr)return lo;if(z>S.b)return-Math.min(S.n,Math.floor((z-S.b)/S.tr)+1)*S.ri;return 0}
+function hrmSofa(g,x,z,ry,len,col){const s=new THREE.Group();s.position.set(x,0,z);s.rotation.y=ry;g.add(s);const m=hrmM('sofa'+col,{color:col,roughness:.9});
+ hflB(s,len,.4,.9,m,0,.2,0);hflB(s,len-.02,.5,.22,m,0,.65,.34);for(const sx of[-1,1])hflB(s,.2,.25,.9,m,sx*(len/2-.1),.52,0);const n=Math.round(len/.7);for(let k=0;k<n;k++)hflB(s,(len-.44)/n-.02,.12,.6,hrmM('sofaC'+col,{color:col,roughness:1}),-len/2+.22+((len-.44)/n)*(k+.5),.46,-.08);return s}
+function hrmSunken(g,o){const S=HRMS,R=hflRng(o.seed*31+20),HX=o.HX,L=o.L,ez=-L-1,lo=-S.n*S.ri,out={obs:[],occ:[],ward:[],dres:[],trimGaps:[],anims:[],lamps:[],rf:hrmSunkenRF,noFloor:1};
+ const fl=(a,b,w)=>o.mat('floor',w/2,(a-b)/2),bot=lo-.15,wet=hrmM('wetC',{color:0x2a1416,roughness:.35,metalness:.1}),nose=hrmM('stepN',{color:0x3a2014,roughness:.6});
+ /* the upper floors, the steps, the sunken floor (wet, dark carpet) */
+ hrmBx(g,-HX,HX,bot,0,S.a,1,fl(1,S.a,HX*2));hrmBx(g,-HX,HX,bot,0,ez,S.b,fl(S.b,ez,HX*2));
+ for(let k=0;k<S.n;k++){const y=-(k+1)*S.ri;for(const[za,dir]of[[S.a,-1],[S.b,1]]){const z0=za+dir*k*S.tr,z1=za+dir*(k+1)*S.tr;hrmBx(g,-HX,HX,bot,y,Math.min(z0,z1),Math.max(z0,z1),k?wet:fl(1,0,2));hrmBx(g,-HX+.01,HX-.01,y+S.ri-.03,y+S.ri+.006,z0-.03,z0+.03,nose)}}
+ hrmBx(g,-HX,HX,bot,lo,S.b+S.n*S.tr,S.a-S.n*S.tr,wet);for(const s of[-1,1])hrmLowWall(g,s,HX,S.a,S.b,bot,hrmM('lowW2',{map:hrmPanelT(),roughness:.6}));
+ /* standing water patches */
+ const s0=hflRng(o.seed*31+99)()<.5?-1:1;for(let i=0;i<5;i++){const sh=new THREE.Shape();const rx=.5+R()*.8,rz=.4+R()*.6;for(let k=0;k<=20;k++){const a=k/20*Math.PI*2,q=.8+R()*.3;k?sh.lineTo(Math.cos(a)*rx*q,Math.sin(a)*rz*q):sh.moveTo(Math.cos(a)*rx*q,Math.sin(a)*rz*q)}
+  const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),hrmM('pud',{color:0x140806,roughness:.04,metalness:.3,transparent:true,opacity:.85}));m.rotation.x=-Math.PI/2;m.position.set(-s0*(1.5+R()*3.5),lo+.014+i*.003,-7-R()*9);g.add(m)}
+ /* a dead fireplace on one side, sofas in a U facing it, a coffee table, a big rug */
+ const s=s0,fz=-11.5,fp=hrmOnWall(g,s,HX,fz);fp.position.y=lo;hflB(fp,2.2,1.3,.5,hrmM('stoneF',{color:0x6a6058,roughness:.9}),0,.65,.25);hflB(fp,2.5,.1,.62,hrmDark(),0,1.35,.3);hflB(fp,1.0,.75,.06,hrmM('soot',{color:0x0c0a08,roughness:1}),0,.42,.475);
+ for(let k=0;k<5;k++){const lg=hflCy(fp,.05,.05,.5+k*.03,hrmM('charL',{color:0x1a1410,roughness:1}),-.2+k*.1,.08+(k%2)*.07,.35,6);lg.rotation.z=Math.PI/2;lg.rotation.y=(k-2)*.2}
+ const mr=hflB(fp,1.0,1.1,.03,hrmM('mirrorD',{color:0x3a4044,roughness:.2,metalness:.4}),0,2.1,.03);hflB(fp,1.1,1.2,.025,hrmM('picF',{color:0x8a6a2a}),0,2.1,.0125);
+ out.obs.push({x0:hrmWX(s,HX,.62)[0],x1:hrmWX(s,HX,.62)[1],z0:fz-1.25,z1:fz+1.25});out.occ.push({s,z:fz,h:1.4});
+ const cx=s*(HX-3.4);const sg=new THREE.Group();sg.position.y=lo;g.add(sg);
+ hrmBx(sg,cx-2,cx+2,0,.012,fz-2.2,fz+2.2,hrmM('rugD',{map:hrmRugT(),roughness:1}));
+ hrmSofa(sg,cx-s*1.5,fz,s>0?-Math.PI/2:Math.PI/2,2.6,0x4a2a3a);hrmSofa(sg,cx,fz-1.9,Math.PI,2.2,0x3a2a2a);hrmSofa(sg,cx,fz+1.9,0,2.2,0x3a2a2a);
+ hflB(sg,1.2,.06,.7,hrmDark(),cx+s*.1,.4,fz);for(const[a,b]of[[-.5,-.28],[.5,-.28],[-.5,.28],[.5,.28]])hflB(sg,.05,.37,.05,hrmDark(),cx+s*.1+a,.185,fz+b);
+ out.obs.push({x0:Math.min(cx-s*2,cx+s*.8),x1:Math.max(cx-s*2,cx+s*.8),z0:fz-2.4,z1:fz+2.4});
+ /* a knocked-over floor lamp, a dead palm, a drinks cart */
+ const fl2=new THREE.Group();fl2.position.set(-s*2,lo,-8);fl2.rotation.z=1.45;g.add(fl2);fl2.position.y=lo+.12;hflCy(fl2,.15,.15,.03,hrmBrass(),0,0,0,12);hflCy(fl2,.015,.015,1.5,hrmBrass(),0,.75,0,6);const sh2=new THREE.Mesh(new THREE.CylinderGeometry(.15,.25,.3,14,1,true),hrmM('lshade2',{color:0xa89878,side:THREE.DoubleSide}));sh2.position.y=1.55;fl2.add(sh2);
+ const palm=new THREE.Group();palm.position.set(-s*(HX-.7),lo,-15.8);g.add(palm);hflCy(palm,.3,.24,.5,hrmM('terra',{color:0xb0603a}),0,.25,0,14);hflCy(palm,.05,.07,1.4,hrmM('bark',{color:0x3a2a1c}),0,1.2,0,8);
+ for(let k=0;k<6;k++){const a=k/6*Math.PI*2,lf=new THREE.Mesh(new THREE.PlaneGeometry(.18,.9,1,4),hrmM('deadP',{color:0x6a5434,side:THREE.DoubleSide}));const P2=lf.geometry.attributes.position;for(let i=0;i<P2.count;i++){const v=(P2.getY(i)+.45)/.9;P2.setZ(i,v*v*.5)}lf.geometry.translate(0,.45,0);lf.geometry.computeVertexNormals();
+  const pv=new THREE.Group();pv.position.y=1.9;pv.rotation.y=a;palm.add(pv);lf.rotation.x=1.2;pv.add(lf)}out.obs.push({x0:-s*(HX-.7)-.35,x1:-s*(HX-.7)+.35,z0:-16.15,z1:-15.45});
+ const dc=new THREE.Group();dc.position.set(-s*2.4,lo,-14.2);g.add(dc);for(const y of[.3,.75])hflB(dc,.8,.03,.45,hrmBrass(),0,y,0);for(const[a,b]of[[-.38,-.2],[.38,-.2],[-.38,.2],[.38,.2]])hflCy(dc,.012,.012,.78,hrmBrass(),a,.4,b,6);
+ for(let k=0;k<4;k++)hflCy(dc,.04,.04,.25,hrmM('bot'+(k%4),{color:[0x2a5a2a,0x6a3a10,0xc8c8b8,0x3a2a5a][k%4],roughness:.2,transparent:true,opacity:.85}),-.25+k*.17,.89,0,8);out.obs.push({x0:-s*2.4-.45,x1:-s*2.4+.45,z0:-14.45,z1:-13.95});
+ /* wardrobes up on the near and far floors */
+ out.ward.push({x:-s*(HX-.4),z:-2.6,ry:-s>0?Math.PI/2:-Math.PI/2},{x:s*(HX-.4),z:-19.4,ry:s>0?Math.PI/2:-Math.PI/2});
+ out.occ.push({s:-1,z:-11,h:6.3},{s:1,z:-11,h:6.3});
+ return out}

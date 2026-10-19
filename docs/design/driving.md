@@ -1,4 +1,4 @@
-Status: proposed
+Status: done another way in r605 (the shared AI driver, `dx601`: squads, autopilot, police); nothing left to build from this spec
 
 # AI driving: squads and the Wraith autopilot
 
