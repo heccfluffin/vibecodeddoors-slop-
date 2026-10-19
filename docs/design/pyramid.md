@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-18 · batches 1-4 approved · batch 5 (undercroft, Jackal, Sun) in review
+Status: layout approved 2026-10-18 · batches 1-5 approved · batch 6 (Song, Sand, tomb) in review
 
 # The Pyramid rework (remodel list #20)
 
@@ -94,3 +94,19 @@ puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the und
 - Sun: the gold reflector → `pySunSource()` at (sx, by, sz) (keep the shaft box and glow); the disc and its 12 rays →
   `pySunTarget()` at (tx, by, bz(3)-1.6), and use its `userData.disc` as `disc` (its emissive lights up as now).
   Mirrors: the pedestal → `pyMirrorStand()` in `gr`; the frame and the two mirror faces → `pyMirrorHead()` in `piv`.
+
+## Notes for the wiring (batch 6: Song, Sand, the tomb)
+- Song: each gong's two posts and beam → `pyGongFrame(g, x, z)`; the disc `d` → `pyGongDisc()` (same place, still
+  wobbled and lit through `d.material.emissive`); the label planes' material → `pyGongLabel(k)` (signs drawn; the
+  game's '𓂀' label needed a font some PCs lack). The priest's parts → `pyPriest()` in `pr` (same spot and turn).
+  The HUD and caption texts that print `SY[k]` are unchanged.
+- Sand: each lever's base box → `pyLeverPlate(g, x, Y+1.4, z, sd)`; in `h`, the handle and knob → `pyLeverHandle()`
+  (same pivot and swing). The sand box's material → `pySandMats().sand` (the game already scrolls its map); the four
+  fall columns' material → `pySandMats().fall` (scroll `map.offset.y -= dt*1.5` while pouring). Add
+  `pySandCracks(g)`. **Move the Sand tablet** from (bx(18), bz(10)-1.25, ry 0) to (bx(18)-1.58, bz(10)+.2, ry π/2):
+  it hung 10 cm in front of the Song gate, so it floated in the open doorway once the gate sank.
+- Tomb: the coffin base, stripes, gold top, face and headdress → `pyKhufuCoffin()` at (tx, Y, tz) (same footprint;
+  its top is now Y+1.6, the blk is unchanged). Guardians → `pyJackal({scale: 1.45})`. `gp` → `pyGoldPile(1.1)`. The
+  four jars → `pyCanopic(0..3)`. The Heart's pedestal → `pyHeartPedestal()`; `ht`'s geometry → `pyHeartGeo()` (same
+  material, spin, beat and glow). The two floating bowls → `pyWallBowl(g, x, Y+1.6, bz(20)+1.45)` (bracket into the
+  wall; keep the glow sprites). The secret stone → `pyGateSlab(.5, HH, 3.2, 'tomb')` like the other gates.

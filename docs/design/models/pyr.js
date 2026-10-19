@@ -39,13 +39,14 @@ function pyKit(){if(pyKit.K)return pyKit.K;const C={};const M=(c,o)=>{const k=c+
   const flame=(x,y,z,s,p)=>{const g=new THREE.Group();g.position.set(x,y,z);(p||par).add(g);const a=new THREE.Mesh(new THREE.ConeGeometry(.16*s,.5*s,8,1,true),MT.flame);a.position.y=.25*s;g.add(a);const b=new THREE.Mesh(new THREE.ConeGeometry(.08*s,.3*s,8,1,true),MT.flame2);b.position.y=.15*s;g.add(b);g.userData.dpKeep=1;g.userData.flick=t=>{const k=1+Math.sin(t*15+x)*.12+Math.sin(t*7.7+z)*.08;g.scale.set(1,k,1)};return g};
   return{A,B,Cy,rod,lab,flame}};
  pyKit.K={M,MT,T,can,boxGeo,H,R};return pyKit.K}
-/* draws one carved sign at (cx,cy), size r, with paths (no font needed): 0 ankh, 1 eye, 2 sun, 3 water, 4 bird, 5 scarab */
+/* draws one carved sign at (cx,cy), size r, with paths (no font needed): 0 ankh, 1 eye, 2 sun, 3 water, 4 bird, 5 scarab, 6 snake */
 function pyGlyph(x,t,cx,cy,r){x.save();x.translate(cx,cy);x.lineWidth=Math.max(2,r*.16);x.lineCap='round';x.beginPath();
  if(t==0){x.ellipse(0,-r*.55,r*.3,r*.38,0,0,7);x.moveTo(-r*.6,-r*.1);x.lineTo(r*.6,-r*.1);x.moveTo(0,-r*.17);x.lineTo(0,r)}
  else if(t==1){x.moveTo(-r*.8,0);x.quadraticCurveTo(0,-r*.7,r*.8,0);x.quadraticCurveTo(0,r*.5,-r*.8,0);x.moveTo(r*.15,0);x.arc(0,0,r*.15,0,7);x.moveTo(-r*.8,-r*.45);x.quadraticCurveTo(0,-r*.95,r*.85,-r*.35);x.moveTo(-r*.1,r*.3);x.lineTo(-r*.3,r*.9);x.quadraticCurveTo(-r*.5,r*1.0,-r*.6,r*.8)}
  else if(t==2){x.arc(0,0,r*.6,0,7);x.moveTo(r*.15,0);x.arc(0,0,r*.15,0,7)}
  else if(t==3){for(let j=-1;j<=1;j++){x.moveTo(-r*.8,j*r*.4);for(let i=0;i<4;i++)x.lineTo(-r*.8+(i+.5)*r*.4,j*r*.4+(i%2?r*.15:-r*.15)),x.lineTo(-r*.8+(i+1)*r*.4,j*r*.4)}}
  else if(t==4){x.ellipse(0,0,r*.45,r*.3,-.3,0,7);x.moveTo(r*.3,-r*.25);x.arc(r*.4,-r*.45,r*.18,0,7);x.moveTo(r*.58,-r*.45);x.lineTo(r*.8,-r*.4);x.moveTo(-r*.4,r*.1);x.lineTo(-r*.85,r*.35);x.moveTo(-r*.1,r*.3);x.lineTo(-r*.15,r*.85);x.moveTo(r*.1,r*.3);x.lineTo(r*.15,r*.85)}
+ else if(t==6){x.moveTo(-r*.85,r*.5);x.bezierCurveTo(-r*.4,-r*.2,-r*.1,r*.9,r*.3,r*.1);x.quadraticCurveTo(r*.5,-r*.35,r*.35,-r*.6);x.moveTo(r*.55,-r*.62);x.arc(r*.42,-r*.62,r*.13,0,7)}
  else{x.ellipse(0,r*.15,r*.4,r*.5,0,0,7);x.moveTo(r*.25,-r*.45);x.arc(0,-r*.45,r*.25,0,7);x.moveTo(0,-r*.35);x.lineTo(0,r*.65);for(const s of[-1,1]){x.moveTo(s*r*.4,0);x.lineTo(s*r*.8,-r*.3);x.moveTo(s*r*.4,r*.3);x.lineTo(s*r*.8,r*.5)}}
  x.stroke();x.restore()}
 const pyNoSeam=g=>g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});
@@ -264,6 +265,15 @@ function pyWallTex(kind,seed,op){op=op||{};const k=pyKit();const key='w'+kind+(s
   if(kind=='sunrays'){/* the sun with rays ending in little hands, people raising their arms */const cx=256,cy=top+90;x.fillStyle='#e8b830';x.beginPath();x.arc(cx,cy,46,0,7);x.fill();x.strokeStyle='#c89020';x.lineWidth=4;
    for(let i=0;i<9;i++){const a=Math.PI*(.15+.7*i/8);const ex=cx+Math.cos(a)*190,ey=cy+Math.sin(a)*190;x.beginPath();x.moveTo(cx+Math.cos(a)*50,cy+Math.sin(a)*50);x.lineTo(ex,ey);x.stroke();x.fillStyle='#c89020';x.beginPath();x.arc(ex,ey,6,0,7);x.fill()}
    for(const u of[90,422]){x.fillStyle='#a0582c';x.fillRect(u-10,bot-150,20,90);x.beginPath();x.arc(u,bot-165,14,0,7);x.fill();x.strokeStyle='#a0582c';x.lineWidth=8;x.beginPath();x.moveTo(u-8,bot-140);x.lineTo(u-26,bot-200);x.moveTo(u+8,bot-140);x.lineTo(u+26,bot-200);x.stroke();x.fillStyle='#f2ecdc';x.fillRect(u-14,bot-70,28,40);x.fillStyle='#a0582c';x.fillRect(u-12,bot-30,8,30);x.fillRect(u+4,bot-30,8,30)}}
+  if(kind=='music'){/* a harpist and a flute player (nobody in particular) */for(const[u,inst]of[[150,0],[370,1]]){const g0=bot-6;x.fillStyle='#a0582c';x.fillRect(u-14,g0-150,28,80);x.beginPath();x.arc(u,g0-170,16,0,7);x.fill();x.fillStyle='#14100c';x.beginPath();x.ellipse(u,g0-178,18,12,0,Math.PI,0);x.fill();x.fillStyle='#f2ecdc';x.fillRect(u-18,g0-72,36,60);x.fillStyle='#a0582c';x.fillRect(u-12,g0-12,9,12);x.fillRect(u+3,g0-12,9,12);
+    x.strokeStyle='#a0582c';x.lineWidth=8;x.lineCap='round';if(inst==0){x.beginPath();x.moveTo(u+10,g0-130);x.lineTo(u+40,g0-110);x.stroke();x.strokeStyle='#7a4a24';x.lineWidth=7;x.beginPath();x.moveTo(u+40,g0-30);x.quadraticCurveTo(u+90,g0-130,u+50,g0-200);x.stroke();x.lineWidth=2;for(let i=0;i<6;i++){x.beginPath();x.moveTo(u+42+i*4,g0-40-i*12);x.lineTo(u+50,g0-190+i*6);x.stroke()}}
+    else{x.beginPath();x.moveTo(u+10,g0-135);x.lineTo(u+30,g0-160);x.stroke();x.strokeStyle='#7a4a24';x.lineWidth=5;x.beginPath();x.moveTo(u+10,g0-168);x.lineTo(u+80,g0-120);x.stroke()}}
+   x.strokeStyle='#1e4a9a';[6,2,5,0,1].forEach((t2,i)=>pyGlyph(x,t2,90+i*82,top+34,18))}
+  if(kind=='dunes'){/* dunes under the sun, an hourglass of sand pouring */x.fillStyle='#e8b830';x.beginPath();x.arc(380,top+80,40,0,7);x.fill();x.fillStyle='#c89a50';x.beginPath();x.moveTo(0,bot);x.quadraticCurveTo(120,bot-140,260,bot-60);x.quadraticCurveTo(380,bot-180,512,bot-70);x.lineTo(512,bot);x.fill();x.fillStyle='#b08040';x.beginPath();x.moveTo(0,bot);x.quadraticCurveTo(200,bot-70,512,bot-20);x.lineTo(512,bot);x.fill();
+   const hx=120,hy=top+120;x.strokeStyle='#5a3a14';x.lineWidth=5;x.beginPath();x.moveTo(hx-40,hy-70);x.lineTo(hx+40,hy-70);x.lineTo(hx,hy);x.lineTo(hx+40,hy+70);x.lineTo(hx-40,hy+70);x.lineTo(hx,hy);x.closePath();x.stroke();x.fillStyle='#d8a050';x.beginPath();x.moveTo(hx-30,hy+64);x.lineTo(hx+30,hy+64);x.lineTo(hx,hy+20);x.fill();x.fillRect(hx-2,hy,4,40)}
+  if(kind=='busboat'){/* the Pharaoh sailing the sky: a sun boat that is, unmistakably, a bus */const cx=256,cy=top+160;x.fillStyle='#7a4a24';x.beginPath();x.moveTo(40,cy+30);x.quadraticCurveTo(256,cy+110,472,cy+30);x.lineTo(490,cy-20);x.lineTo(456,cy+40);x.quadraticCurveTo(256,cy+80,56,cy+40);x.lineTo(22,cy-20);x.fill();
+   x.fillStyle='#e0b040';x.fillRect(150,cy-60,220,80);x.fillStyle='#1e3a8a';for(let i=0;i<5;i++)x.fillRect(160+i*42,cy-50,32,28);x.fillStyle='#14100c';x.beginPath();x.arc(190,cy+22,16,0,7);x.arc(330,cy+22,16,0,7);x.fill();x.fillStyle='#b03020';x.fillRect(150,cy-6,220,8);
+   x.fillStyle='#e8b830';x.beginPath();x.arc(cx,cy-110,34,0,7);x.fill();x.strokeStyle='#1e4a9a';x.lineWidth=3;for(let r=0;r<2;r++){x.beginPath();for(let u=20;u<w-20;u+=24){x.lineTo(u,bot-30+r*14);x.lineTo(u+12,bot-40+r*14)}x.stroke()}}
   if(kind=='offer'){/* an offering table piled with bread, jars and lotus flowers */const ty=bot-120;x.fillStyle='#7a4a24';x.fillRect(200,ty,112,12);x.fillRect(250,ty,12,120);x.fillRect(220,bot-8,72,8);
    x.fillStyle='#d8a050';for(let i=0;i<4;i++){x.beginPath();x.ellipse(214+i*28,ty-16,12,16,0,0,7);x.fill()}x.fillStyle='#b03020';x.beginPath();x.ellipse(232,ty-50,14,20,0,0,7);x.fill();x.fillStyle='#2a7a8a';x.beginPath();x.ellipse(282,ty-50,14,20,0,0,7);x.fill();
    for(const s of[-1,1]){x.strokeStyle='#2a7a4a';x.lineWidth=4;x.beginPath();x.moveTo(256+s*20,ty-60);x.quadraticCurveTo(256+s*50,ty-120,256+s*70,ty-150);x.stroke();x.fillStyle='#4a8ab0';x.beginPath();x.moveTo(256+s*70,ty-150);x.lineTo(256+s*56,ty-180);x.lineTo(256+s*70,ty-170);x.lineTo(256+s*84,ty-180);x.fill()}
@@ -534,7 +544,7 @@ function pyUCeilTex(){const k=pyKit();if(k.uceil)return k.uceil;return k.uceil=k
 /* walls (painted faces on the cell lines, 1 cm proud of nothing: the game's wall boxes go), ceiling tiles with beams on
    odd columns, the floor slab (top at Y). The stairwell cell (4,14) gets no ceiling tile: pyUnderStairs lines its opening. */
 function pyUnderplan(g){const k=pyKit(),{Y,H}=PYUV,C=3.2,ceil=new THREE.Group(),mats={};g.add(ceil);const WM=(kind,sd,op)=>{op=Object.assign({old:1},op||{});const key=kind+sd+JSON.stringify(op);return mats[key]||(mats[key]=new THREE.MeshStandardMaterial({map:pyWallTex(kind,sd,op),roughness:.92}))};
- const pick=(i,j,di,dj)=>{if(PYUT.some(t=>t[0]==i&&t[1]==j&&t[2]==di&&t[3]==dj))return['torch'];const z=pyUZone(i,j);if(z=='jackal')return[(i+j)%2?'jackals':'glyph'];if(z=='sun')return[(i+j)%2?'sunrays':'glyph'];if(z=='landing')return[(i+j)%2?'walk':'glyph'];if(z=='pass')return[(i+j)%2?'plain':'glyph'];return[(i+j)%3?'glyph':'plain']};
+ const pick=(i,j,di,dj)=>{if(PYUT.some(t=>t[0]==i&&t[1]==j&&t[2]==di&&t[3]==dj))return['torch'];const z=pyUZone(i,j);if(z=='jackal')return[(i+j)%2?'jackals':'glyph'];if(z=='sun')return[(i+j)%2?'sunrays':'glyph'];if(z=='landing')return[(i+j)%2?'walk':'glyph'];if(z=='pass')return[(i+j)%2?'plain':'glyph'];if(z=='song')return[(i+j)%2?'music':'glyph'];if(z=='sand')return[(i+j)%2?'dunes':'glyph'];if(z=='tomb')return[dj>0?'busboat':(i+j)%2?'offer':'glyph'];return[(i+j)%3?'glyph':'plain']};
  for(let i=1;i<=21;i++)for(let j=1;j<=21;j++){if(!pyIsU(i,j))continue;const x=pyBx(i),z=pyBz(j);
   for(const[di,dj]of[[1,0],[-1,0],[0,1],[0,-1]]){if(pyIsU(i+di,j+dj))continue;const pk=pick(i,j,di,dj),geo=new THREE.PlaneGeometry(C,H);/* the 3.9 m panel stretched to 4.4 */
    const m=new THREE.Mesh(geo,WM(pk[0],(i*5+j*3)%4,pk[1]));m.rotation.y=di>0?-Math.PI/2:di<0?Math.PI/2:dj>0?Math.PI:0;m.position.set(x+di*C/2,Y+H/2,z+dj*C/2);g.add(m)}
@@ -588,3 +598,57 @@ function pyMirrorHead(){const k=pyKit(),{M}=k,g=new THREE.Group(),{A,B,Cy}=k.H(g
  const sun=A(new THREE.CircleGeometry(.14,16),G.gold,0,Hh/2+.12,0);B(.06,.12,.06,G.gold,0,Hh/2+.03,0);const sun2=A(new THREE.CircleGeometry(.14,16),G.gold,0,Hh/2+.12,-.001);sun2.rotation.y=Math.PI;
  g.userData.dpKeep=1;pyNoSeam(g);return g}
 function pyLandingDressing(g){const{Y}=PYUV,sk=pySkeleton();sk.position.set(pyBx(6)-.4,Y-.05,pyBz(17)+.7);/* its floor is at 5 cm */sk.rotation.y=.4;g.add(sk)}
+
+/* =====================================================================================================
+   Batch 6: the Trial of Song (room i17..20, j3..9), the Trial of Sand (i18..19, j10..17), the tomb (i14..18, j18..20).
+   ===================================================================================================== */
+/* a gong's stand (static) at the game's gong spot (x = bx(20)+1.6-.55, z): posts at z ±.75, a beam at Y+2.45, cords */
+function pyGongFrame(g,x,z){const k=pyKit(),{M,MT}=k,{Y}=PYUV,{B,Cy,rod,A}=k.H(g),G=pyGoldMats(),W=MT.wood;for(const s of[-1,1]){B(.5,.08,.3,MT.dark,x,Y+.04,z+s*.75);B(.14,2.55,.14,W,x,Y+1.355,z+s*.75);Cy(.12,.06,.18,G.gold,x,Y+2.72,z+s*.75,null,null,10)}
+ B(.16,.16,1.9,W,x,Y+2.47,z);for(const s of[-1,1])rod([x,Y+2.39,z+s*.25],[x,Y+2.12,z+s*.12],.012,k.M(0x3a2a18));pyNoSeam(g)}
+/* the gong itself (the game's `d`, which it wobbles and lights): a bronze disc with a boss and rings, axis along x */
+function pyGongDisc(){const k=pyKit();const t=k.can(256,256,(x,w,h)=>{x.fillStyle='#c89030';x.fillRect(0,0,w,h);for(let r=20;r<128;r+=12){x.strokeStyle='rgba(90,60,10,'+(.25+(r%24?0:.2))+')';x.lineWidth=3;x.beginPath();x.arc(w/2,h/2,r,0,7);x.stroke()}x.fillStyle='rgba(255,230,150,.35)';x.beginPath();x.arc(w/2,h/2,26,0,7);x.fill()});
+ const m=new THREE.MeshStandardMaterial({map:t,color:0xffffff,metalness:.45,roughness:.35,emissive:0x3a2400});const geo=new THREE.CylinderGeometry(.6,.6,.06,32);const d=new THREE.Mesh(geo,m);d.rotation.z=Math.PI/2;
+ const boss=new THREE.Mesh(new THREE.SphereGeometry(.14,16,8,0,Math.PI*2,0,Math.PI/2),m);boss.position.y=.025;d.add(boss);const boss2=boss.clone();boss2.rotation.x=Math.PI;boss2.position.y=-.025;d.add(boss2);d.userData.dpKeep=1;d.userData.noSeam=true;return d}
+/* the gongs' signs, drawn (the game's labels used a hieroglyph some fonts lack): k 0 sun, 1 eye, 2 snake, 3 scarab, 4 ankh */
+function pyGongLabel(k){const K=pyKit();return new THREE.MeshBasicMaterial({map:K.can(128,128,(x,w,h)=>{x.fillStyle='#d8c094';x.fillRect(0,0,w,h);x.strokeStyle='#5a3a14';x.lineWidth=6;x.strokeRect(5,5,w-10,h-10);x.strokeStyle=['#c88a10','#1e4a9a','#2a7a3a','#1e3a9a','#7a3a14'][k];pyGlyph(x,[2,1,6,5,0][k],w/2,h/2,40)})})}
+/* the stone priest who sings (the game's group at (bx(18), Y, bz(6)), turned to face the gongs): our own design */
+function pyPriest(){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B,Cy,rod}=k.H(g),G=pyGoldMats();const ST=new THREE.MeshStandardMaterial({map:k.T.lime,color:0xe8dcc0,roughness:.85}),SK=M(0x9a6a40,{roughness:.8});
+ B(1.0,.5,1.0,MT.dark,0,.25,0);B(.9,.05,.9,G.gold,0,.525,0);
+ const robe=A(new THREE.CylinderGeometry(.22,.42,1.5,16),ST,0,1.3,0);robe.scale.z=.8;/* a long robe */A(new THREE.CylinderGeometry(.24,.22,.5,14),SK,0,2.3,0).scale.z=.75;/* bare chest */
+ const pt=k.can(128,64,(x,w,h)=>{x.fillStyle='#d8a050';x.fillRect(0,0,w,h);x.fillStyle='#3a2410';for(let i=0;i<30;i++){x.beginPath();x.arc(Math.random()*w,Math.random()*h,3+Math.random()*3,0,7);x.fill()}});const sash=A(new THREE.CylinderGeometry(.255,.255,.18,14,1,true),new THREE.MeshStandardMaterial({map:pt,side:THREE.DoubleSide}),0,2.15,0);sash.scale.z=.78;sash.rotation.z=.25;/* a spotted sash */
+ Cy(.08,.09,.14,SK,0,2.6,0,null,null,10);const hd=A(new THREE.SphereGeometry(.17,14,12),SK,0,2.79,.01);hd.scale.set(.95,1.1,1);/* shaved head */
+ for(const s of[-1,1]){B(.06,.025,.02,M(0x14100c),s*.065,2.83,.17);rod([s*.25,2.48,0],[s*.3,2.12,.12],.055,SK);rod([s*.3,2.12,.12],[s*.18,1.95,.3],.05,SK)}B(.08,.03,.02,M(0x3a1a0a),0,2.7,.17);/* the mouth that sings */
+ const sis=new THREE.Group();sis.position.set(.18,1.95,.32);g.add(sis);k.H(sis).rod([0,-.15,0],[0,.08,0],.018,G.gold);k.H(sis).A(new THREE.TorusGeometry(.08,.012,6,16,Math.PI),G.gold,0,.08,0);/* a sistrum */
+ B(.5,.1,.06,G.gold,0,2.53,.17);pyNoSeam(g);return g}
+/* a wall lever for the Trial of Sand. sd = which wall (-1 west, +1 east), as the game's lever list. The plate goes into the
+   wall (wall at bx(i)+sd*1.6); the game's handle group h sits 8 cm in front of it: put pyLeverHandle() in h. */
+function pyLeverPlate(g,x,y,z,sd){const k=pyKit(),{M}=k,{B,A,Cy}=k.H(g);const BR=M(0x5a4a30,{metalness:.6,roughness:.5});B(.2,.9,.56,BR,x+sd*.1,y,z);/* from the lever's spot back through the wall line */
+ const t=k.can(64,128,(c,w,h)=>{c.fillStyle='#4a3a24';c.fillRect(0,0,w,h);c.fillStyle='#0a0806';c.fillRect(w/2-5,10,10,h-20);c.strokeStyle='#c8a050';c.lineWidth=3;c.strokeRect(4,4,w-8,h-8)});const p=A(new THREE.PlaneGeometry(.5,.84),new THREE.MeshStandardMaterial({map:t,roughness:.6}),x-sd*.012,y,z);p.rotation.y=sd>0?-Math.PI/2:Math.PI/2;
+ Cy(.04,.04,.1,BR,x-sd*.05,y,z,'x',null,10);pyNoSeam(g)}
+function pyLeverHandle(){const k=pyKit(),{M}=k,g=new THREE.Group(),{Cy,A,rod}=k.H(g);Cy(.06,.06,.1,M(0x6a5a40,{metalness:.6}),0,0,0,'x',null,12);rod([0,0,0],[0,.72,0],.03,M(0x6a5a40,{metalness:.5,roughness:.4}));A(new THREE.SphereGeometry(.09,12,8),M(0xc01818,{roughness:.4}),0,.75,0);
+ for(let i=0;i<2;i++){const b=A(new THREE.TorusGeometry(.04,.008,4,10),M(0xc8a050,{metalness:.6}),0,.25+i*.2,0);b.rotation.x=Math.PI/2}g.userData.dpKeep=1;pyNoSeam(g);return g}
+/* the sand: materials for the game's rising sand box and its four falling streams (scroll their map.offset.y) */
+function pySandMats(){const k=pyKit();if(k.sm)return k.sm;const t=k.can(256,256,(x,w,h)=>{x.fillStyle='#d8b070';x.fillRect(0,0,w,h);for(let i=0;i<8000;i++){x.fillStyle=Math.random()<.5?'rgba(150,110,50,'+Math.random()*.2+')':'rgba(255,240,200,'+Math.random()*.2+')';x.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*2,1)}for(let i=0;i<10;i++){x.strokeStyle='rgba(150,110,50,.25)';x.lineWidth=2;x.beginPath();x.moveTo(0,i*26);for(let u=0;u<w;u+=16)x.lineTo(u,i*26+Math.sin(u*.05+i)*6);x.stroke()}},1);
+ const f=k.can(64,256,(x,w,h)=>{x.clearRect(0,0,w,h);for(let i=0;i<60;i++){const u=Math.random()*w;x.fillStyle='rgba(220,180,110,'+(.3+Math.random()*.5)+')';x.fillRect(u,Math.random()*h,1+Math.random()*3,20+Math.random()*80)}},1);
+ return k.sm={sand:new THREE.MeshStandardMaterial({map:t,color:0xffffff,roughness:1,side:THREE.DoubleSide}),fall:new THREE.MeshBasicMaterial({map:f,transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide})}}
+/* the four cracks in the Sand room's ceiling the streams pour from (the game's falls at bx(18+k%2) -/+ .6, bz(11+2k)) */
+function pySandCracks(g){const k=pyKit(),{Y,H}=PYUV,{A}=k.H(g);const t=k.can(128,128,(x,w,h)=>{x.clearRect(0,0,w,h);x.fillStyle='#0a0604';x.beginPath();for(let a=0;a<Math.PI*2;a+=.4){const r=30+Math.random()*16;x.lineTo(w/2+Math.cos(a)*r,h/2+Math.sin(a)*r)}x.fill();x.strokeStyle='#1a120a';x.lineWidth=3;for(let i=0;i<6;i++){const a=Math.random()*7;x.beginPath();x.moveTo(w/2+Math.cos(a)*36,h/2+Math.sin(a)*36);x.lineTo(w/2+Math.cos(a)*60,h/2+Math.sin(a)*60);x.stroke()}});
+ const m=new THREE.MeshBasicMaterial({map:t,transparent:true,depthWrite:false});for(let i=0;i<4;i++){const p=A(new THREE.PlaneGeometry(1,1),m,pyBx(18+(i%2))+(i%2?-.6:.6),Y+H-.01,pyBz(11+i*2));p.rotation.x=Math.PI/2}}
+/* the tomb: Khufu-Bob's coffin on its plinth (the game's base, stripes and gold top: 4.2 x 2.4, top at Y+1.345, head to +x) */
+function pyKhufuCoffin(){const k=pyKit(),{MT}=k,g=new THREE.Group(),{B}=k.H(g),G=pyGoldMats();B(4.2,.5,2.4,MT.dark,0,.25,0);B(4.0,.04,2.2,G.gold,0,.52,0);
+ /* the sarcophagus design, bigger, lying with its head to +x and the face looking up (rotated so its -z head points +x) */const c=new THREE.Group();c.rotation.y=-Math.PI/2;c.position.y=.54;g.add(c);const tr=pySarcophagus();tr.scale.set(1.3,.85,1.35);c.add(tr);
+ const lid=pySarcLid();lid.scale.set(1.3,1,1.35);lid.position.y=.85*.9+.09;c.add(lid);pyNoSeam(g);return g}
+/* four canopic jars with animal-head lids (jackal, falcon, baboon, human: simple shapes of our own) */
+function pyCanopic(kind){const k=pyKit(),{M,MT}=k,g=new THREE.Group(),{A,B}=k.H(g),G=pyGoldMats();const pts=[[0,0],[.16,0],[.2,.1],[.21,.35],[.17,.55],[.15,.58],[0,.58]].map(p=>new THREE.Vector2(p[0],p[1]));
+ const t=k.can(128,64,(x,w,h)=>{x.fillStyle='#e8dcc0';x.fillRect(0,0,w,h);x.strokeStyle='#1e3a8a';for(let i=0;i<3;i++)pyGlyph(x,[0,1,5][i],22+i*42,32,12)});A(new THREE.LatheGeometry(pts,16),new THREE.MeshStandardMaterial({map:t,roughness:.6}),0,0,0);
+ const L=kind==1?M(0x3a5a8a,{roughness:.5}):kind==2?M(0x8a7a6a,{roughness:.7}):kind==3?MT.lime:MT.basalt;const hd=A(new THREE.SphereGeometry(.15,12,10),L,0,.7,0);hd.scale.set(1,1.1,1);B(.28,.06,.28,G.gold,0,.6,0);
+ if(kind==0){for(const s of[-1,1])A(new THREE.ConeGeometry(.04,.16,4),L,s*.07,.88,0);const sn=A(new THREE.ConeGeometry(.06,.16,8),L,0,.68,.16);sn.rotation.x=Math.PI/2}
+ else if(kind==1){const bk=A(new THREE.ConeGeometry(.045,.1,6),G.gold,0,.68,.16);bk.rotation.x=Math.PI/2+.5}else if(kind==2){A(new THREE.SphereGeometry(.08,10,8),L,0,.66,.12)}else{B(.3,.2,.06,M(0x1e3a8a),0,.72,-.06)}
+ pyNoSeam(g);return g}
+/* the Heart's pedestal (.8 x 1.1 x .8, top Y+1.1) and a heart-shaped gem geometry for the game's ht (it scales y by 1.3) */
+function pyHeartPedestal(){const k=pyKit(),{MT}=k,g=new THREE.Group(),{B,Cy}=k.H(g),G=pyGoldMats();B(.8,.14,.8,MT.dark,0,.07,0);Cy(.26,.3,.84,new THREE.MeshStandardMaterial({map:k.T.lime,color:0xc02030,roughness:.6}),0,.56,0,null,null,16);B(.7,.12,.7,G.gold,0,1.04,0);pyNoSeam(g);return g}
+function pyHeartGeo(){const s=new THREE.Shape();s.moveTo(0,-.24);s.bezierCurveTo(-.08,-.14,-.26,-.04,-.24,.08);s.bezierCurveTo(-.22,.2,-.06,.22,0,.1);s.bezierCurveTo(.06,.22,.22,.2,.24,.08);s.bezierCurveTo(.26,-.04,.08,-.14,0,-.24);
+ const geo=new THREE.ExtrudeGeometry(s,{depth:.08,bevelEnabled:true,bevelThickness:.03,bevelSize:.02,bevelSegments:2,curveSegments:12});geo.center();geo.scale(1,1/1.3*1.15,1);return geo}
+/* a fire bowl on a bronze bracket, for the two by the Heart (the game's floating bowls at x ±1.3, Y+1.6, bz(20)+1.45) */
+function pyWallBowl(g,x,y,z){const k=pyKit(),{M}=k,{B,Cy,rod}=k.H(g),BR=M(0x6a5030,{metalness:.6,roughness:.4});B(.3,.4,.08,BR,x,y-.15,z+.15);rod([x,y-.25,z+.15],[x,y-.08,z],.025,BR);Cy(.18,.1,.3,M(0x6a5030,{metalness:.6,roughness:.4,side:THREE.DoubleSide}),x,y,z,null,null,12,true);Cy(.1,.1,.01,BR,x,y-.145,z,null,null,12);Cy(.16,.16,.012,M(0x1a0e06),x,y+.08,z,null,null,12);
+ const f=k.H(g).flame(x,y+.09,z,1.1);pyNoSeam(g);return f}
