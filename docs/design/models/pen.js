@@ -663,3 +663,88 @@ function penLaundryRoom(g){const k=penKit(),{MT,M}=k,{A,B}=k.H(g),PT=penCellPain
 function penLaundry(g){penLaundryRoom(g);const r={drums:[],leds:[]};for(let i=0;i<4;i++){const w=penWasher(i);w.washer.position.set(-412,0,-799+i*1.4);g.add(w.washer);r.drums.push(w.drum);r.leds.push(w.led)}
  for(const x of[-422.2,-420.9,-419.6]){const d=penDryerStack();d.position.set(x,0,-799.4);g.add(d)}penFoldBench(g);penFoldTable(g);penLaundryShelf(g);r.suits=penClothesline(g);penUtilitySink(g);penLaundryCart(g);
  for(const[i,x,z]of[[0,-420,-795],[1,-416,-792],[2,-421,-790]])penBasket(g,x,z,i);return r}
+
+/* ================== batch 5: the break room, the control room, the hall to the exit, the hiding spots ================== */
+/* painted skins 1 cm off every inside wall face of the block not done in batches 3-4 (the same paint, so the whole block
+   matches), cut round the doorways; and a wall piece closing the corridor's west nook off from the vent space (the game's
+   back wall starts at x -468, so x -470..-468 was open into the maze: give it an obstacle too) */
+function penBlockSkins(g){const k=penKit(),{A,B}=k.H(g),PT=penCellPaint(),H=4.6;
+ const sk=(ax,c,a0,a1,ry,holes)=>{const cuts=(holes||[]).slice().sort((p,q)=>p[0]-q[0]);let a=a0;const pl=(b0,b1,y0,y1)=>{if(b1-b0<.01)return;const L=b1-b0,h=y1-y0,geo=new THREE.PlaneGeometry(L,h),uv=geo.attributes.uv,P=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,(P.getX(i)+(b0+b1)/2)/4.6,(P.getY(i)+(y0+y1)/2)/4.6);const m=A(geo,PT,ax=='x'?(b0+b1)/2:c,(y0+y1)/2,ax=='x'?c:(b0+b1)/2);m.rotation.y=ry};
+  for(const[h0,h1,hy]of cuts){pl(a,h0,0,H);pl(h0,h1,hy,H);a=h1}pl(a,a1,0,H)};
+ const E=Math.PI/2,Wst=-Math.PI/2,N=0,S=Math.PI;
+ /* the block's own walls, inside */sk('z',-469.84,-786.85,-756.15,E);sk('z',-469.84,-755.85,-740.15,E,[[-748.3,-745.7,2.6]]);sk('z',-410.16,-786.85,-740.15,Wst);sk('x',-740.16,-469.85,-410.15,S,[[-416,-414,2.6]]);
+ /* the laundry wall from the corridor */sk('x',-786.84,-423.88,-410.15,N,[[-419,-417,2.6]]);
+ /* the break room: outside (corridor, passage, hall) and inside */sk('x',-776.16,-468,-452,S,[[-461,-459,2.6]]);sk('z',-451.84,-776,-756,E);sk('x',-755.84,-469.85,-452,N);
+ sk('x',-775.84,-468,-452.15,N,[[-461,-459,2.6]]);sk('z',-452.16,-775.85,-756.15,Wst);sk('x',-756.16,-469.85,-452.15,S);
+ /* the control room: outside and inside */sk('x',-772.16,-448,-426,S);sk('z',-448.16,-772,-750,Wst);sk('x',-749.84,-448,-426,N);sk('z',-425.84,-772,-750,E,[[-762,-760,2.6]]);
+ sk('x',-771.84,-447.85,-426.15,N);sk('x',-750.16,-447.85,-426.15,S);sk('z',-447.84,-771.85,-750.15,E);sk('z',-426.16,-771.85,-750.15,Wst,[[-762,-760,2.6]]);
+ /* the nook's back wall */B(1.71,H,.3,PT,-468.995,H/2,-787,null,4.6);penNoSeam(g)}
+/* a sliding steel door slab for the game's DOOR()s (2 x 2.6 x .12, the 'ctrl' and 'exit' doors): ribbed steel, a wired
+   window, hazard stripes at the foot, both faces. Its origin is the slab's middle (the game's m at y 1.3); along x as
+   built, turn it PI/2 for a door on a z wall */
+function penSteelDoor(){const k=penKit(),{MT,M}=k,d=new THREE.Group(),{A,B}=k.H(d);B(2,2.6,.1,M(0x4a5058,{metalness:.5,roughness:.45}),0,0,0);
+ if(!k.wire)k.wire=new THREE.MeshStandardMaterial({map:k.can(64,64,(c,w,h)=>{c.fillStyle='#2a3a48';c.fillRect(0,0,w,h);c.strokeStyle='rgba(200,205,210,.8)';c.lineWidth=2;for(let i=0;i<=64;i+=16){c.beginPath();c.moveTo(i,0);c.lineTo(i,64);c.stroke();c.beginPath();c.moveTo(0,i);c.lineTo(64,i);c.stroke()}},1),metalness:.3,roughness:.2,emissive:0x0a1418});
+ if(!k.haz)k.haz=new THREE.MeshStandardMaterial({map:k.can(128,32,(c,w,h)=>{c.fillStyle='#e0b020';c.fillRect(0,0,w,h);c.fillStyle='#1a1a1a';for(let i=-32;i<w;i+=32){c.beginPath();c.moveTo(i,h);c.lineTo(i+16,h);c.lineTo(i+32,0);c.lineTo(i+16,0);c.fill()}}),roughness:.6});
+ for(const s of[-1,1]){const z=s*.051;for(let j=0;j<5;j++)B(1.8,.04,.012,MT.steel,0,-.6+j*.28,s*.056);B(1.9,.12,.012,MT.steel,0,1.22,s*.056);for(const x of[-.94,.94])B(.06,2.5,.012,MT.steel,x,0,s*.056);
+  const w=A(new THREE.PlaneGeometry(.42,.52),k.wire,0,.45,s*.07);if(s<0)w.rotation.y=Math.PI;const hz=A(new THREE.PlaneGeometry(1.8,.22),k.haz,0,-1.12,s*.063);if(s<0)hz.rotation.y=Math.PI}
+ penNoSeam(d);return d}
+/* a bank of n steel lockers (each .62 wide, 2 m tall, d deep), doors facing (fx, fz) (one of them 0); origin at the bank's
+   middle on the floor; vents, handles, number plates */
+function penLockerBank(g,x,z,n,fx,fz,d,cols){const k=penKit(),{MT,M}=k,t=new THREE.Group();t.position.set(x,0,z);t.rotation.y=fx?(fx>0?Math.PI/2:-Math.PI/2):(fz>0?0:Math.PI);g.add(t);const{B}=k.H(t);d=d||.55;
+ B(n*.62,.08,d-.04,MT.dark,0,.04,0);for(let i=0;i<n;i++){const u=-(n-1)*.31+i*.62,c=(cols||[0x4a6a5a,0x3e5e4e])[i%2];B(.6,1.92,d,M(c,{metalness:.45,roughness:.5}),u,1.04,0);for(let s=0;s<5;s++)B(.36,.025,.012,MT.dark,u,1.75+s*.05,d/2+.006);B(.03,.16,.03,MT.steel,u+.22,1.05,d/2+.015);B(.12,.06,.008,M(0xe8e0c8),u,1.6,d/2+.006);B(.6,.02,d+.01,MT.dark,u,2.0+.01,0)}
+ penNoSeam(t);return t}
+/* ---------------- the break room (x -470..-452, z -776..-756) ---------------- */
+/* a TV on a trolley (the game's TV spot x -467, z -768, facing +x at the dozing guard), his armchair (x -460, facing the
+   TV), the side table with the keycard on it (x -459; top at .91, the card at .92), doughnuts and coffee, a kitchenette
+   along the south wall, a fridge, a vending machine, a staff table with four chairs, a notice board and a clock. Returns
+   {screen} (the TV picture) */
+function penBreakRoom(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g),LE=M(0x5a3a26,{roughness:.6}),WD=M(0x8a6a4a,{roughness:.7}),SS=M(0xb8bcc2,{metalness:.5,roughness:.35});
+ /* the TV trolley */{const x=-467,z=-768;for(const y of[.15,.7])B(.6,.04,1.0,MT.steel,x,y,z);for(const[a,b]of[[-.27,-.47],[.27,-.47],[-.27,.47],[.27,.47]]){B(.03,.66,.03,MT.steel,x+a,.37,z+b);Cy(.035,.035,.04,MT.dark,x+a,.035,z+b,'z',null,8)}B(.45,.1,.5,MT.dark,x,.22,z);
+  B(.3,.03,.4,MT.dark,x,.735,z);B(.04,.04,.1,MT.dark,x,.76,z);B(.1,.7,1.2,MT.black,x,1.12,z);var screen=A(new THREE.PlaneGeometry(1.1,.6),M(0x203850,{emissive:0x305080}),x+.06,1.12,z);screen.rotation.y=Math.PI/2}
+ /* the armchair: its back to the side table */{const x=-460,z=-768;B(.7,.36,.7,LE,x,.18,z);B(.72,.12,.72,M(0x6a4a30,{roughness:.7}),x-.02,.42,z);B(.15,.72,.8,LE,x+.4,.74,z);for(const s of[-1,1])B(.72,.26,.12,LE,x,.55,z+s*.42)}
+ /* the side table */{const x=-459,z=-768;B(.8,.04,.8,WD,x,.89,z);for(const[a,b]of[[-.36,-.36],[.36,-.36],[-.36,.36],[.36,.36]])B(.04,.87,.04,WD,x+a,.435,z+b);B(.72,.03,.72,WD,x,.25,z);
+  B(.35,.05,.35,M(0xf0e8d8),x+.2,.935,z-.2);for(const[i,a,b]of[[0,.1,-.27],[1,.24,-.27],[2,.17,-.13]]){const d=A(new THREE.TorusGeometry(.045,.02,6,12),M([0xd88a50,0xe8a8c0,0x6a3a20][i]),x+a,.98,z+b);d.rotation.x=Math.PI/2}Cy(.04,.035,.1,M(0xe8e0d0),x+.25,.96,z+.3,null,null,10);Cy(.04,.035,.1,M(0x2a5a8a),x+.35,.96,z+.18,null,null,10)}
+ /* the kitchenette (x -469.85..-464.55, against the south wall) and the fridge */{const z=-756.46,x0=-469.85,x1=-464.55,cx=(x0+x1)/2;B(x1-x0-.02,.86,.6,M(0x6a7a8a,{roughness:.6}),cx,.43,z);B(x1-x0,.04,.64,M(0xd8d4c8,{roughness:.5}),cx,.88,z-.02);B(.5,.012,.36,MT.dark,-466,.9,z-.04);Cy(.015,.015,.25,SS,-466,1.0,z+.2,null,null,8);B(.03,.03,.16,SS,-466,1.12,z+.13);
+  B(x1-x0-.02,.66,.34,M(0x6a7a8a,{roughness:.6}),cx,2.2,-756.33);for(let i=0;i<4;i++)B(.012,.6,.012,MT.dark,x0+1.3+i*1.3,2.2,-756.5);B(.5,.3,.38,MT.black,-468.9,1.05,z-.02);B(.3,.2,.01,M(0x202830,{emissive:0x102030}),-469.0,1.05,z-.215);B(.25,.4,.3,MT.dark,-467.6,1.1,z);Cy(.045,.04,.1,M(0xe8e0d0),-467.6,.95,z-.19,null,null,10);
+  B(.7,1.8,.68,M(0xe8e8e4,{roughness:.4}),-463.85,.9,-756.5);B(.03,.3,.03,SS,-463.6,1.2,-756.85);B(.03,.2,.03,SS,-463.6,1.65,-756.85)}
+ /* the vending machine in the south-east corner, facing the room (-x) */{const x=-452.55,z=-756.6;B(.8,1.85,.9,M(0x8a2020,{roughness:.5}),x,.925,z);const t=k.can(128,192,(c,w,h)=>{c.fillStyle='#101418';c.fillRect(0,0,w,h);for(let r=0;r<5;r++)for(let q=0;q<4;q++){c.fillStyle=['#e86a20','#3a7ad0','#e8c020','#40a050'][(r+q)%4];c.fillRect(8+q*29,10+r*34,20,22)}});
+  const p=A(new THREE.PlaneGeometry(.6,1.1),new THREE.MeshStandardMaterial({map:t,emissive:0x202020,roughness:.2}),x-.41,1.15,z-.08);p.rotation.y=-Math.PI/2;B(.03,.2,.12,MT.dark,x-.415,1.2,z+.33);B(.03,.12,.5,MT.black,x-.41,.25,z)}
+ /* the staff table and four chairs (x -456.3..-454.7) */{const x=-455.5,z=-770.5;B(1.6,.04,.9,WD,x,.76,z);for(const[a,b]of[[-.74,-.39],[.74,-.39],[-.74,.39],[.74,.39]])B(.04,.74,.04,MT.steel,x+a,.37,z+b);
+  for(const[a,s]of[[-.4,-1],[.4,-1],[-.4,1],[.4,1]]){const cz=z+s*.7;B(.42,.04,.42,M(0x2a5a8a),x+a,.46,cz);for(const[c2,d2]of[[-.18,-.18],[.18,-.18],[-.18,.18],[.18,.18]])B(.03,.44,.03,MT.steel,x+a+c2,.22,cz+d2);B(.42,.44,.03,M(0x2a5a8a),x+a,.68,cz+s*.2)}}
+ /* the notice board and the clock on the north wall */{B(1.4,.9,.03,M(0xb08a5a,{roughness:1}),-465.5,1.6,-775.825);for(let i=0;i<5;i++){const p=A(new THREE.PlaneGeometry(.22,.3),M([0xf0f0e8,0xf0e080,0xe0f0f0][i%3],{roughness:1}),-466+(i%3)*.4,1.75-(i>2?.4:0)+(i%2)*.04,-775.80)}
+  Cy(.22,.22,.04,MT.dark,-456,2.6,-775.82,'z',null,20);const cf=k.can(64,64,(c,w,h)=>{c.fillStyle='#f0f0ea';c.beginPath();c.arc(32,32,31,0,7);c.fill();c.strokeStyle='#202020';c.lineWidth=3;c.beginPath();c.moveTo(32,32);c.lineTo(32,10);c.moveTo(32,32);c.lineTo(46,40);c.stroke()});A(new THREE.CircleGeometry(.19,20),new THREE.MeshBasicMaterial({map:cf}),-456,2.6,-775.79)}
+ penNoSeam(g);return{screen}}
+/* ---------------- the control room (x -448..-426, z -772..-750) ---------------- */
+/* the console along the west wall (the game's x -447.2, z -765..-757): cabinet, worktop, a sloped button panel, six
+   monitors on stands facing the operator (the game's feeds go on their screens), the two switch plates (the game's
+   switches and labels stay at x -446.62); the operator's chair; a frame for the map (move the map plane to x -447.80);
+   the desk with the note (the game's x -436, z -752; its top at .80); a desk chair; filing cabinets; server racks; a
+   key cabinet; a water cooler. Returns {screens:[6]} */
+function penControlRoom(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g),DKG=M(0x2e3238,{roughness:.6}),TOP=M(0x8a8e94,{roughness:.4,metalness:.3});
+ B(.9,.86,8,DKG,-447.35,.43,-761);B(1.3,.05,8.3,TOP,-447.15,.885,-761);{if(!k.btn)k.btn=new THREE.MeshStandardMaterial({map:k.can(256,32,(c,w,h)=>{c.fillStyle='#1e2228';c.fillRect(0,0,w,h);const cols=['#ff3030','#30ff60','#ffd030','#3080ff'];for(let i=0;i<32;i++){c.fillStyle=cols[(i*7)%4];c.fillRect(4+i*8,6+(i%2)*12,5,6)}}),emissive:0x202020,roughness:.5});
+  const sp=B(.4,.03,7.4,k.btn,-446.85,.95,-761);sp.rotation.z=-.3}
+ const screens=[];for(let i=0;i<6;i++){const z=-764.5+i*1.4;B(.3,.02,.3,MT.dark,-447.5,.92,z);B(.06,.3,.06,MT.dark,-447.5,1.08,z);B(.08,.62,.95,M(0x16181c,{roughness:.4}),-447.46,1.5,z);const s=A(new THREE.PlaneGeometry(.86,.52),new THREE.MeshBasicMaterial({color:0x1a3a2a}),-447.41,1.5,z);s.rotation.y=Math.PI/2;screens.push(s)}
+ for(const z of[-766,-758])B(.05,.7,.7,M(0x3a3e44,{metalness:.5}),-446.69,1.1,z);
+ /* the operator's chair, facing the console */{const x=-445.8,z=-761;Cy(.04,.04,.38,MT.dark,x,.25,z,null,null,8);B(.48,.07,.48,MT.dark,x,.475,z);B(.06,.5,.46,MT.dark,x+.26,.76,z);for(const r of[0,Math.PI/2])B(.55,.03,.05,MT.dark,x,.045+r*.004,z).rotation.y=r}
+ /* the map frame on the west wall */B(.03,1.35,1.7,M(0x3a2a1a),-447.825,2.2,-753);
+ /* the desk with the note, and its chair pushed back */{const x=-436,z=-752;B(2,.04,1,TOP,x,.78,z);B(.5,.76,.9,DKG,x+.7,.38,z);B(.04,.76,.9,DKG,x-.95,.38,z);B(1.4,.45,.03,DKG,x-.25,.5,z+.46);Cy(.06,.08,.04,MT.dark,x-.7,.82,z+.25,null,null,10);rod([x-.7,.84,z+.25],[x-.62,1.15,z+.15],.012,MT.dark);B(.2,.06,.15,M(0x1a1a1a),x+.6,.83,z+.3);B(.3,.04,.22,M(0x203a6a),x+.3,.82,z-.25);
+  const cx=x-.2,cz=z-1.0;Cy(.04,.04,.38,MT.dark,cx,.25,cz,null,null,8);B(.48,.07,.48,MT.dark,cx,.475,cz);B(.46,.5,.06,MT.dark,cx,.76,cz-.26);for(const r of[0,Math.PI/2])B(.55,.03,.05,MT.dark,cx,.045+r*.004,cz).rotation.y=r}
+ /* filing cabinets on the south wall, server racks on the north wall, a key cabinet and a water cooler */
+ for(let i=0;i<3;i++){const x=-432+i*.55;B(.5,1.3,.6,M(0x6a7078,{metalness:.4}),x,.65,-750.47);for(let j=0;j<4;j++){B(.4,.012,.012,MT.dark,x,.25+j*.32,-750.775);B(.12,.03,.02,MT.steel,x,.35+j*.32,-750.78)}}
+ if(!k.rack)k.rack=new THREE.MeshStandardMaterial({map:k.can(64,128,(c,w,h)=>{c.fillStyle='#14161a';c.fillRect(0,0,w,h);for(let r=0;r<16;r++){c.fillStyle='#2a2e34';c.fillRect(4,4+r*7.8,w-8,5);c.fillStyle=['#30ff60','#ffd030','#30ff60','#3080ff'][r%4];c.fillRect(8+(r*13)%40,5+r*7.8,3,3)}}),emissive:0x181818,roughness:.5});
+ for(let i=0;i<3;i++){const x=-444+i*.7;B(.66,2.0,1.0,MT.dark,x,1.0,-771.34);const p=A(new THREE.PlaneGeometry(.56,1.8),k.rack,x,1.0,-770.83)}
+ B(.1,.6,.5,M(0x5a6068,{metalness:.4}),-426.21,1.6,-756);B(.012,.5,.4,M(0x203040,{emissive:0x081018}),-426.265,1.6,-756);Cy(.17,.17,.95,M(0xe8e8e4),-427,.475,-770.9,null,null,14);Cy(.15,.15,.4,M(0x6aa0d0,{transparent:true,opacity:.7}),-427,1.15,-770.9,null,null,14);
+ penNoSeam(g);return{screens}}
+/* ---------------- the hall to the exit, and the hiding spots ---------------- */
+/* the hall's furniture (penPolish3 put the lockers and the bench a metre out from the wall; they go against it now, move
+   their obstacles too): a bank of five lockers (x -427.3..-424.3, z -740.7..-740.15), a steel wall bench (x -434.2..
+   -431.8), an acoustic hood round the inmate phone (move its sign up to y 2.35), a frame for the notices */
+function penHall(g){const k=penKit(),{MT,M}=k,{B}=k.H(g);penLockerBank(g,-425.8,-740.425,5,0,-1,.55,[0x4a5a6a,0x3e4e5e]);
+ {const x=-433,z=-740.38;B(2.4,.05,.45,M(0x7a5a3a,{roughness:.7}),x,.47,z);for(const s of[-1,1]){B(.06,.45,.06,MT.steel,x+s*1.05,.2225,z-.15);rodBr(g,x+s*1.05,z)}}
+ function rodBr(g2,x,z){const q=k.H(g2);q.rod([x,.42,-740.16],[x,.2,z-.15],.02,MT.steel)}
+ {const x=-444;B(.8,1.0,.02,M(0x3a3e44,{metalness:.4}),x,1.5,-740.17);for(const s of[-1,1])B(.02,1.0,.45,M(0x3a3e44,{metalness:.4}),x+s*.41,1.5,-740.385);B(.84,.02,.45,M(0x3a3e44,{metalness:.4}),x,2.01,-740.385);B(.5,.03,.25,MT.steel,x,1.05,-740.3)}
+ B(1.9,1.2,.03,M(0x3a2a1a),-437,1.9,-740.175);penNoSeam(g)}
+/* the staff lockers in the break room (the hide at x -452.45, z -762; doors face -x) and the broom cupboard in the east
+   hall (the hide at x -410.5, z -752; door faces -x) */
+function penStaffLockers(g){penLockerBank(g,-452.45,-762,3,-1,0,.55)}
+function penBroomCupboard(g){const k=penKit(),{MT,M}=k,{B,lab}=k.H(g),x=-410.5,z=-752,W=M(0x6a5a48,{roughness:.7});B(.68,2.2,1.1,W,x+.01,1.1,z);B(.03,2.0,.95,M(0x5a4a38,{roughness:.7}),x-.345,1.05,z);B(.02,.12,.02,MT.steel,x-.365,1.1,z+.38);for(let j=0;j<4;j++)B(.012,.02,.5,MT.dark,x-.365,.3+j*.05,z);lab('JANITOR',.5,.12,'#e8e0c8','#202020',x-.372,1.85,z,-Math.PI/2);B(.7,.04,1.12,M(0x4a3a28),x+.01,2.22,z);penNoSeam(g)}

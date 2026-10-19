@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved (courtyard re-planned, approved) · batch 3 approved · batch 4 (vent maze, fans, laundry) in review
+Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved (courtyard re-planned, approved) · batch 3 approved · batch 4 approved · batch 5 (break room, control room, hall, hides) in review
 
 # The Dark Penitentiary rework (remodel list #23)
 
@@ -225,3 +225,55 @@ Cell Block D's cell row is built in `penBuild` ("the cell block"), then dressed 
 - Checked: no z-fighting in the ducts, the fans or the laundry. The checker calls a few attached parts "floating"
   because nothing is straight under them: the washer door rings, the shelves between table legs, the fan struts, the
   cart's bag on its rails and the grate's back plate. They are all fixed to something.
+
+## Notes for the wiring (batch 5: the break room, the control room, the hall, the hiding spots)
+- **Paint everywhere:** `penBlockSkins(g)` puts the cells' paint on every inside wall face not done in batches 3-4 (the
+  block's own walls, the laundry wall from the corridor, the break room and the control room inside and out), 1 cm off,
+  cut round every doorway (including the mess hall's). It also closes the **corridor's west nook** off from the vent
+  space with a wall piece at z -787, x -469.85..-468.14: the game's back wall starts at x -468, so you could walk from
+  the nook into the maze area. Give it an obstacle (x -470..-468, z -787.15..-786.85).
+  Things the skins meet: move the control room map plane to x -447.80; move penPolish3's "NO CONTRABAND" sign to the
+  passage side (-448.18, 2.2, -768) facing -x (it was inside the control room's wall); everything else on the walls
+  already sits 1 cm or more off.
+- **Doors:** the 'ctrl' and 'exit' DOOR slabs → `penSteelDoor()` (same 2 x 2.6, slides the same; turn it PI/2 for
+  'ctrl'): ribbed steel, a wired window, hazard stripes, both faces.
+- **Ceiling lights:** every `penBuild` ceiling lamp (rows z -760 and -746) and the mess hall's twelve → `penCeilLamp`
+  at the same spots (they hung 1-2 cm under the ceiling). The one at (-448, -760) sat in the control room's west wall:
+  move it to x -450 (the passage).
+- **Break room** → `penBreakRoom(g)` (returns `{screen}`, the TV picture):
+  - the TV box and screen → a TV on a trolley at the game's spot (-467, -768), facing the guard;
+  - an armchair under the dozing guard (-460, -768; he sat on nothing);
+  - a side table at the game's table spot (-459, -768), top at .91, so the keycard (y .92) lies on it (the old table
+    top was at .85 and the card floated);
+  - the game's doughnut cylinders → a box of doughnuts and two coffees;
+  - new things, each needing an obstacle box:
+    - kitchenette: x -469.85..-464.55, z -756.8..-756.15
+    - fridge: x -464.2..-463.5, z -756.85..-756.15
+    - vending machine: x -452.95..-452.15, z -757.05..-756.15
+    - staff table and chairs: x -456.3..-454.7, z -771.5..-769.5
+    - TV trolley: x -467.3..-466.7, z -768.5..-767.5
+    - armchair: x -460.4..-459.5, z -768.5..-767.5
+  - a notice board and a clock on the north wall.
+
+  None of the new things blocks the way from the door to the guard's keycard or to the staff lockers.
+- **Control room** → `penControlRoom(g)` (returns `{screens}`: put the game's six camera feeds on them):
+  - penPolish2's console → the new console: cabinet, worktop, button panel, six monitors on stands, and the two switch
+    plates. The game's switches and their labels stay where they are.
+  - the old chair → the operator's chair;
+  - a frame for the map;
+  - the desk at (-436, -752), top at .80, under the note;
+  - a desk chair;
+  - filing cabinets, server racks, a key cabinet and a water cooler. Obstacles:
+    - filing cabinets: x -432.25..-430.65, z -750.77..-750.15
+    - server racks: x -444.35..-442.25, z -771.85..-770.83
+    - water cooler: x -427.2..-426.8, z -771.1..-770.7
+- **Hall** → `penHall(g)`: penPolish3's five lockers and the bench go against the south wall now (they stood a metre
+  out): lockers x -427.35..-424.25, z -740.7..-740.15; bench x -434.2..-431.8, z -740.61..-740.15 (move both
+  obstacles). An acoustic hood round the inmate phone (move its sign up to y 2.35), a frame for the notices.
+- **Hiding spots:** the staff lockers → `penStaffLockers(g)` (same three, same spot and obstacle); the broom cupboard →
+  `penBroomCupboard(g)` (same spot, a door with vents and a JANITOR plate). The hide logic is unchanged.
+- **The mess hall** keeps its r411 interior (it is already a proper room); only its lights change (above). Its outside
+  is batch 2.
+- Checked: no z-fighting in any of these rooms. The checker calls some attached parts "floating" because nothing is
+  straight under them (door stiles, drawer fronts, the modesty panel, the vending machine's drawer); they are all
+  fixed to something.
