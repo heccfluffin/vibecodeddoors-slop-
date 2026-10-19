@@ -1,4 +1,4 @@
-Status: plan in review (2026-10-19) · preview "Desert Map Redo"
+Status: approved by the user 2026-10-19, ready to build · preview "Desert Map Redo"
 
 # The desert map and minimap, redone
 

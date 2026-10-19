@@ -12,8 +12,9 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `weapons.md` | the weapons | `models/weapons.js` |
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
+| `desert-map.md` | the desert map and minimap redo: areas, auto-drawn buildings, label classes, minimap banner, smooth zoom | `models/desert-map.js` (tables + reference renderer) |
 
-In review: `desert-map.md` (the desert map and minimap redo; tables and reference renderer in `models/desert-map.js`).
+Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 
 Still to design: the desert mines loop and remodel, the Old Quarry's underground.
 
