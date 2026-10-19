@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved (courtyard re-planned, approved) · batch 3 (cells, corridor A, cameras) in review
+Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved (courtyard re-planned, approved) · batch 3 approved · batch 4 (vent maze, fans, laundry) in review
 
 # The Dark Penitentiary rework (remodel list #23)
 
@@ -194,3 +194,34 @@ Cell Block D's cell row is built in `penBuild` ("the cell block"), then dressed 
   short).
 - Checked: no z-fighting anywhere in the row, the corridor or the cameras. The checker flags the grate's back plate and
   screws as "floating" because they sit inside its own frame; they are attached.
+
+## Notes for the wiring (batch 4: the vent maze, the fans, the laundry)
+- **The ducts** (`penBuild`, "the vent maze"): the floor, roof and wall boxes of every lane cell → `penVentDucts(g,
+  P0.duct.lane)` (same grid, same inside height: floor top .065, roof underside .87; the lanes, plates, obstacles and
+  steps stay). It is open at both ends: at your cell (the game's duct had an end wall at z -787, right behind the vent
+  hole, so you crawled through a wall) and at the laundry (so penPolish4's hiding of that end wall and its invisible
+  slats go). It runs on through the laundry wall to its face. The random glows (`Math.random() < .25`) go: the model has
+  a small caged bulb every few panels at fixed spots and returns them; put a glow at each.
+- **The fans:** the hub, blades and penPolish's ring → `penVentFan()`; put `fan` where the game puts `fg` (same
+  position, same `rotation.y` for the one at (26,3)) and use its `bl` as `F.bl` (it spins about x as now). The frame
+  fits the duct, so nothing pokes through the floor or the roof any more.
+- **The laundry** (`penBuild`, `penPolish` "the laundry", penActBuild's folding table, the laundry cart): `penLaundry(g)`
+  builds it all at the game's spots and returns `{drums, leds, suits}`:
+  - washers → `penWasher(i)` at (-412, 0, -799 + 1.4 i): turn its `drum` as the game turns its drums (the old drums sat
+    inside the washer body where you could not see them; these show through the glass). Hoses go back to a tap on the
+    wall.
+  - dryers → `penDryerStack()` at x -422.2, -420.9, -419.6, z -799.4 (each with an exhaust duct to the ceiling).
+  - the steel bench with towels (-416.6, -799.4) → `penFoldBench`; the activity's folding table (-420.4, -798.3) →
+    `penFoldTable` (the folded-sheet pile stays the game's, it sits on top at .92 up); the shelves → `penLaundryShelf`;
+    the sink → `penUtilitySink` (it floated; now on legs); the cart → `penLaundryCart` (same hide spot); the three
+    baskets → `penBasket(g, x, z, i)` at the game's spots (the prompts and the uniform stay).
+  - the washing line → `penClothesline`: it now goes wall to wall with hooks (it ended in mid-air). Its five jumpsuits
+    replace the game's `js` groups (sway them with `rotation.x` as now).
+  - `penLaundryRoom` adds a tiled floor (replace penPolish's floor box, which used polygonOffsetFactor), painted skins
+    on the four walls (round the duct hole and the door), the duct's frame on this side (penPolish's frame and its
+    leaning grate go), a door frame on the corridor door, two caged lights, and hangers for the three overhead pipes:
+    lengthen those to 13.72 so they reach the walls.
+  - the "SORT BY COLOUR" sign moves to z -799.82 (the skin is at -799.84).
+- Checked: no z-fighting in the ducts, the fans or the laundry. The checker calls a few attached parts "floating"
+  because nothing is straight under them: the washer door rings, the shelves between table legs, the fan struts, the
+  cart's bag on its rails and the grate's back plate. They are all fixed to something.

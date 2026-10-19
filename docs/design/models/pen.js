@@ -574,3 +574,92 @@ function penCamera(){const k=penKit(),{MT,M}=k,c=new THREE.Group(),{B,Cy}=k.H(c)
  const t=new THREE.Group();t.position.y=-.06;t.rotation.x=.3;c.add(t);const q=k.H(t);q.B(.22,.2,.44,WH,0,0,0);q.B(.28,.03,.54,M(0xc8c8cc,{metalness:.4}),0,.115,.05);q.Cy(.075,.085,.12,MT.dark,0,-.01,.27,'z',null,14);
  const gl=new THREE.Mesh(new THREE.CircleGeometry(.06,14),new THREE.MeshBasicMaterial({color:0x2040a0}));gl.position.set(0,-.01,.336);t.add(gl);const led=new THREE.Mesh(new THREE.SphereGeometry(.022,6,6),new THREE.MeshBasicMaterial({color:0xff2020}));led.position.set(.09,.06,.2);t.add(led);
  penNoSeam(c);return{cam:c,led}}
+
+/* ======================================= batch 4: the vent maze, the fans, the laundry ======================================= */
+/* the game's vent grid: x from -468 in 1.25 m columns, z from -800 in 1.3 m rows; the crawl lanes are the game's own set
+   (P0.duct.lane, "c,r" strings). Inside a duct: floor top .065, roof underside .87 (as now) */
+const PENV4={X0:-468,Z0:-800,CW:1.25,CH:1.3};
+/* the game's lanes, for the preview (the game passes its own Set) */
+function penVentLanes(){const s=new Set(),L=(c,r)=>s.add(c+','+r);for(let r=9;r>=1;r--)L(14,r);for(let c=15;c<=20;c++)L(c,1);for(let r=2;r<=6;r++)L(20,r);for(let c=21;c<=26;c++)L(c,6);for(let r=2;r<=5;r++)L(23,r);for(let r=1;r<=5;r++)L(26,r);for(let c=27;c<=34;c++)L(c,1);for(let c=8;c<=13;c++)L(c,5);for(let r=2;r<=4;r++)L(8,r);return s}
+/* galvanised duct sheet: a seam and rivets at every panel edge, mapped so panels line up with the grid */
+function penDuctMat(){const k=penKit();if(k.duct)return k.duct;const t=k.can(128,128,(x,w,h)=>{x.fillStyle='#8a9096';x.fillRect(0,0,w,h);for(let i=0;i<2500;i++){const v=Math.random();x.fillStyle=v<.5?'rgba(255,255,255,'+Math.random()*.12+')':'rgba(30,30,30,'+Math.random()*.12+')';x.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*3,1)}
+  x.fillStyle='rgba(40,40,40,.55)';x.fillRect(0,0,w,3);x.fillRect(0,0,3,h);x.fillStyle='rgba(220,224,228,.6)';x.fillRect(0,3,w,1);x.fillRect(3,0,1,h);x.fillStyle='#4a4e52';for(let i=8;i<w;i+=16){x.beginPath();x.arc(i,7,1.6,0,7);x.fill();x.beginPath();x.arc(7,i,1.6,0,7);x.fill()}
+  const g=x.createRadialGradient(w/2,h/2,10,w/2,h/2,w*.7);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(40,30,20,.18)');x.fillStyle=g;x.fillRect(0,0,w,h)},1);
+ return k.duct=new THREE.MeshStandardMaterial({map:t,metalness:.45,roughness:.55})}
+/* a duct box with its texture tied to the grid: floor/roof by (x, z) panel, walls by their run and the duct height */
+function penDuctBox(g,w,h,d,x,y,z){const{X0,Z0,CW,CH}=PENV4,geo=new THREE.BoxGeometry(w,h,d),P=geo.attributes.position,uv=geo.attributes.uv;
+ for(let f=0;f<6;f++)for(let v=0;v<4;v++){const i=f*4+v,wx=P.getX(i)+x,wy=P.getY(i)+y,wz=P.getZ(i)+z;let u,t;if(f<2){u=(wz-Z0)/CH;t=wy/.87}else if(f<4){u=(wx-X0)/CW;t=(wz-Z0)/CH}else{u=(wx-X0)/CW;t=wy/.87}uv.setXY(i,u,t)}
+ const m=new THREE.Mesh(geo,penDuctMat());m.position.set(x,y,z);g.add(m);return m}
+/* the ducts along the lanes: floor, roof, walls where a lane ends, open at your cell's vent and at the laundry; a small
+   caged bulb on the roof every few panels. Returns the bulbs' spots for the game's glows (replaces its random ones) */
+function penVentDucts(g,lane){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),{X0,Z0,CW,CH}=PENV4,cx=c=>X0+c*CW+CW/2,cz=r=>Z0+r*CH+CH/2,has=(c,r)=>lane.has(c+','+r),lights=[];
+ for(const key of lane){const[c,r]=key.split(',').map(Number),x=cx(c),z=cz(r);penDuctBox(g,CW,.04,CH,x,.045,z);penDuctBox(g,CW,.05,CH,x,.895,z);
+  for(const[dc,dr]of[[1,0],[-1,0],[0,1],[0,-1]]){if(has(c+dc,r+dr))continue;if(c==14&&r==9&&dr==1)continue;if(c==34&&r==1&&dc==1)continue;
+   if(dc)penDuctBox(g,.04,.825,CH,x+dc*CW/2,.4675,z);else penDuctBox(g,CW,.815,.04,x,.4675,z+dr*CH/2)}
+  if((c*7+r*3)%5==0){Cy(.07,.07,.03,MT.dark,x,.855,z,null,null,10);const b=A(new THREE.SphereGeometry(.05,8,6,0,Math.PI*2,0,Math.PI/2),M(0xffe8b0,{emissive:0xffd890}),x,.84,z);b.rotation.x=Math.PI;for(const r2 of[0,Math.PI/2])B(.13,.008,.008,MT.dark,x,.792+r2*.0032,z).rotation.y=r2;lights.push([x,.78,z])}}
+ /* your cell's end: the duct runs into the wall's hole; a plate closes the slot over the duct roof */B(1.16,.16,.14,MT.steel,-450,.95,-786.93);
+ /* the laundry end: the duct carries on through the laundry wall (x -424.25 .. -423.86) */{const z=cz(1),L=.39,x=-424.25+L/2;penDuctBox(g,L,.04,CH,x,.045,z);penDuctBox(g,L,.05,CH,x,.895,z);for(const s of[-1,1])penDuctBox(g,L,.815,.04,x,.4675,z+s*CH/2);B(L,.13,CH+.04,MT.steel,x,.985,z)}
+ penNoSeam(g);return lights}
+/* a fan for the duct (the game's at lane cells (17,1), axis x, and (26,3), turned to axis z): a yellow square frame that
+   fits the duct, a ring, struts, a hub and five pitched blades. Its origin is the fan's middle (put it at the game's
+   (cx, .45, cz) with the game's rotation.y); spin bl with rotation.x as now. Returns {fan, bl} */
+function penVentFan(){const k=penKit(),{MT,M}=k,f=new THREE.Group(),{A,B,Cy}=k.H(f),Y=M(0xd8b020,{roughness:.6}),GM=M(0x8a9098,{metalness:.5,roughness:.4});
+ B(.06,.08,1.16,Y,0,.38,0);B(.06,.08,1.16,Y,0,-.345,0);for(const s of[-1,1])B(.06,.645,.08,Y,0,.0175,s*.54);
+ const ring=A(new THREE.TorusGeometry(.4,.025,6,28),GM,0,0,0);ring.rotation.y=Math.PI/2;for(let i=0;i<3;i++){const a=i*Math.PI*2/3,s=new THREE.Mesh(new THREE.BoxGeometry(.02,.3,.02),GM);s.position.set(.04,Math.cos(a)*.24,Math.sin(a)*.24);s.rotation.x=a;f.add(s)}
+ Cy(.09,.09,.16,MT.dark,.02,0,0,'x',null,14);const bl=new THREE.Group();f.add(bl);for(let i=0;i<5;i++){const p=new THREE.Group();p.rotation.x=i*Math.PI*2/5;bl.add(p);const b=new THREE.Mesh(new THREE.BoxGeometry(.015,.28,.14),M(0xa0a6ac,{metalness:.5,roughness:.35}));b.position.y=.23;b.rotation.y=.45;p.add(b)}const cap=new THREE.Mesh(new THREE.SphereGeometry(.06,10,8),MT.dark);cap.position.x=-.07;bl.add(cap);
+ penNoSeam(f);return{fan:f,bl}}
+
+/* ---------------- the laundry (the game's room x -424..-410, z -800..-787) ---------------- */
+/* a front-loading washer, facing -x (the game's at x -412, z -799 + 1.4 i). Origin: its floor centre. Returns {washer,
+   drum}: the drum (seen through the glass) turns about x like the game's */
+function penWasher(i){const k=penKit(),{MT,M}=k,w=new THREE.Group(),{A,B,Cy,rod}=k.H(w),WH=M(0xe8e8ec,{roughness:.4,metalness:.15}),CH=M(0xd0d4d8,{metalness:.6,roughness:.25});
+ B(.9,.06,.9,MT.dark,0,.03,0);B(.98,1.04,.98,WH,0,.58,0);B(.25,.18,.9,M(0xd8d8dc),.3,1.19,0);B(.01,.12,.6,MT.dark,.17,1.2,0);Cy(.04,.04,.03,MT.dark,.17-.015,1.23,.3,'x',null,10);const led=B(.012,.03,.03,M(0x103010,{emissive:i%3==1?0xff3030:0x30ff60}),.155,1.24,-.3);
+ const dr=new THREE.Group();dr.position.set(-.495,.6,0);w.add(dr);const back=new THREE.Mesh(new THREE.CircleGeometry(.29,20),M(0x2a3038,{metalness:.4}));back.rotation.y=-Math.PI/2;dr.add(back);
+ for(let c=0;c<5;c++){const cl=new THREE.Mesh(new THREE.BoxGeometry(.01,.14,.1),M([0xe86a20,0xffffff,0xe86a20,0x5a7aa8,0xe86a20][c]));const a=c*1.25;cl.position.set(-.008,Math.cos(a)*.17,Math.sin(a)*.17);cl.rotation.x=a;dr.add(cl)}
+ const ring=A(new THREE.TorusGeometry(.33,.045,8,24),CH,-.53,.6,0);ring.rotation.y=Math.PI/2;const gl=A(new THREE.CircleGeometry(.3,24),new THREE.MeshStandardMaterial({color:0x6a90b0,transparent:true,opacity:.3,roughness:.05,metalness:.3,depthWrite:false}),-.53,.6,0);gl.rotation.y=-Math.PI/2;B(.03,.08,.04,CH,-.53,.6,.36);
+ /* the hoses to the tap on the wall behind (the wall is 1.85 m back) */rod([.49,.35,.2],[1.8,.35,.2],.025,MT.black);rod([1.8,.35,.2],[1.8,.95,.2],.025,MT.black);B(.08,.2,.3,MT.steel,1.81,.95,.1);Cy(.03,.03,.1,M(0xc02020),1.75,1.0,.0,'x',null,8);
+ penNoSeam(w);return{washer:w,drum:dr,led}}
+/* a stack of two dryers, facing +z (the game's at x -422.2, -420.9, -419.6, z -799.4, against the north wall), with an
+   exhaust duct up to the ceiling */
+function penDryerStack(){const k=penKit(),{MT,M}=k,d=new THREE.Group(),{A,B,Cy}=k.H(d),WH=M(0xdcdce0,{roughness:.4,metalness:.15}),CH=M(0xc0c4c8,{metalness:.6,roughness:.25});
+ for(const y0 of[0,1]){B(1.1,1.0,.9,WH,0,y0+.5,0);const dk=A(new THREE.CircleGeometry(.29,20),M(0x2a2a30,{metalness:.4}),0,y0+.45,.46);const r=A(new THREE.TorusGeometry(.32,.04,6,22),CH,0,y0+.45,.47);B(1.0,.1,.02,M(0x4a4e54),0,y0+.91,.455);B(.3,.04,.02,M(0x103020,{emissive:0x30a060}),.3,y0+.91,.462);B(.04,.1,.05,CH,.36,y0+.45,.47)}
+ Cy(.09,.09,2.6,MT.galv,0,3.3,-.3,null,null,10);penNoSeam(d);return d}
+/* the steel folding bench (the game's at x -416.6, z -799.4) with folded orange towels */
+function penFoldBench(g){const k=penKit(),{MT,M}=k,{B}=k.H(g),x=-416.6,z=-799.4,S=M(0xa8a8b0,{metalness:.4,roughness:.4});B(2,.04,.9,S,x,.9,z);for(const[a,b]of[[-.94,-.4],[.94,-.4],[-.94,.4],[.94,.4]])B(.05,.88,.05,MT.steel,x+a,.44,z+b);B(1.83,.03,.75,S,x,.25,z);
+ for(let j=0;j<3;j++){B(.5,.12,.4,M(0xe86a20,{roughness:1}),x-.6+j*.6,.98,z);if(j==0)B(.48,.12,.38,M(0xf0f0ec,{roughness:1}),x-.6,1.1,z)}for(let j=0;j<2;j++)B(.6,.25,.45,M(0x6a7a8a),x-.5+j*1.0,.39,z);penNoSeam(g)}
+/* the folding table for the laundry job (the game's at x -420.4, z -798.3; the folded sheets pile on it at y .92 up) */
+function penFoldTable(g){const k=penKit(),{MT,M}=k,{B}=k.H(g),x=-420.4,z=-798.3,S=M(0x8a8f96,{metalness:.4,roughness:.4});B(1.8,.05,.8,S,x,.865,z);for(const[a,b]of[[-.8,-.3],[.8,-.3],[-.8,.3],[.8,.3]])B(.05,.84,.05,MT.steel,x+a,.42,z+b);for(const s of[-1,1])B(1.55,.04,.03,MT.steel,x,.25,z+s*.3);penNoSeam(g)}
+/* the shelves on the west wall (the game's at x -423.62, z -792.7..-790.3) with detergent and bleach */
+function penLaundryShelf(g){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),x=-423.64;for(const z of[-792.68,-790.32])B(.4,2.5,.04,MT.steel,x,1.25,z);for(const y of[1.2,1.8,2.4])B(.4,.03,2.32,M(0x8a6a4a),x,y,-791.5);
+ for(let j=0;j<7;j++){const y=[1.2,1.8,2.4][j%3],z=-792.4+(j*.37)%2,c=[0x2a6ad0,0xf0d020,0xd02a2a,0xffffff][j%4];B(.22,.3,.16,M(c,{roughness:.5}),x+.02,y+.165,z);Cy(.03,.03,.05,M(0xe8e8e8),x+.02,y+.34,z+.04,null,null,8)}penNoSeam(g)}
+/* the washing line from wall to wall (z -790.2), 2.8 up, sagging .35; the five jumpsuits at the game's spots. Returns
+   the jumpsuit groups (the game sways them with rotation.x); each hangs from the line */
+function penClothesline(g){const k=penKit(),{MT,M}=k,{A,B}=k.H(g),z=-790.2,xa=-423.84,xb=-410.16,xm=(xa+xb)/2,hw=(xb-xa)/2,yl=x=>2.8-.35*(1-((x-xm)/hw)**2);
+ const P=[];for(let i=0;i<=20;i++){const x=xa+(xb-xa)*i/20;P.push(new THREE.Vector3(x,yl(x),z))}A(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(P),40,.008,5),M(0xd8d0b8),0,0,0);for(const x of[xa,xb])B(.06,.06,.06,MT.dark,x+(x<xm?.03:-.03),2.8,z);
+ const js=[];for(let j=0;j<5;j++){const x=-422+(j+1)/6*9,c=j==2?0x5a7aa8:0xe86a20,jp=new THREE.Group();jp.position.set(x,yl(x),z);g.add(jp);const q=k.H(jp);q.B(.55,.7,.04,M(c,{roughness:1}),0,-.37,0);for(const s of[-1,1]){q.B(.2,.55,.03,M(c,{roughness:1}),s*.15,-.99,0);q.B(.16,.24,.03,M(c,{roughness:1}),s*.33,-.16,0).rotation.z=s*.5;q.B(.03,.06,.05,M(0xe8e0c0),s*.18,-.005,0)}js.push(jp)}penNoSeam(g);return js}
+/* the utility sink (the game's at x -423.3, z -788.2; it floated) on legs, with a tap from the wall */
+function penUtilitySink(g){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),x=-423.3,z=-788.2,S=M(0xc8ccd0,{metalness:.5,roughness:.3});B(.9,.35,.6,S,x,.975,z);B(.8,.012,.5,MT.dark,x,1.156,z);for(const[a,b]of[[-.4,-.25],[.4,-.25],[-.4,.25],[.4,.25]])B(.05,.8,.05,MT.steel,x+a,.4,z+b);
+ B(.25,.04,.04,S,-423.72,1.32,z);Cy(.02,.02,.14,S,-423.6,1.26,z,null,null,8);Cy(.04,.04,.8,MT.galv,x,.4,z,null,null,8);penNoSeam(g)}
+/* the laundry cart (the hiding spot at x -414.5, z -789): a steel frame on castors, a canvas bag, laundry */
+function penLaundryCart(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),x=-414.5,z=-789;for(const[a,b]of[[-.4,-.3],[.4,-.3],[-.4,.3],[.4,.3]]){B(.04,.72,.04,MT.steel,x+a,.46,z+b);Cy(.05,.05,.04,MT.dark,x+a,.05,z+b,'z',null,10)}
+ for(const y of[.82,.12])for(const s of[-1,1]){B(.8,.03,.03,MT.steel,x,y,z+s*.3);B(.03,.03,.6,MT.steel,x+s*.4,y+.006,z)}B(.76,.665,.56,M(0x6a7a6a,{roughness:1}),x,.4675,z);B(.7,.1,.5,M(0xe86a20,{roughness:1}),x,.85,z);B(.3,.08,.3,M(0xffffff,{roughness:1}),x+.15,.93,z-.05);penNoSeam(g)}
+/* a laundry basket (the game's three, the uniform is in one): wicker, a rim, handles, washing on top */
+function penBasket(g,x,z,i){const k=penKit(),{MT,M}=k,{A}=k.H(g);if(!k.wick)k.wick=new THREE.MeshStandardMaterial({map:k.can(64,64,(c,w,h)=>{c.fillStyle='#8a6a3a';c.fillRect(0,0,w,h);c.strokeStyle='rgba(60,40,20,.7)';c.lineWidth=2;for(let y=0;y<h;y+=8){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}for(let x2=0;x2<w;x2+=8){c.beginPath();c.moveTo(x2,0);c.lineTo(x2,h);c.stroke()}},1),roughness:1});
+ const b=A(new THREE.CylinderGeometry(.45,.38,.78,16,1),k.wick,x,.39,z);const rim=A(new THREE.TorusGeometry(.45,.03,6,20),M(0x6a4a2a),x,.78,z);rim.rotation.x=Math.PI/2;for(const s of[-1,1]){const h=A(new THREE.TorusGeometry(.1,.02,6,10,Math.PI),M(0x6a4a2a),x+s*.44,.72,z);h.rotation.y=Math.PI/2}
+ const w=A(new THREE.SphereGeometry(.42,12,6,0,Math.PI*2,0,Math.PI/2),M([0xe0e0e0,0xa0a8b8,0xd8c8a8][i],{roughness:1}),x,.75,z);w.scale.y=.45;penNoSeam(g)}
+/* the room itself: tiled floor, painted walls (a skin 1 cm off them, round the duct hole and the door), the duct's frame on
+   the laundry side, a door frame, two caged lights, hangers for the game's three overhead pipes (lengthen them to
+   13.72 so they go into the walls) */
+function penLaundryRoom(g){const k=penKit(),{MT,M}=k,{A,B}=k.H(g),PT=penCellPaint(),H=4.6;
+ {const t=k.can(128,128,(x,w,h)=>{x.fillStyle='#a8acae';x.fillRect(0,0,w,h);x.strokeStyle='#7e8286';x.lineWidth=2;for(let i=0;i<=128;i+=32){x.beginPath();x.moveTo(i,0);x.lineTo(i,128);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(128,i);x.stroke()}for(let i=0;i<900;i++){x.fillStyle='rgba(0,0,0,'+Math.random()*.05+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}},1);t.repeat.set(13.68/1.2,12.68/1.2);const f=A(new THREE.PlaneGeometry(13.68,12.68),new THREE.MeshStandardMaterial({map:t,roughness:.85}),-417,.045,-793.5);f.rotation.x=-Math.PI/2}
+ const sk=(ax,c,a0,a1,y0,y1,ry)=>{const L=a1-a0,h=y1-y0,geo=new THREE.PlaneGeometry(L,h),uv=geo.attributes.uv,P=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,(P.getX(i)+(a0+a1)/2)/4.6,(P.getY(i)+(y0+y1)/2)/4.6);const m=A(geo,PT,ax=='x'?(a0+a1)/2:c,(y0+y1)/2,ax=='x'?c:(a0+a1)/2);m.rotation.y=ry};
+ sk('z',-423.84,-799.85,-798.7,0,H,Math.PI/2);sk('z',-423.84,-797.4,-787.15,0,H,Math.PI/2);sk('z',-423.84,-798.7,-797.4,1.05,H,Math.PI/2);sk('z',-410.16,-799.85,-787.15,0,H,-Math.PI/2);
+ sk('x',-799.84,-423.85,-410.15,0,H,0);sk('x',-787.16,-423.85,-419,0,H,Math.PI);sk('x',-787.16,-417,-410.15,0,H,Math.PI);sk('x',-787.16,-419,-417,2.6,H,Math.PI);
+ /* the duct's frame on the laundry side (round the hole z -798.7..-797.4, 1.05 high) */B(.06,.1,1.42,MT.steel,-423.82,1.1,-798.05);for(const s of[-1,1])B(.06,1.05,.1,MT.steel,-423.82,.525,-798.05+s*.7);
+ /* the door frame (the doorway x -419..-417 in the z -787 wall) */for(const x of[-418.97,-417.03])B(.1,2.55,.36,MT.steel,x,1.275,-787);B(2.18,.1,.38,MT.steel,-418,2.55,-787);
+ penCeilLamp(g,-420,-793.5);penCeilLamp(g,-414,-793.5);for(const x of[-421,-417,-413]){B(.05,.05,8.6,MT.steel,x,3.195,-793);for(const z of[-797.25,-788.75])B(.012,1.38,.012,MT.steel,x,3.91,z)}
+ penNoSeam(g)}
+/* everything in the laundry at the game's spots. Returns {drums, leds, suits} */
+function penLaundry(g){penLaundryRoom(g);const r={drums:[],leds:[]};for(let i=0;i<4;i++){const w=penWasher(i);w.washer.position.set(-412,0,-799+i*1.4);g.add(w.washer);r.drums.push(w.drum);r.leds.push(w.led)}
+ for(const x of[-422.2,-420.9,-419.6]){const d=penDryerStack();d.position.set(x,0,-799.4);g.add(d)}penFoldBench(g);penFoldTable(g);penLaundryShelf(g);r.suits=penClothesline(g);penUtilitySink(g);penLaundryCart(g);
+ for(const[i,x,z]of[[0,-420,-795],[1,-416,-792],[2,-421,-790]])penBasket(g,x,z,i);return r}
