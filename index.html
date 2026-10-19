@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-19 r634';
+const BUILD='2026-10-19 r635';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15979,6 +15979,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r635',['Vehicle batching: the moving parts of every vehicle (wheels, steering wheels, turrets, gun barrels, rotors, missiles, the Wraith\'s radar) are now drawn as a few pieces each instead of dozens. About a third fewer draw calls at the Fort, the airfield and the bus stop. They look and move exactly as before','Lag test window: the buttons stay put now (they sat under text that kept changing length), and it shows your render scale (if the game lowered its resolution because frames were slow, which makes it blurry; /gfx high keeps it sharp)']],
 ['r634',['Warping from the map now takes you to the place\'s phone booth when it has one. The prison\'s marker used to drop you inside the cell block, where you could not warp out again','You can warp out of the prison area again unless you are actually a prisoner','Dark Penitentiary control room: the floodlight and inner gate switches are on the wall now (they floated over the console), and the console buttons are no longer stretched']],
 ['r633',['Cars that spawn while you play (traffic, police, squads...) are now sent to your graphics card while they are still far away, so they no longer cause a hitch when they come into view','The officers walking outside the police station no longer walk backwards']],
 ['r632',['Desert warm-up: the desert is now sent to your graphics card a little at a time, nearest first, while the bus drives you in and while you play, instead of all at once the first time you see it. Far fewer freezes when you reach a new place (the Fort, the quarry, the prison...). The loading screen is not any longer']],
@@ -28838,7 +28839,7 @@ function lagRaf(t){if(!LAG.open)return;if(LAG.last)LAG.fr.push(t-LAG.last);if(LA
 function lagTake(){/* averages since the last call */const n=Math.max(1,LAG.frames),m=Math.max(1,LAG.mainN||0),fr=LAG.fr.slice(-Math.max(1,LAG.frames));const avg=fr.length?fr.reduce((a,b)=>a+b,0)/fr.length:0;
  const o={fps:avg?1000/avg:0,frame:avg,worst:fr.length?Math.max(...fr):0,cpu:LAG.cpu/n,pos:LAG.pos/n,rend:LAG.rend/n,calls:LAG.calls/m,tris:LAG.tris/m,sys:{}};for(const k in LAG.sys)o.sys[k]=LAG.sys[k]/n;
  LAG.cpu=LAG.pos=LAG.rend=LAG.calls=LAG.tris=0;LAG.frames=0;LAG.mainN=0;LAG.sys={};return o}
-function lagScene(){const q=BUS&&BUS.ride,o={};try{let n=0,d=0;S.traverse(x=>{n++});o.objects=n;o.geoms=R.info.memory.geometries;o.tex=R.info.memory.textures;const c=R.domElement;o.res=c.width+'x'+c.height;o.pr=+R.getPixelRatio().toFixed(2);if(performance.memory)o.heap=Math.round(performance.memory.usedJSHeapSize/1e6);if(q&&q.roam){o.vehs=(q.vehs||[]).length;o.anims=(q.anims||[]).length;o.obs=(q.obs||[]).length;o.chunks=(q.chunks||[]).filter(c=>c.visible).length+'/'+(q.chunks||[]).length;o.pos=Math.round(P.x)+', '+Math.round(P.z-q.OZ)}if(typeof MWX!='undefined')o.skipped=MWX.skipped}catch(e){}return o}
+function lagScene(){const q=BUS&&BUS.ride,o={};try{let n=0,d=0;S.traverse(x=>{n++});o.objects=n;o.geoms=R.info.memory.geometries;o.tex=R.info.memory.textures;const c=R.domElement;o.res=c.width+'x'+c.height;o.pr=+R.getPixelRatio().toFixed(2);if(performance.memory)o.heap=Math.round(performance.memory.usedJSHeapSize/1e6);if(q&&q.roam){o.vehs=(q.vehs||[]).length;o.anims=(q.anims||[]).length;o.obs=(q.obs||[]).length;o.chunks=(q.chunks||[]).filter(c=>c.visible).length+'/'+(q.chunks||[]).length;o.pos=Math.round(P.x)+', '+Math.round(P.z-q.OZ)}if(typeof MWX!='undefined')o.skipped=MWX.skipped;try{o.qs=Math.round(QS*100);o.gq=GQ}catch(e){}}catch(e){}return o}
 function lagVerdict(a){if(!a.frame)return'';const busy=a.cpu,wait=Math.max(0,a.frame-busy);if(a.fps>55&&a.worst<40)return'Running smoothly.';
  if(wait>busy*1.2)return'Mostly waiting on the GRAPHICS CARD (or the browser): try the hide switches to see what is heavy to draw.';return'Mostly the PROCESSOR (game code and positions): see the biggest parts below.'}
 const lagF=(v,d=1)=>(+v||0).toFixed(d);
@@ -28848,17 +28849,19 @@ function lagDraw(a){const d=document.getElementById('lagDlg');if(!d)return;const
  let h='<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:16px">LAG TEST</b><span style="opacity:.7">F9 or /lag to close</span></div>';
  h+='<div style="font-size:26px;font-weight:bold;color:'+(A.fps>50?'#6f6':A.fps>28?'#fd4':'#f66')+'">'+lagF(A.fps,0)+' FPS</div><div>frame '+lagF(A.frame)+' ms · worst '+lagF(A.worst,0)+' ms</div>';
  h+='<canvas id="lagG" width="300" height="46" style="width:100%;height:46px;background:#0006;margin:4px 0"></canvas>';
+ /* r635: the buttons sit right under the graph, so they do not jump about when the text below changes length */
+ h+='<div style="margin-top:4px"><b>Test switches</b> <span style="opacity:.7">(press Esc for the mouse; drawing only, all reset on close)</span></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">';
+ const bt=(id,txt,on)=>'<button data-l="'+id+'" style="font:inherit;font-size:12px;padding:3px 6px;border-radius:4px;border:1px solid #888;cursor:pointer;background:'+(on?'#c33':'#333')+';color:#fff">'+txt+'</button>';
+ for(const[k,nm]of LAGHIDE)h+=bt('h:'+k,(LAG.hide[k]?'✔ ':'')+'Hide '+nm.toLowerCase(),LAG.hide[k]);h+=bt('mwx',(LAG.mwxOff?'✔ ':'')+'Position skip OFF',LAG.mwxOff);h+='</div>';
+ h+='<div style="display:flex;gap:6px;margin-top:8px">'+bt('auto',LAG.auto?'Testing... '+LAG.auto.i+'/'+LAG.auto.L.length:'▶ Find the lag (20 s)',!!LAG.auto)+bt('copy','📋 Copy report')+bt('close','Close')+'</div>';
  h+='<div style="color:#fd8;margin:2px 0 6px">'+lagVerdict(A)+'</div>';
  h+='<table style="width:100%;border-collapse:collapse">';const tr=(k,v,c)=>'<tr'+(c?' style="color:'+c+'"':'')+'><td>'+k+'</td><td style="text-align:right">'+v+'</td></tr>';
  h+=tr('<b>Whole frame</b>','<b>'+lagF(A.frame)+' ms</b>');h+=tr('Game code + drawing (processor)',lagF(A.cpu)+' ms');h+=tr('&nbsp; working out positions',lagF(A.pos)+' ms');h+=tr('&nbsp; drawing (sending to the graphics card)',lagF(Math.max(0,(A.rend||0)-(A.pos||0)))+' ms');
  for(const[v,nm,tot]of rows)if(tot||v>=.05)h+=tr('&nbsp; '+(tot?'':'&nbsp; ')+nm,lagF(v,2)+' ms',tot?null:'#bbb');
  h+=tr('Waiting (graphics card / browser)',lagF(other)+' ms','#9cf');h+='</table>';
  h+='<div style="margin-top:6px">'+lagF(A.calls,0)+' draw calls · '+Math.round((A.tris||0)/1000)+'k triangles · '+(sc.objects||0)+' objects'+(sc.skipped!=null?' ('+sc.skipped+' skipped)':'')+'</div>';
- h+='<div style="opacity:.8">'+(sc.res||'')+' px (×'+sc.pr+')'+(sc.heap!=null?' · '+sc.heap+' MB memory':'')+' · '+sc.geoms+' meshes data · '+sc.tex+' textures'+(sc.vehs!=null?'<br>'+sc.vehs+' vehicles · '+sc.anims+' animations · '+sc.obs+' obstacles · chunks shown '+sc.chunks+' · at '+sc.pos:'')+'</div>';
- h+='<div style="margin-top:8px"><b>Test switches</b> <span style="opacity:.7">(press Esc for the mouse; drawing only, all reset on close)</span></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">';
- const bt=(id,txt,on)=>'<button data-l="'+id+'" style="font:inherit;font-size:12px;padding:3px 6px;border-radius:4px;border:1px solid #888;cursor:pointer;background:'+(on?'#c33':'#333')+';color:#fff">'+txt+'</button>';
- for(const[k,nm]of LAGHIDE)h+=bt('h:'+k,(LAG.hide[k]?'✔ ':'')+'Hide '+nm.toLowerCase(),LAG.hide[k]);h+=bt('mwx',(LAG.mwxOff?'✔ ':'')+'Position skip OFF',LAG.mwxOff);h+='</div>';
- h+='<div style="display:flex;gap:6px;margin-top:8px">'+bt('auto',LAG.auto?'Testing... '+LAG.auto.i+'/'+LAG.auto.L.length:'▶ Find the lag (20 s)',!!LAG.auto)+bt('copy','📋 Copy report')+bt('close','Close')+'</div>';
+ h+='<div style="opacity:.8">'+(sc.res||'')+' px (×'+sc.pr+')'+(sc.qs!=null?' · render scale '+sc.qs+'%'+(sc.qs<100&&sc.gq!=='high'?' (lowered by itself because frames were slow; /gfx high keeps it sharp)':''):'')+(sc.heap!=null?' · '+sc.heap+' MB memory':'')+' · '+sc.geoms+' meshes data · '+sc.tex+' textures'+(sc.vehs!=null?'<br>'+sc.vehs+' vehicles · '+sc.anims+' animations · '+sc.obs+' obstacles · chunks shown '+sc.chunks+' · at '+sc.pos:'')+'</div>';
+
  if(LAG.res)h+='<div style="margin-top:8px;border-top:1px solid #555;padding-top:6px;white-space:pre-wrap">'+LAG.res+'</div>';
  h+='<div style="margin-top:8px;border-top:1px solid #555;padding-top:6px"><b>Lag spikes</b> <span style="opacity:.7">('+LAG.spikes.length+' since the window opened; tip: open it before you go to the desert)</span>'+(LAG.spikes.length?'<div style="font-size:12px;opacity:.9">'+LAG.spikes.slice(-6).reverse().map(lagSpikeTxt).join('<br>')+'</div>':'<div style="opacity:.7">none yet</div>')+'</div>';
  d.innerHTML=h;
@@ -28868,7 +28871,7 @@ function lagClick(e){const b=e.target.closest&&e.target.closest('button[data-l]'
 function lagReport(){const A=LAG.acc||{},sc=lagScene();const L=['DOORS lag report · '+(typeof BUILD!='undefined'?BUILD:'')+' · '+navigator.userAgent,'Where: '+(BUS&&BUS.ride&&BUS.ride.roam?'desert at '+sc.pos:state),
  lagF(A.fps,0)+' FPS · frame '+lagF(A.frame)+' ms · worst '+lagF(A.worst,0)+' ms · processor '+lagF(A.cpu)+' ms (positions '+lagF(A.pos)+', drawing '+lagF(Math.max(0,(A.rend||0)-(A.pos||0)))+') · waiting '+lagF(Math.max(0,(A.frame||0)-(A.cpu||0)))+' ms',
  'Parts: '+LAGSYS.filter(([n])=>A.sys&&A.sys[n]!=null).map(([n,nm])=>n+' '+lagF(A.sys[n],2)).join(', '),
- lagF(A.calls,0)+' draw calls · '+Math.round((A.tris||0)/1000)+'k tris · '+sc.objects+' objects · skipped '+sc.skipped+' · '+sc.res+' x'+sc.pr+(sc.heap!=null?' · heap '+sc.heap+' MB':'')+' · geoms '+sc.geoms+' · tex '+sc.tex+' · vehicles '+sc.vehs+' · anims '+sc.anims+' · chunks '+sc.chunks,
+ lagF(A.calls,0)+' draw calls · '+Math.round((A.tris||0)/1000)+'k tris · '+sc.objects+' objects · skipped '+sc.skipped+' · '+sc.res+' x'+sc.pr+' · render scale '+sc.qs+'% ('+sc.gq+')'+(sc.heap!=null?' · heap '+sc.heap+' MB':'')+' · geoms '+sc.geoms+' · tex '+sc.tex+' · vehicles '+sc.vehs+' · anims '+sc.anims+' · chunks '+sc.chunks,
  'Switches: '+(Object.keys(LAG.hide).filter(k=>LAG.hide[k]).join(',')||'none')+(LAG.mwxOff?' +position skip off':'')];if(LAG.res)L.push('Find the lag:\n'+LAG.res);L.push('Lag spikes ('+LAG.spikes.length+'):'+(LAG.spikes.length?'\n'+LAG.spikes.map(lagSpikeTxt).join('\n'):' none'));return L.join('\n')}
 function lagCopy(){const t=lagReport();try{navigator.clipboard.writeText(t).then(()=>hint('📋 Lag report copied. Paste it to Claude.'),()=>prompt('Copy this:',t))}catch(e){prompt('Copy this:',t)}}
 /* "Find the lag": a few seconds with each switch on, one at a time, compared with none */
@@ -28956,6 +28959,36 @@ function warmHot(q,r0){const budget=q.roam?WARM.PLAY:WARM.BUS,t0=performance.now
 /* also mark what the normal frame draws, so it is never uploaded "again" by the warm-up */
 {const rb=R.renderBufferDirect;R.renderBufferDirect=function(cam,sc,geo){if(geo)WARM.done.add(geo);return rb.apply(this,arguments)}}
 {const r0=R.render;WARM.r0=r0;R.render=function(sc,cam){if(sc===S&&cam===C&&WARM.on){try{warmTick(BUS&&BUS.ride,r0)}catch(e){WARM.fail++;conLog('error','warm-up: '+e.message);if(WARM.fail>3){WARM.on=false;conLog('error','warm-up switched off (the game uploads things as they are drawn, as before)')}}}return r0.apply(this,arguments)}}
+
+
+/* =====================================================================================================
+   r635: DESERT PERFORMANCE, VEHICLE BATCHING. Every vehicle's still parts were already drawn as a few batches (r500/r603),
+   but each MOVING part (a wheel, the steering wheel, a turret, a gun barrel, a rotor, a missile on its rail, the
+   Wraith's radar...) was left out together with everything on it, so a tank still drew about 200 separate pieces.
+   Now the pieces of each moving part are batched relative to that part: the batch hangs on the part, so it turns,
+   spins, steers, lifts and hides with it exactly as before. A moving part inside another (the barrel in the turret,
+   the tyre in the steering pivot) gets its own batch. The batch watchdog checks these every few frames like the
+   vehicles' other batches: any piece that moves on its own is taken back out and drawn by itself, as before.
+   Left alone on purpose: the jet's landing gear (its legs fold separately inside it), and parts with a single piece
+   (nothing to batch). Nothing is removed: the original pieces stay in place, only hidden behind their batch.
+   One vehicle is done per frame. ?novb in the address turns it off to compare.
+   ===================================================================================================== */
+const VB={on:!/[?&]novb/.test(location.search),i:0,q:null,skipKeys:new Set(['gear']),stats:{vehicles:0,parts:0,batches:0,pieces:0,ms:0}};
+/* the moving parts a vehicle's code reaches through its userData (the same list the batcher leaves out) */
+function vbParts(o){const ud=o.userData||{},m=new Map();const add=(x,k)=>{if(x&&x.isObject3D&&!m.has(x))m.set(x,k)};
+ for(const k in ud){const v=ud[k];if(!v)continue;if(v.isObject3D)add(v,k);else if(Array.isArray(v))for(const y of v){if(!y)continue;if(y.isObject3D)add(y,k);else if(typeof y==='object')for(const kk of['t','p','m'])add(y[kk],k)}}return m}
+function vbVehicle(q,v){const o=v&&v.m;if(!o||v.gone||v.wreck||!o.parent||typeof DP=='undefined'||!DP._mergeRoot||!q.dp)return;
+ const parts=vbParts(o);if(!parts.size)return;
+ /* while one part is batched, every other moving part (and what is on it) stays out of its batch */
+ const flagged=[];for(const[x]of parts)if(!x.userData.dpKeep){x.userData.dpKeep=1;flagged.push(x)}
+ const t0=performance.now();let did=0;
+ try{for(const[x,k]of parts){if(VB.skipKeys.has(k)||x.userData.vbTried||x.userData.dpRecs)continue;x.userData.vbTried=1;
+   let n=0;x.traverse(m=>{if(m.isMesh)n++});if(n<2)continue;
+   try{x.updateMatrixWorld(true);const r=DP._mergeRoot(q,x,DP.cfg().lam,false);if(x.userData.dpRecs&&x.userData.dpRecs.length){(q.dp.movers||(q.dp.movers=[])).push(x);VB.stats.parts++;VB.stats.batches+=r[0];VB.stats.pieces+=r[1];did++}}catch(e){conLog('error','vehicle batching ('+k+'): '+e.message)}}}
+ finally{for(const x of flagged)delete x.userData.dpKeep}
+ VB.stats.ms+=performance.now()-t0;if(did)VB.stats.vehicles++}
+/* one vehicle per frame, round and round (new vehicles and swapped models are picked up as they come) */
+{const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(VB.on&&q&&q.vehs&&q.vehs.length&&!q.ld&&q.dp&&q.dp.merged){if(VB.q!==q){VB.q=q;VB.i=0}VB.i=(VB.i+1)%q.vehs.length;vbVehicle(q,q.vehs[VB.i])}}catch(e){conLog('error','vehicle batching: '+e.message);VB.on=false}return r}}
 
 </script><script>
 /* ======================================================================================================
