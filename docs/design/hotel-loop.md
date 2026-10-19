@@ -1,4 +1,4 @@
-Status: draft for discussion (2026-10-19) · nothing to build yet: the user picks what goes in
+Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) spec below, in review · part 2 (B floors, D entities) next, with models
 
 # The hotel: how the run plays now, and what to change
 
@@ -91,3 +91,125 @@ Gold would buy things for this run; knobs would mean every run counts.
 **H. The fixes in point 6 above.** These are small and could ship with anything.
 
 A sensible first package: **A + C + E + H** (fresh runs, a curve, rewards that matter, the fixes). Then **B** and **D**, which need models and rooms. **F** and **G** are cheap add-ons to either.
+
+---
+
+# Part 1: the spec (A, C, E, F, G, H): game rules only, no new models
+
+General rules for everything below:
+- **Co-op determinism.** Everything about the run's shape is rolled from the run seed (`mpSeed || soloSeed`) with its own RNG (`dxRng(seed ^ 0x51ED)`), once, at run start, into one object `RUNPLAN`. It is never rolled with `Math.random`, so all players and every Continue get the same plan. Goals (G) are per player.
+- **Modes left as they are:** the Daily Run, the Gilded Gauntlet and DOORS BUT DESERT keep their own rules. Retro Mode uses the new rules.
+- **A new modifier, Classic layout** (`classic`, +0% gold) brings back the fixed doors (Seek at 25/65, Jeff at 60, locks every 8th, rain every n%5=3) for anyone who likes it.
+
+## A. Shuffle the skeleton
+`RUNPLAN` holds:
+- **`seek: [s1, s2]`**: s1 in 20..30 and s2 in 60..70 (each chase is 10 rooms, as now). `CH` stops being a constant: `chIdx` reads `RUNPLAN.seek`, and every other use of `CH` and of the numbers 25 and 65 for the chases has to follow it (search for `CH[`, `25` and `65` near Seek code; the crossroads in dx594 use `chIdx`).
+- **`jeff`**: one door in 41..47 or 52..58, at least 3 doors after the end of chase 1. It replaces `nn==60` in the room pick, so `noshop` still removes it.
+- **`back`**: one door in 80..92, at least 3 doors after chase 2 ends. It is **Jeff's back room**: the Jeff room again, but only 4 items picked from `JSHOP` (seeded), 1 of each, at the normal price, and no tip jar. Its sign says "JEFF'S BACK ROOM · LAST STOP BEFORE THE BOILER".
+- **`lock`**: a set of door numbers. Each door from 3 to 99 is in it with chance 1/8 (1/4 with the `lock` modifier), but never within 3 doors of the last one (1 with `lock`). It replaces `nn%(MODS.lock?4:8)==0` in the `locked=` line; all the other conditions on that line stay, so locked doors still never land in chases, offices and so on.
+- **`rain`**: a set. Each door from 3 to 99 is in it with chance 1/5, never two in a row. It replaces every `nn%5==3` and `nn%5!=3` in room generation (the rain windows, Grin's room, `cw0`, the dark-room roll). Use one helper, `isRain(nn)`.
+- **The library stays at 50, the boiler at 100, and the meltdown and exit after it.** Streak cool-downs that avoided 50/60/98 and the chases ("blocked near 50, 60, 98") must now avoid `RUNPLAN.jeff`, `RUNPLAN.back` and both chases.
+- The Room Inspector (dx592) should show `RUNPLAN` in its desync report.
+
+## C. A real difficulty curve
+Four bands by door: **1-14, 15-39, 40-69, 70-99** (part 2's floors will replace these).
+
+| | 1-14 | 15-39 | 40-69 | 70-99 |
+|---|---|---|---|---|
+| Doors between Rush/Ambush (`nn-evLast`) | 6 | 4 | 4 | 3 |
+| Chance of an event in an eligible room | .30 | .45 | .50 | .55 |
+| of which Ambush (from door 30) | 0 | .25 | .25 | .35 |
+| Ambush passes | - | 2 | 2-3 | 3-4 |
+| Dark rooms (Screech) | 0 before 10, then .08 | .12 | .18 | .26 |
+| Fake-door rooms and fake side doors (their rolls) | x0.5 | x1 | x1 | x1.5 |
+
+- The table changes the numbers in the event roll in `mkRoomRaw` (`r<.25` / `r<.45`, `nn-evLast>=4`) and in the dark roll (`Math.random()<.14`).
+- The `rush` modifier and the Gauntlet keep their own numbers.
+- The 4-door rule in `setCur` (`r.n-evAt>=4`) uses the same table.
+- Grin starts at door 15 instead of 6.
+
+## E. Gold and knobs
+- **Escaping keeps all your gold.** `goldKeep()` halves it only on death. The win menu's line becomes "🪙 You keep all N gold."
+- **The pre-run shop (`SH`)** gains:
+  - Crucifix: 300 (max 1, `pre.c`)
+  - Bandage: 20
+  - Battery: 20
+  - Guardian Angel: 600 (max 1, `pre.h`)
+  - Second Wind: 250 (max 1, new `pre.w`). The first time you would die, you get up on the spot with 40 HP and 3 s of safety. It doesn't work with the One Life modifier, and it isn't kept after the run.
+  - Each passive from `PV` (shoes, magnet, clover, battery, vest): 150 each, one each.
+
+  All of these appear in Locker → Shop and at the lobby desk (`hubBuy`).
+- **Knobs** 🔘 are a new currency (`SV.kn`, saved through `svExtras` in dx574). At the end of every run, dead or escaped (not on Save & exit; when the run is continued and ends):
+  - 1 knob per door reached (counted up to 111), plus 50 for escaping, plus goal rewards (G);
+  - times the modifier bonus (`MODG`);
+  - nothing in debug runs. In co-op, each player gets their own.
+
+  The end screen shows "🔘 +N knobs".
+- **Perks**, bought with knobs in a new Locker tab, **Perks**: each is bought once and kept forever. You equip up to 1 at first; a second slot costs 300 knobs and a third 600. They are off in the Daily Run and the Gauntlet. Equipped perks show on the modifier screen. In co-op each player uses their own.
+
+| Perk | Knobs | Effect |
+|---|---|---|
+| Pocket Torch | 120 | start every run with a flashlight at half charge |
+| Light Sleeper | 150 | the lights flicker 4 s before Rush/Ambush instead of 3 |
+| Haggler | 100 | Jeff's prices -10% (both shops) |
+| Deep Pockets | 80 | +1 vitamins at the start |
+| Lockpicker | 80 | +1 lockpick at the start |
+| Lucky Find | 200 | rare drawer items x1.25 |
+| Thick Skin | 250 | max HP 110 (and 55 with Fragile) |
+| Second Look | 180 | the Item Radar's ping range +50% (only if you carry one) |
+
+## F. Make exploring pay
+- **Side-room drawers** (`srDrawer`) use the main drawer table, not the small one, with gold 10-45 instead of 5-34. The rare items (crucifix, Guardian Angel, passives, rainbow flashlight, radar) are x2.5.
+- **Locked side rooms:** 1 in 10 side rooms has a locked door (lockpick or key, like the main doors).
+  - Inside is a **stash crate**: press E for 40-80 gold plus two rolls of the side-room table.
+  - Rolled from the room seed, so co-op matches. The crate is an existing crate prop with a lid.
+- **One hidden stash per band** (the four bands of C; door picked in `RUNPLAN`, in a plain hallway room):
+  - a loose vent panel low on a wall with a faint sparkle every few seconds;
+  - press E for 60-120 gold and one rare roll;
+  - in co-op the first player to open it shares the gold with everyone.
+- **The crucifix** in normal drawers goes from 0.6% to 0.8%.
+
+## G. Run goals
+At the start of each run (not Daily or Gauntlet) each player gets **3 goals** from the list, rolled from their own id and the run seed. Goals show:
+- in the pause menu;
+- as a toast when done ("✔ Goal: Open 20 drawers · +20 🔘");
+- in the end screen.
+
+The knobs are paid with the run's knobs, so a goal finished in a run that ends in death still pays.
+
+| Goal | Knobs |
+|---|---|
+| Open 20 drawers | 20 |
+| Open 8 side-room drawers | 25 |
+| Survive 3 Rush or Ambush without a locker or bed (high ground or vent) | 40 |
+| Hide from Ambush in a bed | 25 |
+| Reach door 50 without Screech hurting you | 25 |
+| Finish a Seek chase without a hand hitting you | 35 |
+| Get through the library without Figure chasing you | 40 |
+| Buy something from Jeff | 15 |
+| Open a locked side room | 25 |
+| Find a hidden stash | 30 |
+| Use a crucifix | 20 |
+| Pick 3 locks | 20 |
+| Reach door 75 without reviving | 35 |
+| Finish an office floor or crack an archive code | 25 |
+| Reach door 35 holding 150 gold | 20 |
+| Escape the hotel | 50 |
+
+A goal that can't happen in a run (no office streak, no Ambush yet) just doesn't pay. The counters live in a per-run object saved with the run (`runSave`), so Continue keeps them.
+
+## H. Fixes
+- **The room-type roll:** `[...][Math.random()*16|0]` has 19 entries, so `suite` and `svc` never roll. Use `*19|0` and check the guest suite and service rooms still build cleanly, since they have never been seen.
+- **Best door:** `SV.best` counts up to 111 (it is capped at 100 in both the death and the win code).
+- **Kill stats:** `svApply` keeps every kill cause in `SV.k` (it only keeps 9; Creak, Pharaoh and the others are lost on reload).
+- **The Rush death tip:** say "locker or bed", not "wardrobe".
+- **The duplicate `miner` badge id** (dx581:247) gets its own id, so "Shift worker" can be earned.
+- **The FLOOD label:** the "FLOOD n/10" label in `enter()` for Desert mode can't show; either remove it or make it reachable.
+- **The stairwell header comment:** it says 4 rooms; the code and the hint say 5. Fix the comment.
+
+## For the player (the How to play and the changelog)
+- "The hotel is different every run: Seek, Jeff's shop and the locked doors move."
+- "Escaping keeps all your gold."
+- "Earn knobs every run, even when you die, and spend them on perks."
+- "Side rooms are worth a look: better drawers, and some are locked with a stash inside."
+- "Three goals every run."
