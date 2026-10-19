@@ -617,6 +617,10 @@ if not os.environ.get('PEN_BASE'):  # PEN_BASE=1 keeps the game's own dpPen, so 
 # r629: desert performance step 1 (dx621): the batching watchdog and the sprite culler get fresh positions for anything the per-frame update skipped
 R("while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;","while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;if(typeof mwFresh==='function')mwFresh(o);")
 R("const s=L[i];if(!s.parent){L.splice(i,1);continue}const e=s.matrixWorld.elements","const s=L[i];if(!s.parent){L.splice(i,1);continue}if(typeof mwFresh==='function')mwFresh(s);const e=s.matrixWorld.elements")
+# r636: a shattered or blown-apart vehicle's debris is made from its original pieces only, not from its batches as
+# well (a batch and its own pieces both flew off: the same part twice)
+R("v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible)return;const mt=o.material;if(!mt||mt.isSpriteMaterial","v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible||o.userData.dpMerged)return;const mt=o.material;if(!mt||mt.isSpriteMaterial")
+R("v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible||o.isInstancedMesh)return;","v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible||o.isInstancedMesh||o.userData.dpMerged)return;")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -630,7 +634,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r635';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r636';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
