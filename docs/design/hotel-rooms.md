@@ -1,4 +1,4 @@
-Status: plan in review (2026-10-19)
+Status: plan approved 2026-10-19 · batch 1 (turns, floor pools, the bug fix, floor 1's rooms, the jog room) in review
 
 # The hotel remodel: more room types and more turns
 
@@ -93,6 +93,56 @@ hiding and Rush still work.
 
 ### 5. The bug fix
 - The type roll uses the whole list (suites and service rooms come back), and the new floor pools replace that list.
+
+## Batch 1 (models: `docs/design/models/hotel-rooms.js`, needs `hotel.js` loaded first; preview "Hotel Rooms 1")
+### How the room models plug in
+- Every builder is `hrmXxx(g, o)` with `o = {L, HX, HY, seed, mat(key, a, b), floorNo}` and builds into `g` (the room
+  group `G`) in room-local coordinates (entry wall z 1, exit wall ez = -L-1, floor y 0). It returns:
+  `obs` (push into `obs0`), `occ` (push into `occ`, so the game's wardrobes and dressers keep off those walls),
+  `ward` (wardrobe spots: put the game's wardrobe there, `x, z, ry`), `trimGaps` (wall stretches where the wainscot,
+  chair rail and baseboard must stop: guest doors, the kitchen doors), `lamps` (extra lights for `RL`), `anims`
+  (per-frame callbacks), and per room: `open` (wings), `rf`/`up`, `path`/`inside`/`DX` (the jog room).
+- `mat(key, a, b)` must return the room's own material for `wall`/`wains`/`floor`/`ceil`/`door` (the game's `T()` with
+  the floor-look swaps), so the new rooms take each floor's look.
+- All their random choices come from `hflRng(seed)` (use the room number), never `Math.random`.
+- Mark everything they build `userData.noSeam = true`.
+- **The floor height needs x as well:** `rfn(P.z)` becomes `rfn(P.z, P.x)` (and `crkGround` the same); the existing
+  `rf` functions ignore the second argument. The grand staircase needs it.
+- **Wings must use the room's HX:** the wing code in `mkRoomRaw` writes `s*4` for the wall line and puts the header
+  over the opening at y 3..4. It should use `s*HX`, and a wing may give `hh` (the opening height; the header then
+  runs from `hh` to `HY`). The guest corridor's bedrooms are wings with `hh` 2.2.
+- Lamps: rooms lower than 4 m put the centre lamps at `HY - .1` (the game's `LY` is 3.9 or 4.2 now).
+
+### The rooms (floor 1's pool)
+| Room | Size | What's in it | Notes |
+|---|---|---|---|
+| `hrmGuestCorr` guest corridor | L 24-30, HX 2, HY 3.6 | a red runner, numbered guest doors every 3.5 m on both sides (staggered), brass sconces between them, one open bedroom per side | doors are fake (on the wall) except the two open ones (wings: `open`, d 3.6, hz 1.8, g .55, hh 2.2). Each bedroom: double bed, nightstand and lamp, picture, rug, a wardrobe spot. Some doors have a DO NOT DISTURB hanger. Can turn. |
+| `hrmLounge` lounge bar | L 26, HX 7, HY 4.5 | a 9 m bar on one wall (back-bar shelves of bottles, mirror, counter with a brass foot rail, 9 stools, 3 pendants), three groups of four armchairs on rugs, a grand piano | the bar side is in `occ`. Can turn. |
+| `hrmGrand` grand staircase | L 28, HX 7, HY 9, **UP 4.5** | a central flight up to a landing, two side flights up to a balcony across the far end, white balusters and dark rails, a big chandelier, a clock under the balcony, two portraits | the exit door is on the balcony (`up` 4.5, the next room starts up there). Heights from `hrmGrandRF(x, z)` (`rf`); the balustrades are thin obstacles. No centre lamps (it returns its own). No turn. At most one per floor. |
+| `hrmRestaurant` restaurant | L 24, HX 6, HY 4 | 8 round tables with cloths, candles and plates in two rows (a clear middle aisle), a host stand by the door, kitchen swing doors (fake) with a dessert trolley, a waiter's station | Can turn. |
+| `hrmGames` games room | L 22, HX 5, HY 4 | two billiard tables (racked balls) under green three-shade lamps, a cue rack and bead scoreboard, a dartboard with its throw line, a card table with chips, a glowing jukebox | Can turn. |
+
+### The jog room (any floor)
+- `hrmJog(g, {L, HY, J, mat, col})` builds the **whole shell** (floor, ceiling, walls with trim, the exit wall);
+  the game's own side walls, floor and ceiling are skipped for it. J is the sideways step (±3.5 m), HX 4.
+- Part A runs from the door to `zA = -0.4 L`, a 3 m angled part, then part B to the exit, which is at `DX = J`
+  (the game already supports an off-centre exit door: `dd.cx`).
+- It returns `path` (for Rush and Ambush), `lamps` (down the middle line), `inside(x, z)` (use it instead of the
+  `|x| <= HX` bounds check) and `DX`.
+- Plain jog halls, or with the gallery variant only. It can't also turn at its exit.
+
+### Turns
+- `turnOK`: the chance goes from .55 to .7; the room types allowed to turn add the guest corridor, lounge, restaurant,
+  games room, libraries B and C, the garden, the ballroom and the warehouse.
+- **S-bends:** a corner may follow a corner if it turns the **other way** (left after right or right after left); the
+  same way twice stays banned. `turnOK`'s "never two corners in a row" becomes "never two the same way in a row".
+- Jog rooms: 1 in 8 plain halls on every floor (not the first 2 rooms of a floor, not next to a corner).
+
+### Floor pools and the bug fix
+- The type roll (line 14423) takes its list from `HFLPOOL[hflFloor(nn)]` (the table in "1. Each floor gets its own
+  room pool" above; types not built yet are left out until their batch ships). Floor 1 now: rooms, L, L2, suite,
+  svc, garden, ball, guest corridor x2, lounge, restaurant, games, and the grand staircase (once per floor, door 8+).
+- The roll index uses the list's real length (`Math.random()*list.length|0`), so suites and service rooms appear.
 
 ## Work in batches (each with a preview, like the prison)
 1. **Batch 1:** the turn and jog-room rules, the floor pools, the bug fix, and the floor 1 rooms (1-5).
