@@ -12,6 +12,10 @@ const HRM={};const hrmM=(k,o)=>HRM[k]||(HRM[k]=new THREE.MeshStandardMaterial(Ob
 const hrmWood=()=>hrmM('wood',{color:0x4a2a16,roughness:.6}),hrmDark=()=>hrmM('woodD',{color:0x2a160c,roughness:.6}),hrmBrass=()=>hrmM('brass',{color:0xb08a40,roughness:.35,metalness:.5}),hrmCream=()=>hrmM('cream',{color:0xd8ccb0,roughness:.7});
 /* a box from two corners (x0..x1, y0..y1, z0..z1) */
 function hrmBx(g,x0,x1,y0,y1,z0,z1,m){return hflB(g,x1-x0,y1-y0,z1-z0,m,(x0+x1)/2,(y0+y1)/2,(z0+z1)/2)}
+/* a box whose UVs come from room coordinates (one texture tile = 2 m), so neighbouring boxes' patterns line up */
+function hrmSlab(g,x0,x1,y0,y1,z0,z1,m){const gm=new THREE.BoxGeometry(x1-x0,y1-y0,z1-z0),P=gm.attributes.position,N=gm.attributes.normal,U=gm.attributes.uv,cx=(x0+x1)/2,cy=(y0+y1)/2,cz=(z0+z1)/2;
+ for(let i=0;i<P.count;i++){const x=P.getX(i)+cx,y=P.getY(i)+cy,z=P.getZ(i)+cz,nx=Math.abs(N.getX(i)),ny=Math.abs(N.getY(i));U.setXY(i,ny>.5?x/2:nx>.5?z/2:x/2,ny>.5?-z/2:y/2)}
+ const o=new THREE.Mesh(gm,m);o.position.set(cx,cy,cz);g.add(o);return o}
 /* an instanced run of identical boxes: list of [x,y,z,ry] */
 function hrmInst(g,w,h,d,m,list){const im=new THREE.InstancedMesh(new THREE.BoxGeometry(w,h,d),m,list.length),o=new THREE.Object3D();list.forEach((p,i)=>{o.position.set(p[0],p[1],p[2]);o.rotation.set(0,p[3]||0,0);o.updateMatrix();im.setMatrixAt(i,o.matrix)});g.add(im);return im}
 /* a chair facing direction ry (seat .45, back on the far side) */
@@ -136,7 +140,8 @@ function hrmGrand(g,o){const G=HRMG,HX=o.HX,L=o.L,ez=-L-1,out={obs:[],occ:[],war
  steps(-G.cw,G.cw,G.z0,0,1.8);for(const s of[-1,1])steps(s>0?G.iw:-HX+.05,s>0?HX-.05:-G.iw,G.z2,G.mid,1.0);
  /* landing + inner platform, the balcony: solid, panelled where they face the room */
  hrmBx(g,-HX+.05,HX-.05,0,G.mid,G.z2,G.z1,pan);hrmBx(g,-G.iw,G.iw,0,G.mid,G.z3,G.z2,pan);hrmBx(g,-HX+.05,HX-.05,0,G.up,ez+.05,G.z3,pan);
- for(const[za,zb,xa,xb,y]of[[G.z1,G.z2,-HX+.05,HX-.05,G.mid],[G.z2,G.z3,-G.iw,G.iw,G.mid],[G.z3,ez+.05,-HX+.05,HX-.05,G.up]]){const t=hflMarbleT().clone();t.needsUpdate=true;t.repeat.set((xb-xa)/2,(za-zb)/2);hrmBx(g,xa,xb,y,y+.012,zb,za,new THREE.MeshStandardMaterial({map:t,roughness:.35}))}
+ /* the marble tops share one tile grid (UVs from room coordinates, 2 m a tile), so the squares line up where they meet */
+ const mt=hrmM('gMarbleW',{map:hflMarbleT(),roughness:.35});for(const[za,zb,xa,xb,y]of[[G.z1,G.z2,-HX+.05,HX-.05,G.mid],[G.z2,G.z3,-G.iw,G.iw,G.mid],[G.z3,ez+.05,-HX+.05,HX-.05,G.up]])hrmSlab(g,xa,xb,y,y+.012,zb,za,mt);
  hrmBx(g,-HX+.05,HX-.05,G.mid-.04,G.mid+.02,G.z1-.03,G.z1+.03,nose);hrmBx(g,-G.iw,G.iw,G.up-.04,G.up+.02,G.z3-.03,G.z3+.03,nose);
  /* the wall under the balcony, between the side flights: a big clock */
  const clk=hflPlane(g,1.3,1.3,128,128,(x,w,h)=>{x.fillStyle='#e8dcb8';x.beginPath();x.arc(64,64,60,0,7);x.fill();x.strokeStyle='#5a4420';x.lineWidth=5;x.stroke();x.fillStyle='#2a2010';for(let i=0;i<12;i++){const a=i/12*Math.PI*2;x.fillRect(64+Math.sin(a)*50-2,64-Math.cos(a)*50-4,4,8)}x.lineWidth=4;x.beginPath();x.moveTo(64,64);x.lineTo(64,24);x.moveTo(64,64);x.lineTo(92,70);x.stroke()});
