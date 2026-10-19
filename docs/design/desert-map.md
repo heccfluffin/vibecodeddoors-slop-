@@ -40,6 +40,9 @@ map code to update. `mapBaseDraw` and the hard-coded penitentiary boxes are repl
   base's ground layers) stay. Exact duplicates are drawn once. The oasis water and the meteor crater become ordinary
   `q.mapR` entries (`circ: 1`) pushed by their builders instead of hard-coded lines in `dmapBg`.
 - Roads get `road: 'asphalt' | 'dirt'` on their `q.mapR` entry; the two magic colours stay as the fallback.
+- The sand, dunes and speckles stay part of the world-sized background (`dmapBg`), so they scale and pan with the
+  map. Nothing on the map may be drawn in screen space except the labels, icons, the you-arrow, the compass and the
+  scale bar (the first preview drew its sand in screen space by mistake; fixed).
 
 ### 3. Labels in three classes
 - **Area names, always**, uppercase on a light tag at the area's label point (Fort Blackout included). Also `BIG`:

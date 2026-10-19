@@ -70,7 +70,7 @@ const bgc=document.createElement('canvas');bgc.width=bgc.height=1024;{const b=bg
 function draw(c,V,o){const x=c.getContext('2d'),W=c.width,H=c.height,{X,Y}=proj(V,W,H),k=V.s;x.save();x.clearRect(0,0,W,H);
  if(o.round){x.beginPath();x.arc(W/2,H/2,W/2,0,7);x.clip()}
  /* sand, then the storm beyond the barrier (not over the base and the prison) */
- const pat=x.createPattern(bgc,'repeat');x.fillStyle=pat;x.fillRect(0,0,W,H);
+ /* the sand tile is 240 m of ground: anchored to the world, so it scales and pans with the map */const pat=x.createPattern(bgc,'repeat');pat.setTransform(new DOMMatrix().translate(X(0),Y(0)).scale(240*k/1024));x.fillStyle=pat;x.fillRect(0,0,W,H);
  x.fillStyle='rgba(90,60,30,.28)';const sx0=X(-BAR.x),sx1=X(BAR.x),sz0=Y(BAR.zs),sz1=Y(BAR.zn);x.fillRect(0,0,sx0,H);x.fillRect(sx1,0,W-sx1,H);x.fillRect(sx0,0,sx1-sx0,sz0);x.fillRect(sx0,sz1,sx1-sx0,H-sz1);
  x.setLineDash([8,6]);x.strokeStyle='rgba(60,40,20,.45)';x.lineWidth=1.5;x.strokeRect(sx0,sz0,sx1-sx0,sz1-sz0);x.setLineDash([]);
  /* area ground */
