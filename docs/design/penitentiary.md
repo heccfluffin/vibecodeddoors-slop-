@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-19 · batch 1 approved · batch 2 approved (courtyard re-planned, approved) · batch 3 approved · batch 4 approved · batch 5 (break room, control room, hall, hides) in review
+Status: approved · ready to build (2026-10-19): layout and batches 1-5
 
 # The Dark Penitentiary rework (remodel list #23)
 
