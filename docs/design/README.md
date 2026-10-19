@@ -16,7 +16,9 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 
-Still to design: the desert mines loop and remodel, the Old Quarry's underground.
+In review: `quarry-underground.md` (the mine under the Old Quarry: three levels built from pieces; plan and layout generator `models/quarry-under.js`).
+
+Still to design: the desert mines loop and remodel.
 
 This folder is how the design chat (Claude in the claude.ai app) and Claude Code work together on DOORS.
 
