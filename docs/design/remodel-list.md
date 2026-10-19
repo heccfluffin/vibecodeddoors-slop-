@@ -45,7 +45,7 @@ gameplay, build on the existing `DP` batching, and Claude Code makes a git backu
 | 17 | ~~Speedway, scrap yard, crusher, wind and solar farms~~ (done: scrap-yard.md, speedway-farms.md) | `xpSpeedway`, `xpScrap`, `xpCrusher`, `xpWind`, `xpSolar*` |
 | 18 | ~~Mirage Lake, observatory, dino, railway~~ (done: lake-rail.md) | `xpLake`, `xpObservatory`, `xpDino`, `xpRail` |
 | 19 | ~~Military vehicles and weapons~~ (done: cars.md, weapons.md) | tank (in `mkVehModel`), `mkApcModel`, `mkHeli`, `mkICBM`, `mkTurret`, `mkMortar` |
-| 20 | The Pyramid: a full rework, outside, inside and underneath (puzzles, the deep rooms) | `pyrBuild`, `pyrUnder`, `pyrStairs`, `pyrTorch`, `pyrJackal`… (`PYR` at -175, -1040) |
+| 20 | ~~The Pyramid: a full rework, outside, inside and underneath~~ (done: pyramid.md) | `pyrBuild`, `pyrUnder`, `pyrStairs`, `pyrTorch`, `pyrJackal`… (`PYR` at -175, -1040) |
 | 21 | ~~The plane crash site~~ (done: crash-site.md) | in the desert build, `px=-38, pz=-1165` (bak519) |
 | 22 | ~~The Desert PD, cells, court~~ (done: desert-pd.md) | `desertPD`, `jail*`, `pdHQ` |
 | 23 | The Dark Penitentiary (max security prison): make it look far better, same care with the gameplay spots as the PD | `penBuild`, `penPolish` (`PENA`, `PENF`, `PENI`, `PENB`) |

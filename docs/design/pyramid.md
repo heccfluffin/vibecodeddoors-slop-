@@ -1,10 +1,19 @@
-Status: layout approved 2026-10-18 · batches 1-5 approved · batch 6 (Song, Sand, tomb) in review
+Status: approved · ready to build (2026-10-19): layout and batches 1-6
 
 # The Pyramid rework (remodel list #20)
 
 A full rework of the look of the Pyramid, outside, on the ground floor and in the undercroft. **Every room, trap,
 puzzle, prop and spot stays where it is** (the ground-floor grid `F` and the undercroft grid `FB` in `pyrBuild` /
 `pyrUnder` are unchanged), so all the gameplay keeps working. Models: **`docs/design/models/pyr.js`**.
+
+## Build notes (all batches)
+- Every builder is in `docs/design/models/pyr.js` (plain three.js r128, world coordinates, `pyKit` for materials).
+  Everything gameplay touches keeps its place, size and moving parts; the notes per batch below say what each game
+  mesh becomes. All meshes are marked `noSeam`; moving parts are marked `dpKeep`.
+- Checked in the previews with an automatic test for same-plane faces and floating parts (all clean), not in the game.
+- Fixes to the game's own layout, all listed below: the sphinxes move (built twice), the Jackal clue tablet moves
+  25 cm, the Sand tablet moves onto a wall, the Sand levers' angles swap, the trapdoor pit moves above the floor,
+  the treasure heaps' coins move above the floor, the Heart's bowls get brackets.
 
 ## Layout
 - The pyramid: same place and size (`PYR` -175, -1040, base 76 m, 56 m high), the way in on the east side.
