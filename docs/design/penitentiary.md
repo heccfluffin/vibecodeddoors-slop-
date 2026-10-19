@@ -104,7 +104,7 @@ routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**
 - **Floodlight poles** (`-520 + 32 i`, z -848, 9 m): → `penFloodMast(g, x, z)` (a tapered mast with a ladder and two
   lamps facing +z). The two lamp faces are at (x -/+ .6, 9.25, z + .49): put the game's glows there.
 - **Workshop** (x -366..-358, z -765..-755): walls, roof, door and props → `penWorkshop(g)`. Its west front now has
-  corner piers that narrow the opening to z -763.8..-756.2: add obstacles for them (x -366.2..-365.8, z -765..-763.8
+  corner piers that narrow the opening to z -763.8..-756.2: add obstacles for them (x -366.2..-365.85, z -765..-763.8
   and -756.2..-755). The workbench and the toolbox stay at
   the game's spots (-359.6, -760) and (-359.5, .9 high), so the cutters pickup works as now. Signs: WORKSHOP up to
   y 2.75; the "FENCE → (cutters inside)" sign to (-366.012, 1.6, -764.25), size 1.1 x .5 (it hung over the opening).
