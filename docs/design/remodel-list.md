@@ -61,4 +61,6 @@ code more than models: better done as texture and prop passes than remodels. Lat
 - **The user, 2026-10-19:** the whole hotel and the desert mines need a remodel with **a lot more room types and more
   turns**, so they look good and are more entertaining. The hotel loop's part 2 floor looks (hotel-loop.md) are the
   first step of the hotel remodel.
+- 2026-10-19: the hotel loop (parts 1 and 2: floors, looks, lift lobby, Halt/Timothy/Eyes) is fully designed and
+  ready to build. Next: the hotel room-type remodel (more room types, more turns), then the desert mines loop.
 
