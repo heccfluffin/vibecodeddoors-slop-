@@ -1,4 +1,4 @@
-Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) spec below, in review · part 2 (B floors, D entities) next, with models
+Status: ideas approved 2026-10-19 (all of A-H) · part 1 (A, C, E, F, G, H) approved · ready to build · part 2 (B floors, D new creatures) plan below, waiting for the user's OK before models
 
 # The hotel: how the run plays now, and what to change
 
@@ -213,3 +213,50 @@ A goal that can't happen in a run (no office streak, no Ambush yet) just doesn't
 - "Earn knobs every run, even when you die, and spend them on perks."
 - "Side rooms are worth a look: better drawers, and some are locked with a stash inside."
 - "Three goals every run."
+
+---
+
+# Part 2: the plan (B floors, D new creatures): needs models, so plan first
+
+**The creatures are our own.** Idea D said "Halt, Eyes, Timothy, Dupe". Those are characters from the original Doors,
+so the hotel gets **original creatures with the same kinds of challenge** instead (and the desert bus's existing
+passengers are left alone).
+
+## B. Four floors and the elevator between them
+| Floor | Doors | Look | What lives there (on top of what part 1 already has) |
+|---|---|---|---|
+| 1 · Guest Floors | 1-24 | today's hotel: wood, wallpaper, carpet | Rush; Screech from 10 |
+| 2 · The Old Wing | 26-50 (library at 50) | faded green wallpaper, peeling and dusty, dimmer lamps, cobwebs | + Ambush, Seek's first chase, **the Usher** |
+| 3 · Staff & Service | 51-74 | cream tiles, lino floors, pipes on the ceiling, strip lights, staff signs | + Seek's second chase, **drawer rats**, more Creak stairwells |
+| 4 · The Deep Hotel | 76-99, then the boiler at 100 | dark red, water stains, puddles, lights that flicker | everything, + **the Portrait** and **the Doorman** |
+
+- **The elevator break** comes at doors 25 and 75, and right after the library (between 50 and 51).
+  - You step into an elevator lobby: a lift, a vending machine (gold), and a board with the next floor's name and what lives there.
+  - The game saves there.
+  - The doors close, then a 15-20 s ride with the floor counter ticking and a little shake; you can hear the next floor before you see it.
+  - In co-op the lift waits for everyone, or leaves after 30 s with whoever is in it, and the rest catch up at the next floor's first room.
+- **The looks are texture and light swaps** in the existing room builder: each floor maps the room textures (`TX` keys such as wall, floor, ceil) to its own set, plus a light tint. No new room layouts are needed. The streak rooms (offices, archive, stairwell) keep their own looks.
+- **Part 1's ranges change when floors are on**, so each chase sits inside one floor: Seek 1 in 27..38, Seek 2 in 52..64. Jeff stays in 41..47 or 52..58. The back room stays in 80..92.
+
+## D. Four new creatures (original)
+- **The Usher** (floor 2 and later; the walk-backwards challenge):
+  - A long dim corridor with a tall, faceless bellhop of blue smoke holding a lantern at the far end.
+  - Now and then the lantern flares and "BACK UP" flashes. Walk backwards (away from him) until it fades; walking forward while it's up costs 30 HP and pushes you back.
+  - Reach the far door to end it.
+- **Drawer rats** (floor 3 and later; the drawer jump-scare):
+  - About 1 drawer in 50 has a rat. It leaps out at your face with a squeak and runs off: 5 damage, and the drawer is empty.
+  - A Lucky Find perk owner sees whiskers poking out first.
+- **The Portrait** (floor 4; the don't-look challenge):
+  - In some rooms a big gilded portrait hangs on a wall. Its painted figure has been scratched out, leaving a pale shape that turns to follow you.
+  - While it's on your screen and you're within 12 m, you lose 10 HP a second and the screen tints. Look away, or cover it by hiding.
+  - A crucifix burns it for the rest of the room.
+- **The Doorman** (floor 4; the pick-the-right-door challenge):
+  - A room with three doors, each with a brass number plate. Only one shows the right room number; the others are a digit off.
+  - Open a wrong one and a long grey arm in a doorman's sleeve shoots out: 35 damage, and that door slams.
+  - The real door opens normally.
+
+## Order of work, once this plan is OK
+1. The floor looks: a preview of one hallway in all four looks.
+2. The elevator lobby and the lift (model and preview).
+3. The four creatures, one batch (models, poses, a preview of each in a room).
+4. The wiring notes and the "what lives where" numbers.
