@@ -58,4 +58,7 @@ code more than models: better done as texture and prop passes than remodels. Lat
 - **The gameplay loop first:** make playing a lot more fun and fresh, especially the hotel run and the desert mines.
   Think about what you do minute to minute, goals, rewards and variety, before any more remodels of those two.
 - Then a **hotel remodel** and a **desert mines remodel**.
+- **The user, 2026-10-19:** the whole hotel and the desert mines need a remodel with **a lot more room types and more
+  turns**, so they look good and are more entertaining. The hotel loop's part 2 floor looks (hotel-loop.md) are the
+  first step of the hotel remodel.
 

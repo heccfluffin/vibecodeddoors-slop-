@@ -644,7 +644,7 @@ function penUtilitySink(g){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),x=-423.3,z=-7
 function penLaundryCart(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),x=-414.5,z=-789;for(const[a,b]of[[-.4,-.3],[.4,-.3],[-.4,.3],[.4,.3]]){B(.04,.72,.04,MT.steel,x+a,.46,z+b);Cy(.05,.05,.04,MT.dark,x+a,.05,z+b,'z',null,10)}
  for(const y of[.82,.12])for(const s of[-1,1]){B(.8,.03,.03,MT.steel,x,y,z+s*.3);B(.03,.03,.6,MT.steel,x+s*.4,y+.006,z)}B(.76,.665,.56,M(0x6a7a6a,{roughness:1}),x,.4675,z);B(.7,.1,.5,M(0xe86a20,{roughness:1}),x,.85,z);B(.3,.08,.3,M(0xffffff,{roughness:1}),x+.15,.93,z-.05);penNoSeam(g)}
 /* a laundry basket (the game's three, the uniform is in one): wicker, a rim, handles, washing on top */
-function penBasket(g,x,z,i){const k=penKit(),{MT,M}=k,{A}=k.H(g);if(!k.wick)k.wick=new THREE.MeshStandardMaterial({map:k.can(64,64,(c,w,h)=>{c.fillStyle='#8a6a3a';c.fillRect(0,0,w,h);c.strokeStyle='rgba(60,40,20,.7)';c.lineWidth=2;for(let y=0;y<h;y+=8){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}for(let x2=0;x2<w;x2+=8){c.beginPath();c.moveTo(x2,0);c.lineTo(x2,h);c.stroke()}},1),roughness:1});
+function penBasketM(g,x,z,i){const k=penKit(),{MT,M}=k,{A}=k.H(g);if(!k.wick)k.wick=new THREE.MeshStandardMaterial({map:k.can(64,64,(c,w,h)=>{c.fillStyle='#8a6a3a';c.fillRect(0,0,w,h);c.strokeStyle='rgba(60,40,20,.7)';c.lineWidth=2;for(let y=0;y<h;y+=8){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}for(let x2=0;x2<w;x2+=8){c.beginPath();c.moveTo(x2,0);c.lineTo(x2,h);c.stroke()}},1),roughness:1});
  const b=A(new THREE.CylinderGeometry(.45,.38,.78,16,1),k.wick,x,.39,z);const rim=A(new THREE.TorusGeometry(.45,.03,6,20),M(0x6a4a2a),x,.78,z);rim.rotation.x=Math.PI/2;for(const s of[-1,1]){const h=A(new THREE.TorusGeometry(.1,.02,6,10,Math.PI),M(0x6a4a2a),x+s*.44,.72,z);h.rotation.y=Math.PI/2}
  const w=A(new THREE.SphereGeometry(.42,12,6,0,Math.PI*2,0,Math.PI/2),M([0xe0e0e0,0xa0a8b8,0xd8c8a8][i],{roughness:1}),x,.75,z);w.scale.y=.45;penNoSeam(g)}
 /* the room itself: tiled floor, painted walls (a skin 1 cm off them, round the duct hole and the door), the duct's frame on
@@ -662,7 +662,7 @@ function penLaundryRoom(g){const k=penKit(),{MT,M}=k,{A,B}=k.H(g),PT=penCellPain
 /* everything in the laundry at the game's spots. Returns {drums, leds, suits} */
 function penLaundry(g){penLaundryRoom(g);const r={drums:[],leds:[]};for(let i=0;i<4;i++){const w=penWasher(i);w.washer.position.set(-412,0,-799+i*1.4);g.add(w.washer);r.drums.push(w.drum);r.leds.push(w.led)}
  for(const x of[-422.2,-420.9,-419.6]){const d=penDryerStack();d.position.set(x,0,-799.4);g.add(d)}penFoldBench(g);penFoldTable(g);penLaundryShelf(g);r.suits=penClothesline(g);penUtilitySink(g);penLaundryCart(g);
- for(const[i,x,z]of[[0,-420,-795],[1,-416,-792],[2,-421,-790]])penBasket(g,x,z,i);return r}
+ for(const[i,x,z]of[[0,-420,-795],[1,-416,-792],[2,-421,-790]])penBasketM(g,x,z,i);return r}
 
 /* ================== batch 5: the break room, the control room, the hall to the exit, the hiding spots ================== */
 /* painted skins 1 cm off every inside wall face of the block not done in batches 3-4 (the same paint, so the whole block

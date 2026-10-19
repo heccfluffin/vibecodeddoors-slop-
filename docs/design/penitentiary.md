@@ -214,7 +214,7 @@ Cell Block D's cell row is built in `penBuild` ("the cell block"), then dressed 
   - the steel bench with towels (-416.6, -799.4) → `penFoldBench`; the activity's folding table (-420.4, -798.3) →
     `penFoldTable` (the folded-sheet pile stays the game's, it sits on top at .92 up); the shelves → `penLaundryShelf`;
     the sink → `penUtilitySink` (it floated; now on legs); the cart → `penLaundryCart` (same hide spot); the three
-    baskets → `penBasket(g, x, z, i)` at the game's spots (the prompts and the uniform stay).
+    baskets → `penBasketM(g, x, z, i)` at the game's spots (the prompts and the uniform stay).
   - the washing line → `penClothesline`: it now goes wall to wall with hooks (it ended in mid-air). Its five jumpsuits
     replace the game's `js` groups (sway them with `rotation.x` as now).
   - `penLaundryRoom` adds a tiled floor (replace penPolish's floor box, which used polygonOffsetFactor), painted skins
