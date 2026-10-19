@@ -21,10 +21,15 @@ function dmapWarpWire(){const D=DMAP;if(!D||!D.fc||D.fc.dataset.warp)return;D.fc
   const MAJ=/^(Desert PD|Dusty Gulch|Airfield|Lookout Mesa|Old Quarry|Dark Zone 51|Mirage Lake|Speedway|Observatory|Dino Dan|Wind farm|Solar farm|Goblino's Scrap|The Pyramid|Motel 13|Devil's Gorge|Desert Bus depot|Jump ramps|X marks|Dark Penitentiary)/;
   let best=null,bd=1e9;for(const l of q.locs||[]){if(!(MAJ.test(l.nm)||zm>=1.6))continue;const d=Math.hypot(W/2+(l.x-cx)*sc-px,H/2+(l.z-cz)*sc-py);if(d<R2+6&&d<bd){bd=d;best=l}}if(!best)return;dmapWarp(q,best)}catch(err){conLog('error','map warp: '+err.message)}})}
 function dmapWarp(q,l){const no=m=>{hint(m);try{snd(180,.08)}catch(e){}};
- if(q.jail||(q.pen&&q.pen.on)||penArea(P.x,P.z-q.OZ))return no('⛓️ No warping out of prison.');if(q.seat||q.inBus)return no('🚗 Get out of the vehicle first, then warp.');if(q.deep)return no('⛏️ Not from down the mine. Ride the cage up first.');
+ /* r634: only a prisoner is kept in (you used to be stuck if a warp put you inside the cell block as a visitor) */if(q.jail||(q.pen&&q.pen.on))return no('⛓️ No warping out of prison.');if(q.seat||q.inBus)return no('🚗 Get out of the vehicle first, then warp.');if(q.deep)return no('⛏️ Not from down the mine. Ride the cage up first.');
  if((q.heat|0)>=20)return no('🚨 Lose the cops first: you cannot warp while you are wanted.');if(q.xr||q.kp||q.court||q.lift||q.icut||q.bcut||q.fling)return no('Finish what you are doing first.');
  /* somewhere to stand near the place: clear of walls and things, on open ground */const free=(x,z)=>{for(const o of obsNear(q,x,z))if(!o.off&&!o.veh&&x>o.x0-.6&&x<o.x1+.6&&z>o.z0-.6&&z<o.z1+.6)return false;try{if(vehHit(q,x,z,.6))return false}catch(e){}return Math.abs(vehGround(q,x,z))<30};
- let tx=l.x,tz=l.z+6;outer:for(const rr of[6,9,13,18,24,32])for(let a=0;a<16;a++){const x=l.x+Math.sin(a/16*Math.PI*2)*rr,z=l.z+Math.cos(a/16*Math.PI*2)*rr;if(free(x,z)){tx=x;tz=z;break outer}}
+ /* r634: a place with a phone booth (within 220 m) is warped to at its booth, in front of the door, so you never land inside
+    somewhere you cannot leave (the prison's marker is in the middle of the cell block); other places as before */
+ let bo=null;{let bd=220;for(const b of q.booths||[]){const d=Math.hypot(b.x-l.x,b.z-l.z);if(d<bd){bd=d;bo=b}}}
+ const cx=bo?bo.x:l.x,cz=bo?bo.z:l.z,rs=bo?[1.6,2.5,4,6,9,13]:[6,9,13,18,24,32];
+ const inPen=(x,z)=>penArea(x,z)||(x>-512&&x<-368&&z>-842&&z<-688);
+ let tx=cx,tz=cz+rs[0];outer:for(const rr of rs)for(let a=0;a<16;a++){const x=cx+Math.sin(a/16*Math.PI*2)*rr,z=cz+Math.cos(a/16*Math.PI*2)*rr;if(free(x,z)&&!inPen(x,z)){tx=x;tz=z;break outer}}
  try{bsF.style.transition='opacity .25s';bsF.style.background='#000';bsF.style.opacity=1}catch(e){}try{snd(520,.1);setTimeout(()=>snd(780,.1),90)}catch(e){}
  setTimeout(()=>{try{P.x=tx;P.z=tz+q.OZ;P.dy=vehGround(q,tx,tz);P.yaw=Math.atan2(-(l.x-tx),-(l.z-tz));if(DMAP.open)dmapFull(q);hint('✨ Warped to '+l.ic+' '+l.nm+'.');bsF.style.transition='opacity .6s';bsF.style.opacity=0}catch(e){}},280)}
 {const df0=dmapFull;dmapFull=function(q){const r=df0.apply(this,arguments);try{dmapWarpWire()}catch(e){}return r}}

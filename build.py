@@ -611,7 +611,8 @@ R("P.x>pd.x-8&&P.x<pd.x+8","P.x>(pd.x0||pd.x-8)&&P.x<(pd.x1||pd.x+8)")
 R("road(88,-1016.4,88,-993.5)","road(88,-1013.3,88,-993.5)")
 R("[82,-1014],[83.2,-1014.5]","[60.5,-1029],[61.7,-1029.4]")
 # r628: the prison yard extras (dpPen) are a local function of the r500 block: its batch 6 remodel replaces the base text in place
-_i=s.index('function dpPen(q,g){');_j=s.index('\n/* ======================= FORT BLACKOUT: a helipad',_i);s=s[:_i]+open(S+'dx620dp.js').read()+s[_j:]
+if not os.environ.get('PEN_BASE'):  # PEN_BASE=1 keeps the game's own dpPen, so tools/pen_gen.py can read it
+    _i=s.index('function dpPen(q,g){');_j=s.index('\n/* ======================= FORT BLACKOUT: a helipad',_i);s=s[:_i]+open(S+'dx620dp.js').read()+s[_j:]
 # r629: desert performance step 1 (dx621): the batching watchdog and the sprite culler get fresh positions for anything the per-frame update skipped
 R("while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;","while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;if(typeof mwFresh==='function')mwFresh(o);")
 R("const s=L[i];if(!s.parent){L.splice(i,1);continue}const e=s.matrixWorld.elements","const s=L[i];if(!s.parent){L.splice(i,1);continue}if(typeof mwFresh==='function')mwFresh(s);const e=s.matrixWorld.elements")
@@ -628,7 +629,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r633';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r634';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

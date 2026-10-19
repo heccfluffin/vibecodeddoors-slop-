@@ -300,5 +300,15 @@ function penNewYard(q,g){const T=(n,f)=>{try{f()}catch(e){conLog('error','pen '+
  q.obsDirty=1}
 '''
 src=HEAD+'\n'+model+'\n\n/* ======================= the game\'s builders, with the models in ======================= */\n'+'\n'.join(PARTS)+'\n'
+# r634: the control-room switches go flat on the west wall past the console's north end (the new console stands in
+# front of the wall, so at the old spot they floated over its end); the button panel's texture runs along the panel
+def fix(t,x,y,n=1):
+    assert t.count(x)==n,(x[:60],t.count(x));return t.replace(x,y)
+src=fix(src,"for(const z of[-766,-758])B(.05,.7,.7,M(0x3a3e44,{metalness:.5}),-446.69,1.1,z);","for(const z of[-766.4,-767.8])B(.05,.7,.7,M(0x3a3e44,{metalness:.5}),-447.815,1.1,z);")
+src=fix(src,"[[W.sw&&W.sw.lights,-766,'YARD\\nFLOODLIGHTS','#ffd030'],[W.sw&&W.sw.gate,-758,'INNER\\nGATE','#40ff70']]){if(sw){sw.rotation.y=Math.PI/2;sw.position.x=-446.62}dLabel(PG_(g),lb,.62,.32,'#101418',c,-446.62,1.62,z,Math.PI/2,64)}",
+ "[[W.sw&&W.sw.lights,-766.4,'YARD\\nFLOODLIGHTS','#ffd030'],[W.sw&&W.sw.gate,-767.8,'INNER\\nGATE','#40ff70']]){if(sw){sw.rotation.y=Math.PI/2;sw.position.x=-447.74;sw.position.z=z}dLabel(PG_(g),lb,.62,.32,'#101418',c,-447.81,1.62,z,Math.PI/2,64)}")
+src=fix(src,"PR(-446,-766,1,","PR(-446.9,-766.4,.8,")
+src=fix(src,"PR(-446,-758,1,","PR(-446.9,-767.8,.8,")
+src=fix(src,"emissive:0x202020,roughness:.5});\n  const sp=B(.4,.03,7.4,k.btn","emissive:0x202020,roughness:.5});{const t=k.btn.map;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.center.set(.5,.5);t.rotation=Math.PI/2;t.repeat.set(3,1)}\n  const sp=B(.4,.03,7.4,k.btn")
 open(ROOT+'src/dx620.js','w').write(src)
 print('dx620 written',len(src))
