@@ -1,4 +1,4 @@
-Status: layout approved 2026-10-19 · batch 1 (fences, watchtowers, front gate, outside) in progress
+Status: layout approved 2026-10-19 · batch 1 approved · batch 2 (yard, courtyard, inner wall, workshop, block outside) in review
 
 # The Dark Penitentiary rework (remodel list #23)
 
@@ -87,3 +87,36 @@ routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**
   stays). Kennels: the run's panels and the two houses → part of `penOutside`; the dogs → its `dogs` (same spots; the
   game's anim turns and bobs them). Lamp posts → `penLampPost(g, x, z, ry)` (returns the head position: put the glow
   sprite there). Under each "DANGER KEEP OUT" sign add `penSignPost(g, x, z, ry)` (they floated by the fence).
+
+## Notes for the wiring (batch 2: yard, courtyard, inner wall, workshop, the block's outside)
+- **Ground:** the yard's gravel plane stays at y .05 but uses `penYardMats().gravel`. The courtyard plane inside the
+  inner wall is replaced by `penGround(g)`: four concrete strips round Cell Block D (the old single plane ran under the
+  block and showed through its floor) and the gate path (x -444..-436, y .075) from the front gate to the inner gate.
+  All are `noSeam`.
+- **New yard items** (the layout table above; each is static): `penRecreation(g)` (far row, z -697..-677),
+  `penGardens(g)` (west column), `penServices(g)` (east column, by the workshop), `penDeliveries(g)` (gate row,
+  z -840..-834), `penCourtyard(g)` (inside the inner wall). Give each its footprint as a `q.obs`-style box in
+  `penBuild` (walk-through: the painted line-up boxes, the pitch, the court lines, the rubber mat). Nothing in them
+  touches a game spot: the gate path, the hides, the fence cut points, the guard routes and the exit door's apron were
+  kept clear (checked with a script).
+- **Basketball court:** the game's 14 x 9 slab and its hoop posts at (-470, -845) → `penCourt(g)` (same spot, lines,
+  two hoops with backboards and nets).
+- **Floodlight poles** (`-520 + 32 i`, z -848, 9 m): → `penFloodMast(g, x, z)` (a tapered mast with a ladder and two
+  lamps facing +z). It returns the lamp head position: put the game's glow there.
+- **Workshop** (x -366..-358, z -765..-755): walls, roof, door and props → `penWorkshop(g)`. Its corner piers need
+  obstacles (0.4 x 0.4 at the four corners of the opening, z -763.8 and -756.2). The workbench and the toolbox stay at
+  the game's spots (-359.6, -760) and (-359.5, .9 high), so the cutters pickup works as now. Signs: WORKSHOP up to
+  y 2.75; the "FENCE → (cutters inside)" sign to (-366.012, 1.6, -764.25), size 1.1 x .5 (it hung over the opening).
+- **Hiding spots outside** (`penPolish2`'s `hide()`): the two dumpsters → `penDumpster()` (the `'z'` one turned by
+  PI/2), the two crate stacks → `penCrateStack()` (the top crate floated 10 cm over the second). Same spots, same
+  obstacles, same hide logic.
+- **Inner wall** (7 m): the wall meshes → `penInnerWall(g)` (coping, bands, buttresses, lamps; no buttresses at the
+  gate gap). Keep every obstacle and LOS box. It returns `{lampMat}`: use that as the inner gate's `lt` indicator
+  material (red shut, green open). Today `lt` sits inside the wall where nobody can see it.
+- **Inner gate** (`igate` DOOR, x -446..-434 at z -830): the slab mesh → `penInnerGate()`, positioned where the slab
+  is (y 3.4) and moved the same way; drop the `scale.y` of 2.6 (the model is already 12 x 6.76). It rides 2 cm up on
+  the steel track that `penInnerWall` lays in the gap.
+- **Cell Block D outside:** `penBlockOutside(g)` adds a facade skin 1 cm off every outer wall, the exit door's frame,
+  canopy, keypad and apron (the exit DOOR at x -416..-414 is unchanged and still slides into the wall), downpipes, and
+  a parapet, AC units and ducts on the roof (the game's roof slab stays). The CELL BLOCK D signs go 20 cm off the
+  walls (they were inside the new skin), the two warning signs on the inner wall to `I.z0 - .45`.
