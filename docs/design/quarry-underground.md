@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 (layout, the shift, 88 room versions) · part 2 (models) in progress: batch 1 next
+Status: plan approved by the user 2026-10-19 (layout, the shift, 88 room versions) · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) in review · preview "Mine Level 1"
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -252,6 +252,54 @@ Models go in `models/quarry-under-kit.js` (the kit and the builders) and further
    old shaft (all versions).
 5. **The shift:** dynamite and crates, rubble and the rockfall, the gas cloud, the raft, zip line, lunchbox, notes,
    tags, fossils, the level map board and minimap drawing, the Shaft sinking upgrade and the cage panel.
+
+### Batch 1: the kit, tunnels and stations (`models/quarry-under-kit.js`), in review
+`ugBuildLevel(plan, L)` builds a whole level from `ugGen`'s plan and returns `{g, lamps, veins, decl}`. `g` is one
+group in mine coordinates (put it at `MN.ox, MN.Y, MN.oz`; level floors at y 0, -12, -24). The preview builds level 1
+of a real plan this way.
+- **Tunnels** (`ugTube(batch, polyline, o)`): an arched profile (`ugProf(hw)`: walls 2.6 m, arch to 2.6 + 0.45 hw;
+  4 m wide drives, narrower necks) extruded along the piece's path, corners filleted (radius 3 on dug tunnels),
+  resampled every 0.5 m. Timber sets every 3 m (two posts, a cap at 2.6-2.84 m, lagging boards with gaps), rails
+  (sleepers every 0.6 m, 0.6 m gauge), a lamp every 6 m hanging from a cap with a wire between them. The tunnel walls
+  face inward (one-sided).
+- **Rock** is pushed out (never in) by `ugNoise(x, y, z)` of the world position, up to 0.2 m in tunnels and 0.22 m
+  in rooms, faded to nothing within 1 m of every opening and at floor level. So two pieces meeting end to end have
+  exactly the same edge, and a room's doorway has exactly the tunnel's arch.
+- **Rooms** (`ugRoom(batch, corners, y, h, doors, o)`): a gravel floor, rock walls in 0.6 m cells with doorway gaps,
+  a flat panel between each doorway's arch and the wall above it, a timber portal over every doorway (posts half in
+  the rock, covering the joint), a rough roof. Holes in floor or roof (`o.holes`), solid blocks (`o.blocks`, the
+  pillar). Wall lining can be rock, planks or brick.
+- **Junctions** (T and crossroads) are 8 x 8 rooms with heavy corner posts and beams, and a two-sided **signpost**
+  whose arrow points back the way you came (always the way to the cage, since every piece's entry faces its parent),
+  with the distance along the tunnels ("⬅ CAGE 45 m", rounded to 5 m).
+- **Shaft stations** (level 1: Pit bottom, Timbered station, Brick station): a 16 x 16 room, the 3.2 m shaft through
+  floor and roof (plank-lined above the roof and down into a 1.6 m sump, steel guides in the corners, a timber collar),
+  the landing gate on the -x side (where you step out, as now) with a LEVEL 1 sign and a call box, steel mesh on the
+  other three sides, rails from each doorway ending at red buffers, four big lamps, the shift clock and the level map
+  board on the walls, and the version's dressing.
+- **Pillar round** (3 versions): the drive round a 12 x 16 pillar, cribs in the corners, sets along the sides, rails
+  through (or round the whole loop for the rail-loop version), veins on every pillar face, lamps.
+- **Ladderway**: an upper landing with a fenced hatch, a plank-lined raise with a ladder and a landing every 3 m, and
+  a lower landing with the raise coming through its roof.
+- **Spiral decline**: the tunnel itself spirals a turn and a half down round its rock core (72 m long, 1 in 6),
+  with sets and lamps all the way.
+- **Working faces**: a rough dome closing the tunnel end, with 2-3 veins on it.
+- **Ore veins** (`ugVein(type)`): a dark rock patch with 8 metal nuggets in the ore's colour; a separate group
+  per vein (they get broken), set 6 cm into the wall facing out. Tunnels get one every 5-9 m on alternate walls.
+- **Merging**: everything static in a level goes through `ugBatch()` into one mesh per material (about 15 meshes for
+  a whole level plus the veins and signs: 57 objects for level 1 of mine #4242). All `noSeam`. The game's `DP`
+  batching should leave the mine alone, as now.
+- **Lamps**: `lamps` lists every lamp ([x, y, z, strength]); the game lights the nearest ones with a fixed pool of
+  point lights (the preview uses 10), so the number of lights never changes.
+- **Walking**: use the plan's floor shapes (`ugWorld`) for where you can walk (inside a path's width less 0.4 m, a
+  room's rectangle less 0.3 m, minus solid props), as `quarry-under-check.js` does, instead of the old 4 m cells.
+
+Checked: the z-fight and floating checker on the whole of level 1 (mine #4242): nothing (it found the shaft planks
+and the raise planks sharing the floor's plane, both lifted 2 cm). Screenshots of every piece from inside and
+from above. Found and fixed on the way: doorways were walled over from the inside (a wrong distance test), the
+LEVEL sign faced into the shaft.
+The level-1 rooms (stope, crib room, magazine, collapsed drift, pump room) are plain shells in the preview; they
+come in batch 2. The decline's bottom opens onto level 2, which comes in batch 3.
 
 ## Checks
 - Every level is one connected place, reachable on foot from the cage on level 1 (the generator guarantees it; test
