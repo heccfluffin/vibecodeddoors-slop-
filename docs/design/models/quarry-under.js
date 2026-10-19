@@ -26,11 +26,11 @@ const UGP={
  bend:{nm:'Bend',cat:'tun',lv:[1],w:4,mk(R){const s=R()<.5?1:-1,p=ugArc(6*s,0,6,s>0?Math.PI:0,s>0?1.5*Math.PI:-.5*Math.PI,10);return{foot:[[s>0?-2:-8,s>0?8:2,-8,0]],ex:[[6*s,-6,s>0?1:3]],shp:[{k:'path',pts:p,w:4}],fx:[{k:'sets',pts:p},{k:'rail',pts:p}]}}},
  tee:{nm:'T junction',cat:'jn',lv:[1],w:4,mk(){return{foot:[[-4,4,-8,0]],ex:[[-4,-4,3],[4,-4,1]],shp:[{k:'path',pts:[[0,0],[0,-4]],w:4},{k:'path',pts:[[-4,-4],[4,-4]],w:4}],fx:[{k:'sign',x:0,z:-5.6},{k:'rail',pts:[[0,0],[0,-4],[4,-4]]}]}}},
  cross:{nm:'Crossroads',cat:'jn',lv:[1],w:2,mk(){return{foot:[[-4,4,-8,0]],ex:[[-4,-4,3],[4,-4,1],[0,-8,0]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:4},{k:'path',pts:[[-4,-4],[4,-4]],w:4}],fx:[{k:'sign',x:1.6,z:-5.6},{k:'rail',pts:[[0,0],[0,-8]]}]}}},
- stope:{nm:'Stope',cat:'room',lv:[1],w:3,mx:3,want:1,mk(R){const ex=R()<.6?[[0,-18,0]]:[];return{foot:[[-7,7,-18,0]],ex,shp:[{k:'path',pts:[[0,0],[0,-2]],w:4},{k:'rect',x0:-7,x1:7,z0:-18,z1:-2,rough:1}],fx:[{k:'cribs',pts:[[-3.5,-6],[3.5,-6],[-3.5,-12],[3.5,-12],[0,-15]]},{k:'ore',n:7},{k:'icon',x:0,z:-9,t:'⛏️'}]}}},
- crib:{nm:'Crib room',cat:'end',lv:[1],w:2,mx:1,want:1,mk(){return{foot:[[-4,4,-10,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-2]],w:2.4},{k:'rect',x0:-4,x1:4,z0:-10,z1:-2}],fx:[{k:'icon',x:0,z:-6,t:'🥪'}]}}},
- magazine:{nm:'Powder magazine',cat:'end',lv:[1],w:2,mx:1,want:1,mk(){return{foot:[[-3,3,-9,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-3]],w:2},{k:'rect',x0:-3,x1:3,z0:-9,z1:-3}],fx:[{k:'door',x:0,z:-3},{k:'icon',x:0,z:-6,t:'🧨'}]}}},
- collapsed:{nm:'Collapsed drift',cat:'tun',lv:[1],w:1.5,mx:2,mk(){return{foot:[[-2,2,-12,0]],ex:[[0,-12,0]],shp:[{k:'path',pts:[[0,0],[0,-12]],w:4}],fx:[{k:'sets',pts:[[0,0],[0,-12]],broken:1},{k:'rubble',x:.9,z:-6}]}}},
- pump:{nm:'Pump room',cat:'room',lv:[1],w:1.5,mx:1,mk(){return{foot:[[-5,5,-10,0]],ex:[[0,-10,0]],shp:[{k:'rect',x0:-5,x1:5,z0:-10,z1:0}],fx:[{k:'water',cx:-2,cz:-5,rx:2.4,rz:3.4},{k:'icon',x:2.2,z:-5,t:'🛢️'}]}}},
+ stope:{nm:'Stope',cat:'room',lv:[1],w:3,mx:3,want:1,mk(R){const ex=R()<.6?[[0,-18,0]]:[];return{foot:[[-7,7,-18,0]],ex,shp:[{k:'path',pts:[[0,0],[0,-2]],w:4},{k:'rect',x0:-7,x1:7,z0:-18,z1:-2,rough:1}],fx:[{k:'cribs',pts:[[-3.5,-6],[3.5,-6],[-3.5,-12],[3.5,-12],[0,-14]]},{k:'ore',n:7},{k:'icon',x:0,z:-9,t:'⛏️'}]}}},
+ crib:{nm:'Crib room',cat:'end',lv:[1],w:2,mx:1,want:1,mk(){return{foot:[[-4,4,-10,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-2]],w:2.4},{k:'rect',x0:-4,x1:4,z0:-10,z1:-2}],fx:[{k:'blk',pts:[[0,-6.6]],r:.9,n:'table'},{k:'blk',pts:[[3,-9]],r:.5,n:'stove'},{k:'icon',x:0,z:-6.6,t:'🥪'}]}}},
+ magazine:{nm:'Powder magazine',cat:'end',lv:[1],w:2,mx:1,want:1,mk(){return{foot:[[-3,3,-9,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-3]],w:2},{k:'rect',x0:-3,x1:3,z0:-9,z1:-3}],fx:[{k:'door',x:0,z:-3},{k:'blk',pts:[[-1.9,-7.6],[1.9,-7.6],[-1.9,-5.6]],r:.55,n:'crate',c:'#8a2a1a'},{k:'icon',x:.6,z:-6,t:'🧨'}]}}},
+ collapsed:{nm:'Collapsed drift',cat:'tun',lv:[1],w:1.5,mx:2,mk(){return{foot:[[-2,2,-12,0]],ex:[[0,-12,0]],shp:[{k:'path',pts:[[0,0],[0,-12]],w:4}],fx:[{k:'sets',pts:[[0,0],[0,-12]],broken:1},{k:'rubble',x:.7,z:-6}]}}},
+ pump:{nm:'Pump room',cat:'room',lv:[1],w:2,mx:1,mk(){return{foot:[[-5,5,-10,0]],ex:[[0,-10,0]],shp:[{k:'rect',x0:-5,x1:5,z0:-10,z1:0}],fx:[{k:'water',cx:-2,cz:-5,rx:2.4,rz:3.4,deep:1},{k:'blk',pts:[[2.6,-5]],r:.7,n:'pump'},{k:'icon',x:2.6,z:-5,t:'🛢️'}]}}},
  round:{nm:'Pillar round',cat:'jn',lv:[1],w:2.5,mx:2,want:1,mk(R){const p=[[0,-4],[8,-4],[8,-24],[-8,-24],[-8,-4],[0,-4]];const ex=[[0,-28,0]];if(R()<.4)ex.push([10,-14,1]);return{foot:[[-10,10,-28,0]],ex,ring:{a:[8,-14],b:[-8,-14]},shp:[{k:'path',pts:[[0,0],[0,-4]],w:4},{k:'path',pts:p,w:4},{k:'path',pts:[[0,-24],[0,-28]],w:4}].concat(ex.length>1?[{k:'path',pts:[[8,-14],[10,-14]],w:4}]:[]),fx:[{k:'pillar',x0:-6,x1:6,z0:-22,z1:-6},{k:'sets',pts:p},{k:'rail',pts:[[0,0],[0,-4],[8,-4],[8,-24],[0,-24],[0,-28]]},{k:'icon',x:0,z:-14,t:'⛏️'}]}}},
  /* ----- Level 2: The Caves (natural, organic shapes) ----- */
  cpass:{nm:'Cave passage',cat:'tun',lv:[2,3],w:6,mk(R){const L=[12,18,24][R()*3|0],p=ugWig(R,L,1.2);return{foot:[[-3,3,-L,0]],ex:[[0,-L,0]],shp:[{k:'path',pts:p,w:4.6,org:1}]}}},
@@ -41,15 +41,15 @@ const UGP={
  fungus:{nm:'Fungus grotto',cat:'room',lv:[2],w:3,mx:2,want:1,mk(R){return{foot:[[-10,10,-20,0]],ex:[[0,-20,0]].concat(R()<.5?[[-10,-10,3]]:[]),shp:[{k:'blob',cx:0,cz:-10,rx:10,rz:10}],fx:[{k:'spots',n:22,c:'#e58ae0',rx:8,rz:8,cz:-10,r:1.1},{k:'spots',n:16,c:'#5fbf6a',rx:8,rz:8,cz:-10,r:.8},{k:'icon',x:0,z:-10,t:'🍄'}]}}},
  flooded:{nm:'Flooded gallery',cat:'room',lv:[2],w:2.5,mx:1,want:1,mk(){return{foot:[[-5,5,-24,0]],ex:[[0,-24,0]],shp:[{k:'blob',cx:0,cz:-12,rx:5,rz:12}],fx:[{k:'water',cx:.6,cz:-12,rx:4,rz:11},{k:'walk',pts:[[-3.4,-1],[-3.4,-23]]},{k:'icon',x:1,z:-12,t:'💧'}]}}},
  chasm:{nm:'Chasm hall',cat:'room',lv:[2],w:2,mx:1,want:1,mk(){return{foot:[[-7,7,-20,0]],ex:[[0,-20,0]],shp:[{k:'blob',cx:0,cz:-10,rx:7,rz:10}],fx:[{k:'chasm',pts:[[-7,-9],[-2,-10.5],[3,-9.4],[7,-10.6]],w:3},{k:'bridge',x0:0,z0:-7.6,x1:0,z1:-12.4},{k:'stones',pts:[[-4.6,-8.4],[-4.2,-10],[-4.8,-11.6]]}]}}},
- hall:{nm:'Stalactite hall',cat:'room',lv:[2],w:2,mx:1,mk(R){return{foot:[[-10,10,-20,0]],ex:[[0,-20,0]].concat(R()<.5?[[10,-10,1]]:[]),shp:[{k:'blob',cx:0,cz:-10,rx:10,rz:10}],fx:[{k:'cols',pts:[[-4,-6],[3.6,-5],[-2,-13],[4.5,-13.5],[0,-10]]},{k:'icon',x:-5,z:-10,t:'🪨'}]}}},
+ hall:{nm:'Stalactite hall',cat:'room',lv:[2],w:3,mx:1,want:1,mk(R){return{foot:[[-10,10,-20,0]],ex:[[0,-20,0]].concat(R()<.5?[[10,-10,1]]:[]),shp:[{k:'blob',cx:0,cz:-10,rx:10,rz:10}],fx:[{k:'cols',pts:[[-4,-6],[3.6,-5],[-2,-13],[4.5,-13.5],[0,-10]]},{k:'icon',x:-5,z:-10,t:'🪨'}]}}},
  stream:{nm:'Stream crossing',cat:'tun',lv:[2],w:1.5,mx:2,mk(){return{foot:[[-3,3,-12,0]],ex:[[0,-12,0]],shp:[{k:'path',pts:[[0,0],[.8,-6],[0,-12]],w:4.6,org:1}],fx:[{k:'stream',pts:[[-3,-5],[3,-7]]},{k:'stones',pts:[[-.2,-5.4],[.8,-6],[1.6,-6.6]]}]}}},
  orepass:{nm:'Ore pass',cat:'end',lv:[2,3],w:1.5,mx:1,mk(){return{foot:[[-3,3,-8,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-2]],w:3},{k:'rect',x0:-3,x1:3,z0:-8,z1:-2}],fx:[{k:'grate',x:0,z:-5.4},{k:'icon',x:0,z:-5.4,t:'⬇️'}]}}},
  /* ----- Level 3: The Deep ----- */
- magma:{nm:'Magma chamber',cat:'room',lv:[3],w:3,mx:2,want:1,mk(R){return{foot:[[-12,12,-24,0]],ex:[[0,-24,0]].concat(R()<.5?[[12,-12,1]]:[]),shp:[{k:'blob',cx:0,cz:-12,rx:12,rz:12}],fx:[{k:'lava',pts:[[-11,-15],[-4,-13],[3,-14.4],[11,-12.6]],w:1.4},{k:'bridge',x0:0,z0:-11.6,x1:0,z1:-16},{k:'lake',cx:4.6,cz:-6.6,rx:3.8,rz:2.2},{k:'icon',x:4.6,z:-6.6,t:'💠'},{k:'gey',x:-6,z:-7},{k:'cols',pts:[[-8,-18],[-6.6,-19.4],[7,-19]],c:'#2a2422'}]}}},
+ magma:{nm:'Magma chamber',cat:'room',lv:[3],w:3,mx:2,want:1,mk(R){return{foot:[[-12,12,-24,0]],ex:[[0,-24,0]].concat(R()<.5?[[12,-12,1]]:[]),shp:[{k:'blob',cx:0,cz:-12,rx:12,rz:12}],fx:[{k:'lava',pts:[[-11,-15],[-4,-13],[3,-14.4],[10.6,-16.6]],w:1.4},{k:'bridge',x0:0,z0:-11.6,x1:0,z1:-16},{k:'lake',cx:4.6,cz:-6.6,rx:3.8,rz:2.2},{k:'stones',pts:[[1.5,-6.5],[2.8,-6.7]]},{k:'icon',x:4.6,z:-6.6,t:'💠'},{k:'gey',x:-6,z:-7},{k:'cols',pts:[[-6,-17.5],[-4.4,-19.2],[6.2,-18.6]],r:.8,c:'#2a2422'}]}}},
  dark:{nm:'Dark cave',cat:'room',lv:[3],w:2,mx:1,want:1,mk(){return{foot:[[-9,9,-18,0]],ex:[[0,-18,0]],shp:[{k:'blob',cx:0,cz:-9,rx:9,rz:9,dark:1}],fx:[{k:'chasm',pts:[[-9,-10],[-3,-8.6],[3,-9.8],[9,-8.4]],w:2.6},{k:'bridge',x0:-.4,z0:-7.4,x1:-.4,z1:-11.2},{k:'glow',n:18,rx:8,rz:8,cz:-9},{k:'icon',x:-5,z:-13,t:'🔦'}]}}},
  geode:{nm:'The Geode',cat:'end',lv:[3],w:2,mx:1,want:1,mk(){return{foot:[[-6,6,-15,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-3.4]],w:2.4,org:1},{k:'blob',cx:0,cz:-9,rx:6,rz:6,geo:1}],fx:[{k:'ring',cx:0,cz:-9,r:5.2},{k:'icon',x:0,z:-9,t:'💜'}]}}},
  hotseam:{nm:'Hot seam',cat:'end',lv:[3],w:1.5,mx:1,mk(){return{foot:[[-3,3,-9,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-3]],w:2.6,org:1},{k:'blob',cx:0,cz:-6,rx:3,rz:3}],fx:[{k:'spots',n:6,c:'#9cff5a',rx:2,rz:2,cz:-6},{k:'icon',x:0,z:-6,t:'☢️'}]}}},
- basalt:{nm:'Basalt gallery',cat:'tun',lv:[3],w:2,mx:2,mk(R){const p=ugWig(R,16,.8);return{foot:[[-3,3,-16,0]],ex:[[0,-16,0]],shp:[{k:'path',pts:p,w:5,org:1}],fx:[{k:'cols',pts:[[-2,-4],[2,-8],[-2.2,-12]],c:'#2a2422',r:.7},{k:'cracks',pts:p}]}}},
+ basalt:{nm:'Basalt gallery',cat:'tun',lv:[3],w:2,mx:2,mk(R){const p=ugWig(R,16,.8);return{foot:[[-3,3,-16,0]],ex:[[0,-16,0]],shp:[{k:'path',pts:p,w:5,org:1}],fx:[{k:'cols',pts:[[p[1][0]-1.3,p[1][1]],[p[2][0]+1.3,p[2][1]],[p[3][0]-1.3,p[3][1]]],c:'#2a2422',r:.6},{k:'cracks',pts:p}]}}},
  /* ----- links between levels ----- */
  decline:{nm:'Spiral decline',cat:'link',lv:[1,2],w:0,mx:2,mk(){const c=ugArc(6,-8,6,Math.PI,4*Math.PI,36);return{foot:[[-2,14,-16,0]],both:1,ex:[[12,0,2,1]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:4},{k:'path',pts:c,w:4},{k:'path',pts:[[12,-8],[12,0]],w:4}],fx:[{k:'spiral',cx:6,cz:-8},{k:'icon',x:6,z:-8,t:'↘️'}]}}},
  ladder:{nm:'Ladderway',cat:'link',lv:[1,2],w:0,mx:3,mk(){return{foot:[[-2,2,-8,0]],both:1,ex:[[0,-8,0,1]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:3.2}],fx:[{k:'hatch',x:0,z:-4},{k:'icon',x:0,z:-4,t:'🪜'}]}}},
@@ -59,56 +59,120 @@ const UGP={
    exits and changes what's inside (and how it plays). fx(d,R) rewrites the features; the first is the room as above.
    A mine uses a different variant each time the same room comes up, while there are unused ones. ---- */
 const UGV={
+ /* ---------- the shaft stations (one per level; the cage in the middle, an exit on every side) ---------- */
+ station1:[
+  {nm:'Pit bottom',ds:'The cage stops here. Minecart bay, tool board, shift clock, the level map board, a bench.',fx:()=>[{k:'blk',pts:[[-6.4,-6.4],[6.4,-6.4]],r:.6,n:'bench'},{k:'blk',pts:[[6.4,6.4]],r:.6,n:'tool board'}]},
+  {nm:'Timbered station',ds:'Heavy square timbers, an old ore chute from the stopes above, a tally board with the miners\' brass tags.',fx:()=>[{k:'cribs',pts:[[-6.2,-6.2],[6.2,-6.2],[6.2,6.2]]},{k:'blk',pts:[[-6.4,6.4]],r:.5,n:'chute'}]},
+  {nm:'Brick station',ds:'A brick-lined hall with an arched roof, a tally office window and a big painted LEVEL 1.',fx:()=>[{k:'blk',pts:[[-6.3,-6.3]],r:.7,n:'tally office'},{k:'blk',pts:[[6.4,-6.4],[6.4,6.4]],r:.5,n:'lamp post'}]}],
+ station2:[
+  {nm:'Cave station',ds:'Rough rock round a timber platform at the cage, the level map board, a lamp on a wire.',fx:()=>[{k:'blk',pts:[[-4.6,-4.6]],r:.5,n:'map board'}]},
+  {nm:'Pumping station',ds:'Big pumps and pipes climbing the shaft wall, thumping away; puddles everywhere.',fx:()=>[{k:'blk',pts:[[4.4,-4.4],[4.4,4.4]],r:.7,n:'pump'},{k:'water',cx:-3.6,cz:3.6,rx:1.6,rz:1.4}]},
+  {nm:'Refuge station',ds:'A steel door into a refuge chamber with air bottles: gas can\'t follow you in here.',fx:()=>[{k:'blk',pts:[[-4.6,-4.6],[-4.6,4.6]],r:.5,n:'air bottles'},{k:'door',x:-4.4,z:0}]}],
+ station3:[
+  {nm:'Deep station',ds:'Dark rock, a heavy steel cage gate, a water barrel and a warning board: HOT GROUND.',fx:()=>[{k:'blk',pts:[[4.6,-4.6]],r:.5,n:'barrel'}]},
+  {nm:'Hot station',ds:'Big fans push cool air down the shaft; an ice-water barrel and a thermometer in the red.',fx:()=>[{k:'blk',pts:[[-4.6,-4.6],[4.6,-4.6]],r:.6,n:'fan'}]},
+  {nm:'Sealed station',ds:'Steel bulkheads at every exit, opened with a big wheel (E). Someone sealed this level once.',fx:()=>[{k:'blk',pts:[[4.6,4.6]],r:.5,n:'valve box'}]}],
+ /* ---------- level 1 ---------- */
  stope:[
   {nm:'Cribbed stope',ds:'Timber cribs hold up the roof over rough rock benches. Lots of veins, often a big seam.'},
-  {nm:'Shrinkage stope',ds:'A tall stope half full of broken ore. Climb the timber ladder to a high ledge with rich veins.',fx:()=>[{k:'muck',cx:1.5,cz:-10,rx:4.4,rz:6},{k:'ledge',x0:-7,x1:-3.6,z0:-16,z1:-4},{k:'ladder2',x:-3.2,z:-10},{k:'icon',x:-5.3,z:-10,t:'🪜'}]},
+  {nm:'Shrinkage stope',ds:'A tall stope half full of broken ore. Climb the timber ladder to a high ledge with rich veins.',fx:()=>[{k:'muck',cx:1.5,cz:-10,rx:4.4,rz:6},{k:'ledge',x0:-6.8,x1:-3.6,z0:-16,z1:-4},{k:'ladder2',x:-3.2,z:-10},{k:'icon',x:-5.2,z:-10,t:'🪜'}]},
   {nm:'Glory hole',ds:'A raise up to the quarry floor lets a shaft of daylight in. Dust in the light, veins round the walls.',fx:()=>[{k:'sun',cx:0,cz:-10,r:3.2},{k:'cribs',pts:[[-4.5,-5],[4.5,-5],[-4.5,-15],[4.5,-15]]},{k:'icon',x:0,z:-10,t:'☀️'}]},
-  {nm:'Flooded stope',ds:'The bottom is under still water. A plank walkway runs along one side; veins above the waterline.',fx:()=>[{k:'water',cx:1.6,cz:-10,rx:5,rz:7.2},{k:'walk',pts:[[-5.6,-2.4],[-5.6,-17.4]]},{k:'icon',x:1.6,z:-10,t:'💧'}]}],
+  {nm:'Flooded stope',ds:'Still, deep water over the bottom. Walk the edge or the plank walkway; veins above the waterline.',fx:()=>[{k:'water',cx:1.6,cz:-9.6,rx:5,rz:6,deep:1},{k:'walk',pts:[[-5.6,-2.4],[-5.6,-17.4]]},{k:'icon',x:1.6,z:-9.6,t:'💧'}]},
+  {nm:'Catwalk stope',ds:'A deep open stope you cross on a timber catwalk. Veins on the walls beside it; don\'t look down.',fx:()=>[{k:'pit',cx:0,cz:-10,rx:5,rz:5},{k:'walk',pts:[[0,-3.6],[0,-16.4]]},{k:'icon',x:3,z:-10,t:'🕳️'}]},
+  {nm:'Cut-and-fill stope',ds:'A floor of packed sand fill, an ore chute up one wall and a scraper winch with its cable across the room.',fx:()=>[{k:'blk',pts:[[-5.8,-10]],r:.6,n:'chute'},{k:'blk',pts:[[5.4,-14]],r:.8,n:'winch'},{k:'icon',x:0,z:-9,t:'⛏️'}]}],
  crib:[
   {nm:'Crib room',ds:'The miners\' break room: benches, a table with lunch tins, a stove. A lunchbox to find.'},
-  {nm:'Lamp room',ds:'Racks of old cap lamps on chargers and a board of brass tags. One tag has a name you\'ll know.',fx:()=>[{k:'racks',pts:[[-3.2,-4],[-3.2,-6],[-3.2,-8],[3.2,-4],[3.2,-6]]},{k:'icon',x:0,z:-6,t:'🔦'}]},
-  {nm:'Foreman\'s office',ds:'A desk, a safe, maps on the walls and the foreman\'s logbook (lore). The safe holds a shift bonus.',fx:()=>[{k:'desk',x:1.4,z:-7.6},{k:'icon',x:-2,z:-5,t:'🗄️'}]}],
+  {nm:'Lamp room',ds:'Racks of old cap lamps on chargers and a board of brass tags. One tag has a name you\'ll know.',fx:()=>[{k:'racks',pts:[[-3,-4],[-3,-6],[-3,-8],[3,-4],[3,-6]]},{k:'icon',x:0,z:-6,t:'🔦'}]},
+  {nm:'Foreman\'s office',ds:'A desk, a safe, maps on the walls and the foreman\'s logbook (lore). The safe holds a shift bonus.',fx:()=>[{k:'desk',x:1.4,z:-7.6},{k:'blk',pts:[[-3,-9]],r:.5,n:'safe'},{k:'icon',x:-2,z:-5,t:'🗄️'}]},
+  {nm:'First-aid station',ds:'A stretcher, a cabinet and a first-aid kit you can carry: your next fall, gas or burn costs you nothing.',fx:()=>[{k:'blk',pts:[[2.6,-6]],r:.6,n:'stretcher'},{k:'blk',pts:[[-3,-8.6]],r:.5,n:'cabinet'},{k:'icon',x:0,z:-6,t:'⛑️'}]}],
+ magazine:[
+  {nm:'Powder magazine',ds:'Behind a heavy door: crates of dynamite. Take up to 3 sticks.'},
+  {nm:'Blasting store',ds:'A plunger box and reels of wire: dynamite set from here goes off when you push the plunger, no fuse wait.',fx:()=>[{k:'door',x:0,z:-3},{k:'blk',pts:[[-1.9,-7.6]],r:.55,n:'crate',c:'#8a2a1a'},{k:'blk',pts:[[1.9,-7.4]],r:.5,n:'plunger'},{k:'icon',x:0,z:-6,t:'🧨'}]},
+  {nm:'Flooded magazine',ds:'Ankle-deep water and crates gone soft. One stick is still dry, up on the top shelf.',fx:()=>[{k:'door',x:0,z:-3},{k:'water',cx:0,cz:-6,rx:2.6,rz:2.8},{k:'blk',pts:[[-1.9,-7.6]],r:.55,n:'crate',c:'#8a2a1a'},{k:'icon',x:.6,z:-6,t:'🧨'}]}],
+ collapsed:[
+  {nm:'Collapsed drift',ds:'Broken timbers and a rubble heap to squeeze past on one side.'},
+  {nm:'Buried cart',ds:'A cave-in half buried a loaded minecart: dig it out (6 swings) for a pile of ore.',fx:()=>[{k:'sets',pts:[[0,0],[0,-12]],broken:1},{k:'rubble',x:-.6,z:-5},{k:'blk',pts:[[.9,-8.4]],r:.6,n:'cart'},{k:'icon',x:.9,z:-8.4,t:'🛒'}]},
+  {nm:'Propped drift',ds:'A forest of emergency props holding up a cracked roof. Dust trickles when you pass.',fx:()=>[{k:'blk',pts:[[-1.2,-3],[1.2,-3],[-1.2,-6],[1.2,-6],[0,-7.5],[-1.2,-9],[1.2,-9]],r:.2,n:'prop',c:'#8a5a2e'}]}],
  pump:[
-  {nm:'Pump room',ds:'An old pump over a flooded sump.'},
-  {nm:'Winder room',ds:'The big drum and brake of an old winze hoist, cables running into a hole in the floor (fenced off).',fx:()=>[{k:'drum',x:-1.4,z:-5},{k:'pit',cx:2.8,cz:-5,rx:1.4,rz:1.4},{k:'icon',x:-1.4,z:-5,t:'⚙️'}]},
-  {nm:'Mine workshop',ds:'A forge, an anvil, a drill press, broken carts waiting for repair.',fx:()=>[{k:'desk',x:-3,z:-3.2},{k:'desk',x:3,z:-7},{k:'icon',x:0,z:-5,t:'🔨'}]}],
+  {nm:'Pump room',ds:'An old pump over a deep, flooded sump.'},
+  {nm:'Winder room',ds:'The big drum and brake of an old winze hoist, cables running into a fenced hole in the floor.',fx:()=>[{k:'drum',x:-1.4,z:-5},{k:'pit',cx:2.8,cz:-5,rx:1.4,rz:1.4},{k:'icon',x:-1.4,z:-5,t:'⚙️'}]},
+  {nm:'Mine workshop',ds:'A forge, an anvil, a drill press, broken carts waiting for repair.',fx:()=>[{k:'desk',x:-3,z:-3.2},{k:'desk',x:3,z:-7},{k:'blk',pts:[[-2.6,-7.4]],r:.4,n:'anvil'},{k:'icon',x:0,z:-5,t:'🔨'}]},
+  {nm:'Compressor room',ds:'A big air compressor thumping away, pipes off along the drives. Switch it off (E) and listen to the mine.',fx:()=>[{k:'blk',pts:[[-2.8,-5]],r:1.2,n:'compressor'},{k:'blk',pts:[[3,-3.4]],r:.7,n:'air tank'},{k:'icon',x:-2.8,z:-5,t:'💨'}]}],
+ round:[
+  {nm:'Pillar round',ds:'A drive all the way round an ore pillar: veins on every face, and two ways past.'},
+  {nm:'Rail loop',ds:'The rails run round the pillar; an old ore train is parked on one side.',fx:()=>[{k:'pillar',x0:-6,x1:6,z0:-22,z1:-6},{k:'sets',pts:[[0,-4],[8,-4],[8,-24],[-8,-24],[-8,-4],[0,-4]]},{k:'rail',pts:[[0,0],[0,-4],[8,-4],[8,-24],[-8,-24],[-8,-4],[0,-4]]},{k:'blk',pts:[[-9,-10],[-9,-12],[-9,-14],[-9,-16]],r:.5,n:'cart'}]},
+  {nm:'Ore bins',ds:'Timber ore bins stand against the far side of the pillar, full of sorted ore to bag.',fx:()=>[{k:'pillar',x0:-6,x1:6,z0:-22,z1:-6},{k:'sets',pts:[[0,-4],[8,-4],[8,-24],[-8,-24],[-8,-4],[0,-4]]},{k:'blk',pts:[[-4,-23],[4,-23]],r:.5,n:'ore bin'},{k:'icon',x:0,z:-14,t:'⛏️'}]}],
+ /* ---------- levels 2 and 3 ---------- */
+ fork:[
+  {nm:'Cave fork',ds:'The cave splits.'},
+  {nm:'Boulder fork',ds:'A huge boulder that fell from the roof sits where the cave splits.',fx:()=>[{k:'blk',pts:[[0,-5.6]],r:1.1,n:'boulder',c:'#6a625a'}]},
+  {nm:'Dripstone fork',ds:'Two columns and a dripping roof where the cave splits.',fx:()=>[{k:'cols',pts:[[-2.2,-4.2]],r:.5},{k:'cols',pts:[[2.4,-6.8]],r:.4}]}],
+ island:[
+  {nm:'Rock island',ds:'The cave splits round a rock island and joins again: two ways past.'},
+  {nm:'Crystal island',ds:'The island is one great crystal pillar, lit from inside.',fx:()=>[{k:'isle',cx:0,cz:-12,rx:5.2,rz:5.2},{k:'ringspots',cx:0,cz:-12,rx:4.4,rz:4.4,n:16,c:'#9ff0ff'}]},
+  {nm:'Mushroom island',ds:'Giant mushrooms grow on the island, their caps reaching over the passage.',fx:()=>[{k:'isle',cx:0,cz:-12,rx:5.2,rz:5.2},{k:'ringspots',cx:0,cz:-12,rx:3.6,rz:3.6,n:7,c:'#e58ae0'}]},
+  {nm:'Flooded round',ds:'Ankle-deep water all the way round the island, and drips that ring like bells.',fx:()=>[{k:'water',cx:0,cz:-12,rx:9.4,rz:9.4},{k:'isle',cx:0,cz:-12,rx:5.2,rz:5.2}]}],
  crystal:[
   {nm:'Crystal grotto',ds:'Glowing crystal clusters, silver and crystal veins.'},
-  {nm:'Crystal pool',ds:'A still, glowing pool ringed with crystals. The rarest crystals grow under the water\'s edge.',fx:()=>[{k:'water',cx:0,cz:-10,rx:4,rz:5,c:'#38c8f0'},{k:'ringspots',cx:0,cz:-10,rx:5.2,rz:6.2,n:20,c:'#9ff0ff'},{k:'icon',x:0,z:-10,t:'💎'}]},
-  {nm:'Selenite beams',ds:'Giant crystal beams cross the cave at all angles: duck under some, climb over others.',fx:()=>[{k:'beams',ls:[[[-7,-5],[6,-14]],[[-6,-15.5],[7,-7]],[[-2.5,-3],[2.5,-17.5]]]},{k:'icon',x:-4,z:-10,t:'💎'}]}],
+  {nm:'Crystal pool',ds:'A still, glowing pool ringed with crystals. The rarest crystals grow under the water\'s edge (wade in).',fx:()=>[{k:'water',cx:0,cz:-10,rx:4,rz:5,c:'#38c8f0'},{k:'ringspots',cx:0,cz:-10,rx:5.2,rz:6.2,n:20,c:'#9ff0ff'},{k:'icon',x:0,z:-10,t:'💎'}]},
+  {nm:'Selenite beams',ds:'Giant crystal beams cross the cave at all angles: duck under some, climb over others.',fx:()=>[{k:'beams',ls:[[[-6,-5],[5.4,-14]],[[-5.4,-15.4],[6,-7]],[[-2.4,-3.4],[2.4,-16.6]]]},{k:'icon',x:-4,z:-10,t:'💎'}]},
+  {nm:'Frost grotto',ds:'Pale blue crystals furred with frost and a cold mist at knee height. Your breath shows.',fx:()=>[{k:'spots',n:14,c:'#d8f4ff',rx:5.6,rz:7,cz:-10},{k:'mist',cx:0,cz:-10,rx:6,rz:7.6},{k:'icon',x:0,z:-10,t:'❄️'}]},
+  {nm:'Crystal columns',ds:'Huge six-sided crystal columns from floor to roof, a maze of light.',fx:()=>[{k:'cols',pts:[[-3.5,-6],[3.2,-7.5],[-1,-11],[4,-13],[-4,-14.5]],r:.9,c:'#7fe4ff'}]}],
  fungus:[
   {nm:'Fungus grotto',ds:'Giant mushrooms, moss, vines and glowworms.'},
   {nm:'Puffball hollow',ds:'Puffballs as big as cars. Hit one and it bursts in a cloud of glowing spores (harmless, slow to clear).',fx:()=>[{k:'puff',pts:[[-5,-6],[4.5,-5],[-3,-14],[5,-14.5],[0,-10]]},{k:'icon',x:-5,z:-10,t:'🍄'}]},
-  {nm:'Glow pond',ds:'A dark pond lit from below, lily pads, mushrooms round the edge, frogs that go quiet when you come close.',fx:()=>[{k:'water',cx:1.5,cz:-11,rx:5.4,rz:4.6,c:'#2fb8a0'},{k:'spots',n:9,c:'#5fbf6a',rx:4,rz:3,cz:-11,r:.7,dx:1.5},{k:'ringspots',cx:1.5,cz:-11,rx:7,rz:6.2,n:14,c:'#e58ae0'},{k:'icon',x:1.5,z:-11,t:'🐸'}]}],
+  {nm:'Glow pond',ds:'A deep pond lit from below, lily pads, mushrooms round the edge, frogs that go quiet when you come close.',fx:()=>[{k:'water',cx:1.5,cz:-11,rx:5.4,rz:4.6,c:'#2fb8a0',deep:1},{k:'spots',n:9,c:'#5fbf6a',rx:4,rz:3,cz:-11,r:.7,dx:1.5},{k:'ringspots',cx:1.5,cz:-11,rx:6.6,rz:5.8,n:14,c:'#e58ae0'},{k:'icon',x:1.5,z:-11,t:'🐸'}]},
+  {nm:'Shelf-fungus wall',ds:'Giant shelf fungi grow up one wall like steps: climb them to a high ledge with gold.',fx:()=>[{k:'ledge',x0:5.4,x1:8,z0:-12.6,z1:-7.4},{k:'spots',n:6,c:'#d8a060',rx:1,rz:2.4,cz:-10,dx:4.4,r:.6},{k:'spots',n:16,c:'#e58ae0',rx:6,rz:7,cz:-10,dx:-1.5,r:.8},{k:'icon',x:6.6,z:-10,t:'🍄'}]},
+  {nm:'Root hall',ds:'Thick pale roots hang from the roof to the floor, glowing at the tips. Something far above is very thirsty.',fx:()=>[{k:'cols',pts:[[-4,-5],[3.6,-6.4],[-1.4,-11],[5,-12.6],[-5.4,-13],[1.2,-15.6]],r:.45,c:'#c8b08a'},{k:'icon',x:0,z:-8,t:'🌱'}]}],
  flooded:[
   {nm:'Flooded gallery',ds:'Knee-deep water you wade through, a plank walkway along one side.'},
-  {nm:'Underground lake',ds:'Too deep to wade. Pull the rope raft across (hold E); it takes up to four.',fx:()=>[{k:'water',cx:0,cz:-12,rx:4.6,rz:9.4,c:'#2f6f98'},{k:'rope',pts:[[0,-1.6],[0,-22.4]]},{k:'raft',x:0,z:-5},{k:'icon',x:2.4,z:-14,t:'🛶'}]},
-  {nm:'Drowned drift',ds:'An old timbered drive the water took: rails under the surface, a sunken minecart, waist-deep in the middle.',fx:()=>[{k:'water',cx:0,cz:-12,rx:4.4,rz:10.6},{k:'sets',pts:[[0,-1],[0,-23]]},{k:'rail',pts:[[0,-1],[0,-23]]},{k:'icon',x:1.6,z:-13,t:'🛒'}]}],
+  {nm:'Underground lake',ds:'Too deep to wade. Pull the rope raft across (hold E); it takes up to four.',fx:()=>[{k:'water',cx:0,cz:-12,rx:4.6,rz:9.4,c:'#2f6f98',deep:1},{k:'rope',pts:[[0,-1.6],[0,-22.4]]},{k:'raft',x:0,z:-5},{k:'icon',x:2.4,z:-14,t:'🛶'}]},
+  {nm:'Drowned drift',ds:'An old timbered drive the water took: rails under the surface, a sunken minecart, waist-deep in the middle.',fx:()=>[{k:'water',cx:0,cz:-12,rx:4.4,rz:10.6},{k:'sets',pts:[[0,-1],[0,-23]]},{k:'rail',pts:[[0,-1],[0,-23]]},{k:'icon',x:1.6,z:-13,t:'🛒'}]},
+  {nm:'Waterfall gallery',ds:'A waterfall pours out of a crack in the wall into a deep plunge pool. Spray, a roar, the path past it.',fx:()=>[{k:'falls',x:-4.6,z:-12,w:3,c:'#9fd8f0'},{k:'water',cx:-2.2,cz:-12,rx:2.4,rz:3,c:'#3f88b8',deep:1},{k:'water',cx:.8,cz:-12,rx:3.4,rz:9}]}],
  chasm:[
   {nm:'Chasm hall',ds:'A rope bridge over a fissure, or jump the stones.'},
   {nm:'Broken bridge',ds:'The bridge has fallen. Edge round the end of the fissure on a narrow ledge, or make a long jump.',fx:()=>[{k:'chasm',pts:[[-5.4,-9.4],[-2,-10.5],[3,-9.4],[7,-10.6]],w:3},{k:'bridge',x0:0,z0:-7.6,x1:0,z1:-8.8},{k:'bridge',x0:0,z0:-11.2,x1:0,z1:-12.4},{k:'ledge2',pts:[[-4.6,-6.4],[-6.2,-9.6],[-4.8,-13]]}]},
-  {nm:'Trestle crossing',ds:'A wide fissure crossed by the miners\' old timber trestle, rails and all. It creaks.',fx:()=>[{k:'chasm',pts:[[-7,-9.6],[-2,-10.6],[3,-9.2],[7,-10.4]],w:5},{k:'trestle',x0:0,z0:-6.4,x1:0,z1:-13.6}]}],
+  {nm:'Trestle crossing',ds:'A wide fissure crossed by the miners\' old timber trestle, rails and all. It creaks.',fx:()=>[{k:'chasm',pts:[[-7,-9.6],[-2,-10.6],[3,-9.2],[7,-10.4]],w:5},{k:'trestle',x0:0,z0:-6.4,x1:0,z1:-13.6}]},
+  {nm:'Zip line',ds:'A rusty miners\' zip line: grab the handle (E) and slide over. Coming back, take the ledge round the end.',fx:()=>[{k:'chasm',pts:[[-5.2,-9.6],[-2,-10.4],[3,-9.4],[7,-10.4]],w:4},{k:'zip',pts:[[1.6,-6.6],[1.6,-13.6]]},{k:'ledge2',pts:[[-4.4,-6.6],[-6,-10],[-4.4,-13.6]]},{k:'icon',x:1.6,z:-10,t:'🪝'}]}],
  hall:[
   {nm:'Stalactite hall',ds:'Columns, flowstone and stalactites, a path between them.'},
   {nm:'Rimstone terraces',ds:'Stepped pools of still water down the cave, each one rimmed with stone. Walk the rims.',fx:()=>[{k:'terraces',cx:0,cz:-10,n:4,rx:8,rz:8}]},
-  {nm:'Cathedral',ds:'A huge, tall dome round one giant column. Your lamp doesn\'t reach the roof.',fx:()=>[{k:'cols',pts:[[0,-10]],r:3.2},{k:'cols',pts:[[-6,-5],[6.5,-14],[-6.4,-15],[6,-5.5]],r:.6},{k:'icon',x:-5,z:-10,t:'⛪'}]}],
+  {nm:'Cathedral',ds:'A huge, tall dome round one giant column. Your lamp doesn\'t reach the roof.',fx:()=>[{k:'cols',pts:[[0,-10]],r:3.2},{k:'cols',pts:[[-6,-5],[6.5,-14],[-6.4,-15],[6,-5.5]],r:.6},{k:'icon',x:-5,z:-10,t:'⛪'}]},
+  {nm:'Fossil wall',ds:'A giant fossil skeleton in the cave wall, half dug out long ago. Fossils to take (the assay office buys them).',fx:()=>[{k:'fossil',pts:[[-8.4,-5.4],[-8.9,-8],[-8.9,-11],[-8.4,-14]]},{k:'blk',pts:[[-6,-13.4]],r:.5,n:'tool pile'},{k:'goal',x:-7.4,z:-9.4,n:'the fossil wall'},{k:'icon',x:-6.6,z:-9.6,t:'🦴'}]},
+  {nm:'Echo chamber',ds:'A tall, round, empty cave where every sound comes back three times. Someone left a bell on a post: ring it (E).',fx:()=>[{k:'blk',pts:[[0,-10]],r:.3,n:'bell post'},{k:'icon',x:0,z:-11.4,t:'🔔'}]}],
+ stream:[
+  {nm:'Stream crossing',ds:'A stream crosses the passage: stepping stones.'},
+  {nm:'Plank footbridge',ds:'A fast, deep stream across the passage and a plank footbridge with a rope rail.',fx:()=>[{k:'stream',pts:[[-3,-5],[3,-7]],w:1.6,deep:1},{k:'bridge',x0:.6,z0:-4.4,x1:1,z1:-7.6}]},
+  {nm:'Stream tunnel',ds:'For a stretch the passage IS the stream: wade with the current, ankle-deep.',fx:()=>[{k:'water',cx:.4,cz:-6,rx:1.8,rz:5.2}]}],
+ orepass:[
+  {nm:'Ore pass',ds:'A grate over a chute: ore dropped in lands in the cage\'s minecart, no walk back.'},
+  {nm:'Grizzly',ds:'A steel grizzly (a grid of bars) over the chute and a sledgehammer for big lumps. Same quick trip to the cart.',fx:()=>[{k:'grate',x:0,z:-5.4},{k:'blk',pts:[[2.2,-7.2]],r:.4,n:'hammer rack'},{k:'icon',x:0,z:-5.4,t:'⬇️'}]},
+  {nm:'Skip loader',ds:'A little skip on rails at the chute\'s lip: fill it, push it over (E), and the ore goes to the cart.',fx:()=>[{k:'grate',x:0,z:-6.4},{k:'blk',pts:[[-1.6,-4.4]],r:.6,n:'skip'},{k:'rail',pts:[[-1.6,-2.4],[-1.6,-6.4]]},{k:'icon',x:0,z:-6.4,t:'⬇️'}]}],
  magma:[
   {nm:'Magma chamber',ds:'A lava river with a stone bridge, geysers, a lava lake with stepping stones to a diamond island.'},
-  {nm:'Lavafall',ds:'Lava pours down one wall into a glowing pool. A basalt shelf runs round it; gold in the hot wall.',fx:()=>[{k:'falls',x:-11,z:-12,w:6},{k:'lake',cx:-7,cz:-12,rx:3.4,rz:4.6,noisle:1},{k:'ledge',x0:-11,x1:-7.6,z0:-19,z1:-17},{k:'gey',x:4,z:-6},{k:'gey',x:5,z:-17},{k:'cols',pts:[[8,-10],[9,-12],[8.4,-14]],c:'#2a2422'},{k:'icon',x:-9,z:-12,t:'🌋'}]},
-  {nm:'Crust field',ds:'A floor of cooled crust over live lava. Dark patches are safe; glowing ones burn (you\'re pushed off and drop ore).',fx:()=>[{k:'crust',cx:0,cz:-12,rx:9.6,rz:9.6},{k:'icon',x:0,z:-12,t:'🔥'}]},
-  {nm:'Obsidian moat',ds:'A ring of lava round an island of black glass. One stone bridge; diamond and gold on the island.',fx:()=>[{k:'moat',cx:0,cz:-12,r:6.4,w:1.8},{k:'isle2',cx:0,cz:-12,r:5.4},{k:'bridge',x0:0,z0:-4.2,x1:0,z1:-7.4},{k:'icon',x:0,z:-12,t:'💠'}]}],
+  {nm:'Lavafall',ds:'Lava pours down one wall into a glowing pool. A basalt shelf runs round it to gold in the hot wall.',fx:()=>[{k:'falls',x:-11,z:-12,w:6},{k:'lake',cx:-7,cz:-12,rx:3.4,rz:4.6,noisle:1},{k:'walk',pts:[[-3.4,-17.2],[-7,-17.6],[-9.6,-15]]},{k:'goal',x:-9.6,z:-15,n:'the gold in the hot wall'},{k:'gey',x:4,z:-6},{k:'gey',x:5,z:-17},{k:'cols',pts:[[6.4,-19],[8.4,-17.2]],r:.7,c:'#2a2422'},{k:'icon',x:-7,z:-12,t:'🌋'}]},
+  {nm:'Crust field',ds:'A floor of cooled crust over live lava. Dark patches are safe; glowing ones burn (you\'re pushed off and drop 2 ore).',fx:()=>[{k:'crust',cx:0,cz:-12,rx:9.6,rz:9.6},{k:'icon',x:0,z:-12,t:'🔥'}]},
+  {nm:'Obsidian moat',ds:'A ring of lava round an island of black glass. One stone bridge; diamond and gold on the island.',fx:()=>[{k:'moat',cx:0,cz:-12,r:6.4,w:1.8},{k:'isle2',cx:0,cz:-12,r:5.4},{k:'bridge',x0:0,z0:-4.2,x1:0,z1:-7.4},{k:'icon',x:0,z:-12,t:'💠'}]},
+  {nm:'Lava channel',ds:'A channel of lava sweeps round one side of the chamber; a stone bridge over it to the side passage, heat shimmer everywhere.',fx:()=>[{k:'lava',pts:[[6,-2.5],[9.4,-8],[9.6,-16],[6,-21.5]],w:1.4},{k:'bridge',x0:8.2,z0:-12,x1:11.2,z1:-12},{k:'gey',x:-5,z:-8},{k:'cols',pts:[[-6,-16],[-3.8,-18.4]],r:.7,c:'#2a2422'},{k:'icon',x:9.6,z:-12,t:'🌋'}]}],
  dark:[
   {nm:'Dark cave',ds:'Pitch black without the LED headlamp. A chasm and glowworms.'},
-  {nm:'Sinkhole',ds:'A round, bottomless shaft in the middle of the cave. The path goes round the rim; the best veins are on the far side.',fx:()=>[{k:'pit',cx:0,cz:-9,rx:4.4,rz:4.4},{k:'glow',n:14,rx:8,rz:8,cz:-9},{k:'icon',x:-6.4,z:-9,t:'🔦'}]},
-  {nm:'Glowworm grotto',ds:'Still black water and a roof full of glowworms. A narrow path round the edge; turn your lamp off to see it.',fx:()=>[{k:'water',cx:.6,cz:-9,rx:6.2,rz:6.4,c:'#16303c'},{k:'glow',n:46,rx:8,rz:8,cz:-9},{k:'icon',x:-6.8,z:-9,t:'✨'}]},
-  {nm:'The maze',ds:'A forest of rock pillars. Easy to lose your way: the signposts don\'t reach in here.',fx:()=>{const p=[];for(let i=-2;i<=2;i++)for(let j=0;j<4;j++)if((i+j)%2==0||i==0&&j==2)p.push([i*3.2,-3.6-j*3.4]);return[{k:'cols',pts:p,r:.95,c:'#4a4440'},{k:'icon',x:-6.6,z:-15,t:'🔦'}]}}],
+  {nm:'Sinkhole',ds:'A round, bottomless shaft in the middle of the cave. The path goes round the rim; the best veins are on the far side.',fx:()=>[{k:'pit',cx:0,cz:-9,rx:4.4,rz:4.4},{k:'glow',n:14,rx:8,rz:8,cz:-9},{k:'goal',x:0,z:-15.4,n:'the far side'},{k:'icon',x:-6.4,z:-9,t:'🔦'}]},
+  {nm:'Glowworm grotto',ds:'Still black water and a roof full of glowworms. A narrow path round the edge; turn your lamp off to see it.',fx:()=>[{k:'water',cx:.6,cz:-9,rx:6.2,rz:6.4,c:'#16303c',deep:1},{k:'glow',n:46,rx:8,rz:8,cz:-9},{k:'icon',x:-6.8,z:-9,t:'✨'}]},
+  {nm:'The maze',ds:'A forest of rock pillars. Easy to lose your way: the signposts don\'t reach in here.',fx:()=>{const p=[];for(let i=-2;i<=2;i++)for(let j=0;j<4;j++){const x=i*2.8+(j%2?1.4:0),z=-4.2-j*3.2;if((i+j)%2==0&&Math.hypot(x/6.6,(z+9)/6.6)<1&&Math.hypot(x,z)>3.4&&Math.hypot(x,z+18)>3.4)p.push([x,z])}return[{k:'cols',pts:p,r:.9,c:'#4a4440'},{k:'icon',x:-6.4,z:-9,t:'🔦'}]}},
+  {nm:'Bat roost',ds:'Thousands of bats under a high roof. Shine your lamp up and they pour out past you; slippery guano underfoot.',fx:()=>[{k:'spots',n:30,c:'#3a3036',rx:7,rz:7,cz:-9,r:.4},{k:'icon',x:0,z:-9,t:'🦇'}]}],
  geode:[
   {nm:'Amethyst geode',ds:'A round room lined with giant purple crystals. Gems.'},
   {nm:'Celestine geode',ds:'Pale blue crystals and a hum you feel more than hear. Gems.',fx:()=>[{k:'ring',cx:0,cz:-9,r:5.2,c:'#4f8ad0',c2:'#bcd8ff'},{k:'icon',x:0,z:-9,t:'💙'}]},
-  {nm:'Citrine geode',ds:'Golden crystals, and gold in the rock between them. Gems.',fx:()=>[{k:'ring',cx:0,cz:-9,r:5.2,c:'#c89020',c2:'#ffe08a'},{k:'icon',x:0,z:-9,t:'💛'}]}],
+  {nm:'Citrine geode',ds:'Golden crystals, and gold in the rock between them. Gems.',fx:()=>[{k:'ring',cx:0,cz:-9,r:5.2,c:'#c89020',c2:'#ffe08a'},{k:'icon',x:0,z:-9,t:'💛'}]},
+  {nm:'Smoky quartz geode',ds:'Dark, smoky crystals that drink your lamplight, with a few clear ones that blaze. Gems.',fx:()=>[{k:'ring',cx:0,cz:-9,r:5.2,c:'#4a4440',c2:'#d8d0c8'},{k:'icon',x:0,z:-9,t:'🖤'}]}],
  hotseam:[
   {nm:'Hot seam',ds:'Glowing green rock, uranium, Geiger clicks.'},
-  {nm:'Green spring',ds:'A steaming pool tinted green by the rock round it. Uranium in the walls, and the clicks get fast.',fx:()=>[{k:'water',cx:0,cz:-6,rx:2,rz:2,c:'#6ad04a'},{k:'icon',x:0,z:-6,t:'☢️'}]}]
+  {nm:'Green spring',ds:'A steaming pool tinted green by the rock round it. Uranium in the walls, and the clicks get fast.',fx:()=>[{k:'water',cx:0,cz:-6,rx:1.8,rz:1.8,c:'#6ad04a',deep:1},{k:'icon',x:0,z:-6,t:'☢️'}]},
+  {nm:'Core shed',ds:'Boxes of glowing drill cores stacked by the walls and an old core drill. Some cores are worth taking.',fx:()=>[{k:'blk',pts:[[-1.6,-6.8],[1.6,-5.2]],r:.5,n:'core box',c:'#5a7a3a'},{k:'icon',x:0,z:-6,t:'☢️'}]}],
+ basalt:[
+  {nm:'Basalt gallery',ds:'Black basalt columns and glowing cracks.'},
+  {nm:'Steam vents',ds:'Vents in the floor hiss and puff steam that hides the way for a few seconds at a time.',fx:d=>[{k:'cracks',pts:d.shp[0].pts},{k:'spots',n:6,c:'#e8e8e8',rx:1.4,rz:6,cz:-8,r:.35},{k:'icon',x:0,z:-8,t:'♨️'}]},
+  {nm:'Obsidian tube',ds:'Glassy black walls that throw your lamplight back at you, and sharp edges underfoot.',fx:d=>[{k:'spots',n:10,c:'#6a5a7a',rx:1.6,rz:7,cz:-8,r:.3},{k:'icon',x:0,z:-8,t:'🖤'}]}]
 };
 function ugVariant(type,d,R,usedV){
  const L=UGV[type];if(!L)return d;const u=usedV[type]||(usedV[type]=[]);
@@ -119,7 +183,8 @@ function ugVariant(type,d,R,usedV){
 function ugStation(n,R){
  const h=n==1?8:6,all=[[0,-h,0],[h,0,1],[0,h,2],[-h,0,3]];
  const ex=all;
- return{foot:[[-h,h,-h,h]],ex,shp:[{k:'rect',x0:-h,x1:h,z0:-h,z1:h}],fx:[{k:'shaft'},{k:'icon',x:n==1?-4.4:-2.8,z:n==1?4.4:2.8,t:n==1?'🛗':'🛗'}]};
+ const d={foot:[[-h,h,-h,h]],ex,shp:[{k:'rect',x0:-h,x1:h,z0:-h,z1:h}],fx:[{k:'shaft'},{k:'icon',x:n==1?-4.4:-2.8,z:n==1?4.4:2.8,t:'🛗'}]};
+ const V=UGV['station'+n],v=V[R()*V.length|0];d.v=V.indexOf(v);d.vn=v.nm;d.vd=v.ds;d.fx=d.fx.concat(v.fx(d));return d;
 }
 /* mirror a piece left to right (rooms and junctions, so two of a kind don't look the same) */
 function ugMirror(d){const mx=v=>-v;d.mir=1;
@@ -284,4 +349,4 @@ function ugWorld(p){
  const shp=p.d.shp.map(s=>s.k=='path'?Object.assign({},s,{pts:s.pts.map(q=>T(q[0],q[1]))}):s.k=='blob'||s.k=='ring'?Object.assign({},s,(()=>{const c=T(s.cx,s.cz),sw=p.r%2==1;return{cx:c[0],cz:c[1],rx:sw?s.rz:s.rx,rz:sw?s.rx:s.rz}})()):s.k=='rect'?Object.assign({},s,(()=>{const a=T(s.x0,s.z0),b=T(s.x1,s.z1);return{x0:Math.min(a[0],b[0]),x1:Math.max(a[0],b[0]),z0:Math.min(a[1],b[1]),z1:Math.max(a[1],b[1])}})()):s);
  return{shp,T};
 }
-if(typeof module!='undefined')module.exports={UGL,UGP,UGV,UGB,ugGen,ugWorld,ugRot,ugRng};
+if(typeof module!='undefined')module.exports={UGL,UGP,UGV,UGB,ugGen,ugWorld,ugRot,ugRng,ugStation};
