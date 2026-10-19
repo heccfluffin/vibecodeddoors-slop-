@@ -55,6 +55,66 @@ const UGP={
  ladder:{nm:'Ladderway',cat:'link',lv:[1,2],w:0,mx:3,mk(){return{foot:[[-2,2,-8,0]],both:1,ex:[[0,-8,0,1]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:3.2}],fx:[{k:'hatch',x:0,z:-4},{k:'icon',x:0,z:-4,t:'🪜'}]}}},
  old:{nm:'Old shaft (1 in 100)',cat:'end',lv:[3],w:0,mx:1,mk(){return{foot:[],ex:[],shp:[],fx:[{k:'portal',x:0,z:0},{k:'icon',x:0,z:-2.2,t:'🚪'}]}}}
 };
+/* ---- VARIANTS: the main rooms come in several versions, so mines don't repeat. Each variant keeps its room's size and
+   exits and changes what's inside (and how it plays). fx(d,R) rewrites the features; the first is the room as above.
+   A mine uses a different variant each time the same room comes up, while there are unused ones. ---- */
+const UGV={
+ stope:[
+  {nm:'Cribbed stope',ds:'Timber cribs hold up the roof over rough rock benches. Lots of veins, often a big seam.'},
+  {nm:'Shrinkage stope',ds:'A tall stope half full of broken ore. Climb the timber ladder to a high ledge with rich veins.',fx:()=>[{k:'muck',cx:1.5,cz:-10,rx:4.4,rz:6},{k:'ledge',x0:-7,x1:-3.6,z0:-16,z1:-4},{k:'ladder2',x:-3.2,z:-10},{k:'icon',x:-5.3,z:-10,t:'🪜'}]},
+  {nm:'Glory hole',ds:'A raise up to the quarry floor lets a shaft of daylight in. Dust in the light, veins round the walls.',fx:()=>[{k:'sun',cx:0,cz:-10,r:3.2},{k:'cribs',pts:[[-4.5,-5],[4.5,-5],[-4.5,-15],[4.5,-15]]},{k:'icon',x:0,z:-10,t:'☀️'}]},
+  {nm:'Flooded stope',ds:'The bottom is under still water. A plank walkway runs along one side; veins above the waterline.',fx:()=>[{k:'water',cx:1.6,cz:-10,rx:5,rz:7.2},{k:'walk',pts:[[-5.6,-2.4],[-5.6,-17.4]]},{k:'icon',x:1.6,z:-10,t:'💧'}]}],
+ crib:[
+  {nm:'Crib room',ds:'The miners\' break room: benches, a table with lunch tins, a stove. A lunchbox to find.'},
+  {nm:'Lamp room',ds:'Racks of old cap lamps on chargers and a board of brass tags. One tag has a name you\'ll know.',fx:()=>[{k:'racks',pts:[[-3.2,-4],[-3.2,-6],[-3.2,-8],[3.2,-4],[3.2,-6]]},{k:'icon',x:0,z:-6,t:'🔦'}]},
+  {nm:'Foreman\'s office',ds:'A desk, a safe, maps on the walls and the foreman\'s logbook (lore). The safe holds a shift bonus.',fx:()=>[{k:'desk',x:1.4,z:-7.6},{k:'icon',x:-2,z:-5,t:'🗄️'}]}],
+ pump:[
+  {nm:'Pump room',ds:'An old pump over a flooded sump.'},
+  {nm:'Winder room',ds:'The big drum and brake of an old winze hoist, cables running into a hole in the floor (fenced off).',fx:()=>[{k:'drum',x:-1.4,z:-5},{k:'pit',cx:2.8,cz:-5,rx:1.4,rz:1.4},{k:'icon',x:-1.4,z:-5,t:'⚙️'}]},
+  {nm:'Mine workshop',ds:'A forge, an anvil, a drill press, broken carts waiting for repair.',fx:()=>[{k:'desk',x:-3,z:-3.2},{k:'desk',x:3,z:-7},{k:'icon',x:0,z:-5,t:'🔨'}]}],
+ crystal:[
+  {nm:'Crystal grotto',ds:'Glowing crystal clusters, silver and crystal veins.'},
+  {nm:'Crystal pool',ds:'A still, glowing pool ringed with crystals. The rarest crystals grow under the water\'s edge.',fx:()=>[{k:'water',cx:0,cz:-10,rx:4,rz:5,c:'#38c8f0'},{k:'ringspots',cx:0,cz:-10,rx:5.2,rz:6.2,n:20,c:'#9ff0ff'},{k:'icon',x:0,z:-10,t:'💎'}]},
+  {nm:'Selenite beams',ds:'Giant crystal beams cross the cave at all angles: duck under some, climb over others.',fx:()=>[{k:'beams',ls:[[[-7,-5],[6,-14]],[[-6,-15.5],[7,-7]],[[-2.5,-3],[2.5,-17.5]]]},{k:'icon',x:-4,z:-10,t:'💎'}]}],
+ fungus:[
+  {nm:'Fungus grotto',ds:'Giant mushrooms, moss, vines and glowworms.'},
+  {nm:'Puffball hollow',ds:'Puffballs as big as cars. Hit one and it bursts in a cloud of glowing spores (harmless, slow to clear).',fx:()=>[{k:'puff',pts:[[-5,-6],[4.5,-5],[-3,-14],[5,-14.5],[0,-10]]},{k:'icon',x:-5,z:-10,t:'🍄'}]},
+  {nm:'Glow pond',ds:'A dark pond lit from below, lily pads, mushrooms round the edge, frogs that go quiet when you come close.',fx:()=>[{k:'water',cx:1.5,cz:-11,rx:5.4,rz:4.6,c:'#2fb8a0'},{k:'spots',n:9,c:'#5fbf6a',rx:4,rz:3,cz:-11,r:.7,dx:1.5},{k:'ringspots',cx:1.5,cz:-11,rx:7,rz:6.2,n:14,c:'#e58ae0'},{k:'icon',x:1.5,z:-11,t:'🐸'}]}],
+ flooded:[
+  {nm:'Flooded gallery',ds:'Knee-deep water you wade through, a plank walkway along one side.'},
+  {nm:'Underground lake',ds:'Too deep to wade. Pull the rope raft across (hold E); it takes up to four.',fx:()=>[{k:'water',cx:0,cz:-12,rx:4.6,rz:9.4,c:'#2f6f98'},{k:'rope',pts:[[0,-1.6],[0,-22.4]]},{k:'raft',x:0,z:-5},{k:'icon',x:2.4,z:-14,t:'🛶'}]},
+  {nm:'Drowned drift',ds:'An old timbered drive the water took: rails under the surface, a sunken minecart, waist-deep in the middle.',fx:()=>[{k:'water',cx:0,cz:-12,rx:4.4,rz:10.6},{k:'sets',pts:[[0,-1],[0,-23]]},{k:'rail',pts:[[0,-1],[0,-23]]},{k:'icon',x:1.6,z:-13,t:'🛒'}]}],
+ chasm:[
+  {nm:'Chasm hall',ds:'A rope bridge over a fissure, or jump the stones.'},
+  {nm:'Broken bridge',ds:'The bridge has fallen. Edge round the end of the fissure on a narrow ledge, or make a long jump.',fx:()=>[{k:'chasm',pts:[[-5.4,-9.4],[-2,-10.5],[3,-9.4],[7,-10.6]],w:3},{k:'bridge',x0:0,z0:-7.6,x1:0,z1:-8.8},{k:'bridge',x0:0,z0:-11.2,x1:0,z1:-12.4},{k:'ledge2',pts:[[-4.6,-6.4],[-6.2,-9.6],[-4.8,-13]]}]},
+  {nm:'Trestle crossing',ds:'A wide fissure crossed by the miners\' old timber trestle, rails and all. It creaks.',fx:()=>[{k:'chasm',pts:[[-7,-9.6],[-2,-10.6],[3,-9.2],[7,-10.4]],w:5},{k:'trestle',x0:0,z0:-6.4,x1:0,z1:-13.6}]}],
+ hall:[
+  {nm:'Stalactite hall',ds:'Columns, flowstone and stalactites, a path between them.'},
+  {nm:'Rimstone terraces',ds:'Stepped pools of still water down the cave, each one rimmed with stone. Walk the rims.',fx:()=>[{k:'terraces',cx:0,cz:-10,n:4,rx:8,rz:8}]},
+  {nm:'Cathedral',ds:'A huge, tall dome round one giant column. Your lamp doesn\'t reach the roof.',fx:()=>[{k:'cols',pts:[[0,-10]],r:3.2},{k:'cols',pts:[[-6,-5],[6.5,-14],[-6.4,-15],[6,-5.5]],r:.6},{k:'icon',x:-5,z:-10,t:'⛪'}]}],
+ magma:[
+  {nm:'Magma chamber',ds:'A lava river with a stone bridge, geysers, a lava lake with stepping stones to a diamond island.'},
+  {nm:'Lavafall',ds:'Lava pours down one wall into a glowing pool. A basalt shelf runs round it; gold in the hot wall.',fx:()=>[{k:'falls',x:-11,z:-12,w:6},{k:'lake',cx:-7,cz:-12,rx:3.4,rz:4.6,noisle:1},{k:'ledge',x0:-11,x1:-7.6,z0:-19,z1:-17},{k:'gey',x:4,z:-6},{k:'gey',x:5,z:-17},{k:'cols',pts:[[8,-10],[9,-12],[8.4,-14]],c:'#2a2422'},{k:'icon',x:-9,z:-12,t:'🌋'}]},
+  {nm:'Crust field',ds:'A floor of cooled crust over live lava. Dark patches are safe; glowing ones burn (you\'re pushed off and drop ore).',fx:()=>[{k:'crust',cx:0,cz:-12,rx:9.6,rz:9.6},{k:'icon',x:0,z:-12,t:'🔥'}]},
+  {nm:'Obsidian moat',ds:'A ring of lava round an island of black glass. One stone bridge; diamond and gold on the island.',fx:()=>[{k:'moat',cx:0,cz:-12,r:6.4,w:1.8},{k:'isle2',cx:0,cz:-12,r:5.4},{k:'bridge',x0:0,z0:-4.2,x1:0,z1:-7.4},{k:'icon',x:0,z:-12,t:'💠'}]}],
+ dark:[
+  {nm:'Dark cave',ds:'Pitch black without the LED headlamp. A chasm and glowworms.'},
+  {nm:'Sinkhole',ds:'A round, bottomless shaft in the middle of the cave. The path goes round the rim; the best veins are on the far side.',fx:()=>[{k:'pit',cx:0,cz:-9,rx:4.4,rz:4.4},{k:'glow',n:14,rx:8,rz:8,cz:-9},{k:'icon',x:-6.4,z:-9,t:'🔦'}]},
+  {nm:'Glowworm grotto',ds:'Still black water and a roof full of glowworms. A narrow path round the edge; turn your lamp off to see it.',fx:()=>[{k:'water',cx:.6,cz:-9,rx:6.2,rz:6.4,c:'#16303c'},{k:'glow',n:46,rx:8,rz:8,cz:-9},{k:'icon',x:-6.8,z:-9,t:'✨'}]},
+  {nm:'The maze',ds:'A forest of rock pillars. Easy to lose your way: the signposts don\'t reach in here.',fx:()=>{const p=[];for(let i=-2;i<=2;i++)for(let j=0;j<4;j++)if((i+j)%2==0||i==0&&j==2)p.push([i*3.2,-3.6-j*3.4]);return[{k:'cols',pts:p,r:.95,c:'#4a4440'},{k:'icon',x:-6.6,z:-15,t:'🔦'}]}}],
+ geode:[
+  {nm:'Amethyst geode',ds:'A round room lined with giant purple crystals. Gems.'},
+  {nm:'Celestine geode',ds:'Pale blue crystals and a hum you feel more than hear. Gems.',fx:()=>[{k:'ring',cx:0,cz:-9,r:5.2,c:'#4f8ad0',c2:'#bcd8ff'},{k:'icon',x:0,z:-9,t:'💙'}]},
+  {nm:'Citrine geode',ds:'Golden crystals, and gold in the rock between them. Gems.',fx:()=>[{k:'ring',cx:0,cz:-9,r:5.2,c:'#c89020',c2:'#ffe08a'},{k:'icon',x:0,z:-9,t:'💛'}]}],
+ hotseam:[
+  {nm:'Hot seam',ds:'Glowing green rock, uranium, Geiger clicks.'},
+  {nm:'Green spring',ds:'A steaming pool tinted green by the rock round it. Uranium in the walls, and the clicks get fast.',fx:()=>[{k:'water',cx:0,cz:-6,rx:2,rz:2,c:'#6ad04a'},{k:'icon',x:0,z:-6,t:'☢️'}]}]
+};
+function ugVariant(type,d,R,usedV){
+ const L=UGV[type];if(!L)return d;const u=usedV[type]||(usedV[type]=[]);
+ let free=L.map((_,i)=>i).filter(i=>!u.includes(i));if(!free.length)free=L.map((_,i)=>i);
+ const i=free[R()*free.length|0],v=L[i];d.v=i;d.vn=v.nm;d.vd=v.ds;if(v.fx)d.fx=v.fx(d,R);return d;
+}
 /* the shaft stations (the root of each level, centred on the shaft) */
 function ugStation(n,R){
  const h=n==1?8:6,all=[[0,-h,0],[h,0,1],[0,h,2],[-h,0,3]];
@@ -64,8 +124,8 @@ function ugStation(n,R){
 /* mirror a piece left to right (rooms and junctions, so two of a kind don't look the same) */
 function ugMirror(d){const mx=v=>-v;d.mir=1;
  d.foot=d.foot.map(f=>[-f[1],-f[0],f[2],f[3]]);d.ex=d.ex.map(e=>[-e[0],e[1],e[2]==1?3:e[2]==3?1:e[2],e[3]]);
- const m=o=>{const c=Object.assign({},o);if(c.pts)c.pts=c.pts.map(q=>[-q[0],q[1]]);for(const k of['x','cx','x0','x1'])if(typeof c[k]=='number')c[k]=-c[k];
-  if((c.k=='rect'||c.k=='pillar')&&c.x0>c.x1){const t=c.x0;c.x0=c.x1;c.x1=t}return c};
+ const m=o=>{const c=Object.assign({},o);if(c.pts)c.pts=c.pts.map(q=>[-q[0],q[1]]);for(const k of['x','cx','x0','x1','dx'])if(typeof c[k]=='number')c[k]=-c[k];if(c.ls)c.ls=c.ls.map(l=>l.map(q=>[-q[0],q[1]]));
+  if((c.k=='rect'||c.k=='pillar'||c.k=='ledge')&&c.x0>c.x1){const t=c.x0;c.x0=c.x1;c.x1=t}return c};
  d.shp=d.shp.map(m);d.fx=d.fx.map(m);if(d.ring)d.ring={a:[-d.ring.a[0],d.ring.a[1]],b:[-d.ring.b[0],d.ring.b[1]]};return d}
 const ugRot=(x,z,r)=>r==0?[x,z]:r==1?[-z,x]:r==2?[-x,-z]:[z,-x];
 
@@ -76,7 +136,7 @@ function ugGen(seed,opt){
  return ugTry(seed,opt);
 }
 function ugTry(seed,opt){
- const R=ugRng(seed),occ=[new Map(),new Map(),new Map()],P=[],open=[],used={},cnt=[0,0,0],rooms=[0,0,0];
+ const R=ugRng(seed),occ=[new Map(),new Map(),new Map()],P=[],open=[],used={},usedV={},cnt=[0,0,0],rooms=[0,0,0];
  const key=(i,j)=>i*1000+j;
  /* place a piece: def from mk(), at world socket (x,z), turned r quarter turns, on level L. Checks occupancy with a
     2 m gap to everything except its parent. Returns the piece or null. */
@@ -119,7 +179,7 @@ function ugTry(seed,opt){
  function wpick(c){let s=0;for(const x of c)s+=x[1];let v=R()*s;for(const x of c){v-=x[1];if(v<=0)return x[0]}return c.length?c[c.length-1][0]:null}
  const live=L=>open.filter(o=>o.L==L&&!o.done).length;
  function tryPut(k,s,L,rr){const d=UGP[k].mk(rr||R);if(!d.ex.length&&live(L)<=2)return 0;   // never close off the last open ends
-  if(!fits(d,s.x,s.z,s.dir,L,s.par))return 0;add(k,d,s.x,s.z,s.dir,L,s.par);return 1}
+  if(!fits(d,s.x,s.z,s.dir,L,s.par))return 0;ugVariant(k,d,R,usedV);if(d.v!=null)usedV[k].push(d.v);add(k,d,s.x,s.z,s.dir,L,s.par);return 1}
  // one growth step on level L: pick an open end (far ones more often, so the level spreads out) and put a piece on it
  function step(L){
   const here=open.filter(s=>s.L==L&&!s.done);if(!here.length)return false;
@@ -224,4 +284,4 @@ function ugWorld(p){
  const shp=p.d.shp.map(s=>s.k=='path'?Object.assign({},s,{pts:s.pts.map(q=>T(q[0],q[1]))}):s.k=='blob'||s.k=='ring'?Object.assign({},s,(()=>{const c=T(s.cx,s.cz),sw=p.r%2==1;return{cx:c[0],cz:c[1],rx:sw?s.rz:s.rx,rz:sw?s.rx:s.rz}})()):s.k=='rect'?Object.assign({},s,(()=>{const a=T(s.x0,s.z0),b=T(s.x1,s.z1);return{x0:Math.min(a[0],b[0]),x1:Math.max(a[0],b[0]),z0:Math.min(a[1],b[1]),z1:Math.max(a[1],b[1])}})()):s);
  return{shp,T};
 }
-if(typeof module!='undefined')module.exports={UGL,UGP,UGB,ugGen,ugWorld,ugRot,ugRng};
+if(typeof module!='undefined')module.exports={UGL,UGP,UGV,UGB,ugGen,ugWorld,ugRot,ugRng};

@@ -1,4 +1,4 @@
-Status: plan in review (2026-10-19) · preview "Quarry Underground Plan" (claude.ai artifact YMAf9xif5xPEjRLr9aNz3W)
+Status: plan in review (2026-10-19), room versions added the same day · preview "Quarry Underground Plan" (claude.ai artifact YMAf9xif5xPEjRLr9aNz3W)
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -110,6 +110,31 @@ Level 3 · The Deep
 The links: the **spiral decline** (16 x 16, on both levels: in at one side, a full turn and a half down round the
 core, out facing back the way you came) and the **ladderway** (4 x 8: a raise with ladders and a landing every 4 m;
 hold W to climb, S to go down, like the existing climbing).
+
+### 3b. Versions of the main rooms (the user, 2026-10-19: "variations for the main rooms so we get more stuff")
+Twelve rooms come in 2-4 versions each (`UGV` in `models/quarry-under.js`, picked by `ugVariant`). A version keeps
+its room's size and exits, so the layout rules don't change; it changes what's inside and how it plays. A mine uses
+a version it hasn't used yet when the same room comes up twice. That's 38 versions across the twelve rooms.
+
+| Room | Versions |
+|---|---|
+| Stope (L1) | **Cribbed stope** (as above) · **Shrinkage stope**: half full of broken ore, a timber ladder up to a high ledge with rich veins · **Glory hole**: a raise to the quarry floor lets a shaft of daylight in, dust in the beam · **Flooded stope**: still water over the bottom, a plank walkway along one side, veins above the waterline |
+| Crib room (L1) | **Crib room** · **Lamp room**: cap lamps on chargers, a board of brass tags (one has a name you know) · **Foreman's office**: desk, wall maps, the foreman's logbook (lore), a safe with a shift bonus |
+| Pump room (L1) | **Pump room** · **Winder room**: the drum and brake of an old winze hoist, cables into a fenced hole · **Mine workshop**: forge, anvil, drill press, broken carts |
+| Crystal grotto (L2) | **Crystal grotto** · **Crystal pool**: a glowing pool ringed with crystals, the rarest just under the edge · **Selenite beams**: giant crystal beams across the cave, duck under some, climb over others |
+| Fungus grotto (L2) | **Fungus grotto** · **Puffball hollow**: car-sized puffballs that burst into glowing spores when hit · **Glow pond**: a pond lit from below, lily pads, frogs that go quiet when you come near |
+| Flooded gallery (L2) | **Flooded gallery** · **Underground lake**: too deep to wade, pull the rope raft across (hold E, up to four aboard) · **Drowned drift**: an old timbered drive under water, rails and a sunken cart, waist-deep in the middle |
+| Chasm hall (L2) | **Chasm hall** · **Broken bridge**: the bridge has fallen, edge round the fissure's end on a narrow ledge or make a long jump · **Trestle crossing**: a wide fissure under the miners' creaking timber trestle |
+| Stalactite hall (L2) | **Stalactite hall** · **Rimstone terraces**: stepped pools down the cave, walk the rims · **Cathedral**: a huge dome round one giant column, roof out of your lamp's reach |
+| Magma chamber (L3) | **Magma chamber** (river, bridge, lake island) · **Lavafall**: lava pours down a wall into a pool, a basalt shelf round it, gold in the hot wall · **Crust field**: cooled crust over live lava, dark patches safe, glowing ones burn (pushed off, drop 2 ore) · **Obsidian moat**: a lava ring round a black glass island with diamond and gold, one bridge |
+| Dark cave (L3) | **Dark cave** (chasm) · **Sinkhole**: a bottomless round shaft in the middle, the path round the rim, the best veins across · **Glowworm grotto**: still black water under a roof of glowworms, a narrow path round the edge (turn your lamp off) · **The maze**: a forest of rock pillars, no signposts inside |
+| The Geode (L3) | **Amethyst** (purple) · **Celestine** (pale blue, a low hum) · **Citrine** (gold, with gold veins between the crystals) |
+| Hot seam (L3) | **Hot seam** · **Green spring**: a steaming green pool, uranium in the walls, the Geiger clicks race |
+
+New things to play with from the versions: the rope raft (a small vehicle on a rope, hold E to pull; it carries up to
+four and syncs like a door), burning crust (a floor patch that pushes you off), puffball spores (a cloud, like the gas
+but harmless), the safe in the foreman's office (one per mine, opened with E, 40-80 gold), and the brass tag (a
+collectible: each player's own name on one tag, once). These go in batch 4 with the other shift things.
 
 ### 4. How a shift plays
 - **The shift is 6:00** (was 5:00): warnings at 1:00, 0:30, 0:10 as now; at 0:00 the mine collapses and anyone still
