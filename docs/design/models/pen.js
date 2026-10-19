@@ -10,7 +10,10 @@
                                coil along the top of both rings; static (cutting a hole leaves the coil overhead)
    penTower(g,x,z)             a watchtower at a corner (legs, braces, stair, cab, walkway, roof). Returns {head, aim}: aim(x,y,z)
                                turns the searchlight at a spot (the yoke turns, the drum tips; head = the drum)
-   penFrontGate(g)             the sally port: pylons, the sign gantry, the two sliding gates, the gatehouse, the barrier
+   penFrontGate(g)             the gate: rails, pillars, gantry, outer posts, gatehouse, barrier, road. Returns the four
+                               sliding leaves {main:[2], outer:[2]} for the game's leaf groups
+   penGateControl(g)           the gate control room (dx529). Returns {leaf (door), btnG}
+   penVisitation(g)            the visitation block (dx528)
    penOutside(g)               bus, car park and cars, barriers, spike strip, flagpole, stop sign, kennels, water tower,
                                generator, bunker and jeep, lamp posts, sign posts. Returns {dogs, flagPole}
    ===================================================================================================== */
@@ -42,7 +45,7 @@ const penNoSeam=g=>g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});
 
 /* ---------------------------------------- the fences ---------------------------------------- */
 /* the gaps: the gate (x -445..-435) in both rings, the gatehouse (x -450..-446) in the outer ring */
-const PENGAP=[{z:-860,x0:-451.4,x1:-435},{z:-863,x0:-451.4,x1:-435}];/* the gatehouse's back wall is on the inner line too */
+const PENGAP=[{z:-860,x0:-445,x1:-435},{z:-863,x0:-447,x1:-433}];/* the main gate and the outer (sally) gate openings *//* the gatehouse's back wall is on the inner line too */
 function penFenceMesh(g,x0,z0,x1,z1){const k=penKit(),{MT}=k;const H=5.4;
  /* cut the gaps out of a section along x (the only sides with gaps) */let a=Math.min(x0,x1),b=Math.max(x0,x1);if(z0==z1){for(const G of PENGAP)if(Math.abs(G.z-z0)<.01){if(G.x0<=a&&G.x1>=b)return null;if(G.x0>a&&G.x0<b)b=G.x0;else if(G.x1>a&&G.x1<b)a=G.x1}}
  const L=z0==z1?b-a:Math.abs(z1-z0),geo=new THREE.PlaneGeometry(L,H),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*L/.35,uv.getY(i)*H/.35);/* 35 cm diamonds */
@@ -87,19 +90,64 @@ function penGatePanel(w,h,sign){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B
  if(sign){const t=k.can(512,128,(x,w2,h2)=>{x.fillStyle='#e0b020';x.fillRect(0,0,w2,h2);x.strokeStyle='#1a1a1a';x.lineWidth=8;x.strokeRect(6,6,w2-12,h2-12);x.fillStyle='#1a1a1a';let f=54;x.font='bold '+f+'px DoorsSans,Arial';const mw=x.measureText(sign).width;if(mw>w2-50){f*=(w2-50)/mw;x.font='bold '+f+'px DoorsSans,Arial'}x.textAlign='center';x.textBaseline='middle';x.fillText(sign,w2/2,h2/2+2)});/* shrinks to fit */
   const p=A(new THREE.PlaneGeometry(2.4,.6),new THREE.MeshStandardMaterial({map:t,roughness:.6}),0,y0+2.4,-.04);p.rotation.y=Math.PI}
  g.userData.dpKeep=1;penNoSeam(g);return g}
-function penFrontGate(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g),gx=-440,z0=PENV.F.z0;
- /* two pylons either side of the gate, the gantry over it carrying the game's big sign (which hangs at y 8.3, z0-.35, facing the road) *//* one solid wall each side of the gate, from the outer gate line to past the inner one: the gates slide against them */for(const x0 of[-447.5,-435]){B(2.5,9.6,5,MT.con,x0+1.25,4.8,z0-1.5,null,2);B(2.7,.3,5.2,MT.con2,x0+1.25,9.75,z0-1.5)}
- B(13.0,2.2,.6,MT.con2,gx,8.3,z0+.05,null,2);/* its front at z0-.25: the sign 10 cm out */for(const s of[-1,1]){const l=A(new THREE.CylinderGeometry(.2,.25,.25,10),M(0xfff4c8,{emissive:0xfff0c0}),gx+s*5.4,7.1,z0-.4)}
- /* the two sliding gates: the game's (inner, z0-.1) and the outer one (in the outer fence at z0-3) */const gi=penGatePanel(10,7,'NO ENTRY');gi.position.set(gx,3.5,z0-.1);g.add(gi);const go=penGatePanel(10,7,'STOP · WAIT FOR THE GUARD');go.position.set(gx,3.5,z0-3.1);g.add(go);
- B(10.4,.1,.3,MT.steel,gx,.05,z0-.1);B(10.4,.1,.3,MT.steel,gx,.05,z0-3.1);/* the rails */
- /* the gatehouse, moved to (-449.4, z0-2.2) beside the west wall (its obstacle moves with it, see the spec): concrete, the
-    window and a service hatch facing the road in, the door on its west side, a flat roof with an AC unit */{const hx=gx-9.4,hz=z0-2.2;B(4,3.6,4,MT.con2,hx,1.8,hz,null,2);B(4.6,.3,4.6,MT.dark,hx,3.75,hz);
-  B(2.6,1.1,.06,MT.glass,hx+.3,1.75,hz-2.02);B(2.8,.1,.1,MT.dark,hx+.3,1.15,hz-2.03);B(2.8,.1,.1,MT.dark,hx+.3,2.35,hz-2.03);B(1.0,.06,.35,MT.steel,hx+.9,1.08,hz-2.17);/* the hatch's shelf */
-  B(.06,2.1,1.0,M(0x3a4a5a,{metalness:.4}),hx-2.02,1.05,hz+.6);B(1.1,.7,.8,MT.galv,hx-.8,4.25,hz+.8);lab('GATEHOUSE',2.4,.4,'#14181e','#ffd040',hx+.3,2.95,hz-2.012,Math.PI)}
+/* The front gate, as the game runs it (gate528 + dx529): the MAIN gate is two 5 m leaves meeting at x -440 on the inner
+   fence line (z -860) that slide 5 m outwards; the OUTER (sally) gate is two 7 m leaves on the outer line (z -863) that
+   slide 7 m outwards. Both run on a ground rail with nothing in the way: the main leaves just inside the fence
+   (z -859.55, under the fence's top arms), the outer leaves just outside the outer fence (z -863.45). The pillars, the
+   gantry and the gatehouse all stand clear of both tracks. */
+function penGateLeaf(sign){const k=penKit(),g=new THREE.Group(),p=penGatePanel(5,5.6,sign);p.position.y=2.8+.04;g.add(p);/* bottom 4 cm over the rail */
+ const{Cy}=k.H(g);for(const s of[-1,1])Cy(.09,.09,.08,k.MT.dark,s*1.9,.09,0,'x',g,12);/* two rollers on the rail */g.userData.dpKeep=1;penNoSeam(g);return g}
+function penOuterLeaf(sign){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B,A,Cy}=k.H(g);const w=7,h=5.8;/* a chain-link leaf in a galvanised frame, origin at its bottom middle */
+ for(const s of[-1,1])B(.1,h-.06,.1,MT.galv,s*(w/2-.05),(h-.06)/2+.13,0);for(const y of[.15,h+.05])B(w-.02,.08,.08,MT.galv,0,y,0);B(w-.2,.07,.06,MT.galv,0,h/2+.1,0);B(.08,h-.1,.07,MT.galv,0,(h-.1)/2+.15,0);/* the stiles stand in the bottom rail, which runs the full width *//* the middle rail and stile a little thinner where they cross */
+ for(const s of[-1,1]){const L=w/2-.14,geo=new THREE.PlaneGeometry(L,h-.25),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*L/.35,uv.getY(i)*(h-.25)/.35);A(geo,MT.link,s*w/4,h/2+.1,0)}
+ for(const s of[-1,1])Cy(.09,.09,.08,MT.dark,s*3,.09,0,'x',g,12);
+ if(sign){const t=k.can(512,128,(x,w2,h2)=>{x.fillStyle='#e0b020';x.fillRect(0,0,w2,h2);x.strokeStyle='#1a1a1a';x.lineWidth=8;x.strokeRect(6,6,w2-12,h2-12);x.fillStyle='#1a1a1a';let f=54;x.font='bold '+f+'px DoorsSans,Arial';const mw=x.measureText(sign).width;if(mw>w2-50){f*=(w2-50)/mw;x.font='bold '+f+'px DoorsSans,Arial'}x.textAlign='center';x.textBaseline='middle';x.fillText(sign,w2/2,h2/2+2)});
+  const p=A(new THREE.PlaneGeometry(2.0,.5),new THREE.MeshStandardMaterial({map:t,roughness:.6}),0,1.8,-.075);p.rotation.y=Math.PI;B(2.04,.54,.02,MT.galv,0,1.8,-.055)}
+ g.userData.dpKeep=1;penNoSeam(g);return g}
+function penFrontGate(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g),gx=-440,z0=PENV.F.z0,oz=z0-3;
+ /* the rails: the main track from x -450.6 to -429.4 at z -859.55, the outer one from -454.6 to -425.4 at z -863.45, buffer posts at the ends */
+ B(21.2,.06,.14,MT.steel,gx,.03,z0+.45);B(29.2,.06,.14,MT.steel,gx,.03,oz-.45);for(const[x,z]of[[-450.75,z0+.45],[-429.25,z0+.45],[-454.75,oz-.45],[-425.25,oz-.45]]){B(.3,.6,.3,MT.yellow,x,.3,z)}
+ /* the main gate's pillars (just outside the track: z -861..-859.8) and the gantry carrying the game's big sign (the sign hangs at y 8.3, z -860.35) */
+ for(const x of[-445.65,-434.35]){B(1.5,9.4,1.2,MT.con,x,4.7,z0-.4,null,2);B(1.7,.3,1.4,MT.con2,x,9.55,z0-.4)}B(12.4,2.0,.44,MT.con2,gx,8.3,z0-.03,null,2);/* its front at z -860.25, its back 1 cm in front of the pillars' */
+ for(const s of[-1,1]){A(new THREE.CylinderGeometry(.2,.25,.25,10),M(0xfff4c8,{emissive:0xfff0c0}),gx+s*5.2,7.1,z0-.45);A(new THREE.SphereGeometry(.16,10,8),M(0xff2020,{emissive:0xc01010}),gx+s*5.65,9.85,z0-.4)}
+ /* the outer gate's posts (on the outer fence line) and a cross beam with the sally port sign (the game's dLabel at y 6.6, z oz-.12 hangs on it) */for(const x of[-447,-433]){Cy(.17,.17,7.0,MT.galv,x,3.5,oz,null,null,12);Cy(.32,.36,.3,MT.con2,x,.15,oz,null,null,12)}B(13.66,.5,.16,MT.galv,gx,6.6,oz);
+ /* between the gates: the stop line */B(10,.012,.25,MT.yellow,gx,.056,oz+1.6);
+ /* the gatehouse, moved clear of the outer track to x -452..-448, z -868.4..-864.4 (see the spec): concrete, the window and a service hatch towards the road (+x), the door on its far side */
+ {const hx=-450,hz=-866.4;B(4,3.6,4,MT.con2,hx,1.8,hz,null,2);B(4.6,.3,4.6,MT.dark,hx,3.75,hz);B(.06,1.1,2.6,MT.glass,hx+2.02,1.75,hz-.2);B(.1,.1,2.8,MT.dark,hx+2.03,1.15,hz-.2);B(.1,.1,2.8,MT.dark,hx+2.03,2.35,hz-.2);B(.35,.06,1.0,MT.steel,hx+2.17,1.08,hz+.3);
+  B(1.0,2.1,.06,M(0x3a4a5a,{metalness:.4}),hx-.6,1.05,hz-2.02);B(1.1,.7,.8,MT.galv,hx-.8,4.25,hz+.8);lab('GATEHOUSE',2.4,.4,'#14181e','#ffd040',hx+2.012,2.95,hz-.2,Math.PI/2)}
  /* the barrier arm across the road, raised */{const px=-446.5,pz=z0-8.5;B(.4,1.0,.4,MT.yellow,px,.5,pz);const arm=new THREE.Group();arm.position.set(px,.95,pz);arm.rotation.z=1.25;g.add(arm);const a=k.H(arm);
   const t=k.can(512,16,(x,w,h)=>{for(let i=0;i<16;i++){x.fillStyle=i%2?'#e8e8e4':'#c02020';x.fillRect(i*32,0,32,h)}});a.B(10,.12,.08,new THREE.MeshStandardMaterial({map:t,roughness:.6}),5,0,0)}
- /* the road in: asphalt, a centre line, a stop line */B(9.96,.04,24,MT.asph,gx,.03,z0-12,null,4);/* 2 cm inside the barriers' and gates' ends */for(let z=z0-23;z<z0-4;z+=4)B(.2,.012,2,MT.yellow,gx,.056,z);B(4.6,.012,.4,MT.white,gx-2.5,.056,z0-9.6);
- penNoSeam(g)}
+ /* the road in: asphalt, a centre line, a stop line */B(9.96,.04,24,MT.asph,gx,.03,z0-12,null,4);for(let z=z0-23;z<z0-6;z+=4)B(.2,.012,2,MT.yellow,gx,.056,z);B(4.6,.012,.4,MT.white,gx-2.5,.056,z0-9.6);
+ penNoSeam(g);
+ /* the leaves: put these in the game's leaf groups (main: at x0 = -440 -/+ 2.5, z -859.55; outer: x0 = -440 -/+ 3.5, z -863.45) */
+ return{main:[penGateLeaf('NO ENTRY'),penGateLeaf(null)],outer:[penOuterLeaf('STOP · WAIT FOR THE GUARD'),penOuterLeaf(null)]}}
+/* the gate control room (dx529: x -429..-423, z -858.5..-853.5, the door at x -426 in the north wall, swinging on the
+   game's dg group): concrete walls with a door frame, a flat roof, the console. Returns {leaf, btnG} for the game. */
+function penGateControl(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g),x0=-429,x1=-423,z0=-858.5,z1=-853.5,H=3;
+ B(x1-x0,.06,z1-z0,M(0x5a5c58),(x0+x1)/2,.03,(z0+z1)/2);B(6.5,.3,5.5,MT.dark,(x0+x1)/2,H+.15,(z0+z1)/2);
+ B(x1-x0+.3,H,.3,MT.con2,(x0+x1)/2,H/2,z0,null,2);for(const x of[x0,x1])B(.3,H,z1-z0-.3,MT.con2,x,H/2,(z0+z1)/2,null,2);
+ B(-426.65-x0+.15,H,.3,MT.con2,(x0-.15-426.65)/2,H/2,z1,null,2);B(x1+.15+425.35,H,.3,MT.con2,(x1+.15-425.35)/2,H/2,z1,null,2);B(1.3,H-2.2,.3,MT.con2,-426,2.2+(H-2.2)/2,z1,null,2);
+ for(const s of[-1,1])B(.12,2.28,.4,MT.steel,-426+s*.69,1.14,z1);B(1.52,.12,.44,MT.steel,-426,2.24,z1);/* the door frame, round the opening */
+ B(.3,.3,.06,M(0x2a2e34),-424.9,1.4,z1+.18);B(.2,.2,.02,M(0x60ff80,{emissive:0x208030}),-424.9,1.4,z1+.215);/* a keypad by the door */
+ const leaf=new THREE.Group(),L=k.H(leaf);L.B(1.22,2.15,.08,M(0x4a5058,{metalness:.6,roughness:.4}),.61,1.08,0);L.B(.3,.4,.02,MT.glass,.61,1.6,.05);L.Cy(.025,.025,.14,MT.galv,1.05,1.05,.07,'z',leaf,8);
+ /* inside: the console against the south wall, its sloping panel, the two buttons, the lamps, a slit window onto the gate */B(1.8,1.0,.6,M(0x3a4048,{metalness:.5}),-426,.5,z0+.5);const pnl=B(1.7,.5,.08,M(0x1a1e22),-426,1.2,z0+.25);pnl.rotation.x=-.4;
+ const btnG=Cy(.09,.09,.06,M(0x20c040,{emissive:0x106020}),-426.4,1.08,z0+.75,null,null,14);Cy(.09,.09,.06,M(0xd02020,{emissive:0x601010}),-425.6,1.08,z0+.75,null,null,14);for(let i=0;i<5;i++)B(.06,.04,.04,M(0xffd040,{emissive:0x806000}),-426.6+i*.3,1.33,z0+.32);
+ B(2.4,.8,.04,MT.glass,-426,1.9,z0);/* through the wall */B(.4,.4,.5,M(0x1a1a1a),-428.4,.2,z1-.6);penNoSeam(g);return{leaf,btnG}}
+/* the visitation block outside the front gate (dx528: x -424..-414, z -876..-868, the visitors' door in the west wall at
+   z -875..-873, the glass along z -872 with four booths, stools and phones at the game's spots) */
+function penVisitation(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g),x0=-424,x1=-414,z0=-876,z1=-868,zc=-872,H=3.2;
+ B(x1-x0,.06,z1-z0,M(0x6a6c68),(x0+x1)/2,.03,(z0+z1)/2);B(x1-x0+.5,.3,z1-z0+.5,MT.dark,(x0+x1)/2,H+.15,(z0+z1)/2);
+ B(x1-x0+.3,H,.3,MT.con2,(x0+x1)/2,H/2,z0,null,2);B(x1-x0+.3,H,.3,MT.con2,(x0+x1)/2,H/2,z1,null,2);B(.3,H,z1-z0-.3,MT.con2,x1,H/2,(z0+z1)/2,null,2);
+ B(.3,H,.85,MT.con2,x0,H/2,z0+.575,null,2);B(.3,H,3.85,MT.con2,x0,H/2,z1-2.075,null,2);B(.3,.8,3.0,MT.con2,x0,H-.4,-873.5,null,2);/* the west wall round the door: the game's gap is z -875..-872, its wall over it was 1 m short */
+ for(const s of[-1,1])B(.4,2.36,.12,MT.steel,x0,1.18,-873.5+s*1.58);B(.44,.12,3.26,MT.steel,x0,2.43,-873.5);/* the door frame */
+ /* an entrance canopy over the door on two posts */B(1.6,.12,3.6,MT.dark,x0-.95,2.9,-873.5);for(const s of[-1,1])Cy(.05,.05,2.85,MT.galv,x0-1.6,1.42,-873.5+s*1.6,null,null,8);
+ /* the big sign (the game's at y 4.1 on the west face, 3.4 x .9) stands on two posts on the roof */for(const s of[-1,1])B(.08,.95,.08,MT.galv,x0+.1,3.45+.45,-874+s*1.4);B(.06,1.0,3.5,MT.dark,x0-.12,4.1,-874);
+ /* slit windows along the long walls, through them */for(const z of[z0,z1])for(const x of[-421.5,-416.5])B(1.6,.3,.34,MT.glass,x,2.5,z);
+ /* inside: the counter along the glass, the glass in a steel frame, booth dividers, stools and phones */B(9.64,.9,.5,M(0x6a6a66),-418.85,.45,zc);B(9.66,.06,.6,MT.steel,-418.85,.93,zc);
+ B(9.66,2.2,.04,M(0xa8c8e0,{transparent:true,opacity:.28,metalness:.3,roughness:.05}),-418.85,2.06,zc);B(9.7,.08,.1,MT.steel,-418.85,3.18,zc);
+ for(let i=0;i<4;i++){const x=x0+1.6+i*2.2;B(.06,2.16,.62,MT.steel,x+1.1,2.06,zc);for(const sd of[-1,1]){Cy(.22,.22,.08,M(0x2a3a5a),x,.55,zc+sd*1.0,null,null,14);Cy(.04,.04,.5,MT.dark,x,.26,zc+sd*1.0,null,null,6);Cy(.18,.2,.04,MT.dark,x,.02,zc+sd*1.0,null,null,12);
+  B(.12,.25,.08,M(0x1a1a1a),x+.5,1.5,zc+sd*.3);rod([x+.5,1.37,zc+sd*.3],[x+.5,.96,zc+sd*.27],.008,M(0x1a1a1a))}}
+ penNoSeam(g);return{}}
 
 /* ---------------------------------------- outside the fence ---------------------------------------- */
 function penBus(){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{A,B,Cy}=k.H(g);/* 11 x 2.6, along x, the front to +x */
@@ -148,8 +196,8 @@ function penJeep(){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B,Cy,rod}=k.H(
  for(const[x,z]of[[-1,1.2],[1,1.2],[-1,-1.2],[1,-1.2]]){Cy(.42,.42,.3,MT.black,x,.41,z,'x',null,14);Cy(.24,.24,.32,O,x,.41,z,'x',null,10)}B(.5,.5,.2,MT.black,0,1.0,-1.88);Cy(.3,.3,.15,MT.black,0,1.05,-1.95,'z',null,12);
  for(const s of[-1,1])Cy(.1,.1,.04,M(0xfff0c0,{emissive:0xffe0a0}),s*.6,.95,1.81,'z',null,10);penNoSeam(g);return g}
 function penOutside(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g),F=PENV.F;const r={dogs:[]};
- /* the transport bus at (-472, -871), the car park (x -425..-395, z -878..-866) with three cars */{const b=penBus();b.position.set(-472,0,-871);g.add(b)}
- B(30,.03,12,MT.asph,-410,.035,-872,null,4);for(let i=0;i<9;i++)B(.12,.012,4.5,MT.white,-423+i*3.2,.056,-869.5);[[-421.4,0x2a3a6a],[-415,0xa02020],[-402.2,0x5a5a5a]].forEach(([x,c])=>{const car=penCar(c);car.position.set(x,0,-869.5);car.rotation.y=Math.PI;g.add(car)});
+ /* the transport bus at (-472, -871), the car park (moved to x -411..-381, z -878..-866) with three cars */{const b=penBus();b.position.set(-472,0,-871);g.add(b)}
+ /* (moved east, x -411..-381: the game's spot is under the visitation block) */B(30,.03,12,MT.asph,-396,.035,-872,null,4);for(let i=0;i<9;i++)B(.12,.012,4.5,MT.white,-409+i*3.2,.056,-869.5);[[-407.4,0x2a3a6a],[-401,0xa02020],[-388.2,0x5a5a5a]].forEach(([x,c])=>{const car=penCar(c);car.position.set(x,0,-869.5);car.rotation.y=Math.PI;g.add(car)});
  /* the barriers (the game's three at z -877, -874, -871), the spike strip (-440, -866), the flagpole (-453, -871), the stop sign */for(const[x,z]of[[-443.5,-877],[-436.5,-874],[-443.5,-871]]){const j=penJersey();j.position.set(x,0,z);g.add(j)}{const s=penSpikes();s.position.set(-440,0,-866);g.add(s)}{const f=penFlagpole();f.position.set(-453,0,-871);g.add(f)}
  {const sx=-447,sz=-878;Cy(.04,.04,2.2,MT.galv,sx,1.1,sz,null,null,6);}
  /* the kennels (-556, -760) and two dogs at the game's spots */penKennels(g,-556,-760);for(const[dx,dz]of[[1,-2],[1.6,2]]){const d=penDog();d.position.set(-556+dx,0,-760+dz);g.add(d);r.dogs.push(d)}

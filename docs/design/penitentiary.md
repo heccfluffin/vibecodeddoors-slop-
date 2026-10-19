@@ -60,10 +60,27 @@ routes and the hiding spots (`W.hides`). Models: **`docs/design/models/pen.js`**
   as its mesh. Put the glow sprite in `head` (the lamp drum) at (0, 0, .45). Each frame in `penAnim`, aim each tower's
   light at the nearest outer searchlight circle with its `aim(x, y, z)` (the yoke turns, the drum tips; keep the towers
   in `P0.towers`).
-- Front gate: the gate slab, the gatehouse box and roof, and the road and its dashes go; `penFrontGate(g)` builds the
-  two side walls (x -447.5..-445 and -435..-432.5, z -864..-859: add them as obstacles), the gantry behind the big sign
-  (the sign stays), both sliding gates, the gatehouse, the raised barrier and the road. **The gatehouse moves** so it
-  doesn't overlap the west wall: its obstacle becomes x -451.4..-447.4, z -864.2..-860.2 (`W(...,4,null)`).
+- **The front gate is built by `src/gate528.js`** (it replaces the base's gate line via build.py), and dx529 slides its
+  leaves: the main leaves (`PG.main`, x0 = -440 -/+ 2.5) move 5 m, the outer ones (`PG.outer`, x0 = -440 -/+ 3.5) 7 m.
+  Today they slide straight through their own pillars and through the gatehouse. New layout, all clear of both tracks:
+  - the main leaves' groups move to z -859.55 (just inside the fence, under its top arms) and get `penFrontGate(g).main[i]`
+    as their contents; the outer leaves' groups move to z -863.45 (just outside the outer fence) and get `.outer[i]`;
+  - `penFrontGate(g)` builds the two rails and buffer posts, the main pillars (x -446.4..-444.9 and -435.1..-433.6,
+    z -861..-859.8), the gantry behind the big sign, the outer posts (x -447, -433) with the sally port sign's beam,
+    the stop line, the gatehouse, the raised barrier and the road. gate528's pillars, gantry, lamps, outer posts, the
+    stop line and the old gatehouse meshes go (the spike strip stays);
+  - **the gatehouse moves** to x -452..-448, z -868.4..-864.4 (its obstacle too); it used to sit in the outer track;
+  - the fence near the gate: keep gate528's obstacles `PG.oIn`/`PG.oOut`; its two rebuilt `seg()` pieces use
+    `penFenceMesh` like every other section (the gaps are x -445..-435 inner, -447..-433 outer).
+- **The gate control room** (dx529, x -429..-423, z -858.5..-853.5): its walls, roof, floor, console and lamps →
+  `penGateControl(g)`; the door mesh and keypad inside `dg` → its `leaf`; use its `btnG` as the green button. The
+  obstacles, the door group and the sign stay.
+- **The visitation block** (dx528, `PVB`): walls, roof, floor, counter, glass, dividers, stools and phones →
+  `penVisitation(g)` (same spots; the obstacles stay). Its door gap is z -875..-872 but the wall over it was only 2 m:
+  the new frame covers all 3 m. The big VISITATION sign now stands on posts on the roof (same place); move the small
+  "VISITS · 60 SECONDS" sign off the doorway to (B.x0-.17, 1.9, -870).
+- **The staff car park moves east** to x -411..-381 (lines from x -409, cars at -407.4, -401, -388.2, the sign at
+  x -396): at the game's spot it is under the visitation block, cars and all.
 - `penPolish2` outside: the bus → `penBus()` at (-472, 0, -871); the car park, its lines and the three cars, the three
   barriers, the spike strip, the bunker's sandbags and the jeep, the water tower, the generator → `penOutside(g)`
   (all at the game's spots; keep every obstacle). The flag pole → `penFlagpole()` at (-453, 0, -871) (the waving flag
