@@ -607,6 +607,8 @@ R("if(C.out=='acq'){gold+=C.fine|0;try{saveGame()}catch(e){}P.x=DPD.X-2;P.z=DPD.
 R("P.x>pd.x-8&&P.x<pd.x+8","P.x>(pd.x0||pd.x-8)&&P.x<(pd.x1||pd.x+8)")
 R("road(88,-1016.4,88,-993.5)","road(88,-1013.3,88,-993.5)")
 R("[82,-1014],[83.2,-1014.5]","[60.5,-1029],[61.7,-1029.4]")
+# r628: the prison yard extras (dpPen) are a local function of the r500 block: its batch 6 remodel replaces the base text in place
+_i=s.index('function dpPen(q,g){');_j=s.index('\n/* ======================= FORT BLACKOUT: a helipad',_i);s=s[:_i]+open(S+'dx620dp.js').read()+s[_j:]
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -620,7 +622,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r627';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r628';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

@@ -10,11 +10,12 @@
 let PENOFF=0;const PENNULL=new THREE.Group();const PG_=g=>PENOFF?PENNULL:g;
 /* a sliding steel door from the model in place of the game's slab (same middle, slides the same way) */
 function penDoorSwap(g,D,turn){try{const m=penSteelDoor();m.position.copy(D.m.position);if(turn)m.rotation.y=Math.PI/2;m.userData.dpKeep=1;if(D.m.parent)D.m.parent.remove(D.m);g.add(m);D.m=m;D.x0=m.position.x;D.z0=m.position.z}catch(e){conLog('error','pen door: '+e.message)}}
-/* the block's outside skin and its inside paint, and two obstacles the models need. (The spec's new yard and courtyard
-   things, penRecreation/penGardens/penServices/penDeliveries/penCourtyard, are held back: the game's dpPen already has a
-   running track, a chapel, the hole, staff quarters, a garden and more where they would go. See docs/design/NOTES.md.) */
+/* the block's outside skin and its inside paint, and two obstacles the models need. (Batch 6: the re-planned new things, penRecreation dropped; the game's dpPen is remodelled in place in its own redefinition.) */
 function penNewYard(q,g){const T=(n,f)=>{try{f()}catch(e){conLog('error','pen '+n+': '+e.message)}},ob=(x0,x1,z0,z1)=>q.obs.push({x0,x1,z0,z1,pen:1});
  T('block outside',()=>penBlockOutside(g));T('block skins',()=>penBlockSkins(g));
+ /* batch 6: the re-planned yard (penRecreation is dropped) */T('gardens',()=>penGardens(g));T('services',()=>penServices(g));T('deliveries',()=>penDeliveries(g));T('courtyard',()=>penCourtyard(g));
+ for(const b of[[-481,-471,-694,-686],[-368,-356,-732,-722],[-368,-356,-788,-782],[-368,-356,-779,-771],[-526,-514,-844,-838],[-460,-452,-844,-838],[-400,-388,-844,-838],
+  [-429,-419,-822,-816],[-417,-410.3,-821,-817],[-409,-405,-821,-817],[-400,-388,-790,-772],[-390.3,-387.7,-719.3,-716.7],[-435,-409,-713.5,-711.5],[-484,-468,-815.3,-810.7]])ob(...b);
  for(const b of[/* the corridor's west nook is closed off from the vent space */[-470,-468,-787.15,-786.85],
   /* the control room: filing cabinets, server racks, the water cooler */[-432.25,-430.65,-750.77,-750.15],[-444.35,-442.25,-771.85,-770.83],[-427.2,-426.8,-771.1,-770.7]])ob(...b);
  q.obsDirty=1}
@@ -270,16 +271,12 @@ function penRecreation(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g);
  penNoSeam(g)}
 /* --- gardens (the left side, one column at x -526..-514) --- */
 function penGardens(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod}=k.H(g);const GL=M(0xc8e0e8,{transparent:true,opacity:.35,roughness:.1,metalness:.1,side:THREE.DoubleSide});
- /* a greenhouse (x -525..-515, z -816..-808): a frame of white posts, glass walls, a pitched glass roof, benches of pots */{const x0=-525,x1=-515,z0=-816,z1=-808,H=2.4,R=3.6;B(10.2,.12,8.2,MT.con2,-520,.06,-812);
+ /* a greenhouse, moved 2026-10-19 beside the game's garden (dpPen): built at its old spot (x -525..-515, z -816..-808) inside a group moved by (+44, +122), so it stands at x -481..-471, z -694..-686. The raised beds and the water tank are dropped (the game's garden and water tower cover them) */{const g0=g;{const g=new THREE.Group();g.position.set(44,0,122);g0.add(g);const{A,B,Cy,rod}=k.H(g);/* a greenhouse (x -525..-515, z -816..-808): a frame of white posts, glass walls, a pitched glass roof, benches of pots */{const x0=-525,x1=-515,z0=-816,z1=-808,H=2.4,R=3.6;B(10.2,.12,8.2,MT.con2,-520,.06,-812);
   for(let x=x0;x<=x1+.01;x+=2.5)for(const z of[z0,z1]){B(.08,H,.08,MT.white,x,.12+H/2,z)}for(let z=z0+2;z<z1;z+=2)for(const x of[x0,x1])B(.08,H,.08,MT.white,x,.12+H/2,z);
   for(const z of[z0,z1]){const w=A(new THREE.PlaneGeometry(10,H),GL,-520,.12+H/2,z);}for(const x of[x0,x1]){const w=A(new THREE.PlaneGeometry(8,H),GL,x,.12+H/2,-812);w.rotation.y=Math.PI/2}
   const ra=Math.atan2(R-H,4);for(const s of[-1,1]){const rf=A(new THREE.PlaneGeometry(10,Math.hypot(4,R-H)),GL,-520,.12+(H+R)/2,-812+s*2);rf.rotation.x=s>0?ra-Math.PI/2:Math.PI/2-ra}/* the two roof slopes, eave to ridge */
   for(let x=x0;x<=x1+.01;x+=2.5){rod([x,.12+H,z0],[x,.12+R,-812],.04,MT.white);rod([x,.12+H,z1],[x,.12+R,-812],.04,MT.white)}rod([x0,.12+R,-812],[x1,.12+R,-812],.05,MT.white);
-  for(const z of[-814.6,-809.4]){B(8,.06,.8,M(0x7a5a3a),-520,.9,z);for(const s of[-3.5,3.5])B(.06,.84,.7,MT.galv,-520+s,.48,z);for(let i=0;i<9;i++){Cy(.12,.09,.18,M(0xb8603a),-523.6+i*.9,1.02,z,null,null,8);A(new THREE.SphereGeometry(.15,8,6),M(0x3a7a3a),-523.6+i*.9,1.2,z)}}}
- /* raised garden beds (x -526..-514, z -795..-783): four timber beds with rows of plants, a water butt, a hose reel */for(let i=0;i<4;i++){const x=-524+i*3;B(1.4,.45,12,M(0x7a5232),x,.225,-789);B(1.24,.02,11.84,M(0x4a3a24),x,.451,-789);for(let j=0;j<10;j++){const z=-794.4+j*1.2;A(new THREE.SphereGeometry(.2,8,6),M(j%3?0x3a7a3a:0x5a8a2a),x+(j%2?.25:-.25),.55,z).scale.y=.7}}
- Cy(.4,.35,1.0,M(0x2a4a7a),-525.2,.5,-782.2,null,null,14);Cy(.25,.25,.1,M(0x2a6a3a),-523,.55,-782.25,'z',null,14);B(.1,.8,.1,MT.galv,-523,.4,-782.28);/* the hose reel on its post */
- /* a water tank on a stand (x -523..-517, z -747..-741) */{for(const[a,b]of[[-1.6,-1.6],[1.6,-1.6],[-1.6,1.6],[1.6,1.6]]){B(.2,3,.2,MT.galv,-520+a,1.5,-744+b);B(.4,.15,.4,MT.con2,-520+a,.075,-744+b)}B(3.8,.2,3.8,MT.galv,-520,3.1,-744);Cy(1.6,1.6,2.4,M(0x5a7a8a,{metalness:.3,roughness:.5}),-520,4.4,-744,null,null,20);Cy(1.62,1.62,.08,MT.dark,-520,5.64,-744,null,null,20);
-  for(let y=.4;y<3;y+=.35)B(.4,.03,.03,MT.galv,-520,y,-741.9);for(const s of[-1,1])B(.04,3,.04,MT.galv,-520+s*.2,1.5,-741.9);Cy(.08,.08,3.0,MT.galv,-518.2,1.6,-742.4,null,null,8)}
+  for(const z of[-814.6,-809.4]){B(8,.06,.8,M(0x7a5a3a),-520,.9,z);for(const s of[-3.5,3.5])B(.06,.84,.7,MT.galv,-520+s,.48,z);for(let i=0;i<9;i++){Cy(.12,.09,.18,M(0xb8603a),-523.6+i*.9,1.02,z,null,null,8);A(new THREE.SphereGeometry(.15,8,6),M(0x3a7a3a),-523.6+i*.9,1.2,z)}}}}}
  penNoSeam(g)}
 /* --- services (the right side, one column on the workshop, x -368..-356) --- */
 function penVan(){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B,Cy}=k.H(g),W=M(0xe8e8e4,{metalness:.3,roughness:.4});/* a prison van, 2.2 x 5.6, along z, its front +z */
@@ -287,23 +284,24 @@ function penVan(){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B,Cy}=k.H(g),W=
  B(1.4,1.2,.04,M(0x3a3a3a),0,1.4,-2.72);for(const[x,z]of[[-1,1.9],[1,1.9],[-1,-1.9],[1,-1.9]]){Cy(.4,.4,.26,MT.black,x,.394,z,'x',null,16);Cy(.22,.22,.28,MT.galv,x,.394,z,'x',null,10)}Cy(.06,.06,2.2,MT.dark,0,.394,1.9,'x',null,8);Cy(.06,.06,2.2,MT.dark,0,.394,-1.9,'x',null,8);/* axles */
  for(const s of[-1,1])B(.25,.15,.04,M(0xfff0c0,{emissive:0xffe0a0}),s*.75,.95,2.81);penNoSeam(g);return g}
 function penServices(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g);
- {const v=penVan();v.position.set(-364.5,0,-730);g.add(v);B(1.2,.15,3,MT.con2,-359,.075,-730);B(.7,1.7,.45,M(0xc02020),-359,1.0,-730);B(.5,.4,.04,MT.black,-359,1.3,-729.76);B(.8,.1,.55,MT.dark,-359,1.9,-730);B(.12,.28,.14,MT.black,-358.59,1.15,-729.95);/* the nozzle in its holster */{const c=new THREE.CatmullRomCurve3([[-358.6,1.0,-729.95],[-358.5,.55,-729.9],[-358.45,.3,-729.75],[-358.55,.45,-729.45],[-358.66,.7,-729.4]].map(a=>new THREE.Vector3(...a)));A(new THREE.TubeGeometry(c,20,.025,6),MT.black,0,0,0)}/* the hose hangs in a loop from the nozzle back into the pump's side */}
+ {const g0=g;{const g=new THREE.Group();g.position.set(0,0,3);g0.add(g);const{A,B,Cy}=k.H(g);/* moved 2026-10-19: +3 in z (the game's stores, dpPen) */const v=penVan();v.position.set(-364.5,0,-730);g.add(v);B(1.2,.15,3,MT.con2,-359,.075,-730);B(.7,1.7,.45,M(0xc02020),-359,1.0,-730);B(.5,.4,.04,MT.black,-359,1.3,-729.76);B(.8,.1,.55,MT.dark,-359,1.9,-730);B(.12,.28,.14,MT.black,-358.59,1.15,-729.95);/* the nozzle in its holster */{const c=new THREE.CatmullRomCurve3([[-358.6,1.0,-729.95],[-358.5,.55,-729.9],[-358.45,.3,-729.75],[-358.55,.45,-729.45],[-358.66,.7,-729.4]].map(a=>new THREE.Vector3(...a)));A(new THREE.TubeGeometry(c,20,.025,6),MT.black,0,0,0)}/* the hose hangs in a loop from the nozzle back into the pump's side */}}
  /* bins and compost (z -788..-782) */for(let i=0;i<4;i++){const x=-367.2+i*1.0;B(.7,1.05,.75,M([0x2a5a3a,0x2a2a2a,0x2a4a8a,0x2a5a3a][i]),x,.58,-786);B(.74,.06,.8,M(0x1a1a1a),x,1.13,-786);for(const s of[-1,1])Cy(.07,.07,.06,MT.black,x+s*.28,.07,-786.32,'x',null,8)}
  for(let i=0;i<3;i++){const x=-362+i*1.8;for(const s of[-1,1])B(.08,1.0,1.6,M(0x7a5a3a),x+s*.8,.5,-785);B(1.52,1.0,.08,M(0x7a5a3a),x,.5,-785.76);const h=A(new THREE.SphereGeometry(.7,10,6,0,Math.PI*2,0,Math.PI/2),M(0x4a3a24,{roughness:1}),x,0,-785);h.scale.y=.6}
- /* tyre stacks and scrap (z -822..-814) */for(const[x,z,n]of[[-367,-821,5],[-365.8,-821,4],[-367,-819.8,3],[-365.6,-819.6,6]])penTyreStack(g,x,z,n);
- for(const[x,z,w,h,d,r]of[[-361,-817,1.4,.6,.9,.3],[-359.3,-818,1.0,.5,1.2,-.4],[-360.2,-816.6,.8,.4,.8,.8]]){B(w,h,d,M(0x6a5a4a,{metalness:.4,roughness:.7}),x,h/2,z).rotation.y=r}B(.9,.8,.7,M(0x3a3a3a,{metalness:.5}),-357.5,.4,-820);Cy(.1,.1,1.2,MT.galv,-358.6,.1,-815.5,'x',null,8);
+ /* tyre stacks and scrap (moved 2026-10-19 from z -822..-814 by +43: the game's water tower is there) */{const g0=g;{const g=new THREE.Group();g.position.set(0,0,43);g0.add(g);const{A,B,Cy}=k.H(g);for(const[x,z,n]of[[-367,-821,5],[-365.8,-821,4],[-367,-819.8,3],[-365.6,-819.6,6]])penTyreStack(g,x,z,n);
+ for(const[x,z,w,h,d,r]of[[-361,-817,1.4,.6,.9,.3],[-359.3,-818,1.0,.5,1.2,-.4],[-360.2,-816.6,.8,.4,.8,.8]]){B(w,h,d,M(0x6a5a4a,{metalness:.4,roughness:.7}),x,h/2,z).rotation.y=r}B(.9,.8,.7,M(0x3a3a3a,{metalness:.5}),-357.5,.4,-820);Cy(.1,.1,1.2,MT.galv,-358.6,.1,-815.5,'x',null,8);}}
  penNoSeam(g)}
-/* --- deliveries (the gate side, one row at z -840..-834) --- */
+/* --- deliveries (the gate side, one row at z -844..-838 since 2026-10-19) --- */
 function penContainer(){const k=penKit(),{M}=k,g=new THREE.Group(),{B}=k.H(g);const t=k.can(256,128,(x,w,h)=>{x.fillStyle='#8a3a2a';x.fillRect(0,0,w,h);for(let i=0;i<w;i+=8){x.fillStyle='rgba(0,0,0,.25)';x.fillRect(i,0,3,h)}},1);t.repeat.set(4,1);
  B(10,2.6,2.44,new THREE.MeshStandardMaterial({map:t,roughness:.7,metalness:.3}),0,1.3,0);for(const s of[-1,1])B(.12,2.62,2.46,M(0x5a2a1a),s*4.95,1.3,0);for(const s of[-1,1])B(.04,2.2,.06,M(0x3a3a3a),5.02,1.3,s*.4);penNoSeam(g);return g}
-function penDeliveries(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g);
+function penDeliveries(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g);/* moved 2026-10-19: the whole row 4 m towards the gate (z -844..-838), clear of the game's running track (dpPen, z -837..-834) */const g0=g;{const g=new THREE.Group();g.position.set(0,0,-4);g0.add(g);const{A,B,Cy,lab}=k.H(g);
  {const c=penContainer();c.position.set(-521,0,-837);g.add(c);penPallets(g,-515.2,-836.2,4,0);penPallets(g,-515.2,-838.4,2,.2)}
- /* line-up boxes painted on the ground (x -504..-490), a sign on a post */{const t=k.can(512,256,(x,w,h)=>{x.clearRect(0,0,w,h);x.strokeStyle='#e0b020';x.lineWidth=5;for(let i=0;i<7;i++)for(let j=0;j<3;j++)x.strokeRect(10+i*70,10+j*80,60,70);x.fillStyle='#e0b020';x.font='bold 22px DoorsSans,Arial';for(let i=0;i<7;i++)x.fillText(String(i+1),32+i*70,62)});
-  const p=A(new THREE.PlaneGeometry(14,6),new THREE.MeshStandardMaterial({map:t,transparent:true,roughness:.9}),-497,.064,-837);p.rotation.x=-Math.PI/2;Cy(.04,.04,2.0,MT.galv,-489.6,1.0,-834.4,null,null,6);lab('LINE UP\nFOR COUNT',.8,.5,'#e0b020','#1a1a1a',-489.6,1.7,-834.43,Math.PI)}
+ /* line-up boxes painted on the ground (x -504..-490, moved +2 in x), a sign on a post */{const g1=g;{const g=new THREE.Group();g.position.set(2,0,0);g1.add(g);const{A,B,Cy,lab}=k.H(g);const t=k.can(512,256,(x,w,h)=>{x.clearRect(0,0,w,h);x.strokeStyle='#e0b020';x.lineWidth=5;for(let i=0;i<7;i++)for(let j=0;j<3;j++)x.strokeRect(10+i*70,10+j*80,60,70);x.fillStyle='#e0b020';x.font='bold 22px DoorsSans,Arial';for(let i=0;i<7;i++)x.fillText(String(i+1),32+i*70,62)});
+  const p=A(new THREE.PlaneGeometry(14,6),new THREE.MeshStandardMaterial({map:t,transparent:true,roughness:.9}),-497,.064,-837);p.rotation.x=-Math.PI/2;Cy(.04,.04,2.0,MT.galv,-489.6,1.0,-834.4,null,null,6);lab('LINE UP\nFOR COUNT',.8,.5,'#e0b020','#1a1a1a',-489.6,1.7,-834.43,Math.PI)}}
  /* benches and a weights pile by the basketball court (x -460..-452) */penBench(g,-458,-839,0,2.4);penBench(g,-458,-835,0,2.4);for(let i=0;i<4;i++)Cy(.25,.25,.06,MT.black,-454,.03+i*.06+.0,-837,null,null,16);B(1.6,.6,.5,MT.steel,-453,.3,-835.2);Cy(.02,.02,1.8,MT.galv,-453,.65,-835.2,'x',null,8);
  /* the kitchen delivery dock (x -400..-388): a raised platform with steps, a bumper, roll cages, a sign */{B(10,1.1,3,MT.con2,-394,.55,-837.5,null,2);B(10,.15,.25,MT.black,-394,.9,-839.1);for(let i=0;i<4;i++)B(.35,.27*(4-i),1.2,MT.con2,-388.835+.35*i,.135*(4-i),-837.5);/* steps up to the platform's east end */
   for(const x of[-397,-395.6,-394.2]){const cg=new THREE.Group();cg.position.set(x,1.1,-837.3);g.add(cg);const q=k.H(cg);q.B(1.0,.05,.8,MT.galv,0,.06,0);penLinkBox(cg,0,.1,0,1.0,1.5,.8);for(const[a,b]of[[-.49,-.39],[.49,-.39],[-.49,.39],[.49,.39]])q.B(.03,1.5,.03,MT.galv,a,.85,b);q.B(.8,.5,.6,M(0xc8a878),0,.35,0)}
   Cy(.04,.04,1.6,MT.galv,-399.4,1.1+.8,-836.1,null,null,6);lab('KITCHEN DELIVERIES',1.6,.3,'#20242a','#e8e0c8',-399.4,2.5,-836.13,Math.PI)}
+ }
  penNoSeam(g)}
 /* --- the courtyard inside the inner wall. Redone 2026-10-19: the game's later yard code (penYard, penSecure, penMess,
    penActBuild) already fills a lot of it; those things are remodelled in place (penYardGame below), and the new things
@@ -315,13 +313,13 @@ function penForklift(){const k=penKit(),{MT,M}=k,g=new THREE.Group(),{B,Cy,rod}=
  for(const[x,z,r]of[[-.6,.5,.33],[.6,.5,.33],[-.6,-1.0,.26],[.6,-1.0,.26]])Cy(r,r,.24,MT.black,x,r*.985,z,'x',null,14);penNoSeam(g);return g}
 function penCourtyard(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g);
  /* the stores row by the inner gate (z -822..-816): supply cages on a pad, the forklift and its pallets, the power box */
- {B(10,.12,6,MT.con2,-421,.06,-819,null,2);for(const x of[-424,-418]){const cg=new THREE.Group();cg.position.set(x,.12,-819);g.add(cg);const q=k.H(cg);for(const[a,b]of[[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]])q.B(.06,2.2,.06,MT.galv,a,1.1,b);q.B(2.86,.05,2.86,MT.galv,0,2.2,0);penLinkBox(cg,0,.05,0,2.8,2.1,2.8);
-  for(const[a,b,h]of[[-.6,-.6,.9],[.6,-.5,.7],[-.5,.6,.6],[.5,.6,1.0]])q.B(.9,h,.9,M(0xc8a878),a,h/2+.0,b)}}
- {const f=penForklift();f.position.set(-410,0,-819);f.rotation.y=Math.PI/2;g.add(f);penPallets(g,-406,-817.8,3,0);penPallets(g,-406,-820.2,5,.1)}
- /* the power box (x -400..-396): a green cabinet in a small fenced pen, its gate side facing the yard (+z) */{const cx=-398,cz=-819;B(1.6,1.5,.9,M(0x2a5a3a,{metalness:.3}),cx,.75,cz);B(1.7,.08,1.0,M(0x1a3a24),cx,1.54,cz);lab('⚡ DANGER',.6,.3,'#e8c020','#1a1a1a',cx,1.1,cz+.46,0);
+ {const g0=g;{const g=new THREE.Group();g.position.set(-3,0,0);g0.add(g);const{A,B,Cy}=k.H(g);/* moved 2026-10-19: -3 in x (the game's handball wall, dpPen, is at x -404..-396) */B(10,.12,6,MT.con2,-421,.06,-819,null,2);for(const x of[-424,-418]){const cg=new THREE.Group();cg.position.set(x,.12,-819);g.add(cg);const q=k.H(cg);for(const[a,b]of[[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]])q.B(.06,2.2,.06,MT.galv,a,1.1,b);q.B(2.86,.05,2.86,MT.galv,0,2.2,0);penLinkBox(cg,0,.05,0,2.8,2.1,2.8);
+  for(const[a,b,h]of[[-.6,-.6,.9],[.6,-.5,.7],[-.5,.6,.6],[.5,.6,1.0]])q.B(.9,h,.9,M(0xc8a878),a,h/2+.0,b)}}}
+ {const g0=g;{const g=new THREE.Group();g.position.set(-5,0,0);g0.add(g);/* moved -5 in x */const f=penForklift();f.position.set(-410,0,-819);f.rotation.y=Math.PI/2;g.add(f);penPallets(g,-406,-817.8,3,0);penPallets(g,-406,-820.2,5,.1)}}
+ /* the power box (x -400..-396): a green cabinet in a small fenced pen, its gate side facing the yard (+z) */{const cx=-407,cz=-819;/* moved -9 in x */B(1.6,1.5,.9,M(0x2a5a3a,{metalness:.3}),cx,.75,cz);B(1.7,.08,1.0,M(0x1a3a24),cx,1.54,cz);lab('⚡ DANGER',.6,.3,'#e8c020','#1a1a1a',cx,1.1,cz+.46,0);
   for(const[x0,z0,x1,z1]of[[-1.9,-1.9,1.9,-1.9],[-1.9,1.9,-.4,1.9],[.4,1.9,1.9,1.9],[-1.9,-1.9,-1.9,1.9],[1.9,-1.9,1.9,1.9]]){const L=Math.hypot(x1-x0,z1-z0),geo=new THREE.PlaneGeometry(L,1.6),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*L/.35,uv.getY(i)*1.6/.35);const m=A(geo,MT.link,cx+(x0+x1)/2,.85,cz+(z0+z1)/2);if(x0==x1)m.rotation.y=Math.PI/2}
   for(const[x,z]of[[-1.9,-1.9],[1.9,-1.9],[-1.9,1.9],[1.9,1.9],[-.4,1.9],[.4,1.9]])Cy(.04,.04,1.7,MT.galv,cx+x,.85,cz+z,null,null,6)}
- /* outdoor washing lines (x -400..-388, z -790..-770) on the laundry's side: T posts, two lines each, washing pegged on */{for(let i=0;i<5;i++){const z=-788+i*4.5;for(const x of[-399.5,-388.5]){Cy(.05,.05,2.2,MT.galv,x,1.1,z,null,null,8);Cy(.03,.03,1.2,MT.galv,x,2.15,z,'z',null,6)}
+ /* outdoor washing lines (x -400..-388, z -790..-770) on the laundry's side: T posts, two lines each, washing pegged on */{for(let i=0;i<5;i++){const z=-790+i*4.5;/* -2 in z: the game's ping-pong (dpPen) is at z -768 */for(const x of[-399.5,-388.5]){Cy(.05,.05,2.2,MT.galv,x,1.1,z,null,null,8);Cy(.03,.03,1.2,MT.galv,x,2.15,z,'z',null,6)}
    for(const dz of[-.5,.5])Cy(.006,.006,11,MT.white,-394,2.12,z+dz,'x',null,4);for(let j=0;j<5;j++){const c=A(new THREE.PlaneGeometry(.6,.8),M((j+i)%3?0xe86a20:0xe8e8e4,{side:THREE.DoubleSide,roughness:1}),-397.9+j*1.95,1.7,z+(j%2?.5:-.5));c.userData.cloth=1}}}
  /* the yard guard booth (x -390.3..-387.7, z -719.3..-716.7), its door facing the yard */penGuardBooth(g,-389,-718,2.6,-1,'YARD POST');A(new THREE.ConeGeometry(.2,.6,12),M(0xe86a20),-391.2,.3,-716.2);
  /* chess tables (x -435..-409, z -714..-711): a concrete table with a board on top and four stools, in a row */for(const x of[-434,-426,-418,-410]){const z=-712.5;Cy(.12,.16,.7,MT.con2,x,.35,z,null,null,12);Cy(.45,.45,.06,MT.con2,x,.73,z,null,null,20);
@@ -770,6 +768,148 @@ function penHall(g){const k=penKit(),{MT,M}=k,{B}=k.H(g);penLockerBank(g,-425.8,
 function penStaffLockers(g){penLockerBank(g,-452.45,-762,3,-1,0,.55)}
 function penBroomCupboard(g){const k=penKit(),{MT,M}=k,{B,lab}=k.H(g),x=-410.5,z=-752,W=M(0x6a5a48,{roughness:.7});B(.68,2.2,1.1,W,x+.01,1.1,z);B(.03,2.0,.95,M(0x5a4a38,{roughness:.7}),x-.345,1.05,z);B(.02,.12,.02,MT.steel,x-.365,1.1,z+.38);for(let j=0;j<4;j++)B(.012,.02,.5,MT.dark,x-.365,.3+j*.05,z);lab('JANITOR',.5,.12,'#e8e0c8','#202020',x-.372,1.85,z,-Math.PI/2);B(.7,.04,1.12,M(0x4a3a28),x+.01,2.22,z);penNoSeam(g)}
 
+/* ============ batch 6: the game's dpPen ("Filling the prison yards"), remodelled in place (2026-10-19) ============
+   dpPen's running track, gate staff hut, water tower, generator shed, stores, incinerator, garden, the hole, the chapel,
+   vehicle compound, staff quarters, junk, and its courtyard handball wall, shelter, ping-pong, mural, phone bank and
+   horn speakers. Its flag, K-9 run, second bus and visitors' car park are duplicates of batch 1's and go (their props
+   move). A few of its things overlapped the game's own (the track ran through the chapel and the hole and the garden;
+   the generator shed sat on a hiding spot; the staff quarters cut into another): those moves are noted at each one. */
+/* a small building like the game's bld(): walls .3 thick inside the footprint (the game's obstacles stay), a door gap on
+   side sd ('n' z0, 's' z1, 'w' x0, 'e' x1) from da to db, 2.4 high, a roof slab with a trim, a floor, a sign plate over
+   the door, windows (o.win: [[side, centre along the side, width]]), ceiling lamps. Returns nothing */
+function penHut(g,x0,x1,z0,z1,h,sd,da,db,o){o=o||{};const k=penKit(),{MT,M}=k,{A,B,lab}=k.H(g),t=.3,WM=o.wall||MT.con2,FR=M(0xe8e4dc,{roughness:.6}),GL=M(0x2a3a44,{emissive:0x101820,roughness:.2,metalness:.3});
+ const wl=(side,a0,a1,y0,y1)=>{if(a1-a0<.01||y1-y0<.01)return;const hh=y1-y0,yc=(y0+y1)/2;if(side=='n')B(a1-a0,hh,t,WM,(a0+a1)/2,yc,z0+t/2,null,2);else if(side=='s')B(a1-a0,hh,t,WM,(a0+a1)/2,yc,z1-t/2,null,2);else if(side=='w')B(t,hh,a1-a0,WM,x0+t/2,yc,(a0+a1)/2,null,2);else B(t,hh,a1-a0,WM,x1-t/2,yc,(a0+a1)/2,null,2)};
+ for(const side of['n','s','w','e']){const lo=side=='n'||side=='s'?x0:z0+t,hi=side=='n'||side=='s'?x1:z1-t;if(side==sd){wl(side,lo,da,0,h);wl(side,db,hi,0,h);wl(side,da,db,2.4,h)}else wl(side,lo,hi,0,h)}
+ const onF=(side,a,y,w,hh,d,m)=>{if(side=='n')B(w,hh,t+d,m,a,y,z0+t/2);else if(side=='s')B(w,hh,t+d,m,a,y,z1-t/2);else if(side=='w')B(t+d,hh,w,m,x0+t/2,y,a);else B(t+d,hh,w,m,x1-t/2,y,a)};
+ /* the door frame: jambs and a head, 2 cm proud of both faces */onF(sd,da+.04,1.2,.1,2.4,.04,FR);onF(sd,db-.04,1.2,.1,2.4,.04,FR);onF(sd,(da+db)/2,2.44,db-da+.18,.1,.05,FR);
+ for(const[side,a,w]of(o.win||[])){onF(side,a,1.55,w,.9,.02,GL);onF(side,a,1.04,w+.18,.08,.08,FR);onF(side,a,2.04,w+.18,.08,.08,FR);onF(side,a-w/2-.04,1.55,.08,.96,.06,FR);onF(side,a+w/2+.04,1.55,.08,.96,.06,FR)}
+ B(x1-x0+.4,.25,z1-z0+.4,o.roof||MT.dark,(x0+x1)/2,h+.125,(z0+z1)/2);B(x1-x0+.42,.08,z1-z0+.42,MT.con2,(x0+x1)/2,h+.25,(z0+z1)/2);
+ {const f=A(new THREE.PlaneGeometry(x1-x0-.6,z1-z0-.6),o.floor||M(0x5a5c60,{roughness:.9}),(x0+x1)/2,.075,(z0+z1)/2);f.rotation.x=-Math.PI/2}
+ if(o.lab){const w=Math.min(o.lw||6,(sd=='n'||sd=='s'?x1-x0:z1-z0)-.6),hh=o.lh||.5,y=o.ly||Math.min(h-.35,2.4+.15+hh/2+.1),c=o.la!=null?o.la:(da+db)/2;const pl=(off)=>{if(sd=='s')return[c,z1+off,0];if(sd=='n')return[c,z0-off,Math.PI];if(sd=='e')return[x1+off,c,Math.PI/2];return[x0-off,c,-Math.PI/2]};
+  const[px,pz,ry]=pl(.015);const bp=B(sd=='n'||sd=='s'?w+.1:.03,hh+.1,sd=='n'||sd=='s'?.03:w+.1,MT.dark,sd=='n'||sd=='s'?px:px,y,pz);const[lx,lz]=pl(.04);lab(o.lab,w,hh,o.lbg||'#20242a',o.lfg||'#e8e0c8',lx,y,lz,ry)}
+ if(o.lamp)for(let x=x0+2.5;x<x1-1;x+=5)for(let z=z0+2.5;z<z1-1;z+=5)B(1,.06,.3,M(0xfff8e0,{emissive:0xfff0c0}),x,h-.03,z);penNoSeam(g)}
+/* the running track: 3 m of cinder with two lanes, a start line and the quarter marks. dpPen's ring went through its
+   own chapel, hole and garden, so its north side now runs at z -678..-675, north of them (x -507..-373, z -837..-675).
+   Returns the jogger's four corners. The two benches go in the infield (x -502.2, z -820 and x -377.8, z -710) */
+function penTrack(g){const k=penKit(),{MT,M}=k,{A,B,lab}=k.H(g),x0=-507,x1=-373,z0=-837,z1=-675,w=3;
+ if(!k.cin)k.cin=k.can(128,128,(x,W,H)=>{x.fillStyle='#8e5a48';x.fillRect(0,0,W,H);for(let i=0;i<2500;i++){x.fillStyle=Math.random()<.5?'rgba(40,20,10,.25)':'rgba(220,180,150,.18)';x.fillRect(Math.random()*W,Math.random()*H,1+Math.random()*2,1+Math.random()*2)}x.fillStyle='#e8e0d0';x.fillRect(0,0,W,3);x.fillRect(0,H/2-1.5,W,3);x.fillRect(0,H-3,W,3)},1);
+ const band=(cx,cz,L,along)=>{const geo=new THREE.PlaneGeometry(L,w),uv=geo.attributes.uv;for(let i=0;i<uv.count;i++)uv.setX(i,uv.getX(i)*L/w);const m=A(geo,new THREE.MeshStandardMaterial({map:k.cin,roughness:1}),cx,.065,cz);m.rotation.x=-Math.PI/2;if(along=='z')m.rotation.z=Math.PI/2};
+ band((x0+x1)/2,z0+w/2,x1-x0,'x');band((x0+x1)/2,z1-w/2,x1-x0,'x');band(x0+w/2,(z0+z1)/2,z1-z0-2*w,'z');band(x1-w/2,(z0+z1)/2,z1-z0-2*w,'z');
+ {const m=A(new THREE.PlaneGeometry(w,.3),M(0xf0ece0),x0+w/2,.076,z0+w+4);m.rotation.x=-Math.PI/2}
+ for(const[x,z,t]of[[x0+w/2,z0+w+4,'START'],[x1-w/2,z0+w+4,'¼'],[x1-w/2,z1-w-4,'½'],[x0+w/2,z1-w-4,'¾']]){const l=lab(t,t.length>1?2.2:1,.6,null,'#f0ece0',x,.08,z+(t.length>1?1.2:0),0);l.rotation.x=-Math.PI/2}
+ for(const[x,z]of[[-502.2,-820],[-377.8,-710]])penBench(g,x,z,Math.PI/2,1.8);penNoSeam(g);return[[x0+w/2,z0+w/2+2],[x1-w/2,z0+w/2+2],[x1-w/2,z1-w/2-2],[x0+w/2,z1-w/2-2]]}
+/* the gate staff hut (dpPen's x -410..-392, z -858.6..-850.6, door on the yard side x -402..-400): windows, a drinks
+   machine, a table with a kettle and mugs, a chair under the gate officer (his spot x -395, z -856), a lamp */
+function penGateHut(g){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),x0=-410,x1=-392,z0=-858.6,z1=-850.6;penHut(g,x0,x1,z0,z1,3.2,'s',-402,-400,{lab:'GATE STAFF · TEA ROOM · NO INMATES',lw:5,win:[['s',-406,1.6],['s',-396,1.6],['e',-854.6,1.6]],lamp:1});
+ B(1.2,1.8,.8,M(0x2a3a5a,{roughness:.5}),x0+1.3,.9,z0+1.2);B(1,1.1,.02,M(0x203040,{emissive:0x4080c0}),x0+1.3,1.1,z0+1.61);
+ {const x=x1-3,z=z0+1.4;B(2.4,.06,.9,M(0x8a6a4a),x,.79,z);for(const[a,b]of[[-1.1,-.38],[1.1,-.38],[-1.1,.38],[1.1,.38]])B(.06,.76,.06,MT.steel,x+a,.38,z+b);B(.22,.24,.18,M(0xe8e8e4),x-.4,.94,z);Cy(.045,.04,.1,M(0xe8e0d0),x+.2,.87,z+.1,null,null,10);Cy(.045,.04,.1,M(0x8a2a2a),x+.5,.87,z-.1,null,null,10)}
+ {const x=x1-3,z=z0+2.6;B(.48,.06,.48,MT.dark,x,.47,z);for(const[a,b]of[[-.2,-.2],[.2,-.2],[-.2,.2],[.2,.2]])B(.04,.44,.04,MT.steel,x+a,.22,z+b);B(.48,.5,.05,MT.dark,x,.75,z+.23)}
+ B(.8,.5,.6,M(0xd0d0d8,{metalness:.4}),x1-1.5,2.55,z1+.3);penNoSeam(g)}
+/* the generator shed, moved 2026-10-19 from x -372.5..-364 to x -369..-360.5 (it sat on the dumpster hiding spot at
+   x -372); z -804..-797, door on the z -797 side at x -365.8..-363.8. A louvred fan on the east wall (returns its blades,
+   spin about x), a panel with a lamp, three drums on the south side, an exhaust stack */
+function penGenShed(g){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g),x0=-369,x1=-360.5,z0=-804,z1=-797;penHut(g,x0,x1,z0,z1,2.8,'s',-365.8,-363.8,{lab:'GENERATOR · HIGH VOLTAGE · KEEP OUT',lw:2.6,lh:.4,la:-367.6,ly:1.6,lbg:'#d8b020',lfg:'#1a1a1a'});
+ B(.04,1.1,1.1,MT.dark,x1+.02,1.8,z0+3.5);const bl=new THREE.Group();bl.position.set(x1+.1,1.8,z0+3.5);g.add(bl);for(let i=0;i<4;i++){const p=new THREE.Group();p.rotation.x=i*Math.PI/2;bl.add(p);const b=new THREE.Mesh(new THREE.BoxGeometry(.03,.42,.16),M(0x9aa0a8,{metalness:.5}));b.position.y=.22;b.rotation.y=.4;p.add(b)}Cy(.47,.47,.06,MT.dark,x1+.1,1.8,z0+3.5,'x',null,20,true);
+ B(.4,.5,.12,M(0xc02020),x1+.06,.95,z0+1.2);B(.08,.08,.04,M(0x103010,{emissive:0x20ff40}),x1+.14,1.08,z0+1.2);for(let i=0;i<3;i++)Cy(.3,.3,.9,M([0x8a2a2a,0x2a4a8a,0x8a2a2a][i],{roughness:.6}),x0+1.2+i*.75,.45,z0-.5,null,null,14);
+ Cy(.1,.1,3.6,MT.dark,x1+.4,1.8,z1-.6,null,null,10);B(.25,.1,.25,MT.dark,x1+.2,2.4,z1-.6);Cy(.16,.16,.08,MT.dark,x1+.4,3.64,z1-.6,null,null,10);penNoSeam(g);return bl}
+/* a wooden crate (s m), plank faces */
+function penCrate(g,x,z,s,ry){const k=penKit(),{M}=k,{B}=k.H(g);if(!k.crt)k.crt=new THREE.MeshStandardMaterial({map:k.can(64,64,(c,w,h)=>{c.fillStyle='#9a7448';c.fillRect(0,0,w,h);c.strokeStyle='rgba(60,40,20,.6)';c.lineWidth=2;for(let i=0;i<4;i++){c.beginPath();c.moveTo(0,i*16);c.lineTo(w,i*16);c.stroke()}c.lineWidth=4;c.strokeRect(2,2,w-4,h-4);c.beginPath();c.moveTo(4,4);c.lineTo(w-4,h-4);c.stroke()}),roughness:.9});
+ const c=B(s,s,s,k.crt,x,s/2,z);c.rotation.y=ry||0;return c}
+/* the stores (dpPen's pallets, crates and forklift by x -366, z -738) and their sign */
+function penStoresYard(g){const k=penKit(),{MT}=k,{lab}=k.H(g);for(const[x,z,n]of[[-369,-740,3],[-366,-740,2],[-369,-736.5,4]])penPallets(g,x,z,n,0);
+ for(const[x,z,s,r]of[[-362,-737,1,.1],[-362,-739.4,.9,-.2],[-360.6,-737.2,.8,.3],[-362,-735.2,1.1,0]])penCrate(g,x,z,s,r);const f=penForklift();f.position.set(-357,0,-742);f.rotation.y=-Math.PI/2;g.add(f);
+ penSignPost(g,-352,-733,-.7,1.3);lab('STORES · SIGN FOR EVERYTHING\nEVEN THE PEN YOU SIGN WITH',1.2,.5,'#3a2a1a','#f0d090',-352,1.7,-733,-.7);penNoSeam(g)}
+/* the incinerator (dpPen's x -356, z -716): a brick furnace with a steel door and a glowing slot, a chimney to 9.5 m (the
+   game's smoke puffs start at 9.8), an ash bin and a rake. Returns the slot's glow material */
+function penIncinerator(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab,rod}=k.H(g),x=-356,z=-716;if(!k.brk)k.brk=new THREE.MeshStandardMaterial({map:k.can(128,128,(c,w,h)=>{c.fillStyle='#7a4a3a';c.fillRect(0,0,w,h);c.fillStyle='rgba(40,25,20,.6)';for(let r=0;r<16;r++){c.fillRect(0,r*8,w,1);for(let q=0;q<8;q++)c.fillRect((q*16+(r%2)*8)%w,r*8,1,8)}},1),roughness:1});
+ B(3,2.6,3,k.brk,x,1.3,z,null,1);B(3.1,.12,3.1,MT.dark,x,2.66,z);B(1.1,1.3,.06,MT.dark,x,.8,z+1.52);const glow=M(0x300000,{emissive:0xff4010});B(.7,.12,.02,glow,x,.95,z+1.56);B(.12,.12,.06,MT.steel,x+.42,.8,z+1.58);
+ Cy(.5,.6,6.8,M(0x4a4a4e,{metalness:.4}),x-.8,6.06,z-.8,null,null,14);for(const y of[4,6.5,8.6])Cy(.56,.56,.08,MT.dark,x-.8,y,z-.8,null,null,14);Cy(.65,.65,.3,MT.dark,x-.8,9.41,z-.8,null,null,14);
+ Cy(.3,.26,.7,MT.dark,x+1.9,.35,z+.8,null,null,12);rod([x-1.55,.05,z+.9],[x-1.6,1.5,z+1.0],.02,M(0x6a4a2a));B(.5,.04,.06,MT.steel,x-1.6,1.5,z+1.0);
+ B(2.5,.9,.03,MT.dark,x,2.2,z+1.515);lab('INCINERATOR\nCONTRABAND · MAIL · HOPE',2.4,.8,'#3a2a1a','#f0d090',x,2.2,z+1.54,0);penNoSeam(g);return glow}
+/* the inmate garden, moved 2026-10-19 west of the track (dpPen's started at x -520 and the track ran through it): eight
+   raised beds in two columns (x -533..-523 and -520..-510, rows z -695..-682.4), plants with tomatoes in row 2, a
+   scarecrow between the columns, a wheelbarrow, a water butt, a sign. The gardener and his prop move with it (gx -533) */
+function penGardenBeds(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod,lab}=k.H(g),gx=-533,gz=-696,WD=M(0x7a5232,{roughness:.9}),SO=M(0x4a3222,{roughness:1}),LF=[M(0x3e7a3a,{roughness:1,flatShading:true}),M(0x4e8a42,{roughness:1,flatShading:true})];
+ for(let r=0;r<4;r++)for(let c=0;c<2;c++){const x=gx+5+c*13,z=gz+1+r*4.2;for(const s of[-1,1]){B(10,.5,.08,WD,x,.25,z+s*.76);B(.08,.5,1.44,WD,x+s*4.96,.25,z)}B(9.84,.02,1.44,SO,x,.44,z);
+  for(let i=0;i<9;i++){const px=x-4.2+i*1.05,sz=z+((i*7+r*3)%5-2)*.08,rr=.18+((i+r+c)%3)*.05;const m=A(new THREE.IcosahedronGeometry(rr,0),LF[(i+r)%2],px,.45+rr*.7,sz);m.scale.y=.9;if(r==1){Cy(.012,.012,.7,M(0x8a6a4a),px+.12,.75,sz,null,null,4);for(const d of[-.1,.08])A(new THREE.SphereGeometry(.06,6,5),M(0xd02020),px+d,.62+rr,sz+.1)}}}
+ {const x=gx+12,z=gz+10;Cy(.05,.05,2.2,WD,x,1.1,z,null,null,6);Cy(.04,.04,1.4,WD,x,1.7,z,'x',null,6);B(.5,.7,.3,M(0x8a7a5a,{roughness:1}),x,1.4,z);A(new THREE.SphereGeometry(.2,8,6),M(0xd8b060,{roughness:1}),x,1.95,z);Cy(.18,.38,.22,M(0x6a4a2a),x,2.22,z,null,null,10)}
+ {const t=new THREE.Group();t.position.set(gx+30,0,gz+5);t.rotation.y=.6;g.add(t);const q=k.H(t);q.B(.8,.32,1.0,M(0x3a5a8a,{metalness:.4}),0,.5,0);for(const s of[-1,1]){q.rod([s*.32,.36,-.5],[s*.3,.62,-1.2],.025,WD);q.rod([s*.3,.34,.2],[s*.3,0,.3],.025,MT.steel)}q.Cy(.2,.2,.08,MT.dark,0,.2,.6,'x',null,12);q.rod([0,.2,.6],[0,.34,.45],.02,MT.steel)}
+ Cy(.5,.45,1.1,M(0x2a5a2a,{roughness:.8}),gx-1,.55,gz+2,null,null,14);Cy(.52,.52,.04,MT.dark,gx-1,1.12,gz+2,null,null,14);
+ penSignPost(g,gx+14,gz-1.6,0,1.3);lab('INMATE GARDEN · GROW, DO NOT DIG\nTOMATOES: YES · TUNNELS: NO',1.2,.5,'#2a5a2a','#ffffff',gx+14,1.7,gz-1.6,0);penNoSeam(g)}
+/* the hole (segregation; dpPen's x -454..-430, z -697.5..-679.5, 3.8 high, door x -443..-441 on the north side z -679.5):
+   blank concrete with a dark band, a closed steel door with a food hatch (replace dpPen's door slab), barred slit windows
+   high on both long sides, roof vents, a red lamp, the sign. Its prop stays at the door */
+function penHole(g){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),x0=-454,x1=-430,z0=-697.5,z1=-679.5,h=3.8;penHut(g,x0,x1,z0,z1,h,'s',-443,-441,{lab:'SEGREGATION · SOLITARY · 23 HOURS A DAY · THE OTHER HOUR IS ALSO HERE',lw:10,lh:.6});
+ {const DB=M(0x3a3c40);B(x1-x0+.04,.3,.04,DB,(x0+x1)/2,.6,z0-.01);B(-443.1-(x0-.02),.3,.04,DB,(x0-.02-443.1)/2,.6,z1+.01);B(x1+.02+440.9,.3,.04,DB,(x1+.02-440.9)/2,.6,z1+.01);for(const s of[-1,1])B(.04,.3,z1-z0+.04,DB,s<0?x0-.01:x1+.01,.6,(z0+z1)/2)}
+ B(2,2.38,.1,M(0x4a5058,{metalness:.5,roughness:.4}),-442,1.19,z1-.15);B(.5,.2,.04,MT.dark,-442,1.5,z1-.08);B(.06,.06,.06,MT.steel,-441.3,1.15,z1-.07);
+ for(const xs of[x0,x1])for(let i=0;i<3;i++){const z=z0+3+i*6,ox=xs==x0?-1:1;B(.04,.5,1.0,MT.black,xs+ox*.02,2.9,z);for(let j=0;j<4;j++)Cy(.02,.02,.56,MT.steel,xs+ox*.05,2.9,z-.36+j*.24,null,null,6)}
+ for(let i=0;i<4;i++){B(.6,.5,.6,M(0x6a6a70,{metalness:.4}),x0+3+i*6,h+.54,z0+3);B(.66,.04,.66,MT.dark,x0+3+i*6,h+.81,z0+3)}B(.4,.3,.08,MT.dark,-446,1.9,z1+.04);B(.3,.2,.04,M(0x300000,{emissive:0xff2020}),-446,1.9,z1+.09);penNoSeam(g)}
+/* the chapel (dpPen's x -420..-396, z -697.5..-679.5, door x -409..-407 on the north side): cream walls, a pitched roof
+   with gables, a small bell cote with a cross over the door, tall coloured windows, the coloured window behind the
+   altar, six pews, the altar with five candles (the "Light a candle" prop), a lectern, a carpet down the aisle.
+   dpPen's chaplain and praying inmate stay. Returns the candle flames */
+function penChapel(g){const k=penKit(),{MT,M}=k,{A,B,Cy,lab}=k.H(g),x0=-420,x1=-396,z0=-697.5,z1=-679.5,h=3.6,cx=-408,WL=M(0xd8d2c2,{roughness:.95}),WD=M(0x6a4a2a,{roughness:.8}),GD=M(0xd4a850,{metalness:.5,roughness:.4});
+ penHut(g,x0,x1,z0,z1,h,'s',-409,-407,{wall:WL,roof:WL,floor:M(0x8a7a6a,{roughness:.9}),lab:'CHAPEL · ALL FAITHS · NO WEAPONS',lw:6,lh:.5,win:[['w',-693,1],['w',-688.5,1],['w',-684,1],['e',-693,1],['e',-688.5,1],['e',-684,1]]});
+ /* the pitched roof over the flat one: two slopes, the gables, a ridge */{const hw=(x1-x0)/2+.3,rise=3.2,a=Math.atan2(rise,hw),L=Math.hypot(hw,rise)+.1,y0=h+.29;for(const s of[-1,1]){const r=B(L,.2,z1-z0+.6,M(0x5a3a2a,{roughness:.9}),cx+s*hw/2,y0+rise/2+.1,(z0+z1)/2);r.rotation.z=-s*a}
+  const sh=new THREE.Shape();sh.moveTo(-(x1-x0)/2,0);sh.lineTo((x1-x0)/2,0);sh.lineTo(0,rise-.05);sh.lineTo(-(x1-x0)/2,0);for(const z of[z0+.15,z1-.15]){const ge=new THREE.ExtrudeGeometry(sh,{depth:.28,bevelEnabled:false});ge.translate(0,0,-.14);A(ge,WL,cx,y0,z)}
+  Cy(.12,.12,z1-z0+.7,M(0x4a2a1a),cx,y0+rise+.12,(z0+z1)/2,'z',null,8)}
+ /* the bell cote and cross over the door */{const y=h+.29+3.2;B(.9,1.0,.9,WL,cx,y+.55,z1-.6);B(1.1,.12,1.1,M(0x5a3a2a),cx,y+1.11,z1-.6);B(.1,1.0,.1,GD,cx,y+1.67,z1-.6);B(.5,.1,.08,GD,cx,y+1.9,z1-.6);Cy(.18,.12,.3,GD,cx,y+.45,z1-.6,null,null,10)}
+ /* the coloured windows (side ones lit from inside; the big one behind the altar) */{const t=k.can(96,128,(c,w,h2)=>{const cols=['#c03030','#3050c0','#d0a020','#30a050','#8040b0'];for(let r=0;r<8;r++)for(let q=0;q<6;q++){c.fillStyle=cols[(r*3+q)%5];c.fillRect(q*16,r*16,16,16)}c.strokeStyle='#1a1a1a';c.lineWidth=3;for(let i=0;i<=6;i++){c.beginPath();c.moveTo(i*16,0);c.lineTo(i*16,h2);c.stroke()}for(let i=0;i<=8;i++){c.beginPath();c.moveTo(0,i*16);c.lineTo(w,i*16);c.stroke()}});const SG=new THREE.MeshStandardMaterial({map:t,emissive:0x5a4a6a,emissiveMap:t,roughness:.3});
+  for(const[xs,ry]of[[x0-.02,-Math.PI/2],[x1+.02,Math.PI/2],[x0+.32,Math.PI/2],[x1-.32,-Math.PI/2]])for(const z of[-693,-688.5,-684]){const p=A(new THREE.PlaneGeometry(.92,.84),SG,xs,1.55,z);p.rotation.y=ry}
+  const bw=A(new THREE.PlaneGeometry(3,2),SG,cx,2.2,z0+.31);B(3.2,.1,.06,GD,cx,1.15,z0+.33);B(3.2,.1,.06,GD,cx,3.25,z0+.33)}
+ /* inside: six pews (dpPen's spots), the altar and candles, a lectern, the carpet */for(let i=0;i<3;i++){const z=z0+4+i*4;for(const s of[-1,1]){const x=cx+s*4;B(5,.06,.5,WD,x,.5,z);B(5,.6,.06,WD,x,.83,z-.25);for(const e of[-2.3,2.3])B(.06,.47,.5,WD,x+e,.235,z)}}
+ B(2.4,1,.8,WD,cx,.5,z0+1.6);B(2.5,.04,.9,M(0xf0ece0),cx,1.02,z0+1.6);B(.3,.4,.92,M(0x8a2a2a),cx,.79,z0+1.6);const fl=[];for(let i=0;i<5;i++){Cy(.03,.03,.3,M(0xf0ece0),cx-.8+i*.4,1.19,z0+1.6,null,null,6);fl.push(B(.04,.07,.04,M(0xffe0a0,{emissive:0xffb040}),cx-.8+i*.4,1.375,z0+1.6))}
+ B(.5,1.1,.4,WD,cx+2.2,.55,z0+3);B(.6,.04,.5,WD,cx+2.2,1.12,z0+3).rotation.x=.3;{const c=A(new THREE.PlaneGeometry(1.4,z1-z0-3),M(0x7a1a1a,{roughness:1}),cx,.085,(z0+z1)/2+.9);c.rotation.x=-Math.PI/2}
+ penNoSeam(g);return fl}
+/* the vehicle compound (dpPen's x -536..-508, z -826..-802): an asphalt pad with bay lines, the kerbs on dpPen's kerb
+   obstacles (yellow and black), its three vans (batch 2's penVan) and the sign. dpPen's cop car stays */
+function penCompound(g){const k=penKit(),{MT,M}=k,{A,B,lab}=k.H(g),cx0=-536,cx1=-508,cz0=-826,cz1=-802;
+ {const t=k.can(256,256,(x,w,h)=>{x.fillStyle='#4a4846';x.fillRect(0,0,w,h);for(let i=0;i<3000;i++){x.fillStyle='rgba(255,255,255,'+Math.random()*.06+')';x.fillRect(Math.random()*w,Math.random()*h,2,2)}x.strokeStyle='#e8e0d0';x.lineWidth=3;for(let i=0;i<4;i++){const y=h*(.06+i*.29);x.beginPath();x.moveTo(w*.08,y);x.lineTo(w*.45,y);x.stroke()}});const p=A(new THREE.PlaneGeometry(cx1-cx0-.8,cz1-cz0-.8),new THREE.MeshStandardMaterial({map:t,roughness:.95}),(cx0+cx1)/2,.065,(cz0+cz1)/2);p.rotation.x=-Math.PI/2}
+ if(!k.kerb)k.kerb=new THREE.MeshStandardMaterial({map:k.can(64,16,(c,w,h)=>{for(let i=0;i<4;i++){c.fillStyle=i%2?'#1a1a1a':'#e0b020';c.fillRect(i*16,0,16,h)}},1),roughness:.7});
+ for(const[a,b,c,d]of[[cx0,cx1,cz0,cz0+.4],[cx0,cx1,cz1-.4,cz1],[cx0,cx0+.4,cz0+.4,cz1-.4],[cx1-.4,cx1,cz0+.4,cz0+8],[cx1-.4,cx1,cz1-8,cz1-.4]])B(b-a,.4,d-c,k.kerb,(a+b)/2,.2,(c+d)/2,null,1);
+ for(let i=0;i<3;i++){const v=penVan();v.position.set(cx0+8,0,cz0+5+i*7);v.rotation.y=Math.PI/2;g.add(v)}
+ penSignPost(g,-510,-819.5,Math.PI/2,1.3);lab('STAFF & TRANSPORT VEHICLES\nNO INMATES BEYOND THIS LINE',1.2,.5,'#14181e','#ffd040',-510,1.7,-819.5,Math.PI/2);penNoSeam(g)}
+/* the staff quarters (dpPen's x -536..-514, z -790..-770, door x -514 at z -781..-779): windows, three beds with
+   lockers, a table and chairs, a TV, an air-con unit, a satellite dish, a porch lamp; outside a concrete patio, two
+   plastic chairs, a kettle barbecue and a cool box (the officer and his prop stay). Move the "supply crates" hiding spot
+   (penPolish2, x -515, z -770: it cut into this building's corner) to x -511.5, z -768 (exit -509.8, -768) */
+function penStaffQuarters(g){const k=penKit(),{MT,M}=k,{A,B,Cy,rod}=k.H(g),x0=-536,x1=-514,z0=-790,z1=-770,h=3.4;penHut(g,x0,x1,z0,z1,h,'e',-781,-779,{lab:'STAFF QUARTERS · NO INMATES',lw:4,lh:.45,win:[['e',-786,1.6],['e',-774,1.6],['n',-530,1.6],['n',-520,1.6],['s',-530,1.6],['s',-520,1.6]],lamp:1,floor:M(0x6a5a4a,{roughness:.9})});
+ for(let i=0;i<3;i++){const z=z0+3+i*5;B(1,.36,2,MT.steel,x0+1.3,.25,z);B(.95,.14,1.9,M(0xe8e4dc,{roughness:1}),x0+1.3,.5,z);B(.5,.12,.3,M(0xffffff,{roughness:1}),x0+1.25,.63,z-.7);B(.98,.04,1.0,M(0x2a3a5a,{roughness:1}),x0+1.3,.59,z+.4);B(.55,1.9,.5,M(0x4a5a6a,{metalness:.4}),x0+2.4,.95,z+1.3)}
+ {const x=x1-3,z=z1-2.5;B(2.2,.06,1,M(0x8a6a4a),x,.79,z);for(const[a,b]of[[-1,-.42],[1,-.42],[-1,.42],[1,.42]])B(.06,.76,.06,MT.steel,x+a,.38,z+b);for(const s of[-1,1])for(const e of[-.6,.6]){B(.44,.05,.44,M(0x2a5a8a),x+e,.46,z+s*.8);for(const[a,b]of[[-.18,-.18],[.18,-.18],[-.18,.18],[.18,.18]])B(.03,.44,.03,MT.steel,x+e+a,.22,z+s*.8+b);B(.44,.44,.03,M(0x2a5a8a),x+e,.68,z+s*1.0)}}
+ B(1.2,.08,.5,MT.dark,x1-1.4,.6,z0+.6);B(1.2,.72,.08,MT.black,x1-1.4,1.0,z0+.7);B(1.1,.62,.01,M(0x203860,{emissive:0x305080}),x1-1.4,1.0,z0+.75);for(const s of[-1,1])B(.04,.56,.04,MT.steel,x1-1.4+s*.5,.28,z0+.6);
+ B(.8,.5,.4,M(0xd0d0d8,{metalness:.4}),x1+.2,2.8,z0+3);Cy(.7,.7,.06,M(0xd8d8e0,{metalness:.5}),x1-3,h+.9,z1-3,null,null,16).rotation.x=-.6;Cy(.04,.04,.6,MT.steel,x1-3,h+.55,z1-3,null,null,6);B(.1,.2,.1,M(0xffe0a0,{emissive:0xffc060}),x1+.06,2.2,-782.3);
+ {const t=A(new THREE.PlaneGeometry(5,10),M(0x9a9894,{roughness:.95}),x1+2.5,.07,-780);t.rotation.x=-Math.PI/2}
+ for(const[dx,dz]of[[2.2,-3.2],[3.6,-2.6]]){const x=x1+dx,z=-781+dz;B(.5,.05,.5,M(0xf0f0f0),x,.45,z);B(.5,.5,.04,M(0xf0f0f0),x,.72,z-.23);for(const[a,b]of[[-.22,-.22],[.22,-.22],[-.22,.22],[.22,.22]])B(.04,.43,.04,M(0xf0f0f0),x+a,.215,z+b)}
+ {const x=x1+3,z=-776;A(new THREE.SphereGeometry(.45,14,8,0,Math.PI*2,Math.PI/2,Math.PI/2),M(0x1a1a1a,{metalness:.3}),x,.92,z);Cy(.46,.46,.03,MT.steel,x,.93,z,null,null,14);for(let i=0;i<3;i++){const a=i*Math.PI*2/3;rod([x+Math.cos(a)*.3,.62,z+Math.sin(a)*.3],[x+Math.cos(a)*.45,0,z+Math.sin(a)*.45],.02,MT.steel)}A(new THREE.SphereGeometry(.45,14,6,0,Math.PI*2,0,Math.PI/2),M(0x1a1a1a,{metalness:.3}),x+.62,.62,z).rotation.z=1.2;
+  B(.6,.4,.4,M(0x2a4a8a),x-1.2,.2,z-.6);B(.62,.06,.42,M(0xe8e8e8),x-1.2,.43,z-.6)}penNoSeam(g)}
+/* the junk corner (dpPen's): tyres, oil drums, two dumpsters and their sign */
+function penJunk(g){const k=penKit(),{MT,M}=k,{Cy,lab}=k.H(g);penTyreStack(g,-532.3,-755.3,3);penTyreStack(g,-530.9,-755.2,2);penTyreStack(g,-529.5,-754.7,4);
+ for(let i=0;i<4;i++){const x=-526+i*.75;Cy(.3,.3,.9,M([0x8a2a2a,0x2a4a8a,0x8a8a30,0x3a3a3a][i],{roughness:.6}),x,.45,-750,null,null,14);for(const y of[.25,.65])Cy(.31,.31,.03,MT.dark,x,y,-750,null,null,14)}
+ for(let i=0;i<2;i++){const d=penDumpster();d.position.set(-514+i*3.2,0,-748);g.add(d)}lab('DARK WASTE · RECYCLE YOUR SENTENCE',2.2,.36,'#1e3a1e','#e8f0d0',-514,1.0,-747.29,0);penNoSeam(g)}
+/* ---- dpPen's courtyard things ---- */
+/* the handball wall (x -400, z -822): concrete with a coping, a painted target and a line at 1 m, the court lines */
+function penHandballC(g){const k=penKit(),{MT,M}=k,{A,B,lab}=k.H(g),hx=-400,hz=-822;B(8,4.2,.6,MT.con2,hx,2.1,hz,null,2);B(8.08,.12,.68,MT.con2,hx,4.26,hz);
+ const t=k.can(256,128,(x,w,h)=>{x.clearRect(0,0,w,h);x.strokeStyle='#d03020';x.lineWidth=6;x.strokeRect(40,20,w-80,h-60);x.fillStyle='#d03020';x.fillRect(0,h-14,w,8)});const p=A(new THREE.PlaneGeometry(7.6,3.8),new THREE.MeshStandardMaterial({map:t,transparent:true,roughness:.8}),hx,1.95,hz+.31);
+ const c=k.can(256,192,(x,w,h)=>{x.clearRect(0,0,w,h);x.strokeStyle='#e8e0d0';x.lineWidth=4;x.strokeRect(2,2,w-4,h-4);x.beginPath();x.moveTo(0,h*.45);x.lineTo(w,h*.45);x.stroke()});const f=A(new THREE.PlaneGeometry(8,6),new THREE.MeshStandardMaterial({map:c,transparent:true,roughness:.9}),hx,.08,hz+3.3);f.rotation.x=-Math.PI/2;penNoSeam(g)}
+/* the covered shelter (x -388, z -815): four posts, a sloped roof, two benches on dpPen's bench obstacles */
+function penShelterC(g){const k=penKit(),{MT,M}=k,{B}=k.H(g),sx=-388,sz=-815;for(const[a,b]of[[-3,-2.5],[3,-2.5],[-3,2.5],[3,2.5]])B(.12,2.62+(b>0?.18:0),.12,MT.steel,sx+a,(2.62+(b>0?.18:0))/2,sz+b);
+ const r=B(7.2,.08,6.25,MT.galv,sx,2.71,sz);r.rotation.x=-.03;for(const z of[-1.2,1.2]){B(4,.06,.5,M(0x7a5a3a),sx,.48,sz+z);for(const e of[-1.8,1.8])B(.08,.45,.45,MT.steel,sx+e,.225,sz+z)}penNoSeam(g)}
+/* ping-pong (x -392, z -768): a concrete table with a steel net and two stools */
+function penPingPongC(g){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),px=-392,pz=-768;B(2.74,.08,1.52,M(0x2a5a3a),px,.76,pz);B(2.6,.6,.3,MT.con2,px,.36,pz);B(.04,.15,1.6,MT.steel,px,.875,pz);B(2.7,.002,.03,MT.white,px,.808,pz);
+ for(const[dx,dz]of[[-3.2,1.8],[3.2,-1.8]]){Cy(.2,.2,.06,MT.con2,px+dx,.45,pz+dz,null,null,12);Cy(.06,.08,.42,MT.con2,px+dx,.21,pz+dz,null,null,8)}penNoSeam(g)}
+/* the mural's frame on the east inner wall: move dpPen's mural plane to x -380.44, z -794 (between two buttresses) */
+function penMuralFrame(g){const k=penKit(),{M}=k,{B}=k.H(g);const GD=M(0xd4a850,{metalness:.4,roughness:.5});for(const s of[-1,1]){B(.03,.12,10.2,GD,-380.415,3.2+s*1.61,-794);B(.05,3.38,.12,GD,-380.42,3.2,-794+s*5.06)}penNoSeam(g)}
+/* the inmate phone bank, moved to x -467 (dpPen's sat in a buttress of the inner wall at x -458): three wall phones under
+   steel hoods with dividers, on the wall's inner face (z -829.6). The inmate on the phone and the prop move with it */
+function penPhoneBank(g){const k=penKit(),{MT,M}=k,{B,Cy}=k.H(g),bx=-467,bz=-829.6;for(let i=0;i<3;i++){const x=bx+i*1.4;B(.6,.9,.3,M(0x3a3a40,{metalness:.4}),x,1.5,bz+.15);B(.1,.3,.1,MT.dark,x+.2,1.5,bz+.35);B(.5,.14,.02,M(0x203040,{emissive:0x104030}),x,1.75,bz+.31);Cy(.012,.012,.5,MT.dark,x+.25,1.25,bz+.36,null,null,4)}
+ for(let i=0;i<4;i++)B(.04,1.0,.55,MT.steel,bx-.7+i*1.4,1.55,bz+.275);B(4.3,.04,.55,MT.steel,bx+1.4,2.07,bz+.275);B(4.2,.03,.25,MT.steel,bx+1.4,1.0,bz+.13);penNoSeam(g)}
+/* a horn speaker on a pole (dpPen's at x -478, z -826 and x -402, z -704) */
+function penSpeakerPole(g,x,z,ry){const k=penKit(),{MT,M}=k,{A,B,Cy}=k.H(g);Cy(.08,.1,6,MT.galv,x,3,z,null,null,10);Cy(.18,.2,.12,MT.con2,x,.06,z,null,null,10);const t=new THREE.Group();t.position.set(x,5.6,z);t.rotation.y=ry;g.add(t);
+ const q=k.H(t);q.B(.4,.08,.08,MT.steel,.2,0,0);const h=q.A(new THREE.CylinderGeometry(.06,.3,.6,12,1,true),M(0x8a8a90,{metalness:.5,side:THREE.DoubleSide}),.6,-.05,0);h.rotation.z=-Math.PI/2+.3;penNoSeam(g)}
+/* all of dpPen's things, remodelled. Returns the handles: {lap, genFan, incGlow, candles} */
+function penYardDp(g){const r={};r.lap=penTrack(g);penGateHut(g);{const w=penWaterTower();w.position.set(-358,0,-822);g.add(w)}r.genFan=penGenShed(g);penStoresYard(g);r.incGlow=penIncinerator(g);penGardenBeds(g);penHole(g);r.candles=penChapel(g);
+ penCompound(g);penStaffQuarters(g);penJunk(g);penHandballC(g);penShelterC(g);penPingPongC(g);penMuralFrame(g);penPhoneBank(g);penSpeakerPole(g,-478,-826,.8);penSpeakerPole(g,-402,-704,-2.3);return r}
+
 
 /* ======================= the game's builders, with the models in ======================= */
 function penBuild(q,g){/* clear any sand dunes off the site */try{for(const m of g.children){if(!m.isMesh||!m.geometry||m.geometry.type!='SphereGeometry'||m.scale.x<8)continue;const x=m.position.x,z=m.position.z;if(x+m.scale.x>PENA.x0-10&&x-m.scale.x<PENA.x1+10&&z+m.scale.z>PENA.z0&&z-m.scale.z<PENA.z1+10)m.visible=false}}catch(e){}const P0={fenceO:[],walls:[],doors:{},fence:[],lights:[],cams:[],guards:[],props:[],fans:[],baskets:[]};q.penW=P0;const M=(c,o)=>VMAT(c,o),A=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);PG_(g).add(o);return o},BX=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
@@ -927,7 +1067,7 @@ function penPolish2(q,g){const M=(c,o)=>VMAT(c,o),A=(geo,m,x,y,z)=>{const o=new 
  const dump=(x,z,along)=>{const w=along=='x'?2.4:1.4,d=along=='x'?1.4:2.4;{const dm=penDumpster(along);dm.position.set(x,0,z);if(along=='z')dm.rotation.y=Math.PI/2;g.add(dm)}ob(x-w/2,x+w/2,z-d/2,z+d/2)};
  hide('dumpster',-396,-722,-396,-723.6,()=>dump(-396,-722,'x'));hide('dumpster',-372,-800,-373.6,-800,()=>dump(-372,-800,'z'));
  const crates=(x,z)=>{{const cs=penCrateStack();cs.position.set(x,0,z);g.add(cs)}ob(x-1.2,x+1.3,z-.65,z+.7)};
- hide('stack of crates',-412,-840,-412,-838.6,()=>crates(-412,-840));hide('supply crates',-515,-770,-513.3,-770,()=>crates(-515,-770));
+ hide('stack of crates',-412,-840,-412,-838.6,()=>crates(-412,-840));hide('supply crates',-511.5,-768,-509.8,-768,()=>crates(-511.5,-768));
  W.hides=HB;
  /* ---- the outer perimeter: transport bus, staff car park, barriers, a flag, kennels, a water tower, a bunker, warning signs and lamps on the fence ---- */
  PENOFF=1;{const BUS=new THREE.Group();BUS.position.set(-472,0,-871);PG_(g).add(BUS);const a=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);BUS.add(o);return o};a(BX(11,2.6,2.6),M(0xe8e8e0),0,1.75,0);a(BX(11.02,.4,2.62),M(0xe86a20),0,1.2,0);a(BX(10.6,.7,2.64),M(0x1a2228),-.1,2.35,0);a(BX(.1,1.2,2.2),M(0x1a2228),5.51,2.1,0);for(const[x,z]of[[-3.6,1.3],[3.6,1.3],[-3.6,-1.3],[3.6,-1.3]]){const w=a(new THREE.CylinderGeometry(.5,.5,.3,14),M(0x1a1a1a),x,.5,z);w.rotation.x=Math.PI/2}

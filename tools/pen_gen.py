@@ -4,7 +4,12 @@ ROOT='/home/user/vibecodeddoors-slop-/'
 OUT=open(ROOT+'out/DOORS.html').read()
 def fn(name):
     # the function's own text: from its name to its matching closing brace (strings and comments skipped)
-    i=OUT.index('function '+name+'(');k=OUT.index('{',OUT.index(')',i));d=0;n=len(OUT);q=None
+    # the game's own copy: skip any copy this script made earlier (they mention PENOFF)
+    i=-1
+    while True:
+        i=OUT.index('function '+name+'(',i+1);e=OUT.find('\nfunction ',i+10);e=len(OUT) if e<0 else e
+        if 'PENOFF' not in OUT[i:e] and 'PG_(' not in OUT[i:e]:break
+    k=OUT.index('{',OUT.index(')',i));d=0;n=len(OUT);q=None
     while k<n:
         c=OUT[k]
         if q:
@@ -149,6 +154,7 @@ t=rep(t,"for(const[x,z,ry]of signs)dLabel(PG_(g),'⚡ DANGER\\nKEEP OUT',.9,.6,'
 t=rep(t,"for(let x=PENF.x0-4;x<=PENF.x1+4;x+=33)for(const z of[PENF.z0-5,PENF.z1+5]){if(Math.abs(x+440)<8&&z<PENF.z0)continue;A(new THREE.CylinderGeometry(.08,.1,5,6),M(0x6a6e74,{metalness:.5}),x,2.5,z);const l=glowSp(0xfff0c0,.7,1.6);l.position.set(x,5.1,z);PG_(g).add(l)}",
  "for(const p of(OUT&&OUT.lamps)||[]){const l=glowSp(0xfff0c0,.7,1.6);l.position.set(p[0],p[1],p[2]);g.add(l)}")
 t=rep(t,"p.position.set(-366.12,1.6,-762);","p.scale.set(.5,.625,1);p.position.set(-366.012,1.6,-764.25);")
+t=rep(t,"hide('supply crates',-515,-770,-513.3,-770,()=>crates(-515,-770));","hide('supply crates',-511.5,-768,-509.8,-768,()=>crates(-511.5,-768));")
 PARTS.append(t)
 
 # ======================= penPolish3: the meal hatch, corridor A, the hall =======================
@@ -226,6 +232,46 @@ t=tame(fn('penActBuild'))
 t=rep(t,"const top=new THREE.Mesh(new THREE.BoxGeometry(1.8,.06,.8),T);top.position.set(tx,.86,tz);PG_(g).add(top);for(const[a,b]of[[-.8,-.3],[.8,-.3],[-.8,.3],[.8,.3]]){const l=new THREE.Mesh(new THREE.BoxGeometry(.05,.84,.05),T);l.position.set(tx+a,.42,tz+b);PG_(g).add(l)}","")
 PARTS.append(t)
 
+# ======================= dpPen (batch 6): the game's yard extras remodelled in place, its four duplicates removed =======================
+t=tame(fn('dpPen'))
+t=rep(t,"const K=kit(q,g),","const K=kit(q,{add:(...a)=>PG_(g).add(...a)}),")
+t=rep(t,"const rnd=mul32(1301);","const rnd=mul32(1301);let YD={};try{YD=penYardDp(g)||{}}catch(e){conLog('error','pen yard dp: '+e.message)}PENOFF=1;")
+t=rep(t,"const lap=[[x0+w/2,z0+w/2+2],[x1-w/2,z0+w/2+2],[x1-w/2,z1-w/2-2],[x0+w/2,z1-w/2-2]];","const lap=YD.lap||[[x0+w/2,z0+w/2+2],[x1-w/2,z0+w/2+2],[x1-w/2,z1-w/2-2],[x0+w/2,z1-w/2-2]];")
+t=rep(t,"for(const[x,z,ry]of[[x0-2.5,z0+w+14,Math.PI/2],[x1+2.5,z1-w-14,-Math.PI/2]]){","for(const[x,z,ry]of[[-502.2,-820,Math.PI/2],[-377.8,-710,-Math.PI/2]]){")
+# the duplicates: no obstacles; their props move to batch 1's bus and kennels; the visitor parking sign goes on batch 1's car park
+t=rep(t,"ob(-500.6+i*3.2,-498.2+i*3.2,-874.5,-869.5,{pen:1,kd:'car'})","")
+t=rep(t,"ob(-425.4,-422.6,-877.2,-866.8,{pen:1});","")
+t=rep(t,"PR(-422,-866,2,","PR(-472,-868.3,2,")
+t=rep(t,"sign('VISITOR PARKING · 2 HOURS MAX\\nWE ARE WATCHING · WE ARE ALWAYS WATCHING','#1a2a6a',-504,-864,.4,'#ffffff');","PENOFF=0;sign('VISITOR PARKING · 2 HOURS MAX\\nWE ARE WATCHING · WE ARE ALWAYS WATCHING','#1a2a6a',-384,-864.5,.4,'#ffffff');PENOFF=1;")
+t=rep(t,"ob(-456.3,-455.7,-856.3,-855.7,{pen:1});","")
+t=rep(t,"sign('VISITORS: NONE · DELIVERIES: REAR","PENOFF=0;sign('VISITORS: NONE · DELIVERIES: REAR")
+t=rep(t,"-432,-856,-.3,'#ffd040');","-432,-856,-.3,'#ffd040');PENOFF=1;")
+t=rep(t,"ob(kx0-.1,kx1+.1,kz0-.1,kz0+.1,{pen:1});ob(kx0-.1,kx1+.1,kz1-.1,kz1+.1,{pen:1});ob(kx0-.1,kx0+.1,kz0,kz1,{pen:1});ob(kx1-.1,kx1+.1,kz0,kz1,{pen:1});","")
+t=rep(t,"ob(x-.8,x+.8,z-.65,z+.65,{pen:1});lab('K-9 '+(i+1)","lab('K-9 '+(i+1)")
+t=rep(t,"anim((kx0+kx1)/2,(kz0+kz1)/2,110,dt=>{","anim(1e6,1e6,1,dt=>{")
+t=rep(t,"PR((kx0+kx1)/2,kz1+1.5,5,","PR(-550.5,-760,3,")
+# kept things that must stay visible
+t=rep(t,"gs.rotation.y=Math.PI;PG_(g).add(gs);","gs.rotation.y=Math.PI;g.add(gs);")
+t=rep(t,"s.userData.ph=i*1.5;PG_(g).add(s);","s.userData.ph=i*1.5;g.add(s);")
+t=rep(t,"light(0xffb060,1.1,9,","PENOFF=0;light(0xffb060,1.1,9,")
+t=rep(t,"const win=A(BX(3,2,.06)","PENOFF=1;const win=A(BX(3,2,.06)")
+t=rep(t,"ch.position.set((x0+x1)/2,.75,z0+2.8);PG_(g).add(ch);","ch.position.set((x0+x1)/2,.75,z0+2.8);g.add(ch);")
+t=rep(t,"c.position.set(cx0+20,0,cz0+6);c.rotation.y=Math.PI/2;PG_(g).add(c);","c.position.set(cx0+20,0,cz0+6);c.rotation.y=Math.PI/2;g.add(c);")
+t=rep(t,"light(0xffc080,.9,7,","PENOFF=0;light(0xffc080,.9,7,")
+t=rep(t,"for(const[dx,dz]of[[2.2,-3.2],[3.6,-2.6]]){","PENOFF=1;for(const[dx,dz]of[[2.2,-3.2],[3.6,-2.6]]){")
+t=rep(t,"off.rotation.y=-Math.PI/4;PG_(g).add(off);","off.rotation.y=-Math.PI/4;g.add(off);")
+t=rep(t,"const ball=A(new THREE.SphereGeometry(.09,8,6),M(0x2060e0),hx,1.2,hz+2);","PENOFF=0;const ball=A(new THREE.SphereGeometry(.09,8,6),M(0x2060e0),hx,1.2,hz+2);PENOFF=1;")
+t=rep(t,"const pb=A(new THREE.SphereGeometry(.03,6,5),M(0xffffff),px,1,pz);","PENOFF=0;const pb=A(new THREE.SphereGeometry(.03,6,5),M(0xffffff),px,1,pz);PENOFF=1;")
+# moves: the generator shed, the garden, the mural, the phone bank
+t=rep(t,"const x0=-372.5,x1=-364,z0=-804,z1=-797;const w=bld(x0,x1,z0,z1,2.8,'s',-369.3,-367.3,","const x0=-369,x1=-360.5,z0=-804,z1=-797;const w=bld(x0,x1,z0,z1,2.8,'s',-365.8,-363.8,")
+t=rep(t,"anim(x1,z0+3.5,70,dt=>{bl.rotation.x+=dt*9});","anim(x1,z0+3.5,70,dt=>{(YD.genFan||bl).rotation.x+=dt*9});")
+t=rep(t,"const gx=-520,gz=-696;","const gx=-533,gz=-696;")
+t=rep(t,"const m=A(new THREE.PlaneGeometry(10,3.1),new THREE.MeshBasicMaterial({map:t}),PENI.x1-.42,3.2,-790);","PENOFF=0;const m=A(new THREE.PlaneGeometry(10,3.1),new THREE.MeshBasicMaterial({map:t}),-380.44,3.2,-794);PENOFF=1;")
+t=rep(t,"const bx=-460,bz=PENI.z0+.5;","const bx=-467,bz=PENI.z0+.5;")
+t=rep(t,"q.locs.push({nm:'Prison Chapel'","PENOFF=0;q.locs.push({nm:'Prison Chapel'")
+# dpPen is a local function inside the r500 block, so it can't be replaced from outside: build.py swaps this text in for it
+open(ROOT+'src/dx620dp.js','w').write('/* r628: the game\'s dpPen with the batch 6 models (generated by tools/pen_gen.py; build.py puts it in place of the base dpPen) */\n'+t+'\n')
+
 # ======================= penAnim: the towers' searchlights follow the nearest outer light circle =======================
 t=fn('penAnim')
 t=rep(t,"for(const C of W.cams){","for(const T of W.towers||[]){let best=null,bd=1e9;for(const L of W.lights){if(L.inner)continue;const d=Math.hypot(L.x-T.x,L.z-T.z);if(d<bd){bd=d;best=L}}if(best)try{T.aim(best.x,0,best.z)}catch(e){}}\n for(const C of W.cams){")
@@ -243,11 +289,12 @@ HEAD='''/* =====================================================================
 let PENOFF=0;const PENNULL=new THREE.Group();const PG_=g=>PENOFF?PENNULL:g;
 /* a sliding steel door from the model in place of the game's slab (same middle, slides the same way) */
 function penDoorSwap(g,D,turn){try{const m=penSteelDoor();m.position.copy(D.m.position);if(turn)m.rotation.y=Math.PI/2;m.userData.dpKeep=1;if(D.m.parent)D.m.parent.remove(D.m);g.add(m);D.m=m;D.x0=m.position.x;D.z0=m.position.z}catch(e){conLog('error','pen door: '+e.message)}}
-/* the block's outside skin and its inside paint, and two obstacles the models need. (The spec's new yard and courtyard
-   things, penRecreation/penGardens/penServices/penDeliveries/penCourtyard, are held back: the game's dpPen already has a
-   running track, a chapel, the hole, staff quarters, a garden and more where they would go. See docs/design/NOTES.md.) */
+/* the block's outside skin and its inside paint, and two obstacles the models need. (Batch 6: the re-planned new things, penRecreation dropped; the game's dpPen is remodelled in place in its own redefinition.) */
 function penNewYard(q,g){const T=(n,f)=>{try{f()}catch(e){conLog('error','pen '+n+': '+e.message)}},ob=(x0,x1,z0,z1)=>q.obs.push({x0,x1,z0,z1,pen:1});
  T('block outside',()=>penBlockOutside(g));T('block skins',()=>penBlockSkins(g));
+ /* batch 6: the re-planned yard (penRecreation is dropped) */T('gardens',()=>penGardens(g));T('services',()=>penServices(g));T('deliveries',()=>penDeliveries(g));T('courtyard',()=>penCourtyard(g));
+ for(const b of[[-481,-471,-694,-686],[-368,-356,-732,-722],[-368,-356,-788,-782],[-368,-356,-779,-771],[-526,-514,-844,-838],[-460,-452,-844,-838],[-400,-388,-844,-838],
+  [-429,-419,-822,-816],[-417,-410.3,-821,-817],[-409,-405,-821,-817],[-400,-388,-790,-772],[-390.3,-387.7,-719.3,-716.7],[-435,-409,-713.5,-711.5],[-484,-468,-815.3,-810.7]])ob(...b);
  for(const b of[/* the corridor's west nook is closed off from the vent space */[-470,-468,-787.15,-786.85],
   /* the control room: filing cabinets, server racks, the water cooler */[-432.25,-430.65,-750.77,-750.15],[-444.35,-442.25,-771.85,-770.83],[-427.2,-426.8,-771.1,-770.7]])ob(...b);
  q.obsDirty=1}
