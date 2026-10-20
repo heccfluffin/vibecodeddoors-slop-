@@ -83,7 +83,7 @@ globals start with `rt`.
 
 ## Part 2: models (`models/route13.js`, needs `fort-kit.js`)
 
-### Batch 1: main street and bus stop, for review · `rtMain(g)` → `{obs, lights, lamps}`, `rtBusStop(g)` → `{obs}`
+### Batch 1: main street and bus stop, approved 2026-10-20 · `rtMain(g)` → `{obs, lights, lamps}`, `rtBusStop(g)` → `{obs}`
 Call both from the town's builder (the desert load step that builds the bus stop), push `obs` to `q.obs`, and put the
 game's `light(...)` at each of `lights` (every other lamp). The places the street things must avoid are in `RT`
 (`gapE`/`gapW`: where roads and the gas forecourt join each side; `keep`: spots beside the road).
@@ -109,6 +109,48 @@ game's `light(...)` at each of `lights` (every other lamp). The places the stree
   drivers heading north.
 - Checked: z-fight and floating checker clean (the only hits are the curved wires against themselves and the glass
   frames' bottom rails, which hang between posts).
+
+### Batch 2: El Goblino Gas and the car wash, for review · `rtGas(g)` → `{obs, lights, pumps}`, `rtShopFront(g)` → `{obs}`, `rtCarWash(g)` → `{obs, lights, bay, parts}`
+Call all three where the base builds El Goblino Gas (`busRoamBuild`). The shop's inside, El Goblino, the counter,
+shelves, fridges, till, the sliding doors, the OPEN 24/7 (ish) sign, the ICE chest, the explosive barrels, the taxi
+stand and every prop stay as they are.
+- **Remove from the base:** the canopy slab, its four posts (keep their obstacles: the new columns stand on the same
+  spots), the cream fascia and its EL GOBLINO GAS text, the two pumps and their islands (the new `pumps` replace them:
+  keep the two "Fill up" props and give each pump obstacle `kd:'pump'`, with `m` = the new pump group, so it still
+  gets knocked over; the obstacle is now x 26.8…29.2 by 1.2 m), the old pole sign `dsSign('EL GOBLINO GAS…')` at
+  (22, -996), and **the shop's west wall pieces** (the two side pieces and the header over the door; keep their
+  obstacles), because `rtShopFront` is the new west wall.
+- **Forecourt:** concrete slabs (4 m joints, oil stains) x 3.5…72, z -1013…-993.5 at y .025, joining Route 13 and the
+  PD road; a low kerb along the south edge; painted arrows in from Route 13, on to the car wash, and out north to the
+  PD road. Add its `q.mapR` shape in a concrete colour (and make sure the route grid lets cars drive on it).
+- **Canopy:** x 20.6…35.4, z -1010.6…-999.4, underside at 5 m, 0.9 m deep, green with a white stripe, EL GOBLINO GAS
+  and El Goblino's logo (his red head, ears, yellow eyes and top hat on a green disc) on the north, south and west
+  faces, a white underside with six glowing panels (`lights`: three points for the game's lights), four square
+  white columns with a green foot and a lit band.
+- **Pumps** (one group each, at (28, -1007.2) and (28, -1002.8)): an island 2.4 × 1.2 m with yellow noses and
+  bollards, a white dispenser with a green top and foot, the logo, a price window "7.13 🪙 GWEEN UNLEADED" and a hose
+  and nozzle on both long sides (cars pull up along x either side).
+- **Price sign** by Route 13 at (12, -996.2): two steel posts, the logo on top, EL GOBLINO GAS, and a price board
+  BREAD ··· 12 · CHEESE ··· 15 · GWEEN SODA ··· 20 on both faces. Obstacle x 10.1…13.9.
+- **Air and water post** at (34.6, -1012.4).
+- **Shop front** (`rtShopFront`, the new west wall, x 35.85…36.15, z -1011.16…-998.84, 4.2 high): stucco piers, two
+  shop windows you can see into (z -1010.2…-1007.4 and -1002.6…-999.8, sill 0.9, head 2.5) in aluminium frames, a
+  green tiled base, the doorway exactly where it was (z -1006.3…-1003.7, 2.6 high) for the sliding doors, and a
+  parapet above the roof with EL GOBLINO GAS · SHOP and the logo.
+- **Car wash** (`rtCarWash`, x 54…68, z -1009…-1001, 4.4 high, open at both ends): white walls with a bubble mural and
+  a green foot, a green fascia, a blue WASH sign on the roof, ENTER · 5 🪙 · STAY IN YOUR CAR over the entrance, a
+  price board at the entry (WASH · 5 🪙, WAX · FREE, GOBLIN NOT RESPONSIBLE FOR GOBLINS), a wet dark floor with tyre
+  guide rails and a drain, three ceiling lights (`lights`), a blue spray arch with nozzles (`parts.jets`: soft white
+  spray cones, hidden until washing), two tall side brushes and an overhead brush (`parts.brushL/R/Top`: groups of
+  foam strips round a core), a dryer hood, and a PULL FORWARD / STOP / GO sign at the exit (`parts.sign`).
+  **How it plays:** drive into the bay (`bay`), "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car
+  is pulled slowly from the arch to the exit (about 8 s; your controls are off), the jets show, the brushes spin
+  (side brushes about y, the top one about its axis) and close in on the car, the top brush follows the roof, then
+  the dryer roars and GO lights up; it removes scorch and smoke on the car and gives back 10% of its health. The
+  walls are obstacles; the brushes and jets are not. In co-op the washing car's owner runs it and sends start and
+  progress.
+- Checked: z-fight and floating checker clean except for faces hidden under the shop's roof and the brushes, which
+  hang from their gantries.
 
 ## Things Claude Code has to keep in mind
 - **Seeded random:** everything here is built inside the seeded desert load steps; add or remove `Math.random()`
