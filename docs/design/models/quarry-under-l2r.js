@@ -156,8 +156,7 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
   if(v==1){/* the underground lake: deep; a rope across it and a raft that runs along the rope */
    ugPool(L,wf,{bowl:1,surf:-.25,dep:3,key:'poolB',rock:'wet2',prof:[[1,0],[.95,-.3],[.85,-.9],[.6,-2],[.3,-2.8],[0,-3]]});
    const rp=f1('rope').pts,rf=f1('raft'),A=[rp[0][0],1.2,rp[0][1]],C=[rp[1][0],1.2,rp[1][1]];for(const q of[A,C])L.cyl('woodD',.1,.12,1.5,q[0],.7,q[2],8);ugSag(L,'rope',A,C,.45,.025,30);
-   for(let i=0;i<8;i++)L.box('wood',2.2,.07,.24,rf.x,.05,rf.z-.95+i*.27,0);for(const sd of[-.75,.75])L.box('woodD',.12,.12,2.2,rf.x+sd,-.03,rf.z,0);
-   for(const [sx,sz] of[[-.6,-.6],[.6,-.6],[-.6,.6],[.6,.6]])L.cyl('dark',.26,.26,.9,rf.x+sx,-.25,rf.z+sz,12,0,Math.PI/2,0);L.cyl('woodD',.05,.05,1.3,rf.x+.9,.7,rf.z,6);L.geo('steel',new THREE.TorusGeometry(.08,.02,6,12),rf.x+.9,1.2,rf.z,0,0,Math.PI/2)}
+   /* the raft is a moving part: it runs along the rope (userData.raft: the rope's ends, mine coords) */const rg=ugPut(L,ugRaft(),rf.x,0,rf.z,0),wa=L.pt(A[0],A[1],A[2]),wc=L.pt(C[0],C[1],C[2]);rg.userData.raft={a:[wa.x,wa.y,wa.z],c:[wc.x,wc.y,wc.z]};ctx.moving.push(rg)}
   if(v==2){/* the drowned drift: timber sets standing in the water, rails along the bottom, a sunken cart */
    ugPool(L,wf,{prof:pf,surf:-.04,dep:.9,key:'pool',rock:'wet2'});const dd=(x,z)=>ugProfY(pf,Math.hypot((x-wf.cx)/wf.rx,(z-wf.cz)/wf.rz));
    const sp=f1('sets').pts;for(let z=sp[0][1]-1.5;z>sp[1][1]+1;z-=3){const b0=Math.min(dd(-2.1,z),dd(2.1,z))-.1;for(const sd of[-2.1,2.1]){const bt=dd(sd,z)-.08;L.box('wood',.22,2.7-bt,.22,sd,(2.7+bt)/2,z,0)}L.box('wood',4.5,.24,.24,0,2.8,z,0)}
@@ -203,7 +202,7 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
    const zp=f1('zip').pts,A=zp[0],C=zp[1],dx=C[0]-A[0],dz=C[1]-A[1],l=Math.hypot(dx,dz),ux=dx/l,uz=dz/l,rx2=uz,rz2=-ux;
    const frame=(q,h)=>{for(const sd of[-.7,.7])ugBeam(L,'wood',[q[0]+rx2*sd,-.05,q[1]+rz2*sd],[q[0]+rx2*sd*.15,h,q[1]+rz2*sd*.15],.16,.16);L.box('wood',.5,.2,.3,q[0],h,q[1],Math.atan2(dx,dz));ugBeam(L,'wire',[q[0]-ux*.1,h,q[1]-uz*.1],[q[0]-ux*1.6,-.02,q[1]-uz*1.6],.03,.03);L.cyl('steel',.08,.08,.3,q[0]-ux*1.6,.1,q[1]-uz*1.6,8)};
    frame(A,3.2);frame(C,2.3);const cab=ugSag(L,'steel',[A[0],3.25,A[1]],[C[0],2.35,C[1]],.25,.018,20);const hp=cab[2];
-   L.cyl('dark',.09,.09,.06,hp.x,hp.y-.02,hp.z,12,Math.atan2(dx,dz),0,Math.PI/2);L.cyl('steel',.015,.015,1.1,hp.x,hp.y-.6,hp.z,6);L.cyl('woodD',.04,.04,.7,hp.x,hp.y-1.15,hp.z,8,Math.atan2(dx,dz)+Math.PI/2,0,Math.PI/2)}
+   /* the handle is a moving part: it runs down the cable (userData.zip: the cable's points, mine coords) */const zh=ugPut(L,ugZipHandle(),hp.x,hp.y,hp.z,Math.atan2(dx,dz));zh.userData.zip=cab.map(q=>{const w=L.pt(q.x,q.y,q.z);return[w.x,w.y,w.z]});ctx.moving.push(zh)}
   return true}
 
  /* ====== STALACTITE HALL ====== */
@@ -235,7 +234,7 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
     L.geo('bone',new THREE.BoxGeometry(.16,.1,.85),hx+dx/l*.12-w.nx*.12,w.y-.26,hz+dz/l*.12-w.nz*.12,yw,.25);for(let k=0;k<5;k++)L.geo('bone',new THREE.ConeGeometry(.025,.1,5).rotateX(Math.PI),hx+dx/l*(.3-k*.12)-w.nx*.2,w.y-.2,hz+dz/l*(.3-k*.12)-w.nz*.2)}
    const tp=fx('blk').find(f=>f.n=='tool pile').pts[0];L.box('wood',.7,.5,.5,tp[0],.25,tp[1],.3);L.cyl('steel',.2,.17,.4,tp[0]+.6,.2,tp[1]-.3,12);ugBeam(L,'woodD',[tp[0]-.5,0,tp[1]+.6],[tp[0]-.3,1.1,tp[1]+.2],.05,.05);L.box('steel',.06,.4,.08,tp[0]-.3,1.12,tp[1]+.2,.3);
    L.cyl('steel',.03,.03,1.6,tp[0]+.2,.8,tp[1]+.9,6);for(const a of[0,2.1,4.2])ugBeam(L,'steel',[tp[0]+.2+Math.cos(a)*.4,0,tp[1]+.9+Math.sin(a)*.4],[tp[0]+.2,.9,tp[1]+.9],.03,.03);L.geo('glass',new THREE.SphereGeometry(.12,10,8),tp[0]+.2,1.65,tp[1]+.9);lamp(tp[0]+.2,1.6,tp[1]+.9,1.2);
-   for(let i=0;i<5;i++){const a=ang[0]+(ang[3]-ang[0])*(i+.5)/5,w=ch.wallPt(a,.3);L.cyl('ammo',.14+R()*.08,.14+R()*.08,.07,w.x-w.nx*(.5+R()*.4),.035,w.z-w.nz*(.5+R()*.4),18,R()*6)}
+   /* loose fossils at the foot of the wall, split face up: you can pick them up */for(let i=0;i<5;i++){const a=ang[0]+(ang[3]-ang[0])*(i+.5)/5,w=ch.wallPt(a,.3),d=.5+R()*.4;ctx.pickups.push(ugPut(L,ugFossil(i%3==1?'trilobite':'ammonite'),w.x-w.nx*d,.035,w.z-w.nz*d,R()*6,Math.PI/2))}
    drips(ch,25,'flow',.1)}
   if(v==4){/* the echo chamber: tall, round and empty but for a bell on a post */
    const q=fx('blk').find(f=>f.n=='bell post').pts[0];L.box('woodD',.2,2.6,.2,q[0],1.3,q[1],0);L.box('woodD',.9,.14,.14,q[0]+.35,2.55,q[1],0);

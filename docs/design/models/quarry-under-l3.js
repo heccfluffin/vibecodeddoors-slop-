@@ -138,7 +138,12 @@ function ugPieceL3(b,p,Lv,ctx){const t=p.type;if(!['basalt','magma','dark','geod
    {const c=io(wc,-.22);L.box('black',2,.3,.6,c[0],top+.42,c[1],yaw)}{const c=io(w,.1);L.geo(rk,new THREE.IcosahedronGeometry(1,1),c[0],top,c[1],yaw,0,0,1.4,.3,.55)}
    const sheet=(o0,o1,w0,w1)=>{const g=new THREE.PlaneGeometry(1,1,6,14),pa=g.attributes.position;for(let i=0;i<pa.count;i++){const f=.5-pa.getY(i),wd=w0+(w1-w0)*f;pa.setXYZ(i,pa.getX(i)*wd,top+.24-(top+.5)*f,o0+(o1-o0)*Math.sqrt(f))}g.computeVertexNormals();L.geo('lavaFall',g,w.x,0,w.z,yaw)};
    sheet(.55,2.5,1.4,2.6);lamp(io(w,1.5)[0],2,io(w,1.5)[1],1.8);
-   const wk=f1('walk').pts;for(let i=1;i<wk.length;i++){const a=wk[i-1],c=wk[i],n=Math.ceil(Math.hypot(c[0]-a[0],c[1]-a[1])/.9);for(let k=0;k<=n;k++){const x=a[0]+(c[0]-a[0])*k/n,z=a[1]+(c[1]-a[1])*k/n;L.geo('basalt',new THREE.CylinderGeometry(.62,.62,.14,6),x,.05,z,R())}}
+   /* the shelf: the tops of basalt columns packed in a honeycomb along the walk, each its own height, thin dark cracks
+      between them; none overhang the pool */
+   {const wk=f1('walk').pts,hr=.46,dx=Math.sqrt(3)*hr,dz=1.5*hr,lk=f1('lake'),near=(x,z)=>{let d=1e9;for(let i=1;i<wk.length;i++)d=Math.min(d,ugSegD(x,z,wk[i-1],wk[i]));return d};
+    let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;for(const q of wk){x0=Math.min(x0,q[0]-1);x1=Math.max(x1,q[0]+1);z0=Math.min(z0,q[1]-1);z1=Math.max(z1,q[1]+1)}
+    for(let j=Math.floor(z0/dz);j*dz<=z1;j++)for(let i=Math.floor(x0/dx)-1;i*dx<=x1;i++){const x=i*dx+(j&1?dx/2:0),z=j*dz;if(near(x,z)>.95)continue;
+     if(lk&&((x-lk.cx)/(lk.rx+.5))**2+((z-lk.cz)/(lk.rz+.5))**2<1)continue;const top=.06+R()*.2;L.geo('basalt',new THREE.CylinderGeometry(hr-.03,hr-.03,top+.3,6),x,(top-.3)/2,z,0)}}
    const gl=f1('goal');for(let k=0;k<3;k++){const w2=ch.wallPt(Math.atan2(gl.z-bl.cz,gl.x-bl.cx)+(k-1)*.07,[1.2,1.9,2.6][k]);const W2=L0.pt(w2.x+w2.nx*.06,w2.y,w2.z+w2.nz*.06),d=L0.dir(-w2.nx,-w2.nz);ctx.veins.push({x:W2.x,y:W2.y,z:W2.z,dx:d[0],dz:d[1],t:'au'})}}
   if(v==2){/* the crust field: the floor is cooled crust; glowing patches burn (listed in ctx.hot for the game) */
    const cf=f1('crust');for(const q of scatter(8,cf.cx,cf.cz,cf.rx*.85,cf.rz*.85,2.4,true)){const r=.7+R()*.6,g=new THREE.CircleGeometry(1,12),pa=g.attributes.position;for(let i=1;i<pa.count;i++){const k=.75+R()*.4;pa.setXY(i,pa.getX(i)*k,pa.getY(i)*k)}g.rotateX(-Math.PI/2);
@@ -209,7 +214,7 @@ function ugPieceL3(b,p,Lv,ctx){const t=p.type;if(!['basalt','magma','dark','geod
  return p0.apply(this,arguments)}}
 {const s0=ugStationBuild;ugStationBuild=function(b,p,L,ctx){s0(b,p,L,ctx);if(L!=2)return;const y=UGLY(L),T=ugT(p),v=p.d.v||0,hs=6;
  /* a warning board on the wall beside the gate side */
- const sign=(lx,lz,ix,iz,txt,w)=>{const q=T(lx,lz),n=ugRot(ix,iz,p.r),yaw=Math.atan2(n[0],n[1]);b.box('board',w+.1,.44,.3,q[0]-n[0]*.13,y+2.1,q[1]-n[1]*.13,yaw);ctx.signs.push({x:q[0]+n[0]*.025,y:y+2.1,z:q[1]+n[1]*.025,yaw,txt,w})};
+ const sign=(lx,lz,ix,iz,txt,w)=>{const q=T(lx,lz),n=ugRot(ix,iz,p.r),yaw=Math.atan2(n[0],n[1]),map=/ MAP$/.test(txt),h=map?1.1:.34,yy=y+(map?1.7:2.1);b.box('board',w+.1,h+.1,.3,q[0]-n[0]*.13,yy,q[1]-n[1]*.13,yaw);ctx.signs.push({x:q[0]+n[0]*.025,y:yy,z:q[1]+n[1]*.025,yaw,txt,w,h,map})};
  if(v==0){sign(-hs+.02,-3.8,1,0,'HOT GROUND',1.6);sign(-hs+.02,3.8,1,0,'LEVEL 3 MAP',1.6)}
  if(v==1){const q=T(-4.6,4.6);ugProp(b,'barrel',q[0],y,q[1],0,.4,ctx);b.cyl('frost',.28,.28,.02,q[0],y+.975,q[1],14);sign(-hs+.02,-3.8,1,0,'TEMP 52 °C',1.4);sign(-hs+.02,3.8,1,0,'LEVEL 3 MAP',1.6)}
  if(v==2){/* steel bulkheads in every doorway: a steel wall in the arch with a door that swings on its hinge (a moving part) */

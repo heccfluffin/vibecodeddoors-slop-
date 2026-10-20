@@ -1,7 +1,7 @@
 /* =====================================================================================================
    The Old Quarry underground: THE KIT and batch 1 (docs/design/quarry-underground.md, part 2).
    Needs quarry-under.js (the plan). Builds a level of the mine from ugGen's plan:
-     ugBuildLevel(plan, L) -> {g, lamps, veins, decl, solids, moving, hot, portal}   (L = 0, 1, 2; one THREE.Group in mine coordinates)
+     ugBuildLevel(plan, L) -> {g, lamps, veins, decl, solids, moving, pickups, hot, portal}   (L = 0, 1, 2; one THREE.Group in mine coordinates)
    Mine coordinates: x, z from the shaft (desert-local x = MN.ox + x, z = MN.oz + z), y from level 1's floor
    (desert y = MN.Y + y). Level floors are at y 0, -12, -24 (UGL[i].y - UGL[0].y).
    Everything static in a piece is merged into one mesh per material (ugBatch); veins, lamps' lights and signs stay
@@ -323,7 +323,7 @@ function ugStationBuild(b,p,L,ctx){const y=UGLY(L),h=L==0?4.6:4.2,hs=L==0?8:6,r=
  b.box('paintY',.06,.32,1.6,gx-.02,y+2.62,0,0);
  /* the other three sides of the shaft are fenced with steel mesh at the landing */
  for(const [ax,az,yaw] of[[0,-sh-.02,0],[sh+.02,0,Math.PI/2],[0,sh+.02,0]]){b.box('steel',2.9,.06,.05,ax,y+2.2,az,yaw);b.box('steel',2.9,.06,.05,ax,y+.25,az,yaw);for(let k=-6;k<=6;k++){const o=k*.22;b.box('steel',.025,1.95,.025,ax+(yaw?0:o),y+1.22,az+(yaw?o:0),0)}}
- b.box('steel',.12,.36,.26,gx-.1,y+1.35,1.75,0);
+ /* the call box stands on its own post beside the gate (it used to hang in the air) */b.box('steel',.12,.36,.26,gx-.1,y+1.35,1.75,0);b.box('steel',.06,1.17,.06,gx-.1,y+.585,1.75,0);b.box('steel',.2,.03,.2,gx-.1,y+.015,1.75,0);
  ctx.signs.push({x:gx-.06,y:y+2.62,z:0,yaw:-Math.PI/2,txt:'LEVEL '+(L+1),w:1.5});
  /* rails from each doorway towards the shaft, stopping at a buffer 2.4 m short */
  if(L==0)for(const d of ugDoorsFor(p,r)){const vx=-d.x,vz=-d.z,l=Math.hypot(vx,vz),ex=d.x+vx/l*(l-2.6),ez=d.z+vz/l*(l-2.6);
@@ -335,8 +335,8 @@ function ugStationBuild(b,p,L,ctx){const y=UGLY(L),h=L==0?4.6:4.2,hs=L==0?8:6,r=
  /* every station: a bench, the shift clock and the level map board on the walls beside the gate side */
  /* on the -x wall, facing into the room (+x), each on a thick backing board that reaches into the rock */
  if(L==0){const w=T(-hs+.06,-4.6),w2=T(-hs+.06,4.6),yaw=ugYaw(p,Math.PI/2),n=ugRot(-1,0,p.r);
-  for(const [q,yy,wd,ht] of[[w,y+2.2,1.3,.44],[w2,y+1.8,1.7,.44]])b.box('board',wd,ht,.36,q[0]+n[0]*.17,yy,q[1]+n[1]*.17,yaw);
-  ctx.signs.push({x:w[0]-n[0]*.02,y:y+2.2,z:w[1]-n[1]*.02,yaw,txt:'SHIFT 6:00',w:1.2,clock:1});ctx.signs.push({x:w2[0]-n[0]*.02,y:y+1.8,z:w2[1]-n[1]*.02,yaw,txt:'LEVEL 1 MAP',w:1.6,map:1})}
+  for(const [q,yy,wd,ht] of[[w,y+2.2,1.3,.44],[w2,y+1.7,1.75,1.2]])b.box('board',wd,ht,.36,q[0]+n[0]*.17,yy,q[1]+n[1]*.17,yaw);
+  ctx.signs.push({x:w[0]-n[0]*.02,y:y+2.2,z:w[1]-n[1]*.02,yaw,txt:'SHIFT 6:00',w:1.2,clock:1});ctx.signs.push({x:w2[0]-n[0]*.02,y:y+1.7,z:w2[1]-n[1]*.02,yaw,txt:'LEVEL 1 MAP',w:1.6,h:1.1,map:1})}
  /* big lamps on the roof */
  for(const q of[[-hs/2,-hs/2],[hs/2,hs/2],[hs/2,-hs/2],[-hs/2,hs/2]]){const w=T(q[0],q[1]);b.cyl('wire',.01,.01,.6,w[0],y+h-.3,w[1],4);b.cyl('steel',.16,.22,.12,w[0],y+h-.62,w[1],12);b.add('glass',new THREE.SphereGeometry(.1,10,8),new THREE.Matrix4().makeTranslation(w[0],y+h-.72,w[1]));ctx.lamps.push([w[0],y+h-.8,w[1],1.4])}
 }
@@ -431,7 +431,7 @@ function ugDecline(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),drop=UGLY(p.L)-UGLY(p.L+
    BUILD A LEVEL from the plan
    ===================================================================================================== */
 function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(),b=ugBatch();
- const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],ends:[],plates:[],solids:[],moving:[],hot:[],dist:null};
+ const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],ends:[],plates:[],solids:[],moving:[],pickups:[],hot:[],dist:null};
  /* distance to the cage along the parent chain (for signposts) */
  const len=p=>{let s=0;for(const sh of p.d.shp)if(sh.k=='path')for(let i=1;i<sh.pts.length;i++)s+=Math.hypot(sh.pts[i][0]-sh.pts[i-1][0],sh.pts[i][1]-sh.pts[i-1][1]);return s||8};
  const memo={};ctx.dist=p=>{if(p.st)return 0;if(memo[p.id]!=null)return memo[p.id];const par=plan.P[p.par];memo[p.id]=par?ctx.dist(par)+len(par):0;return memo[p.id]};
@@ -465,6 +465,8 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
  b.build(g,K.mat);
  /* moving parts (doors) are their own groups, pivoting where they hinge */
  for(const m of ctx.moving)g.add(m);
+ /* things you can pick up (batch 5: lunchbox, tags, fossils, dynamite) are their own groups too */
+ for(const m of ctx.pickups)g.add(m);
  /* veins */
  const R=ugRng(4242+L);for(const v of ctx.veins){const m=ugVein(v.t,R);m.position.set(v.x,v.y,v.z);
   m.rotation.y=Math.atan2(-v.dx,-v.dz);   /* the nuggets (local -z) face along (dx,dz), out of the rock */
@@ -472,5 +474,5 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
  /* signposts and wall signs */
  /* a signpost's board faces both side arms; the arrow points back towards the entry, the way to the cage */
  for(const s of ctx.posts){const d=Math.max(5,Math.round(s.dist/5)*5);const sg=ugSign(s.x,s.y,s.z,s.yaw,'⬅ CAGE '+d+' m','CAGE '+d+' m ➡');g.add(sg)}
- for(const s of ctx.signs){const t=ugSignTex(s.txt,(s.w||1.2)/.34);const m=new THREE.Mesh(new THREE.PlaneGeometry(s.w||1.2,.34),new THREE.MeshStandardMaterial({map:t,roughness:.8}));m.position.set(s.x,s.y,s.z);m.rotation.y=s.yaw;m.userData.noSeam=true;g.add(m)}
- return{g,lamps:ctx.lamps,veins:ctx.veins,decl:ctx.decl,solids:ctx.solids,moving:ctx.moving,hot:ctx.hot,portal:ctx.portal||null}}
+ for(const s of ctx.signs){const sw=s.w||1.2,sh=s.h||.34,t=s.map&&typeof ugMapTex=='function'?ugMapTex(plan,L,{here:[s.x,s.z],ar:sw/sh}):ugSignTex(s.txt,sw/sh);const m=new THREE.Mesh(new THREE.PlaneGeometry(sw,sh),new THREE.MeshStandardMaterial({map:t,roughness:.8}));m.position.set(s.x,s.y,s.z);m.rotation.y=s.yaw;m.userData.noSeam=true;g.add(m)}
+ return{g,lamps:ctx.lamps,veins:ctx.veins,decl:ctx.decl,solids:ctx.solids,moving:ctx.moving,pickups:ctx.pickups,hot:ctx.hot,portal:ctx.portal||null}}
