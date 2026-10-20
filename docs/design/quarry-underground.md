@@ -460,8 +460,9 @@ burn, mine coords `{x, z, r}`), `moving` (the sealed station's doors: groups tha
   same rules as level 2's chasms: into the walls or narrowing to nothing), rough rock sides (`ugHoleSides`), lava
   0.42 m down, lights along them; stone bridges with a low parapet, arched a little (`ugStoneBridge`).
   *Magma chamber* (the river and bridge, a lava lake with an island and a diamond outcrop, stepping stones, a
-  geyser, basalt columns); *Lavafall* (lava pours from a dark crack over a rock lip into the pool, a basalt-tile shelf
-  round it, gold veins in the hot wall at its end); *Crust field* (the floor is cooled crust with glowing cracks;
+  geyser, basalt columns); *Lavafall* (lava pours from a dark crack over a rock lip into the pool, a shelf of basalt
+  column tops in a honeycomb, each its own height, round it to the gold veins in the hot wall; it was a flat grey strip
+  of overlapping tiles before, the user's note); *Crust field* (the floor is cooled crust with glowing cracks;
   eight glowing patches that burn, listed in `hot`); *Obsidian moat* (a ring of lava round an island of black glass,
   one bridge, obsidian outcrops with diamond and gold); *Lava channel* (lava sweeping round one side, a bridge over it
   to the side doorway). **The game scrolls `UGK.lavaT.offset.x` (about 0.02 per second) and `UGK.lavaFT.offset.y`
