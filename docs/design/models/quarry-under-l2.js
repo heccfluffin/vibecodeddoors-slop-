@@ -58,7 +58,10 @@ function ugCave(b,pts,o){o=o||{};const chw=o.hw||2,A=ugProf(chw).P,Cv=ugCaveProf
  const edge=i=>{const [tx,tz]=T[i],h=hwAt(i);return[[P[i][0]+tz*h,P[i][2]-tx*h],[P[i][0]-tz*h,P[i][2]+tx*h]]};
  const fp=[],fn=[],fu=[],keep=o.keep||[null];const y=P[0][1];
  const clip=(poly,H)=>{if(!H)return poly;const o2=[];for(let i=0;i<poly.length;i++){const a=poly[i],c=poly[(i+1)%poly.length],fa=H[0]*a[0]+H[1]*a[1]+H[2],fc=H[0]*c[0]+H[1]*c[1]+H[2];if(fa<=0)o2.push(a);if((fa<0)!=(fc<0)&&fa!=0&&fc!=0){const t=fa/(fa-fc);o2.push([a[0]+(c[0]-a[0])*t,a[1]+(c[1]-a[1])*t])}}return o2};
- for(let i=0;i<n-1;i++){const e0=edge(i),e1=edge(i+1),quad=[e0[0],e1[0],e1[1],e0[1]];for(const H of keep){const pg=clip(quad,H);for(let t=1;t<pg.length-1;t++){let tri=[pg[0],pg[t],pg[t+1]];const cr=(tri[1][0]-tri[0][0])*(tri[2][1]-tri[0][1])-(tri[1][1]-tri[0][1])*(tri[2][0]-tri[0][0]);if(cr>0)tri=[tri[0],tri[2],tri[1]];for(const v of tri){fp.push(v[0],y,v[1]);fn.push(0,1,0);fu.push(v[0]/2.5,v[1]/2.5)}}}}
+ /* on the inside of a tight bend the floor's edge would run backwards and fold over itself (two layers of floor
+    flickering); there it waits until the bend has passed */
+ const E=[];for(let i=0;i<n;i++){const e=edge(i);if(i)for(const sd of[0,1]){const q=E[i-1][sd],[tx,tz]=T[i];if((e[sd][0]-q[0])*tx+(e[sd][1]-q[1])*tz<.02)e[sd]=q.slice()}E.push(e)}
+ for(let i=0;i<n-1;i++){const e0=E[i],e1=E[i+1],quad=[e0[0],e1[0],e1[1],e0[1]].filter((q,k,a)=>{const r=a[(k+1)%a.length];return Math.hypot(q[0]-r[0],q[1]-r[1])>1e-6});if(quad.length<3)continue;for(const H of keep){const pg=clip(quad,H);for(let t=1;t<pg.length-1;t++){let tri=[pg[0],pg[t],pg[t+1]];const cr=(tri[1][0]-tri[0][0])*(tri[2][1]-tri[0][1])-(tri[1][1]-tri[0][1])*(tri[2][0]-tri[0][0]);if(cr>0)tri=[tri[0],tri[2],tri[1]];for(const v of tri){fp.push(v[0],y,v[1]);fn.push(0,1,0);fu.push(v[0]/2.5,v[1]/2.5)}}}}
  b.raw(o.floor||'floor2',fp,fn,fu);
  const at=s=>{let i=1;while(i<n-1&&S[i]<s)i++;const t=(s-S[i-1])/((S[i]-S[i-1])||1),p=[P[i-1][0]+(P[i][0]-P[i-1][0])*t,P[i-1][1]+(P[i][1]-P[i-1][1])*t,P[i-1][2]+(P[i][2]-P[i-1][2])*t],tt=T[i];return{p,t:tt,r:[-tt[1],tt[0]],yaw:Math.atan2(-tt[0],-tt[1]),i}};
  /* a point on the wall surface: ring i, profile point j */
