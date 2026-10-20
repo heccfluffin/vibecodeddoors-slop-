@@ -110,9 +110,9 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
    pads.forEach((q,i)=>{const r=.35+R()*.3;L.geo('lily',new THREE.CircleGeometry(r,16,.4,Math.PI*2-.5).rotateX(-Math.PI/2),q[0],-.185,q[1],R()*6);if(i<3){L.geo('frog',new THREE.SphereGeometry(.13,10,8),q[0],-.12,q[1],0,0,0,1,.7,1.2);for(const sd of[-.06,.06])L.geo('frog',new THREE.SphereGeometry(.04,8,6),q[0]+sd,-.05,q[1]-.08)}});
    const rs=f1('ringspots');for(let i=0;i<rs.n;i++){const a=i/rs.n*6.28,x=rs.cx+Math.cos(a)*rs.rx,z=rs.cz+Math.sin(a)*rs.rz;if(nearDoor(x,z,2.6)||onWay(x,z,1.2))continue;const h=.7+R()*1.4;ugMushroom(L,R,x,z,h,h*.4+.1,'capP',[Math.cos(a)*.15,Math.sin(a)*.15])}glowworms(60)}
   if(v==3){/* the shelf-fungus wall: shelves like steps up to a high ledge with gold */
-   const x0=Math.min(led.x0,led.x1),x1=Math.max(led.x0,led.x1),side=x0>0?1:-1,face=side>0?x0:x1,lh=2.7,w=5.2;const lx=side>0?(face+w/2):(face-w/2);
+   const x0=Math.min(led.x0,led.x1),x1=Math.max(led.x0,led.x1),side=x0>0?1:-1,face=side>0?x0:x1,lh=1.6,w=5.2;   /* low enough that you can stand up on it under the curve of the roof */const lx=side>0?(face+w/2):(face-w/2);
    L.box(rk,w,lh,led.z1-led.z0,lx,lh/2,(led.z0+led.z1)/2,0);L.box(ugFL(Lv),w-.1,.02,led.z1-led.z0-.1,lx,lh+.01,(led.z0+led.z1)/2,0);
-   for(let i=0;i<6;i++){const yy=.45*(i+1),z=led.z1-.6-i*(led.z1-led.z0-1.2)/5,g=new THREE.CylinderGeometry(.72,.8,.15,16,1,false,side>0?Math.PI:0,Math.PI);L.geo('capT',g,face,yy-.075,z)}
+   for(let i=0;i<6;i++){const yy=lh*(i+1)/6,z=led.z1-.6-i*(led.z1-led.z0-1.2)/5,g=new THREE.CylinderGeometry(.72,.8,.15,16,1,false,side>0?Math.PI:0,Math.PI);L.geo('capT',g,face,yy-.075,z)}
    for(let i=0;i<5;i++){const a=Math.atan2((led.z0+led.z1)/2-bl.cz+(i-2)*.9,side*bl.rx),w2=ch.wallPt(a,lh+.5+R()*.8);ctx.veins.push((()=>{const W=L0.pt(w2.x+w2.nx*.06,w2.y,w2.z+w2.nz*.06),d=L0.dir(-w2.nx,-w2.nz);return{x:W.x,y:W.y,z:W.z,dx:d[0],dz:d[1],t:'au'}})())}
    const pk=fx('spots').find(f=>f.c=='#e58ae0');smalls(scatter(8,pk.dx||0,pk.cz,pk.rx,pk.rz,1.6,true,(x,z)=>x*side>face*side-1.2),'capP',.5,1.4);giants(scatter(2,-side*3,bl.cz,3,5,4,true,(x,z)=>x*side>face*side-2.5),'capP');glowworms(50)}
   if(v==4){/* the root hall: thick pale roots from the roof to the floor, thinner ones ending in glowing tips */

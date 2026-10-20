@@ -399,8 +399,8 @@ landings, the decline and stations use them.
   *Crystal columns* (huge six-sided crystal columns floor to roof).
 - **Fungus grotto**: *Fungus grotto* (six giant glowing mushrooms, smaller ones, green mushrooms, moss, vines down the
   walls, 90 glowworms on threads); *Puffball hollow* (five car-sized puffballs, small ones); *Glow pond* (a deep pond
-  lit from below, lily pads, three frogs, mushrooms round the edge); *Shelf-fungus wall* (a 2.7 m rock ledge against
-  the wall, six shelf fungi as steps up its face, gold veins above it); *Root hall* (thick pale roots from roof to
+  lit from below, lily pads, three frogs, mushrooms round the edge); *Shelf-fungus wall* (a 1.6 m rock ledge against
+  the wall, with at least 2 m of headroom on top; six shelf fungi as steps up its face, gold veins above it); *Root hall* (thick pale roots from roof to
   floor, thin ones ending in glowing tips).
 - **Flooded gallery**: *Flooded gallery* (knee-deep: the floor 0.45 m under the water, a plank walkway on posts along
   the edge); *Underground lake* (3 m deep, a rope across on two posts, a raft on four barrels); *Drowned drift*
