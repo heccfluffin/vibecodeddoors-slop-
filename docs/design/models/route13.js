@@ -188,13 +188,15 @@ function rtCarWash(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(
  BUB.map.repeat.set(3,1);
  /* side walls (white with bubbles, a green foot), the roof slab, a green fascia round the top; open at both ends */
  for(const z of[Z0+T/2,Z1-T/2]){B(X1-X0,H,T,(X0+X1)/2,H/2,z,BUB);ob(X0,X1,z-T/2-.05,z+T/2+.05)}
- B(X1-X0+.4,.3,Z1-Z0+.4,(X0+X1)/2,H+.15,(Z0+Z1)/2,WHT);B(X1-X0+.44,.6,Z1-Z0+.44,(X0+X1)/2,H+.6,(Z0+Z1)/2,GRN);B(X1-X0+.5,.06,Z1-Z0+.5,(X0+X1)/2,H+.93,(Z0+Z1)/2,WHT);
+ /* the roof: a green box sitting on the wall tops (its edge is the fascia), a white trim along its top edge, and
+    inside a white ceiling slab between the walls, 9 cm deep, whose underside (4.31 m) is the ceiling */
+ B(X1-X0+.44,.6,Z1-Z0+.44,(X0+X1)/2,H+.3,(Z0+Z1)/2,GRN);B(X1-X0+.5,.06,Z1-Z0+.5,(X0+X1)/2,H+.63,(Z0+Z1)/2,WHT);B(X1-X0+.44,.1,Z1-Z0-2*T,(X0+X1)/2,H-.04,(Z0+Z1)/2,WHT);const CEIL=H-.09;
  /* the WASH letters on the roof, both ways, with bubbles */
  for(const [sd,ry] of[[1,0],[-1,Math.PI]]){const s=L('WASH',4.8,1.4,null,'#f2f0ea',200,(X0+X1)/2,H+1.85,(Z0+Z1)/2+sd*.05,ry)}B(5.2,1.6,.08,(X0+X1)/2,H+1.85,(Z0+Z1)/2,BL);B(5.3,.08,.14,(X0+X1)/2,H+2.69,(Z0+Z1)/2,WHT);
- for(const sd of[-1,1])B(.14,.9,.14,(X0+X1)/2+sd*2.3,H+1.0,(Z0+Z1)/2,k.STL);
+ for(const sd of[-1,1])B(.14,.96,.14,(X0+X1)/2+sd*2.3,H+1.02,(Z0+Z1)/2,k.STL);
  /* the floor: a dark wet slab with two tyre guide rails and a drain grate down the middle */
  B(X1-X0,.03,Z1-Z0-2*T,(X0+X1)/2,.04,(Z0+Z1)/2,M(0x4a4e52,{roughness:.25,metalness:.1}));for(const z of[-1006.2,-1003.8])B(X1-X0-1,.08,.08,(X0+X1)/2,.095,z,STL);B(X1-X0-2,.012,.3,(X0+X1)/2,.061,(Z0+Z1)/2,k.DK);
- /* lights in the ceiling */const lights=[];for(const x of[X0+3,X0+7,X0+11]){B(1.6,.04,.4,x,H-.02,(Z0+Z1)/2,M(0xffffff,{emissive:0xe8f4ff,emissiveIntensity:1}));lights.push([x,H-.4,(Z0+Z1)/2])}
+ /* lights in the ceiling */const lights=[];for(const x of[X0+3,X0+7,X0+11]){B(1.6,.04,.4,x,CEIL-.01,(Z0+Z1)/2,M(0xffffff,{emissive:0xe8f4ff,emissiveIntensity:1}));lights.push([x,CEIL-.4,(Z0+Z1)/2])}
  /* the spray arch at the entry: a blue pipe frame with nozzles; jets (soft white cones) shown while washing */
  const arch=new THREE.Group();arch.position.set(X0+1.6,0,(Z0+Z1)/2);g.add(arch);{const h=k.H(arch),hw=(Z1-Z0)/2-T-.25;for(const sd of[-1,1])h.C(.07,.07,3.4,0,1.7,sd*hw,BL,null,null,10);h.C(.07,.07,hw*2,0,3.4,0,BL,'z',null,10);
   const jets=new THREE.Group();arch.add(jets);const JM=new THREE.MeshBasicMaterial({color:0xe8f6ff,transparent:true,opacity:.35,depthWrite:false});for(let i=0;i<7;i++){const z=-hw+.4+i*(hw*2-.8)/6;h.C(.035,.05,.12,0,3.3,z,STL,null,null,8);const j=new THREE.Mesh(new THREE.ConeGeometry(.35,1.6,10,1,true),JM);j.position.set(0,2.45,z);jets.add(j)}
@@ -215,15 +217,15 @@ function rtCarWash(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(
  const [sliderL,brushL]=side(Z0+T+.85),[sliderR,brushR]=side(Z1-T-.85);
  /* the top brush lies across the bay on an axle; two arms carry it up and down through sleeves fixed to the wall
     tops (the arms always stay in the sleeves) */
- const TX=X0+8.5,tw=Z1-Z0-2*T-.6,sliderTop=new THREE.Group();sliderTop.position.set(TX,2.9,(Z0+Z1)/2);g.add(sliderTop);{const h=k.H(sliderTop);h.C(.05,.05,tw+.5,0,0,0,STL,'z',null,8);for(const sd of[-1,1])h.B(.1,1.25,.1,0,.6,sd*(tw/2+.2),STL)}
+ const TX=X0+8.5,tw=Z1-Z0-2*T-.6,sliderTop=new THREE.Group();sliderTop.position.set(TX,2.9,(Z0+Z1)/2);g.add(sliderTop);{const h=k.H(sliderTop);h.C(.05,.05,tw+.46,0,0,0,STL,'z',null,8);for(const sd of[-1,1])h.B(.1,1.25,.1,0,.6,sd*(tw/2+.2),STL)}
  const brushTop=brush(tw,.9);brushTop.rotation.x=Math.PI/2;sliderTop.add(brushTop);for(const sd of[-1,1])B(.2,.5,.2,TX,3.85,(Z0+Z1)/2+sd*(tw/2+.2),k.DK);
  /* the dryer: a big blower hood near the exit, with two side ducts */
- const DXp=X1-2.4;B(.9,.5,Z1-Z0-2*T-.4,DXp,3.3,(Z0+Z1)/2,M(0xc8ccd0,{metalness:.4,roughness:.4}));for(const sd of[-1,1]){B(.6,1.6,.5,DXp,2.2,(Z0+Z1)/2+sd*((Z1-Z0)/2-T-.35),M(0xc8ccd0,{metalness:.4,roughness:.4}))}B(.92,.08,Z1-Z0-2*T-.5,DXp,3.03,(Z0+Z1)/2,k.DK);
+ /* the hood rests on the two side ducts, which stand on the floor, and is tied to the ceiling by four rods */const DXp=X1-2.4,DM=M(0xc8ccd0,{metalness:.4,roughness:.4}),dw=Z1-Z0-2*T-.4;B(.9,.5,dw,DXp,3.3,(Z0+Z1)/2,DM);for(const sd of[-1,1]){B(.6,2.995,.5,DXp,1.5525,(Z0+Z1)/2+sd*((Z1-Z0)/2-T-.35),DM);for(const sx of[-.3,.3])C(.025,.025,CEIL-3.55,DXp+sx,(CEIL+3.55)/2,(Z0+Z1)/2+sd*dw*.3,k.STL,null,null,6)}B(.92,.08,Z1-Z0-2*T-.5,DXp,3.03,(Z0+Z1)/2,k.DK);
  /* the traffic sign at the exit: PULL FORWARD / STOP / GO, three lit panels */
- const sign={},SX=X1-.6,SZ=(Z0+Z1)/2;B(.12,.9,2.2,SX,H-.75,SZ,k.DK);for(const [i,t,col] of[[0,'PULL FORWARD','#e8c020'],[1,'STOP','#e02020'],[2,'GO','#30d050']]){const p=L(t,.66,.26,'#141414',col,70,SX-.065,H-.75,SZ-.72+i*.72,-Math.PI/2);sign[['fwd','stop','go'][i]]=p}
+ /* (it hangs from the ceiling on two short rods) */const sign={},SX=X1-.6,SZ=(Z0+Z1)/2,SY=CEIL-.3-.45;B(.12,.9,2.2,SX,SY,SZ,k.DK);for(const sd of[-1,1])C(.02,.02,.3,SX,CEIL-.15,SZ+sd*.9,k.STL,null,null,6);for(const [i,t,col] of[[0,'PULL FORWARD','#e8c020'],[1,'STOP','#e02020'],[2,'GO','#30d050']]){const p=L(t,.66,.26,'#141414',col,70,SX-.065,SY,SZ-.72+i*.72,-Math.PI/2);sign[['fwd','stop','go'][i]]=p}
  /* the entry: a price board on a post, a WASH 5 🪙 sign over the entrance */
  {const px=X0-2.2,pz=Z0+.2;B(.12,2.2,.12,px,1.1,pz,STL);B(.08,1.3,1.5,px,2.4,pz,WHT);const pb=L('WASH · 5 🪙\nWAX · FREE\nGOBLIN NOT\nRESPONSIBLE\nFOR GOBLINS',1.4,1.2,'#f2f0ea','#1a1a1a',60,px-.045,2.4,pz,-Math.PI/2);ob(px-.15,px+.15,pz-.75,pz+.75)}
- L('ENTER · 5 🪙 · STAY IN YOUR CAR',(Z1-Z0)-.2,.44,'#3a7ac8','#f2f0ea',70,X0-.25,H+.6,(Z0+Z1)/2,-Math.PI/2);
+ L('ENTER · 5 🪙 · STAY IN YOUR CAR',(Z1-Z0)-.2,.44,'#3a7ac8','#f2f0ea',70,X0-.25,H+.3,(Z0+Z1)/2,-Math.PI/2);
  return{obs,lights,bay:{x0:X0,x1:X1,z0:Z0+T,z1:Z1-T},parts:{brushL,brushR,brushTop,sliderL,sliderR,sliderTop,arch,jets:arch.userData.jets,sign}}}
 
 /* ---- the car wash's moving parts, every frame while washing: the brushes spin and close in on the car. car =

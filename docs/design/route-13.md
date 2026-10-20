@@ -148,7 +148,9 @@ stand and every prop stay as they are.
   price board at the entry (WASH · 5 🪙, WAX · FREE, GOBLIN NOT RESPONSIBLE FOR GOBLINS), a wet dark floor with tyre
   guide rails and a drain, three ceiling lights (`lights`), a blue spray arch with nozzles (`parts.jets`: soft white
   spray cones, hidden until washing), two tall side brushes and an overhead brush (soft foam rolls: a striped
-  roll inside a ragged fringe), a dryer hood, and a PULL FORWARD / STOP / GO sign at the exit (`parts.sign`).
+  roll inside a ragged fringe), a dryer hood standing on two floor ducts and tied to the ceiling, and a PULL FORWARD / STOP / GO sign hung on
+  two rods at the exit (`parts.sign`). The ceiling is a white slab between the walls (underside 4.31 m) with the
+  three light panels flush in it; the green roof box sits on the wall tops.
   **How it plays:** drive into the bay (`bay`), "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car
   is pulled slowly from the arch to the exit (about 8 s; your controls are off), the jets show, the brushes spin
   and **close in until they touch the car**: call `rtWashTick(W, car, dt)` every frame with the car's
