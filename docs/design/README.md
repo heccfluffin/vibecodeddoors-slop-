@@ -5,7 +5,6 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | Spec | What it is | Models |
 |---|---|---|
 | `pyramid.md` | the pyramid: layout and batches 1-6 | `models/pyr.js` |
-| `lake-rail.md` | the lake, the observatory, Dino Dan's, the railway, crossings and the train | `models/lake.js` |
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
 | `desert-map.md` | the desert map and minimap redo: areas, auto-drawn buildings, label classes, minimap banner, smooth zoom | `models/desert-map.js` (tables + reference renderer) |

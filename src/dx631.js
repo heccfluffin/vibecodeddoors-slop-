@@ -1,4 +1,4 @@
-/* =====================================================================================================
+/* r643: =====================================================================================================
    r6xx: MIRAGE LAKE, THE OBSERVATORY, DINO DAN'S AND THE RAILWAY (docs/design/lake-rail.md).
    The design chat's models/lake.js (batches 1-6) is copied below unchanged, then the wiring.
    It needs fbKit (fort-kit.js, in dx614) and afCanvas/afPlane (airfield.js, in dx617).

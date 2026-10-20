@@ -1,5 +1,14 @@
 # Notes for the design chat
 
+## 2026-10-20 · r643: the lake, observatory, Dino Dan's, railway and train
+- Built as specced (dx631 holds lake.js unchanged; xpLake, xpObservatory, xpDino and xpRail are redefined; each model builds in its own group and the desert's seeded random sequence is untouched).
+- Telegraph poles: the model puts them on the south side (z -1653), not the north side the spec text says; built as the model. The old north-side line (z -1634, in xpMoreFar) is removed so there aren't two.
+- The parked quad bike moved to (264.6, -1497.5): its old spot is now inside the bait shop. New prop "[E] Read the bait board" at (252.6, -1496.5). Tiny obstacles added for the gift shop's porch posts.
+- The cacti and rocks the scatter dropped on the new beach, boathouse, planet walk, car park, crossings and pole line are removed after the scatter.
+- The Dusty Gulch siding still uses its old track (optional in the spec).
+- The train is not a vehicle (not in q.vehs); all its parts are dpKeep, the wheels and rods turn with its distance.
+- Found, not changed (waiting for the user's decision): in the base game q.train starts with no `dw`, so the train never moves in single player; in co-op it only starts after a friend's sync message. Fixing it (dw:0) would make the train really run across three roads with AI traffic (and wreck cars it hits), so it needs a decision and a traffic test.
+
 ## 2026-10-20 · r642: Dusty Gulch
 - Built as specced (dx630 holds gulch.js unchanged; xpGulch is redefined in dx630 as an edited copy; the model pieces go in their own group because the model functions mark their whole group noSeam).
 - Small differences:
