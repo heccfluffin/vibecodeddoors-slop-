@@ -14,6 +14,10 @@ function rtKit(){if(rtKit.k)return rtKit.k;const f=fbKit(),k=Object.create(f),M=
  k.SHELTER=M(0x2e5a8a,{metalness:.45,roughness:.45});k.ROOF=M(0xc8ccd0,{metalness:.5,roughness:.4});
  return rtKit.k=k}
 
+/* a painted arrow on the ground: a real flat shape (not a picture), 3.4 m long, pointing along angle a
+   (0 = east, -PI/2 = north), at y .04 */
+function rtArrow(x,z,a){const sh=new THREE.Shape([[-1.7,-.25],[.35,-.25],[.35,-.7],[1.7,0],[.35,.7],[.35,.25],[-1.7,.25]].map(q=>new THREE.Vector2(q[0],q[1])));
+ const ge=new THREE.ShapeGeometry(sh);ge.rotateX(-Math.PI/2);const m=new THREE.Mesh(ge,new THREE.MeshStandardMaterial({color:0xf2eee0,roughness:.8,polygonOffset:true,polygonOffsetUnits:-3}));m.position.set(x,.04,z);m.rotation.y=a;m.userData.noSeam=true;return m}
 /* a painted canvas plane lying flat on the road (for markings): w across x, d along z */
 function rtPaint(k,w,d,draw,px){const c=document.createElement('canvas');c.width=px||256;c.height=Math.round((px||256)*d/w);draw(c.getContext('2d'),c.width,c.height);const t=new THREE.CanvasTexture(c);t.anisotropy=8;
  const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshStandardMaterial({map:t,transparent:true,roughness:.8,polygonOffset:true,polygonOffsetUnits:-3,depthWrite:false}));m.rotation.x=-Math.PI/2;m.userData.noSeam=true;m.renderOrder=1;return m}
@@ -113,10 +117,10 @@ function rtConcrete(k){if(k._conc)return k._conc;const r=k.r,t=k.tex(256,256,(c,
 function rtGas(g){const k=rtKit(),{B,C,rod,L,slab}=k.H(g),M=k.M,obs=[],lights=[],pumps=[];const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
  {const X0=3.5,X1=84.5,Z0=-1013,Z1=-993.5,m=rtConcrete(k)();m.map=m.map.clone();m.map.needsUpdate=true;m.map.repeat.set((X1-X0)/4,(Z1-Z0)/4);const p=new THREE.Mesh(new THREE.PlaneGeometry(X1-X0,Z1-Z0),m);p.rotation.x=-Math.PI/2;p.position.set((X0+X1)/2,.025,(Z0+Z1)/2);p.userData.noSeam=true;g.add(p);
   /* a low kerb along the south edge, where the forecourt meets the sand (gaps for the taxi stand path) */B(X1-X0-14,.12,.25,(X0+X1)/2+7,.06,Z0-.125,k.KERB);
-  /* painted arrows: in from Route 13, round to the car wash, out to the PD road */
-  const arrow=(x,z,rot,txt)=>{const m2=rtPaint(k,2.2,4.4,(c,w,h)=>{c.fillStyle='rgba(244,240,226,.92)';c.save();c.translate(w/2,h/2);c.rotate(rot);c.beginPath();c.moveTo(0,-h*.42);c.lineTo(w*.38,-h*.12);c.lineTo(w*.14,-h*.12);c.lineTo(w*.14,h*.42);c.lineTo(-w*.14,h*.42);c.lineTo(-w*.14,-h*.12);c.lineTo(-w*.38,-h*.12);c.closePath();c.fill();c.restore();if(txt){c.font='bold 52px "Barlow Semi Condensed",DoorsSans,Arial';c.textAlign='center';c.fillText(txt,w/2,h*.97)}},128);m2.position.set(x,.04,z);m2.rotation.z=0;g.add(m2);return m2};
-  arrow(12,-1004,Math.PI/2);arrow(53,-997,Math.PI/2);arrow(58,-1005,Math.PI/2);arrow(81.5,-998.5,Math.PI);
-  /* a wide painted lead-in to the car wash: two lines flaring out from the bay walls across the apron */for(const sd of[-1,1]){const ax=64,az=-1005+sd*4.15,bx=55.5,bz=-1005+sd*7.5,L2=Math.hypot(bx-ax,bz-az),m3=rtPaint(k,.25,L2,(c,w,h)=>{c.fillStyle='rgba(244,240,226,.9)';c.fillRect(0,0,w,h)},16);m3.position.set((ax+bx)/2,.04,(az+bz)/2);m3.rotation.z=Math.atan2(-(bx-ax),-(bz-az));g.add(m3)}}
+  /* painted arrows (in from Route 13, along the north lane, into the car wash, out north to the PD road) and a
+     dashed WASH box in front of the car wash entrance */
+  for(const [x,z,a] of[[12,-1004,0],[50,-996.4,0],[58.6,-1005,0],[81.6,-999,-Math.PI/2]])g.add(rtArrow(x,z,a));
+  {const m3=rtPaint(k,6.6,7,(c,w,h)=>{c.strokeStyle='rgba(232,192,32,.95)';c.lineWidth=7;c.setLineDash([26,16]);c.strokeRect(6,6,w-12,h-12)},256);m3.position.set(60.6,.04,-1005);g.add(m3)}}
  /* the canopy: a deep box on four clad columns, green fascia with a white stripe and the name on three sides, a
     white underside with six glowing light panels */
  const CX0=20.6,CX1=35.4,CZ0=-1010.6,CZ1=-999.4,CY=5.0,CD=.9,GRN=M(0x3a8a2a,{roughness:.6}),WHT=M(0xf2f0ea,{roughness:.7}),LITE=M(0xffffff,{emissive:0xfff4dc,emissiveIntensity:1.1});
