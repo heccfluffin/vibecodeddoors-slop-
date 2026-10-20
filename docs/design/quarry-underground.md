@@ -287,7 +287,12 @@ of a real plan this way.
 - **Pillar round** (3 versions): the drive round a 12 x 16 pillar, cribs in the corners, sets along the sides, rails
   through (or round the whole loop for the rail-loop version), veins on every pillar face, lamps.
 - **Ladderway**: an upper landing with a fenced hatch, a plank-lined raise with a ladder and a landing every 3 m, and
-  a lower landing with the raise coming through its roof.
+  a lower landing with the raise coming through its roof. Both landings are full tunnel width (the first version had
+  narrow 3.2 m landings, so the 4 m tunnel meeting them left black gaps either side; the user spotted it).
+- **One opening size everywhere:** every place where two pieces meet is the standard 4 m arch (`ugProf(2)`). A
+  piece may be wider or narrower inside (cave passages, the crib room's narrow door), but it must come back to the
+  4 m arch at its openings, or close the difference with a rock bulkhead around a smaller doorway. The plan's
+  ladderway path is now 4 m wide too.
 - **Spiral decline**: the tunnel itself spirals a turn and a half down round its rock core (72 m long, 1 in 6),
   with sets and lamps all the way.
 - **Working faces**: a rough dome closing the tunnel end, with 2-3 veins on it.

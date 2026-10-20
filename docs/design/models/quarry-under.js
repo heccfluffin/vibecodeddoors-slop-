@@ -52,7 +52,7 @@ const UGP={
  basalt:{nm:'Basalt gallery',cat:'tun',lv:[3],w:2,mx:2,mk(R){const p=ugWig(R,16,.8);return{foot:[[-3,3,-16,0]],ex:[[0,-16,0]],shp:[{k:'path',pts:p,w:5,org:1}],fx:[{k:'cols',pts:[[p[1][0]-1.3,p[1][1]],[p[2][0]+1.3,p[2][1]],[p[3][0]-1.3,p[3][1]]],c:'#2a2422',r:.6},{k:'cracks',pts:p}]}}},
  /* ----- links between levels ----- */
  decline:{nm:'Spiral decline',cat:'link',lv:[1,2],w:0,mx:2,mk(){const c=ugArc(6,-8,6,Math.PI,4*Math.PI,36);return{foot:[[-2,14,-16,0]],both:1,ex:[[12,0,2,1]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:4},{k:'path',pts:c,w:4},{k:'path',pts:[[12,-8],[12,0]],w:4}],fx:[{k:'spiral',cx:6,cz:-8},{k:'icon',x:6,z:-8,t:'↘️'}]}}},
- ladder:{nm:'Ladderway',cat:'link',lv:[1,2],w:0,mx:3,mk(){return{foot:[[-2,2,-8,0]],both:1,ex:[[0,-8,0,1]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:3.2}],fx:[{k:'hatch',x:0,z:-4},{k:'icon',x:0,z:-4,t:'🪜'}]}}},
+ ladder:{nm:'Ladderway',cat:'link',lv:[1,2],w:0,mx:3,mk(){return{foot:[[-2,2,-8,0]],both:1,ex:[[0,-8,0,1]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:4}],fx:[{k:'hatch',x:0,z:-4},{k:'icon',x:0,z:-4,t:'🪜'}]}}},
  old:{nm:'Old shaft (1 in 100)',cat:'end',lv:[3],w:0,mx:1,mk(){return{foot:[],ex:[],shp:[],fx:[{k:'portal',x:0,z:0},{k:'icon',x:0,z:-2.2,t:'🚪'}]}}}
 };
 /* ---- VARIANTS: the main rooms come in several versions, so mines don't repeat. Each variant keeps its room's size and

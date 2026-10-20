@@ -339,17 +339,15 @@ function ugBin(b,x,y,z,yaw){b.box('wood',.9,1.3,.9,x,y+.65,z,yaw);b.box('oreRock
 
 /* ---- the ladderway: an upper landing with a hatch in the floor, a timbered raise with ladders and landings every
    3 m, a lower landing with the raise coming through its roof ---- */
-function ugLadder(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),y1=UGLY(p.L+1),hw=1.6,rr={x0:-1.8,x1:1.8,z0:-6.5,z1:-1.5};
+function ugLadder(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),y1=UGLY(p.L+1),h=3.9;
+ /* the landings are full tunnel width (4 m) so the tunnels that meet them fit their doorways exactly */
  const H={x0:-.75,x1:.75,z0:-5.35,z1:-3.85};const hc=[T(H.x0,H.z0),T(H.x1,H.z1)],hole={x0:Math.min(hc[0][0],hc[1][0]),x1:Math.max(hc[0][0],hc[1][0]),z0:Math.min(hc[0][1],hc[1][1]),z1:Math.max(hc[0][1],hc[1][1])};
- /* upper: neck tube from the entry, then the landing room with the hole in its floor */
- const tw=(a,c,yy)=>[[...[T(a[0],a[1])[0],yy,T(a[0],a[1])[1]]],[T(c[0],c[1])[0],yy,T(c[0],c[1])[1]]];
- ugTube(b,tw([0,0],[0,-1.5],y0),{hw,fil:0,sets:false});
- ugRectRoom(b,p,rr,3.3,y0,{doors:[{x:T(0,-1.5)[0],z:T(0,-1.5)[1],hw}],holes:[Object.assign({},hole)]});
- /* lower landing: roof hole, a door to the exit tube */
- ugRectRoom(b,p,rr,3.3,y1,{doors:[{x:T(0,-6.5)[0],z:T(0,-6.5)[1],hw}],holes:[Object.assign({roof:1},hole)],rock:'rock2'});
- ugTube(b,tw([0,-6.5],[0,-8],y1),{hw,fil:0,sets:false,rock:'rock2'});
+ /* upper landing: the doorway from the tunnel, the hatch in the floor */
+ ugRectRoom(b,p,{x0:-2,x1:2,z0:-6.5,z1:0},h,y0,{doors:[{x:p.x,z:p.z,hw:2}],holes:[Object.assign({},hole)]});
+ /* lower landing: the raise comes through its roof, a doorway out at the far end */
+ const ex=T(0,-8);ugRectRoom(b,p,{x0:-2,x1:2,z0:-8,z1:-1.5},h,y1,{doors:[{x:ex[0],z:ex[1],hw:2}],holes:[Object.assign({roof:1},hole)],rock:'rock2'});
  /* the raise: four plank walls from the lower roof to the upper floor, a ladder on one side, landings every 3 m */
- const top=y0-.02,bot=y1+3.32,cx=(hole.x0+hole.x1)/2,cz=(hole.z0+hole.z1)/2,hx=(hole.x1-hole.x0)/2,hz=(hole.z1-hole.z0)/2,hgt=top-bot;
+ const top=y0-.02,bot=y1+h+.02,cx=(hole.x0+hole.x1)/2,cz=(hole.z0+hole.z1)/2,hx=(hole.x1-hole.x0)/2,hz=(hole.z1-hole.z0)/2,hgt=top-bot;
  b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z0-.03,0);b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z1+.03,0);b.box('plank',.06,hgt,2*hz,hole.x0-.03,bot+hgt/2,cz,0);b.box('plank',.06,hgt,2*hz,hole.x1+.03,bot+hgt/2,cz,0);
  const lx=hole.x0+.12;for(const sx of[-.22,.22])b.box('wood',.06,hgt+1.1,.06,lx,bot+(hgt+1.1)/2,cz+sx,0);for(let yy=bot+.3;yy<top+1;yy+=.3)b.box('wood',.04,.04,.5,lx,yy,cz,0);
  for(let yy=bot+3;yy<top-1;yy+=3)b.box('woodD',2*hx-.7,.06,2*hz,cx+.33,yy,cz,0);
