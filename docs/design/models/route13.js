@@ -60,25 +60,33 @@ function rtMain(g){const k=rtKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,obs=[],lights=[
    painted BUS STOP bay on the east lane, a bin. The pole with the round DESERT MINES plates (4.3, -1043.5) and the
    prop stay; the old bench and skull beside the pole go (the bench is inside the shelter now). Returns {obs} ---- */
 function rtBusStop(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
- const X0=5,X1=9.5,Z0=-1050,Z1=-1044.5,HF=2.75,HB=2.45,P=.07;
- /* frame: four posts, front and back beams */for(const x of[X0+P/2,X1-P/2])for(const z of[Z0+P/2,Z1-P/2]){const h=x<7?HF:HB;B(P,h,P,x,h/2,z,k.SHELTER)}
- B(P*.8,.12,Z1-Z0-2*P,X0+P/2,HF-.06,(Z0+Z1)/2,k.SHELTER);B(P*.8,.12,Z1-Z0-2*P,X1-P/2,HB-.06,(Z0+Z1)/2,k.SHELTER);
- /* roof: a sheet sloping down to the back, with a fascia board on the front edge saying BUS 13 · DESERT MINES */
- {const w=X1-X0+.5,dy=HF-HB,len=Math.hypot(w,dy),a=Math.atan2(dy,w),rf=B(len,.05,Z1-Z0+.4,(X0+X1)/2,(HF+HB)/2+.06,(Z0+Z1)/2,k.ROOF);rf.rotation.z=-a}
- B(.06,.3,Z1-Z0+.44,X0-.22,HF+.02,(Z0+Z1)/2,k.SHELTER);{const f=L('BUS 13 · DESERT MINES',Z1-Z0+.2,.24,'#2e5a8a','#f4f0e0',64,X0-.255,HF+.02,(Z0+Z1)/2);f.rotation.y=-Math.PI/2}
- /* glass: the back wall and the two ends, in steel frames; the timetable poster behind the glass on the back */
- B(.03,1.9,Z1-Z0-P,X1-P/2,1.15,(Z0+Z1)/2,k.GLASS);for(const z of[Z0+P/2,Z1-P/2])B(X1-X0-P*2-.64,1.9,.03,(X0+X1)/2+.3,1.15,z,k.GLASS);
- for(const y of[.2,2.1])B(P*.8,.05,Z1-Z0-2*P,X1-P/2,y,(Z0+Z1)/2,k.SHELTER);for(const z of[Z0+P/2,Z1-P/2])for(const y of[.2,2.1])B(X1-X0-P*2-.6,.05,P*.8,(X0+X1)/2+.3,y,z,k.SHELTER);
+ const X0=5,X1=9.5,Z0=-1050,Z1=-1044.5,HF=2.6,HB=2.4,P=.08,ZM=(Z0+Z1)/2,yAt=x=>HF+(HB-HF)*(x-X0)/(X1-X0),SL=Math.atan2(HF-HB,X1-X0),LN=Math.hypot(X1-X0,HF-HB);
+ /* a box lying along the roof's slope (x from xa to xb), its top edge th below the roof's underside */
+ const slope=(xa,xb,h,d,z,dy,m)=>{const xc=(xa+xb)/2,b=B(Math.hypot(xb-xa,(xb-xa)*Math.tan(SL)),h,d,xc,yAt(xc)-dy,z,m);b.rotation.z=-SL;return b};
+ /* frame: a post at each corner and one in the middle of the back, each up to the roof's underside */
+ for(const [x,z] of[[X0+P/2,Z0+P/2],[X0+P/2,Z1-P/2],[X1-P/2,Z0+P/2],[X1-P/2,Z1-P/2],[X1-P/2,ZM]]){const h=yAt(x);B(P,h,P,x,h/2,z,k.SHELTER)}
+ /* eaves beams under the roof: front and back between the posts, the two ends sloping with the roof */
+ B(P*.8,.14,Z1-Z0-2*P,X0+P/2,HF-.07,ZM,k.SHELTER);B(P*.8,.14,Z1-Z0-2*P,X1-P/2,HB-.07,ZM,k.SHELTER);for(const z of[Z0+P/2,Z1-P/2])slope(X0+P,X1-P,.14,P,z,.07,k.SHELTER);
+ /* the roof: a sheet resting on the beams, overhanging 25 cm all round, with a deep edge band on every side; the
+    front band is the BUS 13 · DESERT MINES sign */
+ {const t=.06,ov=.25,rf=B(LN+2*ov,t,Z1-Z0+2*ov,(X0+X1)/2,(HF+HB)/2+t/2/Math.cos(SL),ZM,k.ROOF);rf.rotation.z=-SL}
+ {const yf=yAt(X0-.25)+.03,yb=yAt(X1+.25)+.03;B(.05,.32,Z1-Z0+.6,X0-.275,yf,ZM,k.SHELTER);B(.05,.16,Z1-Z0+.6,X1+.275,yb,ZM,k.SHELTER);
+  for(const z of[Z0-.275,Z1+.275])slope(X0-.25,X1+.25,.16,.05,z,-.03,k.SHELTER);
+  const f=L('BUS 13 · DESERT MINES',Z1-Z0+.3,.26,'#2e5a8a','#f4f0e0',64,X0-.305,yf,ZM);f.rotation.y=-Math.PI/2}
+ /* glass in frames: two back panes either side of the middle post, two end panes cut to the roof's slope; a bottom
+    rail under each at 13 cm, the beams above. The front stays open */
+ const GT=.16;for(const [za,zb] of[[Z0+P,ZM-P/2],[ZM+P/2,Z1-P]]){B(.02,HB-.14-GT,zb-za,X1-P/2,(GT+HB-.14)/2,(za+zb)/2,k.GLASS);B(P*.7,.06,zb-za,X1-P/2,GT-.03,(za+zb)/2,k.SHELTER)}
+ for(const z of[Z0+P/2,Z1-P/2]){const{slab}=k.H(g);slab([[X0+P,GT],[X1-P,GT],[X1-P,HB-.14],[X0+P,HF-.14]],.02,k.GLASS,0,0,z);B(X1-X0-2*P,.06,P*.7,(X0+X1)/2,GT-.03,z,k.SHELTER)}
  {const t=k.tex(512,640,(c,w,h)=>{c.fillStyle='#f4f0e2';c.fillRect(0,0,w,h);c.fillStyle='#2e5a8a';c.fillRect(0,0,w,110);c.fillStyle='#f4f0e2';c.font='bold 64px "Barlow Semi Condensed",DoorsSans,Arial';c.textAlign='center';c.fillText('BUS 13',w/2,72);c.font='bold 26px "Barlow Semi Condensed",DoorsSans,Arial';c.fillText('HOTEL  ⇄  DESERT MINES',w/2,101);
    c.fillStyle='#1e2a33';c.font='bold 30px "Barlow Semi Condensed",DoorsSans,Arial';c.textAlign='left';c.fillText('DEPARTS',34,160);c.textAlign='right';c.fillText('ARRIVES',w-34,160);c.fillRect(30,172,w-60,3);
-   c.font='600 30px "Barlow Semi Condensed",DoorsSans,Arial';const rows=[['??:??','??:??'],['??:??','??:??'],['WHEN IT WANTS','YOU ARE HERE'],['??:??','??:??'],['NEVER','ALWAYS']];rows.forEach((q,i)=>{const y=215+i*52;c.textAlign='left';c.fillText(q[0],34,y);c.textAlign='right';c.fillText(q[1],w-34,y);c.fillStyle='rgba(30,42,51,.15)';c.fillRect(30,y+14,w-60,1);c.fillStyle='#1e2a33'});
+   c.font='600 30px "Barlow Semi Condensed",DoorsSans,Arial';const rows=[['??:??','??:??'],['??:??','??:??'],['ANY MINUTE','NOW'],['??:??','??:??'],['NEVER','ALWAYS']];rows.forEach((q,i)=>{const y=215+i*52;c.textAlign='left';c.fillText(q[0],34,y);c.textAlign='right';c.fillText(q[1],w-34,y);c.fillStyle='rgba(30,42,51,.15)';c.fillRect(30,y+14,w-60,1);c.fillStyle='#1e2a33'});
    c.fillStyle='#c0201a';c.font='bold 28px "Barlow Semi Condensed",DoorsSans,Arial';c.textAlign='center';c.fillText('EVERY RIDE · ALWAYS',w/2,520);c.fillStyle='#5b6b74';c.font='600 22px "Barlow Semi Condensed",DoorsSans,Arial';c.fillText('Do not run for the bus. It waits.',w/2,560);c.fillText('It always waits.',w/2,590)});
   t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;const p=new THREE.Mesh(new THREE.PlaneGeometry(.8,1),new THREE.MeshStandardMaterial({map:t,roughness:.6}));p.position.set(X1-P/2-.03,1.45,Z0+1.1);p.rotation.y=-Math.PI/2;p.userData.noSeam=true;g.add(p)}
  /* the bench: slats on two steel legs, against the back glass */
  for(let i=0;i<4;i++)B(.11,.04,3.2,X1-.55+i*.13-.2,.46,(Z0+Z1)/2+.3,M(0x8a5a32,{roughness:.8}));for(let i=0;i<3;i++)B(.04,.11,3.2,X1-.22,.62+i*.13,(Z0+Z1)/2+.3,M(0x8a5a32,{roughness:.8}));
  for(const z of[(Z0+Z1)/2+.3-1.3,(Z0+Z1)/2+.3+1.3]){B(.5,.05,.06,X1-.43,.42,z,k.SHELTER);B(.05,.395,.05,X1-.62,.1975,z,k.SHELTER);B(.05,.8,.05,X1-.2,.4,z,k.SHELTER)}
  /* a bin outside, at the south end */C(.22,.2,.8,X0+.45,.4,Z0-.55,k.SHELTER,null,null,14);C(.24,.24,.06,X0+.45,.83,Z0-.55,k.LAMPG,null,null,14);
- /* collision: the back and the ends (the front stays open), the bin */ob(X1-.15,X1+.05,Z0,Z1);ob(X0+.6,X1,Z0-.05,Z0+.1);ob(X0+.6,X1,Z1-.1,Z1+.05);ob(X0+.2,X0+.7,Z0-.8,Z0-.3);
+ /* collision: the back and the ends (the front stays open), the bin */ob(X1-.15,X1+.05,Z0,Z1);ob(X0,X1,Z0-.05,Z0+.12);ob(X0,X1,Z1-.12,Z1+.05);ob(X0+.2,X0+.7,Z0-.8,Z0-.3);
  /* the bay on the road's east lane: a yellow dashed box and BUS STOP, south of the Sunset Blvd junction */
  {const W=3,D=12,m=rtPaint(k,W,D,(c,w,h)=>{c.strokeStyle='#e8c020';c.lineWidth=10;c.setLineDash([36,24]);c.strokeRect(8,8,w-16,h-16);c.setLineDash([]);c.fillStyle='rgba(232,192,32,.95)';c.font='bold 92px "Barlow Semi Condensed",DoorsSans,Arial';c.textAlign='center';c.textBaseline='middle';c.save();c.translate(w/2,h/2);c.rotate(Math.PI);c.scale(1,2.4);/* upright for drivers heading north up the east lane: BUS nearest, then STOP */c.fillText('STOP',0,-h*.09);c.fillText('BUS',0,h*.12);c.restore()},256);
   m.position.set(1.85,.036,-1047.5);g.add(m)}

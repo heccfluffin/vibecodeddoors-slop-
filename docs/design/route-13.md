@@ -99,8 +99,9 @@ game's `light(...)` at each of `lights` (every other lamp). The places the stree
   LEAVING OLD TOWN · DRIVE SAFE · COME BACK SOON (YOU WILL) on the back. North end (-9.5, -897) facing north (the way
   BUS 13 comes in), south end (9.5, -1113) facing south.
 - **Bus stop shelter** just south of the pole, x 5…9.5, z -1050…-1044.5 (moved 3 m south of the first plan so the
-  round plates don't hide its fascia): blue steel frame, a roof sloping back, a BUS 13 · DESERT MINES fascia, glass
-  back and ends, a timetable poster (BUS 13 · HOTEL ⇄ DESERT MINES; departs ??:??, WHEN IT WANTS / YOU ARE HERE,
+  round plates don't hide its fascia): a blue steel frame (corner posts, a middle post at the back, eaves beams), a roof
+  sheet sloping 20 cm to the back with a deep edge band all round (the front band is the BUS 13 · DESERT MINES sign),
+  glass back and full-depth glass ends cut to the slope, a timetable poster (BUS 13 · HOTEL ⇄ DESERT MINES; departs ??:??, ANY MINUTE / NOW,
   NEVER / ALWAYS; "Do not run for the bus. It waits."), a slatted bench inside, a bin at the south end. Open to the
   road. **Remove the old bench and skull** beside the pole (`bench`, its legs and `skl` in busBoard0) and their
   obstacle `ob(4.8,5.4,-1044.4,-1042.6)`. The pole, its plates, its obstacle and the "Wait for BUS 13" prop stay.
