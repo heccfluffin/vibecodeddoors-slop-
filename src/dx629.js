@@ -28,7 +28,8 @@
    above the floor, the gold heaps' coins sit on the floor, the Heart's bowls get brackets.
 
    The model code below is docs/design/models/pyr.js unchanged. The wiring at the end adds these globals:
-   pywBurn, pywNS, pywAt, pywFl, pywTorch, pywUTorch, pywUGlow, pywPass, pywOut, pywIn, pywTreasure.
+   pywBurn, pywNS, pywAt, pywFl, pywTorch, pywUTorch, pywUGlow, pywUGroup, pywPass, pywOut, pywIn, pywTreasure.
+   The undercroft's meshes go into their own group (pywUGroup), drawn only while you are down there.
    (The models' own globals all start with py / PY; none of them clashed with the game.)
 
    The models build their canvas textures with Math.random, so they always run on the browser's own random
@@ -712,7 +713,11 @@ function pywTorch(q,g,x,z,ry,lit){const t=pywNS(()=>pyTorch(g,x,z,ry));pywFl(q,t
  q.anims.push(dt=>{fl.scale.setScalar(.9+Math.sin(q.rt*15+x)*.12)});if(lit){const L=new THREE.PointLight(0xff9a40,1.3,16);L.position.set(0,2.6,.6);t.add(L)}return t}
 /* the passage and undercroft torches keep pyrTorch's two glow sprites and its light */
 function pywUGlow(q,t,x,z,lit){pywFl(q,t.userData.flame);const gp=t.userData.glow,fl=glowSp(0xff9030,.85,1.15),f2=glowSp(0xffe090,.9,.45);fl.position.set(gp[0],gp[1]+.06,gp[2]);f2.position.set(gp[0],gp[1],gp[2]);t.add(fl);t.add(f2);
- q.anims.push(dt=>{const k=1+Math.sin(q.rt*15+x)*.12+Math.sin(q.rt*7.7+z)*.07;fl.scale.setScalar(1.15*k);f2.scale.setScalar(.45*k)});if(lit){const L=new THREE.PointLight(0xff9a40,1.4,15);L.position.set(0,2.6,.7);t.add(L)}return t}
+ q.anims.push(dt=>{const k=1+Math.sin(q.rt*15+x)*.12+Math.sin(q.rt*7.7+z)*.07;fl.scale.setScalar(1.15*k);f2.scale.setScalar(.45*k)});
+ if(lit){/* where pyrTorch had it, (0, 2.6, .7) in the torch's frame, but in the desert group itself (see pywUGroup) */const L=new THREE.PointLight(0xff9a40,1.4,15),s=Math.sin(t.rotation.y),c=Math.cos(t.rotation.y);L.position.set(t.position.x+s*.7,t.position.y+2.6,t.position.z+c*.7);(q.pyG0||t.parent).add(L)}return t}
+/* the undercroft's own group: shown only while you are down there (q.deep 2). Lights never go in it: hiding a light
+   changes the number of lights, and three.js would then rebuild every material's shader */
+function pywUGroup(q,g0){const UG=new THREE.Group();UG.name='pyUnder';g0.add(UG);q.pyG0=g0;UG.visible=q.deep===2;q.anims.push(()=>{UG.visible=q.deep===2});return UG}
 function pywUTorch(q,g,x,y,z,ry,lit,wo){const t=pywNS(()=>pyTorch(g,x,z,ry,wo));t.position.y=y;return pywUGlow(q,t,x,z,lit)}
 /* the long entrance hall in the portal passage: painted panels, starry ceiling, four torches (the -z one at X+37.5 is lit) */
 function pywPass(q,g){const R=pywNS(()=>pyPassage(g));for(const t of R.torches)pywUGlow(q,t,t.position.x,t.position.z,t===R.lit)}

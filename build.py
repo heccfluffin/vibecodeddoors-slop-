@@ -697,12 +697,20 @@ _a=s.index("const mum=new THREE.Group();mum.position.set(tx,.6,Z+2.95);mum.visib
 assert _b-_a<900;s=s[:_a]+"const mum=pywNS(pyMummy);pywBurn(2700);mum.position.set(tx,.6,Z+2.95);mum.visible=false;g.add(mum);"+s[_b+len("mum.userData.tr=tr}"):]
 R("const ch=A(pyrBox(1.1,.7,.7),M(0x6a3a1a),cx(1)+.3,.35,Z-2.6);const chl=A(BX(1.14,.18,.74),GOLD,cx(1)+.3,.79,Z-2.6);",
   "const ch=pywAt(g,pywNS(pyChest),cx(1)+.3,0,Z-2.6);const chl=pywAt(g,pywNS(pyChestLid),cx(1)+.3,.79,Z-2.6,1);")
+#    two fit fixes for the new models: the pushed-off lid leans against the sarcophagus's side (it used to stick into it), and the
+#    chest lid swings back on a hinge at the chest's back edge (it used to float 14 cm over the chest)
+R("lid.position.x=tx+.9;lid.position.y=.6;lid.rotation.z=.6;","lid.position.x=tx+.85;lid.position.y=.66;lid.rotation.z=-1.05;")
+R("chl.rotation.z=1.1;chl.position.set(cx(1)+.3-.57+.26,.88+.51,Z-2.6);","chl.rotation.z=1.9;chl.position.set(cx(1)+.3-.57-.27,.70+.51,Z-2.6);")
 R("const ped=A(pyrBox(.8,1.1,.8),SAND2,cx(1)-.6,.55,Z+.6);","const ped=pywAt(g,pywNS(pyPedestal),cx(1)-.6,0,Z+.6);")
 _a=s.index("{const f=new THREE.Mesh(new THREE.SphereGeometry(.24,14,10,0,Math.PI*2,0,Math.PI*.6),GOLD);f.scale.set(1,1.2,.7);mask.add(f);");_b=s.index("const mg=glowSp(0xffd040,.5,1.4);mask.add(mg)}",_a)
 assert _b-_a<700;s=s[:_a]+"{mask.userData.dpKeep=1;mask.add(pywNS(pyMask));"+s[_b:]
 # -- batch 2 (the passage) and the old sphinxes, in pyrUnder: the painted passage, its four torches (the -z one at X+37.5 lit); the avenue has the new sphinxes
 _a=s.index(" {for(const sd of[-1,1]){for(let k=0;k<3;k++){const p=new THREE.Mesh(new THREE.PlaneGeometry(3.6,1.6)");_b=s.index("ob(sx-3.4,sx+3.4,sz-1.8,sz+1.8)}}",_a)
 assert _b-_a<2000;s=s[:_a]+" pywBurn(9000);pywPass(q,g);"+s[_b+len("ob(sx-3.4,sx+3.4,sz-1.8,sz+1.8)}}"):]
+#    the undercroft's things go into their own group, shown only while you are down there (it is only reached by the stairs, behind a
+#    fade, and nothing up top can see it); its torch lights stay outside the group so the number of lights never changes
+R("function pyrUnder(q,g,K){const{M,A,BX,ob,SAND2,FLR,GOLD,DK}=K,","function pyrUnder(q,g,K){const{M,BX,ob,SAND2,FLR,GOLD,DK}=K,A=(geo,m,x,y,z,par)=>K.A(geo,m,x,y,z,par||g),")
+R("const pi0=q.props.length;/* every prompt from here on is underground */","const pi0=q.props.length;/* every prompt from here on is underground */g=pywUGroup(q,g);")
 #    the scarab trapdoor: the new slab (still slides) and its surround with the stairs picture; the old pit, frame strips and scarab plane go
 R("const pit=A(new THREE.PlaneGeometry(2.1,2.1),new THREE.MeshBasicMaterial({color:0x040302}),hx,.035,hz);pit.rotation.x=-Math.PI/2;","")
 _a=s.index("const slab=A(pyrBox(2.3,.12,2.3),SAND2,hx,.07,hz);const sg=");_b=s.index("A(BX(w,.08,d),M(0x6a5030),hx+ax,.04,hz+az);",_a)
