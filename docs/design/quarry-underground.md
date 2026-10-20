@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) in progress
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2) waiting for the user's OK
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -315,7 +315,7 @@ from above. Found and fixed on the way: doorways were walled over from the insid
 LEVEL sign faced into the shaft.
 The decline's bottom opens onto level 2, which comes in batch 3.
 
-### Batch 2: the level 1 rooms (`models/quarry-under-l1.js`), waiting for the user's OK
+### Batch 2: the level 1 rooms (`models/quarry-under-l1.js`), approved 2026-10-20
 Load it after the kit. The kit calls `ugRoomL1(batch, piece, level, ctx)` for each room rectangle and
 `ugCollapsed(...)` after a collapsed drift's tunnel, so the rooms come out of `ugBuildLevel` like everything else
 (merged per material, `noSeam`, lamps into `lamps`, veins into `veins`). Each room reads its version from the plan
@@ -356,6 +356,76 @@ Checked: the z-fight and floating checker on all 20 rooms, each built alone with
 level 1 of mine #4242: nothing (found and fixed: the catwalk boards, the kettle, the raise walls and the leaning sets'
 lagging). `node quarry-under-check.js`: all clear, 483 rooms over many seeds, all 88 versions. Screenshots of every room
 from inside.
+
+### Batch 3: level 2, the caves (`models/quarry-under-l2.js`, `models/quarry-under-l2r.js`), waiting for the user's OK
+Load them after `quarry-under-l1.js`. `ugBuildLevel` calls `ugPieceL2(b, p, L, ctx)` for every piece on levels 2 and 3
+first; it builds the piece and returns true, or returns false and the kit builds it as before. `ugBuildLevel` now also
+returns `solids` (mine coords `{x, z, r}`: big dressing that isn't in the plan, such as giant mushroom stems and roots).
+Each level has its own rock and floor (`ugRK(L)`, `ugFL(L)`: level 2 is blue-grey `rock2`/`floor2`); faces, ladder
+landings, the decline and stations use them.
+- **Cave passages and bends** (`ugCave`): a rounder profile than a drive, 4.8 m wide and 4 m high, rock pushed out by
+  the world noise up to 0.45 m and smooth-shaded. Within 2.4 m of each end it blends to the exact 4 m arch with no
+  noise, and the last 1.6 m run straight and square to the opening, so a passage meets a doorway, a drive or another
+  passage edge to edge (the plan's passage paths wiggle, so this is added at both ends). Loose stones along the foot
+  of the walls, veins every 4-8 m (silver, gold, crystal, some iron and copper).
+- **Cave rooms** (`ugChamber`): the plan's oval, with each doorway flattened into a straight 5.2 m stretch of wall;
+  rock walls up to 3.65 m (pushed out up to 0.75 m, never at the floor or near a doorway) curving into a domed roof
+  (1.8-7.5 m higher in the middle, by room). Each doorway is the 4 m arch with a flat panel above it and a rock lip
+  round it. `roofAt(x, z)` and `wallPt(angle, y)` give the roof height and a point on the wall, so columns, roots,
+  stalactites and the fossil sit on the real rock (things hanging from the roof reach 0.9 m up into it, because the
+  roof is only known exactly at its ring points). A room may have an island (a rock pillar the passage goes round,
+  its top joining the roof), pits and polygon holes in its floor.
+- **Forks**: plain; *Boulder fork* (a big noisy boulder and rubble); *Dripstone fork* (two flowstone columns, small
+  stalactites).
+- **Rock islands**: *Rock island*; *Crystal island* (the pillar is glowing crystal, faceted, with big crystals
+  jutting out and four lights round it); *Mushroom island* (no pillar: a low mound under one dome, seven giant pink
+  mushrooms leaning out over the passage, small green ones); *Flooded round* (ankle-deep water all round the pillar).
+- **Level 2 stations** (props by name through `ugProp`): *Cave station* (a plank platform round the cage, the
+  LEVEL 2 MAP board on posts); *Pumping station* (two big pumps with pipes up the shaft, a puddle); *Refuge station*
+  (a yellow steel refuge chamber in the corner with its door facing the room and a REFUGE sign, air bottles). The
+  refuge's plan data changed: it is now a solid `blk` r 1.4 at (-4.5, -4.8) instead of a door in the middle of the
+  floor, which stood in front of the west doorway.
+- **Stream crossings**: the stream cuts a channel across the passage floor (rock banks, a bed, rippled water that
+  flows: **the game scrolls `UGK.streamN.offset.y`**, about -0.25 per second), running under the walls at both ends.
+  *Stream crossing* (stepping stones), *Plank footbridge* (deep stream, planks on two rails, rope handrails),
+  *Stream tunnel* (ankle-deep water along the passage).
+- **Ore passes**: a short dug room at the end of a timbered neck (bulkhead at the opening), a 1.7 m chute with rock
+  sides into the dark; *Ore pass* (a light grate), *Grizzly* (heavy bars, a sledgehammer on a rack), *Skip loader*
+  (rails to the chute's lip, a skip with ore).
+- **Crystal grotto** (veins mostly crystal and silver): *Crystal grotto* (16 clusters, crystals round the foot of the
+  walls, lit); *Crystal pool* (a glowing, wadeable pool, 0.6 m deep, crystals round it and under its edge, a light in
+  it); *Selenite beams* (three pale beams sunk into the walls: one at 0.7-0.95 m to climb over, one at 1.35-1.45 m to
+  duck under, one high); *Frost grotto* (frost crystals, icicles, a cold mist at knee height in three soft layers);
+  *Crystal columns* (huge six-sided crystal columns floor to roof).
+- **Fungus grotto**: *Fungus grotto* (six giant glowing mushrooms, smaller ones, green mushrooms, moss, vines down the
+  walls, 90 glowworms on threads); *Puffball hollow* (five car-sized puffballs, small ones); *Glow pond* (a deep pond
+  lit from below, lily pads, three frogs, mushrooms round the edge); *Shelf-fungus wall* (a 2.7 m rock ledge against
+  the wall, six shelf fungi as steps up its face, gold veins above it); *Root hall* (thick pale roots from roof to
+  floor, thin ones ending in glowing tips).
+- **Flooded gallery**: *Flooded gallery* (knee-deep: the floor 0.45 m under the water, a plank walkway on posts along
+  the edge); *Underground lake* (3 m deep, a rope across on two posts, a raft on four barrels); *Drowned drift*
+  (timber sets standing in the water, old rails along the bottom with no buffers, a sunken cart); *Waterfall gallery*
+  (a plunge pool and a wading channel joined into one basin, `ugBasin`; water falling from a dark crack, foam and
+  spray; **the game scrolls `UGK.fallT.offset.y`**, about 1.2 per second).
+- **Chasm hall**: the fissure is a hole in the floor along the plan's line, rough rock sides 9 m down, darkness at the
+  bottom; it runs into the walls, or narrows to nothing where it ends inside the cave. *Chasm hall* (a sagging rope
+  bridge, three stepping-stone pillars rising from the depths); *Broken bridge* (each half hangs into the gap);
+  *Trestle crossing* (the miners' timber trestle: deck, rails, bents with braces down into the gap); *Zip line* (a tall
+  frame, a lower one across, the cable and a handle on a pulley).
+- **Stalactite hall**: *Stalactite hall* (flowstone columns, 45 stalactites, stalagmites off the ways through,
+  flowstone mounds); *Rimstone terraces* (four pools rimmed with flowstone, each rim higher than the last, water
+  brim-full); *Cathedral* (a 7.5 m dome round a giant fluted column); *Fossil wall* (a large made-up skeleton half dug
+  out of the wall: spine, ribs, skull; a tool pile, a work lamp, small spiral fossils by the wall); *Echo chamber*
+  (tall and empty but for a brass bell on a post).
+- **Light**: crystals, mushrooms, glowing pools, root tips and the fossil dig's lamp add lamps to `lamps` (a few per
+  room), lit by the same fixed pool of lights.
+
+Checked: the z-fight and floating checker on every one of the 36 level 2 piece versions built on its own, and on whole
+level 2s of mines #52, #777, #4242 and #9001; `node quarry-under-check.js` (all 88 versions). Screenshots of every
+version from inside and above. Found and fixed on the way: the map board's posts sharing faces with the board and its
+sign, stalactites and glowworm threads not reaching the roof, the crystal island's first look (a painted-on ring),
+the rope bridge's deck ropes (now they sag with the planks), a texture seam down one spot of every cave room's wall,
+a vein sitting on the fossil.
 
 ## Checks
 - Every level is one connected place, reachable on foot from the cage on level 1 (the generator guarantees it; test
