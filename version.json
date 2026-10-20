@@ -1,1 +1,1 @@
-{"b": "r647", "notes": "Faster desert: positions are only worked out again for things that moved"}
+{"b": "r648", "notes": "Faster desert: far fewer positions worked out again each frame"}
