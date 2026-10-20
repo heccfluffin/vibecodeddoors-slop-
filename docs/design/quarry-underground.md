@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) waiting for the user's OK
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) approved 2026-10-20
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -440,7 +440,7 @@ sign, stalactites and glowworm threads not reaching the roof, the crystal island
 the rope bridge's deck ropes (now they sag with the planks), a texture seam down one spot of every cave room's wall,
 a vein sitting on the fossil.
 
-### Batch 4: level 3, The Deep (`models/quarry-under-l3.js`), waiting for the user's OK
+### Batch 4: level 3, The Deep (`models/quarry-under-l3.js`), approved 2026-10-20
 Load it after `quarry-under-l2r.js`. `ugPieceL2` asks `ugPieceL3(b, p, L, ctx)` first, which builds the basalt
 gallery, magma chamber, dark cave, the Geode, the hot seam and the old shaft; passages, bends, forks, islands and ore
 passes are the level 2 pieces in this level's rock. `ugBuildLevel` now also returns `hot` (glowing crust patches that
