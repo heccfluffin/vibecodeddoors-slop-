@@ -203,6 +203,16 @@ function ugRoom(b,pts,y,h,doors,o){o=o||{};const amp=o.amp==null?.22:o.amp,rk=o.
  b.raw(o.floor||'floor',fp,fn,fu);const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(ru,2));rg.computeVertexNormals();b.add(o.roofMat||rk,rg);
  return{x0,x1,z0,z1}}
 
+/* ---------- a bulkhead: where a narrower tunnel (a room's neck) meets the standard 4 m opening, a flat rock wall with
+   the narrow arch cut in it fills the difference, with a timber frame round the doorway. (x,z) the opening's centre,
+   (fx,fz) the way it faces (out, towards the 4 m tunnel), hw the narrow half-width ---------- */
+function ugBulkhead(b,x,y,z,fx,fz,hw,o){const big=ugProf(2),sm=ugProf(hw),sh=new THREE.Shape(),wall=P=>P.filter(q=>q[1]>=0);
+ const ob=wall(big.P),ib=wall(sm.P);sh.moveTo(-2,0);for(const q of ob)sh.lineTo(q[0],q[1]);sh.lineTo(2,0);sh.lineTo(hw,0);for(let i=ib.length-1;i>=0;i--)sh.lineTo(ib[i][0],ib[i][1]);sh.lineTo(-hw,0);sh.lineTo(-2,0);
+ const g=new THREE.ShapeGeometry(sh);const pa=g.attributes.position,uv=[];for(let i=0;i<pa.count;i++)uv.push(pa.getX(i)/3,pa.getY(i)/3);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+ /* the shape's x runs to the right as you face it, its face looks along (fx,fz) */
+ const yaw=Math.atan2(fx,fz);b.add((o&&o.rock)||'rock',g,new THREE.Matrix4().compose(new THREE.Vector3(x,y,z),new THREE.Quaternion().setFromEuler(new THREE.Euler(0,yaw,0)),new THREE.Vector3(1,1,1)));
+ const rx=fz,rz=-fx,px=x+fx*.12,pz=z+fz*.12;for(const sd of[-1,1])b.box('wood',.24,sm.wy,.24,px+rx*sd*(hw+.04),y+sm.wy/2,pz+rz*sd*(hw+.04),yaw);b.box('wood',2*hw+.5,.26,.26,px,y+sm.wy+.13,pz,yaw)}
+
 /* ---------- a working face: closes a tunnel end with a rough rock dome. (x,z) the end, dir 0..3 the way the tunnel
    was going, y the floor. Returns the spots for its veins ---------- */
 function ugFace(b,x,y,z,dir,hw,o){o=o||{};const pf=ugProf(hw||2),v=ugRot(0,-1,dir),r=[-v[1],v[0]],P=pf.P,m=P.length,depth=1.2,rings=5,cy=pf.wy*.55,pos=[],uv=[];
@@ -397,6 +407,7 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
   /* tunnels (drive, bend, collapsed, dug joins) and, for now, the rooms of batch 2 as plain shells */
   const W=ugWorld(p);
   for(const s of W.shp){
+   if(s.k=='path'&&s.w<3.99){const op=ugOpenings(p);for(const [q,nb] of[[s.pts[0],s.pts[1]],[s.pts[s.pts.length-1],s.pts[s.pts.length-2]]]){if(!op.some(o=>Math.hypot(o.x-q[0],o.z-q[1])<.05))continue;const fx=q[0]-nb[0],fz=q[1]-nb[1],l=Math.hypot(fx,fz);ugBulkhead(b,q[0],y,q[1],fx/l,fz/l,s.w/2)}}
    if(s.k=='path'){const tr=ugTube(b,s.pts.map(q=>[q[0],y,q[1]]),{hw:Math.min(2,s.w/2),fil:t=='join'?3:0,rails:true,ends:ctx.ends,lampsOut:ctx.lamps,lampOff:p.id%2,broken:t=='collapsed'});
     /* a vein every 6 m or so, on alternate walls */
     const R=ugRng(p.id*977+13);for(let sd=3+R()*3;sd<tr.L-2;sd+=5+R()*4){const f=tr.at(sd),side=R()<.5?-1:1;if(R()<.35)continue;ctx.veins.push({x:f.p[0]+f.r[0]*side*(tr.pf.hw+.06),y:y+1+R()*.9,z:f.p[2]+f.r[1]*side*(tr.pf.hw+.06),dx:-f.r[0]*side,dz:-f.r[1]*side,t:R()<.15?'ag':R()<.55?'fe':'cu'})}}

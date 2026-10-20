@@ -292,7 +292,9 @@ of a real plan this way.
   narrow 3.2 m landings, so the 4 m tunnel meeting them left black gaps either side; the user spotted it).
 - **One opening size everywhere:** every place where two pieces meet is the standard 4 m arch (`ugProf(2)`). A
   piece may be wider or narrower inside (cave passages, the crib room's narrow door), but it must come back to the
-  4 m arch at its openings, or close the difference with a rock bulkhead around a smaller doorway. The plan's
+  4 m arch at its openings, or close the difference with a rock bulkhead around a smaller doorway (`ugBulkhead`:
+  the 4 m arch with the narrow arch cut out, and a timber frame round the doorway; the level builder adds one wherever
+  a narrow neck starts at an opening). The plan's
   ladderway path is now 4 m wide too.
 - **Spiral decline**: the tunnel itself spirals a turn and a half down round its rock core (72 m long, 1 in 6),
   with sets and lamps all the way.
