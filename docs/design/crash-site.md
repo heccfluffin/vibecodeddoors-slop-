@@ -1,4 +1,4 @@
-Status: building (Claude Code, 2026-10-20) · was: approved 2026-10-18 · ready to build
+Status: shipped in r639 (2026-10-20)
 
 # The plane crash site (remodel list #21)
 

@@ -1,5 +1,5 @@
 /* =====================================================================================================
-   crash-site.md: the plane crash site, remodelled (remodel list #21). (Release number: set by the lead when merged.)
+   crash-site.md: the plane crash site, remodelled (remodel list #21). r639.
 
    What it does: the crashed plane south-west of the bus stop (old spot px, pz = -38, -1165) is rebuilt from the
    design chat's model docs/design/models/crash.js. You now find the front fuselage of flight DA-100 (Sandpiper

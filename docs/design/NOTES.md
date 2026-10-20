@@ -1,5 +1,12 @@
 # Notes for the design chat
 
+## 2026-10-20 · r639: the crash site
+- Built as specced (dx626 holds crash.js unchanged; the two bak519 blocks are build.py patches). Same spot, not turned.
+- The old debris used 50 numbers from the desert's seeded random; the new block still draws those 50, so everything built after it in desertLocs stays where it was.
+- Black box prompt at (-64.2, -1167.2), flare gun at (px-3.6, pz-6.4), pilot's log at (px+4.75, pz) with radius 1.6.
+- Question: the flare goes up from under the wing, so it may flash through the wing for a moment as it rises. Move the launch spot just past the trailing edge (e.g. px-2.5)?
+- Note: the gap between the cockpit seats is narrow (z ±0.3); the log can still be read from the aisle.
+
 ## 2026-10-20 · r638: the two small fixes
 - **meteor-crater.md:** built as written (the two build.py replacements, 2 matches each). The crater, the green rock, its prompt, the map marker and all five fragments are at (140, -970); a screenshot from the PD forecourt shows them on open sand, clear of the impound lot.
 - **airfield-zone51.md (crop duster):** the three number changes made in dx617 exactly as given.
