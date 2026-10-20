@@ -6,7 +6,6 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 |---|---|---|
 | `pyramid.md` | the pyramid: layout and batches 1-6 | `models/pyr.js` |
 | `dusty-gulch.md` | Dusty Gulch: layout, batches 1-4, five interiors | `models/gulch.js` |
-| `hangar-1.md` | Hangar 1: layout and all four batches | `models/hangar-1.js` |
 | `lake-rail.md` | the lake, the observatory, Dino Dan's, the railway, crossings and the train | `models/lake.js` |
 | `weapons.md` | the weapons | `models/weapons.js` |
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |

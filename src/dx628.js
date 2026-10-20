@@ -1,6 +1,6 @@
 /* =====================================================================================================
    HANGAR 1 REWORK (design spec docs/design/hangar-1.md, models docs/design/models/hangar-1.js).
-   The X-13 Wraith hangar at Fort Blackout gets a proper inside to go with its r616 cladding (fbHangarSkin):
+   r640: The X-13 Wraith hangar at Fort Blackout gets a proper inside to go with its r616 cladding (fbHangarSkin):
    - batch 1, hgShell: one painted floor (lane, the Wraith's bay box with its name, the tank bay's hazard border, a zebra
      walkway, the KEEP CLEAR hatch by the door), a wall lining, two steel pockets the blast door slabs slide into,
      steel columns, roof trusses and 21 high-bay lights. hgDoorSlab repaints the two blast door slabs (half of the big

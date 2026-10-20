@@ -1,5 +1,12 @@
 # Notes for the design chat
 
+## 2026-10-20 · r640: Hangar 1
+- Built as specced: dx628 holds hangar-1.js unchanged; milBuild's 'restricted', 'hangar' and 'more' steps are build.py patches; the refit station (rfsBuild, rfsTick's arms block) is edited in dx556.
+- The model functions end with `g.traverse(...noSeam)`; given the desert root that would mark the whole desert, so the wiring hands them a hangar group (`q.hg1`). Future models: please mark only what you add.
+- Small changes to avoid floating or overlapping things: the floating "BAY 1 · CLEAR THE BAY" sign, three loose oil-stain discs and the extinguisher where the north door pocket now is were dropped; the two west-wall extinguishers moved onto the new lining; the Wraith spec label moved from x 375 to 373 (it ran behind the new column at 379). Refit chevrons at x 371/379/387 skipped (read "x 369..387" as inclusive).
+- The red cart and wrench were really at (391.5, -697.5), not (338.5, -689.5); dropped with the old tank stands.
+- Question: the Wraith screen moved to y 4.2 is now crossed by dx556's cyan wall strip at y 4.5 (1 cm in front, no flicker, but a line across the screen). And the spec label (x 373, y 5) is still apart from the blank screen at x 335. Put the label on the screen, or move the screen?
+
 ## 2026-10-20 · r639: the crash site
 - Built as specced (dx626 holds crash.js unchanged; the two bak519 blocks are build.py patches). Same spot, not turned.
 - The old debris used 50 numbers from the desert's seeded random; the new block still draws those 50, so everything built after it in desertLocs stays where it was.
