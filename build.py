@@ -264,6 +264,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx624.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx625.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx626.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx628.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx627.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -679,6 +680,27 @@ R('A(CY(.4,.4,1.0,12),M(0x2a4a8a,{metalness:.4}),410,.5+FL,-711);A(BX(.6,.4,.5),
 R('for(const[x,z,ry]of[[326.2,-700,Math.PI/2],[326.2,-688,Math.PI/2],[423.8,-712,-Math.PI/2]]){A(CY(.09,.09,.5,10),RD,x,1.1,z);A(BX(.3,.12,.05),WH,x,1.55,z);A(BX(.04,.3,.3),M(0x6a6a6a),x+(x<400?-.1:.1),1.1,z)}','for(const z of[-700,-688]){A(CY(.09,.09,.5,10),RD,325.72,1.1,z);A(BX(.06,.3,.3),M(0x6a6a6a),325.6,1.1,z);A(BX(.02,.12,.3),WH,325.58,1.55,z)}')
 # 'more' step: the three loose oil-stain discs go (the painted floor has its own oil stains; the discs sat over the lane lines)
 R('for(const[x,z,r]of[[368,-698,1.2],[382,-690,.8],[350,-696,1.5]])A(new THREE.CircleGeometry(r,14),M(0x2a2420,{roughness:.6}),x,.1,z).rotation.x=-Math.PI/2;','')
+# weapons.md: Fort Blackout's sentry guns, AA guns, mortars and LZ Bravo's helicopter use the new models (dx627)
+# mkTurret (local to the Fort Blackout builder): everything that built meshes goes; wpSentry / wpAA build into the
+# same group gp. The radar and the alarm eye keep their anims. Signature, ry0, ML.tur entry and obstacle stay.
+_h='function mkTurret(x,z,y0,k){const gp=new THREE.Group();gp.position.set(x,y0,z);g.add(gp);'
+_e='const bar=head.userData.bar,fl=head.userData.fl;'
+assert s.count(_h)==1 and s.count(_e)==1,(s.count(_h),s.count(_e))
+_a=s.index(_h)+len(_h);_b=s.index(_e,_a);assert _b-_a<12000,_b-_a
+s=s[:_a]+"const aa=k=='aa';const W=aa?wpAA(gp):wpSentry(gp);const head=W.head,bar=W.bar,fl=W.fl;if(aa)anim(x,z,300,dt=>{W.radar.rotation.y+=dt*2.5});else anim(x,z,200,()=>{W.eye.material.emissive.setHex(ML.alarm?((q.rt*6|0)%2?0xff3030:0x300000):0xff3030)});"+s[_b+len(_e):]
+# the turret remembers its barrel cluster (sp) and the gun's rest position (bz: the AA gun's axle sits 15 cm forward)
+R("head.rotation.y=ry0;const u={x,z,y:y0+(aa?1.6:1.28),k,g:gp,head,bar,fl,cd:0,","head.rotation.y=ry0;const u={x,z,y:y0+(aa?1.6:1.28),k,g:gp,head,bar,fl,sp:W.sp,bz:bar.position.z,cd:0,")
+# only the six-barrel cluster spins (the shield, cradle and flash stay put)
+R("u.spin+=dt*30;u.bar.rotation.z=u.spin}","u.spin+=dt*30;(u.sp||u.bar).rotation.z=u.spin}")
+# the recoil kicks back from the gun's rest position instead of from 0
+R("u.bar.position.z=.15*(u.rec/.12)}else u.bar.position.z=0}","u.bar.position.z=(u.bz||0)+.15*(u.rec/.12)}else u.bar.position.z=u.bz||0}")
+# mortar pits: the new mortar, turned to fire north at the berm, and one crate of rounds instead of three ammo boxes
+R("const m=mkMortar(K);m.position.set(mx,0,mz);m.rotation.y=Math.PI/2;g.add(m);ob(mx-.6,mx+.6,mz-.6,mz+.6);for(let k=0;k<3;k++)A(BX(.5,.3,.9),OD,mx-1.4+k*.55,.15,mz+1.3);",
+  "const m=wpMortar();m.position.set(mx,0,mz);m.rotation.y=Math.PI;g.add(m);ob(mx-.6,mx+.6,mz-.6,mz+.6);{const cr=wpRounds();cr.position.set(mx-1.3,0,mz+1.3);cr.rotation.y=.3;g.add(cr)}")
+# the firing dust comes out of the muzzle (the mortar is turned by PI, so local (x,y,z) is (mx-x, y, mz-z)), and the tube kicks
+R("try{vfx('dust',mx,.8,mz+q.OZ,{n:8,w:.8})}catch(e){}","try{const mu=m.userData.muzzle;vfx('dust',mx-mu.x,mu.y,mz-mu.z+q.OZ,{n:8,w:.8});wpMortarKick(m)}catch(e){}")
+# LZ Bravo: the UH-9 transport helicopter instead of the old military mkHeli(K) (the police pad's mkHeli() was swapped in r620)
+R("const heli=mkHeli(K);heli.position.set(hx,0,hz);","const heli=wpHeli();heli.position.set(hx,0,hz);")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
