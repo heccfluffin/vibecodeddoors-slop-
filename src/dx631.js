@@ -28,7 +28,8 @@
      walk, car park, crossings or pole line are taken away again (so the random sequence is not changed and every
      other place comes out exactly as before).
    - build.py (block "lake-rail"): the old telegraph poles on the north side of the line (xpMoreFar) are not built
-     any more (the new ones are on the south side).
+     any more (the new ones are on the south side), and the parked quad bike (xpVehicles) moves from (262,-1494), which
+     is now the bait shop's east wall, to (264.6,-1497.5).
    Model meshes are built into a temporary group and then moved into the desert root, so the models' noSeam pass
    only touches their own meshes and the scenery chunks still work. Math.random is a fixed local sequence while a
    model builds (a few models use it for gumballs, coal and straw), so the desert's seeded sequence is untouched.
