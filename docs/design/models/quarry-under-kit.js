@@ -289,7 +289,10 @@ function ugStationBuild(b,p,L,ctx){const y=UGLY(L),h=L==0?4.6:4.2,hs=L==0?8:6,r=
  for(const f of p.d.fx){if(f.k=='blk')for(const q of f.pts){const w=T(q[0],q[1]);ugProp(b,f.n,w[0],y,w[1],ugYaw(p,Math.atan2(q[0],q[1])),f.r||.5,ctx)}
   if(f.k=='cribs')for(const q of f.pts){const w=T(q[0],q[1]);ugCrib(b,w[0],y,w[1],h)}}
  /* every station: a bench, the shift clock and the level map board on the walls beside the gate side */
- if(L==0){const w=T(-hs+.18,-4.6),w2=T(-hs+.18,4.6);ctx.signs.push({x:w[0],y:y+2.2,z:w[1],yaw:ugYaw(p,-Math.PI/2),txt:'SHIFT 6:00',w:1.2,clock:1});ctx.signs.push({x:w2[0],y:y+1.8,z:w2[1],yaw:ugYaw(p,-Math.PI/2),txt:'LEVEL 1 MAP',w:1.6,map:1})}
+ /* on the -x wall, facing into the room (+x), each on a thick backing board that reaches into the rock */
+ if(L==0){const w=T(-hs+.06,-4.6),w2=T(-hs+.06,4.6),yaw=ugYaw(p,Math.PI/2),n=ugRot(-1,0,p.r);
+  for(const [q,yy,wd,ht] of[[w,y+2.2,1.3,.44],[w2,y+1.8,1.7,.44]])b.box('board',wd,ht,.36,q[0]+n[0]*.17,yy,q[1]+n[1]*.17,yaw);
+  ctx.signs.push({x:w[0]-n[0]*.02,y:y+2.2,z:w[1]-n[1]*.02,yaw,txt:'SHIFT 6:00',w:1.2,clock:1});ctx.signs.push({x:w2[0]-n[0]*.02,y:y+1.8,z:w2[1]-n[1]*.02,yaw,txt:'LEVEL 1 MAP',w:1.6,map:1})}
  /* big lamps on the roof */
  for(const q of[[-hs/2,-hs/2],[hs/2,hs/2],[hs/2,-hs/2],[-hs/2,hs/2]]){const w=T(q[0],q[1]);b.cyl('wire',.01,.01,.6,w[0],y+h-.3,w[1],4);b.cyl('steel',.16,.22,.12,w[0],y+h-.62,w[1],12);b.add('glass',new THREE.SphereGeometry(.1,10,8),new THREE.Matrix4().makeTranslation(w[0],y+h-.72,w[1]));ctx.lamps.push([w[0],y+h-.8,w[1],1.4])}
 }
