@@ -119,17 +119,17 @@ function rtGas(g){const k=rtKit(),{B,C,rod,L,slab}=k.H(g),M=k.M,obs=[],lights=[]
   /* a low kerb along the south edge, where the forecourt meets the sand (gaps for the taxi stand path) */B(X1-X0-14,.12,.25,(X0+X1)/2+7,.06,Z0-.125,k.KERB);
   /* painted arrows (in from Route 13, along the north lane, into the car wash, out north to the PD road) and a
      dashed WASH box in front of the car wash entrance */
-  for(const [x,z,a] of[[12,-1004,0],[50,-996.4,0],[58.6,-1005,0],[81.6,-999,-Math.PI/2]])g.add(rtArrow(x,z,a));
+  for(const [x,z,a] of[[12,-1004,0],[58.6,-1005,0],[81.6,-999,-Math.PI/2]])g.add(rtArrow(x,z,a));
   {const m3=rtPaint(k,6.6,7,(c,w,h)=>{c.strokeStyle='rgba(232,192,32,.95)';c.lineWidth=7;c.setLineDash([26,16]);c.strokeRect(6,6,w-12,h-12)},256);m3.position.set(60.6,.04,-1005);g.add(m3)}}
  /* the canopy: a deep box on four clad columns, green fascia with a white stripe and the name on three sides, a
     white underside with six glowing light panels */
- const CX0=20.6,CX1=35.4,CZ0=-1010.6,CZ1=-999.4,CY=5.0,CD=.9,GRN=M(0x3a8a2a,{roughness:.6}),WHT=M(0xf2f0ea,{roughness:.7}),LITE=M(0xffffff,{emissive:0xfff4dc,emissiveIntensity:1.1});
- B(CX1-CX0,CD,CZ1-CZ0,(CX0+CX1)/2,CY+CD/2,(CZ0+CZ1)/2,GRN);B(CX1-CX0-.02,.04,CZ1-CZ0-.02,(CX0+CX1)/2,CY-.02,(CZ0+CZ1)/2,WHT);
+ const CX0=20.6,CX1=35.4,CZ0=-1010.6,CZ1=-999.4,CY=5.0,CD=.9,GRN=M(0x3a8a2a,{roughness:.6}),WHT=M(0xf2f0ea,{roughness:.7}),UND=M(0xf2f0ea,{roughness:.7,emissive:0x6a665e}),LITE=M(0xffffff,{emissive:0xfff4dc,emissiveIntensity:1.1});
+ B(CX1-CX0,CD,CZ1-CZ0,(CX0+CX1)/2,CY+CD/2,(CZ0+CZ1)/2,GRN);B(CX1-CX0-.02,.04,CZ1-CZ0-.02,(CX0+CX1)/2,CY-.02,(CZ0+CZ1)/2,UND);   /* the underside is lit by its own lights, so it never looks like a dark lid */
  /* the white stripe and the name: a thin band round the fascia (slightly proud of it), letters on the west, north and south faces */
  B(CX1-CX0+.04,.12,CZ1-CZ0+.04,(CX0+CX1)/2,CY+.2,(CZ0+CZ1)/2,WHT);
  {const t='EL GOBLINO GAS';L(t,9,.52,null,'#f4f0e0',90,(CX0+CX1)/2,CY+.6,CZ1+.006);const s=L(t,9,.52,null,'#f4f0e0',90,(CX0+CX1)/2,CY+.6,CZ0-.006);s.rotation.y=Math.PI;const w=L(t,8,.52,null,'#f4f0e0',90,CX0-.006,CY+.6,(CZ0+CZ1)/2);w.rotation.y=-Math.PI/2;
   for(const [x,z,ry] of[[CX0+1.2,CZ1+.007,0],[CX1-1.2,CZ1+.007,0],[CX0+1.2,CZ0-.007,Math.PI],[CX1-1.2,CZ0-.007,Math.PI]]){const lg=new THREE.Mesh(new THREE.PlaneGeometry(.78,.78),new THREE.MeshBasicMaterial({map:rtLogoTex(k),transparent:true}));lg.position.set(x,CY+.5,z);lg.rotation.y=ry;lg.userData.noSeam=true;g.add(lg)}}
- for(const x of[23.5,28,32.5])for(const z of[-1007.6,-1002.4]){B(1.6,.03,.7,x,CY-.045,z,LITE)}lights.push([23.5,CY-.4,-1005],[32.5,CY-.4,-1005],[28,CY-.4,-1005]);
+ /* light panels flush in the underside: a glowing face 5 mm under it in a thin steel rim, so nothing hangs */for(const x of[23.5,28,32.5])for(const z of[-1007.6,-1002.4]){const lp=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.6),LITE);lp.rotation.x=Math.PI/2;lp.position.set(x,CY-.045,z);lp.userData.noSeam=true;g.add(lp);for(const [w,d,dx,dz] of[[1.6,.05,0,.325],[1.6,.05,0,-.325],[.05,.6,.775,0],[.05,.6,-.775,0]])B(w,.012,d,x+dx,CY-.046,z+dz,k.STL)}lights.push([23.5,CY-.4,-1005],[32.5,CY-.4,-1005],[28,CY-.4,-1005]);
  /* columns: square, white, a green kick at the foot, a lit band near the top */
  for(const [x,z] of[[22,-1009],[34,-1009],[22,-1001],[34,-1001]]){B(.5,CY-.04,.5,x,(CY-.04)/2,z,WHT);B(.54,.6,.54,x,.3,z,GRN);B(.52,.12,.52,x,CY-.5,z,M(0x3a8a2a,{emissive:0x1a4a14,roughness:.5}));ob(x-.3,x+.3,z-.3,z+.3)}
  /* the pumps: an island with a raised nose at each end and two yellow bollards, a dispenser in the middle with

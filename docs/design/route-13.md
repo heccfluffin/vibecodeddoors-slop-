@@ -122,13 +122,14 @@ stand and every prop stay as they are.
   (22, -996), and **the shop's west wall pieces** (the two side pieces and the header over the door; keep their
   obstacles), because `rtShopFront` is the new west wall.
 - **Forecourt:** concrete slabs (4 m joints, oil stains) x 3.5…84.5, z -1013…-993.5 at y .025, joining Route 13, the PD drive and the
-  PD road; a low kerb along the south edge; four painted arrows (`rtArrow`, flat shapes: in from Route 13, along the north
-  lane, into the car wash, out north to the PD road) and a dashed yellow WASH box in front of the car wash entrance.
+  PD road; a low kerb along the south edge; three painted arrows (`rtArrow`, flat shapes: in from Route 13, into the car
+  wash, out north to the PD road) and a dashed yellow WASH box in front of the car wash entrance.
   (The first version's canvas arrows came out squashed and its long lead-in lines looked like they floated; the
   user's note.) Add its `q.mapR` shape in a concrete colour (and make sure the route grid lets cars drive on it).
 - **Canopy:** x 20.6…35.4, z -1010.6…-999.4, underside at 5 m, 0.9 m deep, green with a white stripe, EL GOBLINO GAS
   and El Goblino's logo (his red head, ears, yellow eyes and top hat on a green disc) on the north, south and west
-  faces, a white underside with six glowing panels (`lights`: three points for the game's lights), four square
+  faces, a white underside lit softly from its own lights, six glowing panels set flush in thin steel rims (the first
+  version's panels hung below a dark underside and looked like they floated; the user's note) (`lights`: three points for the game's lights), four square
   white columns with a green foot and a lit band.
 - **Pumps** (one group each, at (28, -1007.2) and (28, -1002.8)): an island 2.4 × 1.2 m with yellow noses and
   bollards, a white dispenser with a green top and foot, the logo, a price window "7.13 🪙 GWEEN UNLEADED" and a hose
