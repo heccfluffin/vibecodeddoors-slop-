@@ -27,10 +27,10 @@ const UGP={
  tee:{nm:'T junction',cat:'jn',lv:[1],w:4,mk(){return{foot:[[-4,4,-8,0]],ex:[[-4,-4,3],[4,-4,1]],shp:[{k:'path',pts:[[0,0],[0,-4]],w:4},{k:'path',pts:[[-4,-4],[4,-4]],w:4}],fx:[{k:'sign',x:0,z:-5.6},{k:'rail',pts:[[0,0],[0,-4],[4,-4]]}]}}},
  cross:{nm:'Crossroads',cat:'jn',lv:[1],w:2,mk(){return{foot:[[-4,4,-8,0]],ex:[[-4,-4,3],[4,-4,1],[0,-8,0]],shp:[{k:'path',pts:[[0,0],[0,-8]],w:4},{k:'path',pts:[[-4,-4],[4,-4]],w:4}],fx:[{k:'sign',x:1.6,z:-5.6},{k:'rail',pts:[[0,0],[0,-8]]}]}}},
  stope:{nm:'Stope',cat:'room',lv:[1],w:3,mx:3,want:1,mk(R){const ex=R()<.6?[[0,-18,0]]:[];return{foot:[[-7,7,-18,0]],ex,shp:[{k:'path',pts:[[0,0],[0,-2]],w:4},{k:'rect',x0:-7,x1:7,z0:-18,z1:-2,rough:1}],fx:[{k:'cribs',pts:[[-3.5,-6],[3.5,-6],[-3.5,-12],[3.5,-12],[0,-14]]},{k:'ore',n:7},{k:'icon',x:0,z:-9,t:'⛏️'}]}}},
- crib:{nm:'Crib room',cat:'end',lv:[1],w:2,mx:1,want:1,mk(){return{foot:[[-4,4,-10,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-2]],w:2.4},{k:'rect',x0:-4,x1:4,z0:-10,z1:-2}],fx:[{k:'blk',pts:[[0,-6.6]],r:.9,n:'table'},{k:'blk',pts:[[3,-9]],r:.5,n:'stove'},{k:'icon',x:0,z:-6.6,t:'🥪'}]}}},
+ crib:{nm:'Crib room',cat:'end',lv:[1],w:2,mx:1,want:1,mk(){return{foot:[[-4,4,-10,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-2]],w:2.4},{k:'rect',x0:-4,x1:4,z0:-10,z1:-2}],fx:[{k:'blk',pts:[[0,-6.6]],r:1.1,n:'table'},{k:'blk',pts:[[3,-9]],r:.5,n:'stove'},{k:'icon',x:0,z:-6.6,t:'🥪'}]}}},
  magazine:{nm:'Powder magazine',cat:'end',lv:[1],w:2,mx:1,want:1,mk(){return{foot:[[-3,3,-9,0]],ex:[],shp:[{k:'path',pts:[[0,0],[0,-3]],w:2},{k:'rect',x0:-3,x1:3,z0:-9,z1:-3}],fx:[{k:'door',x:0,z:-3},{k:'blk',pts:[[-1.9,-7.6],[1.9,-7.6],[-1.9,-5.6]],r:.55,n:'crate',c:'#8a2a1a'},{k:'icon',x:.6,z:-6,t:'🧨'}]}}},
  collapsed:{nm:'Collapsed drift',cat:'tun',lv:[1],w:1.5,mx:2,mk(){return{foot:[[-2,2,-12,0]],ex:[[0,-12,0]],shp:[{k:'path',pts:[[0,0],[0,-12]],w:4}],fx:[{k:'sets',pts:[[0,0],[0,-12]],broken:1},{k:'rubble',x:.7,z:-6}]}}},
- pump:{nm:'Pump room',cat:'room',lv:[1],w:2,mx:1,mk(){return{foot:[[-5,5,-10,0]],ex:[[0,-10,0]],shp:[{k:'rect',x0:-5,x1:5,z0:-10,z1:0}],fx:[{k:'water',cx:-2,cz:-5,rx:2.4,rz:3.4,deep:1},{k:'blk',pts:[[2.6,-5]],r:.7,n:'pump'},{k:'icon',x:2.6,z:-5,t:'🛢️'}]}}},
+ pump:{nm:'Pump room',cat:'room',lv:[1],w:2,mx:1,mk(){return{foot:[[-5,5,-10,0]],ex:[[0,-10,0]],shp:[{k:'rect',x0:-5,x1:5,z0:-10,z1:0}],fx:[{k:'water',cx:-2,cz:-5,rx:2.4,rz:3.4,deep:1},{k:'blk',pts:[[2.6,-5]],r:.95,n:'pump'},{k:'icon',x:2.6,z:-5,t:'🛢️'}]}}},
  round:{nm:'Pillar round',cat:'jn',lv:[1],w:2.5,mx:2,want:1,mk(R){const p=[[0,-4],[8,-4],[8,-24],[-8,-24],[-8,-4],[0,-4]];const ex=[[0,-28,0]];if(R()<.4)ex.push([10,-14,1]);return{foot:[[-10,10,-28,0]],ex,ring:{a:[8,-14],b:[-8,-14]},shp:[{k:'path',pts:[[0,0],[0,-4]],w:4},{k:'path',pts:p,w:4},{k:'path',pts:[[0,-24],[0,-28]],w:4}].concat(ex.length>1?[{k:'path',pts:[[8,-14],[10,-14]],w:4}]:[]),fx:[{k:'pillar',x0:-6,x1:6,z0:-22,z1:-6},{k:'sets',pts:p},{k:'rail',pts:[[0,0],[0,-4],[8,-4],[8,-24],[0,-24],[0,-28]]},{k:'icon',x:0,z:-14,t:'⛏️'}]}}},
  /* ----- Level 2: The Caves (natural, organic shapes) ----- */
  cpass:{nm:'Cave passage',cat:'tun',lv:[2,3],w:6,mk(R){const L=[12,18,24][R()*3|0],p=ugWig(R,L,1.2);return{foot:[[-3,3,-L,0]],ex:[[0,-L,0]],shp:[{k:'path',pts:p,w:4.6,org:1}]}}},
@@ -84,19 +84,19 @@ const UGV={
   {nm:'Crib room',ds:'The miners\' break room: benches, a table with lunch tins, a stove. A lunchbox to find.'},
   {nm:'Lamp room',ds:'Racks of old cap lamps on chargers and a board of brass tags. One tag has a name you\'ll know.',fx:()=>[{k:'racks',pts:[[-3,-4],[-3,-6],[-3,-8],[3,-4],[3,-6]]},{k:'icon',x:0,z:-6,t:'🔦'}]},
   {nm:'Foreman\'s office',ds:'A desk, a safe, maps on the walls and the foreman\'s logbook (lore). The safe holds a shift bonus.',fx:()=>[{k:'desk',x:1.4,z:-7.6},{k:'blk',pts:[[-3,-9]],r:.5,n:'safe'},{k:'icon',x:-2,z:-5,t:'🗄️'}]},
-  {nm:'First-aid station',ds:'A stretcher, a cabinet and a first-aid kit you can carry: your next fall, gas or burn costs you nothing.',fx:()=>[{k:'blk',pts:[[2.6,-6]],r:.6,n:'stretcher'},{k:'blk',pts:[[-3,-8.6]],r:.5,n:'cabinet'},{k:'icon',x:0,z:-6,t:'⛑️'}]}],
+  {nm:'First-aid station',ds:'A stretcher, a cabinet and a first-aid kit you can carry: your next fall, gas or burn costs you nothing.',fx:()=>[{k:'blk',pts:[[2.5,-6]],r:1,n:'stretcher'},{k:'blk',pts:[[-3,-8.6]],r:.5,n:'cabinet'},{k:'icon',x:0,z:-6,t:'⛑️'}]}],
  magazine:[
   {nm:'Powder magazine',ds:'Behind a heavy door: crates of dynamite. Take up to 3 sticks.'},
   {nm:'Blasting store',ds:'A plunger box and reels of wire: dynamite set from here goes off when you push the plunger, no fuse wait.',fx:()=>[{k:'door',x:0,z:-3},{k:'blk',pts:[[-1.9,-7.6]],r:.55,n:'crate',c:'#8a2a1a'},{k:'blk',pts:[[1.9,-7.4]],r:.5,n:'plunger'},{k:'icon',x:0,z:-6,t:'🧨'}]},
   {nm:'Flooded magazine',ds:'Ankle-deep water and crates gone soft. One stick is still dry, up on the top shelf.',fx:()=>[{k:'door',x:0,z:-3},{k:'water',cx:0,cz:-6,rx:2.6,rz:2.8},{k:'blk',pts:[[-1.9,-7.6]],r:.55,n:'crate',c:'#8a2a1a'},{k:'icon',x:.6,z:-6,t:'🧨'}]}],
  collapsed:[
   {nm:'Collapsed drift',ds:'Broken timbers and a rubble heap to squeeze past on one side.'},
-  {nm:'Buried cart',ds:'A cave-in half buried a loaded minecart: dig it out (6 swings) for a pile of ore.',fx:()=>[{k:'sets',pts:[[0,0],[0,-12]],broken:1},{k:'rubble',x:-.6,z:-5},{k:'blk',pts:[[.9,-8.4]],r:.6,n:'cart'},{k:'icon',x:.9,z:-8.4,t:'🛒'}]},
+  {nm:'Buried cart',ds:'A cave-in half buried a loaded minecart: dig it out (6 swings) for a pile of ore.',fx:()=>[{k:'sets',pts:[[0,0],[0,-12]],broken:1},{k:'rubble',x:-.6,z:-5},{k:'blk',pts:[[.9,-8.4]],r:.8,n:'cart'},{k:'icon',x:.9,z:-8.4,t:'🛒'}]},
   {nm:'Propped drift',ds:'A forest of emergency props holding up a cracked roof. Dust trickles when you pass.',fx:()=>[{k:'blk',pts:[[-1.2,-3],[1.2,-3],[-1.2,-6],[1.2,-6],[0,-7.5],[-1.2,-9],[1.2,-9]],r:.2,n:'prop',c:'#8a5a2e'}]}],
  pump:[
   {nm:'Pump room',ds:'An old pump over a deep, flooded sump.'},
   {nm:'Winder room',ds:'The big drum and brake of an old winze hoist, cables running into a fenced hole in the floor.',fx:()=>[{k:'drum',x:-1.4,z:-5},{k:'pit',cx:2.8,cz:-5,rx:1.4,rz:1.4},{k:'icon',x:-1.4,z:-5,t:'⚙️'}]},
-  {nm:'Mine workshop',ds:'A forge, an anvil, a drill press, broken carts waiting for repair.',fx:()=>[{k:'desk',x:-3,z:-3.2},{k:'desk',x:3,z:-7},{k:'blk',pts:[[-2.6,-7.4]],r:.4,n:'anvil'},{k:'icon',x:0,z:-5,t:'🔨'}]},
+  {nm:'Mine workshop',ds:'A forge, an anvil, a drill press, broken carts waiting for repair.',fx:()=>[{k:'desk',x:-3,z:-3.2},{k:'desk',x:3,z:-7},{k:'blk',pts:[[-2.6,-7.4]],r:.4,n:'anvil'},{k:'blk',pts:[[-4.1,-9.1]],r:.6,n:'forge'},{k:'icon',x:0,z:-5,t:'🔨'}]},
   {nm:'Compressor room',ds:'A big air compressor thumping away, pipes off along the drives. Switch it off (E) and listen to the mine.',fx:()=>[{k:'blk',pts:[[-2.8,-5]],r:1.2,n:'compressor'},{k:'blk',pts:[[3,-3.4]],r:.7,n:'air tank'},{k:'icon',x:-2.8,z:-5,t:'💨'}]}],
  round:[
   {nm:'Pillar round',ds:'A drive all the way round an ore pillar: veins on every face, and two ways past.'},

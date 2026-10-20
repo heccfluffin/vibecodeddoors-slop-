@@ -313,8 +313,40 @@ Checked: the z-fight and floating checker on the whole of level 1 (mine #4242): 
 and the raise planks sharing the floor's plane, both lifted 2 cm). Screenshots of every piece from inside and
 from above. Found and fixed on the way: doorways were walled over from the inside (a wrong distance test), the
 LEVEL sign faced into the shaft.
-The level-1 rooms (stope, crib room, magazine, collapsed drift, pump room) are plain shells in the preview; they
-come in batch 2. The decline's bottom opens onto level 2, which comes in batch 3.
+The decline's bottom opens onto level 2, which comes in batch 3.
+
+### Batch 2: the level 1 rooms (`models/quarry-under-l1.js`), waiting for the user's OK
+Load it after the kit. The kit calls `ugRoomL1(batch, piece, level, ctx)` for each room rectangle and
+`ugCollapsed(...)` after a collapsed drift's tunnel, so the rooms come out of `ugBuildLevel` like everything else
+(merged per material, `noSeam`, lamps into `lamps`, veins into `veins`). Each room reads its version from the plan
+(`piece.d.v`) and is mirrored with the piece. Everything is placed in the piece's own coordinates (`ugLocal`), so
+it turns with the piece. Solid props are in the version's `fx` as blocks with a radius, so the checker and the walking
+shapes keep them clear of doorways and paths.
+- **Stope** (5.5 m high, ore veins every ~1.9 m on the walls, a big seam in three versions):
+  - *Cribbed stope*: timber cribs up to the roof and rock benches.
+  - *Shrinkage stope*: a big muck pile of broken ore, a 2.4 m rock ledge along one wall and a ladder leaning on it.
+  - *Glory hole*: a hole in the roof up a 9 m raise to daylight; a shaft of light falls on the floor (a strong lamp).
+  - *Flooded stope*: a pool with stones round its rim and a plank walkway along the wall.
+  - *Catwalk stope*: a 7 m deep pit with a rocky lip, crossed by a plank catwalk on beams with handrails.
+  - *Cut-and-fill stope*: a raised fill floor, an ore chute, a winch and its cable.
+- **Crib room** (3.4 m): *Crib room* (table, benches, stove with its pipe, a kettle, SAFETY FIRST), *Lamp room*
+  (racks of cap lamps charging and the tag board), *Foreman's office* (desk, safe, cabinet, the MINE PLAN board),
+  *First-aid station* (stretcher, cabinet, kit).
+- **Powder magazine** (3.4 m): the heavy door leaf open flat on the inside of the front wall. *Powder magazine*
+  (stacked dynamite crates, DANGER · EXPLOSIVES), *Blasting store* (a plunger box and reels of wire,
+  BLASTING · CLEAR THE AREA), *Flooded magazine* (shallow water, crates up on a shelf).
+- **Collapsed drift**: the tunnel's broken sets (leaning, no lagging) and a rubble pile with a fallen beam.
+  *Buried cart*: a tipped cart half under the rubble with spilled ore. *Propped drift*: new props with wedges.
+- **Pump room** (3.9 m), each round a hole in the floor (rock lip, fence that stops short of the doors):
+  *Pump room* (sump with water, pump and pipe), *Winder room* (winder drum, sheave and cable down the shaft),
+  *Mine workshop* (benches, anvil, a forge with its glow), *Compressor room* (compressor, air tank and pipe).
+- **Wall signs** fit their text: the sign canvas has the board's shape and long text shrinks to fit (the first
+  try cut "DANGER · EXPLOSIVES" off at the edge).
+
+Checked: the z-fight and floating checker on all 20 rooms, each built alone with stub tunnels, and on the whole of
+level 1 of mine #4242: nothing (found and fixed: the catwalk boards, the kettle, the raise walls and the leaning sets'
+lagging). `node quarry-under-check.js`: all clear, 483 rooms over many seeds, all 88 versions. Screenshots of every room
+from inside.
 
 ## Checks
 - Every level is one connected place, reachable on foot from the cage on level 1 (the generator guarantees it; test

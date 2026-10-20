@@ -38,7 +38,14 @@ function ugKit(){
   glass:new THREE.MeshStandardMaterial({color:0xfff0c8,emissive:0xffc870,emissiveIntensity:1.6,roughness:.3}),
   wire:M({color:0x1a1a1a,roughness:.6}),
   board:M({color:0x3a2c1e,roughness:.85}),paper:M({color:0xe8dcc0,roughness:.9}),green:M({color:0x2f5a3a,roughness:.7}),
-  oreRock:M({map:UGK.rockT,color:0x5a4a3c})};
+  oreRock:M({map:UGK.rockT,color:0x5a4a3c}),fill:M({map:UGK.gravT,color:0xf0e0c0}),
+  water:new THREE.MeshStandardMaterial({color:0x183038,roughness:.06,metalness:.3,transparent:true,opacity:.9}),
+  waterS:new THREE.MeshStandardMaterial({color:0x4a7a84,roughness:.08,metalness:.2,transparent:true,opacity:.5,depthWrite:false}),
+  beam:new THREE.MeshBasicMaterial({color:0xfff0c0,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}),
+  sky:new THREE.MeshBasicMaterial({color:0xfff4dc}),
+  white:M({color:0xe8e4dc,roughness:.6}),red:M({color:0xb02a20,roughness:.6}),dark:M({color:0x2a2c30,metalness:.5,roughness:.5}),
+  brass:M({color:0xc8a040,metalness:.7,roughness:.35}),cloth:M({color:0x6a7a5a,roughness:1}),
+  lampG:new THREE.MeshStandardMaterial({color:0xfff0c8,emissive:0xffd890,emissiveIntensity:1.2,roughness:.4})};
  for(const k in UGK.mat)UGK.mat[k].userData.ug=k;
  UGK.ore={cu:[0xd07a40,0x5a2410],fe:[0x8a8a90,0x202024],ag:[0xe0e4ea,0x404850],au:[0xffc830,0x806000],cr:[0x60e0ff,0x2080c0],dm:[0xe8f8ff,0x8ab0d0],ur:[0x9cff5a,0x3a8a20]};
  UGK.oreM={};for(const k in UGK.ore)UGK.oreM[k]=new THREE.MeshStandardMaterial({color:UGK.ore[k][0],emissive:UGK.ore[k][1],emissiveIntensity:.9,metalness:k=='cr'||k=='dm'?.1:.45,roughness:.3});
@@ -124,7 +131,7 @@ function ugSets(b,t,o){const pf=t.pf,hw=pf.hw,px=hw-.28,cw=2*hw-.3,sp=3,R=ugRng(
   const lean=o.broken&&R()<.4?(R()-.5)*.25:0;
   for(const sd of[-1,1])b.box('wood',.22,2.6,.22,x+rx*sd*px,y+1.3,z+rz*sd*px,yaw,0,sd*lean*.3);
   b.box('wood',cw,.24,.24,x,y+2.72,z,yaw,0,lean*.2);
-  if(s+sp<t.L-1)for(let k=-3;k<=3;k++){if(R()<.15)continue;const f2=t.at(s+sp/2),xx=f2.p[0]+f2.r[0]*k*.5,zz=f2.p[2]+f2.r[1]*k*.5;b.box('woodD',.2,.04,sp+.2,xx,f2.p[1]+2.86,zz,f2.yaw)}}}
+  if(s+sp<t.L-1&&!lean)for(let k=-3;k<=3;k++){if(R()<.15)continue;const f2=t.at(s+sp/2),xx=f2.p[0]+f2.r[0]*k*.5,zz=f2.p[2]+f2.r[1]*k*.5;b.box('woodD',.2,.04,sp+.2,xx,f2.p[1]+2.86,zz,f2.yaw)}}}
 /* rails: sleepers every 0.6 m and two continuous rails (0.6 m gauge) following the path ring by ring, so curves
    have no gaps and two pieces' rails meet end to end. ends: a list that collects both ends (for buffer stops) */
 function ugRails(b,t,ends){for(let s=.45;s<t.L-.3;s+=.6){const f=t.at(s);b.box('woodD',1.1,.08,.18,f.p[0],f.p[1]+.04,f.p[2],f.yaw)}
@@ -197,10 +204,14 @@ function ugRoom(b,pts,y,h,doors,o){o=o||{};const amp=o.amp==null?.22:o.amp,rk=o.
  const edgeD=(x,z)=>{let m=1e9;for(let i=0;i<nn;i++){const a=pts[i],c=pts[(i+1)%nn];const vx=c[0]-a[0],vz=c[1]-a[1],l=vx*vx+vz*vz,t=Math.max(0,Math.min(1,((x-a[0])*vx+(z-a[1])*vz)/l));m=Math.min(m,Math.hypot(x-a[0]-vx*t,z-a[1]-vz*t))}for(const H of holes.concat(blocks)){m=Math.min(m,Math.hypot(Math.max(H.x0-x,0,x-H.x1),Math.max(H.z0-z,0,z-H.z1)))}return m};
  const roofY=(x,z)=>y+h+(o.roof=='flat'?0:.5*Math.min(1,edgeD(x,z)/1.2)*ugNoise(x,y+h,z));
  for(let i=0;i<GX.length-1;i++)for(let j=0;j<GZ.length-1;j++){const a=GX[i],c=GX[i+1],e=GZ[j],f=GZ[j+1],mx=(a+c)/2,mz=(e+f)/2;if(!inPoly(mx,mz))continue;
-  if(!inHole(mx,mz,false)){for(const v of[[a,e],[a,f],[c,f],[a,e],[c,f],[c,e]]){fp.push(v[0],y,v[1]);fn.push(0,1,0);fu.push(v[0]/2.5,v[1]/2.5)}}
   if(!inHole(mx,mz,true)){for(const v of[[a,e],[c,f],[a,f],[a,e],[c,e],[c,f]]){rp.push(v[0],roofY(v[0],v[1]),v[1]);ru.push(v[0]/3,v[1]/3)}}}
  if(o.noCap)return{x0,x1,z0,z1};
- b.raw(o.floor||'floor',fp,fn,fu);const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(ru,2));rg.computeVertexNormals();b.add(o.roofMat||rk,rg);
+ /* the floor: one flat shape with exact holes (rectangles, pillars, round or oval pits) */
+ {const sh=new THREE.Shape();pts.forEach((q,i)=>i?sh.lineTo(q[0],-q[1]):sh.moveTo(q[0],-q[1]));
+  for(const H of holes.filter(H=>!H.roof||H.both).concat(blocks)){const hp=new THREE.Path();hp.moveTo(H.x0,-H.z0);hp.lineTo(H.x1,-H.z0);hp.lineTo(H.x1,-H.z1);hp.lineTo(H.x0,-H.z1);hp.lineTo(H.x0,-H.z0);sh.holes.push(hp)}
+  for(const E of o.pits||[]){const hp=new THREE.Path();hp.absellipse(E.cx,-E.cz,E.rx,E.rz,0,Math.PI*2,false,0);sh.holes.push(hp)}
+  const fg=new THREE.ShapeGeometry(sh,24);fg.rotateX(-Math.PI/2);fg.translate(0,y,0);const pa=fg.attributes.position,uvs=[];for(let i=0;i<pa.count;i++)uvs.push(pa.getX(i)/2.5,pa.getZ(i)/2.5);fg.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));b.add(o.floor||'floor',fg)}
+ const rg=new THREE.BufferGeometry();rg.setAttribute('position',new THREE.Float32BufferAttribute(rp,3));rg.setAttribute('uv',new THREE.Float32BufferAttribute(ru,2));rg.computeVertexNormals();b.add(o.roofMat||rk,rg);
  return{x0,x1,z0,z1}}
 
 /* ---------- a bulkhead: where a narrower tunnel (a room's neck) meets the standard 4 m opening, a flat rock wall with
@@ -237,7 +248,8 @@ function ugVein(type,R){const K=ugKit(),g=new THREE.Group();R=R||Math.random;
  g.userData.vein=type;return g}
 
 /* ---------- a signpost: a post and a board with an arrow and the distance to the cage ---------- */
-function ugSignTex(txt){return ugCanvas(256,72,(k,w,h)=>{k.fillStyle='#e8d8b0';k.fillRect(0,0,w,h);k.strokeStyle='#5a3a1a';k.lineWidth=6;k.strokeRect(3,3,w-6,h-6);k.fillStyle='#2a1a0c';k.font='700 34px "Barlow Semi Condensed",DoorsSans,Arial';k.textBaseline='middle';k.fillText(txt,16,h/2+2)})}
+/* the canvas has the board's own shape (ar = width / height), and long text shrinks to fit inside the frame */
+function ugSignTex(txt,ar){const W=Math.round(72*(ar||3.55));return ugCanvas(W,72,(k,w,h)=>{k.fillStyle='#e8d8b0';k.fillRect(0,0,w,h);k.strokeStyle='#5a3a1a';k.lineWidth=6;k.strokeRect(3,3,w-6,h-6);k.fillStyle='#2a1a0c';let f=34;const F=()=>k.font='700 '+f+'px "Barlow Semi Condensed",DoorsSans,Arial';F();while(f>14&&k.measureText(txt).width>w-28){f--;F()}k.textBaseline='middle';k.textAlign='center';k.fillText(txt,w/2,h/2+2)})}
 function ugSign(x,y,z,yaw,txt,back){const K=ugKit(),g=new THREE.Group();g.position.set(x,y,z);g.rotation.y=yaw;
  const post=new THREE.Mesh(new THREE.BoxGeometry(.1,1.75,.1),K.mat.wood);post.position.y=.875;g.add(post);
  const t=ugSignTex(txt),t2=ugSignTex(back||txt),bd=new THREE.Mesh(new THREE.BoxGeometry(.95,.27,.04),[K.mat.woodD,K.mat.woodD,K.mat.woodD,K.mat.woodD,new THREE.MeshStandardMaterial({map:t,roughness:.8}),new THREE.MeshStandardMaterial({map:t2,roughness:.8})]);bd.position.set(0,1.55,.07);g.add(bd);
@@ -410,7 +422,9 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
    if(s.k=='path'&&s.w<3.99){const op=ugOpenings(p);for(const [q,nb] of[[s.pts[0],s.pts[1]],[s.pts[s.pts.length-1],s.pts[s.pts.length-2]]]){if(!op.some(o=>Math.hypot(o.x-q[0],o.z-q[1])<.05))continue;const fx=q[0]-nb[0],fz=q[1]-nb[1],l=Math.hypot(fx,fz);ugBulkhead(b,q[0],y,q[1],fx/l,fz/l,s.w/2)}}
    if(s.k=='path'){const tr=ugTube(b,s.pts.map(q=>[q[0],y,q[1]]),{hw:Math.min(2,s.w/2),fil:t=='join'?3:0,rails:true,ends:ctx.ends,lampsOut:ctx.lamps,lampOff:p.id%2,broken:t=='collapsed'});
     /* a vein every 6 m or so, on alternate walls */
+    if(t=='collapsed'&&typeof ugCollapsed=='function')ugCollapsed(b,p,y,ctx,tr);
     const R=ugRng(p.id*977+13);for(let sd=3+R()*3;sd<tr.L-2;sd+=5+R()*4){const f=tr.at(sd),side=R()<.5?-1:1;if(R()<.35)continue;ctx.veins.push({x:f.p[0]+f.r[0]*side*(tr.pf.hw+.06),y:y+1+R()*.9,z:f.p[2]+f.r[1]*side*(tr.pf.hw+.06),dx:-f.r[0]*side,dz:-f.r[1]*side,t:R()<.15?'ag':R()<.55?'fe':'cu'})}}
+   else if(s.k=='rect'&&typeof ugRoomL1=='function'&&ugRoomL1(b,p,L,ctx)){}   /* the dressed rooms of batch 2 (quarry-under-l1.js) */
    else if(s.k=='rect'){const lr=p.d.shp.find(q=>q.k=='rect');const r={x0:lr.x0,x1:lr.x1,z0:lr.z0,z1:lr.z1};ugRectRoom(b,p,r,t=='stope'?5.5:3.6,y,{doors:ugDoorsFor(p,r)})}}
  }
  /* working faces at the ends where nothing fitted */
@@ -425,5 +439,5 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
  /* signposts and wall signs */
  /* a signpost's board faces both side arms; the arrow points back towards the entry, the way to the cage */
  for(const s of ctx.posts){const d=Math.max(5,Math.round(s.dist/5)*5);const sg=ugSign(s.x,s.y,s.z,s.yaw,'⬅ CAGE '+d+' m','CAGE '+d+' m ➡');g.add(sg)}
- for(const s of ctx.signs){const t=ugSignTex(s.txt);const m=new THREE.Mesh(new THREE.PlaneGeometry(s.w||1.2,.34),new THREE.MeshStandardMaterial({map:t,roughness:.8}));m.position.set(s.x,s.y,s.z);m.rotation.y=s.yaw;m.userData.noSeam=true;g.add(m)}
+ for(const s of ctx.signs){const t=ugSignTex(s.txt,(s.w||1.2)/.34);const m=new THREE.Mesh(new THREE.PlaneGeometry(s.w||1.2,.34),new THREE.MeshStandardMaterial({map:t,roughness:.8}));m.position.set(s.x,s.y,s.z);m.rotation.y=s.yaw;m.userData.noSeam=true;g.add(m)}
  return{g,lamps:ctx.lamps,veins:ctx.veins,decl:ctx.decl}}
