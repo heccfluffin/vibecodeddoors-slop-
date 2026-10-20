@@ -117,9 +117,8 @@ function rtConcrete(k){if(k._conc)return k._conc;const r=k.r,t=k.tex(256,256,(c,
 function rtGas(g){const k=rtKit(),{B,C,rod,L,slab}=k.H(g),M=k.M,obs=[],lights=[],pumps=[];const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
  {const X0=3.5,X1=84.5,Z0=-1013,Z1=-993.5,m=rtConcrete(k)();m.map=m.map.clone();m.map.needsUpdate=true;m.map.repeat.set((X1-X0)/4,(Z1-Z0)/4);const p=new THREE.Mesh(new THREE.PlaneGeometry(X1-X0,Z1-Z0),m);p.rotation.x=-Math.PI/2;p.position.set((X0+X1)/2,.025,(Z0+Z1)/2);p.userData.noSeam=true;g.add(p);
   /* a low kerb along the south edge, where the forecourt meets the sand (gaps for the taxi stand path) */B(X1-X0-14,.12,.25,(X0+X1)/2+7,.06,Z0-.125,k.KERB);
-  /* painted arrows (in from Route 13, along the north lane, into the car wash, out north to the PD road) and a
-     dashed WASH box in front of the car wash entrance */
-  for(const [x,z,a] of[[12,-1004,0],[58.6,-1005,0],[81.6,-999,-Math.PI/2]])g.add(rtArrow(x,z,a));
+  /* a dashed WASH box in front of the car wash entrance */
+  /* (no arrows: the user found them odd; the dashed box says where the car wash lane is) */
   {const m3=rtPaint(k,6.6,7,(c,w,h)=>{c.strokeStyle='rgba(232,192,32,.95)';c.lineWidth=7;c.setLineDash([26,16]);c.strokeRect(6,6,w-12,h-12)},256);m3.position.set(60.6,.04,-1005);g.add(m3)}}
  /* the canopy: a deep box on four clad columns, green fascia with a white stripe and the name on three sides, a
     white underside with six glowing light panels */
@@ -195,7 +194,7 @@ function rtCarWash(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(
  for(const sd of[-1,1])B(.14,.9,.14,(X0+X1)/2+sd*2.3,H+1.0,(Z0+Z1)/2,k.STL);
  /* the floor: a dark wet slab with two tyre guide rails and a drain grate down the middle */
  B(X1-X0,.03,Z1-Z0-2*T,(X0+X1)/2,.04,(Z0+Z1)/2,M(0x4a4e52,{roughness:.25,metalness:.1}));for(const z of[-1006.2,-1003.8])B(X1-X0-1,.08,.08,(X0+X1)/2,.095,z,STL);B(X1-X0-2,.012,.3,(X0+X1)/2,.061,(Z0+Z1)/2,k.DK);
- /* lights in the ceiling */const lights=[];for(const x of[57,61,65]){B(1.6,.04,.4,x,H-.02,(Z0+Z1)/2,M(0xffffff,{emissive:0xe8f4ff,emissiveIntensity:1}));lights.push([x,H-.4,(Z0+Z1)/2])}
+ /* lights in the ceiling */const lights=[];for(const x of[X0+3,X0+7,X0+11]){B(1.6,.04,.4,x,H-.02,(Z0+Z1)/2,M(0xffffff,{emissive:0xe8f4ff,emissiveIntensity:1}));lights.push([x,H-.4,(Z0+Z1)/2])}
  /* the spray arch at the entry: a blue pipe frame with nozzles; jets (soft white cones) shown while washing */
  const arch=new THREE.Group();arch.position.set(X0+1.6,0,(Z0+Z1)/2);g.add(arch);{const h=k.H(arch),hw=(Z1-Z0)/2-T-.25;for(const sd of[-1,1])h.C(.07,.07,3.4,0,1.7,sd*hw,BL,null,null,10);h.C(.07,.07,hw*2,0,3.4,0,BL,'z',null,10);
   const jets=new THREE.Group();arch.add(jets);const JM=new THREE.MeshBasicMaterial({color:0xe8f6ff,transparent:true,opacity:.35,depthWrite:false});for(let i=0;i<7;i++){const z=-hw+.4+i*(hw*2-.8)/6;h.C(.035,.05,.12,0,3.3,z,STL,null,null,8);const j=new THREE.Mesh(new THREE.ConeGeometry(.35,1.6,10,1,true),JM);j.position.set(0,2.45,z);jets.add(j)}

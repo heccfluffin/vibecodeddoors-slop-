@@ -122,8 +122,8 @@ stand and every prop stay as they are.
   (22, -996), and **the shop's west wall pieces** (the two side pieces and the header over the door; keep their
   obstacles), because `rtShopFront` is the new west wall.
 - **Forecourt:** concrete slabs (4 m joints, oil stains) x 3.5…84.5, z -1013…-993.5 at y .025, joining Route 13, the PD drive and the
-  PD road; a low kerb along the south edge; three painted arrows (`rtArrow`, flat shapes: in from Route 13, into the car
-  wash, out north to the PD road) and a dashed yellow WASH box in front of the car wash entrance.
+  PD road; a low kerb along the south edge; a dashed yellow box in front of the car wash entrance. No arrows (the user
+  didn't like them).
   (The first version's canvas arrows came out squashed and its long lead-in lines looked like they floated; the
   user's note.) Add its `q.mapR` shape in a concrete colour (and make sure the route grid lets cars drive on it).
 - **Canopy:** x 20.6…35.4, z -1010.6…-999.4, underside at 5 m, 0.9 m deep, green with a white stripe, EL GOBLINO GAS
