@@ -1,0 +1,554 @@
+/* =====================================================================================================
+   r6xx: MIRAGE LAKE, THE OBSERVATORY, DINO DAN'S AND THE RAILWAY (docs/design/lake-rail.md).
+   The design chat's models/lake.js (batches 1-6) is copied below unchanged, then the wiring.
+   It needs fbKit (fort-kit.js, in dx614) and afCanvas/afPlane (airfield.js, in dx617).
+
+   What it does:
+   - xpLake is redefined: the same water circle (q.water, the vehicle keep-out boxes, wading on foot, the map circle)
+     with new turquoise water, ripples and sparkles, a wet-sand rim, palm clumps with reeds and rocks, the pier rebuilt
+     in place (same q.plates numbers, deck y 0.6) with fishing at the end exactly as before (same spot, text, catches;
+     the rod still dips while you wait), a bait shop (a new "Read the bait board" prompt), the beach (umbrellas,
+     loungers, the GWEEN SODA kiosk, a shower, a volleyball court, the lifeguard tower), the boathouse with swan
+     pedalos (its jetty is walkable: a second q.plates entry), a ring of swim buoys, and the new sailboat drifting
+     like the old one. The lake sign and map place stay.
+   - xpObservatory is redefined: the new tower and turning dome (same anim; the slit and telescope point out of its
+     -z side), the radio dish (turns slowly), the astronomer's caravan and the planet walk. The door is on the west
+     side now, so the telescope prompt (same lines and badge) moved there, with its blue light.
+   - xpDino is redefined: the new Dino Dan on foot pads (you can walk under him: the obstacles are his feet now),
+     the gift shop with porch and roadside sign (the postcard prompt moved to its porch; same price and lines),
+     Baby Dan, the egg, the dig site, picnic tables and the car park. "Stand under the dinosaur" stays put.
+   - xpRail is redefined: the raised ballast bed, sleepers and rails (rail tops still at y 0.3, 1.5 m apart), the
+     three crossings rebuilt (crossbucks, twin lamps, bells, gates; they give xpTrainTick the same K objects, so the
+     gates and lights work as before), telegraph poles and mileposts, and the new train: locomotive, a new coal
+     tender, then the same six wagons (colours, kinds, names). Front is +x now, so the locomotive is not turned.
+     The train still runs the old way (xpTrainTick, synced in co-op by the 'trn' message); it is not a vehicle.
+   - xpTrainTick is wrapped: the wheels and side rods turn with the train (spin(T.x)) and the smoke sits on the new
+     smokestack.
+   - xpCover is wrapped: cacti, rocks and Joshua trees that the scatter dropped onto the new beach, boathouse, planet
+     walk, car park, crossings or pole line are taken away again (so the random sequence is not changed and every
+     other place comes out exactly as before).
+   - build.py (block "lake-rail"): the old telegraph poles on the north side of the line (xpMoreFar) are not built
+     any more (the new ones are on the south side).
+   Model meshes are built into a temporary group and then moved into the desert root, so the models' noSeam pass
+   only touches their own meshes and the scenery chunks still work. Math.random is a fixed local sequence while a
+   model builds (a few models use it for gumballs, coal and straw), so the desert's seeded sequence is untouched.
+   Globals added: the model's (lkKit LKW lkRand lkWater lkPalm lkShore lkPier lkBait lkUmbrella lkLounger lkBeach
+   lkSwan lkBoathouse lkBuoys lkSailboat lkBob OBS obTower obDish obCaravan obPlanets ddLoft ddSkin ddDinoModel ddDino
+   ddShop ddExtras RRZ RRX rrTrack rrCrossing rrPoles rrBogie rrCoupler rrLoco rrTender rrWagon) and the wiring's
+   (lkSeed lkIn LKCLR).
+   ===================================================================================================== */
+/* Mirage Lake, the observatory, Dino Dan's and the railway (lake-rail.md). Needs fort-kit.js (fbKit) and airfield.js
+   (afCanvas, afPlane, afTarmac). Desert-local coordinates, y up, +z north. Everything is noSeam.
+
+   lkWater(g)  batch 1: the lake (same circle: LAKE 250,-1560, r 58) with turquoise shallows, ripples and sparkles,
+               a wet-sand rim and the beach ring. Returns {tick(t)} (call every frame near the lake: drifts the
+               ripples and twinkles the sparkles).
+   lkShore(g)  palm clumps with reeds and rocks round the shore. Returns {obs, palms} (palms: crown groups; sway
+               them with rotation.z = sin(t*.7 + i) * .03 if you like; they're dpKeep).
+   lkPalm(h, lean)  one palm tree, h metres tall, leaning lean radians toward +x. Origin at the foot.
+   lkPier(g)   the pier, rebuilt in place (x 248.4..251.6, z -1533..-1499, deck top y 0.6): planks, posts with
+               bracing, rails, a bench and lamp at the end, a ladder, a tackle box and the fishing rod.
+               Returns {obs, plate, rod, lampAt}: plate {x0,x1,z0,z1,y} as the old q.plates entry; rod is a Group,
+               rotate rod.rotation.x like the old rod (-0.8 resting, -1.2 cast); lampAt {x,y,z} for the light.
+   lkBait(g)   the bait shop at the foot of the pier (x 254..262, z -1500..-1493). Returns {obs, prop}.
+*/
+function lkKit(){if(lkKit.k)return lkKit.k;const f=fbKit(),k=Object.create(f);k.M=f.M;lkKit.k=k;return k}
+const LKW={x:250,z:-1560,r:58};
+const lkRand=s=>()=>((s=Math.imul(s^s>>>15,s|1)+0x6d2b79f5|0)>>>0)/4294967296;
+
+function lkWater(g){const{x,z,r}=LKW;
+ /* the water: deep blue in the middle, turquoise shallows in the last 9 m, a lighter lip at the edge */
+ const wt=afCanvas(1024,1024,(c,w,h)=>{const cx=w/2,R=w/2,gr=c.createRadialGradient(cx,cx,0,cx,cx,R);gr.addColorStop(0,'#1a5a9a');gr.addColorStop(.6,'#1f6eac');gr.addColorStop(.8,'#2a8ac0');gr.addColorStop(.9,'#3ab4c8');gr.addColorStop(.97,'#6ad6d0');gr.addColorStop(1,'#9ae4d8');c.fillStyle=gr;c.fillRect(0,0,w,h);
+  /* sandy bottom showing through the shallows */const rr=lkRand(5);for(let i=0;i<900;i++){const a=rr()*Math.PI*2,d=R*(.86+rr()*.14);c.fillStyle='rgba(230,214,170,'+(rr()*.12)+')';c.beginPath();c.arc(cx+Math.cos(a)*d,cx+Math.sin(a)*d,2+rr()*6,0,7);c.fill()}});
+ const wm=new THREE.MeshStandardMaterial({map:wt,roughness:.08,metalness:.25,transparent:true,opacity:.92,polygonOffset:true,polygonOffsetUnits:-2});const w=new THREE.Mesh(new THREE.CircleGeometry(r,72),wm);w.rotation.x=-Math.PI/2;w.position.set(x,.04,z);g.add(w);
+ /* ripples: a second, mostly clear layer of soft rings and streaks that drifts and turns slowly */
+ const rt=afCanvas(512,512,(c,w,h)=>{c.clearRect(0,0,w,h);const rr=lkRand(9);c.strokeStyle='rgba(255,255,255,.18)';for(let i=0;i<70;i++){c.lineWidth=1+rr()*2;c.beginPath();const px=rr()*w,py=rr()*h,l=10+rr()*40;c.moveTo(px,py);c.quadraticCurveTo(px+l/2,py-3,px+l,py);c.stroke()}});rt.wrapS=rt.wrapT=THREE.RepeatWrapping;rt.repeat.set(6,6);
+ const rp=new THREE.Mesh(new THREE.CircleGeometry(r-.3,72),new THREE.MeshBasicMaterial({map:rt,transparent:true,opacity:.55,depthWrite:false,polygonOffset:true,polygonOffsetUnits:-4}));rp.rotation.x=-Math.PI/2;rp.position.set(x,.045,z);g.add(rp);
+ /* sparkles: little bright flecks that come and go */const sp=afCanvas(256,256,(c,w,h)=>{c.clearRect(0,0,w,h);const rr=lkRand(13);for(let i=0;i<40;i++){c.fillStyle='rgba(255,255,240,.9)';c.fillRect(rr()*w,rr()*h,2+rr()*3,1)}});sp.wrapS=sp.wrapT=THREE.RepeatWrapping;sp.repeat.set(10,10);
+ const sk=new THREE.Mesh(new THREE.CircleGeometry(r-2,48),new THREE.MeshBasicMaterial({map:sp,transparent:true,opacity:.5,depthWrite:false,polygonOffset:true,polygonOffsetUnits:-5}));sk.rotation.x=-Math.PI/2;sk.position.set(x,.046,z);g.add(sk);
+ /* the shore: one ring from the water's edge to 7 m out: a dark wet rim, then pale beach sand fading to the desert */
+ const st=afCanvas(1024,1024,(c,w,h)=>{const cx=w/2,R=w/2,i0=r/(r+7);const gr=c.createRadialGradient(cx,cx,R*i0,cx,cx,R);gr.addColorStop(0,'#9a8a6a');gr.addColorStop(.18,'#b8a47e');gr.addColorStop(.3,'#ecdcb2');gr.addColorStop(.85,'#ead8ae');gr.addColorStop(1,'rgba(214,190,140,0)');c.fillStyle=gr;c.beginPath();c.arc(cx,cx,R,0,7);c.fill();const rr=lkRand(21);for(let i=0;i<4000;i++){const a=rr()*Math.PI*2,d=R*(i0+rr()*(1-i0));c.fillStyle=rr()<.5?'rgba(120,100,70,.12)':'rgba(255,250,230,.15)';c.fillRect(cx+Math.cos(a)*d,cx+Math.sin(a)*d,2,2)}});
+ const sh=new THREE.Mesh(new THREE.RingGeometry(r-.2,r+7,72,1),new THREE.MeshStandardMaterial({map:st,roughness:1,transparent:true,polygonOffset:true,polygonOffsetUnits:-1}));sh.rotation.x=-Math.PI/2;sh.position.set(x,.035,z);g.add(sh);
+ [w,rp,sk,sh].forEach(m=>m.userData.noSeam=true);rp.userData.dpKeep=1;sk.userData.dpKeep=1;
+ return{tick:t=>{rt.offset.set(t*.004,t*.0025);rp.rotation.z=t*.004;sp.offset.set(Math.sin(t*.3)*.02,t*.01);sk.material.opacity=.35+.2*Math.sin(t*2.3)}}}
+
+/* a palm: a curved, ringed trunk and a crown of drooping fronds with coconuts */
+function lkPalm(h,lean){const g=new THREE.Group(),M=lkKit().M;const bark=afCanvas(64,128,(c,w,hh)=>{c.fillStyle='#8a6a48';c.fillRect(0,0,w,hh);for(let i=0;i<hh;i+=8){c.fillStyle='rgba(60,40,20,.45)';c.fillRect(0,i,w,2);c.fillStyle='rgba(200,170,120,.25)';c.fillRect(0,i+3,w,1)}});bark.wrapS=bark.wrapT=THREE.RepeatWrapping;bark.repeat.set(1,h/1.2);
+ const pts=[];for(let i=0;i<=8;i++){const t=i/8;pts.push(new THREE.Vector3(Math.sin(t*1.3)*h*lean,t*h,0))}const curve=new THREE.CatmullRomCurve3(pts);const trunk=new THREE.Mesh(new THREE.TubeGeometry(curve,16,.22,10,false),new THREE.MeshStandardMaterial({map:bark,roughness:.95}));g.add(trunk);
+ const base=new THREE.Mesh(new THREE.CylinderGeometry(.3,.42,.5,10),new THREE.MeshStandardMaterial({map:bark,roughness:.95}));base.position.y=.25;g.add(base);
+ const top=curve.getPoint(1);const crown=new THREE.Group();crown.position.copy(top);g.add(crown);
+ const leaf=afCanvas(64,256,(c,w,hh)=>{c.clearRect(0,0,w,hh);c.fillStyle='#3a7a2a';c.beginPath();c.moveTo(w/2,0);for(let i=0;i<=20;i++){const y=i/20*hh,ww=Math.sin(i/20*Math.PI)*w*.48;c.lineTo(w/2+ww*(i%2?1:.75),y)}for(let i=20;i>=0;i--){const y=i/20*hh,ww=Math.sin(i/20*Math.PI)*w*.48;c.lineTo(w/2-ww*(i%2?1:.75),y)}c.fill();c.strokeStyle='#6a9a3a';c.lineWidth=2;c.beginPath();c.moveTo(w/2,0);c.lineTo(w/2,hh);c.stroke()});
+ const LM=new THREE.MeshStandardMaterial({map:leaf,transparent:true,alphaTest:.4,side:THREE.DoubleSide,roughness:.8});
+ for(let i=0;i<9;i++){const a=i/9*Math.PI*2+(i%2)*.2,L=2.6+(i%3)*.4;const ge=new THREE.PlaneGeometry(.9,L,1,8);const p=ge.attributes.position;for(let j=0;j<p.count;j++){const y=p.getY(j)+L/2;p.setZ(j,-(y*y)/(L*1.6));p.setY(j,y)}ge.computeVertexNormals();const f=new THREE.Mesh(ge,LM);const piv=new THREE.Group();piv.rotation.y=a;crown.add(piv);f.rotation.x=-Math.PI/2+.5;piv.add(f)}
+ for(let i=0;i<4;i++){const a=i/4*Math.PI*2+.4,cn=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),M(0x5a3a1e,{roughness:.7}));cn.position.set(Math.cos(a)*.22,-.18,Math.sin(a)*.22);crown.add(cn)}
+ g.userData.crown=crown;crown.userData.dpKeep=1;g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return g}
+
+function lkShore(g){const k=lkKit(),M=k.M,obs=[],palms=[],{x:LX,z:LZ}=LKW;
+ const clumps=[[200,-1520],[192,-1545],[195,-1600],[215,-1625],[300,-1615],[312,-1590],[308,-1525],[290,-1508]];
+ const rock=M(0x9a8a72,{roughness:.95}),reedM=M(0x6a8a3a,{roughness:.8}),reedTop=M(0x5a3a1e,{roughness:.8});
+ clumps.forEach(([cx,cz],ci)=>{const rr=lkRand(100+ci);const out=Math.atan2(cz-LZ,cx-LX);/* lean the palms a little away from the water */
+  const n=2+(ci%2);for(let i=0;i<n;i++){const a=out+(rr()-.5)*1.6,d=1+rr()*2.4,px=cx+Math.cos(a)*d,pz=cz+Math.sin(a)*d,h=7+rr()*4;const p=lkPalm(h,.06+rr()*.12);p.position.set(px,0,pz);p.rotation.y=-out+Math.PI/2+(rr()-.5)*.8;g.add(p);palms.push(p.userData.crown);obs.push({x0:px-.35,x1:px+.35,z0:pz-.35,z1:pz+.35})}
+  /* reeds at the water's edge in front of the clump */for(let i=0;i<14;i++){const a=out+Math.PI+(rr()-.5)*.6,d=3+rr()*3,rx=cx+Math.cos(a)*d,rz=cz+Math.sin(a)*d,h=1+rr()*.8;const rd=new THREE.Mesh(new THREE.CylinderGeometry(.015,.03,h,4),reedM);rd.position.set(rx,h/2,rz);rd.rotation.set((rr()-.5)*.25,0,(rr()-.5)*.25);g.add(rd);if(i%3==0){const tp=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.22,6),reedTop);tp.position.set(rx,h-.05,rz);g.add(tp)}}
+  /* a few rocks */for(let i=0;i<3;i++){const a=out+(rr()-.5)*2,d=2.5+rr()*3,s=.4+rr()*.7;const rk=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),rock);rk.position.set(cx+Math.cos(a)*d,s*.35,cz+Math.sin(a)*d);rk.scale.set(1,.6,1.1);rk.rotation.set(rr(),rr()*3,rr());g.add(rk)}});
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,palms}}
+
+function lkPier(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],px=250,Z0=-1499,PL=34,Z1=Z0-PL,W=3.2,Y=.6;
+ const wood=afCanvas(256,256,(c,w,h)=>{c.fillStyle='#8a6a48';c.fillRect(0,0,w,h);const rr=lkRand(3);for(let i=0;i<8;i++){const y=i*32;c.fillStyle='rgba(60,40,24,.55)';c.fillRect(0,y,w,2);for(let j=0;j<30;j++){c.fillStyle='rgba(50,34,20,'+(rr()*.15)+')';c.fillRect(0,y+2+rr()*28,w,1)}c.fillStyle='rgba(30,20,12,.6)';for(const nx of[18,w-22])c.fillRect(nx,y+12,3,3)}});wood.wrapS=wood.wrapT=THREE.RepeatWrapping;wood.repeat.set(1,PL/2.4);
+ const WM=M(0x8a6a48,{roughness:.9}),PM=M(0x6a4a30,{roughness:.95});
+ /* the deck: planks across (a texture), on two stringers */const dk=new THREE.Mesh(new THREE.BoxGeometry(W,.12,PL),[WM,WM,new THREE.MeshStandardMaterial({map:wood,roughness:.9}),WM,WM,WM]);dk.position.set(px,Y-.06,(Z0+Z1)/2);g.add(dk);/* stringers just under the deck (their tops 1 cm below it) */for(const s of[-1,1])B(.16,.24,PL,px+s*(W/2-.3),Y-.25,(Z0+Z1)/2,PM);
+ /* posts every 4 m down into the water and the sand, with cross braces */for(let z=Z0-.3;z>=Z1;z-=4){for(const s of[-1,1])/* posts stop just under the deck, inside its edge */C(.12,.14,Y-.13+.8,px+s*(W/2-.2),(Y-.13-.8)/2,z,PM,null,null,8);rod([px-W/2+.1,Y-.16,z],[px+W/2-.1,-.3,z],.04,PM,null,5)}
+ /* rails on both sides */for(const s of[-1,1]){const rx=px+s*(W/2-.06);for(let z=Z0-.3;z>=Z1+.1;z-=2)B(.09,.95,.09,rx,Y+.47,z,WM);B(.11,.07,PL-.2,rx,Y+.975,(Z0+Z1)/2-.1,WM);B(.05,.05,PL-.2,rx,Y+.55,(Z0+Z1)/2-.1,WM);obs.push({x0:rx-.06,x1:rx+.06,z0:Z1,z1:Z0,ped:1})}
+ /* across the end: a rail with a gap for the ladder, the ladder down into the water */B(1.0,.07,.11,px-1.05,Y+.975,Z1+.05,WM);B(1.0,.07,.11,px+1.05,Y+.975,Z1+.05,WM);for(const s of[-1,1]){B(.09,.95,.09,px+s*.55,Y+.47,Z1+.05,WM)}for(const s of[-1,1])C(.03,.03,1.6,px+s*.3,Y-.2,Z1-.08,M(0x9a9ea4,{metalness:.6}),null,null,6);for(let y=Y-.85;y<Y;y+=.3)C(.02,.02,.6,px,y,Z1-.08,M(0x9a9ea4,{metalness:.6}),'x',null,6);
+ obs.push({x0:px-W/2,x1:px-.5,z0:Z1-.06,z1:Z1+.12,ped:1},{x0:px+.5,x1:px+W/2,z0:Z1-.06,z1:Z1+.12,ped:1});
+ /* the bench at the end, facing the water */{const bz=Z1+2.2;B(1.6,.06,.45,px+.6,Y+.45,bz,WM);B(1.6,.4,.05,px+.6,Y+.72,bz+.22,WM);for(const s of[-1,1])B(.06,.45,.42,px+.6+s*.72,Y+.22,bz,PM)}
+ /* the lamp, the tackle box, the rod in its holder */const lampAt={x:px+1.25,y:Y+2.75,z:Z1+1};{C(.05,.06,2.6,lampAt.x,Y+1.3,lampAt.z,M(0x3a3a3a),null,null,8);B(.5,.05,.08,lampAt.x-.22,Y+2.62,lampAt.z,M(0x3a3a3a));const sh=C(.18,.24,.22,lampAt.x-.45,Y+2.5,lampAt.z,M(0x2a2a2a),null,null,10);C(.12,.12,.04,lampAt.x-.45,Y+2.38,lampAt.z,M(0xfff4d0,{emissive:0xffd890,emissiveIntensity:1}),null,null,10)}
+ B(.6,.32,.36,px-1,Y+.16,Z1+1.5,M(0x8a2a2a,{roughness:.5}));B(.62,.04,.38,px-1,Y+.34,Z1+1.5,M(0x6a1a1a));B(.2,.05,.04,px-1,Y+.38,Z1+1.5,M(0x3a3a3a));
+ const rodG=new THREE.Group();rodG.position.set(px-.6,Y+.6,Z1+.8);rodG.rotation.x=-.8;g.add(rodG);{const holder=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.5,8),M(0x3a3a3a));holder.position.set(px-.6,Y+.32,Z1+.8);g.add(holder);const r1=new THREE.Mesh(new THREE.CylinderGeometry(.012,.025,2.6,6),M(0x2a1a10));r1.position.y=1.3;rodG.add(r1);const reel=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.06,10),M(0x9a9ea4,{metalness:.6}));reel.rotation.z=Math.PI/2;reel.position.set(.05,.4,0);rodG.add(reel);const line=new THREE.Mesh(new THREE.CylinderGeometry(.003,.003,2.4,3),M(0xf0f0f0));line.position.set(0,2.3,-.0);line.rotation.x=0;rodG.add(line);rodG.userData.dpKeep=1}
+ /* a small sign at the foot */{C(.04,.04,1.2,px+1.9,.6,Z0+.6,WM,null,null,6);L('PIER · FISHING AT THE END\nNO DIVING (IT IS 40 cm DEEP)',1.4,.5,'#f4ecd8','#2a4a6a',44,px+1.9,1.1,Z0+.63,0)}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});rodG.traverse(m=>m.userData.dpKeep=1);return{obs,plate:{x0:px-W/2,x1:px+W/2,z0:Z1,z1:Z0,y:Y},rod:rodG,lampAt}}
+
+function lkBait(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],x0=254,x1=262,z0=-1500,z1=-1493,xc=(x0+x1)/2,zc=(z0+z1)/2,H=2.8;
+ const board=afCanvas(128,128,(c,w,h)=>{c.fillStyle='#5a8a9a';c.fillRect(0,0,w,h);for(let i=0;i<w;i+=16){c.fillStyle='rgba(0,0,0,.18)';c.fillRect(i,0,2,h);c.fillStyle='rgba(255,255,255,.08)';c.fillRect(i+3,0,1,h)}for(let i=0;i<300;i++){c.fillStyle='rgba(240,230,210,.12)';c.fillRect(Math.random()*w,Math.random()*h,2,1)}});board.wrapS=board.wrapT=THREE.RepeatWrapping;
+ const BM=M(0xffffff,{map:board,roughness:.9}),TR=M(0xf0ece4,{roughness:.8}),RF=M(0xc84a3a,{roughness:.7});
+ /* the shack on short stilts, a counter window facing the road (west), a door at the back */B(.2,.3,z1-z0,xc,.15,zc,M(0x6a4a30));for(const[a,b]of[[x0+.3,z0+.3],[x1-.3,z0+.3],[x0+.3,z1-.3],[x1-.3,z1-.3]])B(.25,.4,.25,a,.2,b,M(0x6a4a30));
+ B(x1-x0,H,z1-z0,xc,.4+H/2,zc,BM);/* corner trim */for(const[a,b]of[[x0,z0],[x1,z0],[x0,z1],[x1,z1]])B(.14,H,.14,a,.4+H/2,b,TR);
+ /* the roof: a low pitch along x, overhanging the counter *//* the two halves stop 12 cm short of the ridge (so they never overlap) and a ridge cap covers the join */{const hl=(z1-z0)/2+.4,an=Math.atan2(.7,hl),full=Math.hypot(hl,.7),rl=full-.12,RY=.4+H+.7,mid=(full+.12)/2;for(const s of[-1,1]){const r=B(x1-x0+1.6,.08,rl,xc-.3,RY-Math.sin(an)*mid,zc+s*Math.cos(an)*mid,RF);r.rotation.x=s*an}B(x1-x0+1.62,.1,.4,xc-.3,RY+.07,zc,M(0x8a2a2a))}
+ /* the counter window, propped-up flap, the counter */B(.06,1,3.6,x0-.03,1.9,zc,M(0x1a2a30));B(.06,.06,3.8,x0-.05,2.43,zc,TR);B(.06,.06,3.8,x0-.05,1.37,zc,TR);/* the flap: hinged along the top of the window, swung out and a little up, held on two props from the sill */{const hx=x0-.06,hy=2.47,A=.3,FL=1.05;const pv=new THREE.Group();pv.position.set(hx,hy,zc);pv.rotation.z=-A;g.add(pv);const fl=new THREE.Mesh(new THREE.BoxGeometry(FL,.05,3.8),BM);fl.position.set(-FL/2,.03,0);pv.add(fl);C(.035,.035,3.8,hx,hy,zc,TR,'z',null,8);
+  const ox=hx-FL*Math.cos(A)+.08,oy=hy+FL*Math.sin(A)-.02;for(const dz of[-1.7,1.7])rod([x0-.08,1.42,zc+dz],[ox,oy,zc+dz],.02,TR,null,4)}
+ B(.6,.06,3.8,x0-.28,1.34,zc,M(0x6a4a30));for(const dz of[-1.7,1.7])B(.06,.4,.06,x0-.5,1.12,zc+dz,M(0x6a4a30));
+ /* on the counter: a bell, a jar of worms; under the window: a LIVE WORMS cooler, a rod rack */C(.06,.08,.06,x0-.35,1.4,zc-1.1,M(0xd8b040,{metalness:.7}),null,null,10);C(.1,.1,.2,x0-.3,1.47,zc+1,M(0x8ac0c0,{transparent:true,opacity:.6}),null,null,10);
+ B(.6,.5,.9,x0-.6,.65,zc+2.6,M(0xf0f0f0));L('LIVE\nWORMS',.8,.4,'#f0f0f0','#c42828',44,x0-.91,.7,zc+2.6,-Math.PI/2);
+ for(let i=0;i<4;i++)rod([x0-.15,.45,z0+.4+i*.35],[x0-.3,2.5,z0+.4+i*.35],.015,M(0x2a1a10),null,4);B(.1,.06,1.5,x0-.2,.9,z0+.9,M(0x6a4a30));
+ /* the sign on the roof ridge and a wooden fish *//* the roof sign: a board with the lettering on its west face, a plain painted back, on two posts behind it */L('BAIT · TACKLE · BREAD',6,.8,'#2a4a6a','#ffe0a0',64,xc-.32,.4+H+1.3,zc,-Math.PI/2);B(.06,.86,6.06,xc-.28,.4+H+1.3,zc,M(0x2a4a6a,{roughness:.7}));B(.08,1.1,.08,xc-.2,.4+H+1.05,zc-2.4,M(0x6a4a30));B(.08,1.1,.08,xc-.2,.4+H+1.05,zc+2.4,M(0x6a4a30));
+ {const f=afCanvas(128,64,(c,w,h)=>{c.clearRect(0,0,w,h);c.fillStyle='#e8a040';c.beginPath();c.ellipse(52,32,44,20,0,0,7);c.fill();c.beginPath();c.moveTo(90,32);c.lineTo(124,10);c.lineTo(124,54);c.fill();c.fillStyle='#1a1a1a';c.beginPath();c.arc(24,28,4,0,7);c.fill()});const fm=new THREE.Mesh(new THREE.PlaneGeometry(1.6,.8),new THREE.MeshStandardMaterial({map:f,transparent:true,alphaTest:.4,side:THREE.DoubleSide}));fm.position.set(x0-.06,3.05,z0+.9);fm.rotation.y=-Math.PI/2;g.add(fm)}
+ /* the back door and steps */B(.9,1.9,.05,x1-1.5,1.35,z1+.03,M(0x3a5a6a));B(1.1,.2,.5,x1-1.5,.3,z1+.35,M(0x6a4a30));
+ obs.push({x0,x1,z0,z1});g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,prop:{x:x0-1.4,z:zc}}}
+
+/* ===================================================================================================== batch 2
+   lkBeach(g)     the beach north of the water: three umbrella sets (striped umbrella, two loungers, towels, a
+                  cooler), the GWEEN SODA snack kiosk, an outdoor shower, a beach volleyball court and the lifeguard
+                  tower on stilts with a ramp. Returns {obs}.
+   lkBoathouse(g) the boathouse on the west shore (x 176..190, z -1572..-1556) with a jetty into the water and three
+                  swan pedal boats tied up. Returns {obs, bob}: bob = [Group] boats to bob (see lkBob).
+   lkBuoys(g)     nine red and white floats on a 44 m arc off the beach, joined by a rope. Returns {bob}.
+   lkSailboat()   the sailing dinghy (origin at the waterline, bow -z). Replaces the old box boat; drift it as now.
+   lkBob(list, t) bobs the boats and floats: call every frame near the lake.
+   ===================================================================================================== */
+function lkUmbrella(cols){const g=new THREE.Group(),M=lkKit().M;const t=afCanvas(256,256,(c,w,h)=>{const n=8;for(let i=0;i<n;i++){c.fillStyle=cols[i%cols.length];c.beginPath();c.moveTo(w/2,h/2);c.arc(w/2,h/2,w/2,i/n*Math.PI*2,(i+1)/n*Math.PI*2);c.fill()}});
+ const pts=[];for(let i=0;i<=8;i++){const u=i/8;pts.push(new THREE.Vector2(Math.max(.001,1.7*u),.55*(1-u*u)))}/* a shallow dome: runs from the top (r 0) down to the rim */
+ const lg=new THREE.LatheGeometry(pts.reverse(),8);const uv=lg.attributes.uv,p=lg.attributes.position;for(let i=0;i<p.count;i++)uv.setXY(i,.5+p.getX(i)/3.4,.5+p.getZ(i)/3.4);
+ const top=new THREE.Mesh(lg,new THREE.MeshStandardMaterial({map:t,side:THREE.DoubleSide,roughness:.8}));top.position.y=2.15;g.add(top);
+ /* a scalloped valance round the rim */for(let i=0;i<8;i++){const a=(i+.5)/8*Math.PI*2,v=new THREE.Mesh(new THREE.PlaneGeometry(1.25,.18),new THREE.MeshStandardMaterial({color:new THREE.Color(cols[i%cols.length]),side:THREE.DoubleSide,roughness:.8}));v.position.set(Math.cos(a)*1.6,2.06,Math.sin(a)*1.6);v.rotation.y=-a+Math.PI/2;g.add(v)}
+ const pole=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,2.75,8),M(0xf0f0f0,{roughness:.4}));pole.position.y=1.37;g.add(pole);const tip=new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),M(0xf0f0f0));tip.position.y=2.74;g.add(tip);return g}
+function lkLounger(towel){const g=new THREE.Group(),M=lkKit().M,W=M(0xf2f2ee,{roughness:.5});const seat=new THREE.Mesh(new THREE.BoxGeometry(.66,.05,1.25),W);seat.position.set(0,.34,.35);g.add(seat);const back=new THREE.Mesh(new THREE.BoxGeometry(.66,.05,.75),W);back.position.set(0,.55,-.55);back.rotation.x=.6;g.add(back);
+ for(const[x,z]of[[-.3,.9],[.3,.9],[-.3,-.2],[.3,-.2]]){const l=new THREE.Mesh(new THREE.BoxGeometry(.05,.32,.05),W);l.position.set(x,.16,z);g.add(l)}
+ if(towel){const t=afCanvas(64,128,(c,w,h)=>{c.fillStyle=towel;c.fillRect(0,0,w,h);c.fillStyle='rgba(255,255,255,.85)';for(let i=0;i<h;i+=24)c.fillRect(0,i,w,8)});const tw=new THREE.Mesh(new THREE.BoxGeometry(.6,.012,1.2),new THREE.MeshStandardMaterial({map:t,roughness:.9}));tw.position.set(0,.372,.35);g.add(tw)}return g}
+function lkBeach(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];
+ /* three umbrella sets */[[214,['#e84a3a','#f4f0e4']],[222,['#2a8ad0','#f4f0e4']],[230,['#f0c020','#e84a3a']]].forEach(([x,cols],i)=>{const z=-1492;const u=lkUmbrella(cols);u.position.set(x,0,z);g.add(u);obs.push({x0:x-.15,x1:x+.15,z0:z-.15,z1:z+.15});
+  for(const s of[-1,1]){const l=lkLounger(s<0?['#e84a3a','#2a8ad0','#40b060'][i]:null);l.position.set(x+s*.9,0,z+.2);l.rotation.y=Math.PI;g.add(l)}
+  B(.5,.34,.34,x-.1,.17,z+1.4,M(['#2a6ac8','#e84a3a','#f4f0e4'][i]=='#f4f0e4'?0xf4f0e4:[0x2a6ac8,0xe84a3a][i],{roughness:.5}));B(.52,.05,.36,x-.1,.36,z+1.4,M(0xf4f0e4))});
+ /* the GWEEN SODA kiosk: a little hut you could step into. A floor on the sand, full-height walls at the back and
+    sides, a counter wall across the front with the serving hatch above it, a flat roof, and a striped canopy over the
+    hatch with a scalloped edge. Inside: a drinks fridge, a snow-cone machine, a till. Stools along the front. */
+ {const x0=234,x1=242,z0=-1490,z1=-1484,xc=(x0+x1)/2,zc=(z0+z1)/2,H=2.8,T=.15,GR=M(0x2a9a3a,{roughness:.6}),WH=M(0xf4f0e8,{roughness:.7}),FL=M(0xc8c4bc,{roughness:.8});
+  B(x1-x0,.06,z1-z0,xc,.03,zc,FL);/* back and side walls */B(x1-x0,H,T,xc,H/2,z1-T/2,GR);for(const sx of[x0+T/2,x1-T/2])B(T,H,z1-z0-T,sx,H/2,zc-T/2,GR);
+  /* the front: a counter wall 1.05 high, the counter top overhanging both ways, a white band above the hatch */B(x1-x0-2*T,1.05,T,xc,.525,z0+T/2,GR);B(x1-x0-2*T,.06,.7,xc,1.08,z0+.12,WH);B(x1-x0-2*T,.5,T,xc,H-.25,z0+T/2,WH);
+  /* hatch frame posts */for(const sx of[x0+T+.05,xc,x1-T-.05])B(.1,H-1.11-.5,.1,sx,1.11+(H-1.61)/2,z0+T/2,WH);
+  /* the roof, a little overhang all round */B(x1-x0+.4,.15,z1-z0+.4,xc,H+.075,zc,WH);
+  /* the canopy over the hatch: striped on both faces, sloping out and down, with a scalloped valance */{const t=afCanvas(256,64,(c,w,h)=>{for(let i=0;i<8;i++){c.fillStyle=i%2?'#f4f0e8':'#2fae40';c.fillRect(i*w/8,0,w/8,h)}});const cm=new THREE.MeshStandardMaterial({map:t,roughness:.8,emissive:0x303030});const out=1.4,drop=.45,L=Math.hypot(out,drop);const cv=new THREE.Mesh(new THREE.BoxGeometry(x1-x0+.2,.04,L),[cm,cm,cm,cm,cm,cm]);cv.position.set(xc,H-.3-drop/2,z0-out/2);cv.rotation.x=-Math.atan2(drop,out);g.add(cv);
+   const vt=afCanvas(256,32,(c,w,h)=>{c.clearRect(0,0,w,h);for(let i=0;i<8;i++){c.fillStyle=i%2?'#f4f0e8':'#2fae40';c.beginPath();c.moveTo(i*w/8,0);c.lineTo((i+1)*w/8,0);c.lineTo((i+1)*w/8,h*.45);c.arc((i+.5)*w/8,h*.45,w/16,0,Math.PI);c.fill()}});const vl=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0+.2,.3),new THREE.MeshStandardMaterial({map:vt,transparent:true,alphaTest:.4,side:THREE.DoubleSide,emissive:0x303030}));vl.position.set(xc,H-.3-drop-.14,z0-out);g.add(vl);for(const sx of[x0-.05,x1+.05])rod([sx,H-.3,z0],[sx,H-.3-drop,z0-out],.02,WH,null,4)}
+  /* signs */B(4.2,.7,.06,xc,H+.55,z0+.12,WH);L('GWEEN SODA',4,.6,'#2a9a3a','#ffffff',70,xc,H+.55,z0+.085,Math.PI);L('SODA · SNOW CONES\nCHIPS · MORE SODA',1.6,.8,'#1a1a1a','#f0e0a0',44,x1-1,1.95,z1-T-.01,Math.PI);
+  /* inside: the fridge, the snow-cone machine and the till on a back bench */B(1,1.7,.6,x0+.9,.9,z1-.5,M(0xe8ecf0));B(.9,1.3,.02,x0+.9,1.05,z1-.81,M(0x6ac0e0,{transparent:true,opacity:.5}));for(let i=0;i<3;i++)for(let j=0;j<4;j++)C(.04,.04,.25,x0+.6+j*.2,.6+i*.38,z1-.65,M(0x40c050,{roughness:.3}),null,null,8);
+  B(3,.06,.6,xc+.8,.95,z1-.45,WH);B(3,.9,.55,xc+.8,.45,z1-.45,GR);C(.18,.2,.4,xc+.2,1.18,z1-.45,M(0x8ad0f0,{transparent:true,opacity:.6}),null,null,12);B(.5,.25,.35,xc+1.6,1.1,z1-.45,M(0x2a2a2e));B(.3,.12,.02,xc+1.6,1.18,z1-.63,M(0x40d060,{emissive:0x20a040,emissiveIntensity:.6}));
+  /* stools along the front */for(const dx of[-2.2,0,2.2]){C(.18,.18,.05,xc+dx,.75,z0-.75,M(0xc42828),null,null,12);C(.03,.03,.72,xc+dx,.37,z0-.75,M(0x9a9ea4),null,null,6);C(.16,.16,.02,xc+dx,.01,z0-.75,M(0x9a9ea4),null,null,10)}
+  obs.push({x0,x1,z0,z1})}
+ /* the outdoor shower: a post, a head, a foot tray */{const x=244.5,z=-1492;C(.05,.05,2.4,x,1.2,z,M(0x9a9ea4,{metalness:.6}),null,null,8);B(.4,.05,.05,x+.18,2.36,z,M(0x9a9ea4,{metalness:.6}));C(.12,.06,.06,x+.38,2.3,z,M(0x9a9ea4,{metalness:.6}),null,null,10);B(.9,.06,.9,x+.38,.03,z,M(0xb8b4ac));B(.06,.1,.06,x,1.1,z+.06,M(0x2a6ac8));L('RINSE OFF\nTHE MIRAGE',.7,.35,'#2a6ac8','#ffffff',40,x,1.6,z+.06,0);obs.push({x0:x-.1,x1:x+.1,z0:z-.1,z1:z+.1})}
+ /* beach volleyball: a raked sand court, lines, two posts, the net */{const x0=266,x1=280,z0=-1496,z1=-1486,xc=(x0+x1)/2,zc=(z0+z1)/2;const t=afCanvas(512,368,(c,w,h)=>{c.fillStyle='#f0e2bc';c.fillRect(0,0,w,h);const rr=lkRand(41);for(let i=0;i<4000;i++){c.fillStyle=rr()<.5?'rgba(180,150,100,.18)':'rgba(255,250,235,.2)';c.fillRect(rr()*w,rr()*h,2,1)}c.strokeStyle='#2a6ac8';c.lineWidth=6;c.strokeRect(14,14,w-28,h-28)});afPlane(g,x0,x1,z0,z1,.05,t,-2);
+  for(const z of[z0-.6,z1+.6]){C(.05,.05,2.6,xc,1.3,z,M(0xf0f0f0),null,null,8);obs.push({x0:xc-.1,x1:xc+.1,z0:z-.1,z1:z+.1})}const nt=afCanvas(256,32,(c,w,h)=>{c.clearRect(0,0,w,h);c.strokeStyle='#1a1a1a';c.lineWidth=1.5;for(let i=0;i<w;i+=8){c.beginPath();c.moveTo(i,0);c.lineTo(i,h);c.stroke()}for(let j=0;j<h;j+=8){c.beginPath();c.moveTo(0,j);c.lineTo(w,j);c.stroke()}c.fillStyle='#f0f0f0';c.fillRect(0,0,w,4)});const nm=new THREE.Mesh(new THREE.PlaneGeometry(z1-z0+1.2,.9),new THREE.MeshStandardMaterial({map:nt,transparent:true,alphaTest:.3,side:THREE.DoubleSide}));nm.rotation.y=Math.PI/2;nm.position.set(xc,2.1,zc);g.add(nm);
+  const ball=new THREE.Mesh(new THREE.SphereGeometry(.11,12,8),M(0xf4f0e0,{roughness:.5}));ball.position.set(xc+3,.11,zc+1.2);g.add(ball)}
+ /* the lifeguard tower: a hut on four stilts looking at the water, a ramp down the back, a rescue float, a flag */{const tx=284,tz=-1494,SY=2.2,RD=M(0xc42828,{roughness:.6}),WH=M(0xf0ece4,{roughness:.7}),WD=M(0x9a7a58,{roughness:.9});
+  for(const[a,b]of[[-1.1,-1.1],[1.1,-1.1],[-1.1,1.1],[1.1,1.1]]){B(.16,SY,.16,tx+a,SY/2,tz+b,WD);obs.push({x0:tx+a-.1,x1:tx+a+.1,z0:tz+b-.1,z1:tz+b+.1})}for(const s of[-1,1]){rod([tx-1.1,.3,tz+s*1.1],[tx+1.1,SY-.2,tz+s*1.1],.04,WD,null,5);rod([tx+s*1.1,.3,tz-1.1],[tx+s*1.1,SY-.2,tz+1.1],.04,WD,null,5)}
+  B(2.8,.12,2.8,tx,SY+.06,tz,WD);/* the deck in front (south, over the beach) and its rail */B(2.8,.1,1,tx,SY+.05,tz-1.9,WD);for(const a of[-1.35,0,1.35])B(.06,.9,.06,tx+a,SY+.55,tz-2.35,WH);B(2.8,.06,.08,tx,SY+1,tz-2.35,WH);for(const s of[-1,1]){B(.06,.9,.06,tx+s*1.35,SY+.55,tz-1.45,WH);B(.08,.06,1,tx+s*1.35,SY+1,tz-1.9,WH)}
+  /* the hut */B(2.4,1.9,2.2,tx,SY+1.06,tz+.1,WH);B(1.6,.8,.04,tx,SY+1.4,tz-1.02,M(0x34404a,{roughness:.1}));B(.9,1.6,.04,tx+.5,SY+.92,tz+1.22,M(0x2a6ac8));{const rf=B(3,.1,2.8,tx,SY+2.15,tz,RD);rf.rotation.x=-.08}
+  L('LIFEGUARD\n(OFF DUTY SINCE 1998)',1.8,.5,'#c42828','#ffffff',40,tx,SY+1.85,tz-1.03,Math.PI);{const ring=new THREE.Mesh(new THREE.TorusGeometry(.32,.08,8,16),M(0xff5020,{roughness:.5}));ring.position.set(tx+1.21,SY+1.1,tz-.4);ring.rotation.y=Math.PI/2;g.add(ring)}
+  /* the ramp from the hut door down to the sand at the back (north) */{const rl=Math.hypot(SY,4.2);const rp=B(1,.08,rl,tx+.5,SY/2,tz+1.1+2.1,WD);rp.rotation.x=Math.atan2(SY,4.2);for(let i=1;i<9;i++)B(1,.03,.05,tx+.5,SY*(1-i/9)+.06,tz+1.1+4.2*i/9,WD)}
+  /* the flag on a pole at the corner */C(.025,.025,2.4,tx-1.3,SY+1.2+.15,tz-1.4,M(0xd8d8d8),null,null,6);{const f=new THREE.Mesh(new THREE.PlaneGeometry(.7,.45),new THREE.MeshStandardMaterial({color:0xf0c020,side:THREE.DoubleSide}));f.position.set(tx-1.3+.36,SY+2.4,tz-1.4);g.add(f)}}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+function lkSwan(col){const g=new THREE.Group(),M=lkKit().M,W=M(col||0xf4f4f0,{roughness:.4}),dark=col&&col<0x808080;
+ /* one closed, rounded body sitting low in the water (bow -z), a round-backed cockpit sunk into the back of it with a
+    bench seat, wings folded tight along the sides that rise into a tail at the back, the long S neck at the front */
+ const body=new THREE.Mesh(new THREE.SphereGeometry(1,24,14),W);body.scale.set(.9,.5,1.35);body.position.y=.3;g.add(body);
+ const ck=new THREE.Mesh(new THREE.CylinderGeometry(.62,.55,.2,20),M(dark?0x1a1a1e:0xd8dadc,{roughness:.6}));ck.scale.set(1,1,1.05);ck.position.set(0,.72,.25);g.add(ck);
+ const seat=new THREE.Mesh(new THREE.BoxGeometry(.9,.1,.4),M(0x2a6ac8,{roughness:.6}));seat.position.set(0,.86,.45);g.add(seat);const bs=new THREE.Mesh(new THREE.BoxGeometry(.9,.32,.08),M(0x2a6ac8,{roughness:.6}));bs.position.set(0,1.05,.66);bs.rotation.x=-.2;g.add(bs);
+ for(const sx of[-1,1]){const w=new THREE.Mesh(new THREE.SphereGeometry(1,16,10),W);w.scale.set(.22,.36,1.05);w.position.set(sx*.74,.62,.3);w.rotation.set(-.25,0,sx*-.15);g.add(w)}
+ /* the tail: its base sunk into the back of the body, the tip sweeping back and up */const tail=new THREE.Mesh(new THREE.ConeGeometry(.32,.75,10),W);tail.rotation.x=1.1;tail.position.set(0,.55+.375*Math.cos(1.1),1.0+.375*Math.sin(1.1));g.add(tail);
+ const neck=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0,.55,-1.05),new THREE.Vector3(0,1.15,-1.3),new THREE.Vector3(0,1.75,-1.1),new THREE.Vector3(0,2.05,-1.25)]),20,.15,12),W);g.add(neck);
+ const nb=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),W);nb.scale.set(1,.9,1.1);nb.position.set(0,.55,-1.05);g.add(nb);
+ const hd=new THREE.Mesh(new THREE.SphereGeometry(.21,14,10),W);hd.position.set(0,2.08,-1.3);hd.scale.set(.9,.9,1.25);g.add(hd);const bk=new THREE.Mesh(new THREE.ConeGeometry(.08,.32,10),M(dark?0xd82020:0xf08020));bk.rotation.x=-Math.PI/2;bk.position.set(0,2.03,-1.62);g.add(bk);
+ for(const sx of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.035,6,4),M(dark?0xf0f0f0:0x101010));e.position.set(sx*.15,2.14,-1.42);g.add(e)}
+ g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
+function lkBoathouse(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],bob=[],x0=176,x1=190,z0=-1572,z1=-1556,xc=(x0+x1)/2,zc=(z0+z1)/2,H=4.2;
+ const board=afCanvas(128,128,(c,w,h)=>{c.fillStyle='#e8e0d0';c.fillRect(0,0,w,h);for(let i=0;i<h;i+=14){c.fillStyle='rgba(0,0,0,.12)';c.fillRect(0,i,w,2)}});board.wrapS=board.wrapT=THREE.RepeatWrapping;board.repeat.set(3,2);const WL=M(0xffffff,{map:board,roughness:.85}),TR=M(0x2a6a8a,{roughness:.7}),WD=M(0x8a6a48,{roughness:.9});
+ /* the shed: open at the water end (east) with a wide door opening, a gable roof along x */B(x1-x0,H,.2,xc,H/2,z0+.1,WL);B(x1-x0,H,.2,xc,H/2,z1-.1,WL);B(.2,H,z1-z0,x0+.1,H/2,zc,WL);for(const s of[-1,1])B(.2,H,4.5,x1-.1,H/2,zc+s*5.75,WL);B(.2,1,7,x1-.1,H-.5,zc,WL);B(x1-x0,.05,z1-z0,xc,.03,zc,M(0x9a8a6a));
+ {const hl=(z1-z0)/2+.5,an=Math.atan2(1.8,hl),full=Math.hypot(hl,1.8),mid=(full+.15)/2,RY=H+1.8;for(const s of[-1,1]){const r=B(x1-x0+.8,.12,full-.15,xc,RY-Math.sin(an)*mid,zc+s*Math.cos(an)*mid,TR);r.rotation.x=s*an}B(x1-x0+.82,.14,.5,xc,RY+.08,zc,M(0x1a4a6a));const gs=new THREE.Shape();gs.moveTo(-(z1-z0)/2,0);gs.lineTo((z1-z0)/2,0);gs.lineTo(0,1.8);gs.lineTo(-(z1-z0)/2,0);for(const gx of[x0+.1,x1-.1]){const m=new THREE.Mesh(new THREE.ShapeGeometry(gs),WL);m.position.set(gx,H,zc);m.rotation.y=gx<xc?-Math.PI/2:Math.PI/2;g.add(m)}}
+ /* windows on the outside faces of the long walls (the walls are z0..z0+.2 and z1-.2..z1), 3 cm proud, with a white frame */for(const[z,s2]of[[z0,-1],[z1,1]])for(let i=0;i<3;i++){B(1.36,1.06,.03,x0+3+i*4,2.4,z+s2*.015,M(0xf4f0e8));B(1.2,.9,.03,x0+3+i*4,2.4,z+s2*.045,M(0x34404a,{roughness:.1}))}
+ L('SWAN PEDALOS · 2 🪙\n(THEY DO NOT GO ANYWHERE)',5,1,'#2a6a8a','#ffffff',50,x1+.02,H+.8,zc,Math.PI/2);
+ /* inside: lifejackets on hooks, oars, a workbench */for(let i=0;i<6;i++)B(.4,.55,.12,x0+1.5+i*.6,2.2,z0+.3,M(0xff6a20,{roughness:.6}));B(3,.08,.7,x0+2.5,1,z1-.6,WD);rod([x0+.4,.1,zc-1],[x0+.4,2.8,zc-.6],.03,WD,null,5);rod([x0+.4,.1,zc+1],[x0+.4,2.8,zc+.6],.03,WD,null,5);
+ obs.push({x0,x1,z0,z1:z0+.25},{x0,x1,z0:z1-.25,z1},{x0,x1:x0+.25,z0,z1});
+ /* the jetty from the door out over the water, and three swans tied along it */const jx0=x1,jx1=204,jz=zc,JW=2.4,JY=.55;B(jx1-jx0,.12,JW,(jx0+jx1)/2,JY-.06,jz,WD);for(let x=jx0+1;x<=jx1;x+=3)for(const s of[-1,1])C(.1,.12,JY+.6,x,(JY-.6)/2-.06,jz+s*(JW/2-.15),WD,null,null,8);for(let x=jx0+.5;x<jx1;x+=.5)B(.03,.13,JW,x,JY-.06,jz,M(0x6a4a30));
+ for(const[x,s,col]of[[194,1,0xf4f4f0],[199,1,0xf4f4f0],[197,-1,0x2a2a2e]]){const sw=lkSwan(col);sw.position.set(x,0,jz+s*(JW/2+1.25));sw.rotation.y=Math.PI/2*(s>0?1:1)+(s>0?0:Math.PI);g.add(sw);bob.push(sw);C(.06,.06,.25,x,JY+.1,jz+s*(JW/2-.1),M(0x3a3a3a),null,null,6)}
+ g.traverse(m=>{if(m.isMesh&&!m.userData.dpKeep)m.userData.noSeam=true});return{obs,bob,plate:{x0:jx0,x1:jx1,z0:jz-JW/2,z1:jz+JW/2,y:JY}}}
+function lkBuoys(g){const M=lkKit().M,bob=[],{x,z}=LKW,R=44,pts=[];for(let i=0;i<9;i++){const a=Math.PI*(.15+i*.0875),bx=x+Math.cos(a)*R,bz=z+Math.sin(a)*R;const b=new THREE.Group();b.position.set(bx,0,bz);g.add(b);const t=afCanvas(32,32,(c,w,h)=>{c.fillStyle='#d82828';c.fillRect(0,0,w,h);c.fillStyle='#f4f0e8';c.fillRect(0,h*.4,w,h*.2)});const s=new THREE.Mesh(new THREE.SphereGeometry(.35,12,10),new THREE.MeshStandardMaterial({map:t,roughness:.5}));s.position.y=.12;b.add(s);s.userData.dpKeep=1;bob.push(b);pts.push(new THREE.Vector3(bx,.1,bz))}
+ const rope=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),60,.025,4),M(0xf0e8d0));g.add(rope);return{bob}}
+function lkSailboat(){const g=new THREE.Group(),M=lkKit().M;
+ /* the hull: a lofted shape (wide at the back, pointed at the bow -z), white with a red stripe, a wooden deck */const sh=new THREE.Shape();sh.moveTo(-.85,1.8);sh.quadraticCurveTo(-.95,-.5,0,-2.3);sh.quadraticCurveTo(.95,-.5,.85,1.8);sh.lineTo(-.85,1.8);
+ const hg=new THREE.ExtrudeGeometry(sh,{depth:.55,bevelEnabled:true,bevelThickness:.12,bevelSize:.1,bevelSegments:3,curveSegments:12});hg.rotateX(Math.PI/2);hg.translate(0,.55,0);const hull=new THREE.Mesh(hg,M(0xf4f2ec,{roughness:.4}));g.add(hull);
+ const dg=new THREE.ShapeGeometry(sh,12);dg.rotateX(Math.PI/2);/* same turn as the hull so the bow matches */const deck=new THREE.Mesh(dg,M(0xa07a50,{roughness:.8,side:THREE.DoubleSide}));deck.position.y=.68;deck.scale.set(.9,1,.92);g.add(deck);
+ const sg=new THREE.ExtrudeGeometry(sh,{depth:.08,bevelEnabled:false,curveSegments:12});sg.rotateX(Math.PI/2);sg.scale(1.02,1,1.02);const stripe=new THREE.Mesh(sg,M(0xc42828,{roughness:.5}));stripe.position.y=.5;g.add(stripe);
+ /* mast, boom, the mainsail (a triangle with a stripe), the rudder */const mast=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,5.2,8),M(0xd8d8d8,{metalness:.4}));mast.position.set(0,3.25,-.6);g.add(mast);const boom=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,2.4,8),M(0xd8d8d8,{metalness:.4}));boom.rotation.x=Math.PI/2;boom.position.set(0,1.35,.55);g.add(boom);
+ const ss=new THREE.Shape();ss.moveTo(0,0);ss.lineTo(2.3,0);ss.lineTo(0,4.5);ss.lineTo(0,0);const st=afCanvas(128,256,(c,w,h)=>{c.fillStyle='#f8f6f0';c.fillRect(0,0,w,h);c.fillStyle='#2a6ac8';c.fillRect(0,h*.7,w,h*.06);c.fillStyle='rgba(0,0,0,.06)';for(let i=0;i<h;i+=24)c.fillRect(0,i,w,1)});const sgeo=new THREE.ShapeGeometry(ss);const sp=sgeo.attributes.position,su=sgeo.attributes.uv;for(let i=0;i<sp.count;i++)su.setXY(i,sp.getX(i)/2.3,sp.getY(i)/4.5);
+ const sail=new THREE.Mesh(sgeo,new THREE.MeshStandardMaterial({map:st,side:THREE.DoubleSide,roughness:.8}));sail.rotation.y=-Math.PI/2;sail.position.set(.02,1.42,-.55);g.add(sail);
+ const rud=new THREE.Mesh(new THREE.BoxGeometry(.05,.8,.35),M(0xa07a50));rud.position.set(0,.3,1.95);g.add(rud);
+ g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
+function lkBob(list,t){list.forEach((b,i)=>{b.position.y=Math.sin(t*1.3+i*1.7)*.05;b.rotation.z=Math.sin(t*.9+i)*.04;b.rotation.x=Math.sin(t*1.1+i*2)*.03})}
+
+/* ===================================================================================================== batch 3
+   The observatory (608, -1480).
+   obTower(g)    the round tower (r 7.2, 6 m) with windows, a plinth, a gallery walkway and rail round the top, the
+                 door on the WEST side facing the road (steps, canopy, plaque), and the dome: panelled, with a real
+                 slit open from the rim over the top, its two shutters slid aside, dark inside, and the telescope on
+                 its pier pointing out through the slit. Returns {obs, dome, prop}: dome is the Group to turn
+                 (rotation.y, as the old dm; the slit is on its -z side); prop {x,z} for the big telescope's [E].
+   obDish(g)     the radio dish at (624, -1468). Returns {obs, dish} (dish: the Group that can turn slowly).
+   obCaravan(g)  the astronomer's caravan (x 616..626, z -1498..-1492) with an awning, a deck chair, a little
+                 telescope on a tripod, string lights and a sign. Returns {obs}.
+   obPlanets(g)  the planet walk: the sun and eight planets on posts along the dirt road in (z -1475). Returns {obs}.
+   ===================================================================================================== */
+const OBS={x:608,z:-1480,r:7.2,h:6};
+function obTower(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],{x:ox,z:oz,r:R,h:H}=OBS;
+ const render=afCanvas(512,128,(c,w,h)=>{c.fillStyle='#e8e4da';c.fillRect(0,0,w,h);const rr=lkRand(7);for(let i=0;i<3000;i++){c.fillStyle=rr()<.5?'rgba(0,0,0,.04)':'rgba(255,255,255,.05)';c.fillRect(rr()*w,rr()*h,2,2)}c.fillStyle='rgba(0,0,0,.08)';c.fillRect(0,h*.92,w,h*.08)});render.wrapS=THREE.RepeatWrapping;render.repeat.set(4,1);
+ const WL=new THREE.MeshStandardMaterial({map:render,roughness:.9}),TR=M(0xc8c4ba,{roughness:.9}),DK=M(0x2a2c30,{roughness:.5,metalness:.3});
+ /* the drum, a darker plinth, a cornice */C(R,R,H,ox,H/2,oz,WL,null,null,48);C(R+.25,R+.3,.6,ox,.3,oz,TR,null,null,48);C(R+.2,R+.2,.25,ox,H-.12,oz,TR,null,null,48);
+ /* windows: six narrow ones round the drum (skipping the door), set into the wall */for(let i=0;i<6;i++){const a=i/6*Math.PI*2+Math.PI/6;if(Math.abs(Math.cos(a)+1)<.2)continue;const wx=ox+Math.cos(a)*(R+.02),wz=oz+Math.sin(a)*(R+.02);const w=new THREE.Group();w.position.set(wx,3.4,wz);w.rotation.y=-a+Math.PI/2;g.add(w);const f=new THREE.Mesh(new THREE.BoxGeometry(.9,1.7,.06),TR);w.add(f);const gl=new THREE.Mesh(new THREE.BoxGeometry(.7,1.5,.04),M(0x2a3a4a,{roughness:.1,metalness:.3}));gl.position.z=.03;w.add(gl);const sl=new THREE.Mesh(new THREE.BoxGeometry(1,.08,.18),TR);sl.position.set(0,-.88,.06);w.add(sl)}
+ /* the door on the west: a frame, double doors, a canopy, three steps and a plaque */{const dx=ox-R,dz=oz;B(.12,2.7,2.2,dx-.04,1.35+.3,dz,TR);B(.06,2.3,1.8,dx-.1,1.15+.3,dz,M(0x3a5a7a,{roughness:.5}));B(.06,2.3,.04,dx-.14,1.15+.3,dz,DK);for(const s of[-1,1])B(.04,.04,.25,dx-.16,1.3+.3,dz+s*.2,M(0xc0a050,{metalness:.7}));
+  B(1.3,.12,2.8,dx-.6,3.3,dz,TR);for(const s of[-1,1])rod([dx-1.2,3.25,dz+s*1.3],[dx-.06,2.6,dz+s*1.3],.03,DK,null,5);for(let i=0;i<3;i++)B(.5,.2*(3-i),2.4,dx-.45-i*.45,.1*(3-i),dz,TR);
+  L('DESERT OBSERVATORY\nEST. 1962 · OPEN NIGHTS',1.5,.6,'#2a2a4a','#e8e0c0',44,dx-.08,2.05,dz+1.6,-Math.PI/2)}
+ /* the gallery round the top: a ring walkway on brackets and a rail */{const gw=new THREE.Mesh(new THREE.RingGeometry(R,R+.9,48),TR);gw.rotation.x=-Math.PI/2;gw.position.set(ox,H+.02,oz);g.add(gw);const gu=new THREE.Mesh(new THREE.RingGeometry(R,R+.9,48),TR);gu.rotation.x=Math.PI/2;gu.position.set(ox,H-.06,oz);g.add(gu);const ge=new THREE.Mesh(new THREE.CylinderGeometry(R+.9,R+.9,.08,48,1,true),TR);ge.position.set(ox,H-.02,oz);g.add(ge);
+  for(let i=0;i<24;i++){const a=i/24*Math.PI*2;rod([ox+Math.cos(a)*(R+.85),H,oz+Math.sin(a)*(R+.85)],[ox+Math.cos(a)*(R+.85),H+1,oz+Math.sin(a)*(R+.85)],.025,DK,null,5);rod([ox+Math.cos(a)*R,H-.9,oz+Math.sin(a)*R],[ox+Math.cos(a)*(R+.85),H-.05,oz+Math.sin(a)*(R+.85)],.03,DK,null,5)}const rl=new THREE.Mesh(new THREE.TorusGeometry(R+.85,.03,6,64),DK);rl.rotation.x=Math.PI/2;rl.position.set(ox,H+1,oz);g.add(rl)}
+ /* the dome: a sphere with a 1.6 m slit from the rim over the top on its -z side, dark inside; the shutters slid back */
+ const dome=new THREE.Group();dome.position.set(ox,H,oz);g.add(dome);{const DR=R-.05,gap=.24,pt=afCanvas(512,256,(c,w,h)=>{c.fillStyle='#c8ccd2';c.fillRect(0,0,w,h);c.strokeStyle='rgba(60,66,76,.45)';c.lineWidth=2;for(let i=0;i<=24;i++){c.beginPath();c.moveTo(i*w/24,0);c.lineTo(i*w/24,h);c.stroke()}for(const y of[.35,.65])c.fillRect(0,h*y,w,2);c.fillStyle='rgba(255,255,255,.12)';for(let i=0;i<24;i+=2)c.fillRect(i*w/24+2,0,w/24-4,h)});
+  /* three.js sphere phi runs from +x round to -z at 1.5 PI, so the gap is centred on phi = 1.5 PI */const a0=1.5*Math.PI+gap/2,len=2*Math.PI-gap;const shell=new THREE.Mesh(new THREE.SphereGeometry(DR,48,20,a0,len,0,Math.PI/2),new THREE.MeshStandardMaterial({map:pt,roughness:.45,metalness:.3}));dome.add(shell);
+  const inner=new THREE.Mesh(new THREE.SphereGeometry(DR-.08,40,16,a0,len,0,Math.PI/2),M(0x1a1c22,{side:THREE.BackSide,roughness:.9}));dome.add(inner);
+  /* the slit's two edges, a dark lining you see through it, and the shutters stacked open either side */for(const s of[-1,1]){const ph=1.5*Math.PI+s*gap/2;const lip=new THREE.Mesh(new THREE.SphereGeometry(DR+.02,6,20,ph-(s>0?0:.02),.02,0,Math.PI/2),DK);dome.add(lip);
+   const sh=new THREE.Mesh(new THREE.SphereGeometry(DR+.09,8,20,ph+(s>0?.0:-gap),gap,.02,Math.PI/2-.04),new THREE.MeshStandardMaterial({map:pt,roughness:.45,metalness:.3,side:THREE.DoubleSide}));dome.add(sh)}
+  const cap=new THREE.Mesh(new THREE.CylinderGeometry(DR+.05,DR+.05,.12,48,1,true),DK);cap.position.y=.06;dome.add(cap);const floor=new THREE.Mesh(new THREE.CircleGeometry(DR-.1,40),M(0x3a3c42));floor.rotation.x=-Math.PI/2;floor.position.y=.05;dome.add(floor);
+  /* the telescope: a pier, a fork, the tube aimed out through the slit (towards -z, up 40 degrees) */const pier=new THREE.Mesh(new THREE.CylinderGeometry(.5,.7,2.2,16),M(0xe8e4dc));pier.position.y=1.1;dome.add(pier);const fork=new THREE.Group();fork.position.y=2.4;dome.add(fork);for(const s of[-1,1]){const arm=new THREE.Mesh(new THREE.BoxGeometry(.18,1.4,.5),M(0x3a5a8a,{metalness:.3,roughness:.4}));arm.position.set(s*.75,.5,0);fork.add(arm)}const fb=new THREE.Mesh(new THREE.BoxGeometry(1.7,.25,.6),M(0x3a5a8a,{metalness:.3,roughness:.4}));fb.position.y=-.15;fork.add(fb);
+  const tube=new THREE.Group();tube.position.y=.9;tube.rotation.x=-(Math.PI/2-.7);fork.add(tube);const tb=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,5.2,24),M(0xf2f2ee,{roughness:.35}));tb.rotation.x=0;tb.position.y=.6;tube.add(tb);/* the tube's long axis is local y; rotated so it points at -z, 40 degrees up */tube.rotation.set(-(Math.PI/2-.7),0,0);
+  const ring=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,.3,24),M(0x2a2c30));ring.position.y=3.1;tube.add(ring);const lens=new THREE.Mesh(new THREE.CircleGeometry(.5,24),M(0x101418,{roughness:.05,metalness:.6}));lens.rotation.x=-Math.PI/2;lens.position.y=3.26;tube.add(lens);const fs=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,1,10),M(0x2a2c30));fs.position.set(.62,1.5,0);tube.add(fs);
+  dome.traverse(m=>{if(m.isMesh)m.userData.dpKeep=1})}
+ obs.push({x0:ox-R-.3,x1:ox+R+.3,z0:oz-R-.3,z1:oz+R+.3});g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,dome,prop:{x:ox-R-2.2,z:oz}}}
+
+function obDish(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],x=624,z=-1468,WH=M(0xf0f0ec,{roughness:.4,side:THREE.DoubleSide}),ST=M(0x8a8e94,{metalness:.4,roughness:.45});
+ B(3,.4,3,x,.2,z,M(0xb8b4ac,{roughness:.95}));C(.35,.45,3.2,x,2,z,ST,null,null,12);const dish=new THREE.Group();dish.position.set(x,3.7,z);g.add(dish);const tilt=new THREE.Group();tilt.rotation.x=-.9;dish.add(tilt);
+ {const pts=[];for(let i=0;i<=12;i++){const t=i/12;pts.push(new THREE.Vector2(t*3,t*t*1.1))}const pr=new THREE.Mesh(new THREE.LatheGeometry(pts.slice().reverse(),40),WH);pr.rotation.x=0;pr.position.y=.3;tilt.add(pr)}
+ const hub=new THREE.Mesh(new THREE.CylinderGeometry(.4,.5,.6,12),ST);tilt.add(hub);for(let i=0;i<3;i++){const a=i/3*Math.PI*2;const e=new THREE.Vector3(Math.cos(a)*2.1,.3+.54,Math.sin(a)*2.1),f=new THREE.Vector3(0,2.4,0);const d=f.clone().sub(e);const st=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,d.length(),6),ST);st.position.copy(e).add(f).multiplyScalar(.5);st.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());tilt.add(st)}
+ const feed=new THREE.Mesh(new THREE.CylinderGeometry(.18,.12,.5,10),ST);feed.position.y=2.5;tilt.add(feed);for(const s of[-1,1]){const yk=new THREE.Mesh(new THREE.BoxGeometry(.15,.9,.4),ST);yk.position.set(s*.55,-.1,0);dish.add(yk)}
+ B(1.2,1.4,.8,x+2.2,.9,z+1.6,M(0xd8dadc));L('DEEP SPACE EAR\nPLEASE WHISPER',1,.4,'#2a2a4a','#ffffff',40,x+2.2,1.2,z+2.01,0);obs.push({x0:x-1.5,x1:x+1.5,z0:z-1.5,z1:z+1.5},{x0:x+1.6,x1:x+2.8,z0:z+1.2,z1:z+2})
+ dish.traverse(m=>{if(m.isMesh)m.userData.dpKeep=1});g.traverse(m=>{if(m.isMesh&&!m.userData.dpKeep)m.userData.noSeam=true});return{obs,dish}}
+
+function obCaravan(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],x0=616,x1=626,z0=-1498,z1=-1492,xc=(x0+x1)/2,zc=(z0+z1)/2;
+ /* a rounded silver caravan: a body with round ends (a capsule), a stripe, windows, a door on the north side, on two wheels and a jack */
+ const L0=x1-x0-1,Rr=1.25,y0=.55,F=zc+1.4/* the north face of the body */;{const sh=new THREE.Shape();sh.moveTo(-L0/2,0);sh.lineTo(L0/2,0);sh.quadraticCurveTo(L0/2+1.1,0,L0/2+1.1,1.2);sh.quadraticCurveTo(L0/2+1.1,2.5,L0/2-.4,2.5);sh.lineTo(-L0/2+.4,2.5);sh.quadraticCurveTo(-L0/2-1.1,2.5,-L0/2-1.1,1.2);sh.quadraticCurveTo(-L0/2-1.1,0,-L0/2,0);
+  const ge=new THREE.ExtrudeGeometry(sh,{depth:2.3,bevelEnabled:true,bevelThickness:.25,bevelSize:.25,bevelSegments:4,curveSegments:10});ge.translate(0,0,-1.15);const body=new THREE.Mesh(ge,M(0xe4e8ec,{metalness:.2,roughness:.35}));body.position.set(xc,y0,zc);g.add(body)}
+ B(L0+1.6,.18,2.85,xc,y0+1.05,zc,M(0x2a6ac8,{roughness:.5}));for(const dz of[-1.43,1.43])for(const dx of[-2.8,0,2.8])if(!(dz>0&&dx==0))B(1.3,.7,.04,xc+dx,y0+1.65,zc+dz,M(0x2a3a44,{roughness:.1}));
+ B(.85,1.85,.04,xc,y0+1.08,F+.02,M(0xb8bcc0,{metalness:.5}));B(.9,.18,.6,xc,.2,F+.35,M(0x6a6e74));
+ for(const s of[-1,1]){C(.38,.38,.25,xc+.3,.38,zc+s*1.3,M(0x1c1c1e),'z',null,14);C(.2,.2,.27,xc+.3,.38,zc+s*1.3,M(0xd8d8d8,{metalness:.6}),'z',null,10)}rod([x0-.3,.2,zc],[x0+.8,y0+.2,zc],.05,M(0x3a3a3a),null,6);C(.05,.05,.5,x0-.2,.25,zc,M(0x3a3a3a),null,null,6);
+ /* the awning out from the north side on two poles, string lights along its edge */{const aw=new THREE.Mesh(new THREE.PlaneGeometry(6,2.4),new THREE.MeshStandardMaterial({color:0xe8a040,side:THREE.DoubleSide,roughness:.8}));aw.position.set(xc+.8,y0+2.0,F+1.2);aw.rotation.x=-Math.PI/2+.25;g.add(aw);for(const dx of[-2.2,3.8]){C(.03,.03,2.25,xc+dx,1.12,F+2.35,M(0x8a8e94),null,null,6)}
+  const pts=[];for(let i=0;i<=10;i++){const f=i/10;pts.push(new THREE.Vector3(xc-2.2+6*f,2.2-Math.sin(f*Math.PI)*.18,F+2.352))}g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),20,.01,4),M(0x2a2a2a)));for(let i=1;i<10;i++){const p=pts[i];const b=new THREE.Mesh(new THREE.SphereGeometry(.05,6,4),M(0xfff0c0,{emissive:0xffd890,emissiveIntensity:.8}));b.position.set(p.x,p.y-.06,p.z);g.add(b)}}
+ /* a deck chair, a tiny telescope on a tripod, a gas bottle, a sign */{const cx=xc+2.4,cz=F+1.7;B(.55,.04,.6,cx,.4,cz,M(0x2a8ad0));const bk=B(.55,.04,.7,cx,.7,cz+.42,M(0x2a8ad0));bk.rotation.x=-1.1;for(const s of[-1,1]){rod([cx+s*.28,0,cz-.3],[cx+s*.28,.95,cz+.6],.015,M(0xc0c0c0),null,4);rod([cx+s*.28,0,cz+.5],[cx+s*.28,.45,cz-.3],.015,M(0xc0c0c0),null,4)}}
+ {const tx=xc-1,tz=F+3.2;for(let i=0;i<3;i++){const a=i/3*Math.PI*2;rod([tx+Math.cos(a)*.35,0,tz+Math.sin(a)*.35],[tx,1.2,tz],.015,M(0x2a2a2a),null,4)}const t=C(.07,.06,.8,tx,1.35,tz-.1,M(0xe8e8e8),null,null,10);t.rotation.x=-.8}
+ C(.17,.17,.6,x1+1.3,.3,zc,M(0xd84a2a),null,null,12);L('THE ASTRONOMER\nBACK AT DUSK',1.1,.45,'#2a2a4a','#e8e0c0',40,x0+1,1.3,F+.03,0);
+ obs.push({x0:x0-.4,x1:x1+.9,z0:zc-1.45,z1:F+.05});g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+function obPlanets(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],z=-1474.6;
+ const P=[['SUN',.9,'#ffc840',1],['MERCURY',.18,'#9a948a'],['VENUS',.3,'#e8c888'],['EARTH',.32,'earth'],['MARS',.24,'#c8583a'],['JUPITER',.75,'bands'],['SATURN',.6,'#e0c890',0,1],['URANUS',.45,'#8ad8e0'],['NEPTUNE',.43,'#3a6ad8']];
+ P.forEach(([nm,r,col,sun,rings],i)=>{const x=566+i*3.2;C(.05,.06,1.6,x,.8,z,M(0x5a5e64),null,null,8);B(.5,.08,.5,x,.04,z,M(0xa8a49c));
+  const t=afCanvas(128,64,(c,w,h)=>{if(col=='earth'){c.fillStyle='#2a6ad0';c.fillRect(0,0,w,h);c.fillStyle='#4aa040';for(const[a,b,cw,ch]of[[10,20,30,18],[60,10,24,28],[90,34,26,14]]){c.beginPath();c.ellipse(a+cw/2,b+ch/2,cw/2,ch/2,0,0,7);c.fill()}c.fillStyle='#f4f4f4';c.fillRect(0,0,w,5);c.fillRect(0,h-5,w,5)}else if(col=='bands'){for(let y=0;y<h;y+=6){c.fillStyle=['#d8b48a','#b88a60','#e8d0b0','#c89a70'][(y/6)%4];c.fillRect(0,y,w,6)}c.fillStyle='#c8583a';c.beginPath();c.ellipse(80,40,8,5,0,0,7);c.fill()}else{c.fillStyle=col;c.fillRect(0,0,w,h);for(let y=0;y<h;y+=8){c.fillStyle='rgba(0,0,0,.06)';c.fillRect(0,y,w,3)}}});
+  const s=new THREE.Mesh(new THREE.SphereGeometry(r,20,14),new THREE.MeshStandardMaterial({map:t,roughness:.6,emissive:sun?0xff9020:0,emissiveIntensity:sun?.6:0}));s.position.set(x,1.6+r,z);g.add(s);
+  if(rings){const rg=new THREE.Mesh(new THREE.RingGeometry(r*1.3,r*2,32),M(0xd8c090,{side:THREE.DoubleSide,roughness:.6}));rg.rotation.x=-Math.PI/2+.4;rg.position.copy(s.position);g.add(rg)}
+  L(nm,.9,.22,'#2a2a4a','#e8e0c0',40,x,1.1,z-.07,Math.PI);obs.push({x0:x-.1,x1:x+.1,z0:z-.1,z1:z+.1})});
+ L('PLANET WALK\nTO SCALE (NOT TO SCALE)',2,.6,'#2a2a4a','#e8e0c0',40,563.9+1.5,1.4,z-1.2,Math.PI);C(.05,.05,1.6,565.4,.8,z-1.15,M(0x5a5e64),null,null,8);
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+/* ===================================================================================================== batch 4
+   Dino Dan's (120, -1935).
+   ddDinoModel(skin, belly)  the big roadside dinosaur (our own design): a body lofted along a spine from tail tip to
+                 neck, a big head with an open jaw and teeth, eyes, thick legs, little arms. 14 m tall at scale 1.
+                 Origin on the ground under the hips, head towards +z. Returns a Group.
+   ddDino(g)     Dino Dan himself at (120, -1935), turned 0.4 as now, on concrete foot pads with a plaque.
+                 Returns {obs} (the feet and the plaque; you can stand under him).
+   ddShop(g)     the retro gift shop (x 92..104, z -1938..-1928) with a porch (to z -1925), a tall roadside sign,
+                 display windows with toy dinosaurs, a postcard rack, gumball machines and a bench. Returns {obs, prop}.
+   ddExtras(g)   Baby Dan (136,-1925), the giant egg on its nest (140,-1932), the dig site (x 132..146, z -1952..-1942),
+                 picnic tables (x 100..112, z -1948..-1942) and the car park (x 80..112, z -1918..-1906). Returns {obs}.
+   ===================================================================================================== */
+/* a tube along a curve whose radius changes: pts = [[x,y,z]...], rad(t) for t 0..1; sx squashes it sideways */
+function ddLoft(pts,rad,seg,radial,sx){const cv=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p))),pos=[],uv=[],idx=[],S=seg||40,N=radial||16;const fr=cv.computeFrenetFrames(S,false);
+ for(let i=0;i<=S;i++){const t=i/S,p=cv.getPointAt(t),T=cv.getTangentAt(t),X=new THREE.Vector3(1,0,0),side=X.clone().addScaledVector(T,-T.dot(X)).normalize().negate()/* always across the body (x), so rings never twist where a leg runs straight down */,nup=new THREE.Vector3().crossVectors(side,T).normalize(),r=rad(t);
+  for(let j=0;j<=N;j++){const a=j/N*Math.PI*2;/* j = 0 is the top of the ring, N/2 the belly */const c=Math.cos(a),s=Math.sin(a);pos.push(p.x+side.x*s*r*(sx||1)+nup.x*c*r,p.y+side.y*s*r*(sx||1)+nup.y*c*r,p.z+side.z*s*r*(sx||1)+nup.z*c*r);uv.push(j/N,t)}}
+ for(let i=0;i<S;i++)for(let j=0;j<N;j++){const a=i*(N+1)+j,b=a+N+1;idx.push(a,a+1,b,b,a+1,b+1)}
+ /* close both ends with a fan, so no open tube ever shows */for(const[i,flip]of[[0,1],[S,0]]){const c=cv.getPointAt(i/S),ci=pos.length/3;pos.push(c.x,c.y,c.z);uv.push(.5,i/S);for(let j=0;j<N;j++){const a=i*(N+1)+j;if(flip)idx.push(ci,a+1,a);else idx.push(ci,a,a+1)}}
+ const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();return ge}
+function ddSkin(skin,belly,rep){return afCanvas(256,512,(c,w,h)=>{c.fillStyle=skin;c.fillRect(0,0,w,h);const g2=c.createLinearGradient(0,0,w,0);g2.addColorStop(.3,'rgba(0,0,0,0)');g2.addColorStop(.4,belly);g2.addColorStop(.6,belly);g2.addColorStop(.7,'rgba(0,0,0,0)');c.fillStyle=g2;c.fillRect(0,0,w,h);const rr=lkRand(rep||3);
+ for(let i=0;i<140;i++){const x=rr()*w;if(x>w*.32&&x<w*.68)continue;c.fillStyle='rgba(20,50,20,.28)';c.beginPath();c.ellipse(x,rr()*h,4+rr()*12,3+rr()*8,rr()*3,0,7);c.fill()}c.strokeStyle='rgba(0,0,0,.08)';for(let y=0;y<h;y+=10){c.beginPath();c.moveTo(0,y);c.lineTo(w,y+5);c.stroke()}})}
+function ddDinoModel(skin,belly){const g=new THREE.Group(),M=lkKit().M,sk=skin||'#4a8a3a',bl=belly||'#c8d890';const SB=new THREE.MeshStandardMaterial({map:ddSkin(sk,bl),roughness:.85})/* body: pale belly down the underside */,SK=new THREE.MeshStandardMaterial({map:ddSkin(sk,sk,5),roughness:.85})/* everything else: spots, no belly band */,DK=M(new THREE.Color(sk).multiplyScalar(.6).getHex(),{roughness:.8}),TW=M(0xf4f0e0,{roughness:.5});
+ const add=(geo,m,p,r,s,par)=>{const o=new THREE.Mesh(geo,m);if(p)o.position.set(...p);if(r)o.rotation.set(...r);if(s)o.scale.set(...s);(par||g).add(o);return o};
+ /* ONE body from the tail tip to the head: hips at z -1.5, a deep chest, a short thick neck curving up and forward.
+    Every limb starts inside the body and every joint overlaps the next, so nothing floats and no tube end shows. */
+ const spine=[[0,3.2,-13],[0,4.8,-9],[0,6.7,-5],[0,7.8,-1.5],[0,8.4,2.0],[0,9.6,4.4],[0,11.0,6.2],[0,11.9,7.4]];
+ const rad=t=>{const k=[[0,.12],[.14,.9],[.3,1.9],[.45,2.65],[.62,2.55],[.76,1.95],[.9,1.6],[1,1.35]];for(let i=1;i<k.length;i++)if(t<=k[i][0]){const u=(t-k[i-1][0])/(k[i][0]-k[i-1][0]);return k[i-1][1]+(k[i][1]-k[i-1][1])*(u*u*(3-2*u))}return 1.35};
+ add(ddLoft(spine,rad,56,20,.85),SB);
+ /* the head, sitting on the end of the neck: a long skull, the snout, the lower jaw a little open, teeth, eyes, brows */const head=new THREE.Group();head.position.set(0,12.25,8.6);head.rotation.x=.12;g.add(head);
+ add(new THREE.SphereGeometry(1,24,16),SK,[0,.15,-.2],null,[1.25,1.1,1.75],head);add(new THREE.SphereGeometry(1,22,14),SK,[0,-.05,1.35],null,[.98,.78,1.45],head);
+ const jaw=new THREE.Group();jaw.position.set(0,-.55,-.4);jaw.rotation.x=.22;head.add(jaw);add(new THREE.SphereGeometry(1,20,10,0,Math.PI*2,Math.PI/2,Math.PI/2),SK,[0,.12,1.15],null,[.92,.6,2.0],jaw);{const mo=add(new THREE.CircleGeometry(1,24),M(0x9a2a2a,{side:THREE.DoubleSide}),[0,.13,1.15],[-Math.PI/2,0,0],[.82,1.85,1],jaw);const tg=add(new THREE.SphereGeometry(.4,12,8),M(0xd06060),[0,.18,1.0],null,[1,.35,1.8],jaw)}
+ for(const s of[-1,1])for(let i=0;i<6;i++){add(new THREE.ConeGeometry(.09,.32,6),TW,[s*(.8-i*.05),-.58,.15+i*.38],[Math.PI,0,0],null,head);add(new THREE.ConeGeometry(.07,.25,6),TW,[s*(.74-i*.05),.27,.55+i*.3],null,null,jaw)}
+ for(const s of[-1,1]){add(new THREE.SphereGeometry(.27,14,10),M(0xffffff,{roughness:.3}),[s*.98,.62,-.15],null,null,head);add(new THREE.SphereGeometry(.14,10,8),M(0x1a1a1a,{roughness:.2}),[s*1.14,.66,-.05],null,null,head);add(new THREE.SphereGeometry(.3,10,8),DK,[s*.88,.95,-.2],null,[1.2,.35,.9],head);add(new THREE.SphereGeometry(.08,8,6),M(0x2a2a2a),[s*.32,.35,2.7],null,null,head)}
+ /* legs: one tube per leg from deep inside the hip through the knee (forward) and ankle (back) to the ball of the foot,
+    a big thigh muscle over the top, a foot with three toes and claws */for(const s of[-1,1]){const x=s*2.0;add(ddLoft([[x*.7,7.6,-1.6],[x,5.4,-.4],[x*1.05,3.4,.1],[x*1.08,1.4,-1.2],[x*1.08,.45,-.6]],t=>t<.35?1.75-t*1.4:t<.75?1.26-(t-.35)*1.6:.62-(t-.75)*.5,48,18,1),SK);
+  add(new THREE.SphereGeometry(1,20,14),SK,[x*1.02,6.0,-1.0],[.35,0,s*-.06],[1.15,2.0,1.6]);add(new THREE.SphereGeometry(1,16,10),SK,[x*1.08,.38,-.2],null,[.75,.38,1.2]);
+  for(let k=-1;k<=1;k++){add(new THREE.SphereGeometry(1,10,8),SK,[x*1.08+k*.38,.28,.8+(k?0:.2)],null,[.2,.24,.62]);add(new THREE.ConeGeometry(.11,.36,6),TW,[x*1.08+k*.38,.24,1.42+(k?0:.2)],[Math.PI/2,0,0])}}
+ /* little arms: from inside the chest, bent at the elbow, two clawed fingers */for(const s of[-1,1]){add(ddLoft([[s*1.3,8.6,2.6],[s*2.05,7.9,3.4],[s*2.15,7.2,4.3]],t=>.5-.22*t,12,12,1),SK);/* the hand: a round wrist on the end of the arm, two fingers growing out of it and curling down, a claw on each tip */add(new THREE.SphereGeometry(.3,12,10),SK,[s*2.15,7.2,4.3]);for(const k of[-1,1]){add(ddLoft([[s*2.15+k*.11,7.2,4.4],[s*2.16+k*.12,7.12,4.68],[s*2.17+k*.12,6.9,4.82]],t=>.12-.04*t,8,8,1),SK);add(new THREE.ConeGeometry(.06,.24,6),TW,[s*2.17+k*.12,6.76,4.86],[Math.PI-.35,0,0])}}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return g}
+function ddDino(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],X=120,Z=-1935,RY=.4;const d=ddDinoModel();d.position.set(X,0,Z);d.rotation.y=RY;g.add(d);
+ const W=(lx,lz)=>[X+lx*Math.cos(RY)+lz*Math.sin(RY),Z-lx*Math.sin(RY)+lz*Math.cos(RY)];
+ /* concrete pads under the feet, and the obstacles round them */for(const s of[-1,1]){const[fx,fz]=W(s*2.3,-.6);const pad=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.8,.16,20),M(0xb8b4ac,{roughness:.95}));pad.position.set(fx,.08,fz);g.add(pad);obs.push({x0:fx-1.3,x1:fx+1.3,z0:fz-1.3,z1:fz+1.3})}
+ /* the plaque on a little stand by his left foot */{const[px,pz]=W(4.6,1.5);C(.06,.06,1,px,.5,pz,M(0x5a5e64),null,null,8);L("DINO DAN · DOORS BUT DESERT'S LARGEST DINOSAUR\nDOORS BUT DESERT'S ONLY DINOSAUR",1.6,.5,'#5a3a22','#f0e0a0',36,px,1.05,pz+.03,RY);obs.push({x0:px-.15,x1:px+.15,z0:pz-.15,z1:pz+.15})}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,under:{x:X,z:Z}}}
+
+function ddShop(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],x0=92,x1=104,z0=-1938,z1=-1928,xc=(x0+x1)/2,zc=(z0+z1)/2,H=3.8;
+ const st=afCanvas(256,128,(c,w,h)=>{c.fillStyle='#f0e0b8';c.fillRect(0,0,w,h);const rr=lkRand(17);for(let i=0;i<2500;i++){c.fillStyle=rr()<.5?'rgba(0,0,0,.05)':'rgba(255,255,255,.07)';c.fillRect(rr()*w,rr()*h,2,2)}});st.wrapS=st.wrapT=THREE.RepeatWrapping;st.repeat.set(3,1);
+ const WL=new THREE.MeshStandardMaterial({map:st,roughness:.9}),TL=M(0x2a9a9a,{roughness:.6}),OR=M(0xe8783a,{roughness:.6}),WD=M(0x8a6a48,{roughness:.85}),GL=M(0x2a3a44,{roughness:.1,metalness:.3});
+ /* the building, a teal base band, a stepped false front over the porch */B(x1-x0,H,z1-z0,xc,H/2,zc,WL);B(x1-x0+.06,.6,z1-z0+.06,xc,.3,zc,TL);B(x1-x0+.2,.2,z1-z0+.2,xc,H+.1,zc,OR);
+ {const ff=new THREE.Shape();ff.moveTo(-6.3,0);ff.lineTo(6.3,0);ff.lineTo(6.3,1.2);ff.lineTo(4.2,1.2);ff.lineTo(4.2,1.8);ff.lineTo(1.6,1.8);ff.lineTo(1.6,2.4);ff.lineTo(-1.6,2.4);ff.lineTo(-1.6,1.8);ff.lineTo(-4.2,1.8);ff.lineTo(-4.2,1.2);ff.lineTo(-6.3,1.2);ff.lineTo(-6.3,0);const ge=new THREE.ExtrudeGeometry(ff,{depth:.25,bevelEnabled:false});const m=new THREE.Mesh(ge,TL);m.position.set(xc,H-.2,z1-.24);g.add(m)}/* (the false front stands 1 cm proud of the wall) */
+ L("DINO DAN'S\nGIFTS · GAS (NO) · FUN (YES)",6,1.5,null,'#f0e0a0',80,xc,H+.9,z1+.025,0);
+ /* door and two display windows, toy dinosaurs inside */B(1.2,2.3,.06,xc,1.15+.05,z1+.03,M(0x5a3a22));B(.08,.08,.1,xc+.45,1.2,z1+.08,M(0xc0a050,{metalness:.7}));for(const s of[-1,1]){B(2.8,1.6,.06,xc+s*3.3,1.95,z1+.03,GL);B(3,.12,.25,xc+s*3.3,1.1,z1+.12,WD);for(let i=0;i<3;i++){const t=ddDinoModel(['#4a8a3a','#8a5ac8','#e8783a'][i],'#f0e8c0');t.scale.setScalar(.045);t.position.set(xc+s*3.3-.9+i*.9,1.2,z1-.3);t.rotation.y=.6*(i-1);g.add(t)}}
+ /* the porch: a deck, a roof on four posts, a bench, the postcard spinner, two gumball machines */const pz1=-1925;B(x1-x0,.18,pz1-z1,xc,.09,(z1+pz1)/2,WD);for(const dx of[-5.8,-2,2,5.8])B(.16,2.9,.16,xc+dx,1.55,pz1-.15,WD);{const rf=B(x1-x0+.6,.12,pz1-z1+.6,xc,3.05,(z1+pz1)/2+.1,OR);rf.rotation.x=.06}
+ B(1.8,.08,.45,xc-3.8,.62,z1+.6,WD);B(1.8,.45,.06,xc-3.8,.9,z1+.35,WD);for(const dx of[-.8,.8])B(.06,.45,.42,xc-3.8+dx,.4,z1+.6,WD);
+ {const rx=xc+2.4,rz=z1+1.4;C(.03,.03,1.7,rx,1.03,rz,M(0x8a8e94),null,null,6);for(let i=0;i<4;i++)for(let j=0;j<4;j++){const a=i/4*Math.PI*2,cd=B(.22,.3,.01,rx+Math.cos(a)*.18,.9+j*.33,rz+Math.sin(a)*.18,M([0xf0c040,0x6ac0e0,0xe8783a,0x8ad070][(i+j)%4]));cd.rotation.y=-a+Math.PI/2}}
+ for(const dx of[3.8,4.6]){const gx=xc+dx,gz=z1+.7;C(.12,.16,.9,gx,.63,gz,M(0xc42828),null,null,10);const gb=new THREE.Mesh(new THREE.SphereGeometry(.24,14,10),M(0xf0f8ff,{transparent:true,opacity:.45,roughness:.05}));gb.position.set(gx,1.32,gz);g.add(gb);for(let i=0;i<12;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(.045,6,4),M([0xff4040,0x40c0ff,0xffd040,0x60e060][i%4]));b.position.set(gx+(Math.random()-.5)*.24,1.2+(i/12)*.22,gz+(Math.random()-.5)*.24);g.add(b)}C(.05,.05,.08,gx,1.6,gz,M(0xc42828),null,null,8)}
+ /* the roadside sign: a tall pole, a starburst on top, an arrow board with bulbs pointing at the shop */{const sx=x1+2.5,sz=pz1+3;C(.15,.18,9,sx,4.5,sz,M(0x5a5e64,{metalness:.4}),null,null,10);for(let i=0;i<8;i++){const a=i/8*Math.PI;const r=B(.08,1.6,.08,sx,9.3,sz,M(0xf0c040,{emissive:0xc08010,emissiveIntensity:.4}));r.rotation.z=a}
+  const ar=new THREE.Shape();ar.moveTo(-2.6,-.7);ar.lineTo(1.6,-.7);ar.lineTo(1.6,-1.1);ar.lineTo(2.8,0);ar.lineTo(1.6,1.1);ar.lineTo(1.6,.7);ar.lineTo(-2.6,.7);ar.lineTo(-2.6,-.7);const am=new THREE.Mesh(new THREE.ExtrudeGeometry(ar,{depth:.2,bevelEnabled:false}),OR);
+  /* the arrow hangs off the west side of the pole on two brackets (its square end 25 cm from the pole), pointing west at the shop, so the pole never crosses the lettering on either face */const ax=sx-2.85;am.position.set(ax,6.6,sz+.1);am.rotation.y=Math.PI;g.add(am);for(const y of[6.1,7.1])B(.5,.1,.1,sx-.2,y,sz,M(0x5a5e64,{metalness:.4}));
+  L("DINO DAN'S",3.6,.9,null,'#ffffff',90,ax+.5,6.6,sz-.13,Math.PI);L("DINO DAN'S",3.6,.9,null,'#ffffff',90,ax+.5,6.6,sz+.13,0);for(let i=0;i<9;i++){for(const zz of[sz-.13,sz+.13]){const b=new THREE.Mesh(new THREE.SphereGeometry(.07,6,4),M(0xfff4c0,{emissive:0xffd890,emissiveIntensity:.9}));b.position.set(ax+2.4-i*.5,7.15,zz);g.add(b)}}obs.push({x0:sx-.2,x1:sx+.2,z0:sz-.2,z1:sz+.2})}
+ obs.push({x0,x1,z0,z1});g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs,prop:{x:xc,z:z1+1.6}}}
+
+function ddExtras(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];
+ /* Baby Dan: a little purple one, sitting by the road */{const b=ddDinoModel('#8a5ac8','#f0d8f0');b.scale.setScalar(.2);b.position.set(136,.3,-1925);/* standing on his plinth */b.rotation.y=-.6;g.add(b);B(1.8,.3,2.6,136,.15,-1925,M(0xb8b4ac));L('BABY DAN · DO NOT RIDE',1.4,.3,'#5a3a22','#f0e0a0',36,136,.15,-1923.68,0);obs.push({x0:135.1,x1:136.9,z0:-1926.3,z1:-1923.7})}
+ /* the giant egg on a straw nest, cracked open at the top */{const ex=140,ez=-1932;const pts=[];for(let i=0;i<=16;i++){const t=i/16,y=t*2.4,r=Math.sin(t*Math.PI)*(1-.28*t)*1.0;pts.push(new THREE.Vector2(Math.max(.001,r),y))}const sp=afCanvas(128,128,(c,w,h)=>{c.fillStyle='#f0e8d4';c.fillRect(0,0,w,h);for(let i=0;i<220;i++){c.fillStyle='rgba(120,90,60,'+(.2+Math.random()*.3)+')';c.beginPath();c.arc(Math.random()*w,Math.random()*h,1+Math.random()*3,0,7);c.fill()}});
+  const egg=new THREE.Mesh(new THREE.LatheGeometry(pts.slice(0,14),24),new THREE.MeshStandardMaterial({map:sp,roughness:.6,side:THREE.DoubleSide}));egg.position.set(ex,.25,ez);g.add(egg);/* the jagged crack round the open top */for(let i=0;i<14;i++){const a=i/14*Math.PI*2,top=pts[13];const sh=new THREE.Mesh(new THREE.ConeGeometry(.12,.3,4),new THREE.MeshStandardMaterial({map:sp,roughness:.6}));sh.position.set(ex+Math.cos(a)*top.x*.95,.25+top.y+.1,ez+Math.sin(a)*top.x*.95);g.add(sh)}
+  const nest=new THREE.Mesh(new THREE.TorusGeometry(1.1,.35,8,24),M(0xc8a050,{roughness:1}));nest.rotation.x=Math.PI/2;nest.position.set(ex,.3,ez);g.add(nest);for(let i=0;i<30;i++){const a=Math.random()*Math.PI*2;const st=B(.04,.04,.7,ex+Math.cos(a)*1.3,.4+Math.random()*.2,ez+Math.sin(a)*1.3,M(0xd8b060));st.rotation.y=a+Math.random()}
+  C(.05,.05,1.5,ex+2,.75,ez+1.2,M(0x5a5e64),null,null,6);L('PHOTO SPOT\nSTAND IN THE EGG',1,.45,'#e8783a','#ffffff',40,ex+2,1.35,ez+1.23,0);obs.push({x0:ex-1.5,x1:ex+1.5,z0:ez-1.5,z1:ez+1.5})}
+ /* the dig site: a sandpit in a timber frame, bones, tools, a sign */{const x0=132,x1=146,z0=-1952,z1=-1942,xc=(x0+x1)/2,zc=(z0+z1)/2;const t=afCanvas(512,368,(c,w,h)=>{c.fillStyle='#e8d098';c.fillRect(0,0,w,h);const rr=lkRand(57);for(let i=0;i<3000;i++){c.fillStyle=rr()<.5?'rgba(150,120,70,.2)':'rgba(255,245,220,.2)';c.fillRect(rr()*w,rr()*h,2,2)}});afPlane(g,x0,x1,z0,z1,.05,t,-2);
+  for(const[a,b,c2,d]of[[x0,x1,z0,z0],[x0,x1,z1,z1],[x0,x0,z0,z1],[x1,x1,z0,z1]])B(Math.abs(b-a)+.3,.3,Math.abs(d-c2)+.3,(a+b)/2,.15,(c2+d)/2,M(0x8a6a48));
+  const BN=M(0xf0e8d0,{roughness:.6});/* a rib cage half out of the sand */for(let i=0;i<6;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(1.1-i*.08,.07,6,16,Math.PI),BN);r.position.set(xc-2+i*.55,.05,zc);r.rotation.y=Math.PI/2;g.add(r)}C(.1,.1,3.6,xc-.6,.12,zc,BN,'x',null,8);
+  /* a big leg bone and a skull */{const fb=C(.14,.14,2.2,xc+3,.14,zc+2.5,BN,'x',null,8);fb.rotation.y=.5;for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.24,10,8),BN);e.position.set(xc+3+s*Math.cos(.5)*1.1,.18,zc+2.5-s*Math.sin(.5)*1.1);g.add(e)}const sk=new THREE.Mesh(new THREE.SphereGeometry(.7,14,10),BN);sk.scale.set(.8,.6,1.3);sk.position.set(xc+3.4,.25,zc-2.2);g.add(sk);for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.15,8,6),M(0x2a2a2a));e.position.set(xc+3.4+s*.38,.45,zc-2);g.add(e)}}
+  /* tools */rod([x0+1,.3,z1-1],[x0+1.6,1.4,z1-.9],.03,M(0x8a6a48),null,5);B(.3,.4,.03,x0+.95,.25,z1-1,M(0x6a6e74));C(.2,.16,.35,x0+2.4,.18,z1-1.2,M(0xe84a3a),null,null,10);B(.25,.05,.06,x0+3,.08,z1-1,M(0xd8b060));
+  C(.05,.05,1.6,x1+.8,.8,z1,M(0x5a5e64),null,null,6);L('DIG SITE\nFINDERS KEEPERS (NO)',1.2,.5,'#5a3a22','#f0e0a0',40,x1+.8,1.35,z1+.03,0);obs.push({x0:x1+.65,x1:x1+.95,z0:z1-.15,z1:z1+.15})}
+ /* picnic tables, one with an umbrella */for(let i=0;i<3;i++){const tx=102+i*4.5,tz=-1945,WD=M(0x9a7a50,{roughness:.85});B(1.8,.06,.8,tx,.75,tz,WD);for(const s of[-1,1]){B(1.8,.05,.28,tx,.45,tz+s*.6,WD);for(const dx of[-.7,.7]){const lg=B(.06,.85,.06,tx+dx,.42,tz+s*.3,WD);lg.rotation.x=s*-.45}}obs.push({x0:tx-.9,x1:tx+.9,z0:tz-.75,z1:tz+.75});if(i==1){const u=lkUmbrella(['#e8783a','#f4f0e4']);u.position.set(tx,0,tz);g.add(u)}}
+ /* the car park: gravel with bays and a kerb, and a sign */{const x0=80,x1=112,z0=-1918,z1=-1906;const t=afCanvas(640,240,(c,w,h)=>{c.fillStyle='#a89474';c.fillRect(0,0,w,h);const rr=lkRand(61);for(let i=0;i<w*h/6;i++){const v=rr();c.fillStyle=v<.4?'rgba(70,56,40,.22)':v<.7?'rgba(230,220,200,.22)':'rgba(140,120,96,.28)';c.fillRect(rr()*w,rr()*h,2,2)}const pm=w/(x1-x0);c.fillStyle='rgba(240,236,228,.85)';for(let x=2;x<=x1-x0-2;x+=3){c.fillRect(x*pm,h-5*pm,3,5*pm)}c.fillRect(2*pm,h-5*pm,(x1-x0-4)*pm,3)});afPlane(g,x0,x1,z0,z1,.04,t,-1);
+  for(const[a,b,c2,d]of[[x0,x1,z0,z0],[x0,x0,z0,z1],[x1,x1,z0,z1]])B(Math.abs(b-a)+.2,.14,Math.abs(d-c2)+.2,(a+b)/2,.07,(c2+d)/2,M(0xd8d4cc));C(.05,.05,2,x0+2,1,z1-1,M(0x5a5e64),null,null,6);L('DINO PARKING\nDINOS PARK FREE',1.4,.6,'#2a6a3a','#ffffff',40,x0+2,1.8,z1-.97,0)}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+/* ===================================================================================================== batch 5
+   The railway (RAIL.z -1640, x -640..640; crossings at x 0, -440, 560).
+   rrTrack(g, x0, x1, z, gaps)  a straight track: a raised ballast bed with sloped sides (top y 0.1), sleepers (one
+                 InstancedMesh, every 0.6 m), and two rails (head, web and foot, top at y 0.3 as now). gaps = [[xa,xb]]
+                 where the bed stops for a road (the sleepers and rails carry on under the crossing boards).
+                 Use it for the main line and the Dusty Gulch siding (z -1649, x 400..540). Returns {obs: []}.
+   rrCrossing(g, cx)  one level crossing in the same shape as the old one, so xpTrainTick drives it unchanged:
+                 returns {K, obs}: K = {x, arms:[{pv, sd}], lights:[Mesh], obs:[gate boxes], down:0, a:1}; push K into
+                 q.xings and every box in obs into q.obs (the gate boxes carry off:1 like before).
+                 Each side: a white mast with a crossbuck, twin red lamps (separate materials) on a black board with
+                 hoods, a bell, and the gate: a mechanism box and a red-and-white striped arm on its pivot. Timber
+                 crossing boards between and outside the rails, RXR and stop lines painted on the road both ways,
+                 a trackside signal post either side and a STOP · LOOK · LISTEN sign.
+   rrPoles(g)    telegraph poles every 35 m along the south side (z -1653, clear of the siding and the station), with
+                 cross-arms, insulators and three sagging wires; mileposts every 160 m. Returns {obs}.
+   ===================================================================================================== */
+const RRZ=-1640,RRX=[0,-440,560];
+function rrTrack(g,x0,x1,z,gaps){const k=lkKit(),M=k.M,L=x1-x0;
+ const bal=afCanvas(256,128,(c,w,h)=>{c.fillStyle='#8a8278';c.fillRect(0,0,w,h);const rr=lkRand(71);for(let i=0;i<5000;i++){const v=rr();c.fillStyle=v<.35?'rgba(40,36,32,.4)':v<.7?'rgba(200,192,180,.35)':'rgba(120,100,80,.35)';c.fillRect(rr()*w,rr()*h,2+rr()*2,2+rr()*2)}});bal.wrapS=bal.wrapT=THREE.RepeatWrapping;
+ /* the bed: a trapezoid (5 m at the foot, 3.2 m on top, 0.1 high) pushed along x, in pieces between the gaps */const segs=[];let a=x0;for(const[ga,gb]of(gaps||[]).slice().sort((p,q)=>p[0]-q[0])){if(ga>a)segs.push([a,ga]);a=Math.max(a,gb)}if(a<x1)segs.push([a,x1]);
+ for(const[sa,sb]of segs){const sh=new THREE.Shape();sh.moveTo(-2.5,0);sh.lineTo(2.5,0);sh.lineTo(1.6,.1);sh.lineTo(-1.6,.1);sh.lineTo(-2.5,0);const ge=new THREE.ExtrudeGeometry(sh,{depth:sb-sa,bevelEnabled:false});const uv=ge.attributes.uv,ps=ge.attributes.position;for(let i=0;i<ps.count;i++)uv.setXY(i,ps.getZ(i)/4,ps.getX(i)/4);const t=bal.clone();t.needsUpdate=true;const m=new THREE.Mesh(ge,new THREE.MeshStandardMaterial({map:t,roughness:1,polygonOffset:true,polygonOffsetUnits:-1}));m.rotation.y=Math.PI/2;m.position.set(sa,0,z);g.add(m);m.userData.noChunk=1;m.userData.noSeam=true}
+ /* sleepers: weathered timber, one InstancedMesh */const sw=afCanvas(64,16,(c,w,h)=>{c.fillStyle='#5a4230';c.fillRect(0,0,w,h);for(let i=0;i<h;i+=3){c.fillStyle='rgba(30,20,12,.35)';c.fillRect(0,i,w,1)}c.fillStyle='rgba(180,160,130,.15)';c.fillRect(0,0,w,2)});
+ const n=Math.floor(L/.6)+1,im=new THREE.InstancedMesh(new THREE.BoxGeometry(.24,.16,2.6),new THREE.MeshStandardMaterial({map:sw,roughness:1}),n),mm=new THREE.Matrix4();for(let i=0;i<n;i++){mm.makeTranslation(x0+i*.6,.08,z);im.setMatrixAt(i,mm)}im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;im.userData.noChunk=1;im.userData.noSeam=true;g.add(im);
+ /* rails: foot, web and a shiny head, 1.5 m apart as now */const RS=M(0x6a5a4a,{metalness:.5,roughness:.6}),RH=M(0xb8bcc0,{metalness:.8,roughness:.25});for(const s of[-1,1]){const rz=z+s*.75;for(const[w,h,y,m]of[[.14,.02,.17,RS],[.025,.075,.2175,RS],[.07,.05,.28,RH]]){const r=new THREE.Mesh(new THREE.BoxGeometry(L,h,w),m);r.position.set((x0+x1)/2,y,rz);r.userData.noChunk=1;r.userData.noSeam=true;g.add(r)}}
+ return{obs:[]}}
+
+function rrCrossing(g,cx){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,z=RRZ,obs=[],K={x:cx,arms:[],lights:[],obs:[],down:0,a:1};const WH=M(0xf0f0ec,{roughness:.5}),DK=M(0x1a1a1c,{roughness:.6}),ST=M(0x8a8e94,{metalness:.4,roughness:.45});
+ /* timber boards across the road: between the rails and outside them, their tops just under the rail heads */const bw=afCanvas(128,64,(c,w,h)=>{c.fillStyle='#6a5240';c.fillRect(0,0,w,h);for(let i=0;i<w;i+=16){c.fillStyle='rgba(20,14,8,.5)';c.fillRect(i,0,2,h)}c.fillStyle='rgba(30,30,30,.35)';c.fillRect(w*.3,0,6,h);c.fillRect(w*.65,0,6,h)});bw.wrapS=THREE.RepeatWrapping;bw.repeat.set(2,1);const BM=new THREE.MeshStandardMaterial({map:bw,roughness:.9});
+ for(const[za,zb]of[[z-.68,z+.68],[z-1.45,z-.84],[z+.84,z+1.45]]){const b=new THREE.Mesh(new THREE.BoxGeometry(7.4,.12,zb-za),BM);b.position.set(cx,.22,(za+zb)/2);b.userData.noSeam=true;g.add(b)}
+ /* RXR and stop lines painted on the road, each way */for(const sd of[-1,1]){const t=afCanvas(256,512,(c,w,h)=>{c.clearRect(0,0,w,h);/* canvas top = the end nearest the tracks: the stop line there, the X and the two Rs below it, upright for the driver */c.fillStyle='rgba(244,240,230,.92)';c.fillRect(8,12,w-16,22);c.strokeStyle='rgba(244,240,230,.92)';c.lineWidth=16;c.beginPath();c.moveTo(28,120);c.lineTo(w-28,h-40);c.moveTo(w-28,120);c.lineTo(28,h-40);c.stroke();c.font='bold 90px Arial';c.textAlign='center';c.fillText('R',50,h/2+70);c.fillText('R',w-50,h/2+70)});const p=new THREE.Mesh(new THREE.PlaneGeometry(3,6),new THREE.MeshStandardMaterial({map:t,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetUnits:-4}));p.rotation.x=-Math.PI/2;p.rotation.z=sd>0?Math.PI:0;/* the canvas top ends up towards the tracks for drivers coming from either side */p.position.set(cx+sd*-1.75,.075,z-sd*14);g.add(p)}
+ for(const sd of[-1,1]){const px=cx+sd*5.5,pz=z-sd*9;const face=sd>0?Math.PI:0;/* the post's signs face the traffic that is about to cross (drivers on this side) */const fz=-sd;/* towards that traffic */
+  B(.9,.2,.9,px,.1,pz,M(0xb8b4ac));C(.1,.12,4.3,px,2.25,pz,WH,null,null,10);for(let y=.3;y<4;y+=.6)C(.125,.125,.25,px,y,pz,DK,null,null,10);
+  /* the crossbuck *//* the two boards sit in front of the mast, the second 3 cm further out so they never share a plane */[.6,-.6].forEach((a,i)=>{const o=.2+i*.03;const bk=B(1.52,.28,.02,px,3.75,pz+fz*o,M(0xf4f4f0));bk.rotation.y=face;bk.rotation.z=a*(sd>0?-1:1);const xb=L('RAILROAD CROSSING'.split(' ')[i],1.5,.26,'#f4f4f0','#1a1a1a',60,px,3.75,pz+fz*(o+.012),face);xb.rotation.z=a*(sd>0?-1:1)});C(.05,.05,.25,px,3.75,pz+fz*.12,M(0x8a8e94),'z',null,8)
+  /* the lamp board: two red lamps with hoods, separate materials so they flash in turn */B(1.1,.5,.06,px,2.9,pz+fz*.14,DK);for(const lx of[-.3,.3]){const mt=M(0xff2020,{emissive:0x300000,roughness:.3});const lp=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.06,16),mt);lp.rotation.x=Math.PI/2;lp.position.set(px+lx,2.9,pz+fz*.2);g.add(lp);K.lights.push(lp);const hd=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.22,16,1,true,0,Math.PI),DK);hd.rotation.x=Math.PI/2;hd.rotation.z=0;hd.position.set(px+lx,2.9,pz+fz*.28);g.add(hd)}
+  /* the bell on top */const bl=new THREE.Mesh(new THREE.SphereGeometry(.16,12,8,0,Math.PI*2,0,Math.PI/2),M(0xd8b040,{metalness:.7,roughness:.3}));bl.position.set(px,4.42,pz);bl.scale.y=1.2;g.add(bl);
+  /* the gate: the mechanism box beside the mast, the arm on its pivot, a counterweight behind the pivot */B(.5,.9,.4,px+sd*.45,.65,pz,M(0x8a8e94,{metalness:.3}));const pv=new THREE.Group();pv.position.set(px,1.0,pz-sd*.0+fz*-.25);g.add(pv);pv.userData.dpKeep=1;
+  const st=afCanvas(256,16,(c,w,h)=>{for(let i=0;i<8;i++){c.fillStyle=i%2?'#f4f4f0':'#d82828';c.fillRect(i*w/8,0,w/8,h)}});const arm=new THREE.Mesh(new THREE.BoxGeometry(6,.12,.12),new THREE.MeshStandardMaterial({map:st,roughness:.5}));arm.position.x=-sd*3.1;pv.add(arm);arm.userData.dpKeep=1;
+  const cw=new THREE.Mesh(new THREE.BoxGeometry(.6,.35,.22),M(0x5a5e64,{metalness:.4}));cw.position.x=sd*.5;pv.add(cw);cw.userData.dpKeep=1;const hub=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.3,10),DK);hub.rotation.x=Math.PI/2;pv.add(hub);
+  for(let i=0;i<3;i++){const lb=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),M(0xff4040,{emissive:0x400000}));lb.position.set(-sd*(1.8+i*1.8),.12,0);pv.add(lb)}
+  pv.rotation.z=-sd*Math.PI/2;K.arms.push({pv,sd});const gate={x0:cx-4,x1:cx+4,z0:pz-.3,z1:pz+.3,off:1};obs.push(gate);K.obs.push(gate);obs.push({x0:px-.45,x1:px+.45,z0:pz-.45,z1:pz+.45})}
+ /* trackside signals either side, and the STOP LOOK LISTEN sign */for(const sd of[-1,1]){const sx=cx+sd*14,sz=z-sd*5.5;C(.08,.1,4.5,sx,2.25,sz,ST,null,null,8);B(.45,1.2,.3,sx,4.2,sz,DK);for(let i=0;i<3;i++){const lm=C(.12,.12,.04,sx,4.55-i*.36,sz+sd*-.17,M([0x204020,0x302a10,0x401010][i],{emissive:[0x20ff40,0,0][i],emissiveIntensity:i?0:.9}),'z',null,12);const h=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.16,12,1,true,0,Math.PI),DK);h.rotation.x=Math.PI/2;h.position.set(sx,4.55-i*.36,sz+sd*-.24);g.add(h)}obs.push({x0:sx-.15,x1:sx+.15,z0:sz-.15,z1:sz+.15})}
+ {const sx=cx+11,sz=z+11;/* posts stand behind the board (they never cross the lettering) and stop at its top edge */for(const dx of[-.6,.6]){C(.05,.05,2.12,sx+dx,1.06,sz-.07,ST,null,null,6);B(.14,.05,.05,sx+dx,1.55,sz-.035,ST);B(.14,.05,.05,sx+dx,2.05,sz-.035,ST)}B(1.62,.72,.03,sx,1.8,sz,M(0xf4f4f0));L('STOP · LOOK · LISTEN\nTHE TRAIN DOES NOT STOP',1.56,.66,'#f4f4f0','#c42828',44,sx,1.8,sz+.02,0);obs.push({x0:sx-.7,x1:sx+.7,z0:sz-.1,z1:sz+.1})}
+ g.traverse(m=>{if(m.isMesh&&!m.userData.dpKeep)m.userData.noSeam=true});return{K,obs}}
+
+function rrPoles(g){const k=lkKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[],z=RRZ-13,PM=M(0x6a4a2a,{roughness:.95}),top=7.5,xs=[];
+ for(let x=-630;x<=630;x+=35){if(RRX.some(c=>Math.abs(x-c)<9))continue;xs.push(x)}
+ /* the poles, their cross-arms and three glass insulators each; one InstancedMesh for poles and one for arms */const pi=new THREE.InstancedMesh(new THREE.CylinderGeometry(.12,.16,top,8),PM,xs.length),ai=new THREE.InstancedMesh(new THREE.BoxGeometry(.1,.12,2),PM,xs.length),ii=new THREE.InstancedMesh(new THREE.CylinderGeometry(.06,.07,.16,8),M(0x6ab0a0,{roughness:.2,transparent:true,opacity:.85}),xs.length*3),mm=new THREE.Matrix4();
+ xs.forEach((x,i)=>{mm.makeTranslation(x,top/2,z);pi.setMatrixAt(i,mm);mm.makeTranslation(x,top-.4,z);ai.setMatrixAt(i,mm);for(let j=-1;j<=1;j++){mm.makeTranslation(x,top-.26,z+j*.85);ii.setMatrixAt(i*3+j+1,mm)}obs.push({x0:x-.2,x1:x+.2,z0:z-.2,z1:z+.2})});
+ for(const im of[pi,ai,ii]){im.instanceMatrix.needsUpdate=true;im.frustumCulled=false;im.userData.noChunk=1;g.add(im)}
+ /* three wires, each one tube sagging between every pair of poles (broken where a road crosses) */for(let j=-1;j<=1;j++){let run=[];const flush=()=>{if(run.length>1){const pts=[];for(let i=0;i<run.length-1;i++){const a=run[i],b=run[i+1];for(let s=0;s<6;s++){const f=s/6;pts.push(new THREE.Vector3(a+(b-a)*f,top-.18-Math.sin(f*Math.PI)*.45,z+j*.85))}}pts.push(new THREE.Vector3(run[run.length-1],top-.18,z+j*.85));const w=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),pts.length*2,.012,3),M(0x2a2a2a));w.userData.noChunk=1;g.add(w)}run=[]};
+  for(let i=0;i<xs.length;i++){if(i&&xs[i]-xs[i-1]>40)flush();run.push(xs[i])}flush()}
+ /* mileposts every 160 m on the same side */for(let x=-560,n=1;x<=600;x+=160,n++){if(RRX.some(c=>Math.abs(x-c)<9))continue;B(.18,1.1,.18,x+2,.55,RRZ-4.2,M(0xf0f0ec));L('MP '+n,.3,.3,'#f0f0ec','#1a1a1a',60,x+2,.85,RRZ-4.09,0);obs.push({x0:x+1.9,x1:x+2.1,z0:RRZ-4.3,z1:RRZ-4.1})}
+ g.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{obs}}
+
+/* ===================================================================================================== batch 6
+   The train. Every model's origin is the middle of the car at rail level (y 0 = the ground; rail tops are at 0.3),
+   FRONT +x (the way the train runs), so no turning is needed (the old locomotive was built backwards and turned).
+   Wheels sit on the rails (bottoms at y 0.3), 1.44 m apart.
+   rrLoco()      DARK & DESERT No. 13: a steam locomotive (12 m): black boiler with brass bands, smokebox with the
+                 number plate and headlamp, smokestack, steam and sand domes, bell, red cab with windows and roof,
+                 cowcatcher, cylinders, three big driving wheels a side with a side rod, two pony wheels.
+                 userData: spin(dist) turns the wheels and moves the rods for dist metres travelled;
+                 stack {x,y,z} (the top of the smokestack, for the smoke sprite); lamp {x,y,z} (the headlamp).
+   rrTender()    the coal tender (7 m) behind it: a coal heap, the water hatch, two bogies. userData.spin(dist).
+   rrWagon(kind, col, name)  an 11 m wagon: 'box' (ribbed boxcar with a sliding door, roof walk, ladders and the
+                 name), 'tank' (two tanks with domes and a walkway), 'flat' (a flatcar with strapped crates).
+                 userData.spin(dist).
+   ===================================================================================================== */
+function rrBogie(par,x,M,wr){const b=new THREE.Group();b.position.set(x,0,0);par.add(b);const DK=M(0x1a1a1c,{roughness:.6}),ST=M(0x6a6e74,{metalness:.5,roughness:.5});const fr=new THREE.Mesh(new THREE.BoxGeometry(2.4,.3,.12),DK);for(const s of[-1,1]){const f=fr.clone();f.position.set(0,.75,s*.86);b.add(f)}const bol=new THREE.Mesh(new THREE.BoxGeometry(.4,.2,1.8),DK);bol.position.y=.95;b.add(bol);
+ const wheels=[];for(const ax of[-.8,.8]){const axle=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,1.7,8),ST);axle.rotation.x=Math.PI/2;axle.position.set(ax,.72,0);b.add(axle);for(const s of[-1,1]){const w=new THREE.Group();w.position.set(ax,.72,s*.72);b.add(w);const t=new THREE.Mesh(new THREE.CylinderGeometry(wr||.42,wr||.42,.12,16),DK);t.rotation.x=Math.PI/2;w.add(t);const sp=new THREE.Mesh(new THREE.BoxGeometry(.06,.6,.13),ST);w.add(sp);wheels.push(w)}}return wheels}
+function rrCoupler(par,x,s,M){const c=new THREE.Mesh(new THREE.BoxGeometry(.5,.2,.2),M(0x2a2a2c,{metalness:.4}));c.position.set(x+s*.25,.95,0);par.add(c);const kn=new THREE.Mesh(new THREE.BoxGeometry(.15,.3,.3),M(0x2a2a2c,{metalness:.4}));kn.position.set(x+s*.55,.95,0);par.add(kn)}
+function rrLoco(){const g=new THREE.Group(),M=lkKit().M,DK=M(0x1a1a1c,{roughness:.5,metalness:.2}),BR=M(0xc8a040,{metalness:.8,roughness:.3}),RD=M(0x8a1a1a,{roughness:.5}),ST=M(0x6a6e74,{metalness:.5,roughness:.5});const add=(geo,m,p,r,s,par)=>{const o=new THREE.Mesh(geo,m);if(p)o.position.set(...p);if(r)o.rotation.set(...r);if(s)o.scale.set(...s);(par||g).add(o);return o};
+ /* frame and running boards */add(new THREE.BoxGeometry(12,.3,1.9),DK,[0,1.0,0]);add(new THREE.BoxGeometry(11.4,.06,2.7),DK,[-.2,1.62,0]);for(const s of[-1,1])add(new THREE.BoxGeometry(11.4,.12,.05),RD,[-.2,1.56,s*1.36]);
+ /* the boiler from the cab to the smokebox, brass bands, the smokebox and its door with the number */add(new THREE.CylinderGeometry(.95,.95,6.6,24),DK,[1.0,2.55,0],[0,0,Math.PI/2]);for(const x of[-1.4,.4,2.2])add(new THREE.CylinderGeometry(.97,.97,.1,24),BR,[x,2.55,0],[0,0,Math.PI/2]);
+ add(new THREE.CylinderGeometry(1.0,1.0,1.4,24),M(0x2a2a2c,{roughness:.7}),[5.0,2.55,0],[0,0,Math.PI/2]);add(new THREE.CylinderGeometry(.85,.85,.08,24),M(0x2a2a2c,{roughness:.6}),[5.72,2.55,0],[0,0,Math.PI/2]);add(new THREE.CylinderGeometry(.08,.08,.12,10),BR,[5.8,2.55,0],[0,0,Math.PI/2]);
+ {const np=lkKit().lab('13',.5,.32,'#8a1a1a','#f0d070',90);np.position.set(5.77,2.0,0);np.rotation.y=Math.PI/2;g.add(np)}
+ /* the headlamp on top of the smokebox front, the smokestack, the domes, the bell, the whistle */add(new THREE.BoxGeometry(.5,.5,.5),DK,[5.4,3.75,0]);add(new THREE.CircleGeometry(.18,16),M(0xfff4d0,{emissive:0xffe0a0,emissiveIntensity:1}),[5.66,3.75,0],[0,Math.PI/2,0]);
+ {const pts=[];for(let i=0;i<=10;i++){const t=i/10;pts.push(new THREE.Vector2(.42+.28*t*t,t*1.4))}add(new THREE.LatheGeometry(pts,18),DK,[4.6,3.3,0]);add(new THREE.TorusGeometry(.7,.06,8,20),DK,[4.6,4.7,0],[Math.PI/2,0,0])}
+ add(new THREE.SphereGeometry(.5,16,10,0,Math.PI*2,0,Math.PI/2),BR,[2.0,3.35,0],null,[1,1.2,1]);add(new THREE.CylinderGeometry(.5,.55,.3,16),DK,[2.0,3.4,0]);add(new THREE.SphereGeometry(.4,14,8,0,Math.PI*2,0,Math.PI/2),DK,[.2,3.35,0]);add(new THREE.CylinderGeometry(.4,.45,.25,14),DK,[.2,3.4,0]);
+ add(new THREE.SphereGeometry(.22,12,8,0,Math.PI*2,0,Math.PI/2),BR,[3.3,3.65,0],[Math.PI,0,0]);add(new THREE.BoxGeometry(.05,.4,.4),DK,[3.3,3.75,0]);add(new THREE.CylinderGeometry(.06,.08,.5,8),BR,[-1.8,3.6,0]);
+ /* the cab: red, windows front and sides, a roof with an overhang, the name along the side */add(new THREE.BoxGeometry(3,2.7,2.7),RD,[-4.0,2.95,0]);add(new THREE.BoxGeometry(3.6,.12,3.1),DK,[-4.0,4.36,0]);for(const s of[-1,1]){add(new THREE.BoxGeometry(.9,.8,.04),M(0x2a3a44,{roughness:.1}),[-3.6,3.55,s*1.36]);add(new THREE.BoxGeometry(.04,.7,.7),M(0x2a3a44,{roughness:.1}),[-2.48,3.55,s*.8]);const nm=lkKit().lab('DARK & DESERT No. 13',2.6,.4,'#8a1a1a','#f0d070',60);nm.position.set(-4.0,2.4,s*1.362);nm.rotation.y=s>0?0:Math.PI;g.add(nm)}
+ /* the cowcatcher: a wedge of bars at the front, a buffer beam */add(new THREE.BoxGeometry(.2,.4,2.3),RD,[6.05,1.05,0]);/* a V-shaped pilot: two slatted faces from the buffer beam down to a point at the front, just clear of the rails, edged with bars */{const sl=afCanvas(128,64,(c,w,h)=>{c.clearRect(0,0,w,h);c.fillStyle='#1a1a1c';for(let i=0;i<w;i+=16)c.fillRect(i,0,8,h);c.fillRect(0,0,w,6);c.fillRect(0,h-6,w,6)});const SM=new THREE.MeshStandardMaterial({map:sl,transparent:true,alphaTest:.4,side:THREE.DoubleSide,roughness:.6});
+  const T0=[6.15,.86,0],B0=[6.98,.4,0];for(const s of[-1,1]){const T1=[6.15,.86,s*1.12],B1=[6.15,.4,s*1.12];const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute([...T0,...T1,...B1,...T0,...B1,...B0],3));ge.setAttribute('uv',new THREE.Float32BufferAttribute([0,1,1,1,1,0,0,1,1,0,0,0],2));ge.computeVertexNormals();g.add(new THREE.Mesh(ge,SM));
+   for(const[a,b]of[[T0,T1],[B0,B1],[T1,B1]]){const A=new THREE.Vector3(...a),Bv=new THREE.Vector3(...b),d=Bv.clone().sub(A);const r=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,d.length(),6),DK);r.position.copy(A).add(Bv).multiplyScalar(.5);r.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(r)}}
+  {const A=new THREE.Vector3(...T0),Bv=new THREE.Vector3(...B0),d=Bv.clone().sub(A);const r=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,d.length(),6),DK);r.position.copy(A).add(Bv).multiplyScalar(.5);r.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());g.add(r)}}
+ /* cylinders either side at the front */for(const s of[-1,1])add(new THREE.CylinderGeometry(.42,.42,1.3,16),DK,[3.9,1.25,s*1.1],[0,0,Math.PI/2]);
+ /* wheels: pony truck at the front, three big drivers a side with a side rod, red rims */const wheels=[],rods=[];for(const x of[3.6,4.6])for(const s of[-1,1]){const w=new THREE.Group();w.position.set(x,.72,s*.72);g.add(w);add(new THREE.CylinderGeometry(.42,.42,.14,16),DK,null,[Math.PI/2,0,0],null,w);add(new THREE.BoxGeometry(.05,.6,.15),ST,null,null,null,w);wheels.push([w,.42])}
+ for(const x of[-2.0,-.4,1.2])for(const s of[-1,1]){const w=new THREE.Group();w.position.set(x,1.1,s*.72);g.add(w);add(new THREE.CylinderGeometry(.8,.8,.14,24),DK,null,[Math.PI/2,0,0],null,w);add(new THREE.TorusGeometry(.76,.05,6,24),RD,[0,0,s*.08],null,null,w);for(let k=0;k<6;k++)add(new THREE.BoxGeometry(.06,1.4,.04),DK,[0,0,s*.06],[0,0,k*Math.PI/6],null,w);add(new THREE.CylinderGeometry(.1,.1,.2,10),BR,[.42,0,s*.1],[Math.PI/2,0,0],null,w);wheels.push([w,.8])}
+ for(const s of[-1,1]){const r=add(new THREE.BoxGeometry(3.4,.12,.06),ST,[-.4,1.1,s*.86]);rods.push([r,s])}
+ rrCoupler(g,-6,-1,M);
+ g.userData.spin=d=>{for(const[w,r]of wheels)w.rotation.z=-d/r;const a=-d/.8;for(const[r,s]of rods){r.position.set(-.4+Math.cos(a)*.42,1.1+Math.sin(a)*.42,s*.86)}};g.userData.spin(0);
+ g.userData.stack={x:4.6,y:4.8,z:0};g.userData.lamp={x:5.7,y:3.75,z:0};g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
+function rrTender(){const g=new THREE.Group(),M=lkKit().M,DK=M(0x1a1a1c,{roughness:.5}),RD=M(0x8a1a1a,{roughness:.5});const add=(geo,m,p,r)=>{const o=new THREE.Mesh(geo,m);if(p)o.position.set(...p);if(r)o.rotation.set(...r);g.add(o);return o};
+ add(new THREE.BoxGeometry(7,.25,2.4),DK,[0,1.15,0]);add(new THREE.BoxGeometry(6.6,1.6,2.6),DK,[0,2.1,0]);for(const s of[-1,1])add(new THREE.BoxGeometry(6.6,.14,.04),RD,[0,2.6,s*1.31]);{const nm=lkKit().lab('DARK & DESERT',2.4,.4,null,'#f0d070',60);for(const s of[-1,1]){const n=nm.clone();n.position.set(0,2.0,s*1.32);n.rotation.y=s>0?0:Math.PI;g.add(n)}}
+ /* the coal heap: lumps piled in the front half; the water hatch at the back */const cm=M(0x141416,{roughness:.9});for(let i=0;i<40;i++){const lp=add(new THREE.DodecahedronGeometry(.25+Math.random()*.15,0),cm,[1+Math.random()*2.2-1.1+.6,2.95+Math.random()*.35,Math.random()*1.8-.9]);lp.rotation.set(Math.random()*3,Math.random()*3,0)}add(new THREE.BoxGeometry(3,.6,2.3),cm,[1.1,2.95,0]);
+ add(new THREE.CylinderGeometry(.35,.35,.2,14),DK,[-2.2,3.0,0]);
+ const wheels=[...rrBogie(g,-2.2,M),...rrBogie(g,2.2,M)];rrCoupler(g,3.5,1,M);rrCoupler(g,-3.5,-1,M);
+ g.userData.spin=d=>{for(const w of wheels)w.rotation.z=-d/.42};g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
+function rrWagon(kind,col,name){const g=new THREE.Group(),M=lkKit().M,DK=M(0x1a1a1c,{roughness:.5}),C0=M(col||0x8a6a3a,{roughness:.7}),ST=M(0x6a6e74,{metalness:.5,roughness:.5});const add=(geo,m,p,r,par)=>{const o=new THREE.Mesh(geo,m);if(p)o.position.set(...p);if(r)o.rotation.set(...r);(par||g).add(o);return o};
+ add(new THREE.BoxGeometry(11,.3,2.5),DK,[0,1.15,0]);
+ if(kind=='box'){/* ribbed sides: a texture of vertical ribs on the body colour; a sliding door on runners; a roof walk; ladders at the ends */const rb=afCanvas(512,128,(c,w,h)=>{c.fillStyle='#'+new THREE.Color(col).getHexString();c.fillRect(0,0,w,h);for(let i=0;i<w;i+=24){c.fillStyle='rgba(0,0,0,.18)';c.fillRect(i,0,3,h);c.fillStyle='rgba(255,255,255,.1)';c.fillRect(i+3,0,2,h)}c.fillStyle='rgba(0,0,0,.25)';c.fillRect(0,0,w,4);c.fillRect(0,h-4,w,4)});
+  const BM=new THREE.MeshStandardMaterial({map:rb,roughness:.7});add(new THREE.BoxGeometry(10.6,2.6,2.5),[C0,C0,C0,C0,BM,BM],[0,2.6,0]);add(new THREE.BoxGeometry(10.8,.12,2.7),C0,[0,3.96,0]);add(new THREE.BoxGeometry(10.4,.06,.5),M(0x6a5a40),[0,4.05,0]);
+  for(const s of[-1,1]){add(new THREE.BoxGeometry(1.8,2.3,.06),DK,[.4,2.5,s*1.29]);add(new THREE.BoxGeometry(4,.06,.08),ST,[.4,3.7,s*1.3]);add(new THREE.BoxGeometry(4,.06,.08),ST,[.4,1.35,s*1.3]);if(name){const nm=lkKit().lab(name,3.2,.5,null,'#ffffff',60);nm.position.set(-2.8,3.2,s*1.255);nm.rotation.y=s>0?0:Math.PI;g.add(nm)}}
+  for(const x of[-5.32,5.32])for(let y=1.6;y<3.9;y+=.35)add(new THREE.BoxGeometry(.04,.04,.5),ST,[x,y,.8])}
+ else if(kind=='tank'){for(const x of[-2.6,2.6]){add(new THREE.CylinderGeometry(1.15,1.15,4.8,24),C0,[x,2.5,0],[0,0,Math.PI/2]);for(const e of[-2.4,2.4])add(new THREE.SphereGeometry(1.15,20,10),C0,[x+e,2.5,0],null).scale.set(.18,1,1);add(new THREE.CylinderGeometry(.35,.4,.4,14),C0,[x,3.75,0]);add(new THREE.CylinderGeometry(.42,.42,.06,14),DK,[x,3.96,0]);for(const b of[-1.6,1.6])add(new THREE.BoxGeometry(.12,.8,2.5),DK,[x+b,1.55,0])}
+  for(const s of[-1,1])add(new THREE.BoxGeometry(10.6,.05,.5),M(0x6a5a40),[0,1.32,s*1.0]);}
+ else{/* the flatcar: deck planks and three crates under straps */add(new THREE.BoxGeometry(10.8,.1,2.5),M(0x7a5a3a,{roughness:.85}),[0,1.35,0]);const cr=afCanvas(64,64,(c,w,h)=>{c.fillStyle='#9a7a4a';c.fillRect(0,0,w,h);c.strokeStyle='rgba(60,40,20,.6)';c.lineWidth=3;c.strokeRect(2,2,w-4,h-4);c.beginPath();c.moveTo(2,2);c.lineTo(w-2,h-2);c.stroke();c.fillStyle='rgba(60,40,20,.5)';c.font='bold 10px Arial';c.fillText('FRAGILE',10,36)});const CM=new THREE.MeshStandardMaterial({map:cr,roughness:.85});
+  for(let k=0;k<3;k++){const x=-3.3+k*3.3;add(new THREE.BoxGeometry(2.2,2.2,2.2),CM,[x,2.5,0]);for(const dx of[-.6,.6])add(new THREE.BoxGeometry(.08,2.24,2.24),M(0xd8b040),[x+dx,2.5,0])}}
+ const wheels=[...rrBogie(g,-3.8,M),...rrBogie(g,3.8,M)];rrCoupler(g,5.5,1,M);rrCoupler(g,-5.5,-1,M);
+ g.userData.spin=d=>{for(const w of wheels)w.rotation.z=-d/.42};g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
+
+
+/* ---------- lake-rail wiring ---------- */
+/* build with a fixed local random sequence (the desert's seeded one must not move: later places read it) */
+function lkSeed(n,f){const mr=Math.random;Math.random=lkRand(n);try{return f()}finally{Math.random=mr}}
+/* run a model builder into its own group (its noSeam pass stays inside), then move the pieces into the desert root
+   (the group is at the origin, so nothing moves), so the scenery chunks and the batching treat them like any other */
+function lkIn(g,n,f){const tg=new THREE.Group();const r=lkSeed(n,()=>f(tg));tg.traverse(m=>{if(m.isMesh&&m.userData.noSeam===undefined)m.userData.noSeam=true});while(tg.children.length)g.add(tg.children[0]);return r}
+/* the new scenery that sits outside the places' old zones: scatter (cacti, rocks, Joshua trees) is cleared off these */
+const LKCLR=[[205,290,-1500,-1480],[170,194,-1578,-1550],[558,632,-1502,-1458],[76,116,-1922,-1902],[-640,640,-1656,-1650],...[0,-440,560].map(c=>[c-16,c+16,-1652,-1626])];
+
+function xpLake(X){const{q,g,ob,loc,sign,anim,prop,light,zone}=X,{x,z,r}=LAKE;zone(x-r-10,x+r+10,z-r-10,z+r+10);q.water=q.water||[];q.water.push({x,z,r});
+ const obs=L=>{for(const b of L||[]){const{x0,x1,z0,z1,...e}=b;ob(x0,x1,z0,z1,e)}},T=(n,f)=>{try{f()}catch(e){conLog('error','Mirage Lake ('+n+'): '+e.message)}};
+ q.mapR.push({x0:x-r,x1:x+r,z0:z-r,z1:z+r,c:'#3a9ad8',circ:1});
+ /* keep cars out (on foot you can wade): the same boxes as before */for(let i=0;i<12;i++){const a=i/12*Math.PI*2,bx=x+Math.cos(a)*r*.86,bz=z+Math.sin(a)*r*.86;ob(bx-9,bx+9,bz-9,bz+9,{veh:1})}ob(x-r*.6,x+r*.6,z-r*.6,z+r*.6,{veh:1});
+ let W=null,palms=[],bobs=[];
+ /* batch 1: the water, the shore and its palms, the pier, the bait shop */
+ T('water',()=>{W=lkIn(g,501,lkWater)});
+ T('shore',()=>{const s=lkIn(g,502,lkShore);obs(s.obs);palms=s.palms||[]});
+ /* the pier: the same deck (q.plates numbers as before), its lamp light, and fishing at the end exactly as before */
+ const px=x,pz0=z+r+3,pL=34;let rod=null;
+ T('pier',()=>{const p=lkIn(g,503,lkPier);obs(p.obs);q.plates.push(p.plate);rod=p.rod;light(0xffd090,1,10,p.lampAt.x,p.lampAt.y,p.lampAt.z)});
+ let fishing=0;const FISH=[[.3,'🐟 A desert trout! It flaps, you flap, everyone flaps. (+8 gold at Bob\'s, which Bob already paid you)',8],[.5,'👢 An old boot. There is a key in it. There is always a key in a boot. (+3 gold)',3],[.65,'🗝️ A rusty hotel key. Room 50. You throw it straight back in.',0],[.78,'🥫 A tin of Goblin-Os. Sealed. Edible? El Goblino says yes. (+5 gold, resale)',5],[.9,'🐊 Something ENORMOUS tugs the line, looks at you, and lets go.',0],[1,'💰 A little chest! Ten gold coins and a note: "sorry about the pyramid". (+10)',10]];
+ prop(px,pz0-pL+1.2,1.8,()=>fishing?'🎣 ...waiting...':'[E] 🎣 Fish off the end of the pier',()=>{if(fishing)return;fishing=1;snd(300,.05);if(rod)rod.rotation.x=-1.2;hint('🎣 You cast. The lake is very still. You wait.');setTimeout(()=>{fishing=0;if(rod)rod.rotation.x=-.8;const u=Math.random();const f=FISH.find(f=>u<=f[0])||FISH[0];if(f[2]){gold+=f[2];try{saveGame()}catch(e){}}snd(600,.08);try{vfx('splash',px,.4,pz0-pL-2+q.OZ,{n:12})}catch(e){}hint(f[1]);q.fishN=(q.fishN|0)+1;if(q.fishN>=5)try{badge('fish')}catch(e){}},2500+Math.random()*2500)});
+ T('bait shop',()=>{const b=lkIn(g,504,lkBait);obs(b.obs);const BL=['🪱 The bait board: "WORMS: FRESH · BREAD: ALSO FRESH · WORMS IN BREAD: ASK"','🪱 "TODAY\'S SPECIAL: A WORM. YESTERDAY\'S SPECIAL: THE SAME WORM."','🪱 "NO REFUNDS ON FISH THAT GOT AWAY."','🪱 "LIVE BAIT · DEAD BAIT · BAIT WITH OPINIONS"'];
+  prop(b.prop.x,b.prop.z,1.6,'[E] Read the bait board',()=>{snd(250,.06);hint(BL[(q.lkbn=(q.lkbn|0)+1)%BL.length])})});
+ /* batch 2: the beach, the boathouse and its swans (the jetty is walkable), the buoys, the sailboat */
+ T('beach',()=>obs(lkIn(g,505,lkBeach).obs));
+ T('boathouse',()=>{const b=lkIn(g,506,lkBoathouse);obs(b.obs);q.plates.push(b.plate);bobs.push(...(b.bob||[]))});
+ T('buoys',()=>{bobs.push(...(lkIn(g,507,lkBuoys).bob||[]))});
+ bobs.forEach(b=>{b.userData.mv=1});
+ T('sailboat',()=>{const bx=x-r*.5,bz=z-r*.3;const bt=lkSeed(508,()=>lkSailboat());bt.position.set(bx,.1,bz);bt.rotation.y=.7;g.add(bt);bt.userData.mv=1;anim(bx,bz,150,dt=>{bt.rotation.z=Math.sin(q.rt*1.2)*.06;bt.position.y=.1+Math.sin(q.rt*.9)*.08;bt.rotation.y+=dt*.03})});
+ /* every frame near the lake: ripples and sparkles, the palms sway, the swans and buoys bob */
+ anim(x,z,200,dt=>{const t=q.rt;if(W)W.tick(t);for(let i=0;i<palms.length;i++)palms[i].rotation.z=Math.sin(t*.7+i)*.03;if(bobs.length)lkBob(bobs,t)});
+ sign('MIRAGE LAKE\nNO SWIMMING · NO SEEKING · NO FISHING (FISHING IS FINE)','#2a8a8a',x+6,z+r+20,-.3);loc('Mirage Lake',x,z,'🏖️')}
+
+function xpObservatory(X){const{q,g,ob,loc,sign,anim,prop,light,zone}=X,ox=608,oz=-1480;zone(590,630,-1500,-1460);
+ const obs=L=>{for(const b of L||[]){const{x0,x1,z0,z1,...e}=b;ob(x0,x1,z0,z1,e)}},T=(n,f)=>{try{f()}catch(e){conLog('error','observatory ('+n+'): '+e.message)}};
+ let dome=null,dish=null;
+ T('tower',()=>{const t=lkIn(g,511,obTower);obs(t.obs);dome=t.dome;dome.userData.mv=1;
+  const L=['🔭 You look at the moon. The moon has a door on it. You look away.','🔭 Las Vegas, far to the east. The Desert Bus is nearly there. It will not be.','🔭 A planet with eleven moons. All of them are looking back.','🔭 The hotel. From HERE? It is a long way. Someone is on the roof, waving.','🔭 A satellite. Dark Zone 51 painted a face on it.','🔭 The sun. Ow. Do not do that.','🔭 Seek, on the far side of the map, looking through a telescope. At you.'];
+  /* the door is on the west side now, so the telescope prompt is there */prop(t.prop.x,t.prop.z,2.2,'[E] Use the big telescope',()=>{snd(700,.05);hint(L[(q.obn=(q.obn|0)+1)%L.length]);if(!q.obsRv){q.obsRv=1;try{badge('stars')}catch(e){}}});light(0xa0c0ff,.9,16,t.prop.x,3.5,t.prop.z)});
+ T('dish',()=>{const d=lkIn(g,512,obDish);obs(d.obs);dish=d.dish;dish.userData.mv=1});
+ T('caravan',()=>obs(lkIn(g,513,obCaravan).obs));T('planets',()=>obs(lkIn(g,514,obPlanets).obs));
+ anim(ox,oz,250,dt=>{if(dome)dome.rotation.y=Math.sin(q.rt*.15)*1.2;if(dish)dish.rotation.y=Math.sin(q.rt*.1)*.6});
+ sign('DESERT OBSERVATORY\nOPEN NIGHTS · WHICH IS NEVER','#2a2a6a',595,-1486,1.1);loc('Observatory',ox,oz,'🔭')}
+
+function xpDino(X){const{q,g,ob,loc,sign,prop,light,zone}=X,dx=120,dz=-1935;zone(90,160,-1960,-1915);
+ const obs=L=>{for(const b of L||[]){const{x0,x1,z0,z1,...e}=b;ob(x0,x1,z0,z1,e)}},T=(n,f)=>{try{f()}catch(e){conLog('error','Dino Dan\'s ('+n+'): '+e.message)}};
+ T('dino',()=>obs(lkIn(g,521,ddDino).obs));light(0xffe0a0,1.2,22,dx,6,dz-6);light(0xffe0a0,1.2,22,dx,6,dz+8);
+ T('shop',()=>{const s=lkIn(g,522,ddShop);obs(s.obs);/* the porch posts (the model has no boxes for them) */for(const px of[92.2,96,100,103.8])ob(px-.1,px+.1,-1925.25,-1925.05);
+  prop(s.prop.x,s.prop.z,2,'[E] Buy a postcard from Dino Dan (3 🪙)',()=>{if(gold<3){snd(180,.15);hint('🦕 Dan: "Three gold. The dinosaur is free to look at. The postcard is not."');return}gold-=3;try{saveGame()}catch(e){}snd(600,.06);hint(['🦕 A postcard of the dinosaur. On the back, in crayon: "wish you were here. the dinosaur does not."','🦕 A postcard of DEVIL\'S GORGE. Someone has drawn a tiny car falling into it.','🦕 A postcard of the hotel. You put it face down.','🦕 A postcard of Dino Dan himself. He is also a dinosaur. Nobody mentions this.'][(q.pcn=(q.pcn|0)+1)%4])})});
+ prop(dx+5,dz,4,'[E] Stand under the dinosaur',()=>{snd(80,.5);hint(['🦕 You stand under DINO DAN. He is 14 m tall. He is made of concrete and 40 years of birds.','🦕 A plaque on his leg: "DINO DAN · DOORS BUT DESERT\'S LARGEST DINOSAUR · DOORS BUT DESERT\'S ONLY DINOSAUR".','🦕 Something creaks above you. The dinosaur does not creak. The dinosaur has never creaked. You leave.'][(q.ddn=(q.ddn|0)+1)%3])});
+ T('extras',()=>obs(lkIn(g,523,ddExtras).obs));
+ sign("DINO DAN'S →\nSEE THE DINOSAUR · 400 m",'#8a3a2a',8,-1880,-.4);loc("Dino Dan's",dx,dz,'🦕')}
+
+function xpRail(X){const{q,g,ob,loc,rect,sign}=X,z=RAIL.z;
+ const obs=L=>{for(const b of L||[]){const{x0,x1,z0,z1,...e}=b;ob(x0,x1,z0,z1,e)}},T=(n,f)=>{try{f()}catch(e){conLog('error','railroad ('+n+'): '+e.message)}};
+ rect(-DXB,DXB,z-1.6,z+1.6,'#6a5a50');
+ /* the track: the bed stops for the three roads, the sleepers and rails carry on under the crossing boards */
+ T('track',()=>lkIn(g,531,G=>rrTrack(G,-DXB,DXB,z,RRX.map(c=>[c-3.6,c+3.6]))));
+ /* the crossings: the same K objects as before (the gate boxes are pushed into q.obs as they are, so xpTrainTick's off flag reaches them) */
+ q.xings=[];T('crossings',()=>{RRX.forEach((cx,i)=>{const c=lkIn(g,532+i,G=>rrCrossing(G,cx));for(const a of c.K.arms)a.pv.userData.mv=1;for(const l of c.K.lights)l.userData.dpKeep=1;q.xings.push(c.K);for(const o of c.obs)q.obs.push(o)})});
+ T('poles',()=>obs(lkIn(g,536,rrPoles).obs));
+ sign('THE DOORS & DESERT RAILROAD\nFREIGHT ONLY · SINCE 1952','#5a3a22',30,z+14,-.4);loc('Railroad',-200,z,'🛤️');
+ /* the train: a locomotive, the new tender and six wagons, shared by everybody in the game (same q.train as before) */
+ q.train={x:-DXB-80,v:19,cars:[],len:0,wait:0};const TR=q.train;const car=(len,m)=>{m.userData.mv=1;g.add(m);TR.cars.push({m,len,off:TR.len+len/2});TR.len+=len+1.2;return m};
+ T('train',()=>{const lo=car(12,lkSeed(537,()=>rrLoco()));const lp=lo.userData.lamp,st=lo.userData.stack;
+  TR.hl=new THREE.PointLight(0xffe0a0,1.6,18);TR.hl.position.set(lp.x+.6,lp.y-.3,lp.z);lo.add(TR.hl);TR.hl.visible=false;TR.hl.userData.virt=1;
+  const sm=glowSp(0x2a2a2a,.5,2);sm.material.blending=THREE.NormalBlending;sm.position.set(st.x,st.y+.8,st.z);lo.add(sm);TR.smoke=sm;TR.smY=st.y+.8;
+  car(7,lkSeed(538,()=>rrTender()));
+  const cols=[0x8a6a3a,0x3a5a8a,0x6a6a6a,0x8a3a3a,0x4a6a4a,0x6a5a7a],NM=['DOORS BUT FREIGHT','GWEEN SODA','EL GOBLINO LOGISTICS','DARK CARGO'];
+  for(let i=0;i<6;i++){const kind=i%3==2?'flat':i%3==1?'tank':'box';car(11,lkSeed(540+i,()=>rrWagon(kind,cols[i],kind=='box'?NM[i%4]:null)))}
+  for(const c of TR.cars)c.m.position.set(TR.x-c.off,0,z)})}
+
+/* the wheels and side rods turn with the train, and the smoke sits on the new smokestack */
+{const f0=xpTrainTick;xpTrainTick=function(q,dt){const r=f0.apply(this,arguments);try{const T=q&&q.train;if(T&&T.wait<=0&&T.cars.length){if(T.smoke&&T.smY!=null)T.smoke.position.y=T.smY+Math.sin(q.rt*3)*.3;
+  if(Math.abs(P.x-T.x+T.len/2)<T.len/2+350&&Math.abs(P.z-q.OZ-RAIL.z)<300)for(const c of T.cars){const sp=c.m.userData.spin;if(sp)sp(T.x)}}}catch(e){}return r}}
+
+/* the scatter must not land on the new scenery: take away what it dropped there (after it ran, so its random numbers are unchanged) */
+{const f0=xpCover;xpCover=function(X){const q=X&&X.q,n0=q?q.obs.length:0;const r=f0.apply(this,arguments);try{const g=X.g,out=[];for(let i=q.obs.length-1;i>=n0;i--){const o=q.obs[i],cx=(o.x0+o.x1)/2,cz=(o.z0+o.z1)/2;if(!LKCLR.some(a=>cx>a[0]-1&&cx<a[1]+1&&cz>a[2]-1&&cz<a[3]+1))continue;
+   let m=o.m;if(!m)m=g.children.find(c=>c.isGroup&&Math.abs(c.position.x-cx)<.01&&Math.abs(c.position.z-cz)<.01);if(m&&m.parent)m.parent.remove(m);q.obs.splice(i,1);out.push(o)}q.lkClr=out.length}catch(e){conLog('error','lake-rail scatter clear: '+e.message)}return r}}
