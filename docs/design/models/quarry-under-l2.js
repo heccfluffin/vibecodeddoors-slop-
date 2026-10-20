@@ -253,7 +253,7 @@ function ugOrePass(b,p,Lv,ctx,W){const y=UGLY(Lv),L=ugLocal(b,p,y),v=p.d.v||0,rk
 
 /* ---------- the level 2 stations: the kit builds the room and the shaft; these are their own props ---------- */
 {const p0=ugProp;ugProp=function(b,n,x,y,z,yaw,r,ctx){const c=Math.cos(yaw),s=Math.sin(yaw),at=(lx,lz)=>[x+c*lx+s*lz,z-s*lx+c*lz];
- if(n=='map board'){b.box('board',1.7,1.1,.08,x,y+1.55,z,yaw);for(const sd of[-.7,.7]){const q=at(sd,-.1);b.box('woodD',.1,2.2,.1,q[0],y+1.1,q[1],yaw)}if(ctx){const q=at(0,.05);ctx.signs.push({x:q[0],y:y+1.55,z:q[1],yaw,txt:'LEVEL 2 MAP',w:1.5,map:1})}return}
+ if(n=='map board'){b.box('board',1.7,1.1,.08,x,y+1.55,z,yaw);for(const sd of[-.7,.7]){const q=at(sd,-.1);b.box('woodD',.1,2.2,.1,q[0],y+1.1,q[1],yaw)}if(ctx){const q=at(0,.05);ctx.signs.push({x:q[0],y:y+1.55,z:q[1],yaw,txt:'LEVEL 2 MAP',w:1.6,h:1,map:1})}return}
  if(n=='pump'){b.box('dark',1.3,.25,1.3,x,y+.125,z,yaw);b.cyl('steel',.42,.42,1.1,x,y+.8,z,18);b.cyl('dark',.5,.5,.1,x,y+1.4,z,18);b.cyl('steel',.12,.12,4.2,x,y+3.4,z,10);const q=at(.6,0);b.cyl('dark',.32,.32,.5,q[0],y+.6,q[1],14,yaw,0,Math.PI/2);return}
  if(n=='air bottles'){b.box('steel',.9,.08,.5,x,y+.04,z,yaw);for(let i=0;i<4;i++){const q=at(-.33+i*.22,0);b.cyl('paintY',.09,.09,1.3,q[0],y+.73,q[1],12);b.cyl('steel',.03,.03,.12,q[0],y+1.44,q[1],8)}b.box('steel',.9,.05,.05,x,y+1.0,z,yaw);return}
  if(n=='refuge chamber'){/* a steel box with a heavy door on its front, air bottles inside */const w=2.6,d=2.2,h=2.3;b.box('paintY',w,h,d,x,y+h/2,z,yaw);b.box('dark',w+.08,.12,d+.08,x,y+h+.06,z,yaw);

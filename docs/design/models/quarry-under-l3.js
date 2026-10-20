@@ -209,7 +209,7 @@ function ugPieceL3(b,p,Lv,ctx){const t=p.type;if(!['basalt','magma','dark','geod
  return p0.apply(this,arguments)}}
 {const s0=ugStationBuild;ugStationBuild=function(b,p,L,ctx){s0(b,p,L,ctx);if(L!=2)return;const y=UGLY(L),T=ugT(p),v=p.d.v||0,hs=6;
  /* a warning board on the wall beside the gate side */
- const sign=(lx,lz,ix,iz,txt,w)=>{const q=T(lx,lz),n=ugRot(ix,iz,p.r),yaw=Math.atan2(n[0],n[1]);b.box('board',w+.1,.44,.3,q[0]-n[0]*.13,y+2.1,q[1]-n[1]*.13,yaw);ctx.signs.push({x:q[0]+n[0]*.025,y:y+2.1,z:q[1]+n[1]*.025,yaw,txt,w})};
+ const sign=(lx,lz,ix,iz,txt,w)=>{const q=T(lx,lz),n=ugRot(ix,iz,p.r),yaw=Math.atan2(n[0],n[1]),map=/ MAP$/.test(txt),h=map?1.1:.34,yy=y+(map?1.7:2.1);b.box('board',w+.1,h+.1,.3,q[0]-n[0]*.13,yy,q[1]-n[1]*.13,yaw);ctx.signs.push({x:q[0]+n[0]*.025,y:yy,z:q[1]+n[1]*.025,yaw,txt,w,h,map})};
  if(v==0){sign(-hs+.02,-3.8,1,0,'HOT GROUND',1.6);sign(-hs+.02,3.8,1,0,'LEVEL 3 MAP',1.6)}
  if(v==1){const q=T(-4.6,4.6);ugProp(b,'barrel',q[0],y,q[1],0,.4,ctx);b.cyl('frost',.28,.28,.02,q[0],y+.975,q[1],14);sign(-hs+.02,-3.8,1,0,'TEMP 52 °C',1.4);sign(-hs+.02,3.8,1,0,'LEVEL 3 MAP',1.6)}
  if(v==2){/* steel bulkheads in every doorway: a steel wall in the arch with a door that swings on its hinge (a moving part) */

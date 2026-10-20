@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) approved 2026-10-20
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) approved 2026-10-20 · batch 5 (the shift props) ready for review 2026-10-20
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -208,7 +208,7 @@ in) and the sealed station's bulkhead wheels.
   empties you pass out and the crew drag you out with half your ore. Walk out and it refills.
 - **Finds:** a lunchbox in the crib room (15-40 gold and a note from an old miner), 1-2 fossils in level 2 walls
   (sell at the assay office for 60 gold), gems in the Geode (crystal and diamond veins). The notes are short lore
-  lines; they come with batch 4.
+  lines (`UGNOTES`, batch 5).
 - **The ore pass:** drop what you carry down the grate and it goes into the cage's minecart, the same as dumping at the
   cage. One in about half the mines, on level 2 or 3.
 - **Kept as now:** the cage, headframe and shaft up top; dumping at the minecart; the cart rides up with you; the
@@ -491,6 +491,68 @@ Checked: the z-fight and floating checker on all 24 versions built on their own 
 kit changes. Found and fixed on the way: two gold veins on the same spot by the lavafall, the fan blades sharing a
 face with their hub, the hot seam's rock too green (and its neck now ordinary rock), the lavafall landing short of its
 pool.
+
+### Batch 5: the shift (`models/quarry-under-shift.js`), ready for review
+Load it last, after `quarry-under-l3.js`. Everything here is its own group (never merged into the level batches), built
+at the origin standing on y 0; small things face -z unless it says otherwise. `ugBuildLevel` now also returns
+`pickups` (groups with `userData.pick`: 'lunchbox', 'tag', 'fossil', 'dynamite crate'); `ugPut(Lh, obj, x, y, z, ry)`
+places a group in a room's own coordinates.
+- **Dynamite:** `ugDynamite()` (one stick with its fuse, lying down); `ugDynCrate(n)` (an open crate, the lid leant
+  against its side, n sticks on the packing straw, up to 12: the game shows fewer as sticks are taken). The powder
+  magazine's first crate now has one on top (all three magazine versions). `ugCharge()` is a set stick taped flat to
+  the rock (the rock is its +z) with a fuse hanging from it; `userData.tick(t)` moves the spark up the fuse over the 4 s
+  and returns false when it goes off. `ugBlast()` is the bang: a flash, then dust rolling out (`tick(t)`, 3 s).
+- **The rockfall:** `ugRockfall(w, h, len, seed, L)` is a heap of rubble filling a passage (along its z, highest in
+  the middle, stones spilling out of both ends), one mesh per material per slice. `userData.stage(k)` clears the
+  first k of 8 slices of a 1.8 m wide way through the middle, dug from both ends towards the middle, so k = swings so
+  far and 8 is through (the notch goes all the way up, so nothing is left hanging). `ugRockfallSpot(plan, L, seed)`
+  says where it goes: `{x, z, yaw, w, h, len, piece}`, on one side of a pillar round (4 m wide, 3.5 m high) or a rock
+  island (4.2 m, 3.6 m). It never picks a side with a doorway off it, the rail loop's parked ore train, or the
+  mushroom island (its caps reach over the passage). With no round or island it goes in the middle of a dug join,
+  else a tunnel. `ugDust(seed)` is the dust hanging after the fall (`tick(t)`, 8 s).
+- **Gas:** `ugGasCloud(seed)`, a yellow-green cloud about 6 m across of soft crossed puffs that swells, drifts and
+  thins: `tick(t, life)` (25 s by default). Clouds, dust and blasts each have their own copy of the material, so
+  fading one doesn't fade the others.
+- **Moving parts** (in `moving`): the underground lake's raft (`ugRaft()`, `userData.raft = {a, c}`, the rope's ends
+  in mine coords) and the zip line handle (`ugZipHandle()`, its origin on the cable, the cable along its z;
+  `userData.zip` = the cable's points in mine coords). They were part of the room before; now the game can move them.
+- **Things to pick up** (in `pickups`):
+  - the **lunchbox** in the crib room, on the table where the red tin was (`ugLunchbox()`: a blue enamel tin, a
+    rounded lid that opens on its back edge, `userData.lid`, with the handle on the lid, a brass latch, a folded note
+    inside, `userData.note`);
+  - **brass tag 17 · HARLAN** on the lamp room board, in place of one of the 24 plain tags (`ugTag(n, name)`, a stamped
+    disc with a hole; its face is +z);
+  - **fossils** (`ugFossil('ammonite' | 'trilobite')`: a split lump of stone, the flat face -z, with a coiled shell or
+    a ridged bug standing out of it). The fossil wall's five loose fossils lie split face up at the foot of the wall,
+    and 1-2 more are set into each level 2's cave walls in place of a vein (so they sit on the real rock the same way);
+  - a **note** (`ugNote(i)`, folded, one half lifted at the fold).
+- **The notes** (`UGNOTES`, 16 short lines from old miners): the stuck cage, Teddy who takes things, gold past the
+  sinkhole, the pumps that thump back, door 60, three sticks and run, tag 17 that keeps coming back to the board
+  though Harlan has been gone a year, walking out of yellow air, humming crystals, the rockfall by the pillar,
+  sinking the shaft, the bats leaving, the rubbed-out cross on the map board, the big fossil, the last lunchbox.
+- **The map board:** each station's board is now 1.75 x 1.2 m with a real map (`ugMapTex(plan, L, {here, ar})`):
+  aged paper and a grid, the level's tunnels and rooms, the cage, ▼ and ▲ for the ways down and up, a red YOU ARE
+  HERE dot where the board is, the title "LEVEL 1 · OLD WORKINGS", a 10 m scale and a north arrow. Signs in the kit
+  can now have a height (`h`) and `map: 1`.
+- **The minimap underground:** `ugMiniDraw(ctx2d, plan, L, {w, h, me:{x, z, yaw}, friends:[{x, z, c}], seen,
+  scale})` draws on the minimap's canvas: dark, only the pieces in `seen` (the ids of pieces you've been in), the
+  cage, the ways up and down, friends as dots, you as an arrow, and the banner "LEVEL 2 · THE CAVES".
+- **The cage panel:** `ugCagePanel()`, a steel plate 0.42 x 0.7 m with a lamp and a button per level; `userData.set(
+  open, here)` relights it: levels you can't reach yet are red and say SHAFT SINKING NEEDED, the level the cage is at
+  is lit white.
+- **Shaft sinking** (`UGSINK`, for the tycoon's list): Level 1 only (free) · Stops at level 2 (300) · Stops at
+  level 3 (900).
+- **Preview:** "Mine Shift Props" (everything on a table and the floor, animated: the charge burning, the blast and
+  dust on a loop, the gas cloud, the raft and zip handle moving, the lunchbox opening; a slider digs the rockfall; the
+  map board for each level, the minimap and the cage panel's three states). The room previews show the lunchbox, tag,
+  dynamite crate, raft, zip handle and fossils in place.
+
+Checked: the z-fight and floating checker on the props page, the crib room, lamp room, all three magazines, the
+underground lake, zip line and fossil wall, and on a whole level 2 (fossils in the walls); the rockfall dropped into
+real pillar rounds of mines #1 and #4242 and dug through; spots and pickups listed for five mines on all three levels;
+`node quarry-under-check.js`. Found and fixed on the way: the lunchbox lid vanishing when open (seen from inside), the
+crate's bottom and its label too close to the sides, the panel face and the note too close to what they sit on, stones
+left hanging over the dug way, and the first rockfall spot landing on the rail loop's ore train.
 
 ## Checks
 - Every level is one connected place, reachable on foot from the cage on level 1 (the generator guarantees it; test

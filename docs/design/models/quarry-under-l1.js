@@ -115,11 +115,11 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
   const blk=n=>(fx('blk').find(f=>f.n==n)||{pts:[]}).pts;
   if(v==0){const tb=blk('table')[0];L.box('wood',.8,.06,1.3,tb[0],.78,tb[1],0);for(const q of[[-.32,-.55],[.32,-.55],[-.32,.55],[.32,.55]])L.box('woodD',.07,.75,.07,tb[0]+q[0],.375,tb[1]+q[1],0);
    for(const sd of[-.72,.72]){L.box('wood',.3,.05,1.3,tb[0]+sd,.46,tb[1],0);for(const dz of[-.5,.5])L.box('woodD',.06,.44,.24,tb[0]+sd,.22,tb[1]+dz,0)}
-   for(let i=0;i<4;i++){L.cyl('steel',.09,.09,.12,tb[0]+(R()-.5)*.5,.87,tb[1]-.55+i*.17,10)}   /* the mugs stay clear of the lunch tin */L.box('red',.28,.16,.18,tb[0]+.15,.89,tb[1]+.3,.3);
+   for(let i=0;i<4;i++){L.cyl('steel',.09,.09,.12,tb[0]+(R()-.5)*.5,.87,tb[1]-.55+i*.17,10)}   /* the mugs stay clear of the lunch tin */ctx.pickups.push(ugPut(L,ugLunchbox(),tb[0]+.15,.81,tb[1]+.3,.3));
    const st=blk('stove')[0];L.box('dark',.6,.8,.5,st[0],.4,st[1],0);L.cyl('dark',.07,.07,h-.8,st[0],.8+(h-.8)/2,st[1],10);L.cyl('steel',.12,.1,.18,st[0]-.1,.905,st[1]+.05,12);
    L.box('wood',.3,.04,1.6,-3.82*mx,1.5,-4.5,0);for(let i=0;i<5;i++)L.cyl('steel',.07,.07,.11,-3.82*mx,1.58,-3.9-i*.3,10);ugWallSign(L,ctx,0,1.8,-9.98+.0,0,1,'SAFETY FIRST',1.4)}
   if(v==1){for(const q of blk('rack').length?blk('rack'):fx('racks')[0].pts){L.box('wood',.5,1.8,.9,q[0],.9,q[1],0);for(let k=0;k<3;k++)for(let j=-1;j<=1;j++){L.box('woodD',.46,.03,.86,q[0],.5+k*.5,q[1],0);L.geo('lampG',new THREE.SphereGeometry(.06,8,6),q[0]+(q[0]>0?-.12:.12),.6+k*.5,q[1]+j*.26)}}
-   L.box('board',2,1.2,.08,0,1.7,-9.93,0);for(let i=0;i<6;i++)for(let j=0;j<4;j++)L.cyl('brass',.06,.06,.02,-.75+i*.3,1.3+j*.26,-9.88,10,0,Math.PI/2)}
+   L.box('board',2,1.2,.08,0,1.7,-9.93,0);/* the brass tags on their board; one of them you can take: number 17 */const sp=R()*24|0;for(let i=0;i<6;i++)for(let j=0;j<4;j++){if(i*4+j==sp){ctx.pickups.push(ugPut(L,ugTag(17,'HARLAN'),-.75+i*.3,1.3+j*.26,-9.887));continue}L.cyl('brass',.06,.06,.02,-.75+i*.3,1.3+j*.26,-9.88,10,0,Math.PI/2)}}
   if(v==2){const d=fx('desk')[0];L.box('woodD',1.4,.06,.7,d.x,.76,d.z,0);for(const q of[[-.62,-.28],[.62,-.28],[-.62,.28],[.62,.28]])L.box('woodD',.06,.73,.06,d.x+q[0],.365,d.z+q[1],0);
    L.box('paper',.5,.01,.36,d.x-.2,.795,d.z,.2);L.box('red',.24,.05,.32,d.x+.35,.815,d.z+.05,-.1);L.box('wood',.45,.05,.45,d.x,.46,d.z+.7,0);L.box('wood',.45,.5,.05,d.x,.72,d.z+.92,0);
    const sf=blk('safe')[0];L.box('dark',.8,.9,.7,sf[0],.45,sf[1],0);L.cyl('brass',.08,.08,.04,sf[0],.55,sf[1]+.36,12,0,Math.PI/2);
@@ -132,9 +132,9 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
  if(t=='magazine'){const h=3.4;room(h);ugHangLamp(L,ctx,0,-6.6,2.6,h,.9);
   /* the heavy door, swung open flat against the inside of the front wall */
   L.box('wood',1.9,2.4,.1,-1.98*mx,1.21,-3.12,0);for(const yy of[.5,1.9])L.box('dark',1.9,.12,.02,-1.98*mx,yy,-3.18,0);
-  const crate=(x,z,s)=>{L.box('wood',.8,.65,.8,x,.325+(s||0),z,R()*.2);L.box('red',.6,.02,.02,x,.5+(s||0),z+.41,0)};
+  const crate=(x,z,s)=>{const yw=R()*.2;L.box('wood',.8,.65,.8,x,.325+(s||0),z,yw);L.box('red',.6,.02,.02,x,.5+(s||0),z+.41,0);return yw};
   const blk=n=>(fx('blk').find(f=>f.n==n)||{pts:[]}).pts;
-  for(const q of blk('crate')){crate(q[0],q[1]);if(v==0&&R()<.7)crate(q[0],q[1],.65)}
+  /* the first crate has an open box of dynamite on it (you can take sticks from it) */blk('crate').forEach((q,i)=>{const yw=crate(q[0],q[1]);if(i==0)ctx.pickups.push(ugPut(L,ugDynCrate(9),q[0]-.06*Math.cos(yw),.65,q[1]+.06*Math.sin(yw),yw));else if(v==0&&R()<.7)crate(q[0],q[1],.65)});
   if(v==0){ugWallSign(L,ctx,0,2.1,-8.98,0,1,'DANGER · EXPLOSIVES',1.8);L.box('wood',1.8,.04,.4,2.6*mx,1.4,-6,Math.PI/2)}
   if(v==1){const pl=blk('plunger')[0];L.box('woodD',.5,.4,.4,pl[0],.2,pl[1],0);L.cyl('steel',.03,.03,.5,pl[0],.65,pl[1],8);L.box('steel',.4,.04,.04,pl[0],.9,pl[1],0);
    for(const dz of[0,.55])L.cyl('woodD',.25,.25,.3,1.9*mx,.25,-4.9-dz,14,0,0,Math.PI/2);ugWallSign(L,ctx,0,2.1,-8.98,0,1,'BLASTING · CLEAR THE AREA',2.2)}
