@@ -16,12 +16,15 @@
 const MWC={on:!/[?&]nomwc/.test(location.search),f:1};
 /* make o.matrix again only if its position, rotation or scale changed since it was last made here */
 function mwPQS(o){const p=o.position,r=o.quaternion,s=o.scale;let c=o.__mwc;
- if(c&&!o.matrixWorldNeedsUpdate&&c[0]===p.x&&c[1]===p.y&&c[2]===p.z&&c[3]===r._x&&c[4]===r._y&&c[5]===r._z&&c[6]===r._w&&c[7]===s.x&&c[8]===s.y&&c[9]===s.z)return;
- o.updateMatrix();if(!c)c=o.__mwc=new Float64Array(10);c[0]=p.x;c[1]=p.y;c[2]=p.z;c[3]=r._x;c[4]=r._y;c[5]=r._z;c[6]=r._w;c[7]=s.x;c[8]=s.y;c[9]=s.z}
+ if(c&&c[0]===p.x&&c[1]===p.y&&c[2]===p.z&&c[3]===r._x&&c[4]===r._y&&c[5]===r._z&&c[6]===r._w&&c[7]===s.x&&c[8]===s.y&&c[9]===s.z)return false;
+ o.updateMatrix();if(!c)c=o.__mwc=new Float64Array(10);c[0]=p.x;c[1]=p.y;c[2]=p.z;c[3]=r._x;c[4]=r._y;c[5]=r._z;c[6]=r._w;c[7]=s.x;c[8]=s.y;c[9]=s.z;return true}
 /* o's own matrix and its place in the world; returns whether its children must redo theirs.
    __mwpar: the parent it was worked out under; __mwf: the last update it was up to date in; __mwchg: the last update its place changed in */
-function mwSelf(o,force){const p=o.parent;if(o.matrixAutoUpdate)mwPQS(o);
- if(force||o.matrixWorldNeedsUpdate||o.__mwpar!==p||(p!==null&&(p.__mwchg|0)>(o.__mwf|0))){
+/* r648: three.js's getWorldPosition and friends leave the "needs update" flag set on the object and all its parents
+   (they already worked out the very same numbers), which made whole subtrees be redone every frame; the flag now only
+   counts for objects that manage their own matrix (the position/rotation/scale check covers the rest) */
+function mwSelf(o,force){const p=o.parent;const mine=o.matrixAutoUpdate?mwPQS(o):o.matrixWorldNeedsUpdate;
+ if(force||mine||o.__mwpar!==p||(p!==null&&(p.__mwchg|0)>(o.__mwf|0))){
   if(p===null)o.matrixWorld.copy(o.matrix);else o.matrixWorld.multiplyMatrices(p.matrixWorld,o.matrix);
   o.matrixWorldNeedsUpdate=false;o.__mwpar=p;o.__mwchg=MWC.f;force=true}
  o.__mwf=MWC.f;return force}

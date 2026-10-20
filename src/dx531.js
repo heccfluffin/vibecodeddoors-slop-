@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r648',['Faster desert, part two of the positions fix: things the game had only looked at (not moved) were still being worked out again every frame. Around Fort Blackout about 5 times fewer objects are now redone each frame']],
 ['r647',['Faster desert: the game no longer works out the position of every object again each frame, only of the ones that moved (about 2 in 100). In tests this cut the "positions" time in the lag window by more than half, and the parked vehicles\' share by about three quarters']],
 ['r646',['Faster desert: places with moving parts (the Desert PD HQ with its walking officers and flashing lights, the patrol car outside it and others) are now drawn in big batches like the rest of the desert. Looking at the PD HQ takes about a third fewer draw calls, which helps most in Firefox']],
 ['r645',['The desert train now really runs, even when you play alone: it stops at the station and the crossing gates come down as it passes','The game\'s build number shows the right release again']],
