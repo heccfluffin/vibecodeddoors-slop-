@@ -67,7 +67,7 @@ const UGV={
  station2:[
   {nm:'Cave station',ds:'Rough rock round a timber platform at the cage, the level map board, a lamp on a wire.',fx:()=>[{k:'blk',pts:[[-4.6,-4.6]],r:.5,n:'map board'}]},
   {nm:'Pumping station',ds:'Big pumps and pipes climbing the shaft wall, thumping away; puddles everywhere.',fx:()=>[{k:'blk',pts:[[4.4,-4.4],[4.4,4.4]],r:.7,n:'pump'},{k:'water',cx:-3.6,cz:3.6,rx:1.6,rz:1.4}]},
-  {nm:'Refuge station',ds:'A steel door into a refuge chamber with air bottles: gas can\'t follow you in here.',fx:()=>[{k:'blk',pts:[[-4.6,-4.6],[-4.6,4.6]],r:.5,n:'air bottles'},{k:'door',x:-4.4,z:0}]}],
+  {nm:'Refuge station',ds:'A steel door into a refuge chamber with air bottles: gas can\'t follow you in here.',fx:()=>[{k:'blk',pts:[[-4.5,-4.8]],r:1.4,n:'refuge chamber'},{k:'blk',pts:[[-4.6,4.6]],r:.5,n:'air bottles'},{k:'door',x:-4.5,z:-3.6}]}],
  station3:[
   {nm:'Deep station',ds:'Dark rock, a heavy steel cage gate, a water barrel and a warning board: HOT GROUND.',fx:()=>[{k:'blk',pts:[[4.6,-4.6]],r:.5,n:'barrel'}]},
   {nm:'Hot station',ds:'Big fans push cool air down the shaft; an ice-water barrel and a thermometer in the red.',fx:()=>[{k:'blk',pts:[[-4.6,-4.6],[4.6,-4.6]],r:.6,n:'fan'}]},

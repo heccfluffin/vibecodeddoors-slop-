@@ -44,13 +44,17 @@ function ugPile(L,R,x,z,rx,rz,h,key){const m=new THREE.SphereGeometry(1,14,7,0,M
    The surface sits o.surf below the floor, so a band of wet rock shows above it; darker layers below it make the
    middle look deep. */
 function ugPool(L,q,o){o=o||{};const surf=o.surf==null?-.25:o.surf,dep=o.dep||2.3;let rAt;
- if(o.bowl){const pr=[[1,0],[.97,-.15],[.9,-.38],[.82,-.55],[.62,-1.15],[.42,-1.7],[.2,-2.1],[0,-dep]];
+ const wr=o.rock||'wetRock';
+ if(o.bowl||o.prof){const pr=o.prof||[[1,0],[.97,-.15],[.9,-.38],[.82,-.55],[.62,-1.15],[.42,-1.7],[.2,-2.1],[0,-dep]];
   rAt=d=>{for(let i=1;i<pr.length;i++)if(d>=pr[i][1]){const a=pr[i-1],b=pr[i],t=(d-a[1])/(b[1]-a[1]);return a[0]+(b[0]-a[0])*t}return 0};
   const g=new THREE.LatheGeometry(pr.map(p=>new THREE.Vector2(p[0],p[1])),48);const uv=g.attributes.uv,per=Math.PI*(q.rx+q.rz)/4;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*per,uv.getY(i)*1.6);
-  L.geo('wetRock',g,q.cx,0,q.cz,0,0,0,q.rx,1,q.rz)}
- else{rAt=()=>1;L.geo('wetRock',new THREE.CircleGeometry(1,28),q.cx,-dep,q.cz,0,-Math.PI/2,0,q.rx,1,q.rz)}
- L.geo('pool',new THREE.CircleGeometry(1,64),q.cx,surf,q.cz,0,-Math.PI/2,0,q.rx*rAt(surf)*1.01,q.rz*rAt(surf)*1.01,1);
- for(const f of[.12,.26,.4,.54,.68,.82]){const d=surf+(-dep-surf)*f,r=rAt(d)*1.03;if(r>.05)L.geo('poolD',new THREE.CircleGeometry(1,48),q.cx,d,q.cz,0,-Math.PI/2,0,q.rx*r,q.rz*r,1)}}
+  L.geo(wr,g,q.cx,0,q.cz,0,0,0,q.rx,1,q.rz)}
+ else{rAt=()=>1;L.geo(wr,new THREE.CircleGeometry(1,28),q.cx,-dep,q.cz,0,-Math.PI/2,0,q.rx,1,q.rz)}
+ /* the surface (o.hole: a local polygon cut out of it, e.g. an island standing in the water) */
+ const sr=rAt(surf)*1.01;if(o.hole){const sh=new THREE.Shape();sh.absellipse(q.cx,-q.cz,q.rx*sr,q.rz*sr,0,Math.PI*2,false,0);const hp=new THREE.Path();o.hole.forEach((v,i)=>i?hp.lineTo(v[0],-v[1]):hp.moveTo(v[0],-v[1]));sh.holes.push(hp);
+  const g=new THREE.ShapeGeometry(sh,48);g.rotateX(-Math.PI/2);const pa=g.attributes.position,uv=[];for(let i=0;i<pa.count;i++)uv.push(pa.getX(i)/(2*q.rx*sr)+.5,pa.getZ(i)/(2*q.rz*sr)+.5);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));L.geo(o.key||'pool',g,0,surf,0)}
+ else L.geo(o.key||'pool',new THREE.CircleGeometry(1,64),q.cx,surf,q.cz,0,-Math.PI/2,0,q.rx*sr,q.rz*sr,1);
+ if(dep>.6)for(const f of[.12,.26,.4,.54,.68,.82]){const d=surf+(-dep-surf)*f,r=rAt(d)*1.03;if(r>.05)L.geo('poolD',new THREE.CircleGeometry(1,48),q.cx,d,q.cz,0,-Math.PI/2,0,q.rx*r,q.rz*r,1)}}
 /* a plain sign on a backing board against a wall: local position on the wall, (ix,iz) pointing into the room */
 function ugWallSign(L,ctx,x,yy,z,ix,iz,txt,w){const a=Math.atan2(ix,iz);L.box('board',w+.1,.44,.3,x-ix*.13,yy,z-iz*.13,a);const p=L.pt(x+ix*.025,yy,z+iz*.025);ctx.signs.push({x:p.x,y:p.y,z:p.z,yaw:L.yaw(a),txt,w})}
 

@@ -46,6 +46,7 @@ function ugKit(){
   wire:M({color:0x1a1a1a,roughness:.6}),
   board:M({color:0x3a2c1e,roughness:.85}),paper:M({color:0xe8dcc0,roughness:.9}),green:M({color:0x2f5a3a,roughness:.7}),
   oreRock:M({map:UGK.rockT,color:0x5a4a3c}),fill:M({map:UGK.gravT,color:0xf0e0c0}),
+  floor2:M({map:UGK.gravT,color:0xaeb0b4}),floor3:M({map:UGK.gravT,color:0x76665e}),
   water:new THREE.MeshStandardMaterial({color:0x183038,roughness:.06,metalness:.3,transparent:true,opacity:.9}),
   waterS:new THREE.MeshStandardMaterial({color:0x4a7a84,roughness:.1,metalness:.2,transparent:true,opacity:.45,depthWrite:false,normalMap:UGK.poolN,normalScale:new THREE.Vector2(.25,.25)}),
   /* deep water: a see-through rippled surface, darker layers under it that only cover where the basin is deeper
@@ -130,7 +131,7 @@ function ugTube(b,pts,o){
    for(const v of[A,B2,C,A,C,D]){fp.push(v[0],v[1],v[2]);fn.push(0,1,0);fu.push(v[0]/2.5,v[2]/2.5)}}}
  /* make sure the floor faces up */
  for(let k=0;k<fp.length;k+=9){const ax=fp[k],az=fp[k+2],bx=fp[k+3],bz=fp[k+5],cx=fp[k+6],cz=fp[k+8];if((bx-ax)*(cz-az)-(bz-az)*(cx-ax)>0){for(let q=0;q<3;q++){const t=fp[k+3+q];fp[k+3+q]=fp[k+6+q];fp[k+6+q]=t}const tu0=fu[k/9*6+2],tu1=fu[k/9*6+3];fu[k/9*6+2]=fu[k/9*6+4];fu[k/9*6+3]=fu[k/9*6+5];fu[k/9*6+4]=tu0;fu[k/9*6+5]=tu1}}
- b.raw('floor',fp,fn,fu);
+ b.raw(o.floorKey||'floor',fp,fn,fu);
  const at=s=>{let i=1;while(i<n-1&&S[i]<s)i++;const t=(s-S[i-1])/((S[i]-S[i-1])||1),p=[P[i-1][0]+(P[i][0]-P[i-1][0])*t,P[i-1][1]+(P[i][1]-P[i-1][1])*t,P[i-1][2]+(P[i][2]-P[i-1][2])*t],tt=T[i];return{p,t:tt,r:[-tt[1],tt[0]],yaw:Math.atan2(-tt[0],-tt[1])}};
  const res={L,at,pf,P,S,T};
  if(o.sets!==false)ugSets(b,res,o);
@@ -250,7 +251,7 @@ function ugFace(b,x,y,z,dir,hw,o){o=o||{};const pf=ugProf(hw||2),v=ugRot(0,-1,di
  /* the floor under the dome, following its bottom edge */
  const fp=[],fn=[],fu=[],edge=[];for(let k=0;k<=rings;k++)edge.push(pt(0,k));for(let k=rings;k>=0;k--)edge.push(pt(m-1,k));
  for(let i=0;i<edge.length-1;i++){const A=[x,y,z],B=edge[i],C=edge[i+1];const tri=[A,B,C];const cr=(B[0]-A[0])*(C[2]-A[2])-(B[2]-A[2])*(C[0]-A[0]);const T3=cr>0?[A,C,B]:tri;for(const q of T3){fp.push(q[0],y,q[2]);fn.push(0,1,0);fu.push(q[0]/2.5,q[2]/2.5)}}
- b.raw('floor',fp,fn,fu);
+ b.raw(o.floor||'floor',fp,fn,fu);
  /* spots for veins on the face, facing back down the tunnel */
  return[[-.8,1.3,.7],[.5,.9,.9],[1.1,1.8,.55]].map(([sx,yy,f])=>[x+r[0]*sx+v[0]*f,y+yy,z+r[1]*sx+v[1]*f,-v[0],-v[1]])}
 
@@ -272,6 +273,8 @@ function ugSign(x,y,z,yaw,txt,back){const K=ugKit(),g=new THREE.Group();g.positi
    THE PIECES OF LEVEL 1 (batch 1): stations, tunnels, junctions, pillar rounds, ladderway, spiral decline
    ===================================================================================================== */
 const UGLY=L=>UGL[L].y-UGL[0].y;
+/* each level's rock and floor materials (level 1 warm brown, level 2 blue-grey, level 3 dark) */
+const ugRK=L=>L==0?'rock':'rock'+(L+1),ugFL=L=>L==0?'floor':'floor'+(L+1);
 /* yaw for a box whose length runs along local x, to lie along (dx,dz) */
 const ugYX=(dx,dz)=>Math.atan2(-dz,dx);
 /* a batch that throws everything away (to get a tunnel's frames without building it) */
@@ -298,7 +301,7 @@ function ugDoorsFor(p,r,extra){const T=ugT(p),ds=[];const on=(x,z)=>(Math.abs(x-
 function ugStationBuild(b,p,L,ctx){const y=UGLY(L),h=L==0?4.6:4.2,hs=L==0?8:6,r={x0:-hs,x1:hs,z0:-hs,z1:hs},v=p.d.v||0;
  const wall=L==0?['rock','plank','brick'][v]:'rock'+(L==0?'':L+1);
  const sh=1.6;/* the shaft: 3.2 m square, open through floor and roof */
- ugRectRoom(b,p,r,h,y,{doors:ugDoorsFor(p,r),wall,rock:L==0?'rock':'rock'+(L+1),holes:[{x0:-sh,x1:sh,z0:-sh,z1:sh,both:1}],roof:L==0&&v==2?'flat':'rock'});
+ ugRectRoom(b,p,r,h,y,{doors:ugDoorsFor(p,r),wall,rock:L==0?'rock':'rock'+(L+1),floor:ugFL(L),holes:[{x0:-sh,x1:sh,z0:-sh,z1:sh,both:1}],roof:L==0&&v==2?'flat':'rock'});
  /* shaft lining: timber boards up 3 m above the roof and 1.5 m down into the sump, on all four sides; the -x side
     (where you step out) is open between the guides and has the landing gate */
  for(const [ax,az,yaw] of[[0,-sh,0],[sh,0,-Math.PI/2],[0,sh,Math.PI],[-sh,0,Math.PI/2]]){
@@ -389,9 +392,9 @@ function ugLadder(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),y1=UGLY(p.L+1),h=3.9;
  /* the landings are full tunnel width (4 m) so the tunnels that meet them fit their doorways exactly */
  const H={x0:-.75,x1:.75,z0:-5.35,z1:-3.85};const hc=[T(H.x0,H.z0),T(H.x1,H.z1)],hole={x0:Math.min(hc[0][0],hc[1][0]),x1:Math.max(hc[0][0],hc[1][0]),z0:Math.min(hc[0][1],hc[1][1]),z1:Math.max(hc[0][1],hc[1][1])};
  /* upper landing: the doorway from the tunnel, the hatch in the floor */
- ugRectRoom(b,p,{x0:-2,x1:2,z0:-6.5,z1:0},h,y0,{doors:[{x:p.x,z:p.z,hw:2}],holes:[Object.assign({},hole)]});
+ ugRectRoom(b,p,{x0:-2,x1:2,z0:-6.5,z1:0},h,y0,{doors:[{x:p.x,z:p.z,hw:2}],holes:[Object.assign({},hole)],rock:ugRK(p.L),floor:ugFL(p.L)});
  /* lower landing: the raise comes through its roof, a doorway out at the far end */
- const ex=T(0,-8);ugRectRoom(b,p,{x0:-2,x1:2,z0:-8,z1:-1.5},h,y1,{doors:[{x:ex[0],z:ex[1],hw:2}],holes:[Object.assign({roof:1},hole)],rock:'rock2'});
+ const ex=T(0,-8);ugRectRoom(b,p,{x0:-2,x1:2,z0:-8,z1:-1.5},h,y1,{doors:[{x:ex[0],z:ex[1],hw:2}],holes:[Object.assign({roof:1},hole)],rock:ugRK(p.L+1),floor:ugFL(p.L+1)});
  /* the raise: four plank walls from the lower roof to the upper floor, a ladder on one side, landings every 3 m */
  const top=y0-.02,bot=y1+h+.02,cx=(hole.x0+hole.x1)/2,cz=(hole.z0+hole.z1)/2,hx=(hole.x1-hole.x0)/2,hz=(hole.z1-hole.z0)/2,hgt=top-bot;
  b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z0-.03,0);b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z1+.03,0);b.box('plank',.06,hgt,2*hz,hole.x0-.03,bot+hgt/2,cz,0);b.box('plank',.06,hgt,2*hz,hole.x1+.03,bot+hgt/2,cz,0);
@@ -408,7 +411,7 @@ function ugDecline(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),drop=UGLY(p.L)-UGLY(p.L+
  const loc=[[0,0],[0,-8]].concat(ugArc(6,-8,6,Math.PI,4*Math.PI,54).slice(1)).concat([[12,0]]);
  const L=[0];for(let i=1;i<loc.length;i++)L.push(L[i-1]+Math.hypot(loc[i][0]-loc[i-1][0],loc[i][1]-loc[i-1][1]));const tot=L[L.length-1];
  const pts=loc.map((q,i)=>{const w=T(q[0],q[1]),u=Math.max(0,Math.min(1,(L[i]-1.5)/(tot-3)));return[w[0],y0-drop*u,w[1]]});
- ugTube(b,pts,{fil:0,rails:false,lampsOut:ctx.lamps,amp:.2});
+ ugTube(b,pts,{fil:0,rails:false,lampsOut:ctx.lamps,amp:.2,rock:ugRK(p.L),floorKey:ugFL(p.L)});
  const c=T(6,-8);ctx.decl.push({x:c[0],z:c[1],y0,drop})}
 
 /* =====================================================================================================
@@ -429,6 +432,7 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
   if(t=='tee'||t=='cross'){ugJunction(b,p,L,ctx);continue}
   if(t=='round'){ugRound(b,p,L,ctx);continue}
   if(t=='old')continue;
+  if(typeof ugPieceL2=='function'&&ugPieceL2(b,p,L,ctx))continue;   /* levels 2 and 3 (quarry-under-l2.js) */
   /* tunnels (drive, bend, collapsed, dug joins) and, for now, the rooms of batch 2 as plain shells */
   const W=ugWorld(p);
   for(const s of W.shp){
@@ -441,7 +445,7 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
    else if(s.k=='rect'){const lr=p.d.shp.find(q=>q.k=='rect');const r={x0:lr.x0,x1:lr.x1,z0:lr.z0,z1:lr.z1};ugRectRoom(b,p,r,t=='stope'?5.5:3.6,y,{doors:ugDoorsFor(p,r)})}}
  }
  /* working faces at the ends where nothing fitted */
- for(const o of plan.open)if(o.cap&&o.L==L){const par=plan.P[o.par];if(!par)continue;const hw=2;const sp=ugFace(b,o.x,y,o.z,o.dir,hw);const R=ugRng(Math.round(o.x*13+o.z*7));for(const q of sp)if(R()<.8)ctx.veins.push({x:q[0],y:q[1],z:q[2],dx:q[3],dz:q[4],t:R()<.25?'ag':R()<.6?'fe':'cu'})}
+ for(const o of plan.open)if(o.cap&&o.L==L){const par=plan.P[o.par];if(!par)continue;const hw=2;const sp=ugFace(b,o.x,y,o.z,o.dir,hw,{rock:ugRK(L),floor:ugFL(L)});const R=ugRng(Math.round(o.x*13+o.z*7));for(const q of sp)if(R()<.8)ctx.veins.push({x:q[0],y:q[1],z:q[2],dx:q[3],dz:q[4],t:R()<.25?'ag':R()<.6?'fe':'cu'})}
  /* rail ends that meet nothing (another rail end, a turn plate, a buffer) get a buffer stop */
  for(const e of ctx.ends){if(ctx.ends.some(f=>f!==e&&Math.hypot(f.x-e.x,f.z-e.z)<.06&&Math.abs(f.y-e.y)<.1))continue;if(ctx.plates.some(q=>Math.hypot(q[0]-e.x,q[1]-e.z)<(q[2]||1.0)))continue;ugBuffer(b,e.x,e.y,e.z,e.dx,e.dz,ctx)}
  b.build(g,K.mat);
