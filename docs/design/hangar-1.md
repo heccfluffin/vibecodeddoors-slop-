@@ -1,4 +1,4 @@
-Status: approved by the user 2026-10-17 (layout and all four batches), to build
+Status: building (Claude Code, 2026-10-20) · was: approved by the user 2026-10-17 (layout and all four batches), to build
 
 # Hangar 1 rework (the X-13 Wraith hangar)
 

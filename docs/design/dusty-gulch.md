@@ -1,4 +1,4 @@
-Status: approved, all parts (layout, batches 1-4, five interiors) by the user 2026-10-17 · to build
+Status: building (Claude Code, 2026-10-20) · was: approved, all parts (layout, batches 1-4, five interiors) by the user 2026-10-17 · to build
 
 # Dusty Gulch rework
 

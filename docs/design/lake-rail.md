@@ -1,4 +1,4 @@
-Status: complete, all approved 2026-10-18 (lake 1-2, observatory, Dino Dan's, railway track and crossings, the train) · ready to build
+Status: building (Claude Code, 2026-10-20) · was: complete, all approved 2026-10-18 (lake 1-2, observatory, Dino Dan's, railway track and crossings, the train) · ready to build
 
 # Mirage Lake, the observatory, Dino Dan's and the railway
 

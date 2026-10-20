@@ -1,4 +1,4 @@
-Status: approved · ready to build (2026-10-19): layout and batches 1-6
+Status: building (Claude Code, 2026-10-20) · was: approved · ready to build (2026-10-19): layout and batches 1-6
 
 # The Pyramid rework (remodel list #20)
 
