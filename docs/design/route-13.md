@@ -165,6 +165,57 @@ stand and every prop stay as they are.
 - Checked: z-fight and floating checker clean except for faces hidden under the shop's roof and the brushes, which
   hang from their gantries.
 
+### Batch 3: Motel 13, for review · `rtMotel(g)` → `{obs, lights, doors, tvs, spots, plates}`, `rtMotelLot(g)` → `{obs, lights, neon, vac, cars, mapR}`, `rtMotelPool(g)` → `{obs, plates}`
+These replace the whole base motel block (`/* ---- MOTEL 13: four rooms you can walk into ...` in the far-desert
+builder, from `const mx=64,mz=-902` to its `q.locs.push({nm:'Motel 13'...})`) and the `T('motel back',...)` block.
+Keep every prop and its text, the noise TV game (`q.tvs`, `noisePush`/`noiseOut`), `q.d13`, the ice machine's
+cooldown and heal, the loc 'Motel 13' at (76, -902). Only their places change; `spots` has them all.
+- **Turned round:** the doors face south. Seen from the car park the doors read **10, 11, 12, 14, OFFICE** from left
+  to right: room 10 is at the east end (x 82…88), then 11, 12, and room 14 at x 64…70 beside the new office. (Not a
+  straight 180° turn: the rooms are mirrored north-south and renumbered so the order still reads left to right from
+  the car park. The insides are the old ones, mirrored.) The painted door 13 is on room 14's east wall, the wall it
+  shares with room 12, between the dresser and the bathroom. The lipstick message is still in room 12.
+- **Building:** office x 56…64, rooms x 64…88, front wall z -905, back wall z -899, walls 20 cm thick on those lines,
+  3 m high; cream stucco outside, striped wallpaper in the rooms, pine panelling in the office; a flat roof (3.0…3.25)
+  with a white ceiling and soffit, a 2 m overhang over the walkway and a turquoise fascia with a white cap. All of
+  it is static and can be batched except the door hinges, the TVs, the office fan and the washing.
+- **Doors (`doors`):** `{n, hinge, x, z, ob}` for rooms 14, 12, 11, 10 and the office (`n:'office'`). The hinge is
+  on the door's west edge; the base code's `hinge.rotation.y=-st.a` swings it **into** the room. `ob` is the door's
+  obstacle (already in `obs`): take it out of `q.obs` while open, as the base does. The props: outside at
+  (x, -906.0), inside at (x, -904.1); the "standing in the doorway" check uses z -905. Give the office door the same
+  open/close prop ("[E] Open the office"). Each door has a brass number, and there is a lamp beside every door.
+- **Rooms:** for each `spots.rooms[i]` = `{n, x0, door, bed, mirror, tv, ac, d13?}`: bed prop at `bed`, mirror prop
+  at `mirror`, TV prop at `tv`, door 13 prop at `d13` (room 14). `tvs[i]` = `{tg, screen, x, z}`: push
+  `{tg, x, z, off:0, n:0}` to `q.tvs` and set `screen.material.map = STT` (the game's static).
+- **Office (new):** a big window with a lit VACANCY sign, a counter with a bell, the guest book and BACK IN 13 MINUTES,
+  a key board (10, 11, 12, 13, 14; the 13 hook has a key), a 13-hour clock, a calendar, a ceiling fan
+  (`spots.fan`, turn it about y), a bench, a postcard rack, a water cooler, a cactus, a leaflet rack. New props:
+  "[E] Ring the bell" at `spots.bell` (ding; nobody comes; the sign says BACK IN 13 MINUTES; it said that last time
+  too), "[E] Look at the keys" at `spots.keys` (keys for 10, 11, 12 and 14, and one for 13 that fits nothing), "[E]
+  Read the guest book" at `spots.book` (every name is "A. Traveller", every one checked in, none checked out). A lit
+  OFFICE box sign stands on the roof over the office.
+- **Ice machine** on the walkway by the office door, (56.75, -905.55); its prop at `spots.ice`.
+- **Walkway:** concrete, 12 cm high, z -906.9…-905.1, x 55.9…88.1, white posts; push `plates` (y .12) so you stand on
+  it. Concrete sills in the doorways.
+- **Back yard** (north side, gravel to z -894.6): an air conditioner on a bracket and a frosted bathroom window per
+  room, drainpipes, the dumpster (76, -896.6, label facing the building), the propane cage (67.1, -897.4), the washing
+  line between (79.5, -895.6) and (85.5, -895.6) with four sheets (`spots.sheets`: sway them about x, as the base
+  does). The ice machine moved to the front.
+- **Car park (`rtMotelLot`):** asphalt x 56…90, z -925.5…-906.9 (painted: ten bays nose-in to the walkway, OFFICE in
+  the two office bays, the room numbers in the others, MOTEL 13 GUESTS ONLY in the aisle for cars coming in), concrete
+  wheel stops (drive over them), two lot lamps on the south edge, a P · MOTEL GUESTS ONLY sign. The two guests' cars
+  (`mkOldCar`) go at `cars` ([x, z, ry], nose to the walkway). Add `mapR`.
+- **Motel Rd:** the game's own road, `road(56,-922,3.5,-922)` (Route 13 to the car park; it ends where the car park
+  starts). The batch 1 shoulders already leave its mouth open.
+- **Neon sign** at the car park entrance (54, -917), by Motel Rd, seen from Route 13: a concrete foot, a pole, a big
+  double-sided MOTEL 13 board (· KING BEDS · COLOR TV · ICE ·) with a pink tube border, VACANCY under it, a gold star
+  on top. Flicker `neon` (the base's 4% flicker on `material.opacity`); `vac` stays lit. Its light is in `lights`.
+- **Pool (`rtMotelPool`)** stays at x 92.5…99.5, z -905.5…-901.5: a concrete deck (x 90.5…101.5, z -907.5…-899.5,
+  `plates` y .06), a tiled coping with 3 FT / 13 FT marks, water light at the shallow end and dark at the deep end,
+  a ladder, two loungers with towels, an umbrella and the rules (NO LIFEGUARD · NO DIVING · NO RUNNING · NO SEEK).
+- Checked: z-fight checker clean; the only "floating" hits are the AC grilles and drawer fronts, which are on the
+  faces of their boxes.
+
 ## Things Claude Code has to keep in mind
 - **Seeded random:** everything here is built inside the seeded desert load steps; add or remove `Math.random()`
   calls and everything built after them changes. Burn the same number of calls where old code is removed (as
