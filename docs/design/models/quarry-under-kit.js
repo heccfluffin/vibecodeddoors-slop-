@@ -27,6 +27,13 @@ function ugKit(){
   for(let i=0;i<5;i++){const x=rnd()*w,y=rnd()*h;k.fillStyle='rgba(50,30,14,.5)';k.beginPath();k.ellipse(x,y,3,7,0,0,7);k.fill()}});
  UGK.brickT=ugCanvas(256,256,(k,w,h)=>{k.fillStyle='#5a4a3e';k.fillRect(0,0,w,h);for(let r=0;r<16;r++)for(let c=0;c<5;c++){const x=c*52+(r%2?26:0),y=r*16;const v=rnd();k.fillStyle='rgb('+(130+v*40|0)+','+(70+v*25|0)+','+(48+v*18|0)+')';k.fillRect(x+2,y+2,48,12);if(x+52>w){k.fillRect(x+2-w,y+2,48,12)}}});
  UGK.plankT=ugCanvas(256,256,(k,w,h)=>{for(let i=0;i<8;i++){const v=rnd();k.fillStyle='rgb('+(118+v*30|0)+','+(84+v*20|0)+','+(52+v*12|0)+')';k.fillRect(i*32,0,32,h);k.fillStyle='rgba(30,18,8,.6)';k.fillRect(i*32,0,2,h);for(let j=0;j<10;j++){k.strokeStyle='rgba(50,30,14,.25)';k.beginPath();const x=i*32+4+rnd()*24;k.moveTo(x,0);k.lineTo(x+Math.sin(j)*3,h);k.stroke()}}});
+ /* water ripples: a tiling normal map from a few waves and soft blobs (the game scrolls its offset slowly) */
+ UGK.poolN=(()=>{const W=256,H=new Float32Array(W*W),bl=[];for(let i=0;i<70;i++)bl.push([rnd()*W,rnd()*W,6+rnd()*18,rnd()<.5?-1:1]);
+  for(let y=0;y<W;y++)for(let x=0;x<W;x++){let h=Math.sin((x*3+y*1)/W*6.283)*.5+Math.sin((x*-2+y*5)/W*6.283)*.35+Math.sin((x*7-y*4)/W*6.283)*.18;
+   for(const b of bl){let dx=Math.abs(x-b[0]),dy=Math.abs(y-b[1]);dx=Math.min(dx,W-dx);dy=Math.min(dy,W-dy);const d=(dx*dx+dy*dy)/(b[2]*b[2]);if(d<4)h+=b[3]*.25*Math.exp(-d)}H[y*W+x]=h}
+  return ugCanvas(W,W,(k)=>{const im=k.createImageData(W,W);for(let y=0;y<W;y++)for(let x=0;x<W;x++){const hx=H[y*W+(x+1)%W]-H[y*W+(x+W-1)%W],hy=H[((y+1)%W)*W+x]-H[((y+W-1)%W)*W+x];
+   let nx=-hx*3,ny=-hy*3,nz=1;const l=Math.hypot(nx,ny,nz);nx/=l;ny/=l;nz/=l;const i=(y*W+x)*4;im.data[i]=(nx*.5+.5)*255;im.data[i+1]=(ny*.5+.5)*255;im.data[i+2]=(nz*.5+.5)*255;im.data[i+3]=255}k.putImageData(im,0,0)})})();
+ UGK.poolN.repeat.set(3,3);
  const M=(o)=>{const m=new THREE.MeshStandardMaterial(Object.assign({roughness:.9},o));return m};
  UGK.mat={
   rock:M({map:UGK.rockT,color:0xd0bca4}),rock2:M({map:UGK.rockT,color:0x9aa4b0}),rock3:M({map:UGK.rockT,color:0x7a6a64}),
@@ -40,13 +47,19 @@ function ugKit(){
   board:M({color:0x3a2c1e,roughness:.85}),paper:M({color:0xe8dcc0,roughness:.9}),green:M({color:0x2f5a3a,roughness:.7}),
   oreRock:M({map:UGK.rockT,color:0x5a4a3c}),fill:M({map:UGK.gravT,color:0xf0e0c0}),
   water:new THREE.MeshStandardMaterial({color:0x183038,roughness:.06,metalness:.3,transparent:true,opacity:.9}),
-  waterS:new THREE.MeshStandardMaterial({color:0x4a7a84,roughness:.08,metalness:.2,transparent:true,opacity:.5,depthWrite:false}),
+  waterS:new THREE.MeshStandardMaterial({color:0x4a7a84,roughness:.1,metalness:.2,transparent:true,opacity:.45,depthWrite:false,normalMap:UGK.poolN,normalScale:new THREE.Vector2(.25,.25)}),
+  /* deep water: a see-through rippled surface, darker layers under it that only cover where the basin is deeper
+     (so the middle looks deeper than the edges), and wet rock for the basin */
+  pool:new THREE.MeshStandardMaterial({color:0x1a3236,roughness:.16,metalness:.3,transparent:true,opacity:.62,depthWrite:false,normalMap:UGK.poolN,normalScale:new THREE.Vector2(.22,.22)}),
+  poolD:new THREE.MeshBasicMaterial({color:0x07120f,transparent:true,opacity:.2,depthWrite:false}),
+  wetRock:M({map:UGK.rockT,color:0x6e5a48,roughness:.35}),
   beam:new THREE.MeshBasicMaterial({color:0xfff0c0,transparent:true,opacity:.16,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}),
   sky:new THREE.MeshBasicMaterial({color:0xfff4dc}),
   white:M({color:0xe8e4dc,roughness:.6}),red:M({color:0xb02a20,roughness:.6}),dark:M({color:0x2a2c30,metalness:.5,roughness:.5}),
   brass:M({color:0xc8a040,metalness:.7,roughness:.35}),cloth:M({color:0x6a7a5a,roughness:1}),
   lampG:new THREE.MeshStandardMaterial({color:0xfff0c8,emissive:0xffd890,emissiveIntensity:1.2,roughness:.4})};
  for(const k in UGK.mat)UGK.mat[k].userData.ug=k;
+ UGK.mat.poolD.userData.ro=1;UGK.mat.pool.userData.ro=2;UGK.mat.waterS.userData.ro=2;
  UGK.ore={cu:[0xd07a40,0x5a2410],fe:[0x8a8a90,0x202024],ag:[0xe0e4ea,0x404850],au:[0xffc830,0x806000],cr:[0x60e0ff,0x2080c0],dm:[0xe8f8ff,0x8ab0d0],ur:[0x9cff5a,0x3a8a20]};
  UGK.oreM={};for(const k in UGK.ore)UGK.oreM[k]=new THREE.MeshStandardMaterial({color:UGK.ore[k][0],emissive:UGK.ore[k][1],emissiveIntensity:.9,metalness:k=='cr'||k=='dm'?.1:.45,roughness:.3});
  return UGK;
@@ -68,7 +81,7 @@ function ugBatch(){const B={};const self={
  build(parent,mats){for(const k in B){const L=B[k];let n=0;for(const g of L)n+=g.attributes.position.count;const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2);let o=0;
    for(const g of L){const c=g.attributes.position.count;P.set(g.attributes.position.array,o*3);N.set(g.attributes.normal.array,o*3);if(g.attributes.uv)U.set(g.attributes.uv.array,o*2);o+=c;g.dispose()}
    const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(P,3));G.setAttribute('normal',new THREE.BufferAttribute(N,3));G.setAttribute('uv',new THREE.BufferAttribute(U,2));G.computeBoundingSphere();
-   const me=new THREE.Mesh(G,mats[k]);me.userData.noSeam=true;me.userData.ugKey=k;parent.add(me)}}};
+   const me=new THREE.Mesh(G,mats[k]);me.userData.noSeam=true;me.userData.ugKey=k;me.renderOrder=mats[k].userData.ro||0;parent.add(me)}}};
  return self}
 
 /* ---------- tunnel profile: vertical walls, then a flattened arch. hw = half width ---------- */

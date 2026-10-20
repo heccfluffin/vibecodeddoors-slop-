@@ -326,7 +326,8 @@ shapes keep them clear of doorways and paths.
   - *Cribbed stope*: timber cribs up to the roof and rock benches.
   - *Shrinkage stope*: a big muck pile of broken ore, a 2.4 m rock ledge along one wall and a ladder leaning on it.
   - *Glory hole*: a hole in the roof up a 9 m raise to daylight; a shaft of light falls on the floor (a strong lamp).
-  - *Flooded stope*: a pool with stones round its rim and a plank walkway along the wall.
+  - *Flooded stope*: a deep pool in a basin that shelves down from the edge (2.3 m deep in the middle), stones round
+    its rim and a plank walkway along the wall. The pool's edge blocks walking like a pit's rim.
   - *Catwalk stope*: a 7 m deep pit with a rocky lip, crossed by a plank catwalk on beams with handrails.
   - *Cut-and-fill stope*: a raised fill floor, an ore chute, a winch and its cable.
 - **Crib room** (3.4 m): *Crib room* (table, benches, stove with its pipe, a kettle, SAFETY FIRST), *Lamp room*
@@ -340,6 +341,14 @@ shapes keep them clear of doorways and paths.
 - **Pump room** (3.9 m), each round a hole in the floor (rock lip, fence that stops short of the doors):
   *Pump room* (sump with water, pump and pipe), *Winder room* (winder drum, sheave and cable down the shaft),
   *Mine workshop* (benches, anvil, a forge with its glow), *Compressor room* (compressor, air tank and pipe).
+- **Deep water** (`ugPool`, used by the flooded stope and the pump sump; level 2's lakes will use it too): the
+  surface sits a little below the floor (0.25 m in the stope, 0.6 m in the sump), so a band of wet rock shows above
+  it. The surface is see-through dark green with a rippled normal map (`UGK.poolN`; **the game scrolls its offset
+  slowly**, about 0.012 and 0.007 per second). Under it, six faint dark layers each cover only where the basin is
+  deeper than they are, so the middle looks deep and the shelving edge looks shallow, with no shader work. Water
+  materials draw after the rock (`renderOrder` from the material's `userData.ro`) and don't write depth. The
+  flooded magazine's ankle-deep water uses the same ripples. (The user asked for water with depth, 2026-10-20: the
+  first version was a flat disc on the floor.)
 - **Wall signs** fit their text: the sign canvas has the board's shape and long text shrinks to fit (the first
   try cut "DANGER · EXPLOSIVES" off at the edge).
 

@@ -23,7 +23,7 @@ function ugInside(g){g=g.index?g.toNonIndexed():g;const P=g.attributes.position.
  for(let i=0;i<P.length;i+=9)for(let k=0;k<3;k++){let t=P[i+3+k];P[i+3+k]=P[i+6+k];P[i+6+k]=t;t=N[i+3+k];N[i+3+k]=N[i+6+k];N[i+6+k]=t}
  for(let i=0;i<U.length;i+=6)for(let k=0;k<2;k++){const t=U[i+2+k];U[i+2+k]=U[i+4+k];U[i+4+k]=t}for(let i=0;i<N.length;i++)N[i]=-N[i];return g}
 /* a rocky lip round a hole in the floor (covers the seam between the floor's edge and the hole's wall) */
-function ugLip(L,cx,cz,rx,rz){const g=new THREE.RingGeometry(.9,1.12,48);g.rotateX(-Math.PI/2);const sx=rx,sz=rz;L.geo('oreRock',g,cx,.012,cz,0,0,0,sx,1,sz)}
+function ugLip(L,cx,cz,rx,rz,inner){const g=new THREE.RingGeometry(inner||.9,1.12,48);g.rotateX(-Math.PI/2);const sx=rx,sz=rz;L.geo('oreRock',g,cx,.012,cz,0,0,0,sx,1,sz)}
 /* ore veins along a room's walls: every `gap` metres or so, skipping doorways and corners. r: the room rect (local),
    doors: local [x,z] points on the outline, ys: [min,max] height, types: weights. Returns nothing; pushes to ctx.veins */
 function ugWallVeins(L,r,doors,ctx,R,o){o=o||{};const gap=o.gap||3,ys=o.ys||[.9,2.1],pick=o.pick||(()=>R()<.15?'ag':R()<.55?'fe':'cu');
@@ -39,6 +39,18 @@ function ugHangLamp(L,ctx,x,z,y0,top,str){L.cyl('wire',.008,.008,top-y0-.2,x,(to
 /* a pile of loose rock (rubble or broken ore): a low mound and stones on it */
 function ugPile(L,R,x,z,rx,rz,h,key){const m=new THREE.SphereGeometry(1,14,7,0,Math.PI*2,0,Math.PI/2);L.geo(key||'oreRock',m,x,0,z,0,0,0,rx,h,rz);
  for(let i=0;i<Math.round(rx*rz*3);i++){const a=R()*6.28,rr=Math.sqrt(R())*.85,px=x+Math.cos(a)*rx*rr,pz=z+Math.sin(a)*rz*rr,py=h*Math.sqrt(Math.max(0,1-rr*rr))*.92;const s=.12+R()*.22;L.geo(key||'oreRock',new THREE.DodecahedronGeometry(s,0),px,py,pz,R()*3,R()*3,0)}}
+/* deep water in a hole in the floor (local coords). q: the hole's ellipse {cx,cz,rx,rz}.
+   o.bowl: a basin that shelves down from the edge (a stope pool); otherwise straight sides (a sump, o.dep deep).
+   The surface sits o.surf below the floor, so a band of wet rock shows above it; darker layers below it make the
+   middle look deep. */
+function ugPool(L,q,o){o=o||{};const surf=o.surf==null?-.25:o.surf,dep=o.dep||2.3;let rAt;
+ if(o.bowl){const pr=[[1,0],[.97,-.15],[.9,-.38],[.82,-.55],[.62,-1.15],[.42,-1.7],[.2,-2.1],[0,-dep]];
+  rAt=d=>{for(let i=1;i<pr.length;i++)if(d>=pr[i][1]){const a=pr[i-1],b=pr[i],t=(d-a[1])/(b[1]-a[1]);return a[0]+(b[0]-a[0])*t}return 0};
+  const g=new THREE.LatheGeometry(pr.map(p=>new THREE.Vector2(p[0],p[1])),48);const uv=g.attributes.uv,per=Math.PI*(q.rx+q.rz)/4;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*per,uv.getY(i)*1.6);
+  L.geo('wetRock',g,q.cx,0,q.cz,0,0,0,q.rx,1,q.rz)}
+ else{rAt=()=>1;L.geo('wetRock',new THREE.CircleGeometry(1,28),q.cx,-dep,q.cz,0,-Math.PI/2,0,q.rx,1,q.rz)}
+ L.geo('pool',new THREE.CircleGeometry(1,64),q.cx,surf,q.cz,0,-Math.PI/2,0,q.rx*rAt(surf)*1.01,q.rz*rAt(surf)*1.01,1);
+ for(const f of[.12,.26,.4,.54,.68,.82]){const d=surf+(-dep-surf)*f,r=rAt(d)*1.03;if(r>.05)L.geo('poolD',new THREE.CircleGeometry(1,48),q.cx,d,q.cz,0,-Math.PI/2,0,q.rx*r,q.rz*r,1)}}
 /* a plain sign on a backing board against a wall: local position on the wall, (ix,iz) pointing into the room */
 function ugWallSign(L,ctx,x,yy,z,ix,iz,txt,w){const a=Math.atan2(ix,iz);L.box('board',w+.1,.44,.3,x-ix*.13,yy,z-iz*.13,a);const p=L.pt(x+ix*.025,yy,z+iz*.025);ctx.signs.push({x:p.x,y:p.y,z:p.z,yaw:L.yaw(a),txt,w})}
 
@@ -52,7 +64,7 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
  const lpit=(cx,cz,rx,rz)=>{const c=L.pt(cx,0,cz),sw=p.r%2==1;return{cx:c.x,cz:c.z,rx:sw?rz:rx,rz:sw?rx:rz}};
 
  if(t=='stope'){const h=5.5;
-  const pit=fx('pit')[0],sun=fx('sun')[0];
+  const pit=fx('pit')[0]||fx('water').find(w=>w.deep),sun=fx('sun')[0];
   room(h,{pits:pit?[lpit(pit.cx,pit.cz,pit.rx,pit.rz)]:[],holes:sun?[Object.assign({roof:1},lrect(-1.6,1.6,-11.6,-8.4))]:[],floor:v==5?'fill':'floor'});
   for(const q of[[-3,-6],[3,-14]])ugHangLamp(L,ctx,q[0]*mx,q[1],3.4,h,1.2);
   if(v==0){for(const f of fx('cribs'))for(const q of f.pts)ugCrib(L.box?{box:(k,w,hh,d,x,yy,z,ry)=>L.box(k,w,hh,d,x,yy-y,z,ry)}:b,q[0],y,q[1],h);
@@ -71,7 +83,7 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
    const beam=new THREE.CylinderGeometry(1.25,1.55,h+H-.1,20,1,true);L.geo('beam',beam,0,(h+H)/2,-10);L.geo('beam',new THREE.CircleGeometry(1.6,24),0,.015,-10,0,-Math.PI/2);
    const w=L.pt(0,h+1,-10);ctx.lamps.push([w.x,w.y,w.z,2.2]);
    for(const f of fx('cribs'))for(const q of f.pts)ugCrib({box:(k,ww,hh,d,x,yy,z,ry)=>L.box(k,ww,hh,d,x,yy-y,z,ry)},q[0],y,q[1],h)}
-  if(v==3){const wf=fx('water')[0];L.geo('water',new THREE.CircleGeometry(1,40),wf.cx,.06,wf.cz,0,-Math.PI/2,0,wf.rx,wf.rz,1);
+  if(v==3){const wf=fx('water')[0];ugPool(L,wf,{bowl:1,surf:-.25,dep:2.3});ugLip(L,wf.cx,wf.cz,wf.rx,wf.rz,.995);
    for(let i=0;i<26;i++){const a=i/26*6.28,s=.18+R()*.2;L.geo('oreRock',new THREE.DodecahedronGeometry(s,0),wf.cx+Math.cos(a)*(wf.rx+.15),s*.5,wf.cz+Math.sin(a)*(wf.rz+.15),R()*3,R()*3,0)}
    const wk=fx('walk')[0],a=wk.pts[0],c=wk.pts[1];for(let z=a[1]-.2;z>c[1]+.2;z-=.3)L.box('woodD',1.1,.05,.26,a[0],.17,z,0);for(let z=a[1]-.5;z>c[1];z-=2)for(const sd of[-.5,.5])L.box('wood',.1,.14,.1,a[0]+sd,.07,z,0)}
   if(v==4){const pt=fx('pit')[0],D=7;
@@ -124,7 +136,7 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
   room(h,{pits:pit?[lpit(pit.cx,pit.cz,pit.rx,pit.rz)]:[]});ugHangLamp(L,ctx,0,-5,2.8,h,1.1);
   const blk=n=>(fx('blk').find(f=>f.n==n)||{pts:[]}).pts;
   /* a hole in the floor: rock sides going down, water or black at the bottom, a fence round it */
-  const hole=(q,dep,wet)=>{const cg=ugInside(new THREE.CylinderGeometry(1.012,1,dep,40,2,true));cg.scale(q.rx,1,q.rz);L.geo('rock',cg,q.cx,-dep/2,q.cz);ugLip(L,q.cx,q.cz,q.rx,q.rz);L.geo(wet?'water':'black',new THREE.CircleGeometry(1,28),q.cx,wet?-.6:-dep,q.cz,0,-Math.PI/2,0,q.rx,q.rz,1);
+  const hole=(q,dep,wet)=>{const cg=ugInside(new THREE.CylinderGeometry(1.012,1,dep,40,2,true));cg.scale(q.rx,1,q.rz);L.geo('rock',cg,q.cx,-dep/2,q.cz);ugLip(L,q.cx,q.cz,q.rx,q.rz);if(wet)ugPool(L,q,{surf:-.6,dep});else L.geo('black',new THREE.CircleGeometry(1,28),q.cx,-dep,q.cz,0,-Math.PI/2,0,q.rx,q.rz,1);
    const n=Math.max(8,Math.round((q.rx+q.rz)*2.4));for(let i=0;i<n;i++){const a=i/n*6.28,a2=(i+1)/n*6.28,x=q.cx+Math.cos(a)*(q.rx+.35),z=q.cz+Math.sin(a)*(q.rz+.35),x2=q.cx+Math.cos(a2)*(q.rx+.35),z2=q.cz+Math.sin(a2)*(q.rz+.35);
     if(doors.some(d=>Math.hypot(d[0]-x,d[1]-z)<1.6))continue;L.box('wood',.07,1,.07,x,.5,z,0);L.box('wood',Math.hypot(x2-x,z2-z)+.04,.06,.06,(x+x2)/2,.98,(z+z2)/2,Math.atan2(-(z2-z),x2-x))}};
   if(v==0){hole(pit,2.4,true);const pm=blk('pump')[0];L.box('dark',1.2,.25,1.4,pm[0],.125,pm[1],0);L.cyl('steel',.32,.32,1.1,pm[0],.8,pm[1]+.3,16);L.cyl('dark',.55,.55,.12,pm[0]+.45*mx,.75,pm[1]-.3,20,0,0,Math.PI/2);
