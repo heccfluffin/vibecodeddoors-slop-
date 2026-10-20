@@ -300,7 +300,10 @@ of a real plan this way.
   with sets and lamps all the way.
 - **Working faces**: a rough dome closing the tunnel end, with 2-3 veins on it.
 - **Ore veins** (`ugVein(type)`): a dark rock patch with 8 metal nuggets in the ore's colour; a separate group
-  per vein (they get broken), set 6 cm into the wall facing out. Tunnels get one every 5-9 m on alternate walls.
+  per vein (they get broken), set 6 cm into the wall facing out. Every vein is placed on the real wall surface: the noise that
+  pushes the rock out is worked out at the vein's spot (`ugTubeWall` for tunnels, the same sum as `ugRoom` for rooms,
+  the wall's own points for caves). They used to sit at the un-pushed wall line, so many floated up to 0.2 m in
+  front of the rock (the user saw it). A test casts a ray at every vein's wall: none float now on three mines. Tunnels get one every 5-9 m on alternate walls.
 - **Merging**: everything static in a level goes through `ugBatch()` into one mesh per material (about 15 meshes for
   a whole level plus the veins and signs: 57 objects for level 1 of mine #4242). All `noSeam`. The game's `DP`
   batching should leave the mine alone, as now.
@@ -324,7 +327,9 @@ it turns with the piece. Solid props are in the version's `fx` as blocks with a 
 shapes keep them clear of doorways and paths.
 - **Stope** (5.5 m high, ore veins every ~1.9 m on the walls, a big seam in three versions):
   - *Cribbed stope*: timber cribs up to the roof and rock benches.
-  - *Shrinkage stope*: a big muck pile of broken ore, a 2.4 m rock ledge along one wall and a ladder leaning on it.
+  - *Shrinkage stope*: a big muck pile of broken ore against one long wall, a 2.4 m rock ledge along the other
+    (built into the wall, no gap behind it) and a ladder leaning on it; the way through the middle stays clear.
+    Its rich veins are on the room's wall above the ledge (they used to float on the ledge's open sides).
   - *Glory hole*: a hole in the roof up a 9 m raise to daylight; a shaft of light falls on the floor (a strong lamp).
   - *Flooded stope*: a deep pool in a basin that shelves down from the edge (2.3 m deep in the middle), stones round
     its rim and a plank walkway along the wall. The pool's edge blocks walking like a pit's rim.

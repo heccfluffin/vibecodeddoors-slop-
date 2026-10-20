@@ -75,7 +75,7 @@ const UGV={
  /* ---------- level 1 ---------- */
  stope:[
   {nm:'Cribbed stope',ds:'Timber cribs hold up the roof over rough rock benches. Lots of veins, often a big seam.'},
-  {nm:'Shrinkage stope',ds:'A tall stope half full of broken ore. Climb the timber ladder to a high ledge with rich veins.',fx:()=>[{k:'muck',cx:1.5,cz:-10,rx:4.4,rz:6},{k:'ledge',x0:-6.8,x1:-3.6,z0:-16,z1:-4},{k:'ladder2',x:-3.2,z:-10},{k:'icon',x:-5.2,z:-10,t:'🪜'}]},
+  {nm:'Shrinkage stope',ds:'A tall stope half full of broken ore. Climb the timber ladder to a high ledge with rich veins.',fx:()=>[{k:'muck',cx:4.2,cz:-10,rx:2.6,rz:5.6},{k:'ledge',x0:-6.8,x1:-3.6,z0:-16,z1:-4},{k:'ladder2',x:-3.2,z:-10},{k:'icon',x:-5.2,z:-10,t:'🪜'}]},
   {nm:'Glory hole',ds:'A raise up to the quarry floor lets a shaft of daylight in. Dust in the light, veins round the walls.',fx:()=>[{k:'sun',cx:0,cz:-10,r:3.2},{k:'cribs',pts:[[-4.5,-5],[4.5,-5],[-4.5,-15],[4.5,-15]]},{k:'icon',x:0,z:-10,t:'☀️'}]},
   {nm:'Flooded stope',ds:'Still, deep water over the bottom. Walk the edge or the plank walkway; veins above the waterline.',fx:()=>[{k:'water',cx:1.6,cz:-9.6,rx:5,rz:6,deep:1},{k:'walk',pts:[[-5.6,-2.4],[-5.6,-17.4]]},{k:'icon',x:1.6,z:-9.6,t:'💧'}]},
   {nm:'Catwalk stope',ds:'A deep open stope you cross on a timber catwalk. Veins on the walls beside it; don\'t look down.',fx:()=>[{k:'pit',cx:0,cz:-10,rx:5,rz:5},{k:'walk',pts:[[0,-3.6],[0,-16.4]]},{k:'icon',x:3,z:-10,t:'🕳️'}]},

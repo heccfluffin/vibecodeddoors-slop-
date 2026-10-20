@@ -23,7 +23,8 @@ function solids(d){const o=[];for(const f of d.fx){
  if(f.k=='desk')o.push({x:f.x,z:f.z,r:.7,n:'desk'});
  if(f.k=='drum')o.push({x:f.x,z:f.z,r:1.5,n:'drum'});
  if(f.k=='gey')o.push({x:f.x,z:f.z,r:.9,n:'geyser'});
- if(f.k=='rubble')o.push({x:f.x,z:f.z,r:1,n:'rubble'});}
+ if(f.k=='rubble')o.push({x:f.x,z:f.z,r:1,n:'rubble'});
+ if(f.k=='muck')o.push({x:f.cx,z:f.cz,r:Math.min(f.rx,f.rz)*.9,n:'muck pile'});}
  return o}
 /* hazards: a test function (true = you can't stand here) */
 function hazards(d){const h=[];for(const f of d.fx){
