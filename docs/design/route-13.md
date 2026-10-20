@@ -1,4 +1,4 @@
-Status: proposed (plan, part 1) · 2026-10-20
+Status: plan approved 2026-10-20 (with a car wash added) · model batches next
 
 # Route 13: the old town round the bus stop
 
@@ -49,6 +49,12 @@ globals start with `rt`.
    Route 13 and the PD road), a new canopy with green fascia and EL GOBLINO GAS letters on all four sides, new pumps
    on islands, a tall roadside price sign ("BREAD 12 · CHEESE 15 · GWEEN SODA 20"), an air and water post, and a
    remodelled shop front (stucco, a big window band, the sliding doors). **The shop's inside stays as it is.**
+   **A drive-through car wash** (the user, 2026-10-20) east of the shop: a tunnel building x 54…68, z -1009…-1001,
+   cars drive in from the west (the forecourt carries on east past the shop to x 72) and out to the east, then turn
+   north onto the PD road. Inside: two big spinning brushes, an overhead brush, spray arches, a dryer, lights that say
+   PULL FORWARD / STOP / GO. "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car is pulled through
+   slowly, brushes spin, foam and water, then a shine sparkle; it cleans off scorch marks and smoke and puts back a
+   little health. A WASH sign on the roof and a price board at the entrance.
 5. **Motel 13: turned round to face the town.** The building (and everything in it) turns 180° about its centre
    (76, -902), so the doors face south. Its car park moves to the south side (x 62…90, z -919…-906), a short
    **Motel Rd** joins it to Route 13 along z -922 (x 3.5…62), the neon pole stands at the car park entrance where
@@ -70,7 +76,7 @@ globals start with `rt`.
 
 ## Model batches (part 2, after this plan is approved)
 1. Main street kit: lamps, power poles and wires, kerbs, shoulders, town signs; the bus stop shelter and bay.
-2. El Goblino Gas outside: forecourt, canopy, pumps, price sign, shop front.
+2. El Goblino Gas outside: forecourt, canopy, pumps, price sign, shop front, and the car wash.
 3. Motel 13 (turned): outside, walkway, office, car park, Motel Rd, neon, pool, back yard.
 4. Drive-in: lot, screen tower, speaker rows, ticket booth, marquee, snack bar and projector booth.
 5. Desert Bus depot: building, platform canopy, apron, Depot Rd, arch; and the water tower.
