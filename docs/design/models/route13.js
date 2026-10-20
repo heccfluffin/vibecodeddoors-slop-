@@ -184,10 +184,13 @@ function rtShopFront(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const r=
    in/out along z, brushTop about x and up/down), the spray arch's jets show while washing, the sign lights. ---- */
 function rtCarWash(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
  const X0=64,X1=78,Z0=-1009,Z1=-1001,H=4.4,T=.3,GRN=M(0x3a8a2a,{roughness:.6}),WHT=M(0xf2f0ea,{roughness:.8}),BL=M(0x3a7ac8,{roughness:.5}),STL=k.STL;
- const r=k.r,BUB=M(0xffffff,{roughness:.9,map:k.tex(256,128,(c,w,h)=>{c.fillStyle='#f2f0ea';c.fillRect(0,0,w,h);for(let i=0;i<40;i++){const x=r()*w,y=h*.35+r()*h*.65,rr=4+r()*14;c.strokeStyle='rgba(58,122,200,.55)';c.lineWidth=2;c.beginPath();c.arc(x,y,rr,0,7);c.stroke();c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.arc(x-rr*.35,y-rr*.35,rr*.2,0,7);c.fill()}c.fillStyle='#3a8a2a';c.fillRect(0,h-14,w,14)})});
+ const r=k.r,BUB=M(0xffffff,{roughness:.9,map:k.tex(256,128,(c,w,h)=>{c.fillStyle='#f2f0ea';c.fillRect(0,0,w,h);/* each bubble is drawn whole: kept off the top and the green foot, and drawn again one tile left or right when it
+    crosses the side edge, so the tiles join without cut bubbles (the user's note) */for(let i=0;i<40;i++){const rr=4+r()*14,x=r()*w,y=h*.35+rr+r()*(h*.65-2*rr-18);for(const ox of[-w,0,w]){if(x+ox+rr<0||x+ox-rr>w)continue;c.strokeStyle='rgba(58,122,200,.55)';c.lineWidth=2;c.beginPath();c.arc(x+ox,y,rr,0,7);c.stroke();c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.arc(x+ox-rr*.35,y-rr*.35,rr*.2,0,7);c.fill()}}c.fillStyle='#3a8a2a';c.fillRect(0,h-14,w,14)})});
  BUB.map.repeat.set(3,1);
  /* side walls (white with bubbles, a green foot), the roof slab, a green fascia round the top; open at both ends */
- for(const z of[Z0+T/2,Z1-T/2]){B(X1-X0,H,T,(X0+X1)/2,H/2,z,BUB);ob(X0,X1,z-T/2-.05,z+T/2+.05)}
+ /* (the bubbles only on the two big faces; the wall ends at the entry and exit are plain white with the green foot) */
+ const WEND=M(0xffffff,{roughness:.8,map:k.tex(8,128,(c,w,h)=>{c.fillStyle='#f2f0ea';c.fillRect(0,0,w,h);c.fillStyle='#3a8a2a';c.fillRect(0,h-14,w,14)})});
+ for(const z of[Z0+T/2,Z1-T/2]){B(X1-X0,H,T,(X0+X1)/2,H/2,z,[WEND,WEND,WHT,WHT,BUB,BUB]);ob(X0,X1,z-T/2-.05,z+T/2+.05)}
  /* the roof: a green box sitting on the wall tops (its edge is the fascia), a white trim along its top edge, and
     inside a white ceiling slab between the walls, 9 cm deep, whose underside (4.31 m) is the ceiling */
  B(X1-X0+.44,.6,Z1-Z0+.44,(X0+X1)/2,H+.3,(Z0+Z1)/2,GRN);B(X1-X0+.5,.06,Z1-Z0+.5,(X0+X1)/2,H+.63,(Z0+Z1)/2,WHT);B(X1-X0+.44,.1,Z1-Z0-2*T,(X0+X1)/2,H-.04,(Z0+Z1)/2,WHT);const CEIL=H-.09;

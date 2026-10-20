@@ -111,7 +111,7 @@ game's `light(...)` at each of `lights` (every other lamp). The places the stree
 - Checked: z-fight and floating checker clean (the only hits are the curved wires against themselves and the glass
   frames' bottom rails, which hang between posts).
 
-### Batch 2: El Goblino Gas and the car wash, for review · `rtGas(g)` → `{obs, lights, pumps}`, `rtShopFront(g)` → `{obs}`, `rtCarWash(g)` → `{obs, lights, bay, parts}`
+### Batch 2: El Goblino Gas and the car wash, approved 2026-10-20 · `rtGas(g)` → `{obs, lights, pumps}`, `rtShopFront(g)` → `{obs}`, `rtCarWash(g)` → `{obs, lights, bay, parts}`
 Call all three where the base builds El Goblino Gas (`busRoamBuild`). The shop's inside, El Goblino, the counter,
 shelves, fridges, till, the sliding doors, the OPEN 24/7 (ish) sign, the ICE chest, the explosive barrels, the taxi
 stand and every prop stay as they are.
@@ -143,8 +143,8 @@ stand and every prop stay as they are.
   parapet above the roof with EL GOBLINO GAS · SHOP and the logo.
 - **Car wash** (`rtCarWash`, x 64…78, z -1009…-1001, 4.4 high, open at both ends, a 16 m apron in front with painted
   lead-in lines; the explosive barrels at (44, -996) and (45.2, -996.4) move out of the north lane to (37.4, -1012.4)
-  and (38.4, -1012.5), beside the air post): white walls with a bubble mural and
-  a green foot, a green fascia, a blue WASH sign on the roof, ENTER · 5 🪙 · STAY IN YOUR CAR over the entrance, a
+  and (38.4, -1012.5), beside the air post): white walls with a bubble mural (whole bubbles that
+  join across the tiles; the wall ends are plain, the user's note) and a green foot, a green fascia, a blue WASH sign on the roof, ENTER · 5 🪙 · STAY IN YOUR CAR over the entrance, a
   price board at the entry (WASH · 5 🪙, WAX · FREE, GOBLIN NOT RESPONSIBLE FOR GOBLINS), a wet dark floor with tyre
   guide rails and a drain, three ceiling lights (`lights`), a blue spray arch with nozzles (`parts.jets`: soft white
   spray cones, hidden until washing), two tall side brushes and an overhead brush (soft foam rolls: a striped
