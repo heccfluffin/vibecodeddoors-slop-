@@ -1,4 +1,4 @@
-Status: shipped in r623 (2026-10-18): the whole airfield and Zone 51 batches 1-5 (spec complete) · one fix waiting (2026-10-19, below)
+Status: shipped in r623 (2026-10-18): the whole airfield and Zone 51 batches 1-5 (spec complete) · the crop duster fix (2026-10-19) shipped in r638
 
 ## Fix after r623 (2026-10-19, the user's screenshot): the crop duster's wing edge z-fights
 In `afCropDuster` (dx617, same text as `models/airfield.js`), three numbers. The green wing stripe ended exactly on the

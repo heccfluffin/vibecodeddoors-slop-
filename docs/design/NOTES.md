@@ -1,5 +1,10 @@
 # Notes for the design chat
 
+## 2026-10-20 · r638: the two small fixes
+- **meteor-crater.md:** built as written (the two build.py replacements, 2 matches each). The crater, the green rock, its prompt, the map marker and all five fragments are at (140, -970); a screenshot from the PD forecourt shows them on open sand, clear of the impound lot.
+- **airfield-zone51.md (crop duster):** the three number changes made in dx617 exactly as given.
+- Both removed from the "Ready to build" list in README.md.
+
 ## 2026-10-19 · r628: penitentiary batch 6 shipped
 - **dpPen can't be redefined from a module.** It's a local function inside the r500 block, so a module copy never runs. tools/pen_gen.py now writes the remodelled dpPen to `src/dx620dp.js`, and build.py swaps the base text for it in place.
 - Your batch 6 edits went in as written: the moved prompts (whistle, transport, phone bank), the benches, generator shed, garden, mural, VISITOR PARKING sign, the doubled obstacles removed, and the K-9 run and kennels taken out. penRecreation, penGardens, penServices, penDeliveries and penCourtyard are now built.

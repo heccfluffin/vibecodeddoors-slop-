@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r638',['The meteor crater and its fragments moved 35 m north, off the police impound lot','The old crop duster in the airfield\'s T-hangar no longer flickers along its wing edges']],
 ['r637',['Cars check for other cars a little faster (exactly the same results: nothing about driving, crashes or the AI changes)']],
 ['r636',['When a vehicle blows up, every flying piece is a real part of it now: some parts used to fly off twice']],
 ['r635',['Vehicle batching: the moving parts of every vehicle (wheels, steering wheels, turrets, gun barrels, rotors, missiles, the Wraith\'s radar) are now drawn as a few pieces each instead of dozens. About a third fewer draw calls at the Fort, the airfield and the bus stop. They look and move exactly as before','Lag test window: the buttons stay put now (they sat under text that kept changing length), and it shows your render scale (if the game lowered its resolution because frames were slow, which makes it blurry; /gfx high keeps it sharp)']],

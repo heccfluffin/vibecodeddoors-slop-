@@ -625,6 +625,9 @@ R("v.m.traverse(o=>{if(!o.isMesh||!o.geometry||!o.visible||o.isInstancedMesh)ret
 # r637: car-against-car checks skip a vehicle that is surely out of reach before measuring (dx625; same order, same results)
 R("for(const w of vehAll(q)){if(w===v||vehOnHwy(w))continue;const dn=vehSegD(w,cx,cz);","for(const w of vehAll(q)){if(w===v||vehOnHwy(w))continue;if(VCG&&VCG.on&&!vcgNear(w,cx,cz,v.r))continue;const dn=vehSegD(w,cx,cz);")
 R("function vehHit(q,x,lz,r){for(const w of vehAll(q))if(vehSegD(w,x,lz)<w.r+r)return true;return false}","function vehHit(q,x,lz,r){for(const w of vehAll(q))if((!(VCG&&VCG.on)||vcgNear(w,x,lz,r))&&vehSegD(w,x,lz)<w.r+r)return true;return false}")
+# r638: the meteor crater (and its five fragments) moves 35 m north, off the Desert PD's impound lot (meteor-crater.md)
+_o,_n='const kx=140,kz=-1005','const kx=140,kz=-970'; assert s.count(_o)==2,s.count(_o); s=s.replace(_o,_n)
+_o,_n='X(140),Y(-1005)','X(140),Y(-970)'; assert s.count(_o)==2,s.count(_o); s=s.replace(_o,_n)
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -638,7 +641,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-19 r637';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-20 r638';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

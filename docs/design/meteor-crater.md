@@ -1,4 +1,4 @@
-Status: ready to build (the user, 2026-10-19)
+Status: shipped in r638 (2026-10-20)
 
 # Move the meteor crater off the police station
 
