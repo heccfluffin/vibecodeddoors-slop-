@@ -265,6 +265,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx625.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx626.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx628.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx627.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx630.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -701,6 +702,12 @@ R("const m=mkMortar(K);m.position.set(mx,0,mz);m.rotation.y=Math.PI/2;g.add(m);o
 R("try{vfx('dust',mx,.8,mz+q.OZ,{n:8,w:.8})}catch(e){}","try{const mu=m.userData.muzzle;vfx('dust',mx-mu.x,mu.y,mz-mu.z+q.OZ,{n:8,w:.8});wpMortarKick(m)}catch(e){}")
 # LZ Bravo: the UH-9 transport helicopter instead of the old military mkHeli(K) (the police pad's mkHeli() was swapped in r620)
 R("const heli=mkHeli(K);heli.position.set(hx,0,hz);","const heli=wpHeli();heli.position.set(hx,0,hz);")
+# dusty-gulch.md: Dusty Gulch rework (dx630 redefines xpGulch). The welcome arch over Main Street carries the town's name now,
+# so the old "DUSTY GULCH / POP. 13" street sign by the arch goes
+R("[456,-1432,'DUSTY GULCH\\nPOP. 13 · DRIVE DARKLY',.3,'#8a5a2a'],","")
+# the parked stretch limo stood half inside the bank's front wall (freeSpot used to push it into the street; now the boardwalk is there,
+# and it ended up in the alley): it parks on Main Street, in front of the bank
+R("['limo',460,-1459,0]","['limo',453.6,-1464,0]")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
