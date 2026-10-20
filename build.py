@@ -262,6 +262,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx622.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx623.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx624.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx625.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx626.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -628,6 +629,24 @@ R("function vehHit(q,x,lz,r){for(const w of vehAll(q))if(vehSegD(w,x,lz)<w.r+r)r
 # r638: the meteor crater (and its five fragments) moves 35 m north, off the Desert PD's impound lot (meteor-crater.md)
 _o,_n='const kx=140,kz=-1005','const kx=140,kz=-970'; assert s.count(_o)==2,s.count(_o); s=s.replace(_o,_n)
 _o,_n='X(140),Y(-1005)','X(140),Y(-970)'; assert s.count(_o)==2,s.count(_o); s=s.replace(_o,_n)
+# crash-site.md: the plane crash site rebuilt from the design chat's model (csWreck, dx626). Same spot (-38, -1165).
+# 1. desertLocs: the old fuselage, nose, windows, wing, tail, debris, their obstacles, map box and black box mesh
+#    are replaced by the model; its obstacles and map rectangles are added at the site. The old debris used 50
+#    numbers from the desert's seeded random; we still draw them so everything built after it stays where it was.
+#    The black box prompt (same text, 25 gold) moves to the box beside the tail section.
+_a=s.index('const fu=new THREE.Group();fu.position.set(px,1.3,pz)');_e='let got=0;const bb=A(BX(.4,.3,.5),M(0xff7a20),px+12,.15,pz-2);\n  q.props.push({x:px+12,z:pz-2,'
+assert s.count('const fu=new THREE.Group();fu.position.set(px,1.3,pz)')==1 and s.count(_e)==1;_b=s.index(_e,_a)+len(_e);assert _b-_a<1100,_b-_a
+s=s[:_a]+("const cg=new THREE.Group();cg.position.set(px,0,pz);g.add(cg);const W=csWreck(cg);for(let i=0;i<50;i++)R();"
+ "for(const o of W.obs)ob(px+o.x0,px+o.x1,pz+o.z0,pz+o.z1);for(const r of W.map)rect(px+r[0],px+r[1],pz+r[2],pz+r[3],r[4]);"
+ "let got=0;const bb=W.bb;\n  q.props.push({x:px+W.box[0],z:pz+W.box[1],")+s[_b:]
+# 2. the 'crashed plane' step: the little flare gun and log meshes go (the model has both); the flare gun now lies
+#    on the suitcase table at the camp under the wing, and the flare goes up from there for everyone
+R("XM.net.flare=o=>{snd(900,.1);xmFlare(q,g,+o.x||px-6,+o.z||pz+.2)};const fg=A(BX(.3,.08,.14),M(0xd04020),px-6.2,.35,pz+.2);fg.rotation.y=.5;const lg=A(BX(.28,.04,.22),M(0x4a3a2a),px-5.4,.12,pz-1.2);",
+ "XM.net.flare=o=>{snd(900,.1);xmFlare(q,g,+o.x||px-3.6,+o.z||pz-6.4)};")
+R("prop(px-6,pz+.2,1.4,","prop(px-3.6,pz-6.4,1.4,")
+R("xmFlare(q,g,px-6,pz+.2);xmNet(q,'flare',{x:px-6,z:pz+.2})","xmFlare(q,g,px-3.6,pz-6.4);xmNet(q,'flare',{x:px-3.6,z:pz-6.4})")
+#    the pilot's log lies on the pedestal between the cockpit seats; a bigger radius so you can read it from the aisle
+R("prop(px-5.4,pz-1.2,1.3,","prop(px+4.75,pz,1.6,")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
