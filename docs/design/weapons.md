@@ -1,4 +1,4 @@
-Status: building (Claude Code, 2026-10-20) · was: approved 2026-10-18 · ready to build
+Status: shipped in r641 (2026-10-20)
 
 # Fort Blackout's weapons (remodel list #19, the rest of it)
 

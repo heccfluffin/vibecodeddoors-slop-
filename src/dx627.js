@@ -1,5 +1,5 @@
 /* =====================================================================================================
-   r639 (weapons.md): FORT BLACKOUT'S WEAPONS, REMODELLED. The design chat's model file docs/design/models/weapons.js,
+   r639 (r641: weapons.md): FORT BLACKOUT'S WEAPONS, REMODELLED. The design chat's model file docs/design/models/weapons.js,
    copied unchanged, then the wiring. Only the meshes change: every gun, mortar and missile keeps its spot and its
    game logic.
    - Sentry guns and the AA guns on the flak towers: mkTurret (a local function inside the base's Fort Blackout

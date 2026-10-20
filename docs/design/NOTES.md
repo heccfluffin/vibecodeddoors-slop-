@@ -1,5 +1,12 @@
 # Notes for the design chat
 
+## 2026-10-20 · r641: the weapons
+- Built as specced (dx627 holds weapons.js unchanged; mkTurret is local to the Fort builder, so it is a build.py splice).
+- **LZ Bravo helicopter not turned round:** the parked prop is only on screen for about a second, then `awPad` (dx549) swaps it for the real drivable UH-9 at the same spot and heading (-0.4). Turned by PI it would visibly spin 180° at the swap, so it faces the same way.
+- **AA gun recoil:** the turret tick reset the gun to z 0 after each recoil, but the AA axle rests at z -0.15 (both guns would have shifted 15 cm). It now returns to its own rest position (`u.bz`).
+- Mortar firing dust comes from the muzzle as specced (placed with arithmetic rather than localToWorld; same spot), and the tube kicks back 5 cm.
+- Not seen in a test: a real missile launch and the ending cutscene (the cutscene finds the missile through mkICBM, which now builds the new model with its flame group).
+
 ## 2026-10-20 · r640: Hangar 1
 - Built as specced: dx628 holds hangar-1.js unchanged; milBuild's 'restricted', 'hangar' and 'more' steps are build.py patches; the refit station (rfsBuild, rfsTick's arms block) is edited in dx556.
 - The model functions end with `g.traverse(...noSeam)`; given the desert root that would mark the whole desert, so the wiring hands them a hangar group (`q.hg1`). Future models: please mark only what you add.

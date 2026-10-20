@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r641',['Fort Blackout\'s guns got a makeover: new six-barrel sentry guns on the walls, twin-barrel AA guns with a spinning radar on the towers, and proper mortars (with a crate of rounds) that now face the berm','The Silo 1 missile and the one in the ending cutscene are the same new two-stage DARK ARMY missile','LZ Bravo\'s parked helicopter is now the UH-9 transport']],
 ['r640',['Hangar 1 has a proper inside now: a painted floor, steel columns and roof trusses, and the blast door slides into steel pockets','The tank under repair has its own bay with an overhead crane, and there is a workshop, a glass control room, spares racks and a crew corner','The Wraith refit station has a new look, and its welding arms now face the pad']],
 ['r639',['The crashed plane is rebuilt: walk into the wreck of flight DA-100 through the torn break or the front door, down the aisle to the cockpit, where the pilot\'s log is waiting','Under the wing you\'ll find the pilot\'s camp with the flare gun, SOS in rocks nearby, and the black box lying by the tail at the end of a long skid trail']],
 ['r638',['The meteor crater and its fragments moved 35 m north, off the police impound lot','The old crop duster in the airfield\'s T-hangar no longer flickers along its wing edges']],
