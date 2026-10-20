@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-20 r646';
+const BUILD='2026-10-20 r647';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15946,6 +15946,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r647',['Faster desert: the game no longer works out the position of every object again each frame, only of the ones that moved (about 2 in 100). In tests this cut the "positions" time in the lag window by more than half, and the parked vehicles\' share by about three quarters']],
 ['r646',['Faster desert: places with moving parts (the Desert PD HQ with its walking officers and flashing lights, the patrol car outside it and others) are now drawn in big batches like the rest of the desert. Looking at the PD HQ takes about a third fewer draw calls, which helps most in Firefox']],
 ['r645',['The desert train now really runs, even when you play alone: it stops at the station and the crossing gates come down as it passes','The game\'s build number shows the right release again']],
 ['r644',['The Pyramid has been rebuilt: a temple gateway, an avenue of jackals and sphinxes, a dig camp and ruins outside','Inside, painted walls, starry ceilings, real torches and new traps, treasure and statues on both floors','The Sand trial\'s levers now start up and pull down properly, and the treasure chest and sarcophagus lids open the right way']],
@@ -31665,6 +31666,50 @@ function mxbWatch(q){const L=MXB.roots;if(!L.length)return;const t0=performance.
   MXB.stats.unmerged+=DP._check([recs[MXB.ri]],0);MXB.ri++}}
 {const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(MXB.on&&q&&q.g&&!q.ld&&typeof PERF!='undefined'&&PERF.on){if(MXB.q!==q){MXB.q=q;MXB.obs=new Map();MXB.first=new Map();MXB.roots=[];MXB.wi=0;MXB.ri=0;MXB.lt=0}
   const now=performance.now();if(now-MXB.lt>1500){MXB.lt=now;mxbTick(q);const d=performance.now()-now;MXB.stats.tick=+d.toFixed(2);if(d>(MXB.stats.tickMax||0))MXB.stats.tickMax=+d.toFixed(2)}mxbWatch(q)}}catch(e){conLog('error','batching places with moving parts: '+e.message);MXB.on=false}return r}}
+
+
+/* =====================================================================================================
+   r647: DESERT PERFORMANCE: POSITIONS ARE ONLY WORKED OUT AGAIN FOR THINGS THAT MOVED.
+   Every frame, three.js rebuilds the position matrix of every object from its position, rotation and scale, and then
+   its place in the world from its parent's. In the desert that was about 6,000 shown objects plus all 54 vehicles
+   (about 12,000 objects, shown or not), every frame, although only around 2% of them had moved since the last frame.
+   That was most of the "positions" time in the lag window (about 10 ms a frame in both Firefox and Chrome).
+   Now each object remembers the position, rotation and scale its matrix was made from. If none of them changed (and
+   nothing asked for it to be redone), the matrix is kept; if the parent did not move either, its place in the world
+   is kept too. Anything that moved is worked out exactly as before. The numbers are the very same ones three.js
+   would make (the same sums from the same inputs), so code that reads positions sees no difference.
+   Each object also remembers which parent it was worked out under and when: if it was moved to another parent, or its
+   parent moved while it was hidden, batched (skipped since r629) or taken out of the scene, it is redone the next time
+   it is visited. Vehicles are still brought fully up to date every frame (hidden ones too); they just skip their parts that did not
+   move. This sits on top of r629's skipping of hidden and batched things (dx621). ?nomwc in the address turns it off.
+   ===================================================================================================== */
+const MWC={on:!/[?&]nomwc/.test(location.search),f:1};
+/* make o.matrix again only if its position, rotation or scale changed since it was last made here */
+function mwPQS(o){const p=o.position,r=o.quaternion,s=o.scale;let c=o.__mwc;
+ if(c&&!o.matrixWorldNeedsUpdate&&c[0]===p.x&&c[1]===p.y&&c[2]===p.z&&c[3]===r._x&&c[4]===r._y&&c[5]===r._z&&c[6]===r._w&&c[7]===s.x&&c[8]===s.y&&c[9]===s.z)return;
+ o.updateMatrix();if(!c)c=o.__mwc=new Float64Array(10);c[0]=p.x;c[1]=p.y;c[2]=p.z;c[3]=r._x;c[4]=r._y;c[5]=r._z;c[6]=r._w;c[7]=s.x;c[8]=s.y;c[9]=s.z}
+/* o's own matrix and its place in the world; returns whether its children must redo theirs.
+   __mwpar: the parent it was worked out under; __mwf: the last update it was up to date in; __mwchg: the last update its place changed in */
+function mwSelf(o,force){const p=o.parent;if(o.matrixAutoUpdate)mwPQS(o);
+ if(force||o.matrixWorldNeedsUpdate||o.__mwpar!==p||(p!==null&&(p.__mwchg|0)>(o.__mwf|0))){
+  if(p===null)o.matrixWorld.copy(o.matrix);else o.matrixWorld.multiplyMatrices(p.matrixWorld,o.matrix);
+  o.matrixWorldNeedsUpdate=false;o.__mwpar=p;o.__mwchg=MWC.f;force=true}
+ o.__mwf=MWC.f;return force}
+/* a vehicle: everything inside it, shown or not, exactly as three.js does it, minus the parts that did not move */
+function mwFull(o,force){force=mwSelf(o,force);
+ const ch=o.children;for(let i=0,l=ch.length;i<l;i++){const c=ch[i];if(c.updateMatrixWorld!==_mwP)c.updateMatrixWorld(force);else mwFull(c,force)}}
+/* r629's desert walk (dx621) with the same check */
+{const w0=mwWalk;mwWalk=function(o,force){if(!MWC.on)return w0(o,force);force=mwSelf(o,force);
+ const ch=o.children;for(let i=0,l=ch.length;i<l;i++){const c=ch[i];
+  if(c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
+  if(c.__mwKeep){mwFull(c,force);continue}
+  if(!c.visible){c.__mwSk=MWX.fr;MWX.skipped++;continue}
+  if(c.layers.mask===4&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
+  mwWalk(c,force)}}}
+/* the scene itself: without this, the scene's own matrix was made again every frame, which forced every object below it
+   to work out its place in the world again, moved or not */
+{const su0=S.updateMatrixWorld;S.updateMatrixWorld=function(force){if(!MWC.on)return su0.call(this,force);/* the lag window (F9) times this as "positions" */const lag=typeof LAG!='undefined'&&LAG.open,t0=lag?performance.now():0;MWX.inR=1;MWC.f++;try{
+  force=mwSelf(this,force);const ch=this.children;for(let i=0,l=ch.length;i<l;i++)ch[i].updateMatrixWorld(force)}finally{MWX.inR=0;if(lag){const d=performance.now()-t0;LAG.pos+=d;LAG.cur.pos=(LAG.cur.pos||0)+d}}}}
 
 </script><script>
 /* ======================================================================================================
