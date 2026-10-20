@@ -266,6 +266,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx626.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx628.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx627.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx630.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx631.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -708,6 +709,11 @@ R("[456,-1432,'DUSTY GULCH\\nPOP. 13 · DRIVE DARKLY',.3,'#8a5a2a'],","")
 # the parked stretch limo stood half inside the bank's front wall (freeSpot used to push it into the street; now the boardwalk is there,
 # and it ended up in the alley): it parks on Main Street, in front of the bank
 R("['limo',460,-1459,0]","['limo',453.6,-1464,0]")
+# lake-rail (docs/design/lake-rail.md, src/dx631.js): exact-text patches of the base
+# the old telegraph poles on the north side of the line are not built any more (the new ones from rrPoles stand on the south side): the loop never runs, so no poles and no boxes
+R("for(let x=-DXB+8;x<=DXB-8;x+=32){if(Math.abs(x)<12||Math.abs(x+440)<12","for(let x=-DXB+8;x<-DXB;x+=32){if(Math.abs(x)<12||Math.abs(x+440)<12")
+# the parked quad bike stood where the new bait shop's east wall is (262,-1494): it now waits 4 m further east, between the shop and the volleyball court
+R("add('quad',262,-1494,.4)","add('quad',264.6,-1497.5,.4)")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
