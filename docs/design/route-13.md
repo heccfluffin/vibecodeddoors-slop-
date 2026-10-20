@@ -1,4 +1,4 @@
-Status: proposed (plan, part 1) · 2026-10-20
+Status: plan approved 2026-10-20 (with a car wash added) · model batches next
 
 # Route 13: the old town round the bus stop
 
@@ -49,6 +49,13 @@ globals start with `rt`.
    Route 13 and the PD road), a new canopy with green fascia and EL GOBLINO GAS letters on all four sides, new pumps
    on islands, a tall roadside price sign ("BREAD 12 · CHEESE 15 · GWEEN SODA 20"), an air and water post, and a
    remodelled shop front (stucco, a big window band, the sliding doors). **The shop's inside stays as it is.**
+   **A drive-through car wash** (the user, 2026-10-20) east of the shop: a tunnel building x 64…78, z -1009…-1001,
+   cars drive in from the west across a 16 m apron (so long cars like the dragster can line up straight; the user's
+   note) (the forecourt carries on east past the shop to x 84.5, where it meets the PD drive) and out to the east, then turn
+   north onto the PD road. Inside: two big spinning brushes, an overhead brush, spray arches, a dryer, lights that say
+   PULL FORWARD / STOP / GO. "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car is pulled through
+   slowly, brushes spin, foam and water, then a shine sparkle; it cleans off scorch marks and smoke and puts back a
+   little health. A WASH sign on the roof and a price board at the entrance.
 5. **Motel 13: turned round to face the town.** The building (and everything in it) turns 180° about its centre
    (76, -902), so the doors face south. Its car park moves to the south side (x 62…90, z -919…-906), a short
    **Motel Rd** joins it to Route 13 along z -922 (x 3.5…62), the neon pole stands at the car park entrance where
@@ -70,10 +77,91 @@ globals start with `rt`.
 
 ## Model batches (part 2, after this plan is approved)
 1. Main street kit: lamps, power poles and wires, kerbs, shoulders, town signs; the bus stop shelter and bay.
-2. El Goblino Gas outside: forecourt, canopy, pumps, price sign, shop front.
+2. El Goblino Gas outside: forecourt, canopy, pumps, price sign, shop front, and the car wash.
 3. Motel 13 (turned): outside, walkway, office, car park, Motel Rd, neon, pool, back yard.
 4. Drive-in: lot, screen tower, speaker rows, ticket booth, marquee, snack bar and projector booth.
 5. Desert Bus depot: building, platform canopy, apron, Depot Rd, arch; and the water tower.
+
+## Part 2: models (`models/route13.js`, needs `fort-kit.js`)
+
+### Batch 1: main street and bus stop, approved 2026-10-20 · `rtMain(g)` → `{obs, lights, lamps}`, `rtBusStop(g)` → `{obs}`
+Call both from the town's builder (the desert load step that builds the bus stop), push `obs` to `q.obs`, and put the
+game's `light(...)` at each of `lights` (every other lamp). The places the street things must avoid are in `RT`
+(`gapE`/`gapW`: where roads and the gas forecourt join each side; `keep`: spots beside the road).
+- **Shoulders:** 2 m of gravel each side of Route 13 from the north town sign to the south one (z -895…-1115), at
+  y .012 (the road is .02), in pieces that stop at every road mouth: east at Motel Rd, the gas forecourt and PD road,
+  and the Sunset Blvd link; west at the drive-in drive and Depot Rd.
+- **Street lamps:** both sides (x ±6.6), every 24 m, the east row offset 12 m; a tapered steel pole, an arm curving
+  out over the road edge, a long lamp head with a glowing lens. None at a road mouth, by the broken-down car, the
+  bus stop or the Highway Patrol car's spot.
+- **Power poles:** down the west side (x -9.5) every 36 m (nudged off the road mouths), with a crossarm, three
+  insulators, braces and step bolts; three wires sag from pole to pole.
+- **Town signs:** OLD TOWN · ROUTE 13 · POP. 13 · HOME OF BUS 13 on a board hung between two posts, painted
+  LEAVING OLD TOWN · DRIVE SAFE · COME BACK SOON (YOU WILL) on the back. North end (-9.5, -897) facing north (the way
+  BUS 13 comes in), south end (9.5, -1113) facing south.
+- **Bus stop shelter** just south of the pole, x 5…9.5, z -1050…-1044.5 (moved 3 m south of the first plan so the
+  round plates don't hide its fascia): a blue steel frame (corner posts, a middle post at the back, eaves beams), a roof
+  sheet sloping 20 cm to the back with a deep edge band all round (the front band is the BUS 13 · DESERT MINES sign),
+  glass back and full-depth glass ends cut to the slope, a timetable poster (BUS 13 · HOTEL ⇄ DESERT MINES; departs ??:??, ANY MINUTE / NOW,
+  NEVER / ALWAYS; "Do not run for the bus. It waits."), a slatted bench inside, a bin at the south end. Open to the
+  road. **Remove the old bench and skull** beside the pole (`bench`, its legs and `skl` in busBoard0) and their
+  obstacle `ob(4.8,5.4,-1044.4,-1042.6)`. The pole, its plates, its obstacle and the "Wait for BUS 13" prop stay.
+- **BUS STOP bay:** a yellow dashed box on the east lane (x .35…3.35, z -1053.5…-1041.5) with BUS STOP written for
+  drivers heading north.
+- Checked: z-fight and floating checker clean (the only hits are the curved wires against themselves and the glass
+  frames' bottom rails, which hang between posts).
+
+### Batch 2: El Goblino Gas and the car wash, for review · `rtGas(g)` → `{obs, lights, pumps}`, `rtShopFront(g)` → `{obs}`, `rtCarWash(g)` → `{obs, lights, bay, parts}`
+Call all three where the base builds El Goblino Gas (`busRoamBuild`). The shop's inside, El Goblino, the counter,
+shelves, fridges, till, the sliding doors, the OPEN 24/7 (ish) sign, the ICE chest, the explosive barrels, the taxi
+stand and every prop stay as they are.
+- **Remove from the base:** the canopy slab, its four posts (keep their obstacles: the new columns stand on the same
+  spots), the cream fascia and its EL GOBLINO GAS text, the two pumps and their islands (the new `pumps` replace them:
+  keep the two "Fill up" props and give each pump obstacle `kd:'pump'`, with `m` = the new pump group, so it still
+  gets knocked over; the obstacle is now x 26.8…29.2 by 1.2 m), the old pole sign `dsSign('EL GOBLINO GAS…')` at
+  (22, -996), and **the shop's west wall pieces** (the two side pieces and the header over the door; keep their
+  obstacles), because `rtShopFront` is the new west wall.
+- **Forecourt:** concrete slabs (4 m joints, oil stains) x 3.5…84.5, z -1013…-993.5 at y .025, joining Route 13, the PD drive and the
+  PD road; a low kerb along the south edge; three painted arrows (`rtArrow`, flat shapes: in from Route 13, into the car
+  wash, out north to the PD road) and a dashed yellow WASH box in front of the car wash entrance.
+  (The first version's canvas arrows came out squashed and its long lead-in lines looked like they floated; the
+  user's note.) Add its `q.mapR` shape in a concrete colour (and make sure the route grid lets cars drive on it).
+- **Canopy:** x 20.6…35.4, z -1010.6…-999.4, underside at 5 m, 0.9 m deep, green with a white stripe, EL GOBLINO GAS
+  and El Goblino's logo (his red head, ears, yellow eyes and top hat on a green disc) on the north, south and west
+  faces, a white underside lit softly from its own lights, six glowing panels set flush in thin steel rims (the first
+  version's panels hung below a dark underside and looked like they floated; the user's note) (`lights`: three points for the game's lights), four square
+  white columns with a green foot and a lit band.
+- **Pumps** (one group each, at (28, -1007.2) and (28, -1002.8)): an island 2.4 × 1.2 m with yellow noses and
+  bollards, a white dispenser with a green top and foot, the logo, a price window "7.13 🪙 GWEEN UNLEADED" and a hose
+  and nozzle on both long sides (cars pull up along x either side).
+- **Price sign** by Route 13 at (12, -996.2): two steel posts, the logo on top, EL GOBLINO GAS, and a price board
+  BREAD ··· 12 · CHEESE ··· 15 · GWEEN SODA ··· 20 on both faces. Obstacle x 10.1…13.9.
+- **Air and water post** at (34.6, -1012.4).
+- **Shop front** (`rtShopFront`, the new west wall, x 35.85…36.15, z -1011.16…-998.84, 4.2 high): stucco piers, two
+  shop windows you can see into (z -1010.2…-1007.4 and -1002.6…-999.8, sill 0.9, head 2.5) in aluminium frames, a
+  green tiled base, the doorway exactly where it was (z -1006.3…-1003.7, 2.6 high) for the sliding doors, and a
+  parapet above the roof with EL GOBLINO GAS · SHOP and the logo.
+- **Car wash** (`rtCarWash`, x 64…78, z -1009…-1001, 4.4 high, open at both ends, a 16 m apron in front with painted
+  lead-in lines; the explosive barrels at (44, -996) and (45.2, -996.4) move out of the north lane to (37.4, -1012.4)
+  and (38.4, -1012.5), beside the air post): white walls with a bubble mural and
+  a green foot, a green fascia, a blue WASH sign on the roof, ENTER · 5 🪙 · STAY IN YOUR CAR over the entrance, a
+  price board at the entry (WASH · 5 🪙, WAX · FREE, GOBLIN NOT RESPONSIBLE FOR GOBLINS), a wet dark floor with tyre
+  guide rails and a drain, three ceiling lights (`lights`), a blue spray arch with nozzles (`parts.jets`: soft white
+  spray cones, hidden until washing), two tall side brushes and an overhead brush (soft foam rolls: a striped
+  roll inside a ragged fringe), a dryer hood, and a PULL FORWARD / STOP / GO sign at the exit (`parts.sign`).
+  **How it plays:** drive into the bay (`bay`), "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car
+  is pulled slowly from the arch to the exit (about 8 s; your controls are off), the jets show, the brushes spin
+  and **close in until they touch the car**: call `rtWashTick(W, car, dt)` every frame with the car's
+  `{x, z, hw, hl, top(dx)}` (half width, half length, roof height along its length; null when the bay is empty). It
+  spins the brushes and slides `parts.sliderL/R` (the side brushes, hung from carriages on the gantry beams) in along
+  z onto the car's sides, round its nose and tail as it arrives and leaves, and `parts.sliderTop` (the top brush, on
+  arms in fixed sleeves) down onto the bonnet, roof and boot; the foam squashes 6 cm into the paint. The user's note:
+  the first version's brushes didn't touch the car. then
+  the dryer roars and GO lights up; it removes scorch and smoke on the car and gives back 10% of its health. The
+  walls are obstacles; the brushes and jets are not. In co-op the washing car's owner runs it and sends start and
+  progress.
+- Checked: z-fight and floating checker clean except for faces hidden under the shop's roof and the brushes, which
+  hang from their gantries.
 
 ## Things Claude Code has to keep in mind
 - **Seeded random:** everything here is built inside the seeded desert load steps; add or remove `Math.random()`

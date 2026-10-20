@@ -1,4 +1,4 @@
-Status: proposed (plan, part 1) · 2026-10-20
+Status: plan approved 2026-10-20 · model batches next
 
 # The small sights
 
