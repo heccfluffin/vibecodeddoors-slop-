@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2) waiting for the user's OK
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -287,6 +287,11 @@ of a real plan this way.
   board on the walls, and the version's dressing.
 - **Pillar round** (3 versions): the drive round a 12 x 16 pillar, cribs in the corners, sets along the sides, rails
   through (or round the whole loop for the rail-loop version), veins on every pillar face, lamps.
+- **Each level's group holds everything at its own depth:** `ugBuildLevel(plan, L)` builds a ladderway's lower
+  landing (and the bit of ladder inside it) with the lower level (`ugLadder(..., 'down')`), and the upper landing and
+  raise with the upper one, so a level shown on its own never has a tunnel running into nothing (the user found one
+  in the level 2 preview, where the landing had been built with level 1). `{links:1}` builds both with the upper
+  level (the level 1 preview uses it). The spiral decline stays with its upper level.
 - **Ladderway**: an upper landing with a fenced hatch, a plank-lined raise with a ladder and a landing every 3 m, and
   a lower landing with the raise coming through its roof. Both landings are full tunnel width (the first version had
   narrow 3.2 m landings, so the 4 m tunnel meeting them left black gaps either side; the user spotted it).
@@ -300,7 +305,10 @@ of a real plan this way.
   with sets and lamps all the way.
 - **Working faces**: a rough dome closing the tunnel end, with 2-3 veins on it.
 - **Ore veins** (`ugVein(type)`): a dark rock patch with 8 metal nuggets in the ore's colour; a separate group
-  per vein (they get broken), set 6 cm into the wall facing out. Tunnels get one every 5-9 m on alternate walls.
+  per vein (they get broken), set 6 cm into the wall facing out. Every vein is placed on the real wall surface: the noise that
+  pushes the rock out is worked out at the vein's spot (`ugTubeWall` for tunnels, the same sum as `ugRoom` for rooms,
+  the wall's own points for caves). They used to sit at the un-pushed wall line, so many floated up to 0.2 m in
+  front of the rock (the user saw it). A test casts a ray at every vein's wall: none float now on three mines. Tunnels get one every 5-9 m on alternate walls.
 - **Merging**: everything static in a level goes through `ugBatch()` into one mesh per material (about 15 meshes for
   a whole level plus the veins and signs: 57 objects for level 1 of mine #4242). All `noSeam`. The game's `DP`
   batching should leave the mine alone, as now.
@@ -324,7 +332,9 @@ it turns with the piece. Solid props are in the version's `fx` as blocks with a 
 shapes keep them clear of doorways and paths.
 - **Stope** (5.5 m high, ore veins every ~1.9 m on the walls, a big seam in three versions):
   - *Cribbed stope*: timber cribs up to the roof and rock benches.
-  - *Shrinkage stope*: a big muck pile of broken ore, a 2.4 m rock ledge along one wall and a ladder leaning on it.
+  - *Shrinkage stope*: a big muck pile of broken ore against one long wall, a 2.4 m rock ledge along the other
+    (built into the wall, no gap behind it) and a ladder leaning on it; the way through the middle stays clear.
+    Its rich veins are on the room's wall above the ledge (they used to float on the ledge's open sides).
   - *Glory hole*: a hole in the roof up a 9 m raise to daylight; a shaft of light falls on the floor (a strong lamp).
   - *Flooded stope*: a deep pool in a basin that shelves down from the edge (2.3 m deep in the middle), stones round
     its rim and a plank walkway along the wall. The pool's edge blocks walking like a pit's rim.
@@ -357,7 +367,7 @@ level 1 of mine #4242: nothing (found and fixed: the catwalk boards, the kettle,
 lagging). `node quarry-under-check.js`: all clear, 483 rooms over many seeds, all 88 versions. Screenshots of every room
 from inside.
 
-### Batch 3: level 2, the caves (`models/quarry-under-l2.js`, `models/quarry-under-l2r.js`), waiting for the user's OK
+### Batch 3: level 2, the caves (`models/quarry-under-l2.js`, `models/quarry-under-l2r.js`), approved 2026-10-20
 Load them after `quarry-under-l1.js`. `ugBuildLevel` calls `ugPieceL2(b, p, L, ctx)` for every piece on levels 2 and 3
 first; it builds the piece and returns true, or returns false and the kit builds it as before. `ugBuildLevel` now also
 returns `solids` (mine coords `{x, z, r}`: big dressing that isn't in the plan, such as giant mushroom stems and roots).
@@ -399,14 +409,17 @@ landings, the decline and stations use them.
   *Crystal columns* (huge six-sided crystal columns floor to roof).
 - **Fungus grotto**: *Fungus grotto* (six giant glowing mushrooms, smaller ones, green mushrooms, moss, vines down the
   walls, 90 glowworms on threads); *Puffball hollow* (five car-sized puffballs, small ones); *Glow pond* (a deep pond
-  lit from below, lily pads, three frogs, mushrooms round the edge); *Shelf-fungus wall* (a 2.7 m rock ledge against
-  the wall, six shelf fungi as steps up its face, gold veins above it); *Root hall* (thick pale roots from roof to
+  lit from below, lily pads, three frogs, mushrooms round the edge); *Shelf-fungus wall* (a 1.6 m rock ledge against
+  the wall, with at least 2 m of headroom on top; six shelf fungi as steps up its face, gold veins above it); *Root hall* (thick pale roots from roof to
   floor, thin ones ending in glowing tips).
 - **Flooded gallery**: *Flooded gallery* (knee-deep: the floor 0.45 m under the water, a plank walkway on posts along
   the edge); *Underground lake* (3 m deep, a rope across on two posts, a raft on four barrels); *Drowned drift*
   (timber sets standing in the water, old rails along the bottom with no buffers, a sunken cart); *Waterfall gallery*
-  (a plunge pool and a wading channel joined into one basin, `ugBasin`; water falling from a dark crack, foam and
-  spray; **the game scrolls `UGK.fallT.offset.y`**, about 1.2 per second).
+  (a plunge pool and a wading channel joined into one basin, `ugBasin`; the water comes out of a dark crack in the
+  wall, spills over a rock lip and curves out as it falls, two soft sheets of streaks that swell and thin, foam rings
+  and a spray puff (three crossed soft planes) where it lands; no veins near it; **the game scrolls
+  `UGK.fallT.offset.y` by about +1.2 and `UGK.fallT2.offset.y` by +0.9 per second**). The first try was one flat
+  sheet of hard bars hanging from nowhere (the user's note).
 - **Chasm hall**: the fissure is a hole in the floor along the plan's line, rough rock sides 9 m down, darkness at the
   bottom; it runs into the walls, or narrows to nothing where it ends inside the cave. *Chasm hall* (a sagging rope
   bridge, three stepping-stone pillars rising from the depths); *Broken bridge* (each half hangs into the gap);

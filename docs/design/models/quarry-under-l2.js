@@ -68,7 +68,7 @@ function ugCave(b,pts,o){o=o||{};const A=ugProf(2).P,Cv=ugCaveProf(),m=A.length,
 /* veins and loose stones along a cave passage (rings, so they sit on the real wall) */
 function ugCaveDress(b,c,ctx,R,lv){const pick=()=>{const r=R();return lv==1?(r<.3?'ag':r<.45?'au':r<.55?'cr':r<.8?'fe':'cu'):(r<.3?'au':r<.5?'dm':r<.65?'ur':r<.85?'ag':'fe')};
  for(let s=3+R()*3;s<c.L-3;s+=4+R()*4){if(R()<.3)continue;const f=c.at(s),side=R()<.5?0:1,j=side?12:2,w=c.wall(f.i,j),r=f.r,sg=side?1:-1;
-  ctx.veins.push({x:w[0]+r[0]*sg*.06,y:w[1]-.2+R()*.4,z:w[2]+r[1]*sg*.06,dx:-r[0]*sg,dz:-r[1]*sg,t:pick()})}
+  ctx.veins.push({x:w[0]+r[0]*sg*.06,y:w[1],z:w[2]+r[1]*sg*.06,dx:-r[0]*sg,dz:-r[1]*sg,t:pick()})}
  for(let s=2.2;s<c.L-2.2;s+=1.1+R()*1.6){const f=c.at(s),e=c.edge(f.i),side=R()<.5?0:1,q=e[side],cx=(e[0][0]+e[1][0])/2,cz=(e[0][1]+e[1][1])/2,dx=cx-q[0],dz=cz-q[1],l=Math.hypot(dx,dz),sz=.12+R()*.26;
   b.add(c.rk||'rock2',new THREE.DodecahedronGeometry(sz,0),new THREE.Matrix4().compose(new THREE.Vector3(q[0]+dx/l*(.22+sz*.5),f.p[1]+sz*.25,q[1]+dz/l*(.22+sz*.5)),new THREE.Quaternion().setFromEuler(new THREE.Euler(R()*3,R()*3,0)),new THREE.Vector3(1,.7,1)))}}
 
@@ -132,7 +132,7 @@ function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ug
  /* veins round the wall, never near a doorway */
  const R=ugRng(p.id*613+(p.d.v||0)*7+1),vw=o.veinGap||2.8;let next=R()*vw;
  for(let i=0;i<nc;i++){if(perim[i]<next)continue;next=perim[i]+vw*(.7+R()*.6);const c=cols[i];if(c.f<.99||R()<(o.veinSkip==null?.3:o.veinSkip)||(o.noVein&&o.noVein(c.x,c.z)))continue;
-  const yy=1+R()*1.4,j=yy<1.55?2:yy<2.25?3:4,pv=pos.slice(W[i][j]*3,W[i][j]*3+3),w=L.pt(pv[0]+c.nx*.06,yy,pv[2]+c.nz*.06),dd=L.dir(-c.nx,-c.nz);
+  const j=2+(R()*3|0),yy=Ys[j],pv=pos.slice(W[i][j]*3,W[i][j]*3+3),w=L.pt(pv[0]+c.nx*.06,yy,pv[2]+c.nz*.06),dd=L.dir(-c.nx,-c.nz);
   ctx.veins.push({x:w.x,y:w.y,z:w.z,dx:dd[0],dz:dd[1],t:(o.pick||(()=>{const r=R();return r<.3?'ag':r<.45?'au':r<.58?'cr':r<.8?'fe':'cu'}))()})}
  /* loose stones along the foot of the wall */
  if(o.stones!==false)for(let i=0;i<nc;i+=2){const c=cols[i];if(c.f<1||R()<.45)continue;const s2=.12+R()*.3;L.geo(rk,new THREE.DodecahedronGeometry(s2,0),c.x-c.nx*(.15+s2*.5),s2*.22,c.z-c.nz*(.15+s2*.5),R()*3,R()*3,0,1,.7,1)}
@@ -166,7 +166,7 @@ function ugMushroom(L,R,x,z,h,cr,key,lean,y0){y0=y0||0;lean=lean||[0,0];const tx
 function ugPieceL2(b,p,Lv,ctx){if(Lv==0)return false;const t=p.type,y=UGLY(Lv),R=ugRng(p.id*331+17),W=ugWorld(p);
  /* the miners' tunnels: timbered, this level's rock, no rails */
  if(t=='join'||t=='drive'){for(const s of W.shp)if(s.k=='path'){const tr=ugTube(b,s.pts.map(q=>[q[0],y,q[1]]),{hw:2,fil:t=='join'?3:0,rails:false,lampsOut:ctx.lamps,lampOff:p.id%2,rock:ugRK(Lv),floorKey:ugFL(Lv)});
-   for(let sd=3+R()*3;sd<tr.L-2;sd+=5+R()*4){const f=tr.at(sd),side=R()<.5?-1:1;if(R()<.35)continue;ctx.veins.push({x:f.p[0]+f.r[0]*side*2.06,y:y+1+R()*.9,z:f.p[2]+f.r[1]*side*2.06,dx:-f.r[0]*side,dz:-f.r[1]*side,t:R()<.3?'ag':R()<.6?'fe':'cu'})}}return true}
+   for(let sd=3+R()*3;sd<tr.L-2;sd+=5+R()*4){const side=R()<.5?-1:1,hi=R()<.5;if(R()<.35)continue;const sc=sd-((sd-1.5)%3+3)%3+1.5,s2=Math.abs(sd-sc)<.6?sc+1.5:sd,w=ugTubeWall(tr,ugTubeRing(tr,s2),side<0?(hi?2:1):(hi?12:13));ctx.veins.push({x:w.x,y:w.y,z:w.z,dx:w.dx,dz:w.dz,t:R()<.3?'ag':R()<.6?'fe':'cu'})}}return true}
  /* cave passages and bends */
  if(t=='cpass'||t=='cbend'){for(const s of W.shp)if(s.k=='path'){const c=ugCave(b,s.pts.map(q=>[q[0],y,q[1]]),{rock:ugRK(Lv),floor:ugFL(Lv)});c.rk=ugRK(Lv);ugCaveDress(b,c,ctx,R,Lv)}return true}
  if(t=='stream'){ugStream(b,p,Lv,ctx,W,R);return true}
@@ -248,7 +248,7 @@ function ugOrePass(b,p,Lv,ctx,W){const y=UGLY(Lv),L=ugLocal(b,p,y),v=p.d.v||0,rk
  if(v==2){const rl=p.d.fx.find(f=>f.k=='rail'),q=p.d.fx.find(f=>f.n=='skip').pts[0];const w1=T(rl.pts[0][0],rl.pts[0][1]),w2=T(rl.pts[1][0],rl.pts[1][1]+.4);ugRailLine(b,[w1,w2],y,ctx,0);
   const wk=T(q[0],q[1]);ugCart(b,wk[0],y,wk[1],ugYaw(p));L.box('oreRock',.8,.12,1.2,q[0],.9,q[1],0)}
  /* a lamp, and veins in the dug walls */
- ugHangLamp(L,ctx,0,-3.2,2.5,3.4,1);ugWallVeins(L,r,ugLocalDoors(p,r),ctx,ugRng(p.id*41+3),{gap:2.6,ys:[.9,2],pick:()=>'ag',skip:.4})}
+ ugHangLamp(L,ctx,0,-3.2,2.5,3.4,1);ugWallVeins(L,r,ugLocalDoors(p,r),ctx,ugRng(p.id*41+3),{gap:2.6,ys:[.9,2],pick:()=>'ag',skip:.4,h:3.4})}
 
 /* ---------- the level 2 stations: the kit builds the room and the shaft; these are their own props ---------- */
 {const p0=ugProp;ugProp=function(b,n,x,y,z,yaw,r,ctx){const c=Math.cos(yaw),s=Math.sin(yaw),at=(lx,lz)=>[x+c*lx+s*lz,z-s*lx+c*lz];

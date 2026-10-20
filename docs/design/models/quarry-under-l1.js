@@ -26,11 +26,14 @@ function ugInside(g){g=g.index?g.toNonIndexed():g;const P=g.attributes.position.
 function ugLip(L,cx,cz,rx,rz,inner){const g=new THREE.RingGeometry(inner||.9,1.12,48);g.rotateX(-Math.PI/2);const sx=rx,sz=rz;L.geo('oreRock',g,cx,.012,cz,0,0,0,sx,1,sz)}
 /* ore veins along a room's walls: every `gap` metres or so, skipping doorways and corners. r: the room rect (local),
    doors: local [x,z] points on the outline, ys: [min,max] height, types: weights. Returns nothing; pushes to ctx.veins */
-function ugWallVeins(L,r,doors,ctx,R,o){o=o||{};const gap=o.gap||3,ys=o.ys||[.9,2.1],pick=o.pick||(()=>R()<.15?'ag':R()<.55?'fe':'cu');
+function ugWallVeins(L,r,doors,ctx,R,o){o=o||{};const gap=o.gap||3,ys=o.ys||[.9,2.1],pick=o.pick||(()=>R()<.15?'ag':R()<.55?'fe':'cu'),H=o.h||3.4,amp=o.amp==null?.22:o.amp;
  const walls=[[r.x0,r.z1,r.x1,r.z1,0,-1],[r.x1,r.z1,r.x1,r.z0,-1,0],[r.x1,r.z0,r.x0,r.z0,0,1],[r.x0,r.z0,r.x0,r.z1,1,0]];
  for(const [ax,az,bx,bz,ix,iz] of walls){const len=Math.hypot(bx-ax,bz-az);for(let t=1.2;t<len-1.2;t+=gap*(.7+R()*.6)){
   const x=ax+(bx-ax)*t/len,z=az+(bz-az)*t/len;if(doors.some(d=>Math.hypot(d[0]-x,d[1]-z)<2.8))continue;if(R()<(o.skip||.25))continue;
-  const yy=ys[0]+R()*(ys[1]-ys[0]),w=L.pt(x-ix*.06,yy,z-iz*.06),d=L.dir(ix,iz);ctx.veins.push({x:w.x,y:w.y,z:w.z,dx:d[0],dz:d[1],t:pick(),big:o.big&&R()<o.big?1:0})}}}
+  const yy=ys[0]+R()*(ys[1]-ys[0]);
+  /* the wall is pushed out by the noise as ugRoom does it (less near corners, doorways, floor and roof): follow it */
+  let dm=Math.min(t,len-t,(yy+.1)*2,H+.1-yy);for(const q of doors){const tq=(q[0]-ax)*(bx-ax)/len+(q[1]-az)*(bz-az)/len,pq=Math.abs((q[0]-ax)*(bz-az)/len-(q[1]-az)*(bx-ax)/len);if(pq<.1)dm=Math.min(dm,Math.max(0,Math.abs(t-tq)-2))}
+  const w0=L.pt(x,yy,z),dd=amp*Math.min(1,dm)*Math.min(1,yy/.7)*ugNoise(w0.x,w0.y,w0.z)+.06,w=L.pt(x-ix*dd,yy,z-iz*dd),d=L.dir(ix,iz);ctx.veins.push({x:w.x,y:w.y,z:w.z,dx:d[0],dz:d[1],t:pick(),big:o.big&&R()<o.big?1:0})}}}
 /* the doors of a room in local coords: the piece's openings and neck ends that lie on the rect */
 function ugLocalDoors(p,r){const on=(x,z)=>(Math.abs(x-r.x0)<.05||Math.abs(x-r.x1)<.05)&&z>r.z0-.05&&z<r.z1+.05||(Math.abs(z-r.z0)<.05||Math.abs(z-r.z1)<.05)&&x>r.x0-.05&&x<r.x1+.05;
  const c=[[0,0]].concat(p.d.ex.map(e=>[e[0],e[1]]));for(const s of p.d.shp)if(s.k=='path')for(const q of[s.pts[0],s.pts[s.pts.length-1]])c.push(q);return c.filter(q=>on(q[0],q[1]))}
@@ -75,11 +78,13 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
    /* rough rock benches along the long walls */
    for(const sd of[-1,1])for(let z=-4.5;z>-16;z-=3.6){const w=.9+R()*.5,hh=.6+R()*.5;L.box('rock',w,hh,3.2,sd*(7-w/2+.05),hh/2,z,0)}}
   if(v==1){const m=fx('muck')[0];ugPile(L,R,m.cx,m.cz,m.rx,m.rz,1.8);
-   const lg=fx('ledge')[0],lw=lg.x1-lg.x0,lc=(lg.x0+lg.x1)/2,ld=lg.z1-lg.z0,lcz=(lg.z0+lg.z1)/2,lh=2.4;L.box('rock',lw,lh,ld,lc,lh/2,lcz,0);L.box('floor',lw-.1,.02,ld-.1,lc,lh+.01,lcz,0);
+   const lg0=fx('ledge')[0],lsd=Math.abs(lg0.x0-r.x0)<Math.abs(lg0.x1-r.x1)?-1:1;/* the ledge runs back into the wall (no slit behind it) */
+   const lg={x0:lsd<0?r.x0-.3:lg0.x0,x1:lsd<0?lg0.x1:r.x1+.3,z0:lg0.z0,z1:lg0.z1},lw=lg.x1-lg.x0,lc=(lg.x0+lg.x1)/2,ld=lg.z1-lg.z0,lcz=(lg.z0+lg.z1)/2,lh=2.4;L.box('rock',lw,lh,ld,lc,lh/2,lcz,0);L.box('floor',lw-.1,.02,ld-.1,lc,lh+.01,lcz,0);
    /* a timber ladder leaning from the floor to the ledge's edge */
    const ld2=fx('ladder2')[0],edge=Math.abs(lg.x0-ld2.x)<Math.abs(lg.x1-ld2.x)?lg.x0:lg.x1,th=Math.atan2(ld2.x-edge,lh),len=Math.hypot(ld2.x-edge,lh)+.35;
    for(const sd of[-.25,.25])L.box('wood',.07,len,.07,ld2.x-Math.sin(th)*len/2,Math.cos(th)*len/2,ld2.z+sd,0,0,th);for(let yy=.3;yy<lh+.2;yy+=.3)L.box('wood',.05,.05,.56,ld2.x-Math.tan(th)*yy,yy,ld2.z,0);
-   ugWallVeins(L,{x0:lg.x0,x1:lg.x1,z0:lg.z0,z1:lg.z1},[],ctx,R,{gap:2,ys:[lh+.6,lh+1.8],pick:()=>R()<.4?'au':'ag',skip:.15})}
+   /* rich veins on the room's wall above the ledge */
+   {const wx=lsd<0?r.x0:r.x1;for(let z=lg.z1-1;z>lg.z0+.8;z-=1.6+R()*.6){const yy=lh+.6+R()*1.2,w0=L.pt(wx,yy,z),dm=Math.min(1,5.6-yy,Math.abs(z-r.z0),Math.abs(z-r.z1)),dd=.22*dm*ugNoise(w0.x,w0.y,w0.z)+.06,w=L.pt(wx+lsd*dd,yy,z),d=L.dir(-lsd,0);ctx.veins.push({x:w.x,y:w.y,z:w.z,dx:d[0],dz:d[1],t:R()<.4?'au':'ag'})}}}
   if(v==2){const sh=lrect(-1.6,1.6,-11.6,-8.4),cx=(sh.x0+sh.x1)/2,cz=(sh.z0+sh.z1)/2,top=y+h,H=9;
    /* the raise up to daylight: four rock walls, a bright opening at the top, a beam of light to the floor */
    for(const [ax,az,w,ry] of[[0,-11.6,3.2,0],[0,-8.4,3.2,Math.PI],[-1.6,-10,3.2,Math.PI/2],[1.6,-10,3.2,-Math.PI/2]]){L.geo('rock',new THREE.PlaneGeometry(w,H),ax,h+H/2,az,ry)}
@@ -103,14 +108,14 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
    L.box('dark',1.4,.25,1.4,wi[0],.125,wi[1],0);L.cyl('steel',.38,.38,1.1,wi[0],.75,wi[1],16,0,0,Math.PI/2);L.box('dark',.5,.5,.6,wi[0],.5,wi[1]-.75*mx,0);
    const an=[-6.6*mx,-4],dx=an[0]-wi[0],dz=an[1]-wi[1],l=Math.hypot(dx,dz);L.box('wire',.025,.025,l,(an[0]+wi[0])/2,.12,(an[1]+wi[1])/2,Math.atan2(dx,dz));L.cyl('steel',.08,.08,.4,an[0],.2,an[1],8)}
   /* veins: lots in a stope, and a big seam in some versions */
-  ugWallVeins(L,r,doors,ctx,R,{gap:1.9,ys:[.9,2.6],skip:.2,big:[0,3,5].includes(v)?.12:0});
+  ugWallVeins(L,r,doors,ctx,R,{gap:1.9,ys:[.9,2.6],skip:.2,big:[0,3,5].includes(v)?.12:0,h:5.5});
   return true}
 
  if(t=='crib'){const h=3.4;room(h);ugHangLamp(L,ctx,0,-6,2.5,h,1.1);
   const blk=n=>(fx('blk').find(f=>f.n==n)||{pts:[]}).pts;
   if(v==0){const tb=blk('table')[0];L.box('wood',.8,.06,1.3,tb[0],.78,tb[1],0);for(const q of[[-.32,-.55],[.32,-.55],[-.32,.55],[.32,.55]])L.box('woodD',.07,.75,.07,tb[0]+q[0],.375,tb[1]+q[1],0);
    for(const sd of[-.72,.72]){L.box('wood',.3,.05,1.3,tb[0]+sd,.46,tb[1],0);for(const dz of[-.5,.5])L.box('woodD',.06,.44,.24,tb[0]+sd,.22,tb[1]+dz,0)}
-   for(let i=0;i<4;i++){L.cyl('steel',.09,.09,.12,tb[0]+(R()-.5)*.5,.87,tb[1]+(R()-.5)*1.1,10)}L.box('red',.28,.16,.18,tb[0]+.15,.89,tb[1]+.3,.3);
+   for(let i=0;i<4;i++){L.cyl('steel',.09,.09,.12,tb[0]+(R()-.5)*.5,.87,tb[1]-.55+i*.17,10)}   /* the mugs stay clear of the lunch tin */L.box('red',.28,.16,.18,tb[0]+.15,.89,tb[1]+.3,.3);
    const st=blk('stove')[0];L.box('dark',.6,.8,.5,st[0],.4,st[1],0);L.cyl('dark',.07,.07,h-.8,st[0],.8+(h-.8)/2,st[1],10);L.cyl('steel',.12,.1,.18,st[0]-.1,.905,st[1]+.05,12);
    L.box('wood',.3,.04,1.6,-3.82*mx,1.5,-4.5,0);for(let i=0;i<5;i++)L.cyl('steel',.07,.07,.11,-3.82*mx,1.58,-3.9-i*.3,10);ugWallSign(L,ctx,0,1.8,-9.98+.0,0,1,'SAFETY FIRST',1.4)}
   if(v==1){for(const q of blk('rack').length?blk('rack'):fx('racks')[0].pts){L.box('wood',.5,1.8,.9,q[0],.9,q[1],0);for(let k=0;k<3;k++)for(let j=-1;j<=1;j++){L.box('woodD',.46,.03,.86,q[0],.5+k*.5,q[1],0);L.geo('lampG',new THREE.SphereGeometry(.06,8,6),q[0]+(q[0]>0?-.12:.12),.6+k*.5,q[1]+j*.26)}}
@@ -154,7 +159,7 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
   if(v==3){const cp=blk('compressor')[0];L.box('dark',2,.3,1.3,cp[0],.15,cp[1],0);for(const sd of[-.45,.25])L.cyl('steel',.3,.3,.9,cp[0]+sd*mx,.75,cp[1],16);L.cyl('dark',.6,.6,.14,cp[0]+.85*mx,.75,cp[1],24,0,0,Math.PI/2);
    const tk=blk('air tank')[0];L.cyl('steel',.55,.55,2.2,tk[0],1.1,tk[1],20);L.geo('steel',new THREE.SphereGeometry(.55,16,8,0,Math.PI*2,0,Math.PI/2),tk[0],2.2,tk[1]);
    L.cyl('rail',.06,.06,Math.hypot(tk[0]-cp[0],tk[1]-cp[1]),(tk[0]+cp[0])/2,1.6,(tk[1]+cp[1])/2,8,Math.atan2(tk[0]-cp[0],tk[1]-cp[1]),Math.PI/2,0)}
-  ugWallVeins(L,r,doors,ctx,R,{gap:3,skip:.45});
+  ugWallVeins(L,r,doors,ctx,R,{gap:3,skip:.45,h:3.9});
   return true}
  return false}
 
