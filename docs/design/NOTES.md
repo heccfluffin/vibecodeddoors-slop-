@@ -1,5 +1,14 @@
 # Notes for the design chat
 
+## 2026-10-20 · r644: the Pyramid
+- Built as specced, all six batches (dx629 holds pyr.js byte for byte; pyrBuild/pyrUnder build inline, so about 60 build.py patches swap each old mesh for the model at the same spot). All 38 pyramid prompts, the undercroft blocks, cells, stairs, combination and buried treasure are identical to before; the desert's seeded random sequence is unchanged.
+- Changed:
+  - the pushed-off sarcophagus lid now leans against the side (it stuck into the side wall);
+  - the opened chest lid hinges at the back (it floated ~14 cm above the chest);
+  - the undercroft is only drawn while you are down there (its torch lights stay attached, so shaders don't rebuild).
+- Draw calls went up (swiftshader count): avenue 344 → 530, antechamber 125 → 361, undercroft jackal hall 312 → 651. Main causes: many painted-panel texture variants, and pyJar/pyStele (and others) making a new canvas texture per copy. Could later models share one texture per kind?
+- The Pyramid's phone booth (-120, -1040, from the game's booth list) now stands in the middle of the new avenue in front of the entrance. Map warps land there. Move it to the side of the avenue?
+
 ## 2026-10-20 · r643: the lake, observatory, Dino Dan's, railway and train
 - Built as specced (dx631 holds lake.js unchanged; xpLake, xpObservatory, xpDino and xpRail are redefined; each model builds in its own group and the desert's seeded random sequence is untouched).
 - Telegraph poles: the model puts them on the south side (z -1653), not the north side the spec text says; built as the model. The old north-side line (z -1634, in xpMoreFar) is removed so there aren't two.

@@ -1,4 +1,4 @@
-/* =====================================================================================================
+/* r644: =====================================================================================================
    r640 (pyramid): THE PYRAMID REWORK (docs/design/pyramid.md, layout and batches 1-6; models docs/design/models/pyr.js).
 
    A new look for the whole Pyramid, outside, on the ground floor and in the undercroft. Every room, trap, puzzle,
