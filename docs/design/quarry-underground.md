@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2) waiting for the user's OK
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -367,7 +367,7 @@ level 1 of mine #4242: nothing (found and fixed: the catwalk boards, the kettle,
 lagging). `node quarry-under-check.js`: all clear, 483 rooms over many seeds, all 88 versions. Screenshots of every room
 from inside.
 
-### Batch 3: level 2, the caves (`models/quarry-under-l2.js`, `models/quarry-under-l2r.js`), waiting for the user's OK
+### Batch 3: level 2, the caves (`models/quarry-under-l2.js`, `models/quarry-under-l2r.js`), approved 2026-10-20
 Load them after `quarry-under-l1.js`. `ugBuildLevel` calls `ugPieceL2(b, p, L, ctx)` for every piece on levels 2 and 3
 first; it builds the piece and returns true, or returns false and the kit builds it as before. `ugBuildLevel` now also
 returns `solids` (mine coords `{x, z, r}`: big dressing that isn't in the plan, such as giant mushroom stems and roots).
