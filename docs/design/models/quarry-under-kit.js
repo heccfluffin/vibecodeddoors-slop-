@@ -360,7 +360,8 @@ function ugLadder(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),y1=UGLY(p.L+1),h=3.9;
  /* the raise: four plank walls from the lower roof to the upper floor, a ladder on one side, landings every 3 m */
  const top=y0-.02,bot=y1+h+.02,cx=(hole.x0+hole.x1)/2,cz=(hole.z0+hole.z1)/2,hx=(hole.x1-hole.x0)/2,hz=(hole.z1-hole.z0)/2,hgt=top-bot;
  b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z0-.03,0);b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z1+.03,0);b.box('plank',.06,hgt,2*hz,hole.x0-.03,bot+hgt/2,cz,0);b.box('plank',.06,hgt,2*hz,hole.x1+.03,bot+hgt/2,cz,0);
- const lx=hole.x0+.12;for(const sx of[-.22,.22])b.box('wood',.06,hgt+1.1,.06,lx,bot+(hgt+1.1)/2,cz+sx,0);for(let yy=bot+.3;yy<top+1;yy+=.3)b.box('wood',.04,.04,.5,lx,yy,cz,0);
+ /* the ladder runs from the lower landing's floor, up through its roof and the raise, to 1.1 m above the upper floor */
+ const lx=hole.x0+.12,lh=top+1.1-y1;for(const sx of[-.22,.22])b.box('wood',.06,lh,.06,lx,y1+lh/2,cz+sx,0);for(let yy=y1+.3;yy<top+1;yy+=.3)b.box('wood',.04,.04,.5,lx,yy,cz,0);
  for(let yy=bot+3;yy<top-1;yy+=3)b.box('woodD',2*hx-.7,.06,2*hz,cx+.33,yy,cz,0);
  /* a fence round the hatch upstairs */
  for(const [a,c] of[[[hole.x0,hole.z0],[hole.x1,hole.z0]],[[hole.x1,hole.z0],[hole.x1,hole.z1]],[[hole.x0,hole.z1],[hole.x1,hole.z1]]]){b.box('wood',Math.abs(c[0]-a[0])+.06,.06,Math.abs(c[1]-a[1])+.06,(a[0]+c[0])/2,y0+1.0,(a[1]+c[1])/2,0);}
