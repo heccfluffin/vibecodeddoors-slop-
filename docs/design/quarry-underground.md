@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 (layout, the shift, 88 room versions) · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) in review · preview "Mine Level 1"
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) in progress
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -253,7 +253,7 @@ Models go in `models/quarry-under-kit.js` (the kit and the builders) and further
 5. **The shift:** dynamite and crates, rubble and the rockfall, the gas cloud, the raft, zip line, lunchbox, notes,
    tags, fossils, the level map board and minimap drawing, the Shaft sinking upgrade and the cage panel.
 
-### Batch 1: the kit, tunnels and stations (`models/quarry-under-kit.js`), in review
+### Batch 1: the kit, tunnels and stations (`models/quarry-under-kit.js`), approved 2026-10-20
 `ugBuildLevel(plan, L)` builds a whole level from `ugGen`'s plan and returns `{g, lamps, veins, decl}`. `g` is one
 group in mine coordinates (put it at `MN.ox, MN.Y, MN.oz`; level floors at y 0, -12, -24). The preview builds level 1
 of a real plan this way.
