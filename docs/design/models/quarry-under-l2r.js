@@ -67,23 +67,23 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
 
  /* ====== CRYSTAL GROTTO ====== */
  if(t=='crystal'){const wf=f1('water');const pick=()=>{const r=R();return r<.45?'cr':r<.75?'ag':'au'};
-  const ch=room({dome:v==4?3.2:2.6,pits:v==1?[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}]:[],pick}),L=ch.L;
+  const ch=room({dome:v==2?5.6:v==4?4.2:3.6,pits:v==1?[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}]:[],pick}),L=ch.L;
   const clusters=(pts,s0,s1,key,lit)=>pts.forEach((q,i)=>{const s=s0+R()*(s1-s0);ugCrystals(L,R,q[0],q[1],s,key);if(lit&&i<lit)lamp(q[0],.8,q[1],1.1)});
   /* crystals at the foot of the walls, all round */
   const wall=(n,key)=>{for(let i=0;i<n;i++){const a=R()*6.28,w=ch.wallPt(a,.3);if(nearDoor(w.x,w.z,3.2))continue;ugCrystals(L,R,w.x-w.nx*.25,w.z-w.nz*.25,.6+R()*.7,key)}};
-  if(v==0){const sp=f1('spots');clusters(scatter(sp.n,sp.dx||0,sp.cz,sp.rx,sp.rz,1.5,false),.6,1.5,'crystal',4);wall(10,'crystal')}
+  if(v==0){const sp=f1('spots');clusters(scatter(sp.n,sp.dx||0,sp.cz,sp.rx,sp.rz,1.5,true),.6,1.5,'crystal',4);wall(10,'crystal')}
   if(v==1){/* the glowing pool: shallow enough to wade, lit from inside; crystals round it and under its edge */
    ugPool(L,wf,{prof:[[1,0],[.95,-.2],[.8,-.42],[.5,-.58],[0,-.62]],surf:-.05,dep:.62,key:'poolC',rock:'wet2'});lamp(wf.cx,.2,wf.cz,1.6);
    const rs=f1('ringspots');for(let i=0;i<rs.n;i++){const a=i/rs.n*6.28+R()*.2,x=rs.cx+Math.cos(a)*rs.rx,z=rs.cz+Math.sin(a)*rs.rz;if(nearDoor(x,z,2.4))continue;ugCrystals(L,R,x,z,.7+R()*.6,'crystal')}
    for(let i=0;i<9;i++){const a=R()*6.28,r=.72+R()*.12,x=wf.cx+Math.cos(a)*wf.rx*r,z=wf.cz+Math.sin(a)*wf.rz*r;ugCrystals(L,R,x,z,.4+R()*.3,'crystal',ugProfY([[1,0],[.95,-.2],[.8,-.42],[.5,-.58],[0,-.62]],r))}wall(6,'crystal')}
   if(v==2){/* selenite beams across the cave: one to climb over, one to duck under, one high; ends sunk into the walls */
-   const hs=[[.7,.95],[1.35,1.45],[2.5,3.4]],rs=[.42,.34,.5];f1('beams').ls.forEach((l,i)=>{const [a,c]=l,dx=c[0]-a[0],dz=c[1]-a[1],n=Math.hypot(dx,dz),ux=dx/n,uz=dz/n,h=hs[i%3];
+   const hs=[[2.6,3.4],[2.9,4.3],[3.6,5]],rs=[.42,.34,.5];f1('beams').ls.forEach((l,i)=>{const [a,c]=l,dx=c[0]-a[0],dz=c[1]-a[1],n=Math.hypot(dx,dz),ux=dx/n,uz=dz/n,h=hs[i%3];
     const A=[a[0]-ux*3,h[0]-(h[1]-h[0])*3/n,a[1]-uz*3],C=[c[0]+ux*3,h[1]+(h[1]-h[0])*3/n,c[1]+uz*3],g=new THREE.CylinderGeometry(rs[i%3],rs[i%3],Math.hypot(C[0]-A[0],C[1]-A[1],C[2]-A[2]),6);
     g.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(C[0]-A[0],C[1]-A[1],C[2]-A[2]).normalize())));L.geo('selenite',g,(A[0]+C[0])/2,(A[1]+C[1])/2,(A[2]+C[2])/2);
     const m=[(a[0]+c[0])/2,(a[1]+c[1])/2];lamp(m[0],(h[0]+h[1])/2+.6,m[1],.9)});
-   clusters(scatter(7,0,bl.cz,5.5,7,2,false),.5,1,'selenite',0);wall(5,'selenite')}
+   clusters(scatter(7,0,bl.cz,5.5,7,2,true),.5,1,'selenite',0);wall(5,'selenite')}
   if(v==3){/* frost: pale crystals, icicles, a cold mist at knee height */
-   const sp=f1('spots');clusters(scatter(sp.n,0,sp.cz,sp.rx,sp.rz,1.4,false),.5,1.2,'frost',3);wall(8,'frost');drips(ch,26,'frost',.08);
+   const sp=f1('spots');clusters(scatter(sp.n,0,sp.cz,sp.rx,sp.rz,1.4,true),.5,1.2,'frost',3);wall(8,'frost');drips(ch,26,'frost',.08);
    const mi=f1('mist');for(const [yy,s] of[[.18,1],[.42,.9],[.68,.75]])L.geo('mist',new THREE.CircleGeometry(1,40).rotateX(-Math.PI/2),mi.cx,yy,mi.cz,0,0,0,mi.rx*s,1,mi.rz*s)}
   if(v==4){/* huge six-sided crystal columns from floor to roof */
    const cf=f1('cols');cf.pts.forEach((q,i)=>{const tp=ch.roofAt(q[0],q[1])+.9,g=new THREE.CylinderGeometry(cf.r*.85,cf.r,tp+.1,6);L.geo('crystal',g,q[0],(tp+.1)/2-.1,q[1],R()*1.05);ugCrystals(L,R,q[0]+cf.r,q[1],.6,'crystal');if(i<2)lamp(q[0],1.4,q[1],1.2)});wall(6,'crystal')}
@@ -91,30 +91,30 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
 
  /* ====== FUNGUS GROTTO ====== */
  if(t=='fungus'){const wf=f1('water'),led=f1('ledge');
-  const ch=room({dome:2.8,pits:v==2?[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}]:[],pick:()=>{const r=R();return r<.35?'ag':r<.5?'au':r<.75?'fe':'cu'}}),L=ch.L;
-  const giants=(pts,key)=>pts.forEach((q,i)=>{const h=3+R()*1.4,cr=1.3+R()*.8,a=R()*6.28,top=ugMushroom(L,R,q[0],q[1],h,cr,key,[Math.cos(a)*.5,Math.sin(a)*.5]);solid(q[0],q[1],.4);if(i<4)lamp(top[0],top[1]-.5,top[2],1)});
+  const ch=room({dome:5,pits:v==2?[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}]:[],pick:()=>{const r=R();return r<.35?'ag':r<.5?'au':r<.75?'fe':'cu'}}),L=ch.L;
+  const giants=(pts,key)=>pts.forEach((q,i)=>{const cr=1.3+R()*.8,a=R()*6.28,rf=Math.min(ch.roofAt(q[0],q[1]),ch.roofAt(q[0]+Math.cos(a)*(cr+.5),q[1]+Math.sin(a)*(cr+.5))),h=Math.max(2.4,Math.min(3+R()*1.4,rf-.7-.45*cr)),top=ugMushroom(L,R,q[0],q[1],h,cr,key,[Math.cos(a)*.5,Math.sin(a)*.5]);solid(q[0],q[1],.4);if(i<4)lamp(top[0],top[1]-.5,top[2],1)});
   const smalls=(pts,key,s0,s1)=>pts.forEach(q=>{const n=2+(R()*3|0);for(let k=0;k<n;k++){const h=s0+R()*(s1-s0);ugMushroom(L,R,q[0]+(R()-.5)*.8,q[1]+(R()-.5)*.8,h,h*.45+R()*.1,key,[(R()-.5)*.2,(R()-.5)*.2])}});
   const moss=(pts)=>pts.forEach(q=>{const g=new THREE.CircleGeometry(1,10);const pa=g.attributes.position;for(let i=1;i<pa.count;i++){const k=.7+R()*.5;pa.setXY(i,pa.getX(i)*k,pa.getY(i)*k)}g.rotateX(-Math.PI/2);L.geo('moss',g,q[0],.012,q[1],R()*6,0,0,.6+R()*.7,1,.5+R()*.6)});
   const glowworms=n=>{for(let i=0;i<n;i++){const a=R()*6.28,r=Math.sqrt(R())*.9,x=bl.cx+Math.cos(a)*bl.rx*r,z=bl.cz+Math.sin(a)*bl.rz*r,rf=ch.roofAt(x,z),l=.12+R()*.3;
    L.cyl('stem',.004,.004,l+1,x,rf-l/2+.5,z,3);L.geo('glowB',new THREE.SphereGeometry(.028,6,4),x,rf-l,z)}};
   const vines=n=>{for(let i=0;i<n;i++){const a=R()*6.28,w=ch.wallPt(a,3.4);if(nearDoor(w.x,w.z,3))continue;const l=1+R()*1.8,P=[];for(let k=0;k<=5;k++)P.push(new THREE.Vector3(w.x-w.nx*(.05+k*.05)+Math.sin(k*1.7+i)*.12,3.9-l*k/5,w.z-w.nz*(.05+k*.05)+Math.cos(k*1.3+i)*.12));L.geo('moss',new THREE.TubeGeometry(new THREE.CatmullRomCurve3(P),12,.035,4,false),0,0,0)}};
-  if(v==0){const pk=fx('spots').find(f=>f.c=='#e58ae0'),gr=fx('spots').find(f=>f.c!='#e58ae0');const big=scatter(6,0,pk.cz,pk.rx,pk.rz,3.2,true);giants(big,'capP');
-   smalls(scatter(10,0,pk.cz,pk.rx,pk.rz,1.4,false,(x,z)=>big.some(q=>Math.hypot(q[0]-x,q[1]-z)<2)),'capP',.5,1.3);smalls(scatter(6,0,gr.cz,gr.rx,gr.rz,1.6,false),'capG',.2,.5);moss(scatter(gr.n,0,gr.cz,gr.rx,gr.rz,1.2,false));vines(14);glowworms(90)}
+  if(v==0){const pk=fx('spots').find(f=>f.c=='#e58ae0'),gr=fx('spots').find(f=>f.c!='#e58ae0');const big=scatter(6,0,pk.cz,pk.rx*.72,pk.rz*.72,3.2,true);giants(big,'capP');
+   smalls(scatter(10,0,pk.cz,pk.rx,pk.rz,1.4,true,(x,z)=>big.some(q=>Math.hypot(q[0]-x,q[1]-z)<2)),'capP',.5,1.3);smalls(scatter(6,0,gr.cz,gr.rx,gr.rz,1.6,false),'capG',.2,.5);moss(scatter(gr.n,0,gr.cz,gr.rx,gr.rz,1.2,false));vines(14);glowworms(90)}
   if(v==1){/* puffballs as big as cars, and small ones round them */
    for(const q of f1('puff').pts){const g=new THREE.IcosahedronGeometry(1.55,2),pa=g.attributes.position;for(let i=0;i<pa.count;i++){const w=L0.pt(q[0]+pa.getX(i),pa.getY(i),q[1]+pa.getZ(i)),k=.94+.12*ugNoise(w.x*2,w.y*2,w.z*2);pa.setXYZ(i,pa.getX(i)*k,pa.getY(i)*k,pa.getZ(i)*k)}g.computeVertexNormals();L.geo('puff',g,q[0],1.55*.78-.12,q[1],R()*3,0,0,1,.78,1)}
    for(const q of scatter(14,0,bl.cz,7.5,7.5,1,false,(x,z)=>f1('puff').pts.some(p2=>Math.hypot(p2[0]-x,p2[1]-z)<2.1))){const r=.2+R()*.35;L.geo('puff',new THREE.SphereGeometry(r,10,8),q[0],r*.75,q[1],0,0,0,1,.8,1)}
-   smalls(scatter(6,0,bl.cz,8,8,2,false),'capP',.3,.8);for(const q of f1('puff').pts.slice(0,3))lamp(q[0],3,q[1],.8);glowworms(40)}
+   smalls(scatter(6,0,bl.cz,8,8,2,true),'capP',.3,.8);for(const q of f1('puff').pts.slice(0,3))lamp(q[0],3,q[1],.8);glowworms(40)}
   if(v==2){/* the glow pond: lit from below, lily pads, mushrooms round the edge, frogs */
    ugPool(L,wf,{bowl:1,surf:-.2,dep:2,key:'poolT',rock:'wet2',layers:false});L.geo('glowBed',new THREE.CircleGeometry(1,24).rotateX(-Math.PI/2),wf.cx,-1.6,wf.cz,0,0,0,wf.rx*.35,1,wf.rz*.35);lamp(wf.cx,-.3,wf.cz,1.8);
    const lp=fx('spots').find(f=>f.c=='#5fbf6a');const pads=[];for(let k=0;pads.length<lp.n&&k<300;k++){const a=R()*6.28,r=Math.sqrt(R())*.8,x=wf.cx+Math.cos(a)*wf.rx*r,z=wf.cz+Math.sin(a)*wf.rz*r;if(pads.some(q=>Math.hypot(q[0]-x,q[1]-z)<1.2))continue;pads.push([x,z])}
    pads.forEach((q,i)=>{const r=.35+R()*.3;L.geo('lily',new THREE.CircleGeometry(r,16,.4,Math.PI*2-.5).rotateX(-Math.PI/2),q[0],-.185,q[1],R()*6);if(i<3){L.geo('frog',new THREE.SphereGeometry(.13,10,8),q[0],-.12,q[1],0,0,0,1,.7,1.2);for(const sd of[-.06,.06])L.geo('frog',new THREE.SphereGeometry(.04,8,6),q[0]+sd,-.05,q[1]-.08)}});
-   const rs=f1('ringspots');for(let i=0;i<rs.n;i++){const a=i/rs.n*6.28,x=rs.cx+Math.cos(a)*rs.rx,z=rs.cz+Math.sin(a)*rs.rz;if(nearDoor(x,z,2.6))continue;const h=.7+R()*1.4;ugMushroom(L,R,x,z,h,h*.4+.1,'capP',[Math.cos(a)*.15,Math.sin(a)*.15])}glowworms(60)}
+   const rs=f1('ringspots');for(let i=0;i<rs.n;i++){const a=i/rs.n*6.28,x=rs.cx+Math.cos(a)*rs.rx,z=rs.cz+Math.sin(a)*rs.rz;if(nearDoor(x,z,2.6)||onWay(x,z,1.2))continue;const h=.7+R()*1.4;ugMushroom(L,R,x,z,h,h*.4+.1,'capP',[Math.cos(a)*.15,Math.sin(a)*.15])}glowworms(60)}
   if(v==3){/* the shelf-fungus wall: shelves like steps up to a high ledge with gold */
    const x0=Math.min(led.x0,led.x1),x1=Math.max(led.x0,led.x1),side=x0>0?1:-1,face=side>0?x0:x1,lh=2.7,w=5.2;const lx=side>0?(face+w/2):(face-w/2);
    L.box(rk,w,lh,led.z1-led.z0,lx,lh/2,(led.z0+led.z1)/2,0);L.box(ugFL(Lv),w-.1,.02,led.z1-led.z0-.1,lx,lh+.01,(led.z0+led.z1)/2,0);
    for(let i=0;i<6;i++){const yy=.45*(i+1),z=led.z1-.6-i*(led.z1-led.z0-1.2)/5,g=new THREE.CylinderGeometry(.72,.8,.15,16,1,false,side>0?Math.PI:0,Math.PI);L.geo('capT',g,face,yy-.075,z)}
    for(let i=0;i<5;i++){const a=Math.atan2((led.z0+led.z1)/2-bl.cz+(i-2)*.9,side*bl.rx),w2=ch.wallPt(a,lh+.5+R()*.8);ctx.veins.push((()=>{const W=L0.pt(w2.x+w2.nx*.06,w2.y,w2.z+w2.nz*.06),d=L0.dir(-w2.nx,-w2.nz);return{x:W.x,y:W.y,z:W.z,dx:d[0],dz:d[1],t:'au'}})())}
-   const pk=fx('spots').find(f=>f.c=='#e58ae0');smalls(scatter(8,pk.dx||0,pk.cz,pk.rx,pk.rz,1.6,false,(x,z)=>x*side>face*side-1.2),'capP',.5,1.4);giants(scatter(2,-side*3,bl.cz,3,5,4,true,(x,z)=>x*side>face*side-2.5),'capP');glowworms(50)}
+   const pk=fx('spots').find(f=>f.c=='#e58ae0');smalls(scatter(8,pk.dx||0,pk.cz,pk.rx,pk.rz,1.6,true,(x,z)=>x*side>face*side-1.2),'capP',.5,1.4);giants(scatter(2,-side*3,bl.cz,3,5,4,true,(x,z)=>x*side>face*side-2.5),'capP');glowworms(50)}
   if(v==4){/* the root hall: thick pale roots from the roof to the floor, thinner ones ending in glowing tips */
    const cf=f1('cols');for(const q of cf.pts){const tp=ch.roofAt(q[0],q[1])+1,P=[];for(let k=0;k<=6;k++){const f=k/6;P.push(new THREE.Vector3(q[0]+Math.sin(f*4+q[0])*.25,tp-(tp+.15)*f,q[1]+Math.cos(f*3+q[1])*.25))}
     L.geo('root',new THREE.TubeGeometry(new THREE.CatmullRomCurve3(P),24,cf.r*.7,8,false),0,0,0);L.geo('root',new THREE.ConeGeometry(cf.r*1.3,.6,8),P[6].x,.25,P[6].z);solid(q[0],q[1],cf.r)}
@@ -127,7 +127,7 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
  if(t=='flooded'){const ws=fx('water'),pk=()=>{const r=R();return r<.4?'ag':r<.6?'au':r<.8?'fe':'cu'};
   if(v==3){/* the waterfall gallery: a plunge pool and a wading channel joined into one basin */
    const deep=ws.find(w=>w.deep),sh=ws.find(w=>!w.deep);const B=ugBasinShape([{cx:deep.cx,cz:deep.cz,rx:deep.rx,rz:deep.rz,prof:[[1,0],[.92,-.35],[.7,-1.2],[.35,-2],[0,-2.2]]},{cx:sh.cx,cz:sh.cz,rx:sh.rx,rz:sh.rz,prof:[[1,0],[.95,-.25],[.88,-.42],[0,-.45]]}],[(deep.cx+sh.cx)/2,deep.cz]);
-   const ch=room({dome:2.2,holes:[B.pts],pick:pk}),L=ch.L;ugBasin(L,B,{surf:-.04,key:'pool'});
+   const ch=room({dome:3,holes:[B.pts],pick:pk}),L=ch.L;ugBasin(L,B,{surf:-.04,key:'pool'});
    for(const f of[.3,.55,.8]){const d=-.04+(-2.2+.04)*f,pr=[[1,0],[.92,-.35],[.7,-1.2],[.35,-2],[0,-2.2]];let r=0;for(let i=1;i<pr.length;i++)if(d>=pr[i][1]){r=pr[i-1][0]+(pr[i][0]-pr[i-1][0])*(d-pr[i-1][1])/(pr[i][1]-pr[i-1][1]);break}if(r>.05)L.geo('poolD',new THREE.CircleGeometry(1,40).rotateX(-Math.PI/2),deep.cx,d,deep.cz,0,0,0,deep.rx*r*1.03,1,deep.rz*r*1.03)}
    const fl=f1('falls'),w=ch.wallPt(Math.atan2(fl.z-bl.cz,fl.x-bl.cx),3.3),fw=2.1,top=3.3;
    L.box('black',fw+.3,.45,.7,w.x+w.nx*.38,top+.1,w.z+w.nz*.38,Math.atan2(w.nx,w.nz));
@@ -136,7 +136,7 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
    for(const [yy,s] of[[.4,1.4],[1,1.1]])L.geo('mist',new THREE.CircleGeometry(1,24).rotateX(-Math.PI/2),w.x-w.nx*1.1,yy,w.z-w.nz*1.1,0,0,0,s,1,s);
    return true}
   const wf=ws[0],pf={0:[[1,0],[.96,-.25],[.9,-.42],[0,-.45]],1:null,2:[[1,0],[.9,-.35],[.62,-.8],[.45,-.9],[0,-.9]]}[v];
-  const ch=room({dome:1.8,pits:[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}],pick:pk}),L=ch.L;
+  const ch=room({dome:2.8,pits:[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}],pick:pk}),L=ch.L;
   if(v==0){ugPool(L,wf,{prof:pf,surf:-.04,dep:.45,key:'pool',rock:'wet2'});
    /* the plank walkway along one side, on posts standing in the water's edge */
    const wk=f1('walk'),a=wk.pts[0],c=wk.pts[1],dd=(x,z)=>ugProfY(pf,Math.hypot((x-wf.cx)/wf.rx,(z-wf.cz)/wf.rz));
@@ -165,7 +165,7 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
   const Lf=[],Rt=[];for(let i=0;i<P.length;i++){const a=P[Math.max(0,i-1)],c=P[Math.min(P.length-1,i+1)];let tx=c[0]-a[0],tz=c[1]-a[1];const l=Math.hypot(tx,tz);tx/=l;tz/=l;const h=hw(i);Lf.push([P[i][0]-tz*h,P[i][1]+tx*h]);Rt.push([P[i][0]+tz*h,P[i][1]-tx*h])}
   let hole=Lf.concat(Rt.reverse());if(ugArea(hole)<0)hole.reverse();const ell=[];for(let i=0;i<64;i++){const a=i/64*Math.PI*2;ell.push([bl.cx+(bl.rx-.1)*Math.cos(a),bl.cz+(bl.rz-.1)*Math.sin(a)])}if(ugArea(ell)<0)ell.reverse();
   hole=ugClip(hole,ell).filter((q,i,A)=>Math.hypot(q[0]-A[(i+1)%A.length][0],q[1]-A[(i+1)%A.length][1])>.02);
-  const ch=room({dome:3,holes:[hole],pick:pk}),L=ch.L;
+  const ch=room({dome:4.2,holes:[hole],pick:pk}),L=ch.L;
   /* the fissure's sides: rough rock going down 9 m, facing into the gap; darkness at the bottom */
   {const n=hole.length,rows=[0,-.5,-1.3,-2.3,-3.5,-5,-7,-D],pos=[],uv=[],idx=[],ar=ugArea(hole)>0;let s=0;const cols=[];for(let i=0;i<n;i++){const a=hole[(i+n-1)%n],c=hole[(i+1)%n];let ux=c[0]-a[0],uz=c[1]-a[1];const l=Math.hypot(ux,uz)||1;cols.push({x:hole[i][0],z:hole[i][1],ox:(ar?uz:-uz)/l,oz:(ar?-ux:ux)/l,s});s+=Math.hypot(hole[(i+1)%n][0]-hole[i][0],hole[(i+1)%n][1]-hole[i][1])}
    for(const c of cols)for(const yy of rows){const w=L0.pt(c.x,yy,c.z),d=.45*Math.min(1,-yy/.8)*ugNoise(w.x,w.y,w.z);pos.push(c.x+c.ox*d,yy,c.z+c.oz*d);uv.push(c.s/3,yy/3)}
@@ -197,7 +197,7 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
 
  /* ====== STALACTITE HALL ====== */
  if(t=='hall'){const pk=()=>{const r=R();return r<.4?'ag':r<.55?'au':r<.65?'cr':r<.85?'fe':'cu'};
-  const dome=v==2?7.5:v==4?6.5:3.2;
+  const dome=v==2?7.5:v==4?6.5:4.4;
   if(v==1){/* rimstone terraces: pools rimmed with stone stepping up towards the back, water brim-full in each */
    const tf=f1('terraces'),pools=[];for(let k=0;k<tf.n;k++){const z=tf.cz+tf.rz*.7-k*(tf.rz*1.4/(tf.n-1)),x=(k%2?1:-1)*1.4;pools.push({cx:x,cz:z,rx:3.6,rz:1.3,h:.14+.09*k})}
    const ch=room({dome,pits:pools.map(q=>({cx:q.cx,cz:q.cz,rx:q.rx*.99,rz:q.rz*.99})),pick:pk}),L=ch.L;

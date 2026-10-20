@@ -149,7 +149,7 @@ Level 2 · The Caves
 | Shaft station | **Cave station**: Rough rock round a timber platform at the cage, the level map board, a lamp on a wire.<br>**Pumping station**: Big pumps and pipes climbing the shaft wall, thumping away; puddles everywhere.<br>**Refuge station**: A steel door into a refuge chamber with air bottles: gas can't follow you in here. |
 | Cave fork (levels 2, 3) | **Cave fork**: The cave splits.<br>**Boulder fork**: A huge boulder that fell from the roof sits where the cave splits.<br>**Dripstone fork**: Two columns and a dripping roof where the cave splits. |
 | Rock island (levels 2, 3) | **Rock island**: The cave splits round a rock island and joins again: two ways past.<br>**Crystal island**: The island is one great crystal pillar, lit from inside.<br>**Mushroom island**: Giant mushrooms grow on the island, their caps reaching over the passage.<br>**Flooded round**: Ankle-deep water all the way round the island, and drips that ring like bells. |
-| Crystal grotto | **Crystal grotto**: Glowing crystal clusters, silver and crystal veins.<br>**Crystal pool**: A still, glowing pool ringed with crystals. The rarest crystals grow under the water's edge (wade in).<br>**Selenite beams**: Giant crystal beams cross the cave at all angles: duck under some, climb over others.<br>**Frost grotto**: Pale blue crystals furred with frost and a cold mist at knee height. Your breath shows.<br>**Crystal columns**: Huge six-sided crystal columns from floor to roof, a maze of light. |
+| Crystal grotto | **Crystal grotto**: Glowing crystal clusters, silver and crystal veins.<br>**Crystal pool**: A still, glowing pool ringed with crystals. The rarest crystals grow under the water's edge (wade in).<br>**Selenite beams**: Giant crystal beams cross a tall cave at all angles high over your head, their ends sunk deep in the rock.<br>**Frost grotto**: Pale blue crystals furred with frost and a cold mist at knee height. Your breath shows.<br>**Crystal columns**: Huge six-sided crystal columns from floor to roof, a maze of light. |
 | Fungus grotto | **Fungus grotto**: Giant mushrooms, moss, vines and glowworms.<br>**Puffball hollow**: Puffballs as big as cars. Hit one and it bursts in a cloud of glowing spores (harmless, slow to clear).<br>**Glow pond**: A deep pond lit from below, lily pads, mushrooms round the edge, frogs that go quiet when you come close.<br>**Shelf-fungus wall**: Giant shelf fungi grow up one wall like steps: climb them to a high ledge with gold.<br>**Root hall**: Thick pale roots hang from the roof to the floor, glowing at the tips. Something far above is very thirsty. |
 | Flooded gallery | **Flooded gallery**: Knee-deep water you wade through, a plank walkway along one side.<br>**Underground lake**: Too deep to wade. Pull the rope raft across (hold E); it takes up to four.<br>**Drowned drift**: An old timbered drive the water took: rails under the surface, a sunken minecart, waist-deep in the middle.<br>**Waterfall gallery**: A waterfall pours out of a crack in the wall into a deep plunge pool. Spray, a roar, the path past it. |
 | Chasm hall | **Chasm hall**: A rope bridge over a fissure, or jump the stones.<br>**Broken bridge**: The bridge has fallen. Edge round the end of the fissure on a narrow ledge, or make a long jump.<br>**Trestle crossing**: A wide fissure crossed by the miners' old timber trestle, rails and all. It creaks.<br>**Zip line**: A rusty miners' zip line: grab the handle (E) and slide over. Coming back, take the ledge round the end. |
@@ -370,7 +370,7 @@ landings, the decline and stations use them.
   of the walls, veins every 4-8 m (silver, gold, crystal, some iron and copper).
 - **Cave rooms** (`ugChamber`): the plan's oval, with each doorway flattened into a straight 5.2 m stretch of wall;
   rock walls up to 3.65 m (pushed out up to 0.75 m, never at the floor or near a doorway) curving into a domed roof
-  (1.8-7.5 m higher in the middle, by room). Each doorway is the 4 m arch with a flat panel above it and a rock lip
+  (2.6-7.5 m higher in the middle, by room: tall enough that nothing hanging or growing is in your way). Each doorway is the 4 m arch with a flat panel above it and a rock lip
   round it. `roofAt(x, z)` and `wallPt(angle, y)` give the roof height and a point on the wall, so columns, roots,
   stalactites and the fossil sit on the real rock (things hanging from the roof reach 0.9 m up into it, because the
   roof is only known exactly at its ring points). A room may have an island (a rock pillar the passage goes round,
@@ -394,8 +394,8 @@ landings, the decline and stations use them.
   (rails to the chute's lip, a skip with ore).
 - **Crystal grotto** (veins mostly crystal and silver): *Crystal grotto* (16 clusters, crystals round the foot of the
   walls, lit); *Crystal pool* (a glowing, wadeable pool, 0.6 m deep, crystals round it and under its edge, a light in
-  it); *Selenite beams* (three pale beams sunk into the walls: one at 0.7-0.95 m to climb over, one at 1.35-1.45 m to
-  duck under, one high); *Frost grotto* (frost crystals, icicles, a cold mist at knee height in three soft layers);
+  it); *Selenite beams* (a 9 m high cave; three pale beams sunk into the walls, all
+  between 2.6 and 5 m up, so none is in your way); *Frost grotto* (frost crystals, icicles, a cold mist at knee height in three soft layers);
   *Crystal columns* (huge six-sided crystal columns floor to roof).
 - **Fungus grotto**: *Fungus grotto* (six giant glowing mushrooms, smaller ones, green mushrooms, moss, vines down the
   walls, 90 glowworms on threads); *Puffball hollow* (five car-sized puffballs, small ones); *Glow pond* (a deep pond
