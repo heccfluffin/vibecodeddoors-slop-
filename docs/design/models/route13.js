@@ -111,11 +111,12 @@ function rtConcrete(k){if(k._conc)return k._conc;const r=k.r,t=k.tex(256,256,(c,
    The forecourt is one concrete slab x 3.5..72, z -1013..-993.5 at y .025 (the shop and the car wash stand on it),
    joining Route 13 and the PD road. The canopy keeps the old one's four column spots (x 22 / 34, z -1009 / -1001). */
 function rtGas(g){const k=rtKit(),{B,C,rod,L,slab}=k.H(g),M=k.M,obs=[],lights=[],pumps=[];const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
- {const X0=3.5,X1=72,Z0=-1013,Z1=-993.5,m=rtConcrete(k)();m.map=m.map.clone();m.map.needsUpdate=true;m.map.repeat.set((X1-X0)/4,(Z1-Z0)/4);const p=new THREE.Mesh(new THREE.PlaneGeometry(X1-X0,Z1-Z0),m);p.rotation.x=-Math.PI/2;p.position.set((X0+X1)/2,.025,(Z0+Z1)/2);p.userData.noSeam=true;g.add(p);
+ {const X0=3.5,X1=84.5,Z0=-1013,Z1=-993.5,m=rtConcrete(k)();m.map=m.map.clone();m.map.needsUpdate=true;m.map.repeat.set((X1-X0)/4,(Z1-Z0)/4);const p=new THREE.Mesh(new THREE.PlaneGeometry(X1-X0,Z1-Z0),m);p.rotation.x=-Math.PI/2;p.position.set((X0+X1)/2,.025,(Z0+Z1)/2);p.userData.noSeam=true;g.add(p);
   /* a low kerb along the south edge, where the forecourt meets the sand (gaps for the taxi stand path) */B(X1-X0-14,.12,.25,(X0+X1)/2+7,.06,Z0-.125,k.KERB);
   /* painted arrows: in from Route 13, round to the car wash, out to the PD road */
   const arrow=(x,z,rot,txt)=>{const m2=rtPaint(k,2.2,4.4,(c,w,h)=>{c.fillStyle='rgba(244,240,226,.92)';c.save();c.translate(w/2,h/2);c.rotate(rot);c.beginPath();c.moveTo(0,-h*.42);c.lineTo(w*.38,-h*.12);c.lineTo(w*.14,-h*.12);c.lineTo(w*.14,h*.42);c.lineTo(-w*.14,h*.42);c.lineTo(-w*.14,-h*.12);c.lineTo(-w*.38,-h*.12);c.closePath();c.fill();c.restore();if(txt){c.font='bold 52px "Barlow Semi Condensed",DoorsSans,Arial';c.textAlign='center';c.fillText(txt,w/2,h*.97)}},128);m2.position.set(x,.04,z);m2.rotation.z=0;g.add(m2);return m2};
-  arrow(12,-1004,Math.PI/2);arrow(50,-1005,Math.PI/2);arrow(70,-997.5,Math.PI)}
+  arrow(12,-1004,Math.PI/2);arrow(53,-997,Math.PI/2);arrow(58,-1005,Math.PI/2);arrow(81.5,-998.5,Math.PI);
+  /* a wide painted lead-in to the car wash: two lines flaring out from the bay walls across the apron */for(const sd of[-1,1]){const ax=64,az=-1005+sd*4.15,bx=55.5,bz=-1005+sd*7.5,L2=Math.hypot(bx-ax,bz-az),m3=rtPaint(k,.25,L2,(c,w,h)=>{c.fillStyle='rgba(244,240,226,.9)';c.fillRect(0,0,w,h)},16);m3.position.set((ax+bx)/2,.04,(az+bz)/2);m3.rotation.z=Math.atan2(-(bx-ax),-(bz-az));g.add(m3)}}
  /* the canopy: a deep box on four clad columns, green fascia with a white stripe and the name on three sides, a
     white underside with six glowing light panels */
  const CX0=20.6,CX1=35.4,CZ0=-1010.6,CZ1=-999.4,CY=5.0,CD=.9,GRN=M(0x3a8a2a,{roughness:.6}),WHT=M(0xf2f0ea,{roughness:.7}),LITE=M(0xffffff,{emissive:0xfff4dc,emissiveIntensity:1.1});
@@ -173,12 +174,13 @@ function rtShopFront(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const r=
  {const lg=new THREE.Mesh(new THREE.PlaneGeometry(1.1,1.1),new THREE.MeshBasicMaterial({map:rtLogoTex(k),transparent:true}));lg.position.set(PX-PT/2-.006,4.72,Z1-.8);lg.rotation.y=-Math.PI/2;lg.userData.noSeam=true;g.add(lg)}
  return{obs}}
 
-/* ---- 2c: the car wash, a drive-through tunnel east of the shop (x 54..68, z -1009..-1001). Cars go in at the
+/* ---- 2c: the car wash, a drive-through tunnel east of the shop (x 64..78, z -1009..-1001), with a 16 m apron
+   between it and the shop so long cars (the dragster) can swing in straight. Cars go in at the
    west end and out at the east end. Returns {obs, bay:{x0,x1,z0,z1}, parts:{brushL, brushR, brushTop, arch,
    dryer, sign:{stop, go}, jets}} for the game to animate: brushes spin about their axes (brushL/R about y and move
    in/out along z, brushTop about x and up/down), the spray arch's jets show while washing, the sign lights. ---- */
 function rtCarWash(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
- const X0=54,X1=68,Z0=-1009,Z1=-1001,H=4.4,T=.3,GRN=M(0x3a8a2a,{roughness:.6}),WHT=M(0xf2f0ea,{roughness:.8}),BL=M(0x3a7ac8,{roughness:.5}),STL=k.STL;
+ const X0=64,X1=78,Z0=-1009,Z1=-1001,H=4.4,T=.3,GRN=M(0x3a8a2a,{roughness:.6}),WHT=M(0xf2f0ea,{roughness:.8}),BL=M(0x3a7ac8,{roughness:.5}),STL=k.STL;
  const r=k.r,BUB=M(0xffffff,{roughness:.9,map:k.tex(256,128,(c,w,h)=>{c.fillStyle='#f2f0ea';c.fillRect(0,0,w,h);for(let i=0;i<40;i++){const x=r()*w,y=h*.35+r()*h*.65,rr=4+r()*14;c.strokeStyle='rgba(58,122,200,.55)';c.lineWidth=2;c.beginPath();c.arc(x,y,rr,0,7);c.stroke();c.fillStyle='rgba(255,255,255,.7)';c.beginPath();c.arc(x-rr*.35,y-rr*.35,rr*.2,0,7);c.fill()}c.fillStyle='#3a8a2a';c.fillRect(0,h-14,w,14)})});
  BUB.map.repeat.set(3,1);
  /* side walls (white with bubbles, a green foot), the roof slab, a green fascia round the top; open at both ends */

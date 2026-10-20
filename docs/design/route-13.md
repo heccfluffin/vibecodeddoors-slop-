@@ -49,8 +49,9 @@ globals start with `rt`.
    Route 13 and the PD road), a new canopy with green fascia and EL GOBLINO GAS letters on all four sides, new pumps
    on islands, a tall roadside price sign ("BREAD 12 · CHEESE 15 · GWEEN SODA 20"), an air and water post, and a
    remodelled shop front (stucco, a big window band, the sliding doors). **The shop's inside stays as it is.**
-   **A drive-through car wash** (the user, 2026-10-20) east of the shop: a tunnel building x 54…68, z -1009…-1001,
-   cars drive in from the west (the forecourt carries on east past the shop to x 72) and out to the east, then turn
+   **A drive-through car wash** (the user, 2026-10-20) east of the shop: a tunnel building x 64…78, z -1009…-1001,
+   cars drive in from the west across a 16 m apron (so long cars like the dragster can line up straight; the user's
+   note) (the forecourt carries on east past the shop to x 84.5, where it meets the PD drive) and out to the east, then turn
    north onto the PD road. Inside: two big spinning brushes, an overhead brush, spray arches, a dryer, lights that say
    PULL FORWARD / STOP / GO. "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car is pulled through
    slowly, brushes spin, foam and water, then a shine sparkle; it cleans off scorch marks and smoke and puts back a
@@ -120,7 +121,7 @@ stand and every prop stay as they are.
   gets knocked over; the obstacle is now x 26.8…29.2 by 1.2 m), the old pole sign `dsSign('EL GOBLINO GAS…')` at
   (22, -996), and **the shop's west wall pieces** (the two side pieces and the header over the door; keep their
   obstacles), because `rtShopFront` is the new west wall.
-- **Forecourt:** concrete slabs (4 m joints, oil stains) x 3.5…72, z -1013…-993.5 at y .025, joining Route 13 and the
+- **Forecourt:** concrete slabs (4 m joints, oil stains) x 3.5…84.5, z -1013…-993.5 at y .025, joining Route 13, the PD drive and the
   PD road; a low kerb along the south edge; painted arrows in from Route 13, on to the car wash, and out north to the
   PD road. Add its `q.mapR` shape in a concrete colour (and make sure the route grid lets cars drive on it).
 - **Canopy:** x 20.6…35.4, z -1010.6…-999.4, underside at 5 m, 0.9 m deep, green with a white stripe, EL GOBLINO GAS
@@ -137,7 +138,9 @@ stand and every prop stay as they are.
   shop windows you can see into (z -1010.2…-1007.4 and -1002.6…-999.8, sill 0.9, head 2.5) in aluminium frames, a
   green tiled base, the doorway exactly where it was (z -1006.3…-1003.7, 2.6 high) for the sliding doors, and a
   parapet above the roof with EL GOBLINO GAS · SHOP and the logo.
-- **Car wash** (`rtCarWash`, x 54…68, z -1009…-1001, 4.4 high, open at both ends): white walls with a bubble mural and
+- **Car wash** (`rtCarWash`, x 64…78, z -1009…-1001, 4.4 high, open at both ends, a 16 m apron in front with painted
+  lead-in lines; the explosive barrels at (44, -996) and (45.2, -996.4) move out of the north lane to (37.4, -1012.4)
+  and (38.4, -1012.5), beside the air post): white walls with a bubble mural and
   a green foot, a green fascia, a blue WASH sign on the roof, ENTER · 5 🪙 · STAY IN YOUR CAR over the entrance, a
   price board at the entry (WASH · 5 🪙, WAX · FREE, GOBLIN NOT RESPONSIBLE FOR GOBLINS), a wet dark floor with tyre
   guide rails and a drain, three ceiling lights (`lights`), a blue spray arch with nozzles (`parts.jets`: soft white
