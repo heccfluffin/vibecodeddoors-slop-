@@ -64,7 +64,7 @@ function rtBusStop(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(
  /* a box lying along the roof's slope (x from xa to xb), its top edge th below the roof's underside */
  const slope=(xa,xb,h,d,z,dy,m)=>{const xc=(xa+xb)/2,b=B(Math.hypot(xb-xa,(xb-xa)*Math.tan(SL)),h,d,xc,yAt(xc)-dy,z,m);b.rotation.z=-SL;return b};
  /* frame: a post at each corner and one in the middle of the back, each up to the roof's underside */
- for(const [x,z] of[[X0+P/2,Z0+P/2],[X0+P/2,Z1-P/2],[X1-P/2,Z0+P/2],[X1-P/2,Z1-P/2],[X1-P/2,ZM]]){const h=yAt(x);B(P,h,P,x,h/2,z,k.SHELTER)}
+ for(const [x,z] of[[X0+P/2,Z0+P/2],[X0+P/2,Z1-P/2],[X1-P/2,Z0+P/2],[X1-P/2,Z1-P/2],[X1-P/2,ZM]]){const h=z==ZM?HB-.14:yAt(x);B(P,h,P,x,h/2,z,k.SHELTER)}   /* the middle post stops under the back beam */
  /* eaves beams under the roof: front and back between the posts, the two ends sloping with the roof */
  B(P*.8,.14,Z1-Z0-2*P,X0+P/2,HF-.07,ZM,k.SHELTER);B(P*.8,.14,Z1-Z0-2*P,X1-P/2,HB-.07,ZM,k.SHELTER);for(const z of[Z0+P/2,Z1-P/2])slope(X0+P,X1-P,.14,P,z,.07,k.SHELTER);
  /* the roof: a sheet resting on the beams, overhanging 25 cm all round, with a deep edge band on every side; the
