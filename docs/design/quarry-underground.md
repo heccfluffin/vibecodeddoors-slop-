@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) waiting for the user's OK
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -439,6 +439,54 @@ version from inside and above. Found and fixed on the way: the map board's posts
 sign, stalactites and glowworm threads not reaching the roof, the crystal island's first look (a painted-on ring),
 the rope bridge's deck ropes (now they sag with the planks), a texture seam down one spot of every cave room's wall,
 a vein sitting on the fossil.
+
+### Batch 4: level 3, The Deep (`models/quarry-under-l3.js`), waiting for the user's OK
+Load it after `quarry-under-l2r.js`. `ugPieceL2` asks `ugPieceL3(b, p, L, ctx)` first, which builds the basalt
+gallery, magma chamber, dark cave, the Geode, the hot seam and the old shaft; passages, bends, forks, islands and ore
+passes are the level 2 pieces in this level's rock. `ugBuildLevel` now also returns `hot` (glowing crust patches that
+burn, mine coords `{x, z, r}`), `moving` (the sealed station's doors: groups that turn on their hinge, closed at 0,
+`userData.ugDoor.open` = the open angle) and `portal` (door 60's position and facing).
+- **The rock** is dark red-black (`rock3`, `floor3`); the dark cave is near-black (`rockK`).
+- **Changes to the kit for this batch:** cave room doorways can be narrower than 4 m (`hw`, for a neck's end:
+  `doorsExtra`), and `ugCave` can be narrow (`o.hw`), so the Geode and the hot seam have a narrow cave neck with a
+  rock bulkhead where it meets the 4 m tunnel and a matching narrow doorway into the room.
+- **Stations:** *Deep station* (a water barrel, HOT GROUND and LEVEL 3 MAP boards); *Hot station* (two big fans on
+  stands, an ice-water barrel, a TEMP 52 °C board); *Sealed station* (a steel bulkhead in every doorway: a dark steel
+  wall in the arch, yellow frame, a steel door with a red wheel; the doors are moving parts for the game).
+- **Basalt gallery** (a cave passage): *Basalt gallery* (glowing cracks zig-zag along the floor, clusters of
+  six-sided basalt columns, the middle ones up into the roof); *Steam vents* (six vent mouths along the floor with
+  steam); *Obsidian tube* (glassy black walls and floor, sharp shards along the edges).
+- **Magma chamber** (a 5.5 m dome): lava rivers and the lava channel are bands cut through the floor (`ugBand`, the
+  same rules as level 2's chasms: into the walls or narrowing to nothing), rough rock sides (`ugHoleSides`), lava
+  0.42 m down, lights along them; stone bridges with a low parapet, arched a little (`ugStoneBridge`).
+  *Magma chamber* (the river and bridge, a lava lake with an island and a diamond outcrop, stepping stones, a
+  geyser, basalt columns); *Lavafall* (lava pours from a dark crack over a rock lip into the pool, a basalt-tile shelf
+  round it, gold veins in the hot wall at its end); *Crust field* (the floor is cooled crust with glowing cracks;
+  eight glowing patches that burn, listed in `hot`); *Obsidian moat* (a ring of lava round an island of black glass,
+  one bridge, obsidian outcrops with diamond and gold); *Lava channel* (lava sweeping round one side, a bridge over it
+  to the side doorway). **The game scrolls `UGK.lavaT.offset.x` (about 0.02 per second) and `UGK.lavaFT.offset.y`
+  (about 0.5 per second).**
+- **Dark cave** (near-black rock, nothing lit): *Dark cave* (a 9 m chasm with a plank bridge, glowworms);
+  *Sinkhole* (a round shaft 24 m deep with a rough lip, diamond and gold veins on the far side); *Glowworm grotto*
+  (still black water, 46 glowworms on the roof); *The maze* (rock pillars floor to roof); *Bat roost* (a 6.5 m dome,
+  bats hanging in clusters, guano under them).
+- **The Geode** (a dead end, through a narrow neck): about 90 crystal clusters pointing in from the walls in six rows
+  and 30 down from the roof, a few clear ones that blaze, gem veins between them. *Amethyst* (purple), *Celestine*
+  (pale blue), *Citrine* (gold, gold veins), *Smoky quartz* (dark, a few clear).
+- **Hot seam** (a dead end, through a narrow neck): faintly glowing green rock, green crystals at the foot of the
+  wall, uranium veins. *Green spring* (a glowing green pool with steam); *Core shed* (crates of glowing drill cores,
+  an old core drill on a tripod).
+- **The old shaft** (1 in 100, in the working face farthest from the shaft): a short timbered drive into the face,
+  a rock wall across it with door 60 (wood, brass number plate, iron straps) in a timber frame, an OLD WORKINGS
+  board, darkness behind the door.
+- **Previews:** "Mine Level 3" (a whole level 3 from the plan; the old shaft is forced on, with a switch) and "Mine
+  Level 3 Rooms" (every version, the three stations and the old shaft).
+
+Checked: the z-fight and floating checker on all 24 versions built on their own and on whole level 3s of mines #1,
+#52, #777 and #4242; the floating-vein test (none float); `node quarry-under-check.js`; level 1 and 2 again after the
+kit changes. Found and fixed on the way: two gold veins on the same spot by the lavafall, the fan blades sharing a
+face with their hub, the hot seam's rock too green (and its neck now ordinary rock), the lavafall landing short of its
+pool.
 
 ## Checks
 - Every level is one connected place, reachable on foot from the cage on level 1 (the generator guarantees it; test

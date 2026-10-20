@@ -36,7 +36,7 @@ function ugCaveProf(){const W=[[-2.1,-.1],[-2.38,.85],[-2.48,1.75],[-2.4,2.6]],P
 
 /* ---------- a cave passage. pts: [[x,y,z]] in mine coords. o: {rock, floor, amp, keep:[half-planes], fil}.
    o.keep: the floor is kept only where a*x+b*z+c<=0 for one of the half-planes [a,b,c] (a stream cuts it in two) ---------- */
-function ugCave(b,pts,o){o=o||{};const A=ugProf(2).P,Cv=ugCaveProf(),m=A.length,amp=o.amp==null?.45:o.amp,rk=o.rock||'rock2';
+function ugCave(b,pts,o){o=o||{};const chw=o.hw||2,A=ugProf(chw).P,Cv=ugCaveProf().map(([x,y])=>[x*chw/2,y*(.55+.45*chw/2)]),m=A.length,amp=o.amp==null?.45:o.amp,rk=o.rock||'rock2';
  /* both ends run straight and square for 1.6 m, so the end rings sit flat in the doorways */
  let Q=pts.slice();const sq=(a,c)=>{const dx=c[0]-a[0],dz=c[2]-a[2],l=Math.hypot(dx,dz);return Math.abs(dx)>Math.abs(dz)?[Math.sign(dx),0,Math.abs(dz)/l]:[0,Math.sign(dz),Math.abs(dx)/l]};
  if(Q.length>=2){const a0=sq(Q[0],Q[1]),e=Q[Q.length-1],a1=sq(Q[Q.length-2],e);const mid=Q.slice(1,-1);let head=[Q[0]],tail=[e];
@@ -78,9 +78,10 @@ function ugCaveDress(b,c,ctx,R,lv){const pick=()=>{const r=R();return lv==1?(r<.
    doors: the piece's openings on (or near) the oval; (nx,nz) faces out of the room, (tx,tz) runs along the wall */
 function ugChamberShape(p,o){const cx=o.cx,cz=o.cz,rx=o.rx,rz=o.rz;
  const op=[[0,0,0,1]].concat(p.d.ex.map(e=>{const v=ugRot(0,-1,e[2]);return[e[0],e[1],v[0],v[1]]}));
- const doors=op.filter(q=>Math.abs(Math.hypot((q[0]-cx)/rx,(q[1]-cz)/rz)-1)*Math.min(rx,rz)<1.4).map(q=>({x:q[0],z:q[1],nx:q[2],nz:q[3],tx:-q[3],tz:q[2]}));
+ const doors=op.filter(q=>Math.abs(Math.hypot((q[0]-cx)/rx,(q[1]-cz)/rz)-1)*Math.min(rx,rz)<1.4).map(q=>({x:q[0],z:q[1],nx:q[2],nz:q[3],tx:-q[3],tz:q[2],hw:2}))
+  .concat((o.doorsExtra||[]).map(q=>({x:q.x,z:q.z,nx:q.nx,nz:q.nz,tx:-q.nz,tz:q.nx,hw:q.hw||2})));
  const N=Math.max(28,Math.ceil(Math.PI*(rx+rz)/.75));let pts=[];for(let i=0;i<N;i++){const a=i/N*Math.PI*2;pts.push([cx+rx*Math.cos(a),cz+rz*Math.sin(a)])}
- for(const d of doors){pts=pts.filter(q=>!(Math.abs((q[0]-d.x)*d.tx+(q[1]-d.z)*d.tz)<2.75&&(q[0]-d.x)*d.nx+(q[1]-d.z)*d.nz>-3.5));for(const s of[-2.6,-2,2,2.6])pts.push([d.x+d.tx*s,d.z+d.tz*s])}
+ for(const d of doors){const fw=d.hw+.6;pts=pts.filter(q=>!(Math.abs((q[0]-d.x)*d.tx+(q[1]-d.z)*d.tz)<fw+.15&&(q[0]-d.x)*d.nx+(q[1]-d.z)*d.nz>-3.5));for(const s of[-fw,-d.hw,d.hw,fw])pts.push([d.x+d.tx*s,d.z+d.tz*s])}
  pts.sort((a,c)=>Math.atan2(a[1]-cz,a[0]-cx)-Math.atan2(c[1]-cz,c[0]-cx));pts=pts.filter((q,i)=>Math.hypot(q[0]-pts[(i+1)%pts.length][0],q[1]-pts[(i+1)%pts.length][1])>.05);
  return{pts,doors}}
 function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ugRK(Lv),fl=o.floor||ugFL(Lv),amp=o.amp==null?.75:o.amp,H=3.65,
@@ -89,9 +90,9 @@ function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ug
  /* columns round the wall, about every 0.7 m, with an outward normal */
  const cols=[],nP=pts.length;for(let e=0;e<nP;e++){const A=pts[e],B=pts[(e+1)%nP],len=Math.hypot(B[0]-A[0],B[1]-A[1]),k=Math.max(1,Math.ceil(len/.7));for(let q=0;q<k;q++)cols.push({x:A[0]+(B[0]-A[0])*q/k,z:A[1]+(B[1]-A[1])*q/k})}
  const nc=cols.length;for(let i=0;i<nc;i++){const a=cols[(i+nc-1)%nc],c=cols[(i+1)%nc];let ux=c.x-a.x,uz=c.z-a.z;const l=Math.hypot(ux,uz);cols[i].nx=uz/l;cols[i].nz=-ux/l}
- const onDoor=c=>doors.find(d=>Math.abs((c.x-d.x)*d.nx+(c.z-d.z)*d.nz)<.02&&Math.abs((c.x-d.x)*d.tx+(c.z-d.z)*d.tz)<2.62);
+ const onDoor=c=>doors.find(d=>Math.abs((c.x-d.x)*d.nx+(c.z-d.z)*d.nz)<.02&&Math.abs((c.x-d.x)*d.tx+(c.z-d.z)*d.tz)<d.hw+.62);
  for(const c of cols){const d=onDoor(c);if(d){c.nx=d.nx;c.nz=d.nz;c.lat=(c.x-d.x)*d.tx+(c.z-d.z)*d.tz;c.door=d}}
- const fade=c=>{let m=9;for(const d of doors){const lat=Math.abs((c.x-d.x)*d.tx+(c.z-d.z)*d.tz),ax=Math.abs((c.x-d.x)*d.nx+(c.z-d.z)*d.nz);m=Math.min(m,Math.hypot(Math.max(0,lat-2),ax))}return Math.min(1,m/1.4)};
+ const fade=c=>{let m=9;for(const d of doors){const lat=Math.abs((c.x-d.x)*d.tx+(c.z-d.z)*d.tz),ax=Math.abs((c.x-d.x)*d.nx+(c.z-d.z)*d.nz);m=Math.min(m,Math.hypot(Math.max(0,lat-d.hw),ax))}return Math.min(1,m/1.4)};
  const nz=(x,yy,z)=>{const w=L.pt(x,yy,z);return ugNoise(w.x,w.y,w.z)};
  const Ys=[-.1,.55,1.2,1.9,2.6,3.15,H];
  const pos=[],uv=[],idx=[];const V=(x,yy,z,u,v)=>{pos.push(x,yy,z);uv.push(u,v);return pos.length/3-1};
@@ -99,7 +100,7 @@ function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ug
  /* the wall: rows of vertices pushed out (into the rock) by the noise, not at the floor or near a doorway */
  /* (the first column is repeated at the end with its own texture position, so the texture has no seam) */
  const W=[];for(let i=0;i<=nc;i++){const c=cols[i%nc],f=fade(c),row=[];for(const yy of Ys){const hy=Math.max(0,Math.min(1,yy/.7)),d=amp*f*hy*nz(c.x,yy,c.z);row.push(V(c.x+c.nx*d,yy,c.z+c.nz*d,perim[i]/3,yy/3))}c.f=f;W.push(row)}
- const inDoor=(a,c)=>a.door&&c.door&&a.door===c.door&&Math.abs(a.lat)<2.01&&Math.abs(c.lat)<2.01;
+ const inDoor=(a,c)=>a.door&&c.door&&a.door===c.door&&Math.abs(a.lat)<a.door.hw+.01&&Math.abs(c.lat)<a.door.hw+.01;
  for(let i=0;i<nc;i++){const i2=i+1;if(inDoor(cols[i],cols[i2%nc]))continue;for(let j=0;j<Ys.length-1;j++){const a=W[i][j],b2=W[i2][j],c=W[i2][j+1],d=W[i][j+1];idx.push(a,b2,c,a,c,d)}}
  /* the island (a rock pillar the passage goes round): its wall faces out, its top meets the roof */
  let IW=null,ip=null;if(isle){IW=[];ip=[];const bot=isle.bot==null?-.1:isle.bot;for(let i=0;i<=nc;i++){const a=Math.atan2(cols[i%nc].z-isle.cz,cols[i%nc].x-isle.cx),ux=Math.cos(a),uz=Math.sin(a),bx=isle.cx+ux*isle.r,bz=isle.cz+uz*isle.r,row=[];if(i<nc)ip.push([bx,bz]);
@@ -113,7 +114,7 @@ function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ug
  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();L.geo(rk,geo,0,0,0);
  if(isle&&isle.key){const g2=new THREE.BufferGeometry();g2.setAttribute('position',geo.attributes.position);g2.setAttribute('uv',geo.attributes.uv);g2.setIndex(isle.idx);g2.computeVertexNormals();L.geo(isle.key,g2,0,0,0)}
  /* the doorways: a flat panel between the arch and the roof's edge, and a rock lip round the arch */
- const pf=ugProf(2);for(const d of doors){const sh=new THREE.Shape();sh.moveTo(-2,pf.wy);sh.lineTo(-2,H);sh.lineTo(2,H);sh.lineTo(2,pf.wy);for(let i=pf.P.length-5;i>=4;i--){const q=pf.P[i];if(q[1]>=pf.wy-1e-6)sh.lineTo(q[0],q[1])}
+ for(const d of doors){const pf=ugProf(d.hw),dw=d.hw;const sh=new THREE.Shape();sh.moveTo(-dw,pf.wy);sh.lineTo(-dw,H);sh.lineTo(dw,H);sh.lineTo(dw,pf.wy);for(let i=pf.P.length-5;i>=4;i--){const q=pf.P[i];if(q[1]>=pf.wy-1e-6)sh.lineTo(q[0],q[1])}
   const g2=new THREE.ShapeGeometry(sh);const pa=g2.attributes.position,uvs=[];for(let i=0;i<pa.count;i++)uvs.push(pa.getX(i)/3,pa.getY(i)/3);g2.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
   L.geo(rk,g2,d.x,0,d.z,Math.atan2(-d.tz,d.tx));
   const lp=pf.P.filter(q=>q[1]>-.05).map(q=>{const lx=q[0]*1.06,ly=q[1]<=pf.wy?q[1]:pf.wy+(q[1]-pf.wy)*1.12;return new THREE.Vector3(d.x+d.tx*lx-d.nx*.07,ly,d.z+d.tz*lx-d.nz*.07)});
@@ -163,7 +164,7 @@ function ugMushroom(L,R,x,z,h,cr,key,lean,y0){y0=y0||0;lean=lean||[0,0];const tx
  return[tx,y0+h,tz]}
 
 /* ---------- the level 2 and 3 pieces ---------- */
-function ugPieceL2(b,p,Lv,ctx){if(Lv==0)return false;const t=p.type,y=UGLY(Lv),R=ugRng(p.id*331+17),W=ugWorld(p);
+function ugPieceL2(b,p,Lv,ctx){if(Lv==0)return false;if(typeof ugPieceL3=='function'&&ugPieceL3(b,p,Lv,ctx))return true;const t=p.type,y=UGLY(Lv),R=ugRng(p.id*331+17),W=ugWorld(p);
  /* the miners' tunnels: timbered, this level's rock, no rails */
  if(t=='join'||t=='drive'){for(const s of W.shp)if(s.k=='path'){const tr=ugTube(b,s.pts.map(q=>[q[0],y,q[1]]),{hw:2,fil:t=='join'?3:0,rails:false,lampsOut:ctx.lamps,lampOff:p.id%2,rock:ugRK(Lv),floorKey:ugFL(Lv)});
    for(let sd=3+R()*3;sd<tr.L-2;sd+=5+R()*4){const side=R()<.5?-1:1,hi=R()<.5;if(R()<.35)continue;const sc=sd-((sd-1.5)%3+3)%3+1.5,s2=Math.abs(sd-sc)<.6?sc+1.5:sd,w=ugTubeWall(tr,ugTubeRing(tr,s2),side<0?(hi?2:1):(hi?12:13));ctx.veins.push({x:w.x,y:w.y,z:w.z,dx:w.dx,dz:w.dz,t:R()<.3?'ag':R()<.6?'fe':'cu'})}}return true}

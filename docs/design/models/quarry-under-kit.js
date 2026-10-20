@@ -1,7 +1,7 @@
 /* =====================================================================================================
    The Old Quarry underground: THE KIT and batch 1 (docs/design/quarry-underground.md, part 2).
    Needs quarry-under.js (the plan). Builds a level of the mine from ugGen's plan:
-     ugBuildLevel(plan, L) -> {g, lamps, veins, decl, solids}   (L = 0, 1, 2; one THREE.Group in mine coordinates)
+     ugBuildLevel(plan, L) -> {g, lamps, veins, decl, solids, moving, hot, portal}   (L = 0, 1, 2; one THREE.Group in mine coordinates)
    Mine coordinates: x, z from the shaft (desert-local x = MN.ox + x, z = MN.oz + z), y from level 1's floor
    (desert y = MN.Y + y). Level floors are at y 0, -12, -24 (UGL[i].y - UGL[0].y).
    Everything static in a piece is merged into one mesh per material (ugBatch); veins, lamps' lights and signs stay
@@ -36,7 +36,7 @@ function ugKit(){
  UGK.poolN.repeat.set(3,3);
  const M=(o)=>{const m=new THREE.MeshStandardMaterial(Object.assign({roughness:.9},o));return m};
  UGK.mat={
-  rock:M({map:UGK.rockT,color:0xd0bca4}),rock2:M({map:UGK.rockT,color:0x9aa4b0}),rock3:M({map:UGK.rockT,color:0x7a6a64}),
+  rock:M({map:UGK.rockT,color:0xd0bca4}),rock2:M({map:UGK.rockT,color:0x9aa4b0}),rock3:M({map:UGK.rockT,color:0x6a5a56}),
   floor:M({map:UGK.gravT,color:0xc8b8a0}),
   wood:M({map:UGK.woodT,color:0xd8b890,roughness:.85}),woodD:M({map:UGK.woodT,color:0x8a6a50,roughness:.9}),
   plank:M({map:UGK.plankT,color:0xe0d0b8,roughness:.88}),brick:M({map:UGK.brickT,color:0xffffff,roughness:.92}),
@@ -46,7 +46,7 @@ function ugKit(){
   wire:M({color:0x1a1a1a,roughness:.6}),
   board:M({color:0x3a2c1e,roughness:.85}),paper:M({color:0xe8dcc0,roughness:.9}),green:M({color:0x2f5a3a,roughness:.7}),
   oreRock:M({map:UGK.rockT,color:0x5a4a3c}),fill:M({map:UGK.gravT,color:0xf0e0c0}),
-  floor2:M({map:UGK.gravT,color:0xaeb0b4}),floor3:M({map:UGK.gravT,color:0x76665e}),
+  floor2:M({map:UGK.gravT,color:0xaeb0b4}),floor3:M({map:UGK.gravT,color:0x6a5c56}),
   water:new THREE.MeshStandardMaterial({color:0x183038,roughness:.06,metalness:.3,transparent:true,opacity:.9}),
   waterS:new THREE.MeshStandardMaterial({color:0x4a7a84,roughness:.1,metalness:.2,transparent:true,opacity:.45,depthWrite:false,normalMap:UGK.poolN,normalScale:new THREE.Vector2(.25,.25)}),
   /* deep water: a see-through rippled surface, darker layers under it that only cover where the basin is deeper
@@ -431,7 +431,7 @@ function ugDecline(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),drop=UGLY(p.L)-UGLY(p.L+
    BUILD A LEVEL from the plan
    ===================================================================================================== */
 function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(),b=ugBatch();
- const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],ends:[],plates:[],solids:[],dist:null};
+ const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],ends:[],plates:[],solids:[],moving:[],hot:[],dist:null};
  /* distance to the cage along the parent chain (for signposts) */
  const len=p=>{let s=0;for(const sh of p.d.shp)if(sh.k=='path')for(let i=1;i<sh.pts.length;i++)s+=Math.hypot(sh.pts[i][0]-sh.pts[i-1][0],sh.pts[i][1]-sh.pts[i-1][1]);return s||8};
  const memo={};ctx.dist=p=>{if(p.st)return 0;if(memo[p.id]!=null)return memo[p.id];const par=plan.P[p.par];memo[p.id]=par?ctx.dist(par)+len(par):0;return memo[p.id]};
@@ -444,8 +444,8 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
   if(t=='ladder'){ugLadder(b,p,ctx,here?(opt.links?null:'up'):'down');continue}
   if(t=='tee'||t=='cross'){ugJunction(b,p,L,ctx);continue}
   if(t=='round'){ugRound(b,p,L,ctx);continue}
+  if(typeof ugPieceL2=='function'&&ugPieceL2(b,p,L,ctx))continue;   /* levels 2 and 3 (quarry-under-l2.js, -l3.js) */
   if(t=='old')continue;
-  if(typeof ugPieceL2=='function'&&ugPieceL2(b,p,L,ctx))continue;   /* levels 2 and 3 (quarry-under-l2.js) */
   /* tunnels (drive, bend, collapsed, dug joins) and, for now, the rooms of batch 2 as plain shells */
   const W=ugWorld(p);
   for(const s of W.shp){
@@ -463,6 +463,8 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
  /* rail ends that meet nothing (another rail end, a turn plate, a buffer) get a buffer stop */
  for(const e of ctx.ends){if(ctx.ends.some(f=>f!==e&&Math.hypot(f.x-e.x,f.z-e.z)<.06&&Math.abs(f.y-e.y)<.1))continue;if(ctx.plates.some(q=>Math.hypot(q[0]-e.x,q[1]-e.z)<(q[2]||1.0)))continue;ugBuffer(b,e.x,e.y,e.z,e.dx,e.dz,ctx)}
  b.build(g,K.mat);
+ /* moving parts (doors) are their own groups, pivoting where they hinge */
+ for(const m of ctx.moving)g.add(m);
  /* veins */
  const R=ugRng(4242+L);for(const v of ctx.veins){const m=ugVein(v.t,R);m.position.set(v.x,v.y,v.z);
   m.rotation.y=Math.atan2(-v.dx,-v.dz);   /* the nuggets (local -z) face along (dx,dz), out of the rock */
@@ -471,4 +473,4 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
  /* a signpost's board faces both side arms; the arrow points back towards the entry, the way to the cage */
  for(const s of ctx.posts){const d=Math.max(5,Math.round(s.dist/5)*5);const sg=ugSign(s.x,s.y,s.z,s.yaw,'⬅ CAGE '+d+' m','CAGE '+d+' m ➡');g.add(sg)}
  for(const s of ctx.signs){const t=ugSignTex(s.txt,(s.w||1.2)/.34);const m=new THREE.Mesh(new THREE.PlaneGeometry(s.w||1.2,.34),new THREE.MeshStandardMaterial({map:t,roughness:.8}));m.position.set(s.x,s.y,s.z);m.rotation.y=s.yaw;m.userData.noSeam=true;g.add(m)}
- return{g,lamps:ctx.lamps,veins:ctx.veins,decl:ctx.decl,solids:ctx.solids}}
+ return{g,lamps:ctx.lamps,veins:ctx.veins,decl:ctx.decl,solids:ctx.solids,moving:ctx.moving,hot:ctx.hot,portal:ctx.portal||null}}
