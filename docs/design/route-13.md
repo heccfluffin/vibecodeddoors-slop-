@@ -81,6 +81,34 @@ globals start with `rt`.
 4. Drive-in: lot, screen tower, speaker rows, ticket booth, marquee, snack bar and projector booth.
 5. Desert Bus depot: building, platform canopy, apron, Depot Rd, arch; and the water tower.
 
+## Part 2: models (`models/route13.js`, needs `fort-kit.js`)
+
+### Batch 1: main street and bus stop, for review · `rtMain(g)` → `{obs, lights, lamps}`, `rtBusStop(g)` → `{obs}`
+Call both from the town's builder (the desert load step that builds the bus stop), push `obs` to `q.obs`, and put the
+game's `light(...)` at each of `lights` (every other lamp). The places the street things must avoid are in `RT`
+(`gapE`/`gapW`: where roads and the gas forecourt join each side; `keep`: spots beside the road).
+- **Shoulders:** 2 m of gravel each side of Route 13 from the north town sign to the south one (z -895…-1115), at
+  y .012 (the road is .02), in pieces that stop at every road mouth: east at Motel Rd, the gas forecourt and PD road,
+  and the Sunset Blvd link; west at the drive-in drive and Depot Rd.
+- **Street lamps:** both sides (x ±6.6), every 24 m, the east row offset 12 m; a tapered steel pole, an arm curving
+  out over the road edge, a long lamp head with a glowing lens. None at a road mouth, by the broken-down car, the
+  bus stop or the Highway Patrol car's spot.
+- **Power poles:** down the west side (x -9.5) every 36 m (nudged off the road mouths), with a crossarm, three
+  insulators, braces and step bolts; three wires sag from pole to pole.
+- **Town signs:** OLD TOWN · ROUTE 13 · POP. 13 · HOME OF BUS 13 on a board hung between two posts, painted
+  LEAVING OLD TOWN · DRIVE SAFE · COME BACK SOON (YOU WILL) on the back. North end (-9.5, -897) facing north (the way
+  BUS 13 comes in), south end (9.5, -1113) facing south.
+- **Bus stop shelter** just south of the pole, x 5…9.5, z -1050…-1044.5 (moved 3 m south of the first plan so the
+  round plates don't hide its fascia): blue steel frame, a roof sloping back, a BUS 13 · DESERT MINES fascia, glass
+  back and ends, a timetable poster (BUS 13 · HOTEL ⇄ DESERT MINES; departs ??:??, WHEN IT WANTS / YOU ARE HERE,
+  NEVER / ALWAYS; "Do not run for the bus. It waits."), a slatted bench inside, a bin at the south end. Open to the
+  road. **Remove the old bench and skull** beside the pole (`bench`, its legs and `skl` in busBoard0) and their
+  obstacle `ob(4.8,5.4,-1044.4,-1042.6)`. The pole, its plates, its obstacle and the "Wait for BUS 13" prop stay.
+- **BUS STOP bay:** a yellow dashed box on the east lane (x .35…3.35, z -1053.5…-1041.5) with BUS STOP written for
+  drivers heading north.
+- Checked: z-fight and floating checker clean (the only hits are the curved wires against themselves and the glass
+  frames' bottom rails, which hang between posts).
+
 ## Things Claude Code has to keep in mind
 - **Seeded random:** everything here is built inside the seeded desert load steps; add or remove `Math.random()`
   calls and everything built after them changes. Burn the same number of calls where old code is removed (as
