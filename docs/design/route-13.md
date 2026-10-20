@@ -122,8 +122,8 @@ stand and every prop stay as they are.
   (22, -996), and **the shop's west wall pieces** (the two side pieces and the header over the door; keep their
   obstacles), because `rtShopFront` is the new west wall.
 - **Forecourt:** concrete slabs (4 m joints, oil stains) x 3.5…84.5, z -1013…-993.5 at y .025, joining Route 13, the PD drive and the
-  PD road; a low kerb along the south edge; three painted arrows (`rtArrow`, flat shapes: in from Route 13, into the car
-  wash, out north to the PD road) and a dashed yellow WASH box in front of the car wash entrance.
+  PD road; a low kerb along the south edge; a dashed yellow box in front of the car wash entrance. No arrows (the user
+  didn't like them).
   (The first version's canvas arrows came out squashed and its long lead-in lines looked like they floated; the
   user's note.) Add its `q.mapR` shape in a concrete colour (and make sure the route grid lets cars drive on it).
 - **Canopy:** x 20.6…35.4, z -1010.6…-999.4, underside at 5 m, 0.9 m deep, green with a white stripe, EL GOBLINO GAS
@@ -148,7 +148,9 @@ stand and every prop stay as they are.
   price board at the entry (WASH · 5 🪙, WAX · FREE, GOBLIN NOT RESPONSIBLE FOR GOBLINS), a wet dark floor with tyre
   guide rails and a drain, three ceiling lights (`lights`), a blue spray arch with nozzles (`parts.jets`: soft white
   spray cones, hidden until washing), two tall side brushes and an overhead brush (soft foam rolls: a striped
-  roll inside a ragged fringe), a dryer hood, and a PULL FORWARD / STOP / GO sign at the exit (`parts.sign`).
+  roll inside a ragged fringe), a dryer hood standing on two floor ducts and tied to the ceiling, and a PULL FORWARD / STOP / GO sign hung on
+  two rods at the exit (`parts.sign`). The ceiling is a white slab between the walls (underside 4.31 m) with the
+  three light panels flush in it; the green roof box sits on the wall tops.
   **How it plays:** drive into the bay (`bay`), "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car
   is pulled slowly from the arch to the exit (about 8 s; your controls are off), the jets show, the brushes spin
   and **close in until they touch the car**: call `rtWashTick(W, car, dt)` every frame with the car's
