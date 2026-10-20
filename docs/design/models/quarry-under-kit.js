@@ -91,6 +91,9 @@ function ugTube(b,pts,o){
  o=o||{};const pf=ugProf(o.hw||2),amp=o.amp==null?.2:o.amp,rk=o.rock||'rock';
  const P=ugResample(ugFillet(pts,o.fil==null?3:o.fil),.5),n=P.length,S=[0];for(let i=1;i<n;i++)S.push(S[i-1]+Math.hypot(P[i][0]-P[i-1][0],P[i][2]-P[i-1][2]));const L=S[n-1];
  const T=P.map((p,i)=>{const a=P[Math.max(0,i-1)],c=P[Math.min(n-1,i+1)];let tx=c[0]-a[0],tz=c[2]-a[2];const l=Math.hypot(tx,tz)||1;return[tx/l,tz/l]});
+ /* the two ends meet other pieces: square them up exactly to the nearest axis (every opening faces one of the four
+    ways), so the end ring lies in the doorway's plane and two tunnels meeting share the same ring (no wedge gaps) */
+ for(const i of[0,n-1]){const [tx,tz]=T[i];if(Math.abs(tx)>.97)T[i]=[Math.sign(tx),0];else if(Math.abs(tz)>.97)T[i]=[0,Math.sign(tz)]}
  const fade=s=>Math.min(1,s/1,(L-s)/1);
  /* walls and roof */
  const pos=[],nor=[],uv=[],pr=pf.P,m=pr.length,V=[];const pl=[0];for(let j=1;j<m;j++)pl.push(pl[j-1]+Math.hypot(pr[j][0]-pr[j-1][0],pr[j][1]-pr[j-1][1]));
@@ -109,9 +112,9 @@ function ugTube(b,pts,o){
  for(let k=0;k<fp.length;k+=9){const ax=fp[k],az=fp[k+2],bx=fp[k+3],bz=fp[k+5],cx=fp[k+6],cz=fp[k+8];if((bx-ax)*(cz-az)-(bz-az)*(cx-ax)>0){for(let q=0;q<3;q++){const t=fp[k+3+q];fp[k+3+q]=fp[k+6+q];fp[k+6+q]=t}const tu0=fu[k/9*6+2],tu1=fu[k/9*6+3];fu[k/9*6+2]=fu[k/9*6+4];fu[k/9*6+3]=fu[k/9*6+5];fu[k/9*6+4]=tu0;fu[k/9*6+5]=tu1}}
  b.raw('floor',fp,fn,fu);
  const at=s=>{let i=1;while(i<n-1&&S[i]<s)i++;const t=(s-S[i-1])/((S[i]-S[i-1])||1),p=[P[i-1][0]+(P[i][0]-P[i-1][0])*t,P[i-1][1]+(P[i][1]-P[i-1][1])*t,P[i-1][2]+(P[i][2]-P[i-1][2])*t],tt=T[i];return{p,t:tt,r:[-tt[1],tt[0]],yaw:Math.atan2(-tt[0],-tt[1])}};
- const res={L,at,pf,P,S};
+ const res={L,at,pf,P,S,T};
  if(o.sets!==false)ugSets(b,res,o);
- if(o.rails)ugRails(b,res);
+ if(o.rails)ugRails(b,res,o.ends);
  if(o.lamps!==false&&o.lampsOut)ugLamps(b,res,o.lampsOut,o.lampOff||0);
  return res}
 
@@ -122,10 +125,22 @@ function ugSets(b,t,o){const pf=t.pf,hw=pf.hw,px=hw-.28,cw=2*hw-.3,sp=3,R=ugRng(
   for(const sd of[-1,1])b.box('wood',.22,2.6,.22,x+rx*sd*px,y+1.3,z+rz*sd*px,yaw,0,sd*lean*.3);
   b.box('wood',cw,.24,.24,x,y+2.72,z,yaw,0,lean*.2);
   if(s+sp<t.L-1)for(let k=-3;k<=3;k++){if(R()<.15)continue;const f2=t.at(s+sp/2),xx=f2.p[0]+f2.r[0]*k*.5,zz=f2.p[2]+f2.r[1]*k*.5;b.box('woodD',.2,.04,sp+.2,xx,f2.p[1]+2.86,zz,f2.yaw)}}}
-/* rails: sleepers every 0.6 m and two rails, following the path */
-function ugRails(b,t){for(let s=.4;s<t.L-.2;s+=.6){const f=t.at(s);b.box('woodD',1.1,.08,.18,f.p[0],f.p[1]+.04,f.p[2],f.yaw)}
- for(let s=0;s<t.L-.01;s+=.5){const e=Math.min(t.L,s+.5),a=t.at(s),c=t.at(e),l=Math.hypot(c.p[0]-a.p[0],c.p[2]-a.p[2])+.02,mx=(a.p[0]+c.p[0])/2,mz=(a.p[2]+c.p[2])/2,my=(a.p[1]+c.p[1])/2,yaw=Math.atan2(-(c.p[0]-a.p[0]),-(c.p[2]-a.p[2])),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-  for(const sd of[-.3,.3])b.box('rail',.06,.1,l,mx+rx*sd,my+.13,mz+rz*sd,yaw)}}
+/* rails: sleepers every 0.6 m and two continuous rails (0.6 m gauge) following the path ring by ring, so curves
+   have no gaps and two pieces' rails meet end to end. ends: a list that collects both ends (for buffer stops) */
+function ugRails(b,t,ends){for(let s=.45;s<t.L-.3;s+=.6){const f=t.at(s);b.box('woodD',1.1,.08,.18,f.p[0],f.p[1]+.04,f.p[2],f.yaw)}
+ const P=t.P,T=t.T,n=P.length,pos=[],w=.03,y0=.08,y1=.18;
+ const quad=(a,b2,c,d,nx,ny,nz)=>{const e1=[b2[0]-a[0],b2[1]-a[1],b2[2]-a[2]],e2=[c[0]-a[0],c[1]-a[1],c[2]-a[2]],cr=[e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]];
+  const ok=cr[0]*nx+cr[1]*ny+cr[2]*nz>=0;for(const q of ok?[a,b2,c,a,c,d]:[a,c,b2,a,d,c])pos.push(q[0],q[1],q[2])};
+ for(const off of[-.3,.3])for(let i=0;i<n-1;i++){const r0=[-T[i][1],T[i][0]],r1=[-T[i+1][1],T[i+1][0]],A=P[i],B=P[i+1];
+  const at=(p,r,o,yy)=>[p[0]+r[0]*o,p[1]+yy,p[2]+r[1]*o];
+  quad(at(A,r0,off-w,y1),at(A,r0,off+w,y1),at(B,r1,off+w,y1),at(B,r1,off-w,y1),0,1,0);
+  for(const sd of[-1,1]){const o=off+sd*w;quad(at(A,r0,o,y0),at(B,r1,o,y0),at(B,r1,o,y1),at(A,r0,o,y1),r0[0]*sd,0,r0[1]*sd)}}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(new Array(pos.length/3*2).fill(0),2));g.computeVertexNormals();b.add('rail',g);
+ if(ends){const e0=P[0],e1=P[n-1];ends.push({x:e0[0],y:e0[1],z:e0[2],dx:-T[0][0],dz:-T[0][1]},{x:e1[0],y:e1[1],z:e1[2],dx:T[n-1][0],dz:T[n-1][1]})}}
+/* a turn plate: a round steel plate in the floor where rails meet (junctions, the pillar round) */
+function ugPlate(b,x,y,z,ctx){b.cyl('steel',.9,.9,.05,x,y+.025,z,24);b.cyl('rail',.12,.12,.06,x,y+.03,z,12);if(ctx)ctx.plates.push([x,z])}
+/* rails between mine-coord points with fillets, registering their ends */
+function ugRailLine(b,pts,y,ctx,fil){const t=ugTube(ugNull,pts.map(q=>[q[0],y,q[1]]),{fil:fil==null?3:fil,sets:false});ugRails(b,t,ctx.ends);return t}
 /* lamps hanging from the caps every other set, a wire along the roof between them; lamp spots go in out[] */
 function ugLamps(b,t,out,off){let first=null,prev=null;for(let s=1.5+(off||0)*3;s<t.L-1;s+=6){const f=t.at(s),x=f.p[0]+f.r[0]*.35,z=f.p[2]+f.r[1]*.35,y=f.p[1];
   b.cyl('wire',.008,.008,.24,x,y+2.48,z,4);b.cyl('steel',.07,.09,.08,x,y+2.34,z,10);b.add('glass',new THREE.SphereGeometry(.075,10,8),new THREE.Matrix4().makeTranslation(x,y+2.25,z));
@@ -260,8 +275,7 @@ function ugStationBuild(b,p,L,ctx){const y=UGLY(L),h=L==0?4.6:4.2,hs=L==0?8:6,r=
  ctx.signs.push({x:gx-.06,y:y+2.62,z:0,yaw:-Math.PI/2,txt:'LEVEL '+(L+1),w:1.5});
  /* rails from each doorway towards the shaft, stopping at a buffer 2.4 m short */
  if(L==0)for(const d of ugDoorsFor(p,r)){const vx=-d.x,vz=-d.z,l=Math.hypot(vx,vz),ex=d.x+vx/l*(l-2.6),ez=d.z+vz/l*(l-2.6);
-  const t=ugTube(ugNull,[[d.x,y,d.z],[ex,y,ez]],{fil:0,sets:false});
-  ugRails(b,t);const f=t.at(t.L-.1);b.box('paintR',.9,.35,.25,f.p[0],y+.3,f.p[2],f.yaw)}
+  const t=ugRailLine(b,[[d.x,d.z],[ex,ez]],y,ctx,0);ugBuffer(b,ex,y,ez,t.T[t.T.length-1][0],t.T[t.T.length-1][1],ctx)}
  /* the version's dressing */
  const T=ugT(p);
  for(const f of p.d.fx){if(f.k=='blk')for(const q of f.pts){const w=T(q[0],q[1]);ugProp(b,f.n,w[0],y,w[1],ugYaw(p,Math.atan2(q[0],q[1])),f.r||.5,ctx)}
@@ -287,6 +301,8 @@ function ugJunction(b,p,L,ctx){const y=UGLY(L),r={x0:-4,x1:4,z0:-8,z1:0};ugRectR
  const T=ugT(p);/* heavy timber: two posts and a beam across the middle */
  for(const q of[[-3.75,-.3],[3.75,-.3],[-3.75,-7.7],[3.75,-7.7]]){const w=T(q[0],q[1]);b.box('wood',.26,3.0,.26,w[0],y+1.5,w[1],0)}
  for(const zz of[-.3,-7.7]){const a=T(-3.9,zz),c=T(3.9,zz);b.box('wood',Math.hypot(c[0]-a[0],c[1]-a[1])+.01,.3,.3,(a[0]+c[0])/2,y+3.12,(a[1]+c[1])/2,ugYX(c[0]-a[0],c[1]-a[1]))}
+ /* a turn plate in the middle; rails from every doorway to its edge */
+ const c=T(0,-4);ugPlate(b,c[0],y,c[1],ctx);for(const q of[[0,0]].concat(p.d.ex.map(e=>[e[0],e[1]]))){const w=T(q[0],q[1]),dx=c[0]-w[0],dz=c[1]-w[1],l=Math.hypot(dx,dz);ugRailLine(b,[w,[c[0]-dx/l*.85,c[1]-dz/l*.85]],y,ctx,0)}
  /* a signpost by the far wall, pointing back the way you came (to the cage) */
  const w=T(1.9,-6.6),dx=ugRot(1,0,p.r);ctx.posts.push({x:w[0],y,z:w[1],yaw:Math.atan2(dx[0],dx[1]),dist:ctx.dist(p)})}
 
@@ -295,7 +311,7 @@ function ugRound(b,p,L,ctx){const y=UGLY(L),T=ugT(p),r={x0:-10,x1:10,z0:-26,z1:-
  const pil={x0:-6,x1:6,z0:-22,z1:-6};const pc=[T(pil.x0,pil.z0),T(pil.x1,pil.z1)],pb={x0:Math.min(pc[0][0],pc[1][0]),x1:Math.max(pc[0][0],pc[1][0]),z0:Math.min(pc[0][1],pc[1][1]),z1:Math.max(pc[0][1],pc[1][1])};
  /* the necks in and out, and the doors where they meet the room */
  const tw=(a,c)=>[[T(a[0],a[1])[0],y,T(a[0],a[1])[1]],[T(c[0],c[1])[0],y,T(c[0],c[1])[1]]];
- ugTube(b,tw([0,0],[0,-2]),{fil:0,rails:true,sets:false});const hasOut=p.d.ex.some(e=>Math.abs(e[1]+28)<.1);if(hasOut)ugTube(b,tw([0,-26],[0,-28]),{fil:0,rails:true,sets:false});
+ ugTube(b,tw([0,0],[0,-2]),{fil:0,rails:true,ends:ctx.ends,sets:false});const hasOut=p.d.ex.some(e=>Math.abs(e[1]+28)<.1);if(hasOut)ugTube(b,tw([0,-26],[0,-28]),{fil:0,rails:true,ends:ctx.ends,sets:false});
  const extra=[[0,-2,2]].concat(hasOut?[[0,-26,2]]:[]);
  ugRectRoom(b,p,r,h,y,{doors:ugDoorsFor(p,r,extra),blocks:[pb]});
  /* the pillar's own walls, facing the drive (corners in the order that puts the rock inside the pillar) */
@@ -303,15 +319,21 @@ function ugRound(b,p,L,ctx){const y=UGLY(L),T=ugT(p),r={x0:-10,x1:10,z0:-26,z1:-
  /* timber: cribs in the four corners, square sets along the sides */
  for(const q of[[-8,-4],[8,-4],[8,-24],[-8,-24]]){const w=T(q[0],q[1]);ugCrib(b,w[0],y,w[1],h-.1)}
  for(const zz of[-9,-14,-19])for(const sx of[-1,1]){if(sx==1&&zz==-14&&p.d.ex.some(e=>Math.abs(Math.abs(e[0])-10)<.1))continue;const a=T(sx*6.25,zz),e=T(sx*9.75,zz);for(const q of[a,e])b.box('wood',.24,h-.4,.24,q[0],y+(h-.4)/2,q[1],0);b.box('wood',Math.hypot(e[0]-a[0],e[1]-a[1])+.3,.26,.26,(a[0]+e[0])/2,y+h-.27,(a[1]+e[1])/2,ugYX(e[0]-a[0],e[1]-a[1]))}
- /* rails: round the whole loop (rail loop version) or through it */
- const mk=pts=>ugTube(ugNull,pts.map(q=>{const w=T(q[0],q[1]);return[w[0],y,w[1]]}),{fil:3,sets:false});
- if(v==1)ugRails(b,mk([[0,-2],[0,-4],[8,-4],[8,-24],[-8,-24],[-8,-4],[0,-4]]));else ugRails(b,mk([[0,-2],[0,-4],[8,-4],[8,-24],[0,-24]].concat(hasOut?[[0,-26]]:[])));
+ /* rails: turn plates where lines meet (by the entry, by the exit, by a side door), lines along the drive between them;
+    the rail-loop version runs a second line down the other side */
+ const W=q=>T(q[0],q[1]),side=(p.d.ex.find(e=>Math.abs(Math.abs(e[0])-10)<.1)||[0])[0],sx=Math.sign(side);
+ for(const q of[[0,-4],[0,-24]].concat(sx?[[8*sx,-14]]:[])){const w=W(q);ugPlate(b,w[0],y,w[1],ctx)}
+ ugRailLine(b,[W([0,-2]),W([0,-3.15])],y,ctx,0);if(hasOut)ugRailLine(b,[W([0,-24.85]),W([0,-26])],y,ctx,0);
+ for(const s2 of v==1?[1,-1]:[sx||1]){if(sx&&s2==sx){ugRailLine(b,[W([.85*s2,-4]),W([8*s2,-4]),W([8*s2,-13.15])],y,ctx);ugRailLine(b,[W([8*s2,-14.85]),W([8*s2,-24]),W([.85*s2,-24])],y,ctx);ugRailLine(b,[W([10*s2,-14]),W([8.85*s2,-14])],y,ctx,0)}
+  else ugRailLine(b,[W([.85*s2,-4]),W([8*s2,-4]),W([8*s2,-24]),W([.85*s2,-24])],y,ctx)}
  /* veins on the pillar, about one per 3 m of face, facing out into the drive */
  const R=ugRng(p.id*31+5);for(const [ax,az,bx,bz,ox,oz] of[[-6,-6,6,-6,0,1],[6,-6,6,-22,1,0],[6,-22,-6,-22,0,-1],[-6,-22,-6,-6,-1,0]])for(let t=.12;t<.92;t+=.2+R()*.1){if(R()<.3)continue;const lx=ax+(bx-ax)*t-ox*.06,lz=az+(bz-az)*t-oz*.06,w=T(lx,lz),d=ugRot(ox,oz,p.r);ctx.veins.push({x:w[0],y:y+.9+R()*1.1,z:w[1],dx:d[0],dz:d[1],t:R()<.2?'ag':R()<.5?'fe':'cu'})}
  /* the version's props */
  for(const f of p.d.fx)if(f.k=='blk')for(const q of f.pts){const w=T(q[0],q[1]);if(f.n=='cart')ugCart(b,w[0],y,w[1],ugYaw(p));else if(f.n=='ore bin')ugBin(b,w[0],y,w[1],ugYaw(p));}
  /* lamps */
  for(const q of[[0,-4],[0,-24],[-8,-14],[8,-14]]){const w=T(q[0],q[1]);b.cyl('steel',.07,.09,.08,w[0],y+h-.5,w[1],10);b.cyl('wire',.008,.008,.4,w[0],y+h-.25,w[1],4);b.add('glass',new THREE.SphereGeometry(.075,10,8),new THREE.Matrix4().makeTranslation(w[0],y+h-.6,w[1]));ctx.lamps.push([w[0],y+h-.65,w[1],1])}}
+/* a buffer stop: a red-painted beam on two posts where the rails end */
+function ugBuffer(b,x,y,z,dx,dz,ctx){const yaw=Math.atan2(-dx,-dz),bx=x-dx*.15,bz=z-dz*.15;b.box('paintR',.9,.3,.22,bx,y+.42,bz,yaw);for(const sd of[-.3,.3])b.box('woodD',.14,.4,.14,bx+dz*sd,y+.2,bz-dx*sd,yaw);if(ctx)ctx.plates.push([x,z,.3])}
 function ugCart(b,x,y,z,yaw){b.box('steel',.9,.6,1.3,x,y+.62,z,yaw);b.box('rail',.94,.06,1.34,x,y+.92,z,yaw);for(const sx of[-.35,.35])for(const sz of[-.4,.4]){const c=Math.cos(yaw),s=Math.sin(yaw);b.cyl('rail',.16,.16,.08,x+c*sx+s*sz,y+.16,z-s*sx+c*sz,12,yaw,0,Math.PI/2)}}
 function ugBin(b,x,y,z,yaw){b.box('wood',.9,1.3,.9,x,y+.65,z,yaw);b.box('oreRock',.82,.12,.82,x,y+1.28,z,yaw)}
 
@@ -348,7 +370,7 @@ function ugDecline(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),drop=UGLY(p.L)-UGLY(p.L+
    BUILD A LEVEL from the plan
    ===================================================================================================== */
 function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(),b=ugBatch();
- const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],dist:null};
+ const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],ends:[],plates:[],dist:null};
  /* distance to the cage along the parent chain (for signposts) */
  const len=p=>{let s=0;for(const sh of p.d.shp)if(sh.k=='path')for(let i=1;i<sh.pts.length;i++)s+=Math.hypot(sh.pts[i][0]-sh.pts[i-1][0],sh.pts[i][1]-sh.pts[i-1][1]);return s||8};
  const memo={};ctx.dist=p=>{if(p.st)return 0;if(memo[p.id]!=null)return memo[p.id];const par=plan.P[p.par];memo[p.id]=par?ctx.dist(par)+len(par):0;return memo[p.id]};
@@ -365,13 +387,15 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
   /* tunnels (drive, bend, collapsed, dug joins) and, for now, the rooms of batch 2 as plain shells */
   const W=ugWorld(p);
   for(const s of W.shp){
-   if(s.k=='path'){const tr=ugTube(b,s.pts.map(q=>[q[0],y,q[1]]),{hw:Math.min(2,s.w/2),fil:t=='join'?3:0,rails:true,lampsOut:ctx.lamps,lampOff:p.id%2,broken:t=='collapsed'});
+   if(s.k=='path'){const tr=ugTube(b,s.pts.map(q=>[q[0],y,q[1]]),{hw:Math.min(2,s.w/2),fil:t=='join'?3:0,rails:true,ends:ctx.ends,lampsOut:ctx.lamps,lampOff:p.id%2,broken:t=='collapsed'});
     /* a vein every 6 m or so, on alternate walls */
     const R=ugRng(p.id*977+13);for(let sd=3+R()*3;sd<tr.L-2;sd+=5+R()*4){const f=tr.at(sd),side=R()<.5?-1:1;if(R()<.35)continue;ctx.veins.push({x:f.p[0]+f.r[0]*side*(tr.pf.hw+.06),y:y+1+R()*.9,z:f.p[2]+f.r[1]*side*(tr.pf.hw+.06),dx:-f.r[0]*side,dz:-f.r[1]*side,t:R()<.15?'ag':R()<.55?'fe':'cu'})}}
    else if(s.k=='rect'){const lr=p.d.shp.find(q=>q.k=='rect');const r={x0:lr.x0,x1:lr.x1,z0:lr.z0,z1:lr.z1};ugRectRoom(b,p,r,t=='stope'?5.5:3.6,y,{doors:ugDoorsFor(p,r)})}}
  }
  /* working faces at the ends where nothing fitted */
  for(const o of plan.open)if(o.cap&&o.L==L){const par=plan.P[o.par];if(!par)continue;const hw=2;const sp=ugFace(b,o.x,y,o.z,o.dir,hw);const R=ugRng(Math.round(o.x*13+o.z*7));for(const q of sp)if(R()<.8)ctx.veins.push({x:q[0],y:q[1],z:q[2],dx:q[3],dz:q[4],t:R()<.25?'ag':R()<.6?'fe':'cu'})}
+ /* rail ends that meet nothing (another rail end, a turn plate, a buffer) get a buffer stop */
+ for(const e of ctx.ends){if(ctx.ends.some(f=>f!==e&&Math.hypot(f.x-e.x,f.z-e.z)<.06&&Math.abs(f.y-e.y)<.1))continue;if(ctx.plates.some(q=>Math.hypot(q[0]-e.x,q[1]-e.z)<(q[2]||1.0)))continue;ugBuffer(b,e.x,e.y,e.z,e.dx,e.dz,ctx)}
  b.build(g,K.mat);
  /* veins */
  const R=ugRng(4242+L);for(const v of ctx.veins){const m=ugVein(v.t,R);m.position.set(v.x,v.y,v.z);

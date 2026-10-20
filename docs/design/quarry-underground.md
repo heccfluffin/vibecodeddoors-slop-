@@ -259,9 +259,16 @@ group in mine coordinates (put it at `MN.ox, MN.Y, MN.oz`; level floors at y 0, 
 of a real plan this way.
 - **Tunnels** (`ugTube(batch, polyline, o)`): an arched profile (`ugProf(hw)`: walls 2.6 m, arch to 2.6 + 0.45 hw;
   4 m wide drives, narrower necks) extruded along the piece's path, corners filleted (radius 3 on dug tunnels),
-  resampled every 0.5 m. Timber sets every 3 m (two posts, a cap at 2.6-2.84 m, lagging boards with gaps), rails
-  (sleepers every 0.6 m, 0.6 m gauge), a lamp every 6 m hanging from a cap with a wire between them. The tunnel walls
-  face inward (one-sided).
+  resampled every 0.5 m. Timber sets every 3 m (two posts, a cap at 2.6-2.84 m, lagging boards with gaps), a lamp
+  every 6 m hanging from a cap with a wire between them. The tunnel walls face inward (one-sided). A tunnel's two
+  end rings are squared exactly to the opening's axis (every opening faces one of the four ways), so a bend that
+  meets a drive or a doorway shares the exact same ring: no wedge-shaped slits (the user found one, 2026-10-20).
+- **Rails** (`ugRails`): sleepers every 0.6 m and two continuous rails (0.6 m gauge) extruded ring by ring along the
+  same path as the tunnel, so curves have no gaps and one piece's rails meet the next piece's end to end (the first
+  preview built rails from short straight boxes, which opened gaps on the outside of every curve). Where lines meet
+  (junctions, the pillar round's corners and side door) there is a round steel **turn plate** with rails running to its
+  edge from every doorway. Any rail end that meets nothing (another rail, a plate) gets a red **buffer stop**:
+  at working faces, at the ladderway and decline mouths, at rooms without rails yet, and at the station's buffers.
 - **Rock** is pushed out (never in) by `ugNoise(x, y, z)` of the world position, up to 0.2 m in tunnels and 0.22 m
   in rooms, faded to nothing within 1 m of every opening and at floor level. So two pieces meeting end to end have
   exactly the same edge, and a room's doorway has exactly the tunnel's arch.
