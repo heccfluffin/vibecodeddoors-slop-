@@ -138,7 +138,15 @@ function ugRails(b,t,ends){for(let s=.45;s<t.L-.3;s+=.6){const f=t.at(s);b.box('
  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(new Array(pos.length/3*2).fill(0),2));g.computeVertexNormals();b.add('rail',g);
  if(ends){const e0=P[0],e1=P[n-1];ends.push({x:e0[0],y:e0[1],z:e0[2],dx:-T[0][0],dz:-T[0][1]},{x:e1[0],y:e1[1],z:e1[2],dx:T[n-1][0],dz:T[n-1][1]})}}
 /* a turn plate: a round steel plate in the floor where rails meet (junctions, the pillar round) */
-function ugPlate(b,x,y,z,ctx){b.cyl('steel',.9,.9,.05,x,y+.025,z,24);b.cyl('rail',.12,.12,.06,x,y+.03,z,12);if(ctx)ctx.plates.push([x,z])}
+/* a turntable: a round steel plate set in the floor where lines meet, with one short pair of rails across it and a rim.
+   A loaded cart is pushed onto it, the plate is turned by hand, and the cart is pushed off down another line.
+   (dx,dz): the way its rails point (it sits turned to one of the lines) */
+function ugPlate(b,x,y,z,ctx,dx,dz){dx=dx||0;dz=dz==null?1:dz;const yaw=Math.atan2(-dx,-dz),rx=-dz,rz=dx;
+ b.cyl('steel',.9,.9,.05,x,y+.025,z,28);
+ const rim=new THREE.TorusGeometry(.875,.03,6,28);rim.rotateX(Math.PI/2);b.add('rail',rim,new THREE.Matrix4().makeTranslation(x,y+.05,z));
+ for(const sd of[-.3,.3])b.box('rail',.06,.13,1.62,x+rx*sd,y+.115,z+rz*sd,yaw);
+ for(let i=0;i<8;i++){const a=i/8*Math.PI*2+.39;b.cyl('rail',.035,.035,.02,x+Math.cos(a)*.62,y+.06,z+Math.sin(a)*.62,8)}
+ if(ctx)ctx.plates.push([x,z])}
 /* rails between mine-coord points with fillets, registering their ends */
 function ugRailLine(b,pts,y,ctx,fil){const t=ugTube(ugNull,pts.map(q=>[q[0],y,q[1]]),{fil:fil==null?3:fil,sets:false});ugRails(b,t,ctx.ends);return t}
 /* lamps hanging from the caps every other set, a wire along the roof between them; lamp spots go in out[] */
@@ -302,7 +310,7 @@ function ugJunction(b,p,L,ctx){const y=UGLY(L),r={x0:-4,x1:4,z0:-8,z1:0};ugRectR
  for(const q of[[-3.75,-.3],[3.75,-.3],[-3.75,-7.7],[3.75,-7.7]]){const w=T(q[0],q[1]);b.box('wood',.26,3.0,.26,w[0],y+1.5,w[1],0)}
  for(const zz of[-.3,-7.7]){const a=T(-3.9,zz),c=T(3.9,zz);b.box('wood',Math.hypot(c[0]-a[0],c[1]-a[1])+.01,.3,.3,(a[0]+c[0])/2,y+3.12,(a[1]+c[1])/2,ugYX(c[0]-a[0],c[1]-a[1]))}
  /* a turn plate in the middle; rails from every doorway to its edge */
- const c=T(0,-4);ugPlate(b,c[0],y,c[1],ctx);for(const q of[[0,0]].concat(p.d.ex.map(e=>[e[0],e[1]]))){const w=T(q[0],q[1]),dx=c[0]-w[0],dz=c[1]-w[1],l=Math.hypot(dx,dz);ugRailLine(b,[w,[c[0]-dx/l*.85,c[1]-dz/l*.85]],y,ctx,0)}
+ const c=T(0,-4),ed=ugRot(0,1,p.r);ugPlate(b,c[0],y,c[1],ctx,ed[0],ed[1]);for(const q of[[0,0]].concat(p.d.ex.map(e=>[e[0],e[1]]))){const w=T(q[0],q[1]),dx=c[0]-w[0],dz=c[1]-w[1],l=Math.hypot(dx,dz);ugRailLine(b,[w,[c[0]-dx/l*.85,c[1]-dz/l*.85]],y,ctx,0)}
  /* a signpost by the far wall, pointing back the way you came (to the cage) */
  const w=T(1.9,-6.6),dx=ugRot(1,0,p.r);ctx.posts.push({x:w[0],y,z:w[1],yaw:Math.atan2(dx[0],dx[1]),dist:ctx.dist(p)})}
 
@@ -322,7 +330,7 @@ function ugRound(b,p,L,ctx){const y=UGLY(L),T=ugT(p),r={x0:-10,x1:10,z0:-26,z1:-
  /* rails: turn plates where lines meet (by the entry, by the exit, by a side door), lines along the drive between them;
     the rail-loop version runs a second line down the other side */
  const W=q=>T(q[0],q[1]),side=(p.d.ex.find(e=>Math.abs(Math.abs(e[0])-10)<.1)||[0])[0],sx=Math.sign(side);
- for(const q of[[0,-4],[0,-24]].concat(sx?[[8*sx,-14]]:[])){const w=W(q);ugPlate(b,w[0],y,w[1],ctx)}
+ for(const [q,lx,lz] of[[[0,-4],0,1],[[0,-24],1,0]].concat(sx?[[[8*sx,-14],0,1]]:[])){const w=W(q),d=ugRot(lx,lz,p.r);ugPlate(b,w[0],y,w[1],ctx,d[0],d[1])}
  ugRailLine(b,[W([0,-2]),W([0,-3.15])],y,ctx,0);if(hasOut)ugRailLine(b,[W([0,-24.85]),W([0,-26])],y,ctx,0);
  for(const s2 of v==1?[1,-1]:[sx||1]){if(sx&&s2==sx){ugRailLine(b,[W([.85*s2,-4]),W([8*s2,-4]),W([8*s2,-13.15])],y,ctx);ugRailLine(b,[W([8*s2,-14.85]),W([8*s2,-24]),W([.85*s2,-24])],y,ctx);ugRailLine(b,[W([10*s2,-14]),W([8.85*s2,-14])],y,ctx,0)}
   else ugRailLine(b,[W([.85*s2,-4]),W([8*s2,-4]),W([8*s2,-24]),W([.85*s2,-24])],y,ctx)}

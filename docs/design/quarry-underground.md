@@ -266,8 +266,9 @@ of a real plan this way.
 - **Rails** (`ugRails`): sleepers every 0.6 m and two continuous rails (0.6 m gauge) extruded ring by ring along the
   same path as the tunnel, so curves have no gaps and one piece's rails meet the next piece's end to end (the first
   preview built rails from short straight boxes, which opened gaps on the outside of every curve). Where lines meet
-  (junctions, the pillar round's corners and side door) there is a round steel **turn plate** with rails running to its
-  edge from every doorway. Any rail end that meets nothing (another rail, a plate) gets a red **buffer stop**:
+  (junctions, the pillar round's corners and side door) there is a **turntable** (`ugPlate`): a round steel plate
+  set in the floor with a rim, bolts and one short pair of rails across it, turned to one of the lines; rails run to
+  its rim from every doorway. (Real mines used these: push the cart on, turn the plate, push it off down another line.) Any rail end that meets nothing (another rail, a plate) gets a red **buffer stop**:
   at working faces, at the ladderway and decline mouths, at rooms without rails yet, and at the station's buffers.
 - **Rock** is pushed out (never in) by `ugNoise(x, y, z)` of the world position, up to 0.2 m in tunnels and 0.22 m
   in rooms, faded to nothing within 1 m of every opening and at floor level. So two pieces meeting end to end have
