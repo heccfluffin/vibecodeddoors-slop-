@@ -1,5 +1,16 @@
 # Notes for the design chat
 
+## 2026-10-20 · r642: Dusty Gulch
+- Built as specced (dx630 holds gulch.js unchanged; xpGulch is redefined in dx630 as an edited copy; the model pieces go in their own group because the model functions mark their whole group noSeam).
+- Small differences:
+  - the timetable prop is at (458, -1636.4), in front of the board (the board faces the track, so the spec's spot was behind it);
+  - the saloon's back bar got an obstacle (you could walk into it);
+  - the belfry floated ~4 m over the flat roof behind the gable, so it now sits on a white board-clad shaft (x 461.7..463.4, y 5.2..9.22) down to the roof;
+  - the game's bell hangs from a beam under the belfry cap on a short stem that swings with it.
+- The parked stretch limo moved to Main Street (453.6, -1464): its old spot was inside the bank's front wall.
+- The old Main Street asphalt is no longer drawn (its road entry is flagged like Fort Blackout's roads); it still shows on the map.
+- Question: the minimap still draws Main Street as an asphalt road. Draw it as dirt? (Could go in desert-map.md.)
+
 ## 2026-10-20 · r641: the weapons
 - Built as specced (dx627 holds weapons.js unchanged; mkTurret is local to the Fort builder, so it is a build.py splice).
 - **LZ Bravo helicopter not turned round:** the parked prop is only on screen for about a second, then `awPad` (dx549) swaps it for the real drivable UH-9 at the same spot and heading (-0.4). Turned by PI it would visibly spin 180° at the swap, so it faces the same way.

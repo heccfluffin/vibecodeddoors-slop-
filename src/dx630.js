@@ -1,4 +1,4 @@
-/* =====================================================================================================
+/* r642: =====================================================================================================
    DUSTY GULCH REWORK (design spec docs/design/dusty-gulch.md, models docs/design/models/gulch.js).
    The town keeps every building's footprint, inside, prop, obstacle and mission spot (the diner, Bob's, the saloon,
    the bank and its vault, the chapel); this is a new look, outside and in:
