@@ -141,11 +141,16 @@ stand and every prop stay as they are.
   a green foot, a green fascia, a blue WASH sign on the roof, ENTER · 5 🪙 · STAY IN YOUR CAR over the entrance, a
   price board at the entry (WASH · 5 🪙, WAX · FREE, GOBLIN NOT RESPONSIBLE FOR GOBLINS), a wet dark floor with tyre
   guide rails and a drain, three ceiling lights (`lights`), a blue spray arch with nozzles (`parts.jets`: soft white
-  spray cones, hidden until washing), two tall side brushes and an overhead brush (`parts.brushL/R/Top`: groups of
-  foam strips round a core), a dryer hood, and a PULL FORWARD / STOP / GO sign at the exit (`parts.sign`).
+  spray cones, hidden until washing), two tall side brushes and an overhead brush (soft foam rolls: a striped
+  roll inside a ragged fringe), a dryer hood, and a PULL FORWARD / STOP / GO sign at the exit (`parts.sign`).
   **How it plays:** drive into the bay (`bay`), "[E] Wash the car (5 🪙)" while you sit in a car in the bay: the car
   is pulled slowly from the arch to the exit (about 8 s; your controls are off), the jets show, the brushes spin
-  (side brushes about y, the top one about its axis) and close in on the car, the top brush follows the roof, then
+  and **close in until they touch the car**: call `rtWashTick(W, car, dt)` every frame with the car's
+  `{x, z, hw, hl, top(dx)}` (half width, half length, roof height along its length; null when the bay is empty). It
+  spins the brushes and slides `parts.sliderL/R` (the side brushes, hung from carriages on the gantry beams) in along
+  z onto the car's sides, round its nose and tail as it arrives and leaves, and `parts.sliderTop` (the top brush, on
+  arms in fixed sleeves) down onto the bonnet, roof and boot; the foam squashes 6 cm into the paint. The user's note:
+  the first version's brushes didn't touch the car. then
   the dryer roars and GO lights up; it removes scorch and smoke on the car and gives back 10% of its health. The
   walls are obstacles; the brushes and jets are not. In co-op the washing car's owner runs it and sends start and
   progress.

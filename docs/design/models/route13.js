@@ -195,11 +195,23 @@ function rtCarWash(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(
   const jets=new THREE.Group();arch.add(jets);const JM=new THREE.MeshBasicMaterial({color:0xe8f6ff,transparent:true,opacity:.35,depthWrite:false});for(let i=0;i<7;i++){const z=-hw+.4+i*(hw*2-.8)/6;h.C(.035,.05,.12,0,3.3,z,STL,null,null,8);const j=new THREE.Mesh(new THREE.ConeGeometry(.35,1.6,10,1,true),JM);j.position.set(0,2.45,z);jets.add(j)}
   for(const sd of[-1,1])for(let y=.6;y<3;y+=.6){h.C(.035,.05,.12,0,y,sd*(hw-.08),STL,'z',null,8);const j=new THREE.Mesh(new THREE.ConeGeometry(.3,1.4,10,1,true),JM);j.rotation.x=sd>0?-Math.PI/2:Math.PI/2;j.position.set(0,y,sd*(hw-.8));jets.add(j)}jets.visible=false;arch.userData.jets=jets}
  /* two tall side brushes on a gantry, and an overhead brush: soft strips of blue, green and red foam round a core */
- const brush=(len,rad)=>{const b=new THREE.Group(),core=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,len,8),STL);b.add(core);const cols=[0x3a7ac8,0x3a8a2a,0xc0302a,0xf2f0ea];for(let i=0;i<28;i++){const a=i/28*Math.PI*2,s=new THREE.Mesh(new THREE.BoxGeometry(.025,len-.1,rad-.06),M(cols[i%4],{roughness:1}));s.position.set(Math.cos(a)*rad/2,0,Math.sin(a)*rad/2);s.rotation.y=-a+Math.PI/2;b.add(s)}return b};
+ /* a brush: a dense roll of soft foam strips. A solid foam roll (coloured stripes running along it, shaded between
+    strips) inside a ragged outer fringe (the strips' loose ends, cut out of a striped texture), so the outline is
+    soft and it reads as cloth, not a paddle wheel */
+ const brushTex=(fringe)=>{const t=k.tex(512,256,(c,w,h)=>{const cols=['#3a7ac8','#3a8a2a','#c0302a','#f2f0ea'];c.clearRect(0,0,w,h);for(let i=0;i<64;i++){const x=i*w/64,col=cols[(i>>1)%4];c.fillStyle=col;if(fringe){for(let y=0;y<h;y+=8){if(r()<.55)c.fillRect(x+1,y,w/64-2,7)}}else{c.fillRect(x,0,w/64,h);c.fillStyle='rgba(0,0,0,.28)';c.fillRect(x,0,2,h);c.fillStyle='rgba(255,255,255,.12)';c.fillRect(x+3,0,2,h)}}});t.wrapS=THREE.RepeatWrapping;return t};
+ const BT=brushTex(0),BF=brushTex(1),BM=M(0xffffff,{map:BT,roughness:1}),FM=M(0xffffff,{map:BF,roughness:1,transparent:true,alphaTest:.4,side:THREE.DoubleSide});
+ const brush=(len,rad)=>{const b=new THREE.Group();b.add(new THREE.Mesh(new THREE.CylinderGeometry(rad-.1,rad-.1,len,40,1,true),BM));for(const sd of[-1,1]){const e=new THREE.Mesh(new THREE.CircleGeometry(rad-.1,40),M(0x2a4a7a,{roughness:.9}));e.rotation.x=sd*-Math.PI/2;e.position.y=sd*len/2;b.add(e)}const f=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,len-.04,40,1,true),FM);b.add(f);
+  for(const sd of[-1,1]){const cap=new THREE.Mesh(new THREE.CylinderGeometry(.25,.25,.06,16),STL);cap.position.y=sd*(len/2+.03);b.add(cap)}return b};
  const BX=X0+5.5,gantry=(x)=>{for(const z of[Z0+T+.15,Z1-T-.15])B(.18,H-.3,.18,x,(H-.3)/2,z,STL);B(.18,.2,Z1-Z0-2*T,x,H-.3,(Z0+Z1)/2,STL)};gantry(BX-.8);gantry(BX+.8);
- const brushL=brush(2.6,.9);brushL.position.set(BX,1.5,Z0+T+.85);g.add(brushL);const brushR=brush(2.6,.9);brushR.position.set(BX,1.5,Z1-T-.85);g.add(brushR);
- for(const b of[brushL,brushR]){B(1.6,.1,.1,BX,2.9,b.position.z,STL);C(.1,.1,.18,BX,2.84,b.position.z,STL,null,null,8)}
- const brushTop=brush(Z1-Z0-2*T-.6,.9);brushTop.rotation.x=Math.PI/2;brushTop.position.set(X0+8.5,2.9,(Z0+Z1)/2);g.add(brushTop);for(const z of[Z0+T+.15,Z1-T-.15]){B(.12,1.0,.12,X0+8.5,3.55,z,STL)}rod([X0+8.5,2.9,Z0+T+.15],[X0+8.5,2.9,Z1-T-.15],.05,STL);
+ /* each side brush hangs on a drop rod from a carriage that rolls along the two gantry beams (so it can move in to
+    the car); the slider group moves along z, the brush inside it spins */
+ const side=(z)=>{const sl=new THREE.Group();sl.position.set(BX,0,z);g.add(sl);const h=k.H(sl);h.B(1.8,.1,.14,0,4.25,0,STL);for(const sx of[-.8,.8])h.C(.07,.07,.1,sx,4.25,0,k.DK,'z',null,10);h.C(.05,.05,1.45,0,3.5,0,STL,null,null,8);h.C(.1,.1,.12,0,2.83,0,STL,null,null,10);
+  const b=brush(2.6,.9);b.position.set(0,1.5,0);sl.add(b);return[sl,b]};
+ const [sliderL,brushL]=side(Z0+T+.85),[sliderR,brushR]=side(Z1-T-.85);
+ /* the top brush lies across the bay on an axle; two arms carry it up and down through sleeves fixed to the wall
+    tops (the arms always stay in the sleeves) */
+ const TX=X0+8.5,tw=Z1-Z0-2*T-.6,sliderTop=new THREE.Group();sliderTop.position.set(TX,2.9,(Z0+Z1)/2);g.add(sliderTop);{const h=k.H(sliderTop);h.C(.05,.05,tw+.5,0,0,0,STL,'z',null,8);for(const sd of[-1,1])h.B(.1,1.25,.1,0,.6,sd*(tw/2+.2),STL)}
+ const brushTop=brush(tw,.9);brushTop.rotation.x=Math.PI/2;sliderTop.add(brushTop);for(const sd of[-1,1])B(.2,.5,.2,TX,3.85,(Z0+Z1)/2+sd*(tw/2+.2),k.DK);
  /* the dryer: a big blower hood near the exit, with two side ducts */
  const DXp=X1-2.4;B(.9,.5,Z1-Z0-2*T-.4,DXp,3.3,(Z0+Z1)/2,M(0xc8ccd0,{metalness:.4,roughness:.4}));for(const sd of[-1,1]){B(.6,1.6,.5,DXp,2.2,(Z0+Z1)/2+sd*((Z1-Z0)/2-T-.35),M(0xc8ccd0,{metalness:.4,roughness:.4}))}B(.92,.08,Z1-Z0-2*T-.5,DXp,3.03,(Z0+Z1)/2,k.DK);
  /* the traffic sign at the exit: PULL FORWARD / STOP / GO, three lit panels */
@@ -207,4 +219,18 @@ function rtCarWash(g){const k=rtKit(),{B,C,rod,L}=k.H(g),M=k.M,obs=[];const ob=(
  /* the entry: a price board on a post, a WASH 5 🪙 sign over the entrance */
  {const px=X0-2.2,pz=Z0+.2;B(.12,2.2,.12,px,1.1,pz,STL);B(.08,1.3,1.5,px,2.4,pz,WHT);const pb=L('WASH · 5 🪙\nWAX · FREE\nGOBLIN NOT\nRESPONSIBLE\nFOR GOBLINS',1.4,1.2,'#f2f0ea','#1a1a1a',60,px-.045,2.4,pz,-Math.PI/2);ob(px-.15,px+.15,pz-.75,pz+.75)}
  L('ENTER · 5 🪙 · STAY IN YOUR CAR',(Z1-Z0)-.2,.44,'#3a7ac8','#f2f0ea',70,X0-.25,H+.6,(Z0+Z1)/2,-Math.PI/2);
- return{obs,lights,bay:{x0:X0,x1:X1,z0:Z0+T,z1:Z1-T},parts:{brushL,brushR,brushTop,arch,jets:arch.userData.jets,sign}}}
+ return{obs,lights,bay:{x0:X0,x1:X1,z0:Z0+T,z1:Z1-T},parts:{brushL,brushR,brushTop,sliderL,sliderR,sliderTop,arch,jets:arch.userData.jets,sign}}}
+
+/* ---- the car wash's moving parts, every frame while washing: the brushes spin and close in on the car. car =
+   {x, z, hw (half width), hl (half length), top(dx): the car's roof height at dx along its length from its middle}
+   (null when the bay is empty: everything goes back to rest). The side brushes squeeze its sides while it is level
+   with them, and wrap round its front and back as it arrives and leaves; the top brush rides over its bonnet, roof
+   and boot. Foam strips bend a few cm into the paint, so it looks like contact. ---- */
+function rtWashTick(W,car,dt){const p=W.parts,R=.87,SQ=.06,e=Math.min(1,dt*6);if(!p.rest){p.rest={l:p.sliderL.position.z,r:p.sliderR.position.z,t:p.sliderTop.position.y}}
+ const spin=car?1:0;p.brushL.rotation.y+=dt*7*spin;p.brushR.rotation.y-=dt*7*spin;p.brushTop.rotation.y+=dt*6*spin;
+ const side=(b,rest,sd)=>{let want=rest;if(car){const bx=b.position.x,dx=bx-car.x,ax=Math.abs(dx);
+   if(ax<=car.hl)want=car.z+sd*(car.hw+R-SQ);                     /* level with the car: on its side */
+   else if(ax<car.hl+R){const f=(ax-car.hl)/R;want=car.z+sd*(car.hw+R-SQ)*Math.sqrt(Math.max(0,1-f*f))+sd*.15*(1-f)}/* round the corner onto the nose or tail */
+   want=sd<0?Math.max(rest,want):Math.min(rest,want)}b.position.z+=(want-b.position.z)*e};
+ side(p.sliderL,p.rest.l,-1);side(p.sliderR,p.rest.r,1);
+ {let want=p.rest.t;if(car){const dx=p.sliderTop.position.x-car.x;if(Math.abs(dx)<car.hl+R*.6)want=Math.min(p.rest.t,car.top(Math.max(-car.hl,Math.min(car.hl,dx)))+R-SQ)}p.sliderTop.position.y+=(want-p.sliderTop.position.y)*e}}
