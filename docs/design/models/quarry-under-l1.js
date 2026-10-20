@@ -115,7 +115,7 @@ function ugRoomL1(b,p,Lv,ctx){const t=p.type,v=p.d.v||0,y=UGLY(Lv);
   const blk=n=>(fx('blk').find(f=>f.n==n)||{pts:[]}).pts;
   if(v==0){const tb=blk('table')[0];L.box('wood',.8,.06,1.3,tb[0],.78,tb[1],0);for(const q of[[-.32,-.55],[.32,-.55],[-.32,.55],[.32,.55]])L.box('woodD',.07,.75,.07,tb[0]+q[0],.375,tb[1]+q[1],0);
    for(const sd of[-.72,.72]){L.box('wood',.3,.05,1.3,tb[0]+sd,.46,tb[1],0);for(const dz of[-.5,.5])L.box('woodD',.06,.44,.24,tb[0]+sd,.22,tb[1]+dz,0)}
-   for(let i=0;i<4;i++){L.cyl('steel',.09,.09,.12,tb[0]+(R()-.5)*.5,.87,tb[1]+(R()-.5)*1.1,10)}L.box('red',.28,.16,.18,tb[0]+.15,.89,tb[1]+.3,.3);
+   for(let i=0;i<4;i++){L.cyl('steel',.09,.09,.12,tb[0]+(R()-.5)*.5,.87,tb[1]-.55+i*.17,10)}   /* the mugs stay clear of the lunch tin */L.box('red',.28,.16,.18,tb[0]+.15,.89,tb[1]+.3,.3);
    const st=blk('stove')[0];L.box('dark',.6,.8,.5,st[0],.4,st[1],0);L.cyl('dark',.07,.07,h-.8,st[0],.8+(h-.8)/2,st[1],10);L.cyl('steel',.12,.1,.18,st[0]-.1,.905,st[1]+.05,12);
    L.box('wood',.3,.04,1.6,-3.82*mx,1.5,-4.5,0);for(let i=0;i<5;i++)L.cyl('steel',.07,.07,.11,-3.82*mx,1.58,-3.9-i*.3,10);ugWallSign(L,ctx,0,1.8,-9.98+.0,0,1,'SAFETY FIRST',1.4)}
   if(v==1){for(const q of blk('rack').length?blk('rack'):fx('racks')[0].pts){L.box('wood',.5,1.8,.9,q[0],.9,q[1],0);for(let k=0;k<3;k++)for(let j=-1;j<=1;j++){L.box('woodD',.46,.03,.86,q[0],.5+k*.5,q[1],0);L.geo('lampG',new THREE.SphereGeometry(.06,8,6),q[0]+(q[0]>0?-.12:.12),.6+k*.5,q[1]+j*.26)}}

@@ -287,6 +287,11 @@ of a real plan this way.
   board on the walls, and the version's dressing.
 - **Pillar round** (3 versions): the drive round a 12 x 16 pillar, cribs in the corners, sets along the sides, rails
   through (or round the whole loop for the rail-loop version), veins on every pillar face, lamps.
+- **Each level's group holds everything at its own depth:** `ugBuildLevel(plan, L)` builds a ladderway's lower
+  landing (and the bit of ladder inside it) with the lower level (`ugLadder(..., 'down')`), and the upper landing and
+  raise with the upper one, so a level shown on its own never has a tunnel running into nothing (the user found one
+  in the level 2 preview, where the landing had been built with level 1). `{links:1}` builds both with the upper
+  level (the level 1 preview uses it). The spiral decline stays with its upper level.
 - **Ladderway**: an upper landing with a fenced hatch, a plank-lined raise with a ladder and a landing every 3 m, and
   a lower landing with the raise coming through its roof. Both landings are full tunnel width (the first version had
   narrow 3.2 m landings, so the 4 m tunnel meeting them left black gaps either side; the user spotted it).
