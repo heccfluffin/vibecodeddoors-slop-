@@ -39,7 +39,9 @@
   urRock:M({map:K.rockT,color:0x5e6254,emissive:0x16300c,emissiveIntensity:.35}),
   poolG:new THREE.MeshStandardMaterial({color:0x6ad04a,emissive:0x2a7a1a,emissiveIntensity:.7,roughness:.1,transparent:true,opacity:.65,depthWrite:false,normalMap:K.poolN,normalScale:new THREE.Vector2(.25,.25)}),
   poolK:new THREE.MeshStandardMaterial({color:0x0a1218,roughness:.05,metalness:.5,transparent:true,opacity:.85,depthWrite:false,normalMap:K.poolN,normalScale:new THREE.Vector2(.15,.15)}),
-  bat:M({color:0x241c1e,roughness:1}),guano:M({map:K.gravT,color:0xc8c0b0,roughness:1})});
+  bat:M({color:0x241c1e,roughness:1}),guano:M({map:K.gravT,color:0xc8c0b0,roughness:1}),
+  /* the geodes' banded stone shells, tinted to their crystals */
+  geoA:M({map:K.rockT,color:0x6a5870}),geoC:M({map:K.rockT,color:0x5e6a7c}),geoT:M({map:K.rockT,color:0x7a6a50}),geoS:M({map:K.rockT,color:0x4a4644})});
  for(const k in K.mat)K.mat[k].userData.ug=k;for(const k of['poolG','poolK'])K.mat[k].userData.ro=2;return K}}
 
 /* ---------- helpers ---------- */
@@ -171,12 +173,22 @@ function ugPieceL3(b,p,Lv,ctx){const t=p.type;if(!['basalt','magma','dark','geod
  if(t=='geode'||t=='hotseam'){const neck=p.d.shp.find(s=>s.k=='path'),nw=W.shp.find(s=>s.k=='path'),e=neck.pts[neck.pts.length-1],e0=neck.pts[neck.pts.length-2]||[0,0],nl=Math.hypot(e[0]-e0[0],e[1]-e0[1]);
   {const fx0=nw.pts[0][0]-nw.pts[1][0],fz0=nw.pts[0][1]-nw.pts[1][1],fl0=Math.hypot(fx0,fz0);ugBulkhead(b,nw.pts[0][0],y,nw.pts[0][1],fx0/fl0,fz0/fl0,neck.w/2,{rock:rk})}
   ugCave(b,nw.pts.map(q=>[q[0],y,q[1]]),{hw:neck.w/2,rock:rk,floor:fl,amp:.25});
-  if(t=='geode'){const ring=f1('ring')||{};const mats=[['amethyst','clearC'],['celestine','clearC'],['citrine','clearC'],['smoky','clearC']][v],key=mats[0];
-   const ch=ugChamber(b,p,Lv,ctx,Object.assign({},base,{dome:3.2,amp:.5,stones:false,doorsExtra:[{x:e[0],z:e[1],nx:(e0[0]-e[0])/nl,nz:(e0[1]-e[1])/nl,hw:neck.w/2}],pick:()=>v==2?(R()<.5?'au':'cr'):(R()<.6?'cr':'dm'),veinGap:2.4})),L=ch.L;
-   /* the walls lined all round with crystals pointing in, more from the roof, a few clear ones that blaze */
-   for(let i=0;i<96;i++){const a=i/96*6.28*4%6.28+R()*.12,yy=[.2,.9,1.6,2.3,3.0,3.5][i%6]+R()*.25,w=ch.wallPt(a,yy);if(Math.hypot(w.x-e[0],w.z-e[1])<1.9)continue;const up=yy<.6?.6:yy>2.8?-.45:.05;
-    ugCrystalsDir(L,R,w.x+w.nx*.05,yy,w.z+w.nz*.05,[-w.nx,up,-w.nz],.9+R()*.8,R()<.08?mats[1]:key,4+(R()*4|0))}
-   for(let i=0;i<30;i++){const a=R()*6.28,r=Math.sqrt(R())*bl.rx*.75,x=bl.cx+Math.cos(a)*r,z=bl.cz+Math.sin(a)*r;ugCrystalsDir(L,R,x,ch.roofAt(x,z)+.25,z,[0,-1,0],.6+R()*.5,R()<.1?mats[1]:key)}
+  if(t=='geode'){/* a real geode: a shell of banded stone (the version's colour) lined with a tight carpet of single crystals,
+     all pointing in towards the middle, about the same size with a few big ones and a few clear ones */
+   const mats=[['amethyst','geoA'],['celestine','geoC'],['citrine','geoT'],['smoky','geoS']][v],key=mats[0];
+   const ch=ugChamber(b,p,Lv,ctx,Object.assign({},base,{dome:3.2,amp:.35,rock:mats[1],stones:false,doorsExtra:[{x:e[0],z:e[1],nx:(e0[0]-e[0])/nl,nz:(e0[1]-e[1])/nl,hw:neck.w/2}],pick:()=>v==2?(R()<.5?'au':'cr'):(R()<.6?'cr':'dm'),veinGap:3.2,veinSkip:.5})),L=ch.L;
+   const mid=[bl.cx,1.5,bl.cz],nearNeck=(x,z)=>Math.hypot(x-e[0],z-e[1])<2.1;
+   /* one crystal: an open six-sided prism (its foot is in the rock) with a pointed tip */
+   const prism=(x,y0,z,len,r,k)=>{const d=new THREE.Vector3(mid[0]-x,mid[1]-y0,mid[2]-z).normalize().add(new THREE.Vector3((R()-.5)*.55,(R()-.5)*.55,(R()-.5)*.55)).normalize();
+    const g=new THREE.CylinderGeometry(r,r*1.1,len,6,1,true);g.translate(0,len/2-.1,0);const tip=new THREE.ConeGeometry(r,r*2.2,6,1,true);tip.translate(0,len-.1+r*1.1,0);
+    const M=new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d)).multiply(new THREE.Matrix4().makeRotationY(R()*1.05));for(const gg of[g,tip]){gg.applyMatrix4(M);L.geo(k,gg,x,y0,z)}};
+   /* sizes come in patches (world noise): fields of small crystals, beds of bigger ones, now and then a giant */
+   const grow=(x,y0,z)=>{const w=L0.pt(x,y0,z),n=ugNoise(w.x*.9,w.y*.9,w.z*.9),q=Math.pow(n,1.6);const big=R()<.025;const len=big?1+R()*.5:.18+q*.75+R()*.18;const r=big?.13:.035+len*.12+R()*.02;
+    const k=R()<.025?'clearC':key;prism(x,y0,z,len,r,k);if(!big&&R()<.5){const o=r*2.4;prism(x+(R()-.5)*o,y0+(R()-.5)*o,z+(R()-.5)*o,len*(.5+R()*.4),r*.8,k)}};
+   /* scattered evenly but not in rows: tries with a minimum spacing, wall and roof */
+   const got=[],near=(x,y0,z,m)=>got.some(q=>(q[0]-x)**2+(q[1]-y0)**2+(q[2]-z)**2<m*m);
+   for(let t2=0;t2<2600;t2++){const a=R()*Math.PI*2,yy=.12+R()*3.45,w=ch.wallPt(a,yy);if(nearNeck(w.x,w.z)||near(w.x,yy,w.z,.27))continue;got.push([w.x,yy,w.z]);grow(w.x+w.nx*.03,yy,w.z+w.nz*.03)}
+   for(let t2=0;t2<2200;t2++){const a=R()*Math.PI*2,rr=Math.sqrt(R())*bl.rx*.97,x=bl.cx+Math.cos(a)*rr,z=bl.cz+Math.sin(a)*rr*bl.rz/bl.rx,yy=ch.roofAt(x,z)+.06;if(nearNeck(x,z)||near(x,yy,z,.27))continue;got.push([x,yy,z]);grow(x,yy,z)}
    lamp(bl.cx,1.4,bl.cz,1.4);lamp(bl.cx+1.5,2.6,bl.cz-1.5,.9)}
   else{/* the hot seam: glowing green rock and crystals; the green spring; the core shed */
    const wf=fx('water').find(w=>w.deep);const ch=ugChamber(b,p,Lv,ctx,Object.assign({},base,{dome:1.6,amp:.4,rock:'urRock',stones:false,doorsExtra:[{x:e[0],z:e[1],nx:(e0[0]-e[0])/nl,nz:(e0[1]-e[1])/nl,hw:neck.w/2}],pits:wf?[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}]:[],pick:()=>R()<.7?'ur':'au',veinGap:1.8,veinSkip:.1})),L=ch.L;

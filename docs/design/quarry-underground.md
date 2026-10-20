@@ -470,8 +470,12 @@ burn, mine coords `{x, z, r}`), `moving` (the sealed station's doors: groups tha
   *Sinkhole* (a round shaft 24 m deep with a rough lip, diamond and gold veins on the far side); *Glowworm grotto*
   (still black water, 46 glowworms on the roof); *The maze* (rock pillars floor to roof); *Bat roost* (a 6.5 m dome,
   bats hanging in clusters, guano under them).
-- **The Geode** (a dead end, through a narrow neck): about 90 crystal clusters pointing in from the walls in six rows
-  and 30 down from the roof, a few clear ones that blaze, gem veins between them. *Amethyst* (purple), *Celestine*
+- **The Geode** (a dead end, through a narrow neck): a shell of banded stone tinted to its crystals (`geoA`, `geoC`,
+  `geoT`, `geoS`) lined all over, walls and dome, with a dense carpet of single six-sided crystals (about 1,300, at
+  least 27 cm apart, scattered, not in rows), all pointing in towards the middle with a little wobble; their sizes
+  come in patches (world noise), now and then a giant, about 1 in 40 clear and blazing; gem veins between them. The
+  first version (random clusters pointing every way) looked messy (the user's note), the second (crystals in rows)
+  like a pegboard. About 55,000 triangles for the room, one mesh per material. *Amethyst* (purple), *Celestine*
   (pale blue), *Citrine* (gold, gold veins), *Smoky quartz* (dark, a few clear).
 - **Hot seam** (a dead end, through a narrow neck): faintly glowing green rock, green crystals at the foot of the
   wall, uranium veins. *Green spring* (a glowing green pool with steam); *Core shed* (crates of glowing drill cores,
