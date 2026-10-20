@@ -49,9 +49,9 @@ gameplay, build on the existing `DP` batching, and Claude Code makes a git backu
 | 21 | ~~The plane crash site~~ (done: crash-site.md) | in the desert build, `px=-38, pz=-1165` (bak519) |
 | 22 | ~~The Desert PD, cells, court~~ (done: desert-pd.md) | `desertPD`, `jail*`, `pdHQ` |
 | 23 | ~~The Dark Penitentiary (max security prison)~~ (done: penitentiary.md) | `penBuild`, `penPolish` (`PENA`, `PENF`, `PENI`, `PENB`) |
-| 24 | **Route 13** (the town round the bus stop): Bus stop, Desert Bus depot, Motel 13, El Goblino Gas, the drive-in | not designed yet (found 2026-10-19) |
-| 25 | **Small sights**: Jeff's Oasis, Skull Rock, the meteor crater, the radio mast, the campfire, the wishing well, the wind pump | not designed yet |
-| 26 | **Lookout Mesa and Devil's Gorge** (the gorge's lift and cave are done; the gorge, the zipline, the jump and the mesa top aren't) | not designed yet |
+| 24 | **Route 13** (the town round the bus stop): Bus stop, Desert Bus depot, Motel 13, El Goblino Gas, the drive-in | plan proposed 2026-10-20: `route-13.md` |
+| 25 | **Small sights**: Jeff's Oasis, Skull Rock, the meteor crater, the radio mast, the campfire, the wishing well, the wind pump | plan proposed 2026-10-20: `small-sights.md` |
+| 26 | **Lookout Mesa and Devil's Gorge** (the gorge's lift and cave are done; the gorge, the zipline, the jump and the mesa top aren't) | plan proposed 2026-10-20: `mesa-gorge.md` |
 
 The user, 2026-10-19: "a few places haven't been built yet, they're still their old self". Two reasons: the approved
 specs in the README's "Ready to build" list (pyramid, crash site, Dusty Gulch, Hangar 1, the lake and railway) are

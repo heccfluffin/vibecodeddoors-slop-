@@ -7,10 +7,11 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
 | `desert-map.md` | the desert map and minimap redo: areas, auto-drawn buildings, label classes, minimap banner, smooth zoom | `models/desert-map.js` (tables + reference renderer) |
+| `quarry-underground.md` | the mine under the Old Quarry: three levels built from pieces (tunnels, caves, The Deep), every room's versions, the shift (dynamite, rockfall, gas, pickups, map board, minimap, cage panel, Shaft sinking) | `models/quarry-under.js`, `-kit.js`, `-l1.js`, `-l2.js`, `-l2r.js`, `-l3.js`, `-shift.js` (load in that order) |
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 
-In progress: `quarry-underground.md` (the mine under the Old Quarry: plan approved; model batches 1-5 to come, don't build yet).
+In progress (design): Route 13 town, the small sights, Lookout Mesa and Devil's Gorge.
 
 Still to design: the desert mines loop and remodel.
 

@@ -126,9 +126,12 @@ function ugTube(b,pts,o){
  /* the floor, with holes cut where asked */
  const fp=[],fn=[],fu=[];const holes=o.holes||[];
  const cols=[-pf.hw];for(const h of holes){cols.push(h[2],h[3])}cols.push(pf.hw);const xs=[...new Set(cols)].sort((a,b)=>a-b);
+ /* the floor's edge points, row by row; on the inside of a tight bend an edge would run backwards and the floor fold
+    over itself (two layers flickering), so there it waits until the bend has passed */
+ const FQ=[];for(let i=0;i<n;i++){const [tx,tz]=T[i],rx=-tz,rz=tx,row=xs.map(x=>[P[i][0]+rx*x,P[i][1],P[i][2]+rz*x]);if(i)row.forEach((v,c)=>{const q=FQ[i-1][c];if((v[0]-q[0])*tx+(v[2]-q[2])*tz<.02)row[c]=[q[0],v[1],q[2]]});FQ.push(row)}
  for(let i=0;i<n-1;i++){const s0=S[i],s1=S[i+1];for(let c=0;c<xs.length-1;c++){const x0=xs[c],x1=xs[c+1],mx=(x0+x1)/2,ms=(s0+s1)/2;if(holes.some(h=>ms>h[0]&&ms<h[1]&&mx>h[2]&&mx<h[3]))continue;
-   const q=(ii,x)=>{const [tx,tz]=T[ii],rx=-tz,rz=tx;return[P[ii][0]+rx*x,P[ii][1],P[ii][2]+rz*x]};const A=q(i,x0),B2=q(i,x1),C=q(i+1,x1),D=q(i+1,x0);
-   for(const v of[A,B2,C,A,C,D]){fp.push(v[0],v[1],v[2]);fn.push(0,1,0);fu.push(v[0]/2.5,v[2]/2.5)}}}
+   const A=FQ[i][c],B2=FQ[i][c+1],C=FQ[i+1][c+1],D=FQ[i+1][c];const tris=[[A,B2,C],[A,C,D]].filter(t=>Math.abs((t[1][0]-t[0][0])*(t[2][2]-t[0][2])-(t[1][2]-t[0][2])*(t[2][0]-t[0][0]))>1e-7);
+   for(const t of tris)for(const v of t){fp.push(v[0],v[1],v[2]);fn.push(0,1,0);fu.push(v[0]/2.5,v[2]/2.5)}}}
  /* make sure the floor faces up */
  for(let k=0;k<fp.length;k+=9){const ax=fp[k],az=fp[k+2],bx=fp[k+3],bz=fp[k+5],cx=fp[k+6],cz=fp[k+8];if((bx-ax)*(cz-az)-(bz-az)*(cx-ax)>0){for(let q=0;q<3;q++){const t=fp[k+3+q];fp[k+3+q]=fp[k+6+q];fp[k+6+q]=t}const tu0=fu[k/9*6+2],tu1=fu[k/9*6+3];fu[k/9*6+2]=fu[k/9*6+4];fu[k/9*6+3]=fu[k/9*6+5];fu[k/9*6+4]=tu0;fu[k/9*6+5]=tu1}}
  b.raw(o.floorKey||'floor',fp,fn,fu);
@@ -147,11 +150,11 @@ function ugTubeWall(tr,i,j){const p=tr.P[i],[tx,tz]=tr.T[i],rx=-tz,rz=tx,q=tr.pf
 const ugTubeRing=(tr,s)=>{let i=0;while(i<tr.S.length-1&&tr.S[i+1]<=s)i++;return i};
 /* timber sets every 3 m: two posts, a cap, and lagging boards over the caps (some missing). broken: some sets lean */
 function ugSets(b,t,o){const pf=t.pf,hw=pf.hw,px=hw-.28,cw=2*hw-.3,sp=3,R=ugRng((Math.round(t.P[0][0]*7)^Math.round(t.P[0][2]*13))+77);
- for(let s=1.5;s<t.L-1;s+=sp){const f=t.at(s),[x,y,z]=f.p,yaw=f.yaw,rx=f.r[0],rz=f.r[1];
+ let si=0;for(let s=1.5;s<t.L-1;s+=sp,si++){const f=t.at(s),[x,y,z]=f.p,yaw=f.yaw,rx=f.r[0],rz=f.r[1];
   const lean=o.broken&&R()<.4?(R()-.5)*.25:0;
   for(const sd of[-1,1])b.box('wood',.22,2.6,.22,x+rx*sd*px,y+1.3,z+rz*sd*px,yaw,0,sd*lean*.3);
   b.box('wood',cw,.24,.24,x,y+2.72,z,yaw,0,lean*.2);
-  if(s+sp<t.L-1&&!lean)for(let k=-3;k<=3;k++){if(R()<.15)continue;const f2=t.at(s+sp/2),xx=f2.p[0]+f2.r[0]*k*.5,zz=f2.p[2]+f2.r[1]*k*.5;b.box('woodD',.2,.04,sp+.2,xx,f2.p[1]+2.855,zz,f2.yaw)}}}
+  if(s+sp<t.L-1&&!lean)for(let k=-3;k<=3;k++){if(R()<.15)continue;const f2=t.at(s+sp/2),xx=f2.p[0]+f2.r[0]*k*.5,zz=f2.p[2]+f2.r[1]*k*.5;b.box('woodD',.2,.04,sp-.1,xx,f2.p[1]+2.855-(si%2)*.012,zz,f2.yaw)   /* every other span 12 mm lower: on a bend the boards of two spans can cross */}}}
 /* rails: sleepers every 0.6 m and two continuous rails (0.6 m gauge) following the path ring by ring, so curves
    have no gaps and two pieces' rails meet end to end. ends: a list that collects both ends (for buffer stops) */
 function ugRails(b,t,ends){for(let s=.45;s<t.L-.3;s+=.6){const f=t.at(s);b.box('woodD',1.1,.08,.18,f.p[0],f.p[1]+.04,f.p[2],f.yaw)}
@@ -316,15 +319,16 @@ function ugStationBuild(b,p,L,ctx){const y=UGLY(L),h=L==0?4.6:4.2,hs=L==0?8:6,r=
  /* the sump floor, the corner guides (steel), a collar of timber round the hole at floor level */
  b.box('black',3.2,.1,3.2,0,y-1.6,0,0);
  for(const sx of[-1,1])for(const sz of[-1,1])b.box('steel',.12,h+4.8,.12,sx*1.48,y+(h+4.8)/2-1.6,sz*1.48,0);
- for(const [ax,az,yaw] of[[0,-sh-.15,0],[sh+.15,0,Math.PI/2],[0,sh+.15,0],[-sh-.15,0,Math.PI/2]])b.box('wood',3.6,.16,.3,ax,y+.08,az,yaw);
+ /* (the two along x run the full 3.8 m; the two along z fit between them, so the corners don't overlap) */
+ for(const [ax,az,yaw] of[[0,-sh-.15,0],[sh+.15,0,Math.PI/2],[0,sh+.15,0],[-sh-.15,0,Math.PI/2]])b.box('wood',yaw?2*sh:2*sh+.6,.16,.3,ax,y+.08,az,yaw);
  /* the landing gate on the -x side: a steel frame with mesh, a sign LEVEL n over it, a call box with two lights */
  const gx=-sh-.32;b.box('steel',.08,2.3,.08,gx,y+1.15,-1.3,0);b.box('steel',.08,2.3,.08,gx,y+1.15,1.3,0);b.box('steel',.1,.1,2.7,gx,y+2.3,0,0);
  for(let k=-5;k<=5;k++)b.box('steel',.02,2.1,.02,gx,y+1.13,k*.24,0);b.box('steel',.03,.05,2.6,gx,y+.3,0,0);b.box('steel',.03,.05,2.6,gx,y+1.3,0,0);
- b.box('paintY',.06,.32,1.6,gx-.02,y+2.62,0,0);
+ b.box('paintY',.06,.32,1.6,gx-.02,y+2.51,0,0);   /* the LEVEL board sits on the gate's top bar */
  /* the other three sides of the shaft are fenced with steel mesh at the landing */
  for(const [ax,az,yaw] of[[0,-sh-.02,0],[sh+.02,0,Math.PI/2],[0,sh+.02,0]]){b.box('steel',2.9,.06,.05,ax,y+2.2,az,yaw);b.box('steel',2.9,.06,.05,ax,y+.25,az,yaw);for(let k=-6;k<=6;k++){const o=k*.22;b.box('steel',.025,1.95,.025,ax+(yaw?0:o),y+1.22,az+(yaw?o:0),0)}}
  /* the call box stands on its own post beside the gate (it used to hang in the air) */b.box('steel',.12,.36,.26,gx-.1,y+1.35,1.75,0);b.box('steel',.06,1.17,.06,gx-.1,y+.585,1.75,0);b.box('steel',.2,.03,.2,gx-.1,y+.015,1.75,0);
- ctx.signs.push({x:gx-.06,y:y+2.62,z:0,yaw:-Math.PI/2,txt:'LEVEL '+(L+1),w:1.5});
+ ctx.signs.push({x:gx-.06,y:y+2.51,z:0,yaw:-Math.PI/2,txt:'LEVEL '+(L+1),w:1.5});
  /* rails from each doorway towards the shaft, stopping at a buffer 2.4 m short */
  if(L==0)for(const d of ugDoorsFor(p,r)){const vx=-d.x,vz=-d.z,l=Math.hypot(vx,vz),ex=d.x+vx/l*(l-2.6),ez=d.z+vz/l*(l-2.6);
   const t=ugRailLine(b,[[d.x,d.z],[ex,ez]],y,ctx,0);ugBuffer(b,ex,y,ez,t.T[t.T.length-1][0],t.T[t.T.length-1][1],ctx)}
@@ -410,12 +414,12 @@ function ugLadder(b,p,ctx,part){const T=ugT(p),y0=UGLY(p.L),y1=UGLY(p.L+1),h=3.9
  const top=y0-.02,bot=y1+h+.02,cx=(hole.x0+hole.x1)/2,cz=(hole.z0+hole.z1)/2,hx=(hole.x1-hole.x0)/2,hz=(hole.z1-hole.z0)/2,hgt=top-bot;
  if(up){b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z0-.03,0);b.box('plank',2*hx,hgt,.06,cx,bot+hgt/2,hole.z1+.03,0);b.box('plank',.06,hgt,2*hz,hole.x0-.03,bot+hgt/2,cz,0);b.box('plank',.06,hgt,2*hz,hole.x1+.03,bot+hgt/2,cz,0)}
  /* the ladder runs from the lower landing's floor, up through its roof and the raise, to 1.1 m above the upper floor */
- const lx=hole.x0+.12,lt=top+1.1;for(const sx of[-.22,.22]){if(dn)b.box('wood',.06,bot-y1,.06,lx,(y1+bot)/2,cz+sx,0);if(up)b.box('wood',.06,lt-bot,.06,lx,(bot+lt)/2,cz+sx,0)}for(let yy=y1+.3;yy<top+1;yy+=.3)if(yy<bot?dn:up)b.box('wood',.04,.04,.5,lx,yy,cz,0);
+ const lx=hole.x0+.12,lt=top+1.1;for(const sx of[-.22,.22]){if(dn)b.box('wood',.06,bot-y1,.06,lx,(y1+bot)/2,cz+sx,0);if(up)b.box('wood',.06,lt-bot,.06,lx,(bot+lt)/2,cz+sx,0)}for(let yy=y1+.29;yy<top+1;yy+=.3)if(yy<bot?dn:up)b.box('wood',.04,.04,.44,lx,yy,cz,0);   /* rungs end inside the rails */
  if(up)for(let yy=bot+3;yy<top-1;yy+=3)b.box('woodD',2*hx-.7,.06,2*hz,cx+.33,yy,cz,0);
  if(dn){const c=T(0,-5.6);ctx.lamps.push([c[0],y1+2.6,c[1],.7])}
  if(!up)return;
  /* a fence round the hatch upstairs */
- for(const [a,c] of[[[hole.x0,hole.z0],[hole.x1,hole.z0]],[[hole.x1,hole.z0],[hole.x1,hole.z1]],[[hole.x0,hole.z1],[hole.x1,hole.z1]]]){b.box('wood',Math.abs(c[0]-a[0])+.06,.06,Math.abs(c[1]-a[1])+.06,(a[0]+c[0])/2,y0+1.0,(a[1]+c[1])/2,0);}
+ for(const [a,c] of[[[hole.x0,hole.z0],[hole.x1,hole.z0]],[[hole.x1,hole.z0],[hole.x1,hole.z1]],[[hole.x0,hole.z1],[hole.x1,hole.z1]]]){const dx=Math.abs(c[0]-a[0]),dz=Math.abs(c[1]-a[1]);b.box('wood',dx?dx+.06:.06,.06,dz?dz-.06:.06,(a[0]+c[0])/2,y0+1.0,(a[1]+c[1])/2,0);}   /* the side rail fits between the end rails */
  for(const q of[[hole.x0,hole.z0],[hole.x1,hole.z0],[hole.x1,hole.z1],[hole.x0,hole.z1]])b.box('wood',.07,1.04,.07,q[0],y0+.52,q[1],0);
  ctx.lamps.push([cx,y0+2.6,cz,.8])}
 

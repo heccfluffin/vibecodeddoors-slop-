@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) approved 2026-10-20 · batch 5 (the shift props) ready for review 2026-10-20
+Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) approved 2026-10-20 · batch 5 (the shift props) approved 2026-10-20 · ready to build
 
 # The Old Quarry underground: the quarry mine, rebuilt
 
@@ -493,7 +493,7 @@ kit changes. Found and fixed on the way: two gold veins on the same spot by the 
 face with their hub, the hot seam's rock too green (and its neck now ordinary rock), the lavafall landing short of its
 pool.
 
-### Batch 5: the shift (`models/quarry-under-shift.js`), ready for review
+### Batch 5: the shift (`models/quarry-under-shift.js`), approved 2026-10-20
 Load it last, after `quarry-under-l3.js`. Everything here is its own group (never merged into the level batches), built
 at the origin standing on y 0; small things face -z unless it says otherwise. `ugBuildLevel` now also returns
 `pickups` (groups with `userData.pick`: 'lunchbox', 'tag', 'fossil', 'dynamite crate'); `ugPut(Lh, obj, x, y, z, ry)`

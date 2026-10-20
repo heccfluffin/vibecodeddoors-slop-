@@ -69,7 +69,7 @@ function ugStoneBridge(L,rk,x0,z0,x1,z1,w){w=w||1.6;const dx=x1-x0,dz=z1-z0,l=Ma
   for(const [sd,ww,hh,yo] of[[0,w,.4,-.2],[-1,.22,.32,.16],[1,.22,.32,.16]]){const o=sd*(w/2-.11);ugBeam(L,rk,[a[0]+rx*o,a[1]+yo,a[2]+rz*o],[c[0]+rx*o,c[1]+yo,c[2]+rz*o],ww,hh)}}
  for(const e of[[x0,z0,-1],[x1,z1,1]])L.box(rk,w+.3,.5,.9,e[0]+ux*e[2]*.3,-.1,e[1]+uz*e[2]*.3,yaw)}
 /* basalt columns: a cluster of six-sided columns, the middle ones up into the roof (top), the others shorter */
-function ugBasaltCols(L,R,x,z,r,top){const n=5+(R()*3|0);for(let i=0;i<n;i++){const a=i/n*6.28+R(),d=i<2?r*.25*R():r*(.35+R()*.55),rr=.16+R()*.14,h=i<2?top+1:1.2+R()*Math.min(2.6,top-1.8);
+function ugBasaltCols(L,R,x,z,r,top){const n=5+(R()*3|0);for(let i=0;i<n;i++){const a=i/n*6.28+R(),d=i<2?r*.25*R():r*(.35+R()*.55),rr=.16+R()*.14,h=i<2?top+1+i*.15:1.2+R()*Math.min(2.6,top-1.8);
  L.geo('basalt',new THREE.CylinderGeometry(rr,rr,h+.1,6),x+Math.cos(a)*d,(h+.1)/2-.1,z+Math.sin(a)*d,R()*1.05)}}
 /* a crystal cluster pointing along a direction d=[x,y,z] (out of a wall or down from the roof) */
 function ugCrystalsDir(L,R,x,y,z,d,s,key,n){n=n||3+(R()*4|0);const D=new THREE.Vector3(d[0],d[1],d[2]).normalize();for(let i=0;i<n;i++){const h=s*(.6+R()*.9),r=s*(.1+R()*.08);
@@ -221,7 +221,7 @@ function ugPieceL3(b,p,Lv,ctx){const t=p.type;if(!['basalt','magma','dark','geod
   sign(-hs+.02,3.8,1,0,'LEVEL 3 MAP',1.6);const r={x0:-hs,x1:hs,z0:-hs,z1:hs},K=ugKit();for(const d of ugDoorsFor(p,r)){const fx2=d.x-p.x,fz2=d.z-p.z,fl=Math.hypot(fx2,fz2),nx=fx2/fl,nz=fz2/fl,px=d.x+nx*.25,pz=d.z+nz*.25,yaw=Math.atan2(nx,nz);
    const big=ugProf(2),dw=.75,dh=2.1,sh=new THREE.Shape();sh.moveTo(-2,0);for(const q of big.P.filter(q=>q[1]>=0))sh.lineTo(q[0],q[1]);sh.lineTo(2,0);sh.lineTo(dw,0);sh.lineTo(dw,dh);sh.lineTo(-dw,dh);sh.lineTo(-dw,0);sh.lineTo(-2,0);
    const g=new THREE.ShapeGeometry(sh);const g2=g.clone();g2.applyMatrix4(new THREE.Matrix4().makeRotationY(Math.PI));for(const [gg,o] of[[g,-.04],[g2,.04]])b.add('dark',gg,new THREE.Matrix4().compose(new THREE.Vector3(px-nx*o,y,pz-nz*o),new THREE.Quaternion().setFromEuler(new THREE.Euler(0,yaw+Math.PI,0)),new THREE.Vector3(1,1,1)));
-   for(const sd of[-1,1])b.box('paintY',.12,dh+.1,.14,px-Math.cos(yaw)*sd*(dw+.06),y+(dh+.1)/2,pz+Math.sin(yaw)*sd*(dw+.06),yaw);b.box('paintY',2*dw+.24,.12,.14,px,y+dh+.06,pz,yaw);
+   /* the frame's posts stop under its head (no faces shared) */for(const sd of[-1,1])b.box('paintY',.12,dh,.14,px-Math.cos(yaw)*sd*(dw+.06),y+dh/2,pz+Math.sin(yaw)*sd*(dw+.06),yaw);b.box('paintY',2*dw+.24,.12,.14,px,y+dh+.06,pz,yaw);
    /* the door: hinged on its left edge; the game turns the group about y to open it (closed at 0) */
    const dg=new THREE.Group(),hx=-Math.cos(yaw)*dw,hz=Math.sin(yaw)*dw;dg.position.set(px+hx-nx*.12,y,pz+hz-nz*.12);dg.rotation.y=yaw;const leaf=new THREE.Mesh(new THREE.BoxGeometry(2*dw-.04,dh-.04,.08),K.mat.dark);leaf.position.set(dw,(dh-.04)/2+.02,0);dg.add(leaf);
    const wh=new THREE.Mesh(new THREE.TorusGeometry(.2,.03,6,16),K.mat.paintR);wh.position.set(dw,1.1,-.07);dg.add(wh);const hub=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.1,8),K.mat.steel);hub.rotation.x=Math.PI/2;hub.position.set(dw,1.1,-.06);dg.add(hub);
