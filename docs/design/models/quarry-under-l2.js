@@ -172,7 +172,7 @@ function ugPieceL2(b,p,Lv,ctx){if(Lv==0)return false;const t=p.type,y=UGLY(Lv),R
  if(t=='stream'){ugStream(b,p,Lv,ctx,W,R);return true}
  if(t=='orepass'){ugOrePass(b,p,Lv,ctx,W);return true}
  const blob=p.d.shp.find(s=>s.k=='blob');
- if(t=='fork'){const ch=ugChamber(b,p,Lv,ctx,{cx:blob.cx,cz:blob.cz,rx:blob.rx,rz:blob.rz,dome:1.8});const L=ch.L,v=p.d.v||0;
+ if(t=='fork'){const ch=ugChamber(b,p,Lv,ctx,{cx:blob.cx,cz:blob.cz,rx:blob.rx,rz:blob.rz,dome:2.6});const L=ch.L,v=p.d.v||0;
   if(v==1){const q=p.d.fx.find(f=>f.n=='boulder').pts[0];const g=new THREE.IcosahedronGeometry(1.35,1);const pa=g.attributes.position;for(let i=0;i<pa.count;i++){const w=L.pt(q[0]+pa.getX(i),pa.getY(i),q[1]+pa.getZ(i)),k=.8+.45*ugNoise(w.x*1.3,w.y*1.3,w.z*1.3);pa.setXYZ(i,pa.getX(i)*k,pa.getY(i)*k,pa.getZ(i)*k)}g.computeVertexNormals();L.geo(ugRK(Lv),g,q[0],.75,q[1],R()*3,0,0,1.1,.85,1.1);
    for(let i=0;i<7;i++){const a=R()*6.28,d=1.6+R()*.8,s2=.12+R()*.2;L.geo(ugRK(Lv),new THREE.DodecahedronGeometry(s2,0),q[0]+Math.cos(a)*d,s2*.3,q[1]+Math.sin(a)*d,R()*3,R()*3,0)}}
   if(v==2){for(const f of p.d.fx.filter(f=>f.k=='cols'))for(const q of f.pts)ugColumn(L,q[0],q[1],f.r||.5,ch.roofAt(q[0],q[1]),'flow',R);
@@ -180,20 +180,20 @@ function ugPieceL2(b,p,Lv,ctx){if(Lv==0)return false;const t=p.type,y=UGLY(Lv),R
   return true}
  if(t=='island'){const v=p.d.v||0,fi=p.d.fx.find(f=>f.k=='isle')||{cx:0,cz:-12};const base={cx:0,cz:-12,rx:10,rz:12};
   if(v==2){/* Mushroom island: a low mound under one big dome, giant mushrooms on it leaning out over the passage */
-   const ch=ugChamber(b,p,Lv,ctx,Object.assign({dome:3.8},base)),L=ch.L;const m=new THREE.SphereGeometry(1,24,8,0,Math.PI*2,0,Math.PI/2);L.geo(ugRK(Lv),m,fi.cx,-.05,fi.cz,0,0,0,5.3,1.1,5.3);
+   const ch=ugChamber(b,p,Lv,ctx,Object.assign({dome:5.2},base)),L=ch.L;const m=new THREE.SphereGeometry(1,24,8,0,Math.PI*2,0,Math.PI/2);L.geo(ugRK(Lv),m,fi.cx,-.05,fi.cz,0,0,0,5.3,1.1,5.3);
    const rs=p.d.fx.find(f=>f.k=='ringspots');for(let i=0;i<rs.n;i++){const a=i/rs.n*6.28+.3,x=rs.cx+Math.cos(a)*rs.rx,z=rs.cz+Math.sin(a)*rs.rz,yb=1.1*Math.sqrt(Math.max(0,1-(rs.rx/5.3)**2))-.05;
     const top=ugMushroom(L,R,x,z,2.6+R()*1.2,1.7+R()*.6,'capP',[Math.cos(a)*1.1,Math.sin(a)*1.1],yb);const w=L.pt(top[0],top[1]-.4,top[2]);ctx.lamps.push([w.x,w.y,w.z,.9])}
    for(let i=0;i<10;i++){const a=R()*6.28,r=R()*3.2;ugMushroom(L,R,fi.cx+Math.cos(a)*r,fi.cz+Math.sin(a)*r,.4+R()*.5,.25+R()*.2,'capG',[0,0],1.1*Math.sqrt(Math.max(0,1-(r/5.3)**2))-.08)}
    return true}
   const flood=v==3,cry=v==1;
-  const ch=ugChamber(b,p,Lv,ctx,Object.assign({dome:2.6,isle:{cx:fi.cx,cz:fi.cz,r:5.3,bot:flood?-.3:-.1,key:cry?'crystalP':null},isleInPit:flood,pits:flood?[{cx:0,cz:-12,rx:9.4,rz:9.4}]:[],rock:ugRK(Lv)},base)),L=ch.L;
+  const ch=ugChamber(b,p,Lv,ctx,Object.assign({dome:3.4,isle:{cx:fi.cx,cz:fi.cz,r:5.3,bot:flood?-.3:-.1,key:cry?'crystalP':null},isleInPit:flood,pits:flood?[{cx:0,cz:-12,rx:9.4,rz:9.4}]:[],rock:ugRK(Lv)},base)),L=ch.L;
   if(flood)ugPool(L,{cx:0,cz:-12,rx:9.4,rz:9.4},{prof:[[1,0],[.985,-.1],[.96,-.17],[0,-.2]],surf:-.04,dep:.2,key:'waterS',rock:'wet2',hole:ch.isle});
   if(cry){/* the island is one great crystal pillar: its face shows through in glowing crystal, big crystals jut out of it */
    const rs=p.d.fx.find(f=>f.k=='ringspots');
    for(let i=0;i<rs.n;i++){const a=i/rs.n*6.28;ugCrystals(L,R,fi.cx+Math.cos(a)*4.75,fi.cz+Math.sin(a)*4.75,1.3+R()*.9,'crystal',.1+R()*1.7)}
    for(const a of[0,1.57,3.14,4.71]){const w=L.pt(fi.cx+Math.cos(a)*6.2,2,fi.cz+Math.sin(a)*6.2);ctx.lamps.push([w.x,w.y,w.z,1.2])}}
   return true}
- if(blob&&['crystal','fungus','flooded','chasm','hall'].includes(t)){const dm={crystal:2.6,fungus:2.8,flooded:1.8,chasm:3,hall:3.2};
+ if(blob&&['crystal','fungus','flooded','chasm','hall'].includes(t)){const dm={crystal:3.6,fungus:5,flooded:2.8,chasm:4.2,hall:4.4};
   if(typeof ugCaveRoom=='function'&&ugCaveRoom(b,p,Lv,ctx,blob))return true;
   ugChamber(b,p,Lv,ctx,{cx:blob.cx,cz:blob.cz,rx:blob.rx,rz:blob.rz,dome:dm[t]});return true}
  return false}
@@ -243,7 +243,8 @@ function ugOrePass(b,p,Lv,ctx,W){const y=UGLY(Lv),L=ugLocal(b,p,y),v=p.d.v||0,rk
  const D=3;for(const [ax,az,ry] of[[0,-gh,0],[gh,0,-Math.PI/2],[0,gh,Math.PI],[-gh,0,Math.PI/2]])L.geo(rk,new THREE.PlaneGeometry(2*gh,D),g.x+ax,-D/2,g.z+az,ry);L.geo('black',new THREE.PlaneGeometry(2*gh,2*gh),g.x,-D+.01,g.z,0,-Math.PI/2);
  const bw=v==1?.12:.05,sp=v==1?.3:.18;L.box('steel',2*gh+.4,.08,.14,g.x,.045,g.z-gh-.06,0);L.box('steel',2*gh+.4,.08,.14,g.x,.045,g.z+gh+.06,0);
  for(let x=-gh+sp/2;x<gh;x+=sp)L.box('steel',bw,v==1?.12:.06,2*gh+.3,g.x+x,v==1?.065:.035,g.z,0);if(v!=1)for(const z of[-.4,.4])L.box('steel',2*gh+.2,.04,.05,g.x,.075,g.z+z,0);
- if(v==1){const q=p.d.fx.find(f=>f.n=='hammer rack').pts[0];L.box('wood',.8,1.4,.12,q[0],.7,q[1],Math.PI/2);L.box('wood',.12,.12,.8,q[0],1.1,q[1],0);L.cyl('woodD',.025,.025,.9,q[0]-.1,.65,q[1]+.15,8,0,0,.08);L.box('steel',.12,.14,.28,q[0]-.11,1.15,q[1]+.15,0)}
+ if(v==1){/* the hammer rack: a board on the nearest side wall, a peg, a sledgehammer hanging from it */const q=p.d.fx.find(f=>f.n=='hammer rack').pts[0],sx=Math.sign(q[0])||1,wx=sx>0?r.x1:r.x0,bx=wx-sx*.07;
+  L.box('wood',.12,1.2,.9,bx,1.1,q[1],0);L.box('woodD',.22,.06,.06,bx-sx*.15,1.45,q[1],0);L.cyl('woodD',.025,.025,.95,bx-sx*.2,.95,q[1],8);L.box('steel',.14,.14,.3,bx-sx*.2,.46,q[1],0)}
  if(v==2){const rl=p.d.fx.find(f=>f.k=='rail'),q=p.d.fx.find(f=>f.n=='skip').pts[0];const w1=T(rl.pts[0][0],rl.pts[0][1]),w2=T(rl.pts[1][0],rl.pts[1][1]+.4);ugRailLine(b,[w1,w2],y,ctx,0);
   const wk=T(q[0],q[1]);ugCart(b,wk[0],y,wk[1],ugYaw(p));L.box('oreRock',.8,.12,1.2,q[0],.9,q[1],0)}
  /* a lamp, and veins in the dug walls */

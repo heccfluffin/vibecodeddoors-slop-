@@ -115,7 +115,7 @@ const UGV={
  crystal:[
   {nm:'Crystal grotto',ds:'Glowing crystal clusters, silver and crystal veins.'},
   {nm:'Crystal pool',ds:'A still, glowing pool ringed with crystals. The rarest crystals grow under the water\'s edge (wade in).',fx:()=>[{k:'water',cx:0,cz:-10,rx:4,rz:5,c:'#38c8f0'},{k:'ringspots',cx:0,cz:-10,rx:5.2,rz:6.2,n:20,c:'#9ff0ff'},{k:'icon',x:0,z:-10,t:'💎'}]},
-  {nm:'Selenite beams',ds:'Giant crystal beams cross the cave at all angles: duck under some, climb over others.',fx:()=>[{k:'beams',ls:[[[-6,-5],[5.4,-14]],[[-5.4,-15.4],[6,-7]],[[-2.4,-3.4],[2.4,-16.6]]]},{k:'icon',x:-4,z:-10,t:'💎'}]},
+  {nm:'Selenite beams',ds:'Giant crystal beams cross a tall cave at all angles high over your head, their ends sunk deep in the rock.',fx:()=>[{k:'beams',ls:[[[-6,-5],[5.4,-14]],[[-5.4,-15.4],[6,-7]],[[-2.4,-3.4],[2.4,-16.6]]]},{k:'icon',x:-4,z:-10,t:'💎'}]},
   {nm:'Frost grotto',ds:'Pale blue crystals furred with frost and a cold mist at knee height. Your breath shows.',fx:()=>[{k:'spots',n:14,c:'#d8f4ff',rx:5.6,rz:7,cz:-10},{k:'mist',cx:0,cz:-10,rx:6,rz:7.6},{k:'icon',x:0,z:-10,t:'❄️'}]},
   {nm:'Crystal columns',ds:'Huge six-sided crystal columns from floor to roof, a maze of light.',fx:()=>[{k:'cols',pts:[[-3.5,-6],[3.2,-7.5],[-1,-11],[4,-13],[-4,-14.5]],r:.9,c:'#7fe4ff'}]}],
  fungus:[
