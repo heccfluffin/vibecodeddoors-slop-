@@ -323,7 +323,7 @@ function ugStationBuild(b,p,L,ctx){const y=UGLY(L),h=L==0?4.6:4.2,hs=L==0?8:6,r=
  b.box('paintY',.06,.32,1.6,gx-.02,y+2.62,0,0);
  /* the other three sides of the shaft are fenced with steel mesh at the landing */
  for(const [ax,az,yaw] of[[0,-sh-.02,0],[sh+.02,0,Math.PI/2],[0,sh+.02,0]]){b.box('steel',2.9,.06,.05,ax,y+2.2,az,yaw);b.box('steel',2.9,.06,.05,ax,y+.25,az,yaw);for(let k=-6;k<=6;k++){const o=k*.22;b.box('steel',.025,1.95,.025,ax+(yaw?0:o),y+1.22,az+(yaw?o:0),0)}}
- b.box('steel',.12,.36,.26,gx-.1,y+1.35,1.75,0);
+ /* the call box stands on its own post beside the gate (it used to hang in the air) */b.box('steel',.12,.36,.26,gx-.1,y+1.35,1.75,0);b.box('steel',.06,1.17,.06,gx-.1,y+.585,1.75,0);b.box('steel',.2,.03,.2,gx-.1,y+.015,1.75,0);
  ctx.signs.push({x:gx-.06,y:y+2.62,z:0,yaw:-Math.PI/2,txt:'LEVEL '+(L+1),w:1.5});
  /* rails from each doorway towards the shaft, stopping at a buffer 2.4 m short */
  if(L==0)for(const d of ugDoorsFor(p,r)){const vx=-d.x,vz=-d.z,l=Math.hypot(vx,vz),ex=d.x+vx/l*(l-2.6),ez=d.z+vz/l*(l-2.6);

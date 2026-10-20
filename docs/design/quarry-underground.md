@@ -282,7 +282,7 @@ of a real plan this way.
   with the distance along the tunnels ("⬅ CAGE 45 m", rounded to 5 m).
 - **Shaft stations** (level 1: Pit bottom, Timbered station, Brick station): a 16 x 16 room, the 3.2 m shaft through
   floor and roof (plank-lined above the roof and down into a 1.6 m sump, steel guides in the corners, a timber collar),
-  the landing gate on the -x side (where you step out, as now) with a LEVEL 1 sign and a call box, steel mesh on the
+  the landing gate on the -x side (where you step out, as now) with a LEVEL 1 sign and a call box on its own post (it hung in the air at first, the user's note), steel mesh on the
   other three sides, rails from each doorway ending at red buffers, four big lamps, the shift clock and the level map
   board on the walls, and the version's dressing.
 - **Pillar round** (3 versions): the drive round a 12 x 16 pillar, cribs in the corners, sets along the sides, rails
