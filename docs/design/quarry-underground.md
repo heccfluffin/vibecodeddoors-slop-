@@ -410,8 +410,11 @@ landings, the decline and stations use them.
 - **Flooded gallery**: *Flooded gallery* (knee-deep: the floor 0.45 m under the water, a plank walkway on posts along
   the edge); *Underground lake* (3 m deep, a rope across on two posts, a raft on four barrels); *Drowned drift*
   (timber sets standing in the water, old rails along the bottom with no buffers, a sunken cart); *Waterfall gallery*
-  (a plunge pool and a wading channel joined into one basin, `ugBasin`; water falling from a dark crack, foam and
-  spray; **the game scrolls `UGK.fallT.offset.y`**, about 1.2 per second).
+  (a plunge pool and a wading channel joined into one basin, `ugBasin`; the water comes out of a dark crack in the
+  wall, spills over a rock lip and curves out as it falls, two soft sheets of streaks that swell and thin, foam rings
+  and a spray puff (three crossed soft planes) where it lands; no veins near it; **the game scrolls
+  `UGK.fallT.offset.y` by about +1.2 and `UGK.fallT2.offset.y` by +0.9 per second**). The first try was one flat
+  sheet of hard bars hanging from nowhere (the user's note).
 - **Chasm hall**: the fissure is a hole in the floor along the plan's line, rough rock sides 9 m down, darkness at the
   bottom; it runs into the walls, or narrows to nothing where it ends inside the cave. *Chasm hall* (a sagging rope
   bridge, three stepping-stone pillars rising from the depths); *Broken bridge* (each half hangs into the gap);

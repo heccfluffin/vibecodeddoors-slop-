@@ -12,15 +12,21 @@
 {const k0=ugKit;ugKit=function(){const K=k0();if(K.l2r)return K;K.l2r=1;const M=o=>new THREE.MeshStandardMaterial(Object.assign({roughness:.9},o));
  /* soft round fade (mist), streaks for falling water, a spiral shell (fossils) */
  K.fadeT=ugCanvas(128,128,(k,w,h)=>{const g=k.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.6,'rgba(255,255,255,.55)');g.addColorStop(1,'rgba(255,255,255,0)');k.fillStyle=g;k.fillRect(0,0,w,h)});
- K.fallT=ugCanvas(64,256,(k,w,h)=>{k.fillStyle='#000';k.fillRect(0,0,w,h);const r=ugRng(77);for(let i=0;i<70;i++){const x=r()*w,l=20+r()*90,y=r()*h;k.fillStyle='rgba(255,255,255,'+(.25+r()*.6)+')';k.fillRect(x,y,1+r()*2.5,l);k.fillRect(x,y-h,1+r()*2.5,l)}});
- K.fallT.repeat.set(2,1.5);
+ /* falling water: a thin sheet everywhere, many soft streaks that swell and thin along their length (so scrolling
+    looks like flowing water, not moving bars), soft left and right edges; tiles top to bottom */
+ const fallTex=seed=>ugCanvas(256,512,(k,w,h)=>{const r=ugRng(seed);k.fillStyle='rgb(70,70,70)';k.fillRect(0,0,w,h);
+  for(let i=0;i<170;i++){const x=12+r()*(w-24),lw=1.5+r()*7,a=.12+r()*.4,ph=r()*6.28,fr=1+(r()*3|0),wv=r()*2;
+   for(let y=0;y<h;y+=4){const al=a*(.5+.5*Math.sin(y/h*Math.PI*2*fr+ph));k.fillStyle='rgba(255,255,255,'+al.toFixed(3)+')';k.fillRect(x+Math.sin(y/h*Math.PI*6+ph)*wv-lw/2,y,lw,4.5)}}
+  k.globalCompositeOperation='multiply';const g=k.createLinearGradient(0,0,w,0);g.addColorStop(0,'#000');g.addColorStop(.2,'#fff');g.addColorStop(.8,'#fff');g.addColorStop(1,'#000');k.fillStyle=g;k.fillRect(0,0,w,h);k.globalCompositeOperation='source-over'});
+ K.fallT=fallTex(77);K.fallT.repeat.set(1,1.2);K.fallT2=fallTex(91);K.fallT2.repeat.set(1,.9);
  K.ammoT=ugCanvas(128,128,(k,w,h)=>{k.fillStyle='#b8a888';k.fillRect(0,0,w,h);k.strokeStyle='#6a5a44';k.lineWidth=3;k.beginPath();for(let a=0;a<6*Math.PI;a+=.1){const r=3+a*3.1;k.lineTo(w/2+Math.cos(a)*r,h/2+Math.sin(a)*r)}k.stroke();
   for(let a=.5;a<6*Math.PI;a+=.45){const r=3+a*3.1;k.beginPath();k.moveTo(w/2+Math.cos(a)*r,h/2+Math.sin(a)*r);k.lineTo(w/2+Math.cos(a)*(r+8),h/2+Math.sin(a)*(r+8));k.stroke()}});
  Object.assign(K.mat,{
   selenite:new THREE.MeshStandardMaterial({color:0xf4f0e4,emissive:0x5a5448,emissiveIntensity:.6,roughness:.2,metalness:.05,flatShading:true}),
-  mist:new THREE.MeshBasicMaterial({map:K.fadeT,color:0xe8f4ff,transparent:true,opacity:.28,depthWrite:false}),
-  /* falling water: streaks (the game scrolls K.fallT.offset.y down, about 1.2 per second) */
-  falls:new THREE.MeshBasicMaterial({color:0xcfe8f4,alphaMap:K.fallT,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide}),
+  mist:new THREE.MeshBasicMaterial({map:K.fadeT,color:0xe8f4ff,transparent:true,opacity:.28,depthWrite:false,side:THREE.DoubleSide}),
+  /* falling water, two sheets (the game scrolls K.fallT.offset.y by about +1.2 and K.fallT2.offset.y by +0.9 per second) */
+  falls:new THREE.MeshStandardMaterial({color:0xd8ecf6,emissive:0x1a2a30,roughness:.3,alphaMap:K.fallT,transparent:true,opacity:.9,depthWrite:false,side:THREE.DoubleSide}),
+  falls2:new THREE.MeshStandardMaterial({color:0xa8c8d8,emissive:0x101c22,roughness:.3,alphaMap:K.fallT2,transparent:true,opacity:.6,depthWrite:false,side:THREE.DoubleSide}),
   foam:new THREE.MeshBasicMaterial({map:K.fadeT,color:0xffffff,transparent:true,opacity:.7,depthWrite:false}),
   poolC:new THREE.MeshStandardMaterial({color:0x38c8f0,emissive:0x1a90c0,emissiveIntensity:.8,roughness:.1,transparent:true,opacity:.7,depthWrite:false,normalMap:K.poolN,normalScale:new THREE.Vector2(.25,.25)}),
   poolT:new THREE.MeshStandardMaterial({color:0x2fb8a0,emissive:0x1a8a70,emissiveIntensity:.7,roughness:.1,transparent:true,opacity:.62,depthWrite:false,normalMap:K.poolN,normalScale:new THREE.Vector2(.25,.25)}),
@@ -29,7 +35,7 @@
   moss:M({color:0x4a7a3a,roughness:1}),lily:M({color:0x3f8a3a,roughness:.7}),frog:M({color:0x5aa040,roughness:.6}),
   root:M({map:K.woodT,color:0xe8dcc0,roughness:.85}),bone:M({color:0xe0d4b4,roughness:.8}),puff:M({color:0xece4d2,roughness:1}),
   ammo:M({map:K.ammoT,roughness:.8})});
- for(const k in K.mat)K.mat[k].userData.ug=k;for(const k of['poolC','poolT','poolB'])K.mat[k].userData.ro=2;K.mat.mist.userData.ro=3;K.mat.falls.userData.ro=3;K.mat.foam.userData.ro=3;return K}}
+ for(const k in K.mat)K.mat[k].userData.ug=k;for(const k of['poolC','poolT','poolB'])K.mat[k].userData.ro=2;K.mat.mist.userData.ro=3;K.mat.falls.userData.ro=3;K.mat.falls2.userData.ro=3;K.mat.foam.userData.ro=3;return K}}
 
 /* ---------- helpers ---------- */
 const ugProfY=(pr,r)=>{if(r>=1)return 0;for(let i=1;i<pr.length;i++)if(r>=pr[i][0]){const a=pr[i-1],c=pr[i],t=(r-a[0])/((c[0]-a[0])||1);return a[1]+(c[1]-a[1])*t}return pr[pr.length-1][1]};
@@ -127,13 +133,18 @@ function ugCaveRoom(b,p,Lv,ctx,bl){const t=p.type,v=p.d.v||0,y=UGLY(Lv),rk=ugRK(
  if(t=='flooded'){const ws=fx('water'),pk=()=>{const r=R();return r<.4?'ag':r<.6?'au':r<.8?'fe':'cu'};
   if(v==3){/* the waterfall gallery: a plunge pool and a wading channel joined into one basin */
    const deep=ws.find(w=>w.deep),sh=ws.find(w=>!w.deep);const B=ugBasinShape([{cx:deep.cx,cz:deep.cz,rx:deep.rx,rz:deep.rz,prof:[[1,0],[.92,-.35],[.7,-1.2],[.35,-2],[0,-2.2]]},{cx:sh.cx,cz:sh.cz,rx:sh.rx,rz:sh.rz,prof:[[1,0],[.95,-.25],[.88,-.42],[0,-.45]]}],[(deep.cx+sh.cx)/2,deep.cz]);
-   const ch=room({dome:3,holes:[B.pts],pick:pk}),L=ch.L;ugBasin(L,B,{surf:-.04,key:'pool'});
+   const fl0=f1('falls'),ch=room({dome:3,holes:[B.pts],pick:pk,noVein:(x,z)=>Math.hypot(x-fl0.x,z-fl0.z)<2.6}),L=ch.L;ugBasin(L,B,{surf:-.04,key:'pool'});
    for(const f of[.3,.55,.8]){const d=-.04+(-2.2+.04)*f,pr=[[1,0],[.92,-.35],[.7,-1.2],[.35,-2],[0,-2.2]];let r=0;for(let i=1;i<pr.length;i++)if(d>=pr[i][1]){r=pr[i-1][0]+(pr[i][0]-pr[i-1][0])*(d-pr[i-1][1])/(pr[i][1]-pr[i-1][1]);break}if(r>.05)L.geo('poolD',new THREE.CircleGeometry(1,40).rotateX(-Math.PI/2),deep.cx,d,deep.cz,0,0,0,deep.rx*r*1.03,1,deep.rz*r*1.03)}
-   const fl=f1('falls'),w=ch.wallPt(Math.atan2(fl.z-bl.cz,fl.x-bl.cx),3.3),fw=2.1,top=3.3;
-   L.box('black',fw+.3,.45,.7,w.x+w.nx*.38,top+.1,w.z+w.nz*.38,Math.atan2(w.nx,w.nz));
-   const g=new THREE.PlaneGeometry(fw,top+.1,1,6),pa=g.attributes.position;for(let i=0;i<pa.count;i++){const yy=pa.getY(i)+(top+.1)/2,k=Math.pow(1-yy/(top+.1),1.6)*.55;pa.setZ(i,k)}g.computeVertexNormals();
-   L.geo('falls',g,w.x-w.nx*.3,(top+.1)/2-.06,w.z-w.nz*.3,Math.atan2(-w.nx,-w.nz));L.geo('foam',new THREE.CircleGeometry(1.2,20).rotateX(-Math.PI/2),w.x-w.nx*.95,-.02,w.z-w.nz*.95);
-   for(const [yy,s] of[[.4,1.4],[1,1.1]])L.geo('mist',new THREE.CircleGeometry(1,24).rotateX(-Math.PI/2),w.x-w.nx*1.1,yy,w.z-w.nz*1.1,0,0,0,s,1,s);
+   /* the source: a dark crack in the wall with a rock lip under it; the water spills over the lip, curves out and falls
+      into the plunge pool as two soft sheets, with foam and spray where it lands */
+   const fl=f1('falls'),an=Math.atan2(fl.z-bl.cz,fl.x-bl.cx),top=3.1,w=ch.wallPt(an,top),wc=ch.wallPt(an,top+.42),yaw=Math.atan2(-w.nx,-w.nz),io=(q,o2)=>[q.x-q.nx*o2,q.z-q.nz*o2];
+   {const c=io(wc,-.22);L.box('black',1.5,.3,.6,c[0],top+.42,c[1],yaw)}
+   {const g=new THREE.IcosahedronGeometry(1,1),pa=g.attributes.position;for(let i=0;i<pa.count;i++){const k=.85+.3*ugNoise(pa.getX(i)*3+fl.x,pa.getY(i)*3,pa.getZ(i)*3+fl.z);pa.setXYZ(i,pa.getX(i)*k,pa.getY(i)*k,pa.getZ(i)*k)}g.computeVertexNormals();const c=io(w,.1);L.geo(rk,g,c[0],top,c[1],yaw,0,0,1.05,.28,.5)}
+   const sheet=(key,o0,o1,w0,w1)=>{const g=new THREE.PlaneGeometry(1,1,6,14),pa=g.attributes.position;for(let i=0;i<pa.count;i++){const f=.5-pa.getY(i),wd=w0+(w1-w0)*f;pa.setXYZ(i,pa.getX(i)*wd,top+.24-(top+.3)*f,o0+(o1-o0)*Math.sqrt(f))}g.computeVertexNormals();L.geo(key,g,w.x,0,w.z,yaw)};
+   sheet('falls2',.48,1.05,.9,1.4);sheet('falls',.56,1.18,1.05,1.7);
+   const fp=io(w,1.15);L.geo('foam',new THREE.CircleGeometry(.95,20).rotateX(-Math.PI/2),fp[0],-.02,fp[1]);L.geo('foam',new THREE.RingGeometry(1.1,1.5,24).rotateX(-Math.PI/2),fp[0],-.025,fp[1]);
+   /* spray: three soft upright planes crossing at the foot of the falls, so it reads as a puff from any side */
+   for(let k=0;k<3;k++)L.geo('mist',new THREE.PlaneGeometry(2.4,1.7),fp[0],.75,fp[1],yaw+k*Math.PI/3);
    return true}
   const wf=ws[0],pf={0:[[1,0],[.96,-.25],[.9,-.42],[0,-.45]],1:null,2:[[1,0],[.9,-.35],[.62,-.8],[.45,-.9],[0,-.9]]}[v];
   const ch=room({dome:2.8,pits:[{cx:wf.cx,cz:wf.cz,rx:wf.rx,rz:wf.rz}],pick:pk}),L=ch.L;
