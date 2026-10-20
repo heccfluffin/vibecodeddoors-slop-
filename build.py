@@ -262,6 +262,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx622.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx623.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx624.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx625.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx629.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx626.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
@@ -647,6 +648,122 @@ R("prop(px-6,pz+.2,1.4,","prop(px-3.6,pz-6.4,1.4,")
 R("xmFlare(q,g,px-6,pz+.2);xmNet(q,'flare',{x:px-6,z:pz+.2})","xmFlare(q,g,px-3.6,pz-6.4);xmNet(q,'flare',{x:px-3.6,z:pz-6.4})")
 #    the pilot's log lies on the pedestal between the cockpit seats; a bigger radius so you can read it from the aisle
 R("prop(px-5.4,pz-1.2,1.3,","prop(px+4.75,pz,1.6,")
+# The Pyramid rework (docs/design/pyramid.md, dx629): the base's pyrBuild/pyrUnder build their meshes inline, so
+# these patches swap each old mesh for the model from dx629 at the same spot. Rooms, traps, puzzles, prompts and
+# obstacles stay as they are. Removed meshes that drew numbers from the desert's seeded random are replaced by
+# pywBurn(n), so everything built after the pyramid stays exactly where it was.
+# -- batch 1, outside: the faces, capstone, gateway, avenue, sphinxes, obelisks, dig camp and ruins (pywOut keeps the map rects and the capstone glow)
+R(" /* the shell */const sh=[[new THREE.Vector3(X+B,0,Z),new THREE.Vector3(0,0,1),[3.6,5.3]],[new THREE.Vector3(X-B,0,Z),new THREE.Vector3(0,0,-1)],[new THREE.Vector3(X,0,Z-B),new THREE.Vector3(1,0,0)],[new THREE.Vector3(X,0,Z+B),new THREE.Vector3(-1,0,0)]];\n for(const[pm,e1,nt]of sh){const m=new THREE.Mesh(pyrFace(pm,e1,nt),SAND);g.add(m)}\n {const r=B*3.2/H*Math.SQRT2*1.03,cap=A(new THREE.ConeGeometry(r,3.3,4),GOLD,X,H-1.6,Z);cap.rotation.y=Math.PI/4;const gl=glowSp(0xffd060,.55,9);gl.position.set(X,H-1.2,Z);g.add(gl)}\n rect(X-B,X+B,Z-B,Z+B,'#c8a060');rect(X-6,X+6,Z-6,Z+6,'#e0c080');",
+  " /* the outside: the pyramid rework (dx629) */pywOut(q,g,ob,rect);")
+# -- batch 2: painted wall faces on the cell lines, ceiling tiles and the floor slab instead of the wall boxes, floor and ceiling slab (the collision loop above stays)
+_a=s.index(" /* the walls you can see: solid cells that touch a floor cell");_b=s.index("A(pyrBox(B*2,.06,B*2),FLR,X,.02,Z);A(pyrBox(48.2,.25,48.2),SAND2,X,WH+.125,Z);",_a)
+assert _b-_a<700;s=s[:_a]+" /* the walls, ceilings and floor: the pyramid rework (dx629) */pywNS(()=>pyFloorplan(g));"+s[_b+len("A(pyrBox(B*2,.06,B*2),FLR,X,.02,Z);A(pyrBox(48.2,.25,48.2),SAND2,X,WH+.125,Z);"):]
+#    the portal's three boxes in the new stone (same sizes and places, same obstacles); the old glyph plane and bollards go (the gateway has its own bollards, same spots)
+R("for(const sd of[-1,1]){A(pyrBox(px1-px0,5.5,2.2),SAND2,(px0+px1)/2,2.75,Z+sd*2.7);ob(px0,px1,sd<0?Z-3.8:Z+1.6,sd<0?Z-1.6:Z+3.8)}A(pyrBox(px1-px0,1.6,3.2),SAND2,(px0+px1)/2,WH+.8,Z);",
+  "for(const sd of[-1,1])ob(px0,px1,sd<0?Z-3.8:Z+1.6,sd<0?Z-1.6:Z+3.8);pywNS(()=>pyPortal(g));")
+R("{const lt=new THREE.Mesh(new THREE.PlaneGeometry(3.4,1.3),new THREE.MeshBasicMaterial({map:pyrGlyph(['𓂀','  ','#4a2a0a'],'',3.4,1.3,'#b8925a')}));lt.position.set(px1+.01,4.6,Z);lt.rotation.y=Math.PI/2;g.add(lt)}\n for(const bz of[-.95,.95]){A(new THREE.CylinderGeometry(.32,.36,.9,10),SAND2,px1+1.2,.45,Z+bz);ob(px1+.9,px1+1.5,Z+bz-.3,Z+bz+.3)}\n","")
+#    the wall torches: bronze torches with a real flame, the same glow and lights
+_a=s.index("/* torches: a stick and a flame, two real lights */const torch=(x,z,ry,lit)=>{");_b=s.index("if(lit){const L=new THREE.PointLight(0xff9a40,1.3,16);L.position.set(0,2.6,.6);t.add(L)}};",_a)
+assert _b-_a<900;s=s[:_a]+"/* torches: bronze wall torches (dx629), the same glow and lights */const torch=(x,z,ry,lit)=>pywTorch(q,g,x,z,ry,lit);"+s[_b+len("if(lit){const L=new THREE.PointLight(0xff9a40,1.3,16);L.position.set(0,2.6,.6);t.add(L)}};"):]
+#    the steles: the new carved stele under the game's clue picture (stele 0 is built by pyAntechamber, at the same spot)
+R("const b=new THREE.Mesh(pyrBox(1.3,2.3,.35),SAND2);b.position.y=1.15;s.add(b);const top=new THREE.Mesh(new THREE.ConeGeometry(.92,.5,4),SAND2);top.rotation.y=Math.PI/4;top.position.y=2.55;top.scale.z=.27;s.add(top);",
+  "if(k)s.add(pywNS(pyStele));")
+#    the entrance hall, the antechamber (columns, guardians, door frames, its stele, table, jars and skeleton) and the clue rooms' things
+R(" /* the antechamber: a scroll with a treasure map on it, an urn, a skeleton that did not make it */\n {const tb=A(pyrBox(1.4,.9,.8),SAND2,X+3.5,.45,Z+5.4);const sc=A(BX(.7,.04,.4),M(0xe8d8a8),X+3.5,.92,Z+5.4);sc.rotation.y=.3;",
+  " /* the antechamber: a scroll with a treasure map on it, an urn, a skeleton that did not make it (models: dx629) */\n pywIn(q,g,ob);{")
+R("for(const[ux,uz]of[[X-1.4,Z-7.4],[X-1.4,Z+7.4],[X+6.4,Z+7.4]]){A(new THREE.CylinderGeometry(.35,.25,.9,12),M(0x9a5a2a),ux,.45,uz);A(new THREE.CylinderGeometry(.2,.35,.25,12),M(0x9a5a2a),ux,1.0,uz);ob(ux-.4,ux+.4,uz-.4,uz+.4)}",
+  "for(const[ux,uz]of[[X-1.4,Z-7.4],[X-1.4,Z+7.4],[X+6.4,Z+7.4]])ob(ux-.4,ux+.4,uz-.4,uz+.4);")
+R("const bn=M(0xe8e0c8);for(let k=0;k<5;k++){const b=A(new THREE.CylinderGeometry(.05,.05,.55,6),bn,X+6+k*.25,.08,Z-7+(k%2)*.3);b.rotation.z=Math.PI/2;b.rotation.y=k}A(new THREE.SphereGeometry(.18,10,8),bn,X+5.6,.18,Z-7.2);\n","")
+# -- batch 3: the dart stones' materials and the darts
+R("const TS=M(0xc4a878),TC=M(0xffffff,{map:crack}),tiles=[];","const TS=pywNS(pyDartMats).safe,TC=pywNS(pyDartMats).cracked,tiles=[];")
+R("dm=A(new THREE.CylinderGeometry(.015,.015,.35,5),DK,x+(Math.random()-.5)*1.2,.8+Math.random()*1.2,z-sd*1.5);dm.rotation.x=Math.PI/2;",
+  "dm=pywAt(g,pyDart(),x+(Math.random()-.5)*1.2,.8+Math.random()*1.2,z-sd*1.5,1);if(sd<0)dm.rotation.y=Math.PI;")
+#    the blades: rod, crescent and hub in the swinging pivot, a bronze mount and a slot in the ceiling
+R("const arm=new THREE.Mesh(BX(.06,3.0,.06),M(0x5a5a5a,{metalness:.7}));arm.position.y=-1.5;pv.add(arm);",
+  "pv.userData.dpKeep=1;pv.add(pywNS(pyBlade));pywNS(()=>pyBladeMount(g,bx,zc));")
+_a=s.index("   /* the axe head: a half-moon blade, edge-on to the swing");_b=s.index("A(BX(.5,.12,.5),DK,bx,WH-.06,zc);",_a)
+assert _b-_a<700;s=s[:_a]+s[_b+len("A(BX(.5,.12,.5),DK,bx,WH-.06,zc);"):]
+#    the sealed door: the carved slab (still sinks), a frame in front of it, bronze dials
+R("slab=A(pyrBox(.5,WH,C),SAND2,sx+.25,WH/2,Z),sOb=ob(sx,sx+.5,Z-C/2,Z+C/2);",
+  "slab=pywAt(g,pywNS(pySealedSlab),sx+.25,WH/2,Z,1),sOb=ob(sx,sx+.5,Z-C/2,Z+C/2);pywNS(()=>pySealedFrame(g,sx));")
+R("const ring=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,.06,16),M(0x8a6a3a));ring.rotation.z=Math.PI/2;dg.add(ring);",
+  "dg.userData.dpKeep=1;dg.add(pywNS(pyDial));")
+# -- batch 4: the treasure chamber
+R("gp=(x,z,s)=>{const c=A(new THREE.ConeGeometry(.7*s,.6*s,10),GOLD,x,.3*s,z);for(let k=0;k<5;k++)A(new THREE.CylinderGeometry(.09,.09,.02,10),GOLD,x+(Math.random()-.5)*1.3*s,.02,z+(Math.random()-.5)*1.3*s)};",
+  "gp=(x,z,s)=>{pywBurn(10);pywAt(g,pywNS(()=>pyGoldPile(s)),x,0,z)};pywTreasure(g,ob);")
+R("const sar=A(pyrBox(1.2,.9,2.6),M(0xc8a040,{metalness:.5,roughness:.4}),tx,.45,Z+3.2);const lid=A(BX(1.3,.18,2.7),GOLD,tx,.99,Z+3.2);",
+  "const sar=pywAt(g,pywNS(pySarcophagus),tx,0,Z+3.2);const lid=pywAt(g,pywNS(pySarcLid),tx,.99,Z+3.2,1);")
+_a=s.index("const mum=new THREE.Group();mum.position.set(tx,.6,Z+2.95);mum.visible=false;g.add(mum);{const W=M(0xe8e0c8,{map:pyrTex('#e8e0c8','#b8a888')});");_b=s.index("mum.userData.tr=tr}",_a)
+assert _b-_a<900;s=s[:_a]+"const mum=pywNS(pyMummy);pywBurn(2700);mum.position.set(tx,.6,Z+2.95);mum.visible=false;g.add(mum);"+s[_b+len("mum.userData.tr=tr}"):]
+R("const ch=A(pyrBox(1.1,.7,.7),M(0x6a3a1a),cx(1)+.3,.35,Z-2.6);const chl=A(BX(1.14,.18,.74),GOLD,cx(1)+.3,.79,Z-2.6);",
+  "const ch=pywAt(g,pywNS(pyChest),cx(1)+.3,0,Z-2.6);const chl=pywAt(g,pywNS(pyChestLid),cx(1)+.3,.79,Z-2.6,1);")
+R("const ped=A(pyrBox(.8,1.1,.8),SAND2,cx(1)-.6,.55,Z+.6);","const ped=pywAt(g,pywNS(pyPedestal),cx(1)-.6,0,Z+.6);")
+_a=s.index("{const f=new THREE.Mesh(new THREE.SphereGeometry(.24,14,10,0,Math.PI*2,0,Math.PI*.6),GOLD);f.scale.set(1,1.2,.7);mask.add(f);");_b=s.index("const mg=glowSp(0xffd040,.5,1.4);mask.add(mg)}",_a)
+assert _b-_a<700;s=s[:_a]+"{mask.userData.dpKeep=1;mask.add(pywNS(pyMask));"+s[_b:]
+# -- batch 2 (the passage) and the old sphinxes, in pyrUnder: the painted passage, its four torches (the -z one at X+37.5 lit); the avenue has the new sphinxes
+_a=s.index(" {for(const sd of[-1,1]){for(let k=0;k<3;k++){const p=new THREE.Mesh(new THREE.PlaneGeometry(3.6,1.6)");_b=s.index("ob(sx-3.4,sx+3.4,sz-1.8,sz+1.8)}}",_a)
+assert _b-_a<2000;s=s[:_a]+" pywBurn(9000);pywPass(q,g);"+s[_b+len("ob(sx-3.4,sx+3.4,sz-1.8,sz+1.8)}}"):]
+#    the scarab trapdoor: the new slab (still slides) and its surround with the stairs picture; the old pit, frame strips and scarab plane go
+R("const pit=A(new THREE.PlaneGeometry(2.1,2.1),new THREE.MeshBasicMaterial({color:0x040302}),hx,.035,hz);pit.rotation.x=-Math.PI/2;","")
+_a=s.index("const slab=A(pyrBox(2.3,.12,2.3),SAND2,hx,.07,hz);const sg=");_b=s.index("A(BX(w,.08,d),M(0x6a5030),hx+ax,.04,hz+az);",_a)
+assert _b-_a<600;s=s[:_a]+"const slab=pywAt(g,pywNS(pyTrapSlab),hx,.07,hz,1);pywNS(()=>pyTrapFrame(g,hx,hz));"+s[_b+len("A(BX(w,.08,d),M(0x6a5030),hx+ax,.04,hz+az);"):]
+# -- batch 5, the undercroft: painted faces, ceiling tiles, beams and floor instead of the wall boxes, slabs and beam loop
+_a=s.index(" for(let j=2;j<=21;j++){let s=-1;const vis=i=>!isF(i,j)");_b=s.index("A(BX(.35,.3,fz1-fz0),M(0x6a5030),bx(i),Y+HH-.15,(fz0+fz1)/2);",_a)
+assert _b-_a<900;s=s[:_a]+" pywNS(()=>pyUnderplan(g));"+s[_b+len("A(BX(.35,.3,fz1-fz0),M(0x6a5030),bx(i),Y+HH-.15,(fz0+fz1)/2);"):]
+#    the gates: carved slabs, same size and place, still sink
+R("const gate=(k,x0,x1,z0,z1)=>{const m=A(pyrBox(x1-x0,HH,z1-z0),SAND2,(x0+x1)/2,y0,(z0+z1)/2),",
+  "const gate=(k,x0,x1,z0,z1)=>{const m=pywAt(g,pywNS(()=>pyGateSlab(x1-x0,HH,z1-z0,k)),(x0+x1)/2,y0,(z0+z1)/2,1),")
+#    the torches: bronze torches on the wall faces, the same glows and lights
+R("pyrTorch(q,g,M,x+o[0]*.97,Y,z+o[1]*.97,o[2],lit)};","pywUTorch(q,g,x+o[0]*.97,Y,z+o[1]*.97,o[2],lit,.048)};")
+#    the clue tablets: stone with drawn signs and clear letters (same planes, same words)
+R("new THREE.MeshBasicMaterial({map:pyrArt(lines,icons,w||3,h||1.6)})","(pywBurn(1500),pywNS(()=>pyTablet(lines,w||3,h||1.6)))")
+#    the stairs wall to wall with nosings and a lined opening; the bones become a skeleton
+R("{for(let k=0;k<9;k++){const d=6.4/9,h=(k+1)*HH/9;A(pyrBox(2.9,h,d),SAND2,bx(4),Y+h/2,bz(15)+1.6-(k+.5)*d)}","{pywNS(()=>pyUnderStairs(g));")
+R("const sh=A(BX(3,.05,2),new THREE.MeshBasicMaterial({color:0x000000}),bx(4),Y+HH-.02,bz(14)-.6);","")
+R("const bn=M(0xe8e0c8);for(let k=0;k<4;k++){const b=A(new THREE.CylinderGeometry(.05,.05,.5,6),bn,bx(6)+k*.2,Y+.06,bz(17)+.6);b.rotation.z=Math.PI/2;b.rotation.y=k*.7}A(new THREE.SphereGeometry(.17,10,8),bn,bx(6)-.3,Y+.17,bz(17)+.8)}",
+  "pywNS(()=>pyLandingDressing(g))}")
+#    the Jackal: the altar with its fire bowl, the basalt jackals on round plinths (they turn), eye glows at the new eyes; the clue tablet 25 cm right (the closed gate covered its left edge)
+R("A(pyrBox(1.8,1,1.8),SAND2,ax,Y+.5,az);A(BX(1.9,.1,1.9),GOLD,ax,Y+1.05,az);","pywFl(q,pywAt(g,pywNS(pyAltar),ax,Y,az).userData.flame);")
+R("const j=pyrJackal(M,i==red,1.1);j.position.set(x,Y,z);g.add(j);","const j=pywNS(()=>pyJackal({red:i==red,scale:1.1,round:true}));j.userData.dpKeep=1;j.position.set(x,Y,z);g.add(j);")
+R("eg.position.set(0,2.3,.45);j.add(eg);","eg.position.set(0,2.51,.36);j.add(eg);")
+R("['🐺','🔥','🐺'],bx(12),bz(13)-1.58,0,3.6,1.7)","['🐺','🔥','🐺'],bx(12)+.25,bz(13)-1.58,0,3.6,1.7)")
+#    the Sun: the bronze dish under the light shaft, the golden disc on its carved backing (its emissive still lights up), the mirrors' stands and heads
+R("A(new THREE.CylinderGeometry(.5,.5,.15,16),GOLD,sx,by,sz).rotation.z=Math.PI/2;","pywAt(g,pywNS(pySunSource),sx,by,sz);")
+R("const disc=A(new THREE.CylinderGeometry(.75,.75,.12,24),M(0xb08a20,{metalness:.8,roughness:.3,emissive:0x000000}),tx,by,tzz);disc.rotation.x=Math.PI/2;",
+  "const disc=pywAt(g,pywNS(pySunTarget),tx,by,bz(3)-1.6).userData.disc;")
+R("for(let k=0;k<12;k++){const r=A(BX(.06,.5,.04),GOLD,tx+Math.sin(k*.52)*1.05,by+Math.cos(k*.52)*1.05,tzz);r.rotation.z=-k*.52}","")
+R("const ped=new THREE.Mesh(new THREE.CylinderGeometry(.32,.42,.8,10),SAND2);ped.position.y=.4;gr.add(ped);","gr.add(pywNS(pyMirrorStand));")
+R("const fr=new THREE.Mesh(BX(1.32,1.42,.12),GOLD);piv.add(fr);for(const sd of[-1,1]){const mf=new THREE.Mesh(BX(1.16,1.26,.02),M(0xdce8f8,{metalness:.25,roughness:.15,emissive:0x506070}));mf.position.z=sd*.065;piv.add(mf)}",
+  "piv.userData.dpKeep=1;piv.add(pywNS(pyMirrorHead));")
+# -- batch 6, Song: gong stands, bronze gongs (still wobble and light up), drawn signs, the stone priest
+R("for(const sd of[-.75,.75])A(BX(.12,2.5,.12),M(0x4a3020),x,Y+1.25,z+sd);A(BX(.12,.12,1.7),M(0x4a3020),x,Y+2.45,z);const d=A(new THREE.CylinderGeometry(.6,.6,.06,24),M(0xd8a030,{metalness:.35,roughness:.35,emissive:0x3a2400}),x,Y+1.55,z);d.rotation.z=Math.PI/2;",
+  "pywNS(()=>pyGongFrame(g,x,z));const d=pywAt(g,pywNS(pyGongDisc),x,Y+1.55,z,1);")
+R("new THREE.MeshBasicMaterial({map:pyrGlyph([SY[k],'','#3a1a04'],'',.5,.5,'#c8a46a')})","pywNS(()=>pyGongLabel(k))")
+_a=s.index("const RB=M(0xe8e0c8),SK=M(0x8a5a30);const a=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x,y,z);pr.add(o);return o};");_b=s.index("for(const sd of[-1,1])a(new THREE.SphereGeometry(.03,6,6),M(0x101010),sd*.07,2.64,.18);",_a)
+assert _b-_a<600;s=s[:_a]+"pr.add(pywNS(pyPriest));"+s[_b+len("for(const sd of[-1,1])a(new THREE.SphereGeometry(.03,6,6),M(0x101010),sd*.07,2.64,.18);"):]
+#    Sand: the sand and the falling streams get their own textures (the streams scroll), the ceiling cracks, proper throw levers whose angles
+#    swap (they start up at 45 degrees and pull down to 24 below level; the old pulled handle went into the wall), the tablet moves onto the west wall
+R("new THREE.MeshStandardMaterial({map:pyrTex('#d8b070','#b89050'),color:0xe0c080,roughness:1,side:THREE.DoubleSide})","(pywBurn(2700),pywNS(pySandMats).sand)")
+R("new THREE.MeshBasicMaterial({color:0xd8b070,transparent:true,opacity:.75}),bx(18+(k%2))","pywNS(pySandMats).fall,bx(18+(k%2))")
+R("f.visible=false;fall.push(f)}","f.visible=false;f.userData.dpKeep=1;fall.push(f)}sand.userData.dpKeep=1;pywNS(()=>pySandCracks(g));")
+R("A(BX(.12,.8,.5),M(0x3a342c,{metalness:.6}),x,Y+1.4,z);const h=new THREE.Group();","pywNS(()=>pyLeverPlate(g,x,Y+1.4,z,sd));const h=new THREE.Group();h.userData.dpKeep=1;")
+R("const hm=new THREE.Mesh(BX(.08,.8,.08),M(0x6a5a40,{metalness:.5}));hm.position.y=.35;h.add(hm);const kn=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),M(0xc01818));kn.position.y=.75;h.add(kn);h.rotation.z=sd*.6;",
+  "h.add(pywNS(()=>pyLeverHandle(sd)));h.rotation.z=-sd*.6;")
+R("L.on=1;h.rotation.z=-sd*.6;","L.on=1;h.rotation.z=sd*.6;")
+R("LV.forEach(L=>{L.on=0;L.h.rotation.z=L.sd*.6})","LV.forEach(L=>{L.on=0;L.h.rotation.z=-L.sd*.6})")
+R("sand.material.map.offset.y+=dt*.05;","sand.material.map.offset.y+=dt*.05;fall[0].material.map.offset.y-=dt*1.5;")
+R("['⏳','🏜️','⏳'],bx(18),bz(10)-1.25,0,3,1.5)","['⏳','🏜️','⏳'],bx(18)-1.58,bz(10)+.2,Math.PI/2,3,1.5)")
+#    the tomb: Khufu-Bob's coffin, the big jackals, gold heaps, canopic jars, the Heart's pedestal and heart-shaped gem, fire bowls on brackets
+_a=s.index("A(pyrBox(4,1.1,2.2),M(0xc89a30,{metalness:.6,roughness:.35}),tx,Y+.55,tz);");_b=s.index("nm.rotation.y=Math.PI/4;U.blk.push({x0:tx-2.2,x1:tx+2.2,z0:tz-1.3,z1:tz+1.3});",_a)
+assert _b-_a<600;s=s[:_a]+"pywAt(g,pywNS(pyKhufuCoffin),tx,Y,tz);"+s[_b+len("nm.rotation.y=Math.PI/4;"):]
+R("a=pyrJackal(M,false,1.45);","a=pywNS(()=>pyJackal({scale:1.45}));")
+R("const gp=(x,z,s)=>{A(new THREE.ConeGeometry(.75*s,.65*s,10),GOLD,x,Y+.32*s,z);for(let k=0;k<6;k++)A(new THREE.CylinderGeometry(.09,.09,.02,10),GOLD,x+(Math.random()-.5)*1.5*s,Y+.02,z+(Math.random()-.5)*1.5*s);",
+  "const gp=(x,z,s)=>{pywBurn(12);pywAt(g,pywNS(()=>pyGoldPile(s)),x,Y,z);")
+R("for(const[jx,jz]of[[bx(14)+.6,bz(18)-1.15],[bx(15)-.2,bz(18)-1.15],[bx(15)+.4,bz(18)-1.15],[bx(16)-.4,bz(18)-1.15]]){A(new THREE.CylinderGeometry(.2,.15,.6,10),M(0xd8c8a0),jx,Y+.3,jz);A(new THREE.SphereGeometry(.16,8,6),M(0x2a2a2a),jx,Y+.66,jz)}",
+  "[[bx(14)+.6,bz(18)-1.15],[bx(15)-.2,bz(18)-1.15],[bx(15)+.4,bz(18)-1.15],[bx(16)-.4,bz(18)-1.15]].forEach(([jx,jz],i)=>pywAt(g,pywNS(()=>pyCanopic(i)),jx,Y,jz));")
+R("hp=A(pyrBox(.8,1.1,.8),SAND2,hx2,Y+.55,hz2);const ht=new THREE.Mesh(new THREE.OctahedronGeometry(.28,0),","hp=pywAt(g,pywNS(pyHeartPedestal),hx2,Y,hz2);const ht=new THREE.Mesh(pyHeartGeo(),")
+R("A(new THREE.CylinderGeometry(.18,.1,.3,10),M(0x6a5030,{metalness:.5}),hx2+sd*1.3,Y+1.6,bz(20)+1.45);","pywFl(q,pywNS(()=>pyWallBowl(g,hx2+sd*1.3,Y+1.6,bz(20)+1.45)));")
+R("g.add(ht);const hg=glowSp(0xff3050,.7,2.4);","ht.userData.dpKeep=1;g.add(ht);const hg=glowSp(0xff3050,.7,2.4);")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
