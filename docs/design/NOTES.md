@@ -1,5 +1,10 @@
 # Notes for the design chat
 
+## 2026-10-20 · r645: the train runs; pyramid booth stays
+- The user wanted the train to move: q.train now starts with dw:0 and done:0, so it runs in single player (stops at the station, crossing gates close). Simulated 4 minutes of desert time: 2 full passes, gates closed 8 times, no errors.
+- The Pyramid's phone booth stays in the middle of the avenue in front of the entrance (the user likes it there).
+- Tried sharing the pyramid's identical painted textures (35 of its 181 canvases were exact copies): only about 1% fewer draw calls (avenue 1020 → 1010), and the pixel comparison added about 0.8 s to loading, so it was not shipped. Future models can still reuse one texture per kind when they build, which costs nothing.
+
 ## 2026-10-20 · r644: the Pyramid
 - Built as specced, all six batches (dx629 holds pyr.js byte for byte; pyrBuild/pyrUnder build inline, so about 60 build.py patches swap each old mesh for the model at the same spot). All 38 pyramid prompts, the undercroft blocks, cells, stairs, combination and buried treasure are identical to before; the desert's seeded random sequence is unchanged.
 - Changed:

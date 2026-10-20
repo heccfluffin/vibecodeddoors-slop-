@@ -537,7 +537,7 @@ function xpRail(X){const{q,g,ob,loc,rect,sign}=X,z=RAIL.z;
  T('poles',()=>obs(lkIn(g,536,rrPoles).obs));
  sign('THE DOORS & DESERT RAILROAD\nFREIGHT ONLY · SINCE 1952','#5a3a22',30,z+14,-.4);loc('Railroad',-200,z,'🛤️');
  /* the train: a locomotive, the new tender and six wagons, shared by everybody in the game (same q.train as before) */
- q.train={x:-DXB-80,v:19,cars:[],len:0,wait:0};const TR=q.train;const car=(len,m)=>{m.userData.mv=1;g.add(m);TR.cars.push({m,len,off:TR.len+len/2});TR.len+=len+1.2;return m};
+ /* r645: dw:0 and done:0 from the start: without them the train never moved in single player (it only started when a friend's game sent its position) */q.train={x:-DXB-80,v:19,cars:[],len:0,wait:0,dw:0,done:0};const TR=q.train;const car=(len,m)=>{m.userData.mv=1;g.add(m);TR.cars.push({m,len,off:TR.len+len/2});TR.len+=len+1.2;return m};
  T('train',()=>{const lo=car(12,lkSeed(537,()=>rrLoco()));const lp=lo.userData.lamp,st=lo.userData.stack;
   TR.hl=new THREE.PointLight(0xffe0a0,1.6,18);TR.hl.position.set(lp.x+.6,lp.y-.3,lp.z);lo.add(TR.hl);TR.hl.visible=false;TR.hl.userData.virt=1;
   const sm=glowSp(0x2a2a2a,.5,2);sm.material.blending=THREE.NormalBlending;sm.position.set(st.x,st.y+.8,st.z);lo.add(sm);TR.smoke=sm;TR.smY=st.y+.8;
