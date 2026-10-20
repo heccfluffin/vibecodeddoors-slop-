@@ -74,15 +74,18 @@ function ugCaveDress(b,c,ctx,R,lv){const pick=()=>{const r=R();return lv==1?(r<.
 
 /* ---------- a cave room (chamber) in the piece's own coords. o: {cx,cz,rx,rz, dome, amp, isle:{cx,cz,r,bot,key},
    pits:[{cx,cz,rx,rz}], holes:[[[x,z]..]], H (wall height, >= the door top 3.65)}. Returns its outline and roofAt(x,z) ---------- */
-function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ugRK(Lv),fl=o.floor||ugFL(Lv),amp=o.amp==null?.75:o.amp,H=3.65,
- cx=o.cx,cz=o.cz,rx=o.rx,rz=o.rz,dome=o.dome==null?Math.min(rx,rz)*.4:o.dome,isle=o.isle;
- /* the doorways: the piece's openings on (or near) the oval; (nx,nz) faces out of the room, (tx,tz) along the wall */
+/* a cave room's outline (local coords): the oval, flattened into a straight 5.2 m wall round each doorway.
+   doors: the piece's openings on (or near) the oval; (nx,nz) faces out of the room, (tx,tz) runs along the wall */
+function ugChamberShape(p,o){const cx=o.cx,cz=o.cz,rx=o.rx,rz=o.rz;
  const op=[[0,0,0,1]].concat(p.d.ex.map(e=>{const v=ugRot(0,-1,e[2]);return[e[0],e[1],v[0],v[1]]}));
  const doors=op.filter(q=>Math.abs(Math.hypot((q[0]-cx)/rx,(q[1]-cz)/rz)-1)*Math.min(rx,rz)<1.4).map(q=>({x:q[0],z:q[1],nx:q[2],nz:q[3],tx:-q[3],tz:q[2]}));
- /* the outline: the oval, flattened into a straight 5.2 m wall round each doorway */
  const N=Math.max(28,Math.ceil(Math.PI*(rx+rz)/.75));let pts=[];for(let i=0;i<N;i++){const a=i/N*Math.PI*2;pts.push([cx+rx*Math.cos(a),cz+rz*Math.sin(a)])}
  for(const d of doors){pts=pts.filter(q=>!(Math.abs((q[0]-d.x)*d.tx+(q[1]-d.z)*d.tz)<2.75&&(q[0]-d.x)*d.nx+(q[1]-d.z)*d.nz>-3.5));for(const s of[-2.6,-2,2,2.6])pts.push([d.x+d.tx*s,d.z+d.tz*s])}
  pts.sort((a,c)=>Math.atan2(a[1]-cz,a[0]-cx)-Math.atan2(c[1]-cz,c[0]-cx));pts=pts.filter((q,i)=>Math.hypot(q[0]-pts[(i+1)%pts.length][0],q[1]-pts[(i+1)%pts.length][1])>.05);
+ return{pts,doors}}
+function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ugRK(Lv),fl=o.floor||ugFL(Lv),amp=o.amp==null?.75:o.amp,H=3.65,
+ cx=o.cx,cz=o.cz,rx=o.rx,rz=o.rz,dome=o.dome==null?Math.min(rx,rz)*.4:o.dome,isle=o.isle;
+ const sh0=ugChamberShape(p,o),pts=sh0.pts,doors=sh0.doors;
  /* columns round the wall, about every 0.7 m, with an outward normal */
  const cols=[],nP=pts.length;for(let e=0;e<nP;e++){const A=pts[e],B=pts[(e+1)%nP],len=Math.hypot(B[0]-A[0],B[1]-A[1]),k=Math.max(1,Math.ceil(len/.7));for(let q=0;q<k;q++)cols.push({x:A[0]+(B[0]-A[0])*q/k,z:A[1]+(B[1]-A[1])*q/k})}
  const nc=cols.length;for(let i=0;i<nc;i++){const a=cols[(i+nc-1)%nc],c=cols[(i+1)%nc];let ux=c.x-a.x,uz=c.z-a.z;const l=Math.hypot(ux,uz);cols[i].nx=uz/l;cols[i].nz=-ux/l}
@@ -94,18 +97,19 @@ function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ug
  const pos=[],uv=[],idx=[];const V=(x,yy,z,u,v)=>{pos.push(x,yy,z);uv.push(u,v);return pos.length/3-1};
  const perim=[0];for(let i=1;i<=nc;i++){const a=cols[i-1],c=cols[i%nc];perim.push(perim[i-1]+Math.hypot(c.x-a.x,c.z-a.z))}
  /* the wall: rows of vertices pushed out (into the rock) by the noise, not at the floor or near a doorway */
- const W=[];for(let i=0;i<nc;i++){const c=cols[i],f=fade(c),row=[];for(const yy of Ys){const hy=Math.max(0,Math.min(1,yy/.7)),d=amp*f*hy*nz(c.x,yy,c.z);row.push(V(c.x+c.nx*d,yy,c.z+c.nz*d,perim[i]/3,yy/3))}c.f=f;W.push(row)}
+ /* (the first column is repeated at the end with its own texture position, so the texture has no seam) */
+ const W=[];for(let i=0;i<=nc;i++){const c=cols[i%nc],f=fade(c),row=[];for(const yy of Ys){const hy=Math.max(0,Math.min(1,yy/.7)),d=amp*f*hy*nz(c.x,yy,c.z);row.push(V(c.x+c.nx*d,yy,c.z+c.nz*d,perim[i]/3,yy/3))}c.f=f;W.push(row)}
  const inDoor=(a,c)=>a.door&&c.door&&a.door===c.door&&Math.abs(a.lat)<2.01&&Math.abs(c.lat)<2.01;
- for(let i=0;i<nc;i++){const i2=(i+1)%nc;if(inDoor(cols[i],cols[i2]))continue;for(let j=0;j<Ys.length-1;j++){const a=W[i][j],b2=W[i2][j],c=W[i2][j+1],d=W[i][j+1];idx.push(a,b2,c,a,c,d)}}
+ for(let i=0;i<nc;i++){const i2=i+1;if(inDoor(cols[i],cols[i2%nc]))continue;for(let j=0;j<Ys.length-1;j++){const a=W[i][j],b2=W[i2][j],c=W[i2][j+1],d=W[i][j+1];idx.push(a,b2,c,a,c,d)}}
  /* the island (a rock pillar the passage goes round): its wall faces out, its top meets the roof */
- let IW=null,ip=null;if(isle){IW=[];ip=[];const bot=isle.bot==null?-.1:isle.bot;for(let i=0;i<nc;i++){const a=Math.atan2(cols[i].z-isle.cz,cols[i].x-isle.cx),ux=Math.cos(a),uz=Math.sin(a),bx=isle.cx+ux*isle.r,bz=isle.cz+uz*isle.r,row=[];ip.push([bx,bz]);
+ let IW=null,ip=null;if(isle){IW=[];ip=[];const bot=isle.bot==null?-.1:isle.bot;for(let i=0;i<=nc;i++){const a=Math.atan2(cols[i%nc].z-isle.cz,cols[i%nc].x-isle.cx),ux=Math.cos(a),uz=Math.sin(a),bx=isle.cx+ux*isle.r,bz=isle.cz+uz*isle.r,row=[];if(i<nc)ip.push([bx,bz]);
    for(const yy of [bot].concat(Ys.slice(1))){const hy=Math.max(0,Math.min(1,yy/.7)),d=amp*hy*nz(bx,yy,bz)*.8;row.push(V(bx-ux*d,yy,bz-uz*d,i*.6/3,yy/3))}IW.push(row)}
-  const tgt=isle.key?(isle.idx=[]):idx;for(let i=0;i<nc;i++){const i2=(i+1)%nc;for(let j=0;j<Ys.length-1;j++){const a=IW[i][j],b2=IW[i2][j],c=IW[i2][j+1],d=IW[i][j+1];tgt.push(a,c,b2,a,d,c)}}}
+  const tgt=isle.key?(isle.idx=[]):idx;for(let i=0;i<nc;i++){const i2=i+1;for(let j=0;j<Ys.length-1;j++){const a=IW[i][j],b2=IW[i2][j],c=IW[i2][j+1],d=IW[i][j+1];tgt.push(a,c,b2,a,d,c)}}}
  /* the roof: rings from the top of the wall in to the middle (or to the island's top), rising into a dome */
  const K=7,top=i=>[pos[W[i][Ys.length-1]*3],pos[W[i][Ys.length-1]*3+2]];let prev=W.map(r=>r[Ys.length-1]);
- for(let k=1;k<=K;k++){const f=k/K,cur=[];for(let i=0;i<nc;i++){if(isle&&k==K){cur.push(IW[i][Ys.length-1]);continue}const t=top(i),tg=isle?[pos[IW[i][Ys.length-1]*3],pos[IW[i][Ys.length-1]*3+2]]:[cx,cz];
+ for(let k=1;k<=K;k++){const f=k/K,cur=[];for(let i=0;i<=nc;i++){if(isle&&k==K){cur.push(IW[i][Ys.length-1]);continue}const t=top(i),tg=isle?[pos[IW[i][Ys.length-1]*3],pos[IW[i][Ys.length-1]*3+2]]:[cx,cz];
    const x=t[0]+(tg[0]-t[0])*f,z=t[1]+(tg[1]-t[1])*f,sh=isle?Math.sin(Math.PI*f):1-(1-f)*(1-f),yy=H+dome*sh+amp*1.3*nz(x,H+dome*sh,z)*Math.min(1,f*2.5)*(isle?Math.sin(Math.PI*f):1);cur.push(V(x,yy,z,x/3,z/3))}
-  for(let i=0;i<nc;i++){const i2=(i+1)%nc;const a=prev[i],b2=prev[i2],c=cur[i2],d=cur[i];idx.push(a,b2,c,a,c,d)}prev=cur}
+  for(let i=0;i<nc;i++){const i2=i+1;const a=prev[i],b2=prev[i2],c=cur[i2],d=cur[i];idx.push(a,b2,c,a,c,d)}prev=cur}
  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();L.geo(rk,geo,0,0,0);
  if(isle&&isle.key){const g2=new THREE.BufferGeometry();g2.setAttribute('position',geo.attributes.position);g2.setAttribute('uv',geo.attributes.uv);g2.setIndex(isle.idx);g2.computeVertexNormals();L.geo(isle.key,g2,0,0,0)}
  /* the doorways: a flat panel between the arch and the roof's edge, and a rock lip round the arch */
@@ -127,19 +131,25 @@ function ugChamber(b,p,Lv,ctx,o){const y=UGLY(Lv),L=ugLocal(b,p,y),rk=o.rock||ug
  const roofAt=(x,z)=>{const r=Math.hypot(x-cx,z-cz),R0=rimAt(angOf(x,z)),f=Math.max(0,Math.min(1,1-r/R0)),sh=1-(1-f)*(1-f);return H+dome*sh+amp*1.3*nz(x,H+dome*sh,z)*Math.min(1,f*2.5)};
  /* veins round the wall, never near a doorway */
  const R=ugRng(p.id*613+(p.d.v||0)*7+1),vw=o.veinGap||2.8;let next=R()*vw;
- for(let i=0;i<nc;i++){if(perim[i]<next)continue;next=perim[i]+vw*(.7+R()*.6);const c=cols[i];if(c.f<.99||R()<(o.veinSkip==null?.3:o.veinSkip))continue;
+ for(let i=0;i<nc;i++){if(perim[i]<next)continue;next=perim[i]+vw*(.7+R()*.6);const c=cols[i];if(c.f<.99||R()<(o.veinSkip==null?.3:o.veinSkip)||(o.noVein&&o.noVein(c.x,c.z)))continue;
   const yy=1+R()*1.4,j=yy<1.55?2:yy<2.25?3:4,pv=pos.slice(W[i][j]*3,W[i][j]*3+3),w=L.pt(pv[0]+c.nx*.06,yy,pv[2]+c.nz*.06),dd=L.dir(-c.nx,-c.nz);
   ctx.veins.push({x:w.x,y:w.y,z:w.z,dx:dd[0],dz:dd[1],t:(o.pick||(()=>{const r=R();return r<.3?'ag':r<.45?'au':r<.58?'cr':r<.8?'fe':'cu'}))()})}
  /* loose stones along the foot of the wall */
  if(o.stones!==false)for(let i=0;i<nc;i+=2){const c=cols[i];if(c.f<1||R()<.45)continue;const s2=.12+R()*.3;L.geo(rk,new THREE.DodecahedronGeometry(s2,0),c.x-c.nx*(.15+s2*.5),s2*.22,c.z-c.nz*(.15+s2*.5),R()*3,R()*3,0,1,.7,1)}
- return{pts,doors,roofAt,L,cols,H,isle:ip}}
+ /* a point on the wall surface at angle a (round the middle) and height yy, with the wall's outward normal */
+ const ca=cols.map(c=>Math.atan2(c.z-cz,c.x-cx));
+ const wallPt=(a,yy)=>{let i=0;for(let k=0;k<nc;k++){const a0=ca[k],a1=ca[(k+1)%nc];let d1=a1-a0;if(d1<0)d1+=Math.PI*2;let d=a-a0;while(d<0)d+=Math.PI*2;while(d>=Math.PI*2)d-=Math.PI*2;if(d<=d1){i=k;break}}
+  const i2=(i+1)%nc;let d1=ca[i2]-ca[i];if(d1<0)d1+=Math.PI*2;let d=a-ca[i];while(d<0)d+=Math.PI*2;const t=Math.min(1,d/(d1||1));let j=0;while(j<Ys.length-2&&Ys[j+1]<yy)j++;const u=Math.max(0,Math.min(1,(yy-Ys[j])/(Ys[j+1]-Ys[j])));
+  const P=(ii,jj)=>pos.slice(W[ii][jj]*3,W[ii][jj]*3+3),l=(A,B,k)=>A.map((v,q)=>v+(B[q]-v)*k);const p0=l(P(i,j),P(i2,j),t),p1=l(P(i,j+1),P(i2,j+1),t),q=l(p0,p1,u);
+  const nx=cols[i].nx+(cols[i2].nx-cols[i].nx)*t,nz=cols[i].nz+(cols[i2].nz-cols[i].nz)*t,nl=Math.hypot(nx,nz);return{x:q[0],y:yy,z:q[2],nx:nx/nl,nz:nz/nl}};
+ return{pts,doors,roofAt,wallPt,L,cols,H,isle:ip,dome}}
 
 /* ---------- small cave things, in piece-local coords through L ---------- */
 /* a column from floor to roof: an hourglass of flowstone, sunk into both */
 function ugColumn(L,x,z,r,top,key,R){const n=9,pr=[];for(let i=0;i<=n;i++){const t=i/n,w=r*(.55+.45*Math.pow(Math.abs(t-.5)*2,1.6))*(1+.08*Math.sin(i*2.3+r*7));pr.push(new THREE.Vector2(w,-.1+(top+1.1)*t))}
  const g=new THREE.LatheGeometry(pr,14);L.geo(key||'flow',g,x,0,z,R?R()*6:0)}
 /* a stalagmite (up from the floor) or a stalactite (down from the roof: dn=true, y0 = the roof there) */
-function ugDrip(L,x,z,r,h,y0,dn,key){const g=new THREE.ConeGeometry(r,h,9,3);if(dn){g.rotateX(Math.PI);L.geo(key||'flow',g,x,y0-h/2+.35,z)}else L.geo(key||'flow',g,x,h/2-.05,z)}
+function ugDrip(L,x,z,r,h,y0,dn,key){if(dn){/* reaches 0.9 m up into the roof, which is only near enough known between its rings */const g=new THREE.ConeGeometry(r*(h+.9)/h,h+.9,9,3);g.rotateX(Math.PI);L.geo(key||'flow',g,x,y0-h/2+.45,z)}else{const g=new THREE.ConeGeometry(r,h,9,3);L.geo(key||'flow',g,x,h/2-.05,z)}}
 /* a crystal cluster: a few six-sided crystals with pointed tips, leaning out from a sunk base. s: size */
 function ugCrystals(L,R,x,z,s,key,y0,up){const n=3+(R()*4|0);for(let i=0;i<n;i++){const h=s*(.6+R()*.9),r=s*(.09+R()*.07),a=R()*6.28,lean=.15+R()*.55;
   const g=new THREE.CylinderGeometry(r,r*1.1,h,6);g.translate(0,h/2,0);const tip=new THREE.ConeGeometry(r,r*2.2,6);tip.translate(0,h+r*1.1,0);

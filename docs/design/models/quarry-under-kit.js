@@ -1,7 +1,7 @@
 /* =====================================================================================================
    The Old Quarry underground: THE KIT and batch 1 (docs/design/quarry-underground.md, part 2).
    Needs quarry-under.js (the plan). Builds a level of the mine from ugGen's plan:
-     ugBuildLevel(plan, L) -> {g, lamps, veins, signs}   (L = 0, 1, 2; one THREE.Group in mine coordinates)
+     ugBuildLevel(plan, L) -> {g, lamps, veins, decl, solids}   (L = 0, 1, 2; one THREE.Group in mine coordinates)
    Mine coordinates: x, z from the shaft (desert-local x = MN.ox + x, z = MN.oz + z), y from level 1's floor
    (desert y = MN.Y + y). Level floors are at y 0, -12, -24 (UGL[i].y - UGL[0].y).
    Everything static in a piece is merged into one mesh per material (ugBatch); veins, lamps' lights and signs stay
@@ -418,7 +418,7 @@ function ugDecline(b,p,ctx){const T=ugT(p),y0=UGLY(p.L),drop=UGLY(p.L)-UGLY(p.L+
    BUILD A LEVEL from the plan
    ===================================================================================================== */
 function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(),b=ugBatch();
- const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],ends:[],plates:[],dist:null};
+ const ctx={lamps:[],veins:[],signs:[],posts:[],decl:[],ends:[],plates:[],solids:[],dist:null};
  /* distance to the cage along the parent chain (for signposts) */
  const len=p=>{let s=0;for(const sh of p.d.shp)if(sh.k=='path')for(let i=1;i<sh.pts.length;i++)s+=Math.hypot(sh.pts[i][0]-sh.pts[i-1][0],sh.pts[i][1]-sh.pts[i-1][1]);return s||8};
  const memo={};ctx.dist=p=>{if(p.st)return 0;if(memo[p.id]!=null)return memo[p.id];const par=plan.P[p.par];memo[p.id]=par?ctx.dist(par)+len(par):0;return memo[p.id]};
@@ -457,4 +457,4 @@ function ugBuildLevel(plan,L,opt){opt=opt||{};const K=ugKit(),g=new THREE.Group(
  /* a signpost's board faces both side arms; the arrow points back towards the entry, the way to the cage */
  for(const s of ctx.posts){const d=Math.max(5,Math.round(s.dist/5)*5);const sg=ugSign(s.x,s.y,s.z,s.yaw,'⬅ CAGE '+d+' m','CAGE '+d+' m ➡');g.add(sg)}
  for(const s of ctx.signs){const t=ugSignTex(s.txt,(s.w||1.2)/.34);const m=new THREE.Mesh(new THREE.PlaneGeometry(s.w||1.2,.34),new THREE.MeshStandardMaterial({map:t,roughness:.8}));m.position.set(s.x,s.y,s.z);m.rotation.y=s.yaw;m.userData.noSeam=true;g.add(m)}
- return{g,lamps:ctx.lamps,veins:ctx.veins,decl:ctx.decl}}
+ return{g,lamps:ctx.lamps,veins:ctx.veins,decl:ctx.decl,solids:ctx.solids}}

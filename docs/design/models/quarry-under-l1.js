@@ -51,10 +51,10 @@ function ugPool(L,q,o){o=o||{};const surf=o.surf==null?-.25:o.surf,dep=o.dep||2.
   L.geo(wr,g,q.cx,0,q.cz,0,0,0,q.rx,1,q.rz)}
  else{rAt=()=>1;L.geo(wr,new THREE.CircleGeometry(1,28),q.cx,-dep,q.cz,0,-Math.PI/2,0,q.rx,1,q.rz)}
  /* the surface (o.hole: a local polygon cut out of it, e.g. an island standing in the water) */
- const sr=rAt(surf)*1.01;if(o.hole){const sh=new THREE.Shape();sh.absellipse(q.cx,-q.cz,q.rx*sr,q.rz*sr,0,Math.PI*2,false,0);const hp=new THREE.Path();o.hole.forEach((v,i)=>i?hp.lineTo(v[0],-v[1]):hp.moveTo(v[0],-v[1]));sh.holes.push(hp);
+ const sr=o.sr||rAt(surf)*1.01;if(o.hole){const sh=new THREE.Shape();sh.absellipse(q.cx,-q.cz,q.rx*sr,q.rz*sr,0,Math.PI*2,false,0);const hp=new THREE.Path();o.hole.forEach((v,i)=>i?hp.lineTo(v[0],-v[1]):hp.moveTo(v[0],-v[1]));sh.holes.push(hp);
   const g=new THREE.ShapeGeometry(sh,48);g.rotateX(-Math.PI/2);const pa=g.attributes.position,uv=[];for(let i=0;i<pa.count;i++)uv.push(pa.getX(i)/(2*q.rx*sr)+.5,pa.getZ(i)/(2*q.rz*sr)+.5);g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));L.geo(o.key||'pool',g,0,surf,0)}
  else L.geo(o.key||'pool',new THREE.CircleGeometry(1,64),q.cx,surf,q.cz,0,-Math.PI/2,0,q.rx*sr,q.rz*sr,1);
- if(dep>.6)for(const f of[.12,.26,.4,.54,.68,.82]){const d=surf+(-dep-surf)*f,r=rAt(d)*1.03;if(r>.05)L.geo('poolD',new THREE.CircleGeometry(1,48),q.cx,d,q.cz,0,-Math.PI/2,0,q.rx*r,q.rz*r,1)}}
+ if(dep>.6&&o.layers!==false)for(const f of[.12,.26,.4,.54,.68,.82]){const d=surf+(-dep-surf)*f,r=rAt(d)*1.03;if(r>.05)L.geo('poolD',new THREE.CircleGeometry(1,48),q.cx,d,q.cz,0,-Math.PI/2,0,q.rx*r,q.rz*r,1)}}
 /* a plain sign on a backing board against a wall: local position on the wall, (ix,iz) pointing into the room */
 function ugWallSign(L,ctx,x,yy,z,ix,iz,txt,w){const a=Math.atan2(ix,iz);L.box('board',w+.1,.44,.3,x-ix*.13,yy,z-iz*.13,a);const p=L.pt(x+ix*.025,yy,z+iz*.025);ctx.signs.push({x:p.x,y:p.y,z:p.z,yaw:L.yaw(a),txt,w})}
 
