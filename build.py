@@ -705,6 +705,9 @@ R("const heli=mkHeli(K);heli.position.set(hx,0,hz);","const heli=wpHeli();heli.p
 # dusty-gulch.md: Dusty Gulch rework (dx630 redefines xpGulch). The welcome arch over Main Street carries the town's name now,
 # so the old "DUSTY GULCH / POP. 13" street sign by the arch goes
 R("[456,-1432,'DUSTY GULCH\\nPOP. 13 · DRIVE DARKLY',.3,'#8a5a2a'],","")
+# the parked stretch limo stood half inside the bank's front wall (freeSpot used to push it into the street; now the boardwalk is there,
+# and it ended up in the alley): it parks on Main Street, in front of the bank
+R("['limo',460,-1459,0]","['limo',453.6,-1464,0]")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
