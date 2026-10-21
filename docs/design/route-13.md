@@ -216,7 +216,7 @@ cooldown and heal, the loc 'Motel 13' at (76, -902). Only their places change; `
 - Checked: z-fight checker clean; the only "floating" hits are the AC grilles and drawer fronts, which are on the
   faces of their boxes.
 
-### Batch 4: the drive-in, for review · `rtDriveIn(g)` → `{obs, lights, posts, spots, parts, mapR}`, `rtDriveHuts(g)` → `{obs, lights}`
+### Batch 4: the drive-in, approved 2026-10-21 · `rtDriveIn(g)` → `{obs, lights, posts, spots, parts, mapR}`, `rtDriveHuts(g)` → `{obs, lights}`
 Replace the base drive-in's meshes (the block `/* ---- the drive-in: a big screen showing "DOORS"...` and the
 `T('drive-in',...)` block) with these. **Keep:** the picture plane `pl` and its canvas animation (it stays at
 (-40, 6, -937.8), 5 cm in front of the new screen), the projector beam, its switch prop and `XM.net.proj`, the popcorn
