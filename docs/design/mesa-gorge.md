@@ -162,7 +162,8 @@ the river's centre line and half width). `mgBedH(x, z)` is the visual floor heig
   band (kept north of the ledge and away from the cave), up to 45 cm deep with sloping banks, shallows, five
   sandbars, wet sand along the water, rubble rising along the foot of both walls (it only rises in the strip you can't
   walk on, so the stop line is where the rubble starts), flat in front of the cave. The water is a strip 5 cm above
-  the floor (`parts.water`: its texture flows when you call `tick(t)`). Pebbles along the banks, about 50 boulders, 60
+  the floor (`parts.water`: its texture flows when you call `tick(t)`). The floor is smooth near the water and the
+  water fades out at both banks, so the shoreline is a clean soft line (the first version had jagged edges). Pebbles along the banks, about 50 boulders, 60
   talus heaps against the walls, two bleached dead trees (x -262 and 418) and ten pieces of driftwood. Returns
   `{deepB, parts:{water}, tick}`: push `deepB` into `q.deepB` (boulders, the high part of each talus heap, the trees).
   You still walk at -30; the floor you see is within 5 cm of that where you can walk, except the river (you wade, 5 cm

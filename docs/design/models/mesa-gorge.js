@@ -365,26 +365,26 @@ function mgGorgeWalls(g){const k=rtKit(),o=mgKit(),r=o.r,{z0,z1,X,ends,ledge:LG,
  return{deepB}}
 
 /* the floor height at (x, z): the river channel, sandbars, banks, rubble along the walls, the cave mouth kept flat */
-function mgBedH(x,z){const sm=mgKit().sm,{z0,z1,ledge:LG,cave:CV}=MGG;let h=-30+.05*Math.sin(x*.13+z*.3)+.04*Math.sin(x*.041-z*.21);
- const zc=MGG.zc(x),w=MGG.zw(x),dz=z-zc,q=Math.abs(dz)/w;
- if(q<1){h=-30-.45*Math.pow(1-q*q,.8)+.02*Math.sin(x*.5)}else h+=.1*Math.exp(-Math.pow((q-1.25)/.25,2));
+function mgBedH(x,z){const sm=mgKit().sm,{z0,z1,ledge:LG,cave:CV}=MGG;const zc=MGG.zc(x),w=MGG.zw(x),dz=z-zc,q=Math.abs(dz)/w;
+ /* the floor is smooth near the water, so the shoreline is a clean curve */let h=-30+(.05*Math.sin(x*.13+z*.3)+.04*Math.sin(x*.041-z*.21))*sm(1.5,2.6,q);
+ if(q<1){h=-30-.45*Math.pow(1-q*q,.8)}else h+=.12*Math.exp(-Math.pow((q-1.3)/.3,2))+.02*(q-1)*(q<2?1:0);
  for(const[xc,sd]of[[-480,1],[-210,-1],[90,1],[340,-1],[520,1]]){h+=.62*Math.exp(-Math.pow((x-xc)/12,2))*Math.exp(-Math.pow((dz-.3*w*sd)/(.38*w),2))}
  /* distance from the rock (south: the band edge or the ledge; north: the band edge) */const inLx=x>LG.x0&&x<LG.x1;let dS=z-z0;if(x>LG.x0-20&&x<LG.x1+20){const ex=Math.max(LG.x0-x,0,x-LG.x1),ez=Math.max(z-LG.z1,0);dS=Math.min(dS,Math.hypot(ex,ez)*(inLx&&z<LG.z1?-1:1))}
  const d=Math.min(dS,z1-z),cav=x>CV.x0-2.5&&x<CV.x1+2.5&&dS<3&&!inLx;
  if(!cav){const a=Math.max(0,1-d/1.3);h+=Math.min(2.4,1.7*Math.pow(a,1.5)*(1+.25*Math.sin(x*.9)+.15*Math.sin(x*2.3+z)))}else if(z<z0+1)h=Math.min(h,-30.06);
  return h}
 function mgGorgeBed(g){const k=rtKit(),o=mgKit(),r=o.r,sm=o.sm,{z0,z1,X,ledge:LG}=MGG,deepB=[];
- /* the floor */{const NX=Math.ceil(2*X/2),NZ=z1-z0+8,pos=[],col=[],uv=[],idx=[];for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){const x=-X+i*2,z=z0-4+j,h=mgBedH(x,z);pos.push(x,h,z);
+ /* the floor */{const NX=Math.ceil(2*X/2),NZ=(z1-z0+8)*2,pos=[],col=[],uv=[],idx=[];for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){const x=-X+i*2,z=z0-4+j*.5,h=mgBedH(x,z);pos.push(x,h,z);
    const zc=MGG.zc(x),w=MGG.zw(x),q=Math.abs(z-zc)/w,n=1+.06*Math.sin(x*1.3+z*.7)+.05*Math.sin(x*.31-z*2.1);let c=[.76,.62,.46];
    if(h>-29.6)c=[.6,.42,.31];else if(h>-29.85&&q>1)c=[.68,.54,.42];if(q<1.45&&h<-29.85){const t=sm(1.45,1.0,q);c=c.map((v,m)=>v+([.5,.42,.33][m]-v)*t)}if(h>-29.93&&q<1)c=[.82,.7,.52];
    col.push(c[0]*n,c[1]*n,c[2]*n);uv.push(x/3,z/3)}
   for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){const a=i*(NZ+1)+j,b=(i+1)*(NZ+1)+j,c=b+1,d=a+1;idx.push(a,d,b,b,d,c)}
   const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
   const m=new THREE.Mesh(ge,o.ROCKS);m.userData.noSeam=true;m.userData.noChunk=1;g.add(m)}
- /* the water: a strip along the channel, 5 cm above the floor's -30 */let water;{const pos=[],uv=[],idx=[];let N=0,u=0;for(let x=-X;x<=X;x+=4){const zc=MGG.zc(x),w=MGG.zw(x)+1.1;pos.push(x,-29.95,zc-w,x,-29.95,zc+w);uv.push(u,0,u,1);u+=4/12;N++}
+ /* the water: a strip along the channel, 5 cm above the floor's -30 */let water;{const pos=[],uv=[],idx=[];let N=0,u=0;for(let x=-X;x<=X;x+=2){const zc=MGG.zc(x),w=MGG.zw(x)+.45;pos.push(x,-29.95,zc-w,x,-29.95,zc+w);uv.push(u,0,u,1);u+=2/12;N++}
   for(let i=0;i<N-1;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
-  const tx=k.tex(256,128,(c,w,h)=>{c.fillStyle='#3e7470';c.fillRect(0,0,w,h);for(let i=0;i<240;i++){const x=r()*w,y=r()*h,l=8+r()*30;c.strokeStyle='rgba(220,245,250,'+(.1+r()*.25)+')';c.lineWidth=1+r()*1.5;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+l/2,y+(r()-.5)*4,x+l,y);c.stroke()}for(const yy of[3,h-3]){c.fillStyle='rgba(240,250,250,.4)';c.fillRect(0,yy-2,w,4)}});
-  water=new THREE.Mesh(ge,k.M(0xffffff,{map:tx,roughness:.12,metalness:.1,transparent:true,opacity:.82,emissive:0x061a1c,emissiveIntensity:.4}));water.userData.noSeam=true;water.userData.noChunk=1;water.renderOrder=1;g.add(water)}
+  const tx=k.tex(256,128,(c,w,h)=>{c.fillStyle='#3e7470';c.fillRect(0,0,w,h);for(let i=0;i<240;i++){const x=r()*w,y=r()*h,l=8+r()*30;c.strokeStyle='rgba(220,245,250,'+(.1+r()*.25)+')';c.lineWidth=1+r()*1.5;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+l/2,y+(r()-.5)*4,x+l,y);c.stroke()}/* fade out at both banks so the shoreline is soft */c.globalCompositeOperation='destination-in';const fg=c.createLinearGradient(0,0,0,h);fg.addColorStop(0,'rgba(0,0,0,0)');fg.addColorStop(.13,'rgba(0,0,0,1)');fg.addColorStop(.87,'rgba(0,0,0,1)');fg.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=fg;c.fillRect(0,0,w,h)});tx.wrapT=THREE.ClampToEdgeWrapping;
+  water=new THREE.Mesh(ge,k.M(0xffffff,{map:tx,roughness:.12,metalness:.1,transparent:true,opacity:.85,depthWrite:false,emissive:0x061a1c,emissiveIntensity:.4}));water.userData.noSeam=true;water.userData.noChunk=1;water.renderOrder=1;g.add(water)}
  const clearOf=(x,z,m)=>{if(MGG.bridges.some(([a,b])=>x>a-6-m&&x<b+6+m))return false;if(x>LG.x0-4-m&&x<LG.x1+4+m&&z<LG.z1+4+m)return false;if(x>MGG.cave.x0-5&&x<MGG.cave.x1+5&&z<z0+6)return false;if(Math.abs(x-MGG.zip)<4)return false;return true};
  /* pebbles on the banks and in the shallows, and boulders (solid) */const PB=[],BD=[];for(let i=0;i<1400;i++){const x=-X+20+r()*(2*X-40),zc=MGG.zc(x),w=MGG.zw(x),side=r()<.5?-1:1,z=zc+side*w*(.75+r()*1.1);if(z<z0+.8||z>z1-.8)continue;const rad=.05+r()*.11,h=mgBedH(x,z);mgPut(PB,mgRockGeo(rad,i,.6,1.3),x,h-.02,z,r()*6,r()<.3?[.8,.74,.66]:[.58,.5,.44])}
  for(let i=0;i<70;i++){const x=-X+20+r()*(2*X-40),z=z0+2+r()*(z1-z0-4);if(!clearOf(x,z,2))continue;const zc=MGG.zc(x);if(Math.abs(z-zc)<MGG.zw(x)*.6&&r()<.6)continue;const rad=.5+r()*1.4,h=mgBedH(x,z);mgPut(BD,mgRockGeo(rad,i*3.1,.62,1.25),x,h-.1,z,r()*6,r()<.5?[.66,.42,.3]:[.82,.68,.52]);const e=rad*.8;deepB.push({x0:x-e,x1:x+e,z0:z-e,z1:z+e})}
