@@ -54,7 +54,8 @@ async function lagRun(){const L=[['base','Nothing changed'],['half','Half resolu
  const A={L,i:0,out:[]};LAG.auto=A;LAG.hide={};LAG.mwxOff=0;const alive=()=>LAG.open&&LAG.auto===A;
  try{for(const st of L){if(!alive())return null;A.i++;const id=st[0];
    if(id=='half')lagHalf(true);else if(id.startsWith('h:'))LAG.hide[id.slice(2)]=1;else if(id=='mwx')LAG.mwxOff=1;
-   await lagSleep(600);if(!alive())return null;if(id=='base')LAGV.catT=0;lagTake();await lagSleep(id.startsWith('base')?3000:2400);if(!alive())return null;
+   const sp0=LAG.spikes.length;await lagSleep(600);if(!alive())return null;if(id=='base')LAGV.catT=0;lagTake();await lagSleep(id.startsWith('base')?3000:2400);if(!alive())return null;
+   for(const sp of LAG.spikes.slice(sp0))if(!id.startsWith('base'))sp.step=st[1];/* (a long frame caused by the test itself is labelled) */
    const r=lagTake();if(id=='base')A.cats=LAGV.cats;A.out.push([st,r]);
    lagHalf(false);LAG.hide={};LAG.mwxOff=0}
   return A}
@@ -112,3 +113,4 @@ async function lagBench(){const q=BUS&&BUS.ride;if(LAG.auto||LAGV.bench)return;
 {const p0=lagReport;lagReport=function(){let t=p0.apply(this,arguments);const A=LAG.acc||{};
  t=t.replace('\nSwitches:','\nGraphics card: '+(A.gpu!=null?lagF(A.gpu)+' ms a frame (measured)':'not measurable in this browser')+' · '+(A.moved!=null?(A.moved<.3&&(A.turned||0)<.05?'standing still':'moving'):'')+(LAGV.cats?'\nDraw calls by kind: '+lagCatTxt(LAGV.cats):'')+'\nSwitches:');
  if(LAGV.title&&LAGV.title!=='Find the lag:')t=t.replace('\nFind the lag:\n','\n'+LAGV.title+'\n');return t}}
+{const s0=lagSpikeTxt;lagSpikeTxt=function(sp){const t=s0.apply(this,arguments);return sp&&sp.step?t+' · during the test step "'+sp.step+'" (caused by the test)':t}}

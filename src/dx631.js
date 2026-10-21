@@ -553,3 +553,26 @@ function xpRail(X){const{q,g,ob,loc,rect,sign}=X,z=RAIL.z;
 /* the scatter must not land on the new scenery: take away what it dropped there (after it ran, so its random numbers are unchanged) */
 {const f0=xpCover;xpCover=function(X){const q=X&&X.q,n0=q?q.obs.length:0;const r=f0.apply(this,arguments);try{const g=X.g,out=[];for(let i=q.obs.length-1;i>=n0;i--){const o=q.obs[i],cx=(o.x0+o.x1)/2,cz=(o.z0+o.z1)/2;if(!LKCLR.some(a=>cx>a[0]-1&&cx<a[1]+1&&cz>a[2]-1&&cz<a[3]+1))continue;
    let m=o.m;if(!m)m=g.children.find(c=>c.isGroup&&Math.abs(c.position.x-cx)<.01&&Math.abs(c.position.z-cz)<.01);if(m&&m.parent)m.parent.remove(m);q.obs.splice(i,1);out.push(o)}q.lkClr=out.length}catch(e){conLog('error','lake-rail scatter clear: '+e.message)}return r}}
+/* r650: cars the train destroys are marked byTrain, so the police do not blame you for a squad car the train flattened
+   (the backup cars in dx555 used to add +15 heat for any wreck, whatever caused it) */
+var TRNBLOW=0;
+{const t0=xpTrainTick;xpTrainTick=function(){TRNBLOW=1;try{return t0.apply(this,arguments)}finally{TRNBLOW=0}}}
+{const b0=vehBlow;vehBlow=function(q,v){if(TRNBLOW&&v&&!v.wreck)v.byTrain=q.rt||0.001;return b0.apply(this,arguments)}}
+
+/* r650: NPC CARS WAIT AT A LOWERED CROSSING. When the gates come down, every AI car heading for the tracks (traffic,
+   squads, getaway cars, police on patrol or going home...) brakes to a stop just before the gate and waits until the
+   gates go up. Police in an actual chase (or pulling someone over) still go through. A car whose nose is already past
+   the gate keeps going, to get off the tracks. Your own car is never touched (the autopilot included).
+   While a car waits, its "I am stuck, back up" counters are kept at zero, so it does not reverse out and try again. */
+function xgChase(q,v){try{if(q.cop&&q.cop.v===v)return q.cop.st==='chase';for(const u of q.pcr||[])if(u.v===v)return u.st==='chase'||u.st==='pull';
+  const H=q.pdHQ;if(H&&H.units)for(const u of H.units)if(u&&u.v===v)return u.st!=='home';
+  for(const c of CRM.list)if(c.cop&&c.cop.v===v)return c.st==='flee'||c.st==='stop'}catch(e){}return false}
+function xgPass(q){const X=q.xings;for(const v of q.vehs||[])if(v&&v.xgH)v.xgH=0;if(!X||!X.length||!X.some(K=>K.down))return;const z=RAIL.z;
+ for(const v of q.vehs||[]){if(!v||v.wreck||v.gone||!v.K||v.K.plane||v.air||(q.seat&&q.seat.v===v)||vehOnHwy(v))continue;const dz=z-v.z,adz=Math.abs(dz);if(adz>60)continue;
+  for(const K of X){if(!K.down||Math.abs(v.x-K.x)>7)continue;
+   /* heading for the tracks? (forward is (-sin h, -cos h)) */if(-Math.cos(v.h)*Math.sign(dz)<.5)continue;
+   /* how far the nose is from the stop point just before the gate (the gate arm is 9 m from the middle of the tracks) */const D=adz-(v.K.len||4.2)/2-9.9;if(D<-.6)continue;
+   if(xgChase(q,v))continue;const sp=Math.max(0,v.v||0),a=(v.K.acc||8)*1.2;/* (a slow car a little short of the stop point is waiting too: its own driver may have stopped it early) */if(D<=Math.max(sp<1.5?8:.5,sp*sp/(2*a)+.6)){v.xgH=1;v.bT=0}break}}}
+{const ru=busRoamUpd;busRoamUpd=function(q){try{if(q&&q.roam&&q.g)xgPass(q)}catch(e){}return ru.apply(this,arguments)}}
+{const a0=aiCtl;aiCtl=function(q,v,s,want){if(v&&v.xgH){if(s){s.stk=0;s.am=0}return[v.v>.5?-1:0,aiClamp(-wrapA(want-v.h)*2.4)]}return a0.apply(this,arguments)}}
+{const p0=vehPhys;vehPhys=function(q,v,dt,fx,sx,drv){if(v&&v.xgH&&drv){const a=Array.prototype.slice.call(arguments);a[3]=v.v>.5?-1:0;if(a.length>6)a[6]=false;return p0.apply(this,a)}return p0.apply(this,arguments)}}

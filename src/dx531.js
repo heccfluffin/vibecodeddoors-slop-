@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r650',['The police no longer blame you when the train flattens one of their squad cars','Cars now wait at the railway crossings while the gates are down: traffic, squads, getaway cars and police on patrol. Only police in an actual chase go through','Lag window: a long frame caused by one of its own test steps is now labelled as such']],
 ['r649',['The lag window (F9) now tells you what limits your frame rate: the processor, the graphics card, the pixels or your screen\'s refresh rate, with the biggest parts in order','"Find the lag" also tries half resolution and nothing drawn, measures the graphics card where the browser allows it, and shows draw calls by kind','New Benchmark button: three fixed views (Fort Blackout east and north, the Desert PD HQ), so reports from different PCs can be compared']],
 ['r648',['Faster desert, part two of the positions fix: things the game had only looked at (not moved) were still being worked out again every frame. Around Fort Blackout about 5 times fewer objects are now redone each frame']],
 ['r647',['Faster desert: the game no longer works out the position of every object again each frame, only of the ones that moved (about 2 in 100). In tests this cut the "positions" time in the lag window by more than half, and the parked vehicles\' share by about three quarters']],
