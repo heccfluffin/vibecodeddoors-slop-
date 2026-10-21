@@ -30,24 +30,36 @@ function ssPalm(g,x,z,h,lean,dir,seed){const o=ssKit(),dx=Math.cos(dir),dz=Math.
 /* ---- batch 1a: JEFF'S OASIS (-38, -1030). An irregular pond with a shallow sandy edge you can wade in and a dark
    middle, wet sand round it fading into the desert, reeds and flat rocks at the edge, six palms of different heights
    and leans, a hammock between two of them, Jeff's tip stand and a wooden sign.
-   Returns {obs, spots:{dip, tip, hammock}, edge:r(θ)} ; obs only covers the deep middle, so the edge is walkable ---- */
-const SSO={x:-38,z:-1030,r:a=>6+.7*Math.sin(2*a+3.6)+.5*Math.sin(3*a+4.0)+.3*Math.sin(5*a+1),deep:1.6};
+   Returns {obs, spots:{dip, tip, hammock}, mapR}; obs covers the water, the bank round it is walkable ---- */
+const SSO={x:-38,z:-1030,r:a=>6+.7*Math.sin(2*a+3.6)+.5*Math.sin(3*a+4.0)+.3*Math.sin(5*a+1),wl:-.2,cut:10,sand:null};
 function ssOasis(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r=o.r,obs=[];const{x:ox,z:oz}=SSO,R=SSO.r,S=22,PX=24;
- /* the ground decal and the water are two canvas planes over the same 22 m square; canvas (0,0) = (ox-11, oz-11) (top = south) */
+ /* ---- a real basin. The desert floor gets a square hole here (SSO.cut, see the spec) and this patch fills it: flat at
+    the edges (y 0), a sandy bank that shelves down to the waterline (y SSO.wl), then the bed falls away to 1.5 m in the
+    middle. Vertex colours darken the sand towards the water and tint the bed under it. The water is a see-through
+    sheet at the waterline: pale in the shallows where you see the sand, dark where it is deep. ---- */
+ /* the water's outline on a canvas over the 22 m square round the oasis; canvas (0,0) = (ox-11, oz-11) (top = south) */
  const poly=(c,sc,off)=>{c.beginPath();for(let i=0;i<=90;i++){const a=i/90*Math.PI*2,rr=R(a)*sc+(off||0);const px=(S/2+Math.cos(a)*rr)*PX,pz=(S/2+Math.sin(a)*rr)*PX;i?c.lineTo(px,pz):c.moveTo(px,pz)}c.closePath()};
- const mk=(draw,y,trans)=>{const c=document.createElement('canvas');c.width=c.height=S*PX;draw(c.getContext('2d'));const t=new THREE.CanvasTexture(c);t.anisotropy=8;const m=new THREE.Mesh(new THREE.PlaneGeometry(S,S),new THREE.MeshStandardMaterial({map:t,transparent:true,depthWrite:false,roughness:trans?.12:1,metalness:trans?.15:0,polygonOffset:true,polygonOffsetUnits:trans?-4:-2}));m.rotation.x=-Math.PI/2;m.position.set(ox,y,oz);m.userData.noSeam=true;m.renderOrder=trans?2:1;g.add(m);return m};
- /* wet sand: rings stepping out from the water's edge, each a little lighter and more transparent; pebbles */
- mk(c=>{c.clearRect(0,0,S*PX,S*PX);for(let k2=40;k2>=0;k2--){poly(c,1,k2*.085);c.fillStyle='rgba('+(120+k2*1.4|0)+','+(98+k2*1.4|0)+','+(70+k2|0)+','+(.035+(40-k2)*.011).toFixed(3)+')';c.fill()}for(let i=0;i<500;i++){const a=r()*Math.PI*2,rr=R(a)+r()*2.6;c.fillStyle=r()<.5?'rgba(70,58,44,.35)':'rgba(220,200,170,.35)';c.beginPath();c.arc((S/2+Math.cos(a)*rr)*PX,(S/2+Math.sin(a)*rr)*PX,1+r()*2.5,0,7);c.fill()}},.018,0);
- /* water: sandy turquoise at the edge, deep blue-green in the middle, soft caustic lines, a thin pale line at the edge */
- mk(c=>{c.clearRect(0,0,S*PX,S*PX);const cols=[[132,200,186],[86,176,186],[56,148,176],[38,118,156],[28,92,132],[20,72,110]];const N=48;for(let i=0;i<N;i++){const f=i/(N-1)*(cols.length-1),j=Math.min(cols.length-2,Math.floor(f)),u=f-j,q=cols[j].map((v,n)=>Math.round(v+(cols[j+1][n]-v)*u));poly(c,1-f*.13,0);c.fillStyle='rgb('+q[0]+','+q[1]+','+q[2]+')';c.fill()}
-  c.save();poly(c,1,0);c.clip();c.strokeStyle='rgba(255,255,255,.16)';c.lineWidth=2;for(let i=0;i<120;i++){const x=r()*S*PX,y=r()*S*PX;c.beginPath();c.moveTo(x,y);c.bezierCurveTo(x+10,y-7,x+22,y+7,x+32,y);c.stroke()}c.restore();poly(c,1,0);c.strokeStyle='rgba(240,236,220,.7)';c.lineWidth=3;c.stroke()},.045,1);
- /* the deep middle is the wall (cells of 1 m inside the deep line), so you can wade round the edge */
- {const inDeep=(x,z)=>{const a=Math.atan2(z,x),d=Math.hypot(x,z);return d<R(a)-SSO.deep};for(let zi=-8;zi<8;zi++){let run=null;for(let xi=-8;xi<=8;xi++){const ok=xi<8&&[[0,0],[1,0],[0,1],[1,1]].every(([a,b])=>inDeep(xi+a,zi+b));if(ok&&run==null)run=xi;if(!ok&&run!=null){obs.push({x0:ox+run,x1:ox+xi,z0:oz+zi,z1:oz+zi+1});run=null}}}}
+ const H=(x,z)=>{const d=Math.hypot(x,z),s2=d-R(Math.atan2(z,x));if(s2>=.9)return 0;if(s2>=0){const t=1-s2/.9;return SSO.wl*t*t}const u=Math.min(1,-s2/2.8);return SSO.wl-1.3*u*u*(3-2*u)};
+ {const N=96,ge=new THREE.PlaneGeometry(SSO.cut*2,SSO.cut*2,N,N),P2=ge.attributes.position,col=new Float32Array(P2.count*3);
+  for(let i=0;i<P2.count;i++){const x=P2.getX(i),z=-P2.getY(i),y=H(x,z),d=Math.hypot(x,z),s2=d-R(Math.atan2(z,x));P2.setZ(i,y);
+   let c=[1,1,1];if(s2<0){const u=Math.min(1,-s2/2.8);c=[.62-.22*u,.6-.16*u,.42-.12*u]}else if(s2<2.6){const t=1-s2/2.6;c=[1-.32*t,1-.34*t,1-.36*t]}
+   col[i*3]=c[0];col[i*3+1]=c[1];col[i*3+2]=c[2]}
+  /* the edges of the patch stay exactly at y 0 so it meets the desert floor without a step */
+  ge.setAttribute('color',new THREE.BufferAttribute(col,3));ge.computeVertexNormals();const sm=SSO.sand?SSO.sand():M(0xffffff,{roughness:1,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#d8b07a';c.fillRect(0,0,w,h);for(let i=0;i<1600;i++){const v=150+r()*80|0;c.fillStyle='rgba('+v+','+(v*.78|0)+','+(v*.5|0)+',.35)';c.fillRect(r()*w,r()*h,1+r()*2,1)}})});
+  sm.vertexColors=true;if(sm.map){sm.map=sm.map.clone();sm.map.needsUpdate=true;sm.map.wrapS=sm.map.wrapT=THREE.RepeatWrapping;sm.map.repeat.set(SSO.cut*2/10,SSO.cut*2/10)}
+  const pm=new THREE.Mesh(ge,sm);pm.rotation.x=-Math.PI/2;pm.position.set(ox,0,oz);pm.userData.noSeam=true;g.add(pm)}
+ /* the water sheet */{const c=document.createElement('canvas');c.width=c.height=S*PX;const x=c.getContext('2d');x.clearRect(0,0,S*PX,S*PX);
+  const cols=[[150,214,196,.38],[96,186,192,.5],[58,150,178,.66],[34,112,150,.8],[22,80,118,.9],[16,60,96,.94]],N=48;for(let i=0;i<N;i++){const f=i/(N-1)*(cols.length-1),j=Math.min(cols.length-2,Math.floor(f)),u=f-j,q=cols[j].map((v,n)=>v+(cols[j+1][n]-v)*u);poly(x,1-f*.13,0);x.fillStyle='rgba('+(q[0]|0)+','+(q[1]|0)+','+(q[2]|0)+','+q[3].toFixed(3)+')';
+   x.globalCompositeOperation='copy';x.save();x.clip();x.fillRect(0,0,S*PX,S*PX);x.restore();x.globalCompositeOperation='source-over'}
+  x.save();poly(x,1,0);x.clip();x.strokeStyle='rgba(255,255,255,.2)';x.lineWidth=2;for(let i=0;i<120;i++){const px=r()*S*PX,py=r()*S*PX;x.beginPath();x.moveTo(px,py);x.bezierCurveTo(px+10,py-7,px+22,py+7,px+32,py);x.stroke()}x.restore();poly(x,1,0);x.strokeStyle='rgba(240,236,220,.75)';x.lineWidth=3;x.stroke();
+  const t=new THREE.CanvasTexture(c);t.anisotropy=8;const wm=new THREE.Mesh(new THREE.PlaneGeometry(S,S),new THREE.MeshStandardMaterial({map:t,transparent:true,depthWrite:false,roughness:.1,metalness:.15}));wm.rotation.x=-Math.PI/2;wm.position.set(ox,SSO.wl,oz);wm.userData.noSeam=true;wm.renderOrder=2;g.add(wm)}
+ /* the water is the wall (half-metre cells inside the waterline); you stand on the bank and dip your feet from there */
+ {const inW=(x,z)=>Math.hypot(x,z)<R(Math.atan2(z,x));for(let zi=-20;zi<20;zi++){let run=null;for(let xi=-20;xi<=20;xi++){const ok=xi<20&&inW((xi+.5)*.5,(zi+.5)*.5);if(ok&&run==null)run=xi;if(!ok&&run!=null){obs.push({x0:ox+run*.5,x1:ox+xi*.5,z0:oz+zi*.5,z1:oz+(zi+1)*.5});run=null}}}}
  /* reeds in clumps at the edge (some cattails), flat rocks, a few lily pads */
  const RD=M(0x6a8a3a,{roughness:.9}),RD2=M(0x8a9a4a,{roughness:.9}),CT=M(0x5a3a1c,{roughness:.9});
- for(const a of[.5,1.25,2.6,3.3,4.4,5.5]){const rr=R(a);for(let j=0;j<9;j++){const aa=a+(r()-.5)*.25,d=R(aa)+(r()-.6)*.9,x=ox+Math.cos(aa)*d,z=oz+Math.sin(aa)*d,h=.7+r()*.8;const rd=new THREE.Mesh(new THREE.ConeGeometry(.025,h,4),j%3?RD:RD2);rd.position.set(x,h/2,z);rd.rotation.set((r()-.5)*.25,0,(r()-.5)*.25);g.add(rd);if(j%4==0){C(.035,.035,.18,x+Math.sin(rd.rotation.z)*-h*.4,h*.85,z+Math.sin(rd.rotation.x)*h*.4,CT,null,null,6)}}}
- for(const[a,s]of[[.95,1],[2.2,.8],[3.9,1.2],[5.0,.9]]){const d=R(a)+.25,x=ox+Math.cos(a)*d,z=oz+Math.sin(a)*d;const rk=new THREE.Mesh(new THREE.DodecahedronGeometry(.6*s,0),o.STONE);rk.scale.set(1,.3,.75);rk.position.set(x,.06,z);rk.rotation.y=a;g.add(rk)}
- {const LP=M(0x3a7a2a,{roughness:.6});for(const[a,f]of[[1.9,.55],[2.05,.62],[4.2,.5]]){const d=R(a)*f,p=new THREE.Mesh(new THREE.CircleGeometry(.28,12,.3,Math.PI*2-.6),LP);p.rotation.x=-Math.PI/2;p.position.set(ox+Math.cos(a)*d,.052,oz+Math.sin(a)*d);g.add(p)}}
+ for(const a of[.5,1.25,2.6,3.3,4.4,5.5]){const rr=R(a);for(let j=0;j<9;j++){const aa=a+(r()-.5)*.25,d=R(aa)+(r()-.6)*.9,x=ox+Math.cos(aa)*d,z=oz+Math.sin(aa)*d,h=.7+r()*.8;const gy=H(x-ox,z-oz),rd=new THREE.Mesh(new THREE.ConeGeometry(.025,h,4),j%3?RD:RD2);rd.position.set(x,gy+h/2,z);rd.rotation.set((r()-.5)*.25,0,(r()-.5)*.25);g.add(rd);if(j%4==0){C(.035,.035,.18,x+Math.sin(rd.rotation.z)*-h*.4,gy+h*.85,z+Math.sin(rd.rotation.x)*h*.4,CT,null,null,6)}}}
+ for(const[a,s]of[[.95,1],[2.2,.8],[3.9,1.2],[5.0,.9]]){const d=R(a)+.25,x=ox+Math.cos(a)*d,z=oz+Math.sin(a)*d;const rk=new THREE.Mesh(new THREE.DodecahedronGeometry(.6*s,0),o.STONE);rk.scale.set(1,.3,.75);rk.position.set(x,H(x-ox,z-oz)+.06,z);rk.rotation.y=a;g.add(rk)}
+ {const LP=M(0x3a7a2a,{roughness:.6});for(const[a,f]of[[1.9,.55],[2.05,.62],[4.2,.5]]){const d=R(a)*f,p=new THREE.Mesh(new THREE.CircleGeometry(.28,12,.3,Math.PI*2-.6),LP);p.rotation.x=-Math.PI/2;p.position.set(ox+Math.cos(a)*d,SSO.wl+.006,oz+Math.sin(a)*d);g.add(p)}}
  /* six palms: [angle, extra distance past the edge, height, lean, lean direction] */
  const PALMS=[[1.05,2.4,8.2,.12,1.4],[2.27,2.2,6.4,.2,2.6],[3.05,2.4,7.4,.1,3.4],[3.75,2.3,6.8,.16,3.4],[4.71,2.5,8.6,.08,4.2],[5.58,2.2,5.8,.22,5.9]];
  const at=[];PALMS.forEach(([a,dd,h,ln,dir],i)=>{const d=R(a)+dd,x=ox+Math.cos(a)*d,z=oz+Math.sin(a)*d;at.push(ssPalm(g,x,z,h,ln,dir,i+1));obs.push({x0:x-.35,x1:x+.35,z0:z-.35,z1:z+.35})});
@@ -65,7 +77,7 @@ function ssOasis(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r=o.
  /* the oasis sign by the path in from the road, two posts, a carved board */
  {const sx=ox+10,sz=oz+7.5,G2=new THREE.Group();G2.position.set(sx,0,sz);G2.rotation.y=-1.0;g.add(G2);const h=k.H(G2);for(const s of[-1,1])h.B(.12,2.2,.12,s*.9,1.1,0,o.WOODD);h.B(2.1,.8,.06,0,1.75,0,o.WOOD);
   h.L("JEFF'S OASIS\nPLEASE TIP",1.9,.66,'#c8a070','#3a2010',64,0,1.75,.036,0);h.L("JEFF'S OASIS\nPLEASE TIP",1.9,.66,'#c8a070','#3a2010',64,0,1.75,-.036,Math.PI);obs.push({x0:sx-.8,x1:sx+.8,z0:sz-.8,z1:sz+.8})}
- return{obs,spots:{dip:[ox+4.5,oz],tip:[ox+8.5,oz+4],hammock:hm},mapR:[[ox,oz,6.2,'#3a90b8']]}}
+ return{obs,spots:{dip:[ox+R(0)+.5,oz],tip:[ox+8.5,oz+4],hammock:hm},mapR:[[ox,oz,6.2,'#3a90b8']]}}
 
 /* ---- batch 1b: the WISHING WELL (-22, -1095). A round stone well with a capstone rim, dark water with coins glinting,
    two timber posts carrying a shingled gable roof, a windlass with a crank and a rope, and a bucket on the rope.

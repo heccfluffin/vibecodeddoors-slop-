@@ -67,10 +67,20 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   palms and their obstacles, the old sign `dsSign("JEFF'S OASIS...")`, the crate and the jar (and their obstacle).
   Keep the tip prop (same spot, `spots.tip`), the "Dip your feet" prop (now at `spots.dip`, in the shallow edge),
   the loc, the water-delivery tank and groundskeeper (north, clear of the palms).
-  The pond: an irregular outline `SSO.r(angle)` (4.5 to 7.5 m), sandy turquoise in the shallows shading to deep
-  blue-green in the middle, soft ripples, a pale edge line, wet sand fading out round it with pebbles, reed clumps
-  (some cattails), four flat rocks and a few lily pads. **The obstacle only covers the deep middle** (1 m cells
-  inside 1.6 m from the edge), so you can wade round the edge. Six palms of different heights (5.8 to 8.6 m) and
+  **The pond has real depth** (the user's ask): the desert floor gets a square hole round it, like the quarry and the
+  mine shaft: add `[SSO.x-SSO.cut, SSO.x+SSO.cut, SSO.z-SSO.cut, SSO.z+SSO.cut]` (x -48…-28, z -1040…-1020) to the
+  `rectCuts` list where the ground is laid in `busRoamBuild` ("the ground, in four pieces round the mouth of the mine
+  shaft"). `ssOasis` fills the hole with a sculpted patch: flat at its edges (y 0, so it meets the floor with no
+  step), a sandy bank that shelves down to the waterline at y -0.2, and the bed falling away to 1.5 m deep in the
+  middle; vertex colours darken the sand towards the water and tint the bed. Set `SSO.sand` to a function that
+  returns the desert floor's own material (the sand texture, as the ground pieces use; it gets cloned and tiled every
+  10 m) before calling `ssOasis`, and give the patch the same ground treatment as the floor pieces (`dpGroundMats`)
+  so the two match. The water is a see-through sheet at the waterline: pale in the shallows where you see the sand
+  under it, dark blue-green where it is deep, with ripples and a pale edge line. The irregular outline is
+  `SSO.r(angle)` (4.5 to 7.5 m). **The water is the obstacle** (half-metre cells inside the waterline); you stand on
+  the bank, and the "Dip your feet" prop sits on the bank at the water's edge (`spots.dip`). Reed clumps (some
+  cattails, the ones in the water grow from the bed), four flat rocks on the bank, a few lily pads on the water.
+  Six palms of different heights (5.8 to 8.6 m) and
   leans, ringed trunks, eleven drooping fronds each, dead fronds hanging and coconuts. A striped hammock between the
   two west palms (new prop at `spots.hammock`: "[E] Lie in Jeff's hammock", a short rest and a line such as "Jeff's
   hammock. Still warm. Jeff is not here."). Jeff's tip stand where the crate was: a little counter, the jar with a
