@@ -429,3 +429,103 @@ function mgVultures(g){const k=rtKit(),M=k.M,B=[];const DK=M(0x2a2420,{roughness
   const tl=new THREE.Mesh(new THREE.BoxGeometry(.5,.03,.45),DK);tl.position.set(0,0,.72);v.add(tl);const wl=new THREE.Group(),wr=new THREE.Group();wl.position.x=-.2;wr.position.x=.2;v.add(wl,wr);wr.add(new THREE.Mesh(wingGeo(1),DK));wl.add(new THREE.Mesh(wingGeo(-1),DK));v.scale.setScalar(1.6);B.push({v,wl,wr,ph:i*Math.PI+.4,R:26+i*7,h:34+i*5})}
  const tick=t=>{for(const b of B){const a=b.ph+t*(.14+b.R*.0005),x=Math.cos(a)*b.R+4,z=-1722+Math.sin(a)*b.R*.6;b.v.position.set(x,b.h+Math.sin(t*.3+b.ph)*1.5,z);const dx=-Math.sin(a)*b.R,dz=Math.cos(a)*b.R*.6;b.v.rotation.set(0,Math.atan2(-dx,-dz),0);b.v.rotateZ(-.32);
   const fl=(Math.sin(t*.21+b.ph)>.85)?Math.sin(t*9)*.35:.06*Math.sin(t*1.3+b.ph);b.wr.rotation.z=fl+.08;b.wl.rotation.z=-fl-.08}};tick(0);return{tick}}
+
+/* ---------- Batch 4: the three bridges over Devil's Gorge ----------
+   Each keeps its deck (W + 1.4 m wide, top at y -0.02, z -1746 … -1698) and the rail obstacles at cx ± (W/2+0.4 … W/2+0.7).
+     mgBridgeSteel(g, cx, W)     Route 13 (x 0): a riveted steel through-truss (Pratt, 12 panels of 4 m, 5.8 m high,
+                                 5.3 m clearance under the portals) with a DEVIL'S GORGE BRIDGE nameplate on both
+                                 portals, an asphalt deck with markings, a W-beam guard rail inside the trusses, floor
+                                 beams underneath, a braced steel tower in the middle and concrete abutments.
+     mgBridgeTrestle(g, cx, W)   Coyote Rd (x -440): a timber trestle: five braced bents of posts down to concrete pads,
+                                 stringers and a plank deck, timber guard rails, log cribs at both rims.
+     mgBridgeArch(g, cx, W)      Dune Rd South (x 560): a concrete viaduct: two tall tapered piers and three arches
+                                 (side arches springing from the gorge walls), arch rings, a cornice, solid parapets.
+   Each returns {obs, deepB}. deepB: everything that stands on the gorge floor (piers, posts, footings).
+   ===================================================================================================== */
+/* a box from a to b (its length along a→b), w wide and h tall, into a merge list */
+function mgBeam(list,a,b,w,h,col,up){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B),ge=new THREE.BoxGeometry(w,h,L),d=B.clone().sub(A).normalize();
+ const U=up?new THREE.Vector3(...up):(Math.abs(d.y)>.95?new THREE.Vector3(1,0,0):new THREE.Vector3(0,1,0)),m=new THREE.Matrix4().lookAt(A,B,U);m.setPosition(A.clone().add(B).multiplyScalar(.5));ge.applyMatrix4(m);mgPut(list,ge,0,0,0,0,col);return ge}
+function mgBridgeKit(){const o=mgKit();if(o._br)return o._br;const k=rtKit(),M=k.M,r=o.r,b={};
+ b.STEEL=M(0xffffff,{vertexColors:true,roughness:.55,metalness:.45,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#d8d8d4';c.fillRect(0,0,w,h);for(let i=0;i<500;i++){c.fillStyle='rgba(120,70,40,'+(r()*.18)+')';c.fillRect(r()*w,r()*h,1+r()*4,1+r()*3)}for(let y=8;y<h;y+=16)for(let x=8;x<w;x+=16){c.fillStyle='rgba(60,60,60,.5)';c.beginPath();c.arc(x,y,2.2,0,7);c.fill();c.fillStyle='rgba(255,255,255,.35)';c.beginPath();c.arc(x-.6,y-.6,1,0,7);c.fill()}})});
+ b.CONC=M(0xffffff,{vertexColors:true,roughness:.92,map:k.tex(256,256,(c,w,h)=>{c.fillStyle='#d6d0c4';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=32){c.fillStyle='rgba(90,80,65,.16)';c.fillRect(0,y,w,2)}for(let i=0;i<2400;i++){c.fillStyle=r()<.5?'rgba(90,80,65,.1)':'rgba(255,250,240,.12)';c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}for(let i=0;i<30;i++){const x=r()*w,y=r()*h,l=20+r()*80;const gr=c.createLinearGradient(0,y,0,y+l);gr.addColorStop(0,'rgba(110,80,50,.18)');gr.addColorStop(1,'rgba(110,80,50,0)');c.fillStyle=gr;c.fillRect(x,y,3+r()*6,l)}})});
+ b.WOOD=M(0xffffff,{vertexColors:true,roughness:.92,map:o.TIMBER.map});
+ o._br=b;return b}
+function mgDeckTex(W,L,kind){const k=rtKit(),r=mgKit().r;return k.tex(256,1024,(c,w,h)=>{const s=w/(W+1.4);if(kind=='asphalt'){c.fillStyle='#4a4644';c.fillRect(0,0,w,h);for(let i=0;i<6000;i++){c.fillStyle=r()<.5?'rgba(20,20,20,.25)':'rgba(140,130,120,.2)';c.fillRect(r()*w,r()*h,1,1)}
+  c.fillStyle='#e8c030';for(const dx of[-.12,.12])c.fillRect(w/2+dx*s-.06*s,0,.12*s,h);c.fillStyle='#e8e4dc';for(const ex of[.7+.15,W+1.4-.7-.15])c.fillRect(ex*s-.07*s,0,.14*s,h)}
+ else{c.fillStyle='#a49c8e';c.fillRect(0,0,w,h);for(let i=0;i<5000;i++){c.fillStyle=r()<.5?'rgba(90,80,65,.14)':'rgba(255,250,240,.12)';c.fillRect(r()*w,r()*h,1+r(),1+r())}for(const x of[.3,.7]){const gr=c.createLinearGradient(w*(x-.08),0,w*(x+.08),0);gr.addColorStop(0,'rgba(60,55,50,0)');gr.addColorStop(.5,'rgba(60,55,50,.18)');gr.addColorStop(1,'rgba(60,55,50,0)');c.fillStyle=gr;c.fillRect(w*(x-.08),0,w*.16,h)}for(let y=0;y<h;y+=h/(L/6)){c.fillStyle='rgba(60,55,50,.35)';c.fillRect(0,y,w,2)}}})}
+
+function mgBridgeSteel(g,cx,W){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),{z0,z1}=MGG,Za=z0-2,Zb=z1+2,L=Zb-Za,mz=(z0+z1)/2,TX=W/2+.55,TY=5.8,obs=[],deepB=[],SL=[],CL=[];
+ const RED=[.62,.26,.2],RD2=[.55,.22,.17],GRY=[.78,.76,.72];
+ /* the deck: concrete slab with an asphalt top (its own texture: lines), floor beams and stringers under it */
+ {const dm=k.M(0xffffff,{roughness:.9,map:mgDeckTex(W,L,'asphalt')}),cm=k.M(0x8a8680,{roughness:.9}),dk=new THREE.Mesh(new THREE.BoxGeometry(2*(TX-.18),.45,L),[cm,cm,dm,cm,cm,cm]);dk.position.set(cx,-.245,mz);g.add(dk)}
+ for(let i=0;i<=12;i++){const z=Za+i*L/12;mgBeam(SL,[cx-TX,-.95,z],[cx+TX,-.95,z],.3,.7,RD2)}for(const sx of[-3.4,-1.15,1.15,3.4])mgBeam(SL,[cx+sx,-.62,Za],[cx+sx,-.62,Zb],.25,.35,RD2);
+ /* two trusses: bottom chord, top chord, inclined end posts, verticals, Pratt diagonals (sloping down towards the middle), gusset plates */
+ for(const sx of[-1,1]){const x=cx+sx*TX;mgBeam(SL,[x,-.4,Za],[x,-.4,Zb],.36,.6,RED);mgBeam(SL,[x,TY,Za+4],[x,TY,Zb-4],.42,.5,RED);mgBeam(SL,[x,-.3,Za+.2],[x,TY,Za+4],.42,.5,RED);mgBeam(SL,[x,-.3,Zb-.2],[x,TY,Zb-4],.42,.5,RED);
+  for(let i=1;i<12;i++){const z=Za+i*4;mgBeam(SL,[x,-.1,z],[x,TY-.2,z],.3,.24,RED);if(i<11){const zn=Za+(i+1)*4;if(i<6)mgBeam(SL,[x,TY-.2,z],[x,-.1,zn],.22,.16,RD2);else if(i>=6)mgBeam(SL,[x,TY-.2,zn],[x,-.1,z],.22,.16,RD2)}
+   for(const y of[-.3,TY]){const gp=new THREE.BoxGeometry(.03,1.0,1.1);gp.translate(x+sx*.23,y,z);mgPut(SL,gp,0,0,0,0,RD2)}}
+  /* the guard rail inside: posts and a W-beam */for(let z=Za+1;z<Zb;z+=2){mgBeam(SL,[x-sx*.42,0,z],[x-sx*.42,.75,z],.12,.12,GRY)}mgBeam(SL,[x-sx*.5,.6,Za+.5],[x-sx*.5,.6,Zb-.5],.06,.32,GRY);
+  obs.push({x0:cx+sx*(W/2+.4)-(sx<0?.3:0),x1:cx+sx*(W/2+.4)+(sx>0?.3:0),z0:Za,z1:Zb})}
+ /* overhead: struts and X bracing between the top chords; portals with knee braces at both ends */
+ for(let i=1;i<12;i++){const z=Za+i*4;mgBeam(SL,[cx-TX,TY+.05,z],[cx+TX,TY+.05,z],.3,.36,RED);if(i<11){const zn=z+4;mgBeam(SL,[cx-TX,TY+.25,z],[cx+TX,TY+.25,zn],.1,.08,RD2);mgBeam(SL,[cx+TX,TY+.36,z],[cx-TX,TY+.36,zn],.1,.08,RD2)}}
+ const PY=TY-.4;for(const[ze,dz]of[[Za+3.75,1],[Zb-3.75,-1]]){mgBeam(SL,[cx-TX,PY,ze],[cx+TX,PY,ze],.36,.6,RED);for(const sx of[-1,1])mgBeam(SL,[cx+sx*TX,PY-1.2,ze-dz*.6],[cx+sx*(TX-1.4),PY-.2,ze],.18,.18,RD2)}
+ g.add(mgMerge(SL.splice(0),b.STEEL));
+ /* the nameplate on both portals */const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,Arial,sans-serif';const np=k.tex(1024,192,(c,w,h)=>{c.fillStyle='#1e2a24';c.fillRect(0,0,w,h);c.strokeStyle='#c8b070';c.lineWidth=8;c.strokeRect(10,10,w-20,h-20);c.fillStyle='#e8d8a0';c.textAlign='center';c.font='800 92px '+F;c.fillText("DEVIL'S GORGE BRIDGE",w/2,108,w-80);c.font='600 40px '+F;c.fillText('ROUTE 13 · BUILT 1931 · 30 m DROP',w/2,160,w-80)});
+ for(const[ze,ry]of[[Za+3.75-.35,Math.PI],[Zb-3.75+.35,0]]){const m=new THREE.Mesh(new THREE.PlaneGeometry(6.4,1.2),k.M(0xffffff,{map:np,roughness:.6}));m.position.set(cx,PY+.95,ze);m.rotation.y=ry;g.add(m);const bk=new THREE.Mesh(new THREE.BoxGeometry(6.6,1.35,.08),k.M(0x2a3a32,{metalness:.4,roughness:.6}));bk.position.set(cx,PY+.95,ze+(ry?.045:-.045));g.add(bk);for(const sx of[-2.6,2.6]){const p=new THREE.Mesh(new THREE.BoxGeometry(.12,.7,.12),k.M(0x2a3a32,{metalness:.4}));p.position.set(cx+sx,PY+.25,ze+(ry?.12:-.12));g.add(p)}}
+ /* the middle tower: four battered steel legs on concrete footings, struts and X bracing on all four faces above the
+    lowest panel (you can walk under it), a cross girder under the trusses */
+ {const fy=-30,TOPY=-1.9,lx=(y,s1)=>cx+s1*(4.2+(TOPY-y)/(TOPY-fy)*3.6),lz=(y,s2)=>mz+s2*(1.6+(TOPY-y)/(TOPY-fy)*2.4);
+  for(const s1 of[-1,1])for(const s2 of[-1,1]){mgBeam(SL,[lx(fy+.6,s1),fy+.6,lz(fy+.6,s2)],[lx(TOPY,s1),TOPY,lz(TOPY,s2)],.55,.55,RED);const ft=new THREE.BoxGeometry(1.5,.9,1.5);ft.translate(lx(fy,s1),fy+.25,lz(fy,s2));mgPut(CL,ft,0,0,0,0,[.8,.78,.74]);deepB.push({x0:lx(fy,s1)-.8,x1:lx(fy,s1)+.8,z0:lz(fy,s2)-.8,z1:lz(fy,s2)+.8})}
+  const LV=[-25.5,-20,-14.5,-9,-3.5];LV.forEach((y,li)=>{for(const s2 of[-1,1])mgBeam(SL,[lx(y,-1),y,lz(y,s2)],[lx(y,1),y,lz(y,s2)],.28,.32,RD2);for(const s1 of[-1,1])mgBeam(SL,[lx(y,s1),y,lz(y,-1)],[lx(y,s1),y,lz(y,1)],.28,.32,RD2);
+   const yn=li<LV.length-1?LV[li+1]:TOPY;for(const s2 of[-1,1]){mgBeam(SL,[lx(y,-1),y,lz(y,s2)],[lx(yn,1),yn,lz(yn,s2)],.14,.14,RD2);mgBeam(SL,[lx(y,1),y,lz(y,s2)],[lx(yn,-1),yn,lz(yn,s2)],.14,.14,RD2)}
+   for(const s1 of[-1,1]){mgBeam(SL,[lx(y,s1),y,lz(y,-1)],[lx(yn,s1),yn,lz(yn,1)],.14,.14,RD2);mgBeam(SL,[lx(y,s1),y,lz(y,1)],[lx(yn,s1),yn,lz(yn,-1)],.14,.14,RD2)}});
+  for(const s2 of[-1,1])mgBeam(SL,[cx-TX-.4,TOPY+.1,lz(TOPY,s2)],[cx+TX+.4,TOPY+.1,lz(TOPY,s2)],.6,.7,RED);for(const s1 of[-1,1])mgBeam(SL,[lx(TOPY,s1),TOPY+.1,lz(TOPY,-1)],[lx(TOPY,s1),TOPY+.1,lz(TOPY,1)],.5,.5,RED)}
+ g.add(mgMerge(SL.splice(0),b.STEEL));
+ /* the abutments: concrete seats at both rims (they run back into the rock) */for(const[a,c]of[[z0-4.5,z0+.3],[z1-.3,z1+4.5]]){const ab=new THREE.BoxGeometry(2*TX+1.2,3.0,c-a);ab.translate(cx,-2.15,(a+c)/2);mgPut(CL,ab,0,0,0,0,[.78,.74,.68])}
+ g.add(mgMerge(CL,b.CONC));return{obs,deepB}}
+
+function mgBridgeTrestle(g,cx,W){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),r=o.r,{z0,z1}=MGG,Za=z0-2,Zb=z1+2,L=Zb-Za,mz=(z0+z1)/2,obs=[],deepB=[],TL=[],CL=[];
+ const T1=[.62,.5,.38],T2=[.52,.41,.31],T3=[.7,.58,.44],HW=W/2+.7;
+ /* the plank deck (planks across the road) on stringers */{const pm=k.M(0xffffff,{roughness:.95,map:k.tex(128,512,(c,w,h)=>{c.fillStyle='#7a6248';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=8){const v=110+r()*30|0;c.fillStyle='rgb('+(v+10)+','+(v-6)+','+(v-30)+')';c.fillRect(0,y+1,w,6);c.fillStyle='rgba(30,20,10,.5)';c.fillRect(0,y+7,w,1);for(const x of[w*.27,w*.73]){c.fillStyle='rgba(40,30,20,.15)';c.fillRect(x-10,y,20,8)}}})});pm.map.repeat.set(1,L/16);
+  const dm=k.M(0x5a4430,{roughness:.95});const dk=new THREE.Mesh(new THREE.BoxGeometry(2*HW,.25,L),[dm,dm,pm,dm,dm,dm]);dk.position.set(cx,-.145,mz);g.add(dk)}
+ for(const sx of[-4.2,-2.5,-.85,.85,2.5,4.2])mgBeam(TL,[cx+sx,-.55,Za],[cx+sx,-.55,Zb],.3,.55,T2);
+ /* the guard rails: posts every 2 m, two rails */for(const sx of[-1,1]){const x=cx+sx*(W/2+.55);for(let z=Za+.45;z<=Zb-.3;z+=2)mgBeam(TL,[x,-.3,z],[x,1.1,z],.2,.2,T1);for(const y of[.55,1.0])mgBeam(TL,[x+sx*.13,y,Za+.2],[x+sx*.13,y,Zb-.2],.08,.18,T3);obs.push({x0:cx+sx*(W/2+.4)-(sx<0?.3:0),x1:cx+sx*(W/2+.4)+(sx>0?.3:0),z0:Za,z1:Zb})}
+ /* five bents: a cap, four upright posts, two battered outer posts, girts every 5.5 m, X bracing above the lowest panel,
+    concrete pads; struts between the bents along the gorge */
+ const BZ=[];for(let i=0;i<10;i++)BZ.push(z0+2.2+i*(z1-z0-4.4)/9);const XQ=[-4.5,-1.6,1.6,4.5],bat=[2.6,.5,.5,2.6];
+ BZ.forEach((bz,bi)=>{const fy=mgBedH(cx,bz),TOPY=-1.15,px=(j,y)=>cx+XQ[j]+Math.sign(XQ[j])*bat[j]*(TOPY-y)/(TOPY-fy);mgBeam(TL,[cx-HW-.25,-1.0,bz],[cx+HW+.25,-1.0,bz],.4,.36,T2);
+  for(let j=0;j<4;j++){const yb=mgBedH(px(j,fy),bz)+.2,xb=px(j,yb);mgBeam(TL,[xb,yb,bz],[px(j,TOPY),TOPY,bz],.38,.38,T1);const pd=new THREE.BoxGeometry(.85,.5,.85);pd.translate(xb,yb-.2,bz);mgPut(CL,pd,0,0,0,0,[.78,.74,.66]);deepB.push({x0:xb-.5,x1:xb+.5,z0:bz-.5,z1:bz+.5})}
+  const LV=[-25,-19.5,-14,-8.5,-3];LV.forEach((y,li)=>{mgBeam(TL,[px(0,y)-.3,y,bz+.24],[px(3,y)+.3,y,bz+.24],.12,.3,T2);mgBeam(TL,[px(0,y)-.3,y,bz-.24],[px(3,y)+.3,y,bz-.24],.12,.3,T2);const yn=li<LV.length-1?LV[li+1]:TOPY+.15;
+   for(let j=0;j<3;j++){const sd=(j+li)%2?1:-1;mgBeam(TL,[px(j,y),y,bz+sd*.36],[px(j+1,yn),yn,bz+sd*.36],.1,.26,T3);mgBeam(TL,[px(j+1,y),y,bz+sd*.48],[px(j,yn),yn,bz+sd*.48],.1,.26,T3)}});
+  if(bi<BZ.length-1){const bn=BZ[bi+1];for(const j of[0,3])for(const y of[-19.5,-8.5]){mgBeam(TL,[px(j,y),y,bz],[px(j,y),y,bn],.18,.28,T2)}for(const j of[0,3])mgBeam(TL,[px(j,-19.5),-19.5,bz],[px(j,-8.5),-8.5,bn],.12,.22,T3)}});
+ /* log cribs at both rims, running back into the rock */for(const[a,c]of[[z0-4.5,z0+.4],[z1-.4,z1+4.5]])for(let i=0;i<6;i++){const y=-1.3-i*.42;if(i%2==0)for(const sx of[-1,1])mgBeam(TL,[cx+sx*(HW-.2),y,a],[cx+sx*(HW-.2),y,c],.4,.4,T2);else for(const zz of[a+.3,c-.3])mgBeam(TL,[cx-HW,y,zz],[cx+HW,y,zz],.4,.4,T2)}
+ g.add(mgMerge(TL,b.WOOD));g.add(mgMerge(CL,b.CONC));
+ /* a small sign at the north end */{const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,Arial,sans-serif',tx=k.tex(512,160,(c,w,h)=>{c.fillStyle='#6a4a2c';c.fillRect(0,0,w,h);c.fillStyle='#f2e2c0';c.textAlign='center';c.font='700 60px '+F;c.fillText('COYOTE RD TRESTLE',w/2,70,w-30);c.font='600 40px '+F;c.fillText('1908 · 10 TONNE LIMIT · ONE AT A TIME',w/2,130,w-30)});
+  const s=new THREE.Mesh(new THREE.BoxGeometry(2.0,.62,.06),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,k.M(0xffffff,{map:tx,roughness:.8}),o.TIMBER]);s.position.set(cx+W/2+1.6,1.5,Zb+1.0);g.add(s);for(const px of[-.8,.8]){const p=new THREE.Mesh(new THREE.BoxGeometry(.1,1.8,.1),o.TIMBER);p.position.set(cx+W/2+1.6+px,.9,Zb+.96);g.add(p)}obs.push({x0:cx+W/2+.5,x1:cx+W/2+2.7,z0:Zb+.85,z1:Zb+1.1})}
+ return{obs,deepB}}
+
+function mgBridgeArch(g,cx,W){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),{z0,z1}=MGG,Za=z0-2,Zb=z1+2,L=Zb-Za,mz=(z0+z1)/2,obs=[],deepB=[],CL=[],HW=W/2+.7;
+ const P=[-1733.5,-1710.5],SPR=-7,SOF=-1.3,FY=-30.5;
+ /* the side profile (world z, y), then extruded across the road: deck, spandrels, three arches, two piers */
+ const pts=[];const arch=(za,zb)=>{const c=(za+zb)/2,a=(zb-za)/2,bb=SOF-SPR;for(let i=0;i<=16;i++){const t=Math.PI*(1-i/16);pts.push([c+a*Math.cos(t),SPR+bb*Math.sin(t)])}};
+ pts.push([Za,-.02],[Zb,-.02],[Zb,-.9],[z1+4,-.9],[z1+4,-8],[z1,-8]);/* north abutment, into the rock */
+ /* going south along the underside: side arch, pier 2, centre arch, pier 1, side arch */
+ const tw=1.0,bw=1.6;{const c=[];/* each arch from its north end to its south end */}
+ const archR=(zn,zs)=>{const c=(zn+zs)/2,a=(zn-zs)/2,bb=SOF-SPR;for(let i=0;i<=16;i++){const t=Math.PI*i/16;pts.push([c+a*Math.cos(t),SPR+bb*Math.sin(t)])}};
+ pts.push([z1,SPR]);archR(z1,P[1]+tw);pts.push([P[1]+tw,SPR],[P[1]+bw,FY],[P[1]-bw,FY],[P[1]-tw,SPR]);archR(P[1]-tw,P[0]+tw);pts.push([P[0]+tw,SPR],[P[0]+bw,FY],[P[0]-bw,FY],[P[0]-tw,SPR]);archR(P[0]-tw,z0);
+ pts.push([z0,SPR],[z0,-8],[z0-4,-8],[z0-4,-.9],[Za,-.9]);
+ const sh=new THREE.Shape();const clean=pts.filter((p,i)=>i==0||Math.hypot(p[0]-pts[i-1][0],p[1]-pts[i-1][1])>.01);sh.moveTo(-clean[0][0],clean[0][1]);for(let i=1;i<clean.length;i++)sh.lineTo(-clean[i][0],clean[i][1]);
+ const D=2*HW,ge=new THREE.ExtrudeGeometry(sh,{depth:D,bevelEnabled:false,curveSegments:1});ge.rotateY(Math.PI/2);ge.translate(cx-D/2,0,0);
+ {const P2=ge.attributes.position,n=P2.count,c=new Float32Array(n*3);for(let i=0;i<n;i++){const y=P2.getY(i),v=.84+.04*Math.sin(P2.getZ(i)*.7)+(y<-26?-.08:0);c[i*3]=v*.98;c[i*3+1]=v*.94;c[i*3+2]=v*.86}ge.setAttribute('color',new THREE.BufferAttribute(c,3));
+  const uvA=ge.attributes.uv;for(let i=0;i<uvA.count;i++)uvA.setXY(i,uvA.getX(i)/4,uvA.getY(i)/4)}
+ const body=new THREE.Mesh(ge,b.CONC);body.userData.noSeam=true;g.add(body);
+ /* the road surface on top (concrete with wear), a cornice either side, the arch rings standing proud, pier caps and footings */
+ {const dm=k.M(0xffffff,{roughness:.9,map:mgDeckTex(W,L,'conc'),polygonOffset:true,polygonOffsetUnits:-2}),p=new THREE.Mesh(new THREE.PlaneGeometry(W+.8,L),dm);p.rotation.x=-Math.PI/2;p.position.set(cx,-.015,mz);g.add(p)}
+ for(const sx of[-1,1]){const x=cx+sx*(D/2+.08);mgBeam(CL,[x,-.45,Za],[x,-.45,Zb],.2,.5,[.86,.82,.74]);
+  /* arch rings: thin extruded bands following each arch */const ring=(zn,zs)=>{const c=(zn+zs)/2,a=(zn-zs)/2,bb=SOF-SPR;for(let i=0;i<16;i++){const t1=Math.PI*i/16,t2=Math.PI*(i+1)/16;mgBeam(CL,[x,SPR+(bb+.25)*Math.sin(t1),c+(a+.25)*Math.cos(t1)],[x,SPR+(bb+.25)*Math.sin(t2),c+(a+.25)*Math.cos(t2)],.12,.55,[.8,.76,.68])}};
+  ring(z1,P[1]+tw);ring(P[1]-tw,P[0]+tw);ring(P[0]-tw,z0);
+  for(const pz of P){mgBeam(CL,[x-sx*.0,SPR-.25,pz-tw-.35],[x,SPR-.25,pz+tw+.35],.14,.5,[.8,.76,.68])}}
+ for(const pz of P){const f=new THREE.BoxGeometry(D+1.2,1.2,2*bw+1.0);f.translate(cx,FY+.9,pz);mgPut(CL,f,0,0,0,0,[.74,.7,.64]);deepB.push({x0:cx-D/2-.7,x1:cx+D/2+.7,z0:pz-bw-.6,z1:pz+bw+.6})}
+ /* parapets: solid, with a cap and drain slots at the foot */for(const sx of[-1,1]){const x=cx+sx*(W/2+.55);mgBeam(CL,[x,-.02+.55,Za],[x,-.02+.55,Zb],.3,1.1,[.86,.82,.74]);mgBeam(CL,[x,1.13,Za],[x,1.13,Zb],.42,.1,[.9,.86,.78]);obs.push({x0:cx+sx*(W/2+.4)-(sx<0?.3:0),x1:cx+sx*(W/2+.4)+(sx>0?.3:0),z0:Za,z1:Zb})}
+ g.add(mgMerge(CL,b.CONC));
+ {const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,Arial,sans-serif',tx=k.tex(512,128,(c,w,h)=>{c.fillStyle='#8a6a3a';c.fillRect(0,0,w,h);c.fillStyle='#e8d8a8';c.fillRect(6,6,w-12,h-12);c.fillStyle='#4a3418';c.textAlign='center';c.font='700 50px '+F;c.fillText('DUNE RD VIADUCT · 1956',w/2,80,w-40)});for(const[z,ry,dx]of[[Zb-1,0,1],[Za+1,Math.PI,-1]]){const m=new THREE.Mesh(new THREE.PlaneGeometry(1.4,.35),k.M(0xffffff,{map:tx,roughness:.5,metalness:.4}));m.position.set(cx+dx*(W/2+.39),.7,z);m.rotation.y=dx>0?-Math.PI/2:Math.PI/2;g.add(m)}}
+ return{obs,deepB}}

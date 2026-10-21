@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batches 1 and 2 approved, batch 3 for review
+Status: plan approved 2026-10-20 · batches 1 to 3 approved, batch 4 for review
 
 # Lookout Mesa and Devil's Gorge
 
@@ -139,7 +139,7 @@ fire sprite and its light; move them as below.
   (`spots.fire`); the old obstacle stays.
 - Returns `{obs, plates, spots, parts:{flag, win}, tick, lights}`.
 
-### Batch 3: the gorge walls, rim and riverbed, for review · `mgGorgeWalls(g)`, `mgGorgeBed(g)`, `mgGorgeRim(g)`, `mgVultures(g)`
+### Batch 3: the gorge walls, rim and riverbed, approved 2026-10-21 · `mgGorgeWalls(g)`, `mgGorgeBed(g)`, `mgGorgeRim(g)`, `mgVultures(g)`
 Constants: `MGG` (the band, the ledge, the cave mouth, the bridges, the jump, the zipline; `MGG.zc(x)` and `MGG.zw(x)` are
 the river's centre line and half width). `mgBedH(x, z)` is the visual floor height (you still walk at -30).
 - **What goes:** in `xpGorge` the floor slab, the blue river strip, the long wall boxes (north, the two south pieces and
@@ -175,4 +175,26 @@ the river's centre line and half width). `mgBedH(x, z)` is the visual floor heig
 - **`mgVultures(g)`**: two vultures circling 34 to 39 m up over the Route 13 bridge, gliding with a flap now and then.
   Returns `{tick(t)}`: call it every frame (cheap: two small groups).
 - Size: about 230,000 triangles in all (most in the two long walls and the floor), in about 15 draw calls.
+
+### Batch 4: the three bridges, for review · `mgBridgeSteel(g, cx, W)`, `mgBridgeTrestle(g, cx, W)`, `mgBridgeArch(g, cx, W)`
+Call them with each bridge's centre and width from `GORGE.bridges` (Route 13: 0, 9.2; Coyote Rd: -440, 9.2; Dune Rd
+South: 560, 9.2). They replace everything in `xpGorge`'s bridge loop (deck, rails, rail posts, the three girders, the
+two piers); the rail `ob()` calls can stay or be replaced by the returned `obs` (the same boxes). Each keeps the deck
+(W + 1.4 m wide, top at y -0.02, z -1746 to -1698), so driving and `gorgeAt` are unchanged.
+- **Route 13: steel through-truss.** Two riveted Pratt trusses (12 panels of 4 m, 5.8 m high) standing on the rail
+  lines, inclined end posts, gusset plates, overhead struts and X bracing, portals with knee braces and a **DEVIL'S
+  GORGE BRIDGE · ROUTE 13 · BUILT 1931 · 30 m DROP** nameplate on both ends. **Clearance under the portals is 5.1 m.**
+  Asphalt deck with a double yellow centre line and white edge lines, a W-beam guard rail inside each truss, floor beams
+  and stringers underneath, concrete abutments at both rims, and in the middle a four-legged braced steel tower on
+  concrete footings (open below 4.5 m, so you can walk under it).
+- **Coyote Rd: timber trestle.** Ten bents (four posts each, the outer ones battered out), girts and X bracing from 5 m
+  above the floor up, struts between the bents, concrete pads, stringers and a plank deck, timber guard rails (posts
+  every 2 m, two rails), log cribs at both rims, and a sign at the north end: COYOTE RD TRESTLE · 1908 · 10 TONNE LIMIT.
+- **Dune Rd South: concrete viaduct.** Two tall tapered piers (z -1733.5 and -1710.5) on footings, three arches (the
+  side ones spring from the gorge walls), arch rings standing proud, pier caps, a cornice, solid parapets with a cap on
+  the rail lines, a worn concrete road surface, and a DUNE RD VIADUCT · 1956 plaque at each end.
+- Each returns `{obs, deepB}`; `deepB` holds the piers, posts and footings on the gorge floor. **`deepOK` has its own
+  check for the old piers** (the per-bridge `for(const sd of[-1,1])` loop with `px=cx+sd*(W/2+.2)` at the band's middle):
+  remove it and use the returned `deepB` instead, or there are invisible posts under the new bridges.
+- Draw calls: about 3 to 6 per bridge (steel, concrete and timber are merged per bridge).
 
