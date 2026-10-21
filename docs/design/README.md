@@ -1,6 +1,6 @@
 # Design specs
 
-## Ready to build (approved by the user, not in the game yet) · updated 2026-10-19
+## Ready to build (approved by the user, not in the game yet) · updated 2026-10-21
 Claude Code: these are waiting. Each spec's own status line and wiring notes say what's in it.
 | Spec | What it is | Models |
 |---|---|---|
@@ -8,10 +8,11 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
 | `desert-map.md` | the desert map and minimap redo: areas, auto-drawn buildings, label classes, minimap banner, smooth zoom | `models/desert-map.js` (tables + reference renderer) |
 | `quarry-underground.md` | the mine under the Old Quarry: three levels built from pieces (tunnels, caves, The Deep), every room's versions, the shift (dynamite, rockfall, gas, pickups, map board, minimap, cage panel, Shaft sinking) | `models/quarry-under.js`, `-kit.js`, `-l1.js`, `-l2.js`, `-l2r.js`, `-l3.js`, `-shift.js` (load in that order) |
+| `route-13.md` | Old Town round the bus stop: main street, bus stop shelter, El Goblino Gas with a car wash, Motel 13 turned to face the town (office, car park, neon, pool), the drive-in, the Desert Bus depot with Depot Rd, the water tower | `models/route13.js` (needs `fort-kit.js`) |
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 
-In progress (design): Route 13 town, the small sights, Lookout Mesa and Devil's Gorge.
+In progress (design): the small sights, Lookout Mesa and Devil's Gorge.
 
 Still to design: the desert mines loop and remodel.
 

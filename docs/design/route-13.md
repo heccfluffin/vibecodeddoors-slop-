@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 (with a car wash added) · model batches next
+Status: ready to build (plan and all five model batches approved 2026-10-21)
 
 # Route 13: the old town round the bus stop
 
@@ -249,7 +249,7 @@ lens (the beam stays), and the snack bar's and booth's old obstacles (same footp
   (PROJECTION · KEEP OUT, where the switch prop is), a roof vent, and a film reel badge on the east wall.
 - Checked: z-fight checker clean except the speaker cables' tight bends against themselves; nothing floating.
 
-### Batch 5: the Desert Bus depot and the water tower, for review · `rtDepot(g)` → `{obs, lights, plates, spots, mapR}`, `rtWaterTower(g)` → `{obs, parts}`
+### Batch 5: the Desert Bus depot and the water tower, approved 2026-10-21 · `rtDepot(g)` → `{obs, lights, plates, spots, mapR}`, `rtWaterTower(g)` → `{obs, parts}`
 **Depot.** Replace the base depot block (`/* ---- the Desert Bus depot: a shelter, a timetable, and the arch ...`):
 **remove** the shelter (roof, four posts, bench, its obstacle `ob(x+3,x+7,z+1,z+3)`), the timetable and its board,
 the two orange arch posts and their obstacles, the beam and its two TO LAS VEGAS labels. **Keep** the portal plane,
