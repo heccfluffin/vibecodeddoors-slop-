@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batches 1 to 3 approved, batch 4 for review
+Status: plan approved 2026-10-20 · batches 1 to 4 approved, batch 5 for review
 
 # Lookout Mesa and Devil's Gorge
 
@@ -176,7 +176,7 @@ the river's centre line and half width). `mgBedH(x, z)` is the visual floor heig
   Returns `{tick(t)}`: call it every frame (cheap: two small groups).
 - Size: about 230,000 triangles in all (most in the two long walls and the floor), in about 15 draw calls.
 
-### Batch 4: the three bridges, for review · `mgBridgeSteel(g, cx, W)`, `mgBridgeTrestle(g, cx, W)`, `mgBridgeArch(g, cx, W)`
+### Batch 4: the three bridges, approved 2026-10-21 (the Route 13 tower's cap now meets the deck) · `mgBridgeSteel(g, cx, W)`, `mgBridgeTrestle(g, cx, W)`, `mgBridgeArch(g, cx, W)`
 Call them with each bridge's centre and width from `GORGE.bridges` (Route 13: 0, 9.2; Coyote Rd: -440, 9.2; Dune Rd
 South: 560, 9.2). They replace everything in `xpGorge`'s bridge loop (deck, rails, rail posts, the three girders, the
 two piers); the rail `ob()` calls can stay or be replaced by the returned `obs` (the same boxes). Each keeps the deck
@@ -197,4 +197,25 @@ two piers); the rail `ob()` calls can stay or be replaced by the returned `obs` 
   check for the old piers** (the per-bridge `for(const sd of[-1,1])` loop with `px=cx+sd*(W/2+.2)` at the band's middle):
   remove it and use the returned `deepB` instead, or there are invisible posts under the new bridges.
 - Draw calls: about 3 to 6 per bridge (steel, concrete and timber are merged per bridge).
+
+### Batch 5: the gorge jump and the zipline towers, for review · `mgGorgeJump(g)`, `mgZipline(g)`, `mgPadTex()`
+- **`mgGorgeJump(g)`** replaces the jump ramp's plank slab and its six posts, the `sign('STUNT JUMP…')` and nothing else
+  (its `q.ramps` entry, map rect and loc stay). Same footprint and slope (x 296 to 304, 0 m at z -1688 up to 3.2 m at
+  z -1697): a diamond-plate steel deck 3 cm above the ramp height, a steel lip with a yellow-black stripe across the
+  last metre, a timber frame underneath (posts every 1.5 m, cross beams, bracing; the open front shows it), yellow and
+  black chevron boards on both sides pointing the way you go, and two flag poles at the lip with chequered flags
+  (`tick(t)` waves them). A STUNT JUMP · 31 m · FLOOR IT board at (309.5, -1684). On the ledge: a YOU MADE IT sign
+  at the side of the way out (287, -1740.5). Returns `{obs, tick}` (the flag poles, the two boards).
+- **The landing pad** is the ledge's top from batch 3, now textured with `mgPadTex()`: packed sand, tyre marks
+  coming in from the north edge, LAND HERE in big painted letters (readable as you fly in), and edge lines along the
+  three open sides. Nothing on the pad is solid.
+- **`mgZipline(g)`** replaces the two towers in `T('ziplines')` (the corner rods, rings, both decks, the rail ring, the
+  high and low posts) and the zipline `sign(…)`. **The two ride cables, the trolleys, the props and the ride code stay.**
+  Each tower: four battered timber posts on footings with girts and X bracing, except the gorge face, which is left
+  open where riders pass (girts at 6 and 9 m only); a low deck at 3.0 m (arrivals) and the top deck at 12 m; a railing
+  round the top, open on the gorge side and the back where the cable runs; a pyramid tin roof (eaves 14.6 m); a cable
+  gantry with the pulley exactly where each cable starts (x ±0.7, 13.1 m); the low-end post with a red buffer where each
+  cable ends (4.6 m); back-stay cables to concrete anchors behind (solid); and stairs up the side where you press E
+  (east on the north tower, west on the south one): eight flights with landings at the low deck and the top.
+  Returns `{obs}` (the towers, the stairs, the anchors, the sign). The towers' old obstacle boxes are the same.
 
