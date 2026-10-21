@@ -247,3 +247,85 @@ function ssRadioMast(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube,slab}=k.H(g),M
  /* generator and fuel drum, north of the hut, a cable up into the wall */{const gx=rx+4.2,gz=z1+1.0;B(1.0,.12,.6,gx,.06,gz,STD);B(.8,.55,.5,gx,.395,gz,M(0xc8a020,{roughness:.5}));C(.06,.06,.4,gx+.2,.85,gz,STD,null,null,8);B(.3,.2,.02,gx-.2,.45,gz+.26,M(0x202020));obs.push({x0:gx-.55,x1:gx+.55,z0:gz-.35,z1:gz+.35});
   C(.29,.29,.88,gx+1.3,.44,gz,M(0x2a6a3a,{metalness:.4,roughness:.5}),null,null,14);obs.push({x0:gx+1,x1:gx+1.6,z0:gz-.3,z1:gz+.3});tube([[gx,.4,gz-.26],[gx,.2,gz-.6],[gx,.3,z1+T/2+.02],[gx,1.6,z1+T/2+.02]],.015,M(0x202020),null,10)}
  return{obs,lights,parts:{beacon,mid},spots:{climb:[rx+fx*1.7,rz+fz*1.7+.9],perch:[rx,PY+.1,rz-.9],map:[rx+3.7,1.5,z1-T/2-.01]},mapR:[[rx,rz,1.6,'#8a4a3a']]}}
+
+/* ---- batch 3a: SKULL ROCK (76, -960), facing north. One sculpted sandstone skull: a weathered dome with wind-worn
+   bands, a heavy brow, deep eye sockets, a nose hole, cheekbones, upper teeth with the middle two long gone, the two
+   halves of the lower jaw half sunk in the sand either side, a sand drift over the chin. The mouth is a real hollow
+   2.5-3 m deep you can walk into through the gap in the teeth. Rock steps on the west side climb to a ledge under the
+   right eye socket (as you face it), so reaching in looks possible.
+   Returns {obs, plates (the steps and ledge), spots:{shout, eye, bats}} ---- */
+const SSK={x:76,z:-960,c:[0,5.2,-.6],r:[6.2,5.6,6.4]};
+function ssSkullRock(g){const k=rtKit(),o=ssKit(),{B,C,rod,L}=k.H(g),M=k.M,r=o.r,obs=[],plates=[];const{x:sx,z:sz}=SSK,[cx0,cy0,cz0]=SSK.c,[ra,rb,rc]=SSK.r;
+ const sm=(a,b,v)=>{const t=Math.min(1,Math.max(0,(v-a)/(b-a)));return t*t*(3-2*t)};
+ const ge=new THREE.SphereGeometry(1,170,120),P=ge.attributes.position,N=P.count,col=new Float32Array(N*3);
+ for(let i=0;i<N;i++){const dx=P.getX(i),dy=P.getY(i),dz=P.getZ(i);let x=cx0+ra*dx,y=cy0+rb*dy,z=cz0+rc*dz;let nx=dx/ra,ny=dy/rb,nz=dz/rc;const nl=Math.hypot(nx,ny,nz);nx/=nl;ny/=nl;nz/=nl;
+  /* the skull's shape: a flatter face, the lower face and jaw line narrower than the dome, dents at the temples */
+  const FZ=4.9+.5*Math.exp(-Math.pow((y-7.4)/.9,2));if(z>FZ)z=FZ+(z-FZ)*.22;
+  const fr=sm(-.15,.45,dz);x*=1-.33*sm(4.8,.6,y)*fr;
+  for(const e of[-1,1]){const q=Math.hypot(x-e*5.4,y-6.6,(z-1.8)*.8);if(q<2.4){const h=.55*(1-q/2.4);x-=e*h}}
+  const front=sm(.25,.6,dz);let d=0,deep=0;
+  /* light weathering and wind-worn bands (not lumpy) */d+=.04*Math.sin(1.7*x+2.3*y)+.035*Math.sin(2.9*z-1.1*x)+.045*Math.sin(y*5.2+Math.sin(x*.7))+.02*Math.sin(9.1*x+7.7*y);
+  /* brow ridge and cheekbones */d+=.42*Math.exp(-Math.pow((y-7.45)/.55,2))*front*(1-sm(3.8,4.8,Math.abs(x)));for(const e of[-1,1])d+=.5*Math.exp(-(Math.pow((x-e*3.3)/1.0,2)+Math.pow((y-4.0)/.8,2)))*front;
+  /* eye sockets: big, deep, sharp-rimmed */for(const e of[-1,1]){const q=Math.hypot((x-e*2.25)*.95,(y-5.95)*.85)/1.7;if(q<1){const h=2.1*Math.pow(1-q*q,.55)*front;d-=h;deep=Math.max(deep,h)}}
+  /* the nose hole */{const t=(y-2.95)/1.85;if(t>0&&t<1){const w=.85*Math.sin(Math.PI*Math.min(1,t*1.2))*(.7+.3*t);const q=Math.abs(x)/Math.max(.01,w);if(q<1){const h=1.4*Math.pow(1-q*q,.6)*Math.sin(Math.PI*t)*front;d-=h;deep=Math.max(deep,h)}}}
+  /* the mouth: a hollow at ground level, 3.4 m wide, arched to 2.4 m, pushed 3 m in */{const mw=1.7,mh=2.4-.35*Math.pow(x/mw,2),mx=1-sm(mw-.3,mw+.05,Math.abs(x)),my=1-sm(mh-.3,mh+.1,y),mf=sm(.3,.55,dz);const h=3.0*mx*my*mf;d-=h;deep=Math.max(deep,h)}
+  x+=nx*d;y+=ny*d;z+=nz*d;P.setXYZ(i,x,y,z);
+  /* colour: bone-pale sandstone with faint bands, near black deep in the hollows, paler sand drifted at the foot */let c=[.88,.79,.64];const band=1+.05*Math.sin(y*3.1)+.03*Math.sin(y*7.3+x*.3);c=c.map(v=>v*band);
+  const dk=1-.85*Math.min(1,deep/1.6);c=c.map(v=>v*dk);if(y<.8&&deep<.4){const t=1-y/.8;c=[c[0]+(.9-c[0])*t*.6,c[1]+(.8-c[1])*t*.6,c[2]+(.62-c[2])*t*.6]}
+  const ck=Math.abs(Math.sin(x*1.9+Math.sin(y*1.3)*2)*Math.sin(z*.8+y*.4));if(ck<.03)c=c.map(v=>v*.75);col[i*3]=c[0];col[i*3+1]=c[1];col[i*3+2]=c[2]}
+ ge.setAttribute('color',new THREE.BufferAttribute(col,3));ge.computeVertexNormals();const SK=M(0xffffff,{vertexColors:true,roughness:.95,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#e8e0d0';c.fillRect(0,0,w,h);for(let i=0;i<2400;i++){c.fillStyle=r()<.5?'rgba(120,96,70,.18)':'rgba(255,250,240,.2)';c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}})});SK.map.repeat.set(10,8);
+ const skull=new THREE.Mesh(ge,SK);skull.position.set(sx,0,sz);skull.userData.noSeam=true;g.add(skull);
+ /* the upper teeth: worn, rounded blocks hanging over the mouth; the middle two are gone (the way in) */
+ const TH=M(0xe8dcc0,{roughness:.8});for(const tx of[-1.35,-.82,.82,1.35]){const t=new THREE.Mesh(new THREE.CylinderGeometry(.2,.26,1.25,6),TH);t.scale.set(1,1,.75);t.position.set(sx+tx,2.0-Math.abs(tx)*.06,sz+4.92);t.rotation.y=r()*.3;g.add(t)}
+ /* the lower jaw: its two halves half sunk either side of the mouth, worn teeth along the top; a sand drift over the chin */
+ const JW=M(0xd8c4a0,{roughness:.95});for(const s of[-1,1]){const j=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),JW);j.scale.set(.5,.6,2.0);j.position.set(sx+s*2.45,-.05,sz+5.0);j.rotation.y=-s*.18;g.add(j);
+  for(let i=0;i<3;i++){const t=new THREE.Mesh(new THREE.CylinderGeometry(.14,.18,.45,6),TH);t.position.set(sx+s*(2.25-i*.04),.6,sz+4.2+i*.6);g.add(t)}obs.push({x0:sx+s*2.45-.55,x1:sx+s*2.45+.55,z0:sz+3.4,z1:sz+7.0})}
+ {const dr=new THREE.Mesh(new THREE.SphereGeometry(1,24,10,0,Math.PI*2,0,Math.PI/2),M(0xd8b88a,{roughness:1}));dr.scale.set(1.9,.18,1.2);dr.position.set(sx,-.01,sz+6.4);g.add(dr)}
+ /* a few small bones on the mouth floor, and the bats' roost (spots.bats) */{const BN=M(0xe8dcc8,{roughness:.8});for(const[x,z,a]of[[-.6,3.0,.4],[.5,2.6,-.9],[.1,3.6,1.6]]){const b=C(.04,.04,.6,sx+x,.05,sz+z,BN,'x',null,6);b.rotation.y=a}}
+ /* rock steps up the west side to a ledge under the right eye; plates so you walk up them; rails of rock stop you
+    stepping off the high end */
+ const RK=M(0xb89c78,{roughness:1,flatShading:true});const step=(x0,x1,z0,z1,y,seed)=>{/* a boulder: a lumpy rock, its top flattened at the step height, its foot in the sand */const ge2=new THREE.IcosahedronGeometry(1,2),Q=ge2.attributes.position;const hx=(x1-x0)/2+.12,hz=(z1-z0)/2+.1;
+   for(let n=0;n<Q.count;n++){let px=Q.getX(n),py=Q.getY(n),pz=Q.getZ(n);const j2=1+.12*Math.sin(px*5+py*4+seed)+.08*Math.sin(pz*7-py*3+seed*2);px*=hx*j2;pz*=hz*j2;py=(py*.5+.5)*(y+.25)*1.6-.25;if(py>y)py=y;Q.setXYZ(n,px,py,pz)}ge2.computeVertexNormals();
+   const m=new THREE.Mesh(ge2,RK);m.position.set(sx+(x0+x1)/2,0,sz+(z0+z1)/2);g.add(m);plates.push({x0:sx+x0,x1:sx+x1,z0:sz+z0,z1:sz+z1,y})};
+ for(let i=0;i<6;i++)step(-7.4+i*.75,-6.65+i*.75,5.6,6.7,.5+i*.5,i*1.7);step(-2.9,-1.55,5.4,6.7,3.4,9);step(-2.9-.75*1,-2.9,5.6,6.7,3.1,11);
+ obs.push({x0:sx-7.0,x1:sx-1.5,z0:sz+6.7,z1:sz+6.9},{x0:sx-1.55,x1:sx-1.35,z0:sz+5.4,z1:sz+6.9});
+ /* the skull's own obstacles: everything but the mouth (x ±1.6, the front 3 m) */
+ obs.push({x0:sx-6.2,x1:sx-1.65,z0:sz-7,z1:sz+5.3},{x0:sx+1.65,x1:sx+6.2,z0:sz-7,z1:sz+5.3},{x0:sx-1.65,x1:sx+1.65,z0:sz-7,z1:sz+1.6});
+ return{obs,plates,spots:{shout:[sx,sz+3.6],eye:[sx-2.3,sz+6.2],bats:[sx,1.6,sz+3.0]},mapR:[[sx,sz,6.2,'#b8a080']]}}
+
+/* ---- batch 3b: the METEOR CRATER (140, -970). A real crater: the floor gets a square hole (SSM.cut, like the oasis),
+   and this patch fills it: a broken raised rim, a bowl down 1.5 m with a scorched glassy floor, ejecta rocks thrown
+   out round it, the meteorite half buried in the middle, cracked, with green crystal glowing out of the cracks.
+   ssCraterH(x, lz) is the ground height (0 outside): add it to vehGround so players and cars go down into the bowl.
+   ssFragment(g, x, y, z) is one of the five fragments: a small burnt stone with a glowing green shard. ---- */
+const SSM={x:140,z:-970,cut:10.5};
+function ssCraterH(x,lz){const dx=x-SSM.x,dz=lz-SSM.z,d=Math.hypot(dx,dz);if(d>=10)return 0;const a=Math.atan2(dz,dx);
+ const crest=.75+.32*Math.sin(3*a+1)+.18*Math.sin(7*a+.4)-.45*((t=>t*t*(3-2*t))(Math.min(1,Math.max(0,(Math.cos(a-2.2)-.85)/.12)))),R0=6.6+.4*Math.sin(2*a+.5);
+ const sm=(e0,e1,v)=>{const t=Math.min(1,Math.max(0,(v-e0)/(e1-e0)));return t*t*(3-2*t)};
+ if(d<R0){const floor=-1.5+.25*sm(0,4.2,d);return floor+(crest-floor+.0)*sm(3.6,R0,d)*sm(3.6,R0,d)}return crest*(1-sm(R0,10,d))}
+function ssFragment(g,x,y,z){const k=rtKit(),M=k.M,f=new THREE.Group();f.position.set(x,y,z);g.add(f);const st=new THREE.Mesh(new THREE.DodecahedronGeometry(.22,0),M(0x2a2420,{roughness:.9}));st.scale.set(1,.7,.9);st.position.y=.12;f.add(st);
+ const cr=M(0x1a5a2a,{emissive:0x30ff60,emissiveIntensity:.9,roughness:.2,metalness:.1});for(const[a,t,h]of[[.3,.5,.34],[2.4,.3,.24],[4.2,.65,.2]]){const s=new THREE.Mesh(new THREE.OctahedronGeometry(.06,0),cr);s.scale.set(1,h/.06/1.4,1);s.position.set(Math.cos(a)*.08,.2,Math.sin(a)*.08);s.rotation.set(Math.sin(a)*t,0,Math.cos(a)*t);f.add(s)}return f}
+function ssCrater(g){const k=rtKit(),o=ssKit(),{B,C,rod,L}=k.H(g),M=k.M,r=o.r,obs=[];const{x:kx,z:kz,cut}=SSM;
+ /* the patch: heights from ssCraterH, sand outside, darker scorched rock inside, glassy black-green floor */
+ {const N=110,ge=new THREE.PlaneGeometry(cut*2,cut*2,N,N),P2=ge.attributes.position,col=new Float32Array(P2.count*3);
+  for(let i=0;i<P2.count;i++){const x=P2.getX(i),z=-P2.getY(i),y=ssCraterH(kx+x,kz+z),d=Math.hypot(x,z);P2.setZ(i,y);
+   const sc=1-Math.min(1,Math.max(0,(8-d)/5));let c=[1-.55*(1-sc),1-.6*(1-sc),1-.62*(1-sc)];if(y>.45)c=c.map(v=>v*.95);col[i*3]=c[0];col[i*3+1]=c[1];col[i*3+2]=c[2]}
+  ge.setAttribute('color',new THREE.BufferAttribute(col,3));ge.computeVertexNormals();const sm=SSO.sand?SSO.sand():M(0xc4a878,{roughness:1});sm.vertexColors=true;if(sm.map){sm.map=sm.map.clone();sm.map.needsUpdate=true;sm.map.wrapS=sm.map.wrapT=THREE.RepeatWrapping;sm.map.repeat.set(cut*2/10,cut*2/10)}
+  const pm=new THREE.Mesh(ge,sm);pm.rotation.x=-Math.PI/2;pm.position.set(kx,0,kz);pm.userData.noSeam=true;g.add(pm)}
+ /* the glassy floor: a disc that follows the bowl, dark and shiny, with burnt streaks */
+ {const segR=14,segA=40,pos=[],idx=[],uv=[];for(let i=0;i<=segR;i++){const rr=3.6*i/segR;for(let j=0;j<=segA;j++){const a=j/segA*Math.PI*2,x=Math.cos(a)*rr,z=Math.sin(a)*rr;pos.push(x,ssCraterH(kx+x,kz+z)+.035,z);uv.push(.5+x/7.2,.5+z/7.2)}}
+  for(let i=0;i<segR;i++)for(let j=0;j<segA;j++){const a=i*(segA+1)+j,b=a+segA+1;idx.push(a,a+1,b,a+1,b+1,b)}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
+  const gt=k.tex(256,256,(c,w,h)=>{const gr=c.createRadialGradient(w/2,h/2,10,w/2,h/2,w/2);gr.addColorStop(0,'rgba(30,48,34,1)');gr.addColorStop(.7,'rgba(36,32,28,.95)');gr.addColorStop(1,'rgba(60,48,36,0)');c.fillStyle=gr;c.fillRect(0,0,w,h);c.strokeStyle='rgba(90,255,120,.12)';c.lineWidth=2;for(let i=0;i<26;i++){const a=r()*7;c.beginPath();c.moveTo(w/2+Math.cos(a)*20,h/2+Math.sin(a)*20);c.lineTo(w/2+Math.cos(a+r()*.3)*(60+r()*60),h/2+Math.sin(a+r()*.3)*(60+r()*60));c.stroke()}});
+  const gm=new THREE.Mesh(geo,M(0xffffff,{map:gt,transparent:true,roughness:.15,metalness:.35,polygonOffset:true,polygonOffsetUnits:-3}));gm.position.set(kx,0,kz);gm.userData.noSeam=true;g.add(gm)}
+ /* the meteorite: a lumpy charred boulder half sunk in the floor, cracked, green crystal in the cracks */
+ const crystals=[];{const ge=new THREE.IcosahedronGeometry(1,2),P2=ge.attributes.position;for(let i=0;i<P2.count;i++){const x=P2.getX(i),y=P2.getY(i),z=P2.getZ(i),s=1+.18*Math.sin(3.1*x+1.7*y)+.12*Math.sin(4.3*z-2.1*x)+.08*Math.sin(7*y+5*z);P2.setXYZ(i,x*s,y*s*.8,z*s)}ge.computeVertexNormals();
+  const my=ssCraterH(kx,kz),m=new THREE.Mesh(ge,M(0x2a2622,{roughness:.85,metalness:.15}));m.scale.setScalar(1.05);m.position.set(kx,my+.25,kz);m.rotation.set(.3,.8,.15);g.add(m);
+  const CR=M(0x1a6a2a,{emissive:0x30ff60,emissiveIntensity:.9,roughness:.15,metalness:.1});for(let i=0;i<9;i++){const a=i/9*Math.PI*2+r()*.4,el=.25+r()*.7,h=.35+r()*.45;const s=new THREE.Mesh(new THREE.OctahedronGeometry(.11,0),CR);s.scale.set(1,h/.11/1.4,1);
+   s.position.set(kx+Math.cos(a)*.85*Math.cos(el),my+.25+Math.sin(el)*.75,kz+Math.sin(a)*.85*Math.cos(el));s.lookAt(kx+Math.cos(a)*3,my+.25+Math.sin(el)*2.6,kz+Math.sin(a)*3);s.rotateX(Math.PI/2);g.add(s);crystals.push(s)}
+  for(let i=0;i<5;i++){const a=r()*7;const cl=new THREE.Mesh(new THREE.BoxGeometry(.04,.02,.5+r()*.4),M(0x30ff60,{emissive:0x30ff60,emissiveIntensity:1}));cl.position.set(kx+Math.cos(a)*.6,my+.6+r()*.3,kz+Math.sin(a)*.6);cl.rotation.set(r(),a,r());g.add(cl)}
+  obs.push({x0:kx-1.1,x1:kx+1.1,z0:kz-1.1,z1:kz+1.1})}
+ /* ejecta: rocks thrown out over the rim and onto the sand round it, sitting on the ground (none on the fragment spots) */
+ {const RK=M(0x8a7458,{roughness:1}),RK2=M(0x5a4a3a,{roughness:1});const frag=[[9,4],[-11,-6],[14,-12],[-6,13],[22,9]];for(let i=0;i<34;i++){const a=r()*Math.PI*2,d=6.5+r()*7.5,x=kx+Math.cos(a)*d,z=kz+Math.sin(a)*d;if(frag.some(([fx,fz])=>Math.hypot(x-kx-fx,z-kz-fz)<1.8))continue;
+  const s=.18+r()*.45*(1-(d-6.5)/9),rk=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),i%3?RK:RK2);rk.scale.set(1,.6+r()*.3,.8+r()*.4);rk.position.set(x,ssCraterH(x,z)+s*.25,z);rk.rotation.set(r()*3,r()*3,r()*3);g.add(rk)}}
+ return{obs,parts:{crystals},spots:{touch:[kx+1.6,kz]},mapR:[[kx,kz,7,'#7a6048']]}}

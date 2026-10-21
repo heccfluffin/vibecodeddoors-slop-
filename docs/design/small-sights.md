@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batch 1 approved, batch 2 for review
+Status: plan approved 2026-10-20 · batches 1 and 2 approved, batch 3 for review
 
 # The small sights
 
@@ -101,7 +101,7 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   light). Obstacles in `obs`.
 - Checked: z-fight checker clean on all three (the only hits are palm fronds touching themselves); nothing floating.
 
-### Batch 2: the wind pump and the radio mast, for review · `ssWindPump(g)`, `ssRadioMast(g)`
+### Batch 2: the wind pump and the radio mast, approved 2026-10-21 · `ssWindPump(g)`, `ssRadioMast(g)`
 - **Wind pump** (`ssWindPump`, (-55, -1000)): replace the base tower, girts, head box, wheel `rot`, ring, tail boom and
   vane, centre rod, trough and its water, and `T('wind pump')`'s gearbox, axle, crank and pipes (keep the stream
   sprite, the pumping timer and its hint and heal, `XM.net.pump`). The old square obstacle `ob(px-2.2,...)` goes:
@@ -127,3 +127,35 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   generator and a fuel drum on the north side with a cable into the wall. Hang the base's map on the north wall at
   `spots.map`. Obstacles in `obs` (walls with the door gap, generator, drum, mast, anchors).
 - Checked: z-fight checker clean (only the dish rim and the crank's spokes crossing inside its hub); nothing floating.
+
+### Batch 3: Skull Rock and the meteor crater, for review · `ssSkullRock(g)`, `ssCrater(g)`, `ssCraterH(x, lz)`, `ssFragment(g, x, y, z)`
+- **Skull Rock** (`ssSkullRock`, (76, -960), facing north): replace the base skull (cranium, brow, sockets, rims,
+  cheeks, temples, nose, maxilla, both rows of teeth, the dark mouth box, the jaw) and its obstacle
+  `ob(sx-6,sx+6,sz-7,sz+5.8)` and map rect. Keep the loc and all props.
+  One sculpted mesh: a pale sandstone skull with faint wind-worn bands and a few cracks, a heavy brow, big deep eye
+  sockets, a nose hole, cheekbones, a flatter face and a narrower jaw line, temple dents. **The mouth is a real
+  hollow** 3.4 m wide, 2.4 m high, about 3 m deep at ground level; four worn upper teeth hang over it and the
+  middle two are missing, which is the way in. The lower jaw's two halves lie half sunk in the sand either side, with
+  worn teeth, and a sand drift covers the chin. A few small bones on the mouth floor.
+  Move "Shout into the mouth" just inside (`spots.shout`), and let the bats come out of the mouth (`spots.bats`)
+  instead of the eye sockets. **Rock steps:** six flat-topped boulders on the west side step up 0.5 m at a time to a
+  ledge at 3.4 m under the right eye socket (as you face it); push `plates` so you walk up them; two thin
+  obstacles stop you stepping off the high end. "Reach into the eye socket" moves onto the ledge (`spots.eye`).
+  Obstacles in `obs`: the skull except the mouth, the jaw halves, the step rails.
+- **Meteor crater** (`ssCrater`, (140, -970)): like the oasis, the desert floor gets a square hole round it
+  (`[SSM.x-SSM.cut, SSM.x+SSM.cut, SSM.z-SSM.cut, SSM.z+SSM.cut]`, x 129.5…150.5, z -980.5…-959.5, in the same
+  `rectCuts` list), and `ssCrater` fills it with a sculpted patch (it uses `SSO.sand` for the floor's own sand
+  material). The shape is `ssCraterH(x, lz)`: a broken raised rim (0.3 to 1.1 m high, one low gap to the north-west),
+  a bowl down to 1.5 m, flat ground beyond 10 m. **Add it to `vehGround`** (`y=Math.min(y, ssCraterH(x,lz))` where
+  `ssCraterH` is not 0, and `Math.max` on the rim, i.e. use its value when inside 10 m) so players and cars go down
+  into the bowl and over the rim. Burnt dark rock inside the rim, a shiny glassy floor with green streaks, ejecta
+  rocks round the rim (none on the fragment spots). **The meteorite** half buried in the middle: a lumpy charred
+  boulder with green crystal shards growing out of its cracks and glowing lines in it (`parts.crystals`: pulse their
+  `emissiveIntensity`; **don't spin the rock** as the base did; keep the green glow sprite over it at the bowl's
+  height). Its obstacle is in `obs`; "Touch the glowing rock" goes at `spots.touch`, down in the bowl.
+  **The five fragments:** build each with `ssFragment(g, x, ssCraterH(x, z), z)` (a small burnt stone with glowing
+  green shards) instead of the base's dodecahedron; keep their glow sprites, props, `SV.met` bits and spots (the
+  first one sits on the outer slope of the rim, so use the height).
+  The observatory badge: collecting all five fragments gives `badge('stars')`, the observatory's badge. Give the
+  crater its own badge (for example `'meteor'`, "Star Collector") or none.
+- Checked: z-fight checker clean on both; nothing floating.
