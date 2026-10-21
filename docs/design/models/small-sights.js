@@ -179,7 +179,8 @@ function ssWindPump(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r
  B(.03,1.0,1.5,px,top+.45,pz+2.9,M(0xc8302a,{roughness:.6}));L('OLD TOWN',1.4,.5,null,'#f4ead2',90,px+.017,top+.45,pz+2.9,Math.PI/2);L('OLD TOWN',1.4,.5,null,'#f4ead2',90,px-.017,top+.45,pz+2.9,-Math.PI/2);
  /* pump rod down the middle, the pump head (standpipe) at the bottom, the pipe to the tank and its spout */
  C(.02,.02,top-1.2,px,(top+1.2)/2+.05,pz,ST,null,null,6);C(.09,.11,1.25,px,.625,pz,STD,null,null,12);C(.14,.14,.12,px,1.3,pz,STD,null,null,12);B(.3,.3,.3,px,.15,pz,o.STONE2);
- C(.045,.045,2.35,px+1.2,.9,pz+.5,GAL,'x',null,8);rod([px,.9,pz],[px,.9,pz+.5],.045,GAL,null,8);C(.06,.06,.1,px+2.38,.9,pz+.5,GAL,'x',null,8);rod([px+2.42,.9,pz+.5],[px+2.5,.68,pz+.5],.04,GAL,null,8);
+ /* the pipe runs out over the tank's rim and turns down: an elbow, a short spout with a flared mouth; a post holds it up outside the tank */C(.045,.045,2.9,px+1.45,.9,pz+.5,GAL,'x',null,8);rod([px,.9,pz],[px,.9,pz+.5],.045,GAL,null,8);const elb=new THREE.Mesh(new THREE.SphereGeometry(.055,10,8),GAL);elb.position.set(px+2.92,.9,pz+.5);g.add(elb);C(.045,.045,.2,px+2.92,.8,pz+.5,GAL,null,null,8);C(.065,.045,.07,px+2.92,.675,pz+.5,GAL,null,null,10,true);
+ C(.06,.06,.08,px+1.0,.9,pz+.5,GAL,'x',null,8);B(.08,.86,.08,px+2.25,.43,pz+.5,STD);B(.14,.04,.14,px+2.25,.02,pz+.5,STD);
  obs.push({x0:px-.25,x1:px+.25,z0:pz-.25,z1:pz+.25});
  /* the stock tank: a round corrugated steel ring, a rolled rim, the water inside */
  const tx=px+3.7,tz=pz+.5,TR=1.2;{const CR=M(0xffffff,{metalness:.55,roughness:.4,side:THREE.DoubleSide,map:k.tex(128,16,(c,w,h)=>{for(let x=0;x<w;x++){const v=180+Math.sin(x/w*Math.PI*16)*40|0;c.fillStyle='rgb('+v+','+(v+4)+','+(v+8)+')';c.fillRect(x,0,1,h)}})});CR.map.repeat.set(4,1);
@@ -191,7 +192,7 @@ function ssWindPump(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r
  const cx=px-2.7,cz=pz;B(.14,.75,.14,cx,.375,cz,STD);B(.42,.4,.36,cx,.9,cz,M(0x4a5054,{metalness:.5,roughness:.5}));rod([cx+.21,.9,cz],[px-.1,.9,cz],.025,ST,null,6);rod([px-.1,.9,cz],[px-.1,1.0,cz],.02,ST,null,4);
  const crank=new THREE.Group();crank.position.set(cx-.3,.9,cz);g.add(crank);{const h=k.H(crank);const wh=new THREE.Mesh(new THREE.TorusGeometry(.3,.025,6,20),M(0x8a2a20,{metalness:.4,roughness:.5}));wh.rotation.y=Math.PI/2;crank.add(wh);for(const a of[0,Math.PI/3,2*Math.PI/3])h.rod([0,Math.cos(a)*.29,Math.sin(a)*.29],[0,-Math.cos(a)*.29,-Math.sin(a)*.29],.012,M(0x8a2a20,{metalness:.4}),null,6);h.C(.05,.05,.12,.03,0,0,STD,'x',null,10);h.C(.025,.025,.16,-.08,.28,0,M(0x3a2a1a),'x',null,8)}
  rod([cx-.05,.9,cz],[cx-.24,.9,cz],.03,ST,null,6);obs.push({x0:cx-.3,x1:cx+.25,z0:cz-.25,z1:cz+.25});
- return{obs,parts:{wheel,crank,water},spots:{crank:[cx-.9,cz],spout:[px+2.5,.6,pz+.5],tank:[tx,tz]},mapR:[[px,pz,2.2,'#8a8a8a'],[tx,tz,TR,'#3a90b8']]}}
+ return{obs,parts:{wheel,crank,water},spots:{crank:[cx-.9,cz],spout:[px+2.92,.55,pz+.5],tank:[tx,tz]},mapR:[[px,pz,2.2,'#8a8a8a'],[tx,tz,TR,'#3a90b8']]}}
 
 /* ---- batch 2b: the RADIO MAST (-62, -905) and its hut. A 28 m triangular lattice mast (legs 1.4 m from the centre at
    the ground, 0.25 at the top, as before) with girts and zigzag braces, a caged ladder up the east face (towards the hut) to a

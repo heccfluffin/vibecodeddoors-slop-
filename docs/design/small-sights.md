@@ -109,7 +109,7 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   A four-leg steel tower (feet at the same spots) with girts and X braces, a ladder up the east face to a railed
   platform under the wheel, the gearbox on a turntable, an **18-blade wheel** facing south, out in front of the platform rail on a longer shaft (the user's note: the rail was in front of it) (`parts.wheel`: spin it
   about its z, as the base spins `rot`), a red tail vane with OLD TOWN on both sides, the pump rod down the middle
-  to the pump head, a pipe and spout to a **round galvanised stock tank** (`parts.water`: raise it a few cm while
+  to the pump head, a pipe out over the rim of a **round galvanised stock tank**, turning down through an elbow into a short spout over the water (on a post; the first version's tap stopped short of the tank, the user's note) (`parts.water`: raise it a few cm while
   pumping, as the base raises the trough; the stream sprite goes at `spots.spout`), and **the hand crank outside
   the tower** on a stand to the west (`parts.crank`: turn it about x while pumping; the prop moves to
   `spots.crank`, clear of everything). Play the creak only within about 40 m of the pump.
