@@ -132,16 +132,19 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
 - **Skull Rock** (`ssSkullRock`, (76, -960), facing north): replace the base skull (cranium, brow, sockets, rims,
   cheeks, temples, nose, maxilla, both rows of teeth, the dark mouth box, the jaw) and its obstacle
   `ob(sx-6,sx+6,sz-7,sz+5.8)` and map rect. Keep the loc and all props.
-  One sculpted mesh: a pale sandstone skull with faint wind-worn bands and a few cracks, a heavy brow, big deep eye
-  sockets, a nose hole, cheekbones, a flatter face and a narrower jaw line, temple dents. **The mouth is a real
-  hollow** 3.4 m wide, 2.4 m high, about 3 m deep at ground level; four worn upper teeth hang over it and the
-  middle two are missing, which is the way in. The lower jaw's two halves lie half sunk in the sand either side, with
-  worn teeth, and a sand drift covers the chin. A few small bones on the mouth floor.
+  One sculpted mesh, shaped to read as a skull from every side: a long cranium with its back sunk in the sand, an
+  upright forehead, a brow ridge, big deep eye sockets, a nose hole, cheekbones with the arches running back to the
+  ears, hollows at the temples and under the arches, and the jawbone (the upright part under the ear and the lower
+  edge running forward) all part of the same rock. Pale sandstone, smooth and weathered, a few cracks. **The mouth
+  is a real hollow** 3.4 m wide, 2.4 m high, about 3 m deep at ground level; four worn upper teeth hang over it and
+  the middle two are missing, which is the way in. A few worn lower teeth poke out of the sand either side, and a
+  sand drift lies in front of the chin. A few small bones on the mouth floor.
   Move "Shout into the mouth" just inside (`spots.shout`), and let the bats come out of the mouth (`spots.bats`)
-  instead of the eye sockets. **Rock steps:** six flat-topped boulders on the west side step up 0.5 m at a time to a
-  ledge at 3.4 m under the right eye socket (as you face it); push `plates` so you walk up them; two thin
-  obstacles stop you stepping off the high end. "Reach into the eye socket" moves onto the ledge (`spots.eye`).
-  Obstacles in `obs`: the skull except the mouth, the jaw halves, the step rails.
+  instead of the eye sockets. **Rock steps:** six layered, flat-topped rock blocks on the west side step up 0.5 m
+  at a time to a ledge at 3.4 m under the right eye socket (as you face it); push `plates` so you walk up them; two
+  thin obstacles stop you stepping off the front and the high end. "Reach into the eye socket" moves onto the ledge
+  (`spots.eye`). Obstacles in `obs`: the skull's foot in 1 m slices, except the mouth and the steps; the step rails.
+  Use the spots the function returns (they're worked out from the face, not fixed numbers).
 - **Meteor crater** (`ssCrater`, (140, -970)): like the oasis, the desert floor gets a square hole round it
   (`[SSM.x-SSM.cut, SSM.x+SSM.cut, SSM.z-SSM.cut, SSM.z+SSM.cut]`, x 129.5…150.5, z -980.5…-959.5, in the same
   `rectCuts` list), and `ssCrater` fills it with a sculpted patch (it uses `SSO.sand` for the floor's own sand
