@@ -597,3 +597,146 @@ function rtDriveHuts(g){const k=rtKit(),o=rtDriveKit(),{B,C,rod,L,tube}=k.H(g),M
   const reel=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),M(0xffffff,{map:fr,transparent:true,alphaTest:.5}));reel.position.set(px+S/2+.006,1.5,pz);reel.rotation.y=Math.PI/2;g.add(reel);
   obs.push({x0:px-1.3,x1:px+1.3,z0:pz-1.3,z1:pz+1.3})}
  return{obs,lights}}
+
+/* =====================================================================================================
+   batch 5: the DESERT BUS DEPOT and the WATER TOWER.
+   The Desert Bus parks at (-84, -990) facing south (32 m long, 5.4 m wide: x -86.7..-81.3, z -1006..-974), its doors
+   on the east side; the trip starts through the arch at z -1022 (x -91..-77). The depot building stands east of the
+   bus (x -78..-64, z -1000..-978) with a raised platform and a canopy along the bus's door side; a concrete apron
+   under the bus and round the arch, an entrance lane south to Depot Rd (the game's road along z -1045).
+   ===================================================================================================== */
+const RTB={bus:[-84,-990],az:-1022,bld:{x0:-78,x1:-64,z0:-1000,z1:-978,H:4.2},plat:{x0:-81.1,x1:-78.015,z0:-1005,z1:-976,y:.25},
+ apron:[[-94,-62,-1030,-966],[-72,-62,-1049,-1030]],tower:{x:58,z:-1060,top:11.2,F:3.4,T:2.1}};
+function rtDepot(g){const k=rtKit(),o=rtMotelKit(),d=rtDriveKit(),{B,C,rod,L,tube,slab}=k.H(g),M=k.M,r=k.r,obs=[],lights=[],box=(w,h,dd,x,y,z,m)=>rtBox(g,w,h,dd,x,y,z,m);const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
+ const OR=M(0xc86a1a,{roughness:.6}),ORD=M(0x9a4a12,{roughness:.6}),AL=M(0xb8bcc0,{metalness:.6,roughness:.35}),G=o.GLASS,CONC=o.CONC,YL=M(0xe8c020,{roughness:.6});
+ const{x0,x1,z0,z1,H}=RTB.bld,T=.25;
+ /* ---- the apron: concrete slabs (3 m joints) under the bus, round the arch, and a lane down to Depot Rd; a yellow
+    BUS ONLY box round the bus's spot ---- */
+ for(const[a,b,c,e]of RTB.apron){const m=CONC.clone();m.map=CONC.map.clone();m.map.needsUpdate=true;m.map.repeat.set((b-a)/3,(e-c)/3);const p=new THREE.Mesh(new THREE.PlaneGeometry(b-a,e-c),m);p.rotation.x=-Math.PI/2;p.position.set((a+b)/2,.03,(c+e)/2);p.userData.noSeam=true;g.add(p)}
+ {const bay=rtPaint(k,7,34,(c,w,h)=>{c.clearRect(0,0,w,h);c.strokeStyle='#e8c020';c.lineWidth=5;c.setLineDash([22,14]);c.strokeRect(4,4,w-8,h-8);c.setLineDash([]);c.fillStyle='#e8c020';c.font='bold 30px Arial';c.textAlign='center';c.save();c.translate(w/2,60);c.fillText('BUS',0,0);c.fillText('ONLY',0,34);c.restore()},128);bay.position.set(RTB.bus[0],.04,RTB.bus[1]);g.add(bay)}
+ /* ---- the depot building: stucco walls with an orange tiled base band, big aluminium windows, a glass entrance on
+    the platform side and another on the south side (to the lane), a parapet with an orange coping ---- */
+ const STU=o.STU,IN=M(0xe8e2d4,{roughness:.9}),wl=(ax,c,a0,a1,y0,y1,outSign)=>{if(a1-a0<.005||y1-y0<.005)return;const am=(a0+a1)/2,ym=(y0+y1)/2;
+   if(ax=='z'){const ms=outSign<0?[IN,STU,STU,STU,STU,STU]:[STU,IN,STU,STU,STU,STU];box(T,y1-y0,a1-a0,c,ym,am,ms)}else{const ms=outSign<0?[STU,STU,STU,STU,IN,STU]:[STU,STU,STU,STU,STU,IN];box(a1-a0,y1-y0,T,am,ym,c,ms)}};
+ /* walls run along an axis with openings [a0,a1,bottom,top]; ax 'z' = a wall along z at x=c; out = which side is outside */
+ const wall=(ax,c,A0,A1,ops,out)=>{let a=A0;for(const[o0,o1,b,t]of ops){wl(ax,c,a,o0,0,H,out);wl(ax,c,o0,o1,0,b,out);wl(ax,c,o0,o1,t,H,out);a=o1}wl(ax,c,a,A1,0,H,out)};
+ const WO=[[-998.6,-993.6,.9,2.6],[-991.2,-988.8,0,2.7],[-986.4,-981.4,.9,2.6]],SO=[[-77,-73.4,.9,2.6],[-72.2,-69.8,0,2.7],[-68.6,-65,.9,2.6]],EO=[[-997,-992,2.0,2.8],[-989,-985,2.0,2.8]];
+ wall('z',x0+T/2,z0,z1,WO,-1);wall('z',x1-T/2,z0,z1,EO,1);wall('x',z0+T/2,x0+T,x1-T,SO,-1);wall('x',z1-T/2,x0+T,x1-T,[],1);
+ /* the orange base band (a skin 1 cm proud, 0.6 m high), broken at the doors */
+ const band=(ax,c,A0,A1,ops,s)=>{let a=A0;const seg=(p,q)=>{if(q-p<.01)return;if(ax=='z')box(.01,.6,q-p,c+s*.005,.3,(p+q)/2,OR);else box(q-p,.6,.01,(p+q)/2,.3,c+s*.005,OR)};for(const[o0,o1,b]of ops){if(b==0){seg(a,o0);a=o1}}seg(a,A1)};
+ band('z',x0,z0-.01,z1+.01,WO,-1);band('z',x1,z0-.01,z1+.01,EO,1);band('x',z0,x0,x1,SO,-1);band('x',z1,x0,x1,[],1);
+ /* windows and doorways: aluminium frames, glass; the doorways get glass doors standing open and a transom */
+ const win=(ax,c,o0,o1,b,t,s)=>{const L2=o1-o0,m=(o0+o1)/2,P=(w,h,dp,u,y,v,mm)=>ax=='z'?box(dp,h,w,c+v,y,u,mm):box(w,h,dp,u,y,c+v,mm);
+  if(b>0){P(L2,.06,.1,m,b+.03,0,AL);P(L2,.06,.1,m,t-.03,0,AL);for(const u of[o0+.03,o1-.03])P(.06,t-b-.12,.1,u,(b+t)/2,0,AL);const n=Math.round(L2/1.3);for(let i=1;i<n;i++)P(.05,t-b-.12,.1,o0+i*L2/n,(b+t)/2,0,AL);
+   P(L2-.12,t-b-.14,.01,m,(b+t)/2,0,G);P(L2+.1,.05,.16,m,b-.025,s*.2,o.WHT)}
+  else{P(L2,.3,.1,m,t-.15,0,AL);P(L2-.1,.18,.01,m,t-.15,0,G);for(const u of[o0+.03,o1-.03])P(.06,t-.3,.1,u,(t-.3)/2,0,AL)}};
+ for(const[a,b,lo,hi]of WO)win('z',x0+T/2,a,b,lo,hi,-1);for(const[a,b,lo,hi]of EO)win('z',x1-T/2,a,b,lo,hi,1);for(const[a,b,lo,hi]of SO)win('x',z0+T/2,a,b,lo,hi,-1);
+ /* the open glass doors: two leaves swung back against the inside wall at each doorway */
+ for(const[ax,c,a,b,s]of[['z',x0+T/2,-991.2,-988.8,1],['x',z0+T/2,-72.2,-69.8,1]])for(const sd of[-1,1]){const e=sd<0?a+.06:b-.06,lw=1.14;if(ax=='z'){box(lw,2.18,.05,c+T/2+lw/2+.02,1.18,e+sd*.04,G);box(lw,.06,.06,c+T/2+lw/2+.02,.06,e+sd*.04,AL);box(lw,.06,.06,c+T/2+lw/2+.02,2.3,e+sd*.04,AL);box(.06,2.24,.06,c+T/2+lw+.02,1.18,e+sd*.04,AL)}
+  else{box(.05,2.18,lw,e+sd*.04,1.18,c+T/2+lw/2+.02,G);box(.06,.06,lw,e+sd*.04,.06,c+T/2+lw/2+.02,AL);box(.06,.06,lw,e+sd*.04,2.3,c+T/2+lw/2+.02,AL);box(.06,2.24,.06,e+sd*.04,1.18,c+T/2+lw+.02,AL)}}
+ /* roof, parapet and coping */
+ box(x1-x0-2*T,.25,z1-z0-2*T,(x0+x1)/2,H-.125,(z0+z1)/2,[IN,IN,o.TAR,M(0xf0ece2,{roughness:.9,emissive:0x2a2822}),IN,IN]);
+ for(const[w,dd,x,z]of[[x1-x0,T,(x0+x1)/2,z0+T/2],[x1-x0,T,(x0+x1)/2,z1-T/2],[T,z1-z0-2*T,x0+T/2,(z0+z1)/2],[T,z1-z0-2*T,x1-T/2,(z0+z1)/2]]){box(w,.6,dd,x,H+.3,z,STU);box(w+.1,.06,w>dd?dd+.1:dd-.1,x,H+.63,z,OR)}
+ ob(x0,x0+T,z0,-991.2);ob(x0,x0+T,-988.8,z1);ob(x1-T,x1,z0,z1);ob(x0,-72.2,z0,z0+T);ob(-69.8,x1,z0,z0+T);ob(x0,x1,z1-T,z1);
+ /* ---- inside: a terrazzo floor, the ticket counter along the north wall with three windows, the departures board
+    and a clock over it, three rows of benches, lockers and a vending machine on the east wall, restroom doors,
+    the old timetable by the platform door, ceiling lights ---- */
+ {const IX0=x0+T,IX1=x1-T,IZ0=z0+T,IZ1=z1-T;const TZ=M(0xffffff,{roughness:.4,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#d8d0c0';c.fillRect(0,0,w,h);for(let i=0;i<900;i++){c.fillStyle=['#8a7a68','#b84a20','#4a4a48','#f0ece0'][r()*4|0];c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}c.fillStyle='rgba(60,50,40,.35)';c.fillRect(0,0,w,2);c.fillRect(0,0,2,h)})});TZ.userData.t=2;
+  box(IX1-IX0,.03,IZ1-IZ0,(IX0+IX1)/2,.04,(IZ0+IZ1)/2,TZ);
+  /* the counter: x -76.5..-65.5 at z -980.4, staff side behind it to the north; three windows with glass screens */
+  const CZ=-980.6;box(11,1.05,.6,-71,.555,CZ,M(0xc86a1a,{roughness:.6}));box(11.1,.05,.7,-71,1.105,CZ,M(0xe8e2d4,{roughness:.4}));
+  for(let i=0;i<4;i++)box(.06,1.1,.06,-76.45+i*3.633,1.68,CZ+.05,AL);box(11,.08,.1,-71,2.27,CZ+.05,AL);for(let i=0;i<3;i++){const cx=-74.68+i*3.633;box(3.5,1.0,.01,cx,1.68,CZ+.05,G);box(.5,.06,.02,cx,1.18,CZ+.04,AL);
+   L(['TICKETS','INFORMATION','LOST & FOUND'][i],1.6,.24,'#1c1c1e','#e8c020',40,cx,2.43,CZ-.005,Math.PI);}
+  for(const x of[-76.6,-65.4])box(.2,1.05,.6,x,.555,CZ,M(0x9a4a12));ob(-76.7,-65.3,CZ-.35,CZ+.3);
+  C(.2,.2,.06,-74.7,.73,-979.5,M(0x2a2a30),null,null,12);C(.03,.03,.66,-74.7,.38,-979.5,k.STL,null,null,6);C(.18,.18,.02,-74.7,.04,-979.5,k.STL,null,null,12);
+  /* departures board and clock on the north wall, above the counter */
+  {const bc=document.createElement('canvas');bc.width=640;bc.height=200;const x=bc.getContext('2d');x.fillStyle='#141416';x.fillRect(0,0,640,200);x.fillStyle='#e8c020';x.font='bold 24px Arial';x.fillText('DEPARTURES',16,30);x.fillText('PLATFORM',380,30);x.fillText('STATUS',500,30);x.fillStyle='#f0e0a0';x.font='bold 22px monospace';
+   [['LAS VEGAS','1','NOW'],['LAS VEGAS','1','NOW'],['LAS VEGAS','1','ON TIME'],['TUCSON','1','YOU ARE HERE'],['ANYWHERE ELSE','-','NO']].forEach((rw,i)=>{x.fillText(rw[0],16,64+i*28);x.fillText(rw[1],400,64+i*28);x.fillStyle=rw[2]=='NO'?'#ff5040':'#40e070';x.fillText(rw[2],500,64+i*28);x.fillStyle='#f0e0a0'});
+   const bm=new THREE.Mesh(new THREE.PlaneGeometry(4.8,1.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(bc)}));bm.position.set(-72.5,3.05,IZ1-.066);bm.rotation.y=Math.PI;g.add(bm);box(5,1.7,.06,-72.5,3.05,IZ1-.03,M(0x2a2a2e,{metalness:.4}))}
+  {const cc=document.createElement('canvas');cc.width=cc.height=128;const y=cc.getContext('2d');y.fillStyle='#f6f2e6';y.beginPath();y.arc(64,64,60,0,7);y.fill();y.fillStyle='#202020';y.font='bold 16px Arial';y.textAlign='center';y.textBaseline='middle';for(let h=1;h<=12;h++){const a=h/12*Math.PI*2-Math.PI/2;y.fillText(String(h),64+Math.cos(a)*46,64+Math.sin(a)*46)}y.font='bold 10px Arial';y.fillText('5 MIN',64,90);y.lineWidth=4;y.beginPath();y.moveTo(64,64);y.lineTo(64,24);y.moveTo(64,64);y.lineTo(84,64);y.stroke();
+   const ck=new THREE.Mesh(new THREE.CircleGeometry(.4,28),M(0xffffff,{map:new THREE.CanvasTexture(cc)}));ck.position.set(-67.6,3.15,IZ1-.085);ck.rotation.y=Math.PI;g.add(ck);C(.42,.42,.08,-67.6,3.15,IZ1-.04,OR,'z',null,28)}
+  /* benches: three rows, back to back, with steel legs and orange seats */
+  const SEAT=M(0xd8782a,{roughness:.5});for(const bx of[-74,-71,-68])for(const[za,zb]of[[-996,-991.5],[-989.5,-985]]){const zm=(za+zb)/2,ln=zb-za;for(const sd of[-1,1]){box(.45,.05,ln,bx+sd*.27,.45,zm,SEAT);box(.05,.45,ln,bx+sd*.04,.7,zm,SEAT)}box(.1,.08,ln-.02,bx,.94,zm,AL);for(const z of[za+.3,zb-.3]){box(.9,.05,.06,bx,.4,z,AL);box(.06,.4,.05,bx,.2,z,AL)}ob(bx-.5,bx+.5,za,zb)}
+  /* lockers and a vending machine on the east wall; restroom doors */
+  {const LX=IX1-.25;for(let i=0;i<6;i++){box(.49,1.9,.48,LX-.005,.985,-997+i*.5,M(0x6a7a6a,{metalness:.4,roughness:.5}));box(.01,.2,.3,LX-.255,1.6,-997+i*.5,M(0x3a443a))}ob(LX-.25,IX1,-997.25,-994.25);
+   box(.85,1.9,.9,IX1-.455,.985,-992.6,M(0xc02020,{roughness:.5}));box(.01,1.2,.6,IX1-.88,1.2,-992.7,G);L('GWEEN SODA',.6,.18,'#c02020','#ffffff',40,IX1-.885,1.92,-992.6,-Math.PI/2);ob(IX1-.9,IX1,-993.05,-992.15);
+   for(const[z,t]of[[-981.4,'GENTS'],[-983.2,'LADIES']]){box(.05,2.1,.95,IX1-.03,1.05,z,M(0x4a6a8a,{roughness:.6}));L(t,.5,.16,'#f0ece0','#202020',40,IX1-.063,1.7,z,-Math.PI/2)}L('OUT OF ORDER',.6,.18,'#ffffff','#c02020',36,IX1-.067,1.3,-983.2,-Math.PI/2)}
+  /* the old timetable, now framed on the wall by the platform door */
+  {const tt=L('DESERT BUS\nTUCSON ⇄ LAS VEGAS\n360 MI · ABOUT 5 MINUTES\nNO STOPS. NO PAUSING.',1.6,1.2,'#f0e8d0','#2a2a2a',44,IX0+.036,1.7,-992.4,Math.PI/2);box(.03,1.3,1.7,IX0+.015,1.7,-992.4,M(0x5a3a1a))}
+  /* ceiling lights */for(const x of[-74,-70,-66])for(const z of[-995,-987])box(1.2,.04,.3,x,H-.27,z,M(0xffffff,{emissive:0xfff0d0,emissiveIntensity:1}));lights.push([-71,3.4,-991])}
+ /* ---- the platform (raised 25 cm) along the bus's door side, a yellow edge line, benches and bins outside, and a
+    canopy cantilevered off the wall on steel brackets (two slim columns carry its ends past the building) ---- */
+ {const{x0:px0,x1:px1,z0:pz0,z1:pz1,y}=RTB.plat;box(px1-px0,y,pz1-pz0,(px0+px1)/2,y/2,(pz0+pz1)/2,CONC);const yl=rtPaint(k,.12,pz1-pz0-.4,(c,w,h)=>{c.fillStyle='#e8c020';c.fillRect(0,0,w,h)},8);yl.position.set(px0+.25,y+.006,(pz0+pz1)/2);g.add(yl);
+  for(const z of[-996,-984]){box(.45,.05,1.8,x0-.35,y+.45,z,o.WOODL);for(const sz of[-.75,.75])box(.4,.425,.06,x0-.35,y+.2125,z+sz,AL);box(.05,.4,1.8,x0-.1,y+.675,z,o.WOODL)}
+  for(const z of[-993.5,-986.5])C(.22,.2,.8,x0-.4,y+.4,z,M(0x3a4a3a,{roughness:.6}),null,null,12);
+  const CY0=3.3,CY1=3.55,cw=px1-px0;const cs=rtBox(g,cw+.05,.08,pz1-pz0,(px0+px1)/2-.025,(CY0+CY1)/2,(pz0+pz1)/2,M(0xd8dcde,{metalness:.3,roughness:.6,emissive:0x34322e}));cs.rotation.z=Math.atan2(CY1-CY0,cw);
+  box(.12,.3,pz1-pz0-.02,px0+.06,CY0-.02,(pz0+pz1)/2,OR);for(let z=pz0+1.5;z<pz1;z+=4){rod([x0,CY1+.9,z],[px0+.3,CY0+.06,z],.03,k.STL);box(.1,.2,.2,x0-.05,CY1+.9,z,k.STL)}
+  for(const z of[pz0+.4,pz1-.4]){box(.14,3.25,.14,px1-.35,y+1.625,z,k.STL);box(.3,.03,.3,px1-.35,y+.01,z,k.STL)}
+  for(const z of[-997,-982]){const s=new THREE.Group();s.position.set(px0+1.4,CY0-.6,z);g.add(s);const h=k.H(s);h.B(1.6,.4,.06,0,0,0,M(0x1c1c1e));h.L('PLATFORM 1 · LAS VEGAS',1.5,.32,'#1c1c1e','#e8c020',44,0,0,.036,0);h.L('PLATFORM 1 · LAS VEGAS',1.5,.32,'#1c1c1e','#e8c020',44,0,0,-.036,Math.PI);for(const sx of[-.6,.6])h.C(.01,.01,.5,sx,.45,0,k.STL,null,null,4);s.rotation.y=Math.PI/2}
+  lights.push([px0+1.2,2.9,-995],[px0+1.2,2.9,-985])}
+ /* ---- the DESERT BUS sign on the roof: a steel frame carrying a long board, both faces (west to the platform, east
+    to the town), with a little bus painted on it ---- */
+ {const sx=(x0+x1)/2,sz=(z0+z1)/2,W2=12,H2=1.7,Y=H+.6+.06+1.2;for(const zz of[-5,0,5]){for(const sd of[-1,1])rod([sx+sd*.6,H,sz+zz],[sx,Y-H2/2,sz+zz],.05,k.STL);box(.12,Y-H2/2-H+.02,.12,sx,(H+Y-H2/2)/2,sz+zz,k.STL)}
+  box(.3,H2,W2,sx,Y,sz,OR);const sc=document.createElement('canvas');sc.width=1024;sc.height=146;const x=sc.getContext('2d');x.fillStyle='#c86a1a';x.fillRect(0,0,1024,146);x.fillStyle='#fff6e0';x.font='bold 96px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText('DESERT BUS',560,78);
+  x.fillStyle='#fff6e0';x.fillRect(40,40,150,62);x.fillStyle='#c86a1a';for(let i=0;i<4;i++)x.fillRect(52+i*34,50,24,20);x.fillStyle='#202020';for(const wx of[70,160]){x.beginPath();x.arc(wx,104,14,0,7);x.fill()}
+  const st=new THREE.CanvasTexture(sc);st.anisotropy=8;for(const sd of[-1,1]){const p=new THREE.Mesh(new THREE.PlaneGeometry(W2-.2,H2-.2),M(0xffffff,{map:st,emissive:0x302010}));p.position.set(sx+sd*.155,Y,sz);p.rotation.y=sd*Math.PI/2;g.add(p)}
+  box(.36,.08,W2+.1,sx,Y+H2/2+.04,sz,ORD);box(.36,.08,W2+.1,sx,Y-H2/2-.04,sz,ORD)}
+ /* ---- the arch, remodelled in place: orange pillars (inner faces still at x -90.75 / -77.25, where the portal
+    meets them) with chevrons and plinths, a deep lit beam with TO LAS VEGAS · 360 MI on both faces and bulbs.
+    The portal plane, its glow strips and its animation stay as they are ---- */
+ {const ax=RTB.bus[0],az=RTB.az,PW=.9,PI2=6.75;for(const sd of[-1,1]){const px=ax+sd*(PI2+PW/2);box(PW,5.75,.9,px,2.875,az,OR);box(PW+.3,.5,1.2,px,.25,az,CONC);
+   for(let i=0;i<4;i++){const ch=rtPaint(k,.9,.9,(c,w,h)=>{c.clearRect(0,0,w,h);c.fillStyle='#fff6e0';c.beginPath();c.moveTo(0,h*.2);c.lineTo(w/2,h*.6);c.lineTo(w,h*.2);c.lineTo(w,h*.45);c.lineTo(w/2,h*.85);c.lineTo(0,h*.45);c.fill()},64);ch.rotation.set(0,0,0);for(const fz of[-1,1]){const cc=ch.clone();cc.rotation.set(0,fz>0?0:Math.PI,0);cc.position.set(px,1.5+i*1.0,az+fz*.456);g.add(cc)}}
+   obs.push({x0:px-PW/2,x1:px+PW/2,z0:az-.45,z1:az+.45})}
+  const BW=2*(PI2+PW)+.2;box(BW,1.3,1.0,ax,6.4,az,ORD);box(BW+.1,.1,1.1,ax,7.1,az,OR);
+  const bc=document.createElement('canvas');bc.width=1024;bc.height=96;const x=bc.getContext('2d');x.fillStyle='#7a3a0e';x.fillRect(0,0,1024,96);x.fillStyle='#ffd860';for(let i=0;i<48;i++)for(const y of[9,87]){x.beginPath();x.arc(11+i*21.1,y,5,0,7);x.fill()}x.fillStyle='#fff6e0';x.font='bold 54px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText('TO LAS VEGAS · 360 MI',512,50);
+  const bt=new THREE.CanvasTexture(bc);bt.anisotropy=8;for(const sd of[-1,1]){const p=new THREE.Mesh(new THREE.PlaneGeometry(BW-.3,1.1),new THREE.MeshBasicMaterial({map:bt}));p.position.set(ax,6.4,az+sd*.505);p.rotation.y=sd>0?0:Math.PI;g.add(p)}
+  lights.push([ax,5.2,az+1.5])}
+ return{obs,lights,plates:[{x0:RTB.plat.x0,x1:RTB.plat.x1,z0:RTB.plat.z0,z1:RTB.plat.z1,y:RTB.plat.y}],
+  spots:{timetable:[x0+T+.8,-993],board:[-72.5,-981.6],tickets:[-74.68,-981.4],soda:[x1-T-1.3,-992.6]},
+  mapR:RTB.apron.map(a=>a.concat(['#b4afa6'])).concat([[x0,x1,z0,z1,'#e2d4b4'],[RTB.plat.x0,RTB.plat.x1,RTB.plat.z0,RTB.plat.z1,'#c8c2b4']])}}
+
+/* ---- the water tower at (58, -1060), remodelled in place: the same legs (feet at ±3.4, meeting the tank at ±2.1
+   at 11.2 m), now steel tubes with gussets on concrete feet, two rings of struts, tension-rod X bracing with
+   turnbuckles, a riveted tank (radius 3, 11.6..15.6 m) with OLD TOWN painted on the road side, a conical roof with a
+   finial and a vent, the catwalk (radius 3.62) with a railing, the ladder in the same place (x 61.78) with a safety
+   cage, a short ladder up the tank to the roof, and the outlet pipe and valve down the middle.
+   parts.tag: a curved panel on the east face of the tank for the player's spray tag (give it the tag material) ---- */
+function rtWaterTower(g){const k=rtKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r=k.r,obs=[];const{x:tx,z:tz,top,F,T}=RTB.tower,box=(w,h,d,x,y,z,m)=>rtBox(g,w,h,d,x,y,z,m);
+ const ST=M(0x8a9094,{metalness:.55,roughness:.45}),STD=M(0x5a6064,{metalness:.5,roughness:.5});
+ const TK=M(0xffffff,{metalness:.35,roughness:.55,map:k.tex(512,128,(c,w,h)=>{c.fillStyle='#b8bcb4';c.fillRect(0,0,w,h);for(let i=0;i<40;i++){c.fillStyle='rgba(120,90,60,'+(.04+r()*.08)+')';c.fillRect(r()*w,r()*h*.6+h*.4,2+r()*6,10+r()*40)}
+  c.fillStyle='rgba(60,64,60,.55)';for(const y of[2,h/3,2*h/3,h-3])c.fillRect(0,y-1,w,2);for(let x=0;x<w;x+=64)c.fillRect(x,0,2,h);c.fillStyle='rgba(50,52,50,.6)';for(const y of[6,h/3+4,h/3-4,2*h/3+4,2*h/3-4,h-7])for(let x=2;x<w;x+=8)c.fillRect(x,y,2,2);for(let x=0;x<w;x+=64)for(let y=6;y<h;y+=8){c.fillRect(x-4,y,2,2);c.fillRect(x+4,y,2,2)}})});
+ TK.map.repeat.set(3,1);
+ const at=y=>F+(T-F)*y/top,LG=[[-1,-1],[1,-1],[1,1],[-1,1]];
+ /* legs and feet */for(const[a,b]of LG){rod([tx+a*F,.5,tz+b*F],[tx+a*T,top,tz+b*T],.17,ST,null,12);box(.9,.5,.9,tx+a*F,.25,tz+b*F,M(0xa8a398,{roughness:.95}));box(.5,.04,.5,tx+a*at(.5),.52,tz+b*at(.5),STD);obs.push({x0:tx+a*F-.45,x1:tx+a*F+.45,z0:tz+b*F-.45,z1:tz+b*F+.45})}
+ /* struts at 4 m and 8 m, tension-rod Xs between, a turnbuckle in the middle of each rod */
+ for(let i=0;i<4;i++){const[a,b]=LG[i],[c,d]=LG[(i+1)%4];for(const y of[4,8])rod([tx+a*at(y),y,tz+b*at(y)],[tx+c*at(y),y,tz+d*at(y)],.07,ST,null,8);
+  for(const[y0,y1]of[[.6,4],[4,8],[8,top-.2]]){const p0=[tx+a*at(y0),y0,tz+b*at(y0)],p1=[tx+c*at(y1),y1,tz+d*at(y1)],p2=[tx+c*at(y0),y0,tz+d*at(y0)],p3=[tx+a*at(y1),y1,tz+b*at(y1)];
+   for(const[u,v]of[[p0,p1],[p2,p3]]){rod(u,v,.025,STD,null,6);const m=[(u[0]+v[0])/2,(u[1]+v[1])/2,(u[2]+v[2])/2];const tb=rod([m[0]-(v[0]-u[0])*.04,m[1]-(v[1]-u[1])*.04,m[2]-(v[2]-u[2])*.04],[m[0]+(v[0]-u[0])*.04,m[1]+(v[1]-u[1])*.04,m[2]+(v[2]-u[2])*.04],.05,STD,null,6)}}}
+ /* the ring girder under the tank, the tank, its roof, finial and vent */
+ C(3.15,3.15,.4,tx,top+.2,tz,STD,null,null,28);C(3,3,4,tx,top+2.4,tz,TK,null,null,40);for(const y of[top+.45,top+4.35])C(3.04,3.04,.1,tx,y,tz,STD,null,null,40,true);
+ C(.25,3.25,1.5,tx,top+5.15,tz,M(0x8a8f90,{metalness:.4,roughness:.5}),null,null,40);C(.3,.3,.1,tx,top+5.95,tz,STD,null,null,12);C(.03,.03,.7,tx,top+6.3,tz,ST,null,null,6);const bl=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),M(0x401010,{emissive:0xff2020}));bl.position.set(tx,top+6.7,tz);g.add(bl);
+ C(.18,.18,.5,tx+1.4,top+5.25,tz+.8,STD,null,null,10);C(.26,.26,.06,tx+1.4,top+5.53,tz+.8,STD,null,null,10);
+ /* OLD TOWN on the road (west) side, painted on a curved band so it lies on the tank; and the curved tag panel east */
+ const curved=(w,h,ang,map,col)=>{const th=w/3.02;const ge=new THREE.CylinderGeometry(3.02,3.02,h,24,1,true,ang-th/2,th);const m=new THREE.MeshStandardMaterial({map,transparent:true,roughness:.7,color:col||0xffffff,polygonOffset:true,polygonOffsetUnits:-2});const me=new THREE.Mesh(ge,m);me.position.set(tx,top+2.4,tz);me.userData.noSeam=true;g.add(me);return me};
+ const oc=document.createElement('canvas');oc.width=1024;oc.height=300;const x=oc.getContext('2d');x.clearRect(0,0,1024,300);x.fillStyle='#2a3a5a';x.font='bold 170px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText('OLD TOWN',512,120);x.font='bold 54px Arial';x.fillText('DOORS BUT DESERT · POP. 13',512,250);
+ const ot=new THREE.CanvasTexture(oc);ot.anisotropy=8;ot.wrapS=THREE.ClampToEdgeWrapping;curved(6.6,1.95,-Math.PI/2,ot);
+ /* (cylinder angle 0 faces +z; -PI/2 faces -x, the road; +PI/2 faces +x, where the tag goes) */
+ const tagC=document.createElement('canvas');tagC.width=8;tagC.height=8;const tag=curved(3.4,1.06,Math.PI/2,new THREE.CanvasTexture(tagC));tag.material.opacity=0;
+ /* catwalk: a grating disc ring (radius 3.62) round the tank on brackets, a railing with a gap for the ladder */
+ {const GR=M(0xffffff,{metalness:.4,roughness:.6,transparent:true,alphaTest:.5,side:THREE.DoubleSide,map:k.tex(64,64,(c,w,h)=>{c.clearRect(0,0,w,h);c.fillStyle='#5a6064';for(let i=0;i<w;i+=8){c.fillRect(i,0,3,h);c.fillRect(0,i,w,3)}})});GR.map.repeat.set(12,12);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(3.0,3.62,40),GR);ring.rotation.x=-Math.PI/2;ring.position.set(tx,top+.405,tz);g.add(ring);const edge=C(3.64,3.64,.1,tx,top+.35,tz,STD,null,null,40,true);
+  for(let i=0;i<8;i++){const a=i/8*Math.PI*2+Math.PI/8;rod([tx+Math.cos(a)*3.15,top+.02,tz+Math.sin(a)*3.15],[tx+Math.cos(a)*3.6,top+.36,tz+Math.sin(a)*3.6],.03,STD,null,6)}
+  const gap=.44;for(const y of[top+.9,top+1.4]){const rl=new THREE.Mesh(new THREE.TorusGeometry(3.56,.03,6,48,Math.PI*2-gap),ST);rl.rotation.set(Math.PI/2,0,gap/2);rl.position.set(tx,y,tz);g.add(rl)}
+  for(let i=0;i<=16;i++){const a=gap/2+i*(Math.PI*2-gap)/16;box(.05,1.0,.05,tx+Math.cos(a)*3.56,top+.9,tz+Math.sin(a)*3.56,ST)}}
+ /* the ladder: two rails from the ground to 1 m above the catwalk, rungs every 32 cm, brackets to the frame, a safety
+    cage from 2.5 m up; a short ladder up the tank side to the roof */
+ {const LX=tx+F+.38,LT=top+.4,LS=M(0x8a9094,{metalness:.55,roughness:.45});for(const sz of[-.26,.26]){box(.05,LT+1.05,.05,LX,(LT+1.05)/2,tz+sz,LS);box(.33,.05,.05,LX-.16,LT+1.05,tz+sz,LS);for(const by of[3.5,6,8.5,top-.1]){const fx=at(by);box(LX-tx-fx,.05,.05,(LX+tx+fx)/2,by,tz+sz,LS)}}
+  for(let y=.32;y<=LT+.01;y+=.32)box(.03,.045,.52,LX,y,tz,LS);
+  for(let y=2.6;y<LT+.9;y+=.9){const hp=[];for(let i=0;i<=10;i++){const a=-Math.PI/2+i/10*Math.PI;hp.push([LX+Math.sin(i/10*Math.PI)*.42,y,tz+Math.cos(i/10*Math.PI)*.26])}tube(hp,.015,LS,null,12)}
+  for(const i of[2,5,8]){const xx=LX+Math.sin(i/10*Math.PI)*.42,zz=tz+Math.cos(i/10*Math.PI)*.26;box(.03,LT+.9-2.6,.03,xx,(2.6+LT+.9)/2,zz,LS)}
+  {const tl=new THREE.Group();tl.position.set(tx,0,tz);tl.rotation.y=-.7;g.add(tl);const h=k.H(tl);for(const sz of[-.2,.2]){h.B(.04,4.3,.04,3.1,top+.4+2.15,sz,LS);for(const y of[top+1,top+4.1])h.B(.12,.04,.03,3.05,y,sz,LS)}for(let y=top+.7;y<top+4.6;y+=.32)h.B(.04,.04,.4,3.1,y,0,LS)}
+  obs.push({x0:LX-.1,x1:LX+.5,z0:tz-.35,z1:tz+.35})}
+ /* the outlet pipe down the middle, a valve wheel at the bottom, a concrete pad */
+ C(.18,.18,top,tx,top/2,tz,STD,null,null,12);box(1.2,.15,1.2,tx,.075,tz,M(0xa8a398,{roughness:.95}));const vw=new THREE.Mesh(new THREE.TorusGeometry(.25,.03,6,16),M(0xc02020,{roughness:.5}));vw.position.set(tx+.3,1.1,tz);vw.rotation.y=Math.PI/2;g.add(vw);C(.03,.03,.14,tx+.25,1.1,tz,STD,'x',null,6);
+ obs.push({x0:tx-.6,x1:tx+.6,z0:tz-.6,z1:tz+.6});
+ return{obs,parts:{tag}}}

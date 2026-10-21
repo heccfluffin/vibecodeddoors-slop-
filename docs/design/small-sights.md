@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · model batches next
+Status: plan approved 2026-10-20 · batch 1 for review
 
 # The small sights
 
@@ -55,3 +55,38 @@ up), its props and what they do, its saved progress (`SV.met`, `SV.skEye`, `SV.w
 1. The oasis, the wishing well and the campfire (the three in the middle of town).
 2. The wind pump and the radio mast.
 3. Skull Rock and the meteor crater.
+
+## Part 2: models (`models/small-sights.js`, needs `fort-kit.js` and `route13.js`)
+Every builder takes the desert group `g` and returns its obstacles (`obs`, push them to `q.obs`), the spots for the
+props (`spots`) and map shapes (`mapR`; circles `[x, z, r, colour]`, which desert-map.md draws). Palms, rocks and
+reeds use a fixed seed, so they don't touch `Math.random` (the desert's seeded sequence is safe; if old code that
+used `R()` is removed, burn the same number of calls, see route-13.md).
+
+### Batch 1: the oasis, the wishing well and the campfire, for review · `ssOasis(g)`, `ssWell(g)` (+ `ssWellTick`), `ssCampfire(g)`
+- **Jeff's Oasis** (`ssOasis`): replace the base pool disc, its square obstacle `ob(ox-6,ox+6,oz-6,oz+6)`, the six
+  palms and their obstacles, the old sign `dsSign("JEFF'S OASIS...")`, the crate and the jar (and their obstacle).
+  Keep the tip prop (same spot, `spots.tip`), the "Dip your feet" prop (now at `spots.dip`, in the shallow edge),
+  the loc, the water-delivery tank and groundskeeper (north, clear of the palms).
+  The pond: an irregular outline `SSO.r(angle)` (4.5 to 7.5 m), sandy turquoise in the shallows shading to deep
+  blue-green in the middle, soft ripples, a pale edge line, wet sand fading out round it with pebbles, reed clumps
+  (some cattails), four flat rocks and a few lily pads. **The obstacle only covers the deep middle** (1 m cells
+  inside 1.6 m from the edge), so you can wade round the edge. Six palms of different heights (5.8 to 8.6 m) and
+  leans, ringed trunks, eleven drooping fronds each, dead fronds hanging and coconuts. A striped hammock between the
+  two west palms (new prop at `spots.hammock`: "[E] Lie in Jeff's hammock", a short rest and a line such as "Jeff's
+  hammock. Still warm. Jeff is not here."). Jeff's tip stand where the crate was: a little counter, the jar with a
+  few coins, a PLEASE TIP · JEFF board. The oasis sign on two posts by the path in from the road.
+- **Wishing well** (`ssWell`): replace the base drum, the black disc, the two posts, the roof slab and the rod. Keep
+  both props (toss a coin at `spots.toss`; wind up the bucket at `spots.bucket`) and the obstacle. A stone well with a
+  cap ring, dark water low down with coins glinting, two posts on stone footings, a shingled gable roof, a windlass
+  with the rope wound on it and a crank, and **the bucket on the rope**: while the bucket prop is busy (1.4 s), run
+  `ssWellTick(W, k)` with `k` going 0 → 1 → 0 (down into the water and back up; the drum and crank turn with it).
+  A small sign: WISHES 1 🪙 · REFUNDS: NEVER (the plan said 10; the coin toss costs 1, so the sign says 1).
+- **Campfire** (`ssCampfire`): replace the base's six stones, three logs, the tent (two panels, back, door, obstacle),
+  the first bench and the guitar meshes from `T('campfire')`, and the second bench. Keep the flame sprite and its
+  light and sparks, and all three props (`spots`: warm, marshmallow, guitar), and the marshmallow stick. A ring of
+  rough stones round an ash bed, five charred logs in a teepee, glowing embers (`parts.embers`: flicker their
+  `emissiveIntensity` with the flame); a ridge tent on the old spot and turn with poles, the door flap tied back, guy
+  ropes and pegs; two log benches on stumps on the old spots, both solid now; the guitar leaning on the first
+  bench; a cooler, a kettle on a flat stone, a stack of firewood; string lights on two poles (`lights`: one soft
+  light). Obstacles in `obs`.
+- Checked: z-fight checker clean on all three (the only hits are palm fronds touching themselves); nothing floating.
