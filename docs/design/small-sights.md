@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batch 1 for review
+Status: plan approved 2026-10-20 · batch 1 approved, batch 2 for review
 
 # The small sights
 
@@ -100,3 +100,30 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   bench; a cooler, a kettle on a flat stone, a stack of firewood; string lights on two poles (`lights`: one soft
   light). Obstacles in `obs`.
 - Checked: z-fight checker clean on all three (the only hits are palm fronds touching themselves); nothing floating.
+
+### Batch 2: the wind pump and the radio mast, for review · `ssWindPump(g)`, `ssRadioMast(g)`
+- **Wind pump** (`ssWindPump`, (-55, -1000)): replace the base tower, girts, head box, wheel `rot`, ring, tail boom and
+  vane, centre rod, trough and its water, and `T('wind pump')`'s gearbox, axle, crank and pipes (keep the stream
+  sprite, the pumping timer and its hint and heal, `XM.net.pump`). The old square obstacle `ob(px-2.2,...)` goes:
+  only the four feet, the pump head, the tank and the crank stand are solid now, so you can walk under the tower.
+  A four-leg steel tower (feet at the same spots) with girts and X braces, a ladder up the east face to a railed
+  platform under the wheel, the gearbox on a turntable, an **18-blade wheel** facing south (`parts.wheel`: spin it
+  about its z, as the base spins `rot`), a red tail vane with OLD TOWN on both sides, the pump rod down the middle
+  to the pump head, a pipe and spout to a **round galvanised stock tank** (`parts.water`: raise it a few cm while
+  pumping, as the base raises the trough; the stream sprite goes at `spots.spout`), and **the hand crank outside
+  the tower** on a stand to the west (`parts.crank`: turn it about x while pumping; the prop moves to
+  `spots.crank`, clear of everything). Play the creak only within about 40 m of the pump.
+- **Radio mast** (`ssRadioMast`, (-62, -905)): replace the base legs and braces, the beacon (`parts.beacon`: the base's
+  blink code drives it; `parts.mid` is a second red light at 14 m, blink it too), the hut's walls, roof, floor,
+  glass and door leaf, the map picture, and `T('radio mast')`'s platform and rings. Keep the hut's desk, radios,
+  dials, mic, chair and cot, both props and the loc. A 28 m triangular lattice mast in red and white bands (turned
+  60° from before so its guy wires clear the hut and the drive-in), braces, a **caged ladder up the east face** to a
+  railed grating platform at 16 m with a hatch, whip aerials, three panel antennas, a dish turned towards town, a red
+  beacon on top, **guy wires** from 12 m and 24 m on each leg to three concrete anchors 9.5 m out. Move the climb prop
+  to the ladder's foot (`spots.climb`) and the perch to `spots.perch` (the old perch spot is now the hatch).
+  The hut keeps its footprint: block walls, a corrugated gable roof, **the door on the east side** (the plan said
+  south, but the radio desk stands against the south wall; east faces the drive-in and the road), standing open,
+  with a lamp; windows north and south (over the desk); the KDRT · 13 AM · DESERT RADIO sign on the east gable; a
+  generator and a fuel drum on the north side with a cable into the wall. Hang the base's map on the north wall at
+  `spots.map`. Obstacles in `obs` (walls with the door gap, generator, drum, mast, anchors).
+- Checked: z-fight checker clean (only the dish rim and the crank's spokes crossing inside its hub); nothing floating.

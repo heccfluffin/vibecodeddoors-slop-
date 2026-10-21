@@ -152,3 +152,97 @@ function ssCampfire(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r
   for(let i=1;i<16;i+=1.5){const t=i/16,p=[a[0]+(b[0]-a[0])*t,2.5-.45*Math.sin(Math.PI*t)-.07,a[1]+(b[1]-a[1])*t];const bu=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),M(0xfff0c0,{emissive:['#ffd890','#ff9a70','#a0e0ff'][(i*2|0)%3],emissiveIntensity:1.1}));bu.position.set(...p);g.add(bu);C(.006,.006,.06,p[0],p[1]+.045,p[2],M(0x202020),null,null,4)}
   lights.push([(a[0]+b[0])/2,2.0,(a[1]+b[1])/2]);for(const p of[a,b])obs.push({x0:p[0]-.1,x1:p[0]+.1,z0:p[1]-.1,z1:p[1]+.1})}
  return{obs,lights,parts:{embers},spots:{warm:[fx,fz],marsh:[fx-1.2,fz+.9],guitar:[fx-2.6,fz+2.2]},mapR:[[fx,fz,1.2,'#5a4a3a']]}}
+
+/* ---- batch 2a: the WIND PUMP (-55, -1000). A classic farm windmill: a four-leg steel tower on concrete feet (feet at
+   2.0 m from the centre on the diagonals, 0.32 m at the 9 m top, as before) with girts and X braces, a ladder up the
+   east face to a railed platform under the wheel, the gearbox head on a turntable, an 18-blade wheel facing south, a
+   tail vane painted OLD TOWN, the pump rod down the middle to the pump head, a pipe and spout to a round galvanised
+   stock tank, and the hand crank on a stand OUTSIDE the tower (west side).
+   parts:{wheel (spin about its z), crank (spin about x), water (raise it a little while pumping)}, spots:{crank, spout} ---- */
+const SSP={x:-55,z:-1000,top:9};
+function ssWindPump(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r=o.r,obs=[];const{x:px,z:pz,top}=SSP;
+ const ST=M(0x8a9094,{metalness:.55,roughness:.45}),STD=M(0x5a6064,{metalness:.5,roughness:.5}),GAL=M(0xb8bec2,{metalness:.6,roughness:.35});
+ const rad=y=>2.0+(.32-2.0)*y/top,LG=[[1,1],[-1,1],[-1,-1],[1,-1]].map(([a,b])=>[a/Math.SQRT2,b/Math.SQRT2]),at=(i,y)=>[px+LG[i][0]*rad(y),y,pz+LG[i][1]*rad(y)];
+ for(let i=0;i<4;i++){ssSeg(g,at(i,.3),at(i,top),.06,.045,ST,8);const f=at(i,0);B(.5,.3,.5,f[0],.15,f[2],o.STONE2);obs.push({x0:f[0]-.3,x1:f[0]+.3,z0:f[2]-.3,z1:f[2]+.3})}
+ for(let i=0;i<4;i++){const j=(i+1)%4;for(const y of[2.6,5.6,8.2])rod(at(i,y),at(j,y),.03,ST,null,6);for(const[y0,y1]of[[.3,2.6],[2.6,5.6],[5.6,8.2]]){rod(at(i,y0),at(j,y1),.012,STD,null,4);rod(at(j,y0),at(i,y1),.012,STD,null,4)}}
+ /* ladder up the east face (leaning with it), to the platform */{const lx0=px+rad(0)/Math.SQRT2+.14,lx1=px+rad(8.2)/Math.SQRT2+.14;for(const sz of[-.2,.2])rod([lx0,0,pz+sz],[lx1,8.2+.9,pz+sz],.02,ST,null,6);
+  for(let y=.3;y<8.2;y+=.3){const x=lx0+(lx1-lx0)*y/8.2;rod([x,y,pz-.2],[x,y,pz+.2],.012,ST,null,4)}for(const y of[2.6,5.6]){const x=lx0+(lx1-lx0)*y/8.2;for(const sz of[-.2,.2])rod([x,y,pz+sz],[px+rad(y)/Math.SQRT2,y,pz+sz],.012,ST,null,4)}}
+ /* the platform under the wheel: grating on a square frame (a gap on the east side for the ladder), posts and a rail */
+ {const GR=M(0x6a7074,{metalness:.5,roughness:.6}),Y=8.2,h=.95;for(const[w,d,x,z]of[[1.9,.5,px,pz-.7],[1.9,.5,px,pz+.7],[.5,.9,px-.7,pz],[.25,.9,px+.82,pz]])B(w,.04,d,x,Y,z,GR);
+  for(const[a,b]of[[-1,-1],[1,-1],[1,1],[-1,1]])B(.05,h,.05,px+a*.93,Y+h/2,pz+b*.93,ST);for(const[w,d,x,z]of[[1.86,.03,px,pz-.93],[1.86,.03,px,pz+.93],[.03,1.8,px-.93,pz],[.03,.46,px+.93,pz-.68],[.03,.46,px+.93,pz+.68]]){B(w,.03,d,x,Y+h-.02,z,ST);B(w,.025,d,x,Y+h/2,z,ST)}}
+ /* head: turntable, gearbox casing, the shaft out to the wheel (south) and the tail boom (north) */
+ C(.36,.36,.08,px,top+.04,pz,STD,null,null,16);B(.46,.42,.8,px,top+.29,pz,M(0x6a7076,{metalness:.5,roughness:.45}));C(.23,.23,.82,px,top+.5,pz,M(0x6a7076,{metalness:.5,roughness:.45}),'z',null,14);C(.05,.05,.5,px,top+.3,pz-.6,ST,'z',null,8);
+ const wheel=new THREE.Group();wheel.position.set(px,top+.3,pz-.85);g.add(wheel);{const h=k.H(wheel);h.C(.16,.16,.22,0,0,0,STD,'z',null,12);for(const rr of[.55,1.75]){const t=new THREE.Mesh(new THREE.TorusGeometry(rr,.025,5,40),ST);wheel.add(t)}
+  for(let i=0;i<6;i++){const a=i/6*Math.PI*2;h.rod([Math.cos(a)*.15,Math.sin(a)*.15,0],[Math.cos(a)*1.75,Math.sin(a)*1.75,0],.02,ST,null,4)}
+  for(let i=0;i<18;i++){const bg=new THREE.Group();bg.rotation.z=i/18*Math.PI*2;wheel.add(bg);const bl=new THREE.Mesh(new THREE.BoxGeometry(.3,1.2,.012),GAL);bl.position.set(0,1.15,0);bl.rotation.y=.45;bl.scale.x=1;bg.add(bl)}}
+ rod([px,top+.4,pz+.4],[px,top+.45,pz+2.4],.035,ST,null,6);rod([px,top+.15,pz+.3],[px,top+.4,pz+1.6],.02,ST,null,4);rod([px,top+.62,pz+.3],[px,top+.48,pz+1.6],.02,ST,null,4);
+ B(.03,1.0,1.5,px,top+.45,pz+2.9,M(0xc8302a,{roughness:.6}));L('OLD TOWN',1.4,.5,null,'#f4ead2',90,px+.017,top+.45,pz+2.9,Math.PI/2);L('OLD TOWN',1.4,.5,null,'#f4ead2',90,px-.017,top+.45,pz+2.9,-Math.PI/2);
+ /* pump rod down the middle, the pump head (standpipe) at the bottom, the pipe to the tank and its spout */
+ C(.02,.02,top-1.2,px,(top+1.2)/2+.05,pz,ST,null,null,6);C(.09,.11,1.25,px,.625,pz,STD,null,null,12);C(.14,.14,.12,px,1.3,pz,STD,null,null,12);B(.3,.3,.3,px,.15,pz,o.STONE2);
+ C(.045,.045,2.35,px+1.2,.9,pz+.5,GAL,'x',null,8);rod([px,.9,pz],[px,.9,pz+.5],.045,GAL,null,8);C(.06,.06,.1,px+2.38,.9,pz+.5,GAL,'x',null,8);rod([px+2.42,.9,pz+.5],[px+2.5,.68,pz+.5],.04,GAL,null,8);
+ obs.push({x0:px-.25,x1:px+.25,z0:pz-.25,z1:pz+.25});
+ /* the stock tank: a round corrugated steel ring, a rolled rim, the water inside */
+ const tx=px+3.7,tz=pz+.5,TR=1.2;{const CR=M(0xffffff,{metalness:.55,roughness:.4,side:THREE.DoubleSide,map:k.tex(128,16,(c,w,h)=>{for(let x=0;x<w;x++){const v=180+Math.sin(x/w*Math.PI*16)*40|0;c.fillStyle='rgb('+v+','+(v+4)+','+(v+8)+')';c.fillRect(x,0,1,h)}})});CR.map.repeat.set(4,1);
+  const ring=new THREE.Mesh(new THREE.CylinderGeometry(TR,TR,.62,40,1,true),CR);ring.position.set(tx,.31,tz);g.add(ring);const rim=new THREE.Mesh(new THREE.TorusGeometry(TR,.03,6,40),GAL);rim.rotation.x=Math.PI/2;rim.position.set(tx,.62,tz);g.add(rim);
+  const bot=new THREE.Mesh(new THREE.CircleGeometry(TR-.01,32),M(0x5a6a6a,{roughness:.8}));bot.rotation.x=-Math.PI/2;bot.position.set(tx,.04,tz);g.add(bot)}
+ const water=new THREE.Mesh(new THREE.CircleGeometry(TR-.02,32),M(0x3a90b8,{roughness:.08,metalness:.2,transparent:true,opacity:.85}));water.rotation.x=-Math.PI/2;water.position.set(tx,.42,tz);g.add(water);
+ obs.push({x0:tx-TR,x1:tx+TR,z0:tz-TR,z1:tz+TR});
+ /* the hand crank, outside on the west: a post, a gearbox, the crank wheel with a handle; a shaft runs in to the pump head */
+ const cx=px-2.7,cz=pz;B(.14,.75,.14,cx,.375,cz,STD);B(.42,.4,.36,cx,.9,cz,M(0x4a5054,{metalness:.5,roughness:.5}));rod([cx+.21,.9,cz],[px-.1,.9,cz],.025,ST,null,6);rod([px-.1,.9,cz],[px-.1,1.0,cz],.02,ST,null,4);
+ const crank=new THREE.Group();crank.position.set(cx-.3,.9,cz);g.add(crank);{const h=k.H(crank);const wh=new THREE.Mesh(new THREE.TorusGeometry(.3,.025,6,20),M(0x8a2a20,{metalness:.4,roughness:.5}));wh.rotation.y=Math.PI/2;crank.add(wh);for(const a of[0,Math.PI/3,2*Math.PI/3])h.rod([0,Math.cos(a)*.29,Math.sin(a)*.29],[0,-Math.cos(a)*.29,-Math.sin(a)*.29],.012,M(0x8a2a20,{metalness:.4}),null,6);h.C(.05,.05,.12,.03,0,0,STD,'x',null,10);h.C(.025,.025,.16,-.08,.28,0,M(0x3a2a1a),'x',null,8)}
+ rod([cx-.05,.9,cz],[cx-.24,.9,cz],.03,ST,null,6);obs.push({x0:cx-.3,x1:cx+.25,z0:cz-.25,z1:cz+.25});
+ return{obs,parts:{wheel,crank,water},spots:{crank:[cx-.9,cz],spout:[px+2.5,.6,pz+.5],tank:[tx,tz]},mapR:[[px,pz,2.2,'#8a8a8a'],[tx,tz,TR,'#3a90b8']]}}
+
+/* ---- batch 2b: the RADIO MAST (-62, -905) and its hut. A 28 m triangular lattice mast (legs 1.4 m from the centre at
+   the ground, 0.25 at the top, as before) with girts and zigzag braces, a caged ladder up the east face (towards the hut) to a
+   railed platform at 16 m (where the climb perch is), whip aerials, panel antennas and a dish near the top, the
+   blinking beacon (parts.beacon, parts.glow: the base's blink code), guy wires from two heights on each leg to three
+   concrete anchors. The hut (x -59..-55, z -905.7..-902.3) gets new walls and a gable roof, its door on the EAST side
+   (towards the drive-in and the road; the south wall has the radio desk against it), windows north and south, the
+   KDRT sign over the door, a generator and a fuel drum on the west side. The hut's furniture and props stay. ---- */
+const SSR={x:-62,z:-905,H:28,plat:16};
+function ssRadioMast(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube,slab}=k.H(g),M=k.M,r=o.r,obs=[],lights=[];const{x:rx,z:rz,H,plat:PY}=SSR;
+ const ST=M(0xc84a2a,{metalness:.4,roughness:.5}),SW=M(0xe8e4dc,{metalness:.4,roughness:.5}),STD=M(0x6a7074,{metalness:.5,roughness:.5});
+ const rad=y=>1.4+(.25-1.4)*y/H,ang=i=>i*Math.PI*2/3+Math.PI/3,at=(i,y)=>[rx+Math.cos(ang(i))*rad(y),y,rz+Math.sin(ang(i))*rad(y)];
+ /* legs in red and white bands (aviation paint), footings */for(let i=0;i<3;i++){for(let s=0;s<7;s++){const y0=Math.max(.35,s*4),y1=Math.min(H,(s+1)*4);ssSeg(g,at(i,y0),at(i,y1),.08-.04*y0/H,.08-.04*y1/H,s%2?SW:ST,8)}const f=at(i,0);B(.7,.35,.7,f[0],.175,f[2],o.STONE2)}
+ for(let i=0;i<3;i++){const j=(i+1)%3;for(let y=2;y<H;y+=3){rod(at(i,y),at(j,y),.025,STD,null,4);if(y+3<=H){rod(at(i,y),at(j,y+3),.016,STD,null,4)}}}
+ obs.push({x0:rx-1.6,x1:rx+1.6,z0:rz-1.6,z1:rz+1.6});
+ /* the caged ladder on the east face (legs turned 60° from before so the guy wires clear the hut), vertical, held off the face by brackets */
+ const FA=0,fx=Math.cos(FA),fz=Math.sin(FA),tx=-fz,tz=fx,LD=.86,lx=rx+fx*LD,lz=rz+fz*LD,LT=PY+1.0;
+ {for(const s of[-1,1])rod([lx+tx*.22*s,0,lz+tz*.22*s],[lx+tx*.22*s,LT,lz+tz*.22*s],.02,STD,null,6);for(let y=.3;y<PY;y+=.3)rod([lx-tx*.22,y,lz-tz*.22],[lx+tx*.22,y,lz+tz*.22],.012,STD,null,4);
+  for(let y=1.5;y<PY;y+=3){const ap=rad(y)/2;for(const s of[-1,1])rod([lx+tx*.22*s,y,lz+tz*.22*s],[rx+fx*ap+tx*.22*s,y,rz+fz*ap+tz*.22*s],.012,STD,null,4)}
+  for(let y=2.6;y<=PY+.9;y+=.85){const hp=[];for(let i=0;i<=10;i++){const t=i/10*Math.PI,u=Math.cos(t)*.22,v=Math.sin(t)*.42;hp.push([lx+tx*u+fx*v,y,lz+tz*u+fz*v])}tube(hp,.012,STD,null,12)}
+  for(const i of[1,5,9]){const t=i/10*Math.PI,u=Math.cos(t)*.22,v=Math.sin(t)*.42;rod([lx+tx*u+fx*v,2.6,lz+tz*u+fz*v],[lx+tx*u+fx*v,2.6+Math.floor((PY+.9-2.6)/.85)*.85,lz+tz*u+fz*v],.01,STD,null,4)}}
+ /* the platform at 16 m: a grating square round the mast with a hatch where the ladder comes up, posts and two rails */
+ {const GR=M(0x6a7074,{metalness:.5,roughness:.6}),S=1.25,hx0=fx*LD-.42,hx1=fx*LD+.42,hz0=fz*LD-.42,hz1=fz*LD+.42;
+  for(const[a0,a1,b0,b1]of[[-S,S,-S,hz0],[-S,S,hz1,S],[-S,hx0,hz0,hz1],[hx1,S,hz0,hz1]])B(a1-a0,.05,b1-b0,rx+(a0+a1)/2,PY,rz+(b0+b1)/2,GR);
+  for(const[a,b]of[[-1,-1],[1,-1],[1,1],[-1,1],[0,-1],[0,1],[-1,0],[1,0]])B(.05,1.0,.05,rx+a*S,PY+.5,rz+b*S,STD);for(const[y,dy]of[[PY+.5,0],[PY+.98,0]])for(const[w,d,x,z,o2]of[[2*S,.03,rx,rz-S,0],[2*S,.03,rx,rz+S,0],[.03,2*S-.06,rx-S,rz,.004],[.03,2*S-.06,rx+S,rz,.004]])B(w,.03,d,x,y-o2,z,STD);
+  for(let i=0;i<3;i++){const p=at(i,PY-.4);rod([p[0],PY-.4,p[2]],[rx+Math.cos(ang(i))*S,PY-.03,rz+Math.sin(ang(i))*S],.025,STD,null,4)}
+  const lp=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),M(0xfff0d0,{emissive:0xffd890,emissiveIntensity:.9}));lp.position.set(rx-S+.06,PY+1.1,rz-S+.06);g.add(lp)}
+ /* the top: a cap plate, three whip aerials, three panel antennas, a dish turned to the town, the beacon */
+ B(.6,.06,.6,rx,H+.03,rz,STD);for(let i=0;i<3;i++){const a=ang(i)+.5;rod([rx+Math.cos(a)*.18,H,rz+Math.sin(a)*.18],[rx+Math.cos(a)*.2,H+4+i*.6,rz+Math.sin(a)*.2],.012,STD,null,4)}
+ for(let i=0;i<3;i++){const p=at(i,H-2.5),a=ang(i);const pn=B(.12,1.4,.35,p[0]+Math.cos(a)*.14,H-2.5,p[2]+Math.sin(a)*.14,M(0xe8e8e2,{roughness:.5}));pn.rotation.y=-a}
+ {const dg=new THREE.Group();const p=at(2,22);dg.position.set(p[0]+.25,22,p[2]-.1);dg.rotation.y=Math.PI*.75;g.add(dg);const pp=[];for(let i=0;i<=10;i++){const u=i/10*.85;pp.push(new THREE.Vector2(u,u*u*.42))}const d=new THREE.Mesh(new THREE.LatheGeometry(pp,28),M(0xe8e8e2,{roughness:.5,side:THREE.DoubleSide}));d.rotation.x=Math.PI/2;d.position.z=.45;dg.add(d);const rm=new THREE.Mesh(new THREE.TorusGeometry(.85,.02,6,28),M(0xe8e8e2,{roughness:.5}));rm.position.z=.45+.3;dg.add(rm);const h=k.H(dg);h.C(.06,.06,.5,0,0,.25,STD,'z',null,8);h.rod([0,0,-.2],[0,0,.4],.03,STD);for(const a of[0,2.1,4.2])h.rod([Math.cos(a)*.42,Math.sin(a)*.42,.08],[0,0,.65],.01,STD,null,4);h.C(.05,.04,.12,0,0,-.05,STD,'z',null,8)}
+ const beacon=new THREE.Mesh(new THREE.SphereGeometry(.25,12,8),M(0x401010,{emissive:0xff2020}));beacon.position.set(rx,H+.3,rz);g.add(beacon);C(.12,.16,.1,rx,H+.08,rz,STD,null,null,10);
+ const mid=new THREE.Mesh(new THREE.SphereGeometry(.12,10,6),M(0x401010,{emissive:0xff2020}));mid.position.copy(new THREE.Vector3(...at(1,14)));g.add(mid);
+ /* guy wires: from each leg at 12 m and 24 m to its anchor 9.5 m out (north-east, west, south-east: clear of the hut and the drive-in); concrete anchor blocks with turnbuckles */
+ for(let i=0;i<3;i++){const a=ang(i),ax=rx+Math.cos(a)*9.5,az=rz+Math.sin(a)*9.5;B(1.0,.4,1.0,ax,.2,az,o.STONE2);B(.1,.25,.04,ax,.5,az,STD);obs.push({x0:ax-.5,x1:ax+.5,z0:az-.5,z1:az+.5});
+  for(const y of[12,24]){const p=at(i,y),e=[ax-Math.cos(a)*.0,.6,az];rod(p,e,.01,M(0x3a3a3a,{metalness:.6}),null,4);const u=.04;rod([e[0]+(p[0]-e[0])*u,e[1]+(p[1]-e[1])*u,e[2]+(p[2]-e[2])*u],[e[0]+(p[0]-e[0])*u*2.5,e[1]+(p[1]-e[1])*u*2.5,e[2]+(p[2]-e[2])*u*2.5],.025,STD,null,6)}}
+ /* ---- the hut (x0..x1, z0..z1 as before): walls on those lines, a corrugated gable roof (ridge along x) ---- */
+ const x0=rx+3,x1=rx+7,z0=rz-.7,z1=rz+2.7,WH=2.6,T=.2,HW=M(0xb8b4a8,{roughness:.9,map:k.tex(64,64,(c,w,h)=>{c.fillStyle='#b8b4a8';c.fillRect(0,0,w,h);c.fillStyle='rgba(80,76,70,.35)';for(let y=0;y<h;y+=16){c.fillRect(0,y,w,1);for(let x=((y/16)%2)*16;x<w;x+=32)c.fillRect(x,y,1,16)}})}),IN=M(0x8a8478,{roughness:.95});HW.map.repeat.set(3,2);
+ const bx=(w,h,d,x,y,z,m)=>rtBox(g,w,h,d,x,y,z,m);
+ const wallX=(z,ops,outN)=>{let a=x0-T/2;const ms=outN?[HW,HW,HW,HW,HW,IN]:[HW,HW,HW,HW,IN,HW];for(const[o0,o1,b,t]of ops){bx(o0-a,WH,T,(a+o0)/2,WH/2,z,ms);if(b>0)bx(o1-o0,b,T,(o0+o1)/2,b/2,z,ms);bx(o1-o0,WH-t,T,(o0+o1)/2,(WH+t)/2,z,ms);a=o1}bx(x1+T/2-a,WH,T,(a+x1+T/2)/2,WH/2,z,ms)};
+ const wallZ=(x,ops,outE)=>{let a=z0+T/2;const ms=outE?[HW,IN,HW,HW,HW,HW]:[IN,HW,HW,HW,HW,HW];for(const[o0,o1,b,t]of ops){bx(T,WH,o0-a,x,WH/2,(a+o0)/2,ms);if(b>0)bx(T,b,o1-o0,x,b/2,(o0+o1)/2,ms);bx(T,WH-t,o1-o0,x,(WH+t)/2,(o0+o1)/2,ms);a=o1}bx(T,WH,z1-T/2-a,x,WH/2,(a+z1-T/2)/2,ms)};
+ const DZ0=z0+1.55,DZ1=z0+2.45;wallX(z0,[[rx+4.4,rx+6.0,1.25,2.0]],false);wallX(z1,[[rx+5.5,rx+6.6,1.1,1.9]],true);wallZ(x0,[],false);wallZ(x1,[[DZ0,DZ1,0,2.1]],true);
+ for(const[a,b,c2,d]of[[x0-T/2,x1+T/2,z0-T/2,z0+T/2],[x0-T/2,x1+T/2,z1-T/2,z1+T/2],[x0-T/2,x0+T/2,z0,z1],[x1-T/2,x1+T/2,z0,DZ0],[x1-T/2,x1+T/2,DZ1,z1]])obs.push({x0:a,x1:b,z0:c2,z1:d});
+ bx(x1-x0-T,.03,z1-z0-T,(x0+x1)/2,.015,(z0+z1)/2,M(0x7a6a5a,{roughness:.9}));
+ /* windows: frames and glass */for(const[z,a,b,lo,hi]of[[z0,rx+4.4,rx+6.0,1.25,2.0],[z1,rx+5.5,rx+6.6,1.1,1.9]]){const m=(a+b)/2,w=b-a;bx(w,.05,.12,m,lo+.025,z,o.WOODD);bx(w,.05,.12,m,hi-.025,z,o.WOODD);bx(.05,hi-lo-.1,.12,a+.025,(lo+hi)/2,z,o.WOODD);bx(.05,hi-lo-.1,.12,b-.025,(lo+hi)/2,z,o.WOODD);bx(.04,hi-lo-.1,.12,m,(lo+hi)/2,z,o.WOODD);bx(w-.1,hi-lo-.12,.01,m,(lo+hi)/2,z,rtMotelKit().GLASS)}
+ /* the door, standing open against the outside of the east wall; a lamp over it */{const hgx=x1+T/2;bx(.92,.05,.12,hgx-.0,2.12,(DZ0+DZ1)/2,o.WOODD);const dd=bx(.05,2.05,.88,hgx+.45,1.03,DZ1+.04,M(0x4a5a6a,{roughness:.6}));dd.rotation.y=Math.PI/2;dd.position.set(hgx+.47,1.04,DZ1+.03);
+  C(.08,.08,.18,hgx+.09,2.35,(DZ0+DZ1)/2,M(0xfff0d0,{emissive:0xffd890,emissiveIntensity:.9}),'x',null,10);lights.push([hgx+.6,2.3,(DZ0+DZ1)/2])}
+ /* gable roof: two corrugated slopes, gable infills, a ridge cap */{const CR=M(0xffffff,{metalness:.5,roughness:.45,side:THREE.DoubleSide,map:k.tex(64,16,(c,w,h)=>{for(let x=0;x<w;x++){const v=150+Math.sin(x/w*Math.PI*8)*30|0;c.fillStyle='rgb('+v+','+(v-6)+','+(v-14)+')';c.fillRect(x,0,1,h)}})});CR.map.repeat.set(1,6);
+  const rise=.9,half=(z1-z0)/2+.35,sl=Math.hypot(half,rise),an=Math.atan2(rise,half),zc=(z0+z1)/2;for(const s of[-1,1]){const p=new THREE.Mesh(new THREE.BoxGeometry(x1-x0+.7,.04,sl),CR);p.position.set((x0+x1)/2,WH+rise/2,zc+s*half/2);p.rotation.x=s*an;g.add(p)}
+  B(x1-x0+.72,.08,.22,(x0+x1)/2,WH+rise+.02,zc,STD);for(const x of[x0,x1])slab([[-(z1-z0)/2-T/2,0],[(z1-z0)/2+T/2,0],[0,rise*(((z1-z0)/2+T/2)/half)]],T,HW,x,WH,zc,Math.PI/2)}
+ /* the KDRT sign on the east gable, over the door */L('KDRT · 13 AM\nDESERT RADIO',1.5,.5,'#2a3a5a','#f0e8d0',50,x1+T/2+.006,WH+.32,(z0+z1)/2,Math.PI/2);
+ /* generator and fuel drum, north of the hut, a cable up into the wall */{const gx=rx+4.2,gz=z1+1.0;B(1.0,.12,.6,gx,.06,gz,STD);B(.8,.55,.5,gx,.395,gz,M(0xc8a020,{roughness:.5}));C(.06,.06,.4,gx+.2,.85,gz,STD,null,null,8);B(.3,.2,.02,gx-.2,.45,gz+.26,M(0x202020));obs.push({x0:gx-.55,x1:gx+.55,z0:gz-.35,z1:gz+.35});
+  C(.29,.29,.88,gx+1.3,.44,gz,M(0x2a6a3a,{metalness:.4,roughness:.5}),null,null,14);obs.push({x0:gx+1,x1:gx+1.6,z0:gz-.3,z1:gz+.3});tube([[gx,.4,gz-.26],[gx,.2,gz-.6],[gx,.3,z1+T/2+.02],[gx,1.6,z1+T/2+.02]],.015,M(0x202020),null,10)}
+ return{obs,lights,parts:{beacon,mid},spots:{climb:[rx+fx*1.7,rz+fz*1.7+.9],perch:[rx,PY+.1,rz-.9],map:[rx+3.7,1.5,z1-T/2-.01]},mapR:[[rx,rz,1.6,'#8a4a3a']]}}
