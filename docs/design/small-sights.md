@@ -62,7 +62,7 @@ props (`spots`) and map shapes (`mapR`; circles `[x, z, r, colour]`, which deser
 reeds use a fixed seed, so they don't touch `Math.random` (the desert's seeded sequence is safe; if old code that
 used `R()` is removed, burn the same number of calls, see route-13.md).
 
-### Batch 1: the oasis, the wishing well and the campfire, for review · `ssOasis(g)`, `ssWell(g)` (+ `ssWellTick`), `ssCampfire(g)`
+### Batch 1: the oasis, the wishing well and the campfire, approved 2026-10-21 · `ssOasis(g)`, `ssWell(g)` (+ `ssWellTick`), `ssCampfire(g)`
 - **Jeff's Oasis** (`ssOasis`): replace the base pool disc, its square obstacle `ob(ox-6,ox+6,oz-6,oz+6)`, the six
   palms and their obstacles, the old sign `dsSign("JEFF'S OASIS...")`, the crate and the jar (and their obstacle).
   Keep the tip prop (same spot, `spots.tip`), the "Dip your feet" prop (now at `spots.dip`, in the shallow edge),

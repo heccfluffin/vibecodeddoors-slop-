@@ -23,7 +23,8 @@ function ssPalm(g,x,z,h,lean,dir,seed){const o=ssKit(),dx=Math.cos(dir),dz=Math.
  const fr=(ang,up,L,droop,w)=>{const c=Math.cos(ang),s=Math.sin(ang),pts=[],wid=[],side=[];const n=12;for(let i=0;i<=n;i++){const t=i/n,hz=L*t,y=top[1]+.1+L*(up*t-droop*t*t);pts.push([top[0]+c*hz,y,top[2]+s*hz]);wid.push(w*Math.sin(Math.PI*Math.min(1,t*1.1+.05))+.02);
   const tilt=.35;side.push([-s*Math.cos(tilt),Math.sin(tilt)*(i%2?1:1),c*Math.cos(tilt)])}return ssRibbon(g,pts,wid,side,o.FROND)};
  let a0=seed*1.7;for(let i=0;i<11;i++){const a=a0+i/11*Math.PI*2+(Math.sin(seed*7+i)*.2);fr(a,.55+.15*Math.sin(i*2.3+seed),2.6+.5*Math.sin(i*1.7+seed),1.05+.2*Math.cos(i*3.1),.42)}
- for(let i=0;i<5;i++){const a=a0+.3+i/5*Math.PI*2,c=Math.cos(a),s=Math.sin(a);const dead=new THREE.Mesh(new THREE.ConeGeometry(.1,1.6,5),ssKit().WOODD);dead.position.set(top[0]+c*.35,top[1]-.7,top[2]+s*.35);dead.rotation.set(s*.35,0,-c*.35);g.add(dead)}
+ /* dead fronds: a skirt hanging down round the top of the trunk, pinned under the crown, flaring out a little at the bottom */{const yT=h-.55,t=yT/h,cx=x+dx*lean*h*Math.pow(t,1.7),cz=z+dz*lean*h*Math.pow(t,1.7),th=.22;
+  for(let i=0;i<7;i++){const a=a0+.3+i/7*Math.PI*2,c=Math.cos(a),s=Math.sin(a);const dead=new THREE.Mesh(new THREE.ConeGeometry(.09,1.2,5),ssKit().WOODD);dead.position.set(cx+c*(.2+.6*Math.sin(th)),yT,cz+s*(.2+.6*Math.sin(th)));dead.rotation.set(-s*th,0,c*th);g.add(dead)}}
  for(let i=0;i<5;i++){const a=a0+i*1.3,nut=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),o.NUT);nut.position.set(top[0]+Math.cos(a)*.24,top[1]-.18-(i%2)*.12,top[2]+Math.sin(a)*.24);g.add(nut)}
  return y=>{const t=Math.min(1,y/h);return[x+dx*lean*h*Math.pow(t,1.7),y,z+dz*lean*h*Math.pow(t,1.7)]}}
 
