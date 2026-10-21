@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batch 1 for review
+Status: plan approved 2026-10-20 · batch 1 approved, batch 2 for review
 
 # Lookout Mesa and Devil's Gorge
 
@@ -75,7 +75,7 @@ the rails' obstacles), the ledge, the jump ramp, the zipline cable ends, and eve
 ## Part 2: models (`models/mesa-gorge.js`, needs `fort-kit.js` and `route13.js`)
 Constants: `MG` (the mesa box, the road, the Quarry Skip lane kept clear, the props' spots kept clear).
 
-### Batch 1: the mesa cliffs, rim, fallen rock and the ramp road, for review · `mgMesa(g)`, `mgMesaRoad(g)`
+### Batch 1: the mesa cliffs, rim, fallen rock and the ramp road, approved 2026-10-21 · `mgMesa(g)`, `mgMesaRoad(g)`
 - **`mgMesa(g)`** replaces the mesa's body box in `xpMesa` (the `body` mesh). Keep the sand top slab, the plate, the
   ramp entry, the zones, the map rect and every prop.
   - **Cliffs:** one mesh all round, measured out from the old box's sides (0.15 to 1.5 m outside, never inside):
@@ -106,4 +106,36 @@ Constants: `MG` (the mesa box, the road, the Quarry Skip lane kept clear, the pr
   - Returns `{obs}`.
 - Draw calls: the cliff, rim, talus, fallen rock and plants are one mesh each; mark them `noChunk` if the chunker would
   split them.
+
+### Batch 2: on top of the mesa, for review · `mgMesaTop(g)`
+Replaces the top's old meshes in `xpMesa` (the cabin box, roof, door, chimney; the telescope's legs and tube; the
+flagpole and the `lab('DOORS')` flag; the campfire stones and the soda cans) and in `T('mesa')` (the binoculars' post,
+head, coin slot and label, and the summit book's lectern and book). Keep every prop, the Hermit, the smoke sprite, the
+fire sprite and its light; move them as below.
+- **The Hermit's cabin** (-320, -1560), same 7 x 5 m footprint and obstacle: weathered board-and-batten walls on a
+  stone footing, a tin gable roof ridged east-west with a ridge cap, barge boards and fascia, four windows (glass in
+  `parts.win`: set `emissiveIntensity` .5 at night), a plank door on the west wall, a stove pipe through the north
+  slope with a rain cap (`spots.smoke`: move the smoke sprite there, it was at H+5), a solar panel on the south slope,
+  a gutter and downpipe into a rain barrel at the north-east corner, a woodpile along the east wall, a chopping block
+  with an axe. **Porch** on the west: a plank deck 30 cm up with one step (both in `plates`), a lean-to tin roof on two
+  posts, a rocking chair, a porch lamp (`lights`). **The Hermit stands on the porch**: `spots.hermit` (y is the deck).
+  The talk prompt stays at (hx-5, hz).
+- **The summit book moves to a cairn** at (-345, -1545): stacked flat stones with an open steel register box on top
+  (the book and a pen inside, a SUMMIT REGISTER plate). Move the "Sign the summit book" prop to `spots.book` (the
+  cairn's north side) and drop the old lectern and book by the cabin. Obstacle 1.5 m square.
+- **The lookout point** on the south rim: paving x -335.5 to -324.5, z -1599.4 to -1592.4 (5 cm up, flat to walk on),
+  a low stone kerb, an iron railing with ball-topped posts along the rim and back along both sides (open to the north),
+  new coin binoculars (pedestal, coin box with the LOOKOUT · 1 GOLD plate, twin-barrel head looking south) at the same
+  spot (-330, -1596), a bench, and a brass direction dial on a stone plinth (arrows to the gorge, Zone 51, Route 13 and
+  the lake). **Fix:** the binoculars put you 0.6 m *south* of them, looking south, so the head was behind you. Stand at
+  `spots.binoUse` (0.6 m north) and put the prompt at `spots.binoProp`. Everything stays under 15.5 m on the Quarry
+  Skip line (the head's top is at 15.34).
+- **The telescope** (-380, -1550) on a little rise: a round stone top 30 cm up ringed with rocks (`plates`: 2.4 m
+  square), a brass telescope on a wooden tripod with brass feet, aimed south-east over the gorge. Prompt unchanged.
+- **The flagpole** (-310, -1520): a concrete base, an 8 m white pole with a brass ball, a halyard and cleat, and a cloth
+  DOORS flag that waves: call `tick(t)` every frame (replaces the old label's rotate/stretch anim).
+- **The campfire** (-340, -1525): a ring of 13 stones, an ash bed, a teepee of charred sticks that glow a little, three
+  log seats, and a crate with the soda cans stacked 4-3-2-1 plus a few crushed ones. The fire sprite and light stay
+  (`spots.fire`); the old obstacle stays.
+- Returns `{obs, plates, spots, parts:{flag, win}, tick, lights}`.
 
