@@ -216,6 +216,39 @@ cooldown and heal, the loc 'Motel 13' at (76, -902). Only their places change; `
 - Checked: z-fight checker clean; the only "floating" hits are the AC grilles and drawer fronts, which are on the
   faces of their boxes.
 
+### Batch 4: the drive-in, for review · `rtDriveIn(g)` → `{obs, lights, posts, spots, parts, mapR}`, `rtDriveHuts(g)` → `{obs, lights}`
+Replace the base drive-in's meshes (the block `/* ---- the drive-in: a big screen showing "DOORS"...` and the
+`T('drive-in',...)` block) with these. **Keep:** the picture plane `pl` and its canvas animation (it stays at
+(-40, 6, -937.8), 5 cm in front of the new screen), the projector beam, its switch prop and `XM.net.proj`, the popcorn
+prop, the two old cars (`mkOldCar` at (-44, -923) and (-37, -923)) with their sitters, the loc 'Drive-in'.
+**Remove:** the old screen box, its two posts and brackets and its obstacle (the new `obs` has the screen's), the six
+speaker posts and their cables, the snack bar's boxes, glass, counter and label, the projector booth's boxes and
+lens (the beam stays), and the snack bar's and booth's old obstacles (same footprints in the new `obs`).
+- **Lot:** gravel x -52…-20, z -942…-908 (1.5 cm up). **The drive:** the game's road `road(-20,-912,-3.5,-912)`;
+  batch 1's shoulders already leave its mouth open. Add `mapR`.
+- **Screen:** the same panel (14.5 × 7, centre (-40, 6, -938), facing north) with a cap and side trims, a green skirt
+  board under it (PLEASE HANG UP YOUR SPEAKER BEFORE YOU DRIVE AWAY), and behind it a timber tower: four posts,
+  girts, cross braces in every bay, a raking strut to a concrete foot behind each post, knee braces, and a steel
+  ladder up the middle.
+- **Speaker posts (`posts`):** two rows curved round the screen (radius 15 and 22 from (-40, -938)), between the
+  3.5 m parking bays; the second row leaves a gap round the projector booth. Each: a pipe in a concrete collar, a
+  junction box marked ROW 1 · 3 etc., two speakers on hooks (one for the car on each side) and their cables.
+  Optional prop at each post: "[E] Hang the speaker on your window" (a crackly "...DOORS...", static).
+- **Ticket booth** at (-17.5, -906.9), on the north side of the drive at the lot entrance: a white booth with glass
+  all round, a red roof and a TICKETS sign, a hatch on the drive side. New prop at `spots.ticket`: "[E] Buy a ticket"
+  (free: "The booth is empty. A sign says PAY AT THE SNACK BAR. The snack bar says PAY AT THE BOOTH.").
+- **Marquee** at (-13, -919.5), south of the drive mouth and clear of the power line: two steel posts, a neon
+  ★ DRIVE-IN ★ header and a bulb-ringed letter board TONIGHT · D O O R S · ALSO SHOWING: RUN., on both faces (north
+  and south). Two lights in `lights`.
+- **Snack bar** (same footprint, (-28, -920), 4 × 3 m): cream walls with a red base band, a serving window to the south
+  with a counter on brackets and a red and white awning, the SNACKS · POPCORN 3 🪙 · GWEEN SODA sign, a popcorn machine,
+  a soda fountain and a menu board inside (POPCORN 3, GWEEN SODA 2, HOT DOG 4, MYSTERY BOX 13), a back door, and a
+  giant popcorn box on the roof. The popcorn prop and its light stay where they are.
+- **Projector booth** (same footprint, (-40, -916)): block walls, a flat roof with a cream drip edge, the projector
+  housing and lens in a port in the south wall (where the beam starts), a second port, a steel door on the north side
+  (PROJECTION · KEEP OUT, where the switch prop is), a roof vent, and a film reel badge on the east wall.
+- Checked: z-fight checker clean except the speaker cables' tight bends against themselves; nothing floating.
+
 ## Things Claude Code has to keep in mind
 - **Seeded random:** everything here is built inside the seeded desert load steps; add or remove `Math.random()`
   calls and everything built after them changes. Burn the same number of calls where old code is removed (as
