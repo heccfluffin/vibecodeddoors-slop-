@@ -478,3 +478,122 @@ function rtMotelPool(g){const k=rtKit(),o=rtMotelKit(),{B,C,rod,L,tube}=k.H(g),M
  /* the pool rules on a post at the south-west corner, facing the lot */{const sx=91.2,sz=-907.1;C(.035,.035,1.9,sx,.95,sz,k.STL,null,null,8);L('MOTEL 13 POOL\nNO LIFEGUARD · NO DIVING\nNO RUNNING · NO SEEK\nSWIM AT YOUR OWN RISK',.9,.6,'#f2eee2','#1a3a6a',36,sx,1.6,sz-.03,Math.PI);L('',.9,.6,'#8a8f92',null,10,sx,1.6,sz+.03,0);obs.push({x0:sx-.1,x1:sx+.1,z0:sz-.1,z1:sz+.1})}
  obs.push({x0,x1,z0,z1});
  return{obs,plates:[{x0:90.5,x1:101.5,z0:-907.5,z1:-899.5,y:.06}]}}
+
+/* =====================================================================================================
+   batch 4: the DRIVE-IN (centred (-40, -930), west of Route 13). A gravel lot x -52..-20, z -942..-908 reached by
+   the drive along z -912 (the game's own road, x -20..-3.5). The screen keeps its size and place (14.5 x 7, centre
+   (-40, 6, -938), facing north) and gets a timber tower behind it; speaker posts stand in two rows curved round the
+   screen; a ticket booth at the lot entrance, a marquee by Route 13; the snack bar and projector booth remodelled in
+   place (same footprints, so their props and obstacles stay).
+   ===================================================================================================== */
+const RTD={cx:-40,cz:-930,lot:{x0:-52,x1:-20,z0:-942,z1:-908},scr:{x:-40,y:6,z:-938,w:14.5,h:7,d:.3},
+ snack:[-28,-920],booth:[-40,-916],ticket:[-17.5,-906.9],marquee:[-13,-919.5],
+ /* the speaker rows: arcs round (-40, -938), radius 15 and 22; posts sit between the parking bays (bays 3.5 m wide,
+    centred on x -51, -47.5, -44, -40.5, -37, -33.5, -30; the two old cars stay in the -44 and -37 bays) */
+ rows:[15,22],postX:[-49.25,-45.75,-42.25,-38.75,-35.25,-31.75]};
+function rtDriveKit(){const k=rtKit();if(k._dri)return k._dri;const M=k.M,r=k.r,o={};
+ o.TIM=M(0xffffff,{roughness:.9,map:k.tex(64,256,(c,w,h)=>{c.fillStyle='#7a5636';c.fillRect(0,0,w,h);for(let i=0;i<70;i++){c.fillStyle='rgba(40,24,10,'+(.12+r()*.22)+')';c.fillRect(r()*w,r()*h,1,10+r()*60)}c.fillStyle='rgba(255,230,190,.06)';for(let i=0;i<30;i++)c.fillRect(r()*w,r()*h,2,30)})});
+ o.TIMD=M(0x5a3e26,{roughness:.9});o.SCR=M(0xf4f2ec,{roughness:.95,map:k.tex(256,128,(c,w,h)=>{c.fillStyle='#f4f2ec';c.fillRect(0,0,w,h);c.fillStyle='rgba(120,120,110,.18)';for(let x=0;x<w;x+=32)c.fillRect(x,0,1,h);for(let i=0;i<300;i++){c.fillStyle='rgba(150,140,120,.06)';c.fillRect(r()*w,r()*h,3,3)}})});
+ o.GRN=M(0x2f5a3a,{roughness:.8});o.RED=M(0xc8302a,{roughness:.6});o.CRM=M(0xf4ead2,{roughness:.8});o.BLK=M(0x1c1c1e,{roughness:.6});
+ o.STRIPE=M(0xffffff,{roughness:.7,map:k.tex(128,32,(c,w,h)=>{for(let i=0;i<8;i++){c.fillStyle=i%2?'#f4ead2':'#c8302a';c.fillRect(i*w/8,0,w/8,h)}})});
+ o.BLOCK=M(0xffffff,{roughness:.95,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#9a958a';c.fillRect(0,0,w,h);c.fillStyle='rgba(60,56,50,.5)';for(let y=0;y<h;y+=32){c.fillRect(0,y,w,2);for(let x=((y/32)%2)*32;x<w;x+=64)c.fillRect(x,y,2,32)}for(let i=0;i<600;i++){c.fillStyle=r()<.5?'rgba(60,56,50,.12)':'rgba(230,226,216,.12)';c.fillRect(r()*w,r()*h,2,2)}})});
+ o.BLOCK.userData.t=1.6;o.STRIPE.userData.t=1;o.TIM.userData.t=2;
+ return k._dri=o}
+/* the lot, the screen tower, the speaker rows, the ticket booth and the marquee.
+   Returns {obs, lights, posts:[[x,z]...], spots:{ticket}, parts:{bulbs}} */
+function rtDriveIn(g){const k=rtKit(),o=rtDriveKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r=k.r,obs=[],lights=[],box=(w,h,d,x,y,z,m)=>rtBox(g,w,h,d,x,y,z,m);const ob=(x0,x1,z0,z1)=>obs.push({x0,x1,z0,z1});
+ const{x0,x1,z0,z1}=RTD.lot,S=RTD.scr;
+ /* ---- the gravel lot (1.5 cm up), with tyre-worn patches along the rows ---- */
+ {const m=new THREE.Mesh(new THREE.PlaneGeometry(x1-x0,z1-z0),k.GRAVEL.clone());m.material.map=k.GRAVEL.map.clone();m.material.map.needsUpdate=true;m.material.map.repeat.set(3,4);m.material.polygonOffset=true;m.material.polygonOffsetUnits=-1;
+  m.rotation.x=-Math.PI/2;m.position.set((x0+x1)/2,.015,(z0+z1)/2);m.userData.noSeam=true;g.add(m)}
+ /* ---- the screen: the white panel (same size and place as before; the game's picture plane stays 5 cm in front),
+    a dark skirt board under it, a cap, and behind it a timber tower: four posts, girts, cross braces in every bay and
+    a raking strut to the ground behind each post ---- */
+ box(S.w,S.h,S.d,S.x,S.y,S.z,[o.TIMD,o.TIMD,o.TIMD,o.TIMD,o.SCR,o.TIMD]);
+ box(S.w+.4,.18,.55,S.x,S.y+S.h/2+.09,S.z-.05,o.TIMD);for(const sd of[-1,1])box(.2,S.h,.42,S.x+sd*(S.w/2+.1),S.y,S.z-.05,o.TIMD);
+ {const sk=S.y-S.h/2;box(S.w+.4,sk,.12,S.x,sk/2,S.z+.06,o.GRN);for(let x=-7;x<=7;x+=1)box(.04,sk-.02,.02,S.x+x,sk/2-.01,S.z+.13,o.TIMD);
+  L('PLEASE HANG UP YOUR SPEAKER BEFORE YOU DRIVE AWAY',8,.5,null,'#f4ead2',40,S.x,1.5,S.z+.141,0)}
+ const PZ=S.z-S.d/2-.15,PXs=[-47,-42.4,-37.6,-33],TOP=S.y+S.h/2+.3;
+ for(const x of PXs){box(.3,TOP,.3,x,TOP/2,PZ,o.TIM);rod([x,.0,-942.2],[x,7.2,PZ-.15],.11,o.TIM,null,8);box(.6,.2,.6,x,.1,-942.2,M(0x8a857a));rod([x,4.6,PZ-.15],[x,3.6,-940.325],.07,o.TIM,null,6)}
+ const GY=[2.6,5.2,7.8,TOP-.15];for(const y of GY)box(PXs[3]-PXs[0]+.6,.22,.2,S.x,y,PZ-.25,o.TIM);
+ for(let i=0;i<3;i++)for(let j=0;j<3;j++){const xa=PXs[i],xb=PXs[i+1],ya=GY[j],yb=GY[j+1];rod([xa,ya,PZ-.37],[xb,yb,PZ-.37],.05,o.TIM,null,6);rod([xb,ya,PZ-.37],[xa,yb,PZ-.37],.05,o.TIM,null,6)}
+ /* a ladder up the middle post to a small work platform at the top girt */
+ {const lx=-40;for(const sd of[-.22,.22])box(.06,TOP-.4,.06,lx+sd,(TOP-.4)/2,PZ-.55,M(0x8a8f92,{metalness:.5,roughness:.5}));for(let y=.4;y<TOP-.5;y+=.32)box(.44,.03,.03,lx,y,PZ-.55,M(0x8a8f92,{metalness:.5,roughness:.5}));
+  for(const sd of[-.22,.22])box(.05,.06,.3,lx+sd,TOP-.42,PZ-.41,M(0x8a8f92,{metalness:.5}));ob(lx-.3,lx+.3,PZ-.65,PZ-.45)}
+ ob(S.x-S.w/2-.2,S.x+S.w/2+.2,S.z-.4,S.z+.15);for(const x of PXs)ob(x-.35,x+.35,-942.5,-941.9);
+ /* ---- the speaker posts: a short steel pipe in a concrete collar, a junction box with the row and post number,
+    two speakers on hooks (one for the car each side) and their coiled cables ---- */
+ const posts=[],PM=M(0x8a8f92,{metalness:.5,roughness:.45}),SPK=M(0x3a4a3a,{roughness:.6}),GRL=M(0x202420,{roughness:.8});
+ RTD.rows.forEach((R,ri)=>{let n=0;for(const x of RTD.postX){const dx=x-RTD.cx,z=S.z+Math.sqrt(R*R-dx*dx);
+   if(Math.abs(x-RTD.booth[0])<3&&Math.abs(z-RTD.booth[1])<3)continue;n++;posts.push([x,z]);
+   const p=new THREE.Group();p.position.set(x,0,z);p.rotation.y=Math.atan2(dx,z-S.z);g.add(p);const h=k.H(p);
+   h.C(.14,.16,.12,0,.06,0,M(0xa8a398,{roughness:.95}),null,null,12);h.C(.045,.045,1.2,0,.66,0,PM,null,null,8);h.B(.24,.2,.16,0,1.36,0,PM);h.C(.05,.05,.03,0,1.475,0,PM,null,null,8);
+   const lab=h.L('ROW '+(ri+1)+' · '+n,.2,.1,'#e8e0c8','#202020',40,0,1.36,.086,0);const lab2=h.L('ROW '+(ri+1)+' · '+n,.2,.1,'#e8e0c8','#202020',40,0,1.36,-.086,Math.PI);
+   for(const sd of[-1,1]){h.B(.08,.03,.03,sd*.15,1.25,0,PM);h.B(.1,.24,.3,sd*.24,1.12,0,SPK);const gr=new THREE.Mesh(new THREE.CircleGeometry(.09,16),GRL);gr.position.set(sd*.295,1.13,0);gr.rotation.y=sd*Math.PI/2;p.add(gr);
+    h.tube([[sd*.24,1.0,0],[sd*.21,.84,.03],[sd*.12,.8,.035],[sd*.06,1.0,.02],[sd*.05,1.27,0]],.012,k.DK,null,16)}
+   obs.push({x0:x-.2,x1:x+.2,z0:z-.2,z1:z+.2})}});
+ /* ---- the ticket booth at the lot entrance, north side of the drive: a small white booth, glass all round above a
+    panelled base, a red roof overhang, TICKETS on the roof, a hatch window on the drive side ---- */
+ {const[tx,tz]=RTD.ticket,W=1.8,D=1.4,H=2.4;box(W+.8,.12,D+.8,tx,.06,tz,rtMotelKit().CONC);
+  box(W,1.0,D,tx,.62,tz,o.CRM);for(const sx of[-1,1])for(const sz of[-1,1])box(.08,H-1.12,.08,tx+sx*(W/2-.04),1.12+(H-1.12)/2,tz+sz*(D/2-.04),o.CRM);
+  for(const[w,d,x,z]of[[W-.16,.02,tx,tz-D/2+.04],[W-.16,.02,tx,tz+D/2-.04],[.02,D-.16,tx-W/2+.04,tz],[.02,D-.16,tx+W/2-.04,tz]])box(w,H-1.16,d,x,1.12+(H-1.12)/2,z,rtMotelKit().GLASS);
+  box(W+.06,.06,D+.06,tx,1.13,tz,o.CRM);box(W+.7,.2,D+.7,tx,H+.2,tz,o.RED);box(W+.1,.1,D+.1,tx,H+.05,tz,o.CRM);
+  /* the hatch: a sill outside and a little counter; a stool, the till and a roll of tickets inside */
+  box(.9,.04,.3,tx,1.15,tz-D/2-.13,o.CRM);box(1.2,.05,.35,tx,1.15,tz-D/2+.25,o.TIMD);box(.3,.14,.22,tx-.3,1.24,tz-D/2+.22,o.BLK);C(.05,.05,.08,tx+.15,1.22,tz-D/2+.22,o.RED,'x',null,10);
+  const sg=new THREE.Group();sg.position.set(tx,H+.3,tz);g.add(sg);const sh=k.H(sg);sh.B(1.6,.7,.12,0,.35,0,o.RED);sh.L('TICKETS',1.5,.42,'#c8302a','#f4ead2',60,0,.44,-.066,Math.PI);sh.L('TICKETS',1.5,.42,'#c8302a','#f4ead2',60,0,.44,.066,0);
+  ob(tx-W/2,tx+W/2,tz-D/2,tz+D/2);lights.push([tx,H-.2,tz-D/2-.6])}
+ /* ---- the marquee by Route 13 (south of the drive mouth, set back from the shoulder): two steel posts on concrete
+    feet, a neon DRIVE-IN header and a letter board TONIGHT: D O O R S ringed with bulbs, both faces (north and south,
+    so drivers both ways can read it). parts.bulbs: the bulb material (chase it by swapping its map offset, or leave it) ---- */
+ const bulbs=[];{const[mx,mz]=RTD.marquee,BW=5.2,PM2=M(0x2a2a2e,{metalness:.5,roughness:.4});
+  for(const sd of[-1,1]){box(.6,.3,.6,mx+sd*2.3,.15,mz,rtMotelKit().CONC);C(.1,.12,6.7,mx+sd*2.3,3.65,mz,PM2,null,null,10);ob(mx+sd*2.3-.3,mx+sd*2.3+.3,mz-.3,mz+.3)}
+  box(BW,1.3,.4,mx,6.15,mz,o.BLK);box(BW,1.7,.4,mx,4.6,mz,o.CRM);box(BW+.12,.1,.5,mx,6.85,mz,o.RED);box(BW+.12,.1,.5,mx,3.7,mz,o.RED);box(BW+.12,.06,.46,mx,5.475,mz,o.RED);
+  const bc=document.createElement('canvas');bc.width=520;bc.height=170;const x=bc.getContext('2d');x.fillStyle='#f4ead2';x.fillRect(0,0,520,170);x.fillStyle='#1c1c1e';x.textAlign='center';x.font='bold 30px Arial';x.fillText('TONIGHT',260,48);x.font='bold 62px Arial';x.fillText('D O O R S',260,112);x.font='bold 22px Arial';x.fillText('ALSO SHOWING: RUN.',260,150);
+  for(let i=0;i<26;i++){for(const y of[10,160]){x.fillStyle='#ffd860';x.beginPath();x.arc(10+i*19.2,y,5,0,7);x.fill()}}for(let j=0;j<8;j++)for(const xx of[10,510]){x.beginPath();x.arc(xx,10+j*21.4,5,0,7);x.fill()}
+  const bt=new THREE.CanvasTexture(bc);bt.anisotropy=8;const BM=new THREE.MeshBasicMaterial({map:bt});bulbs.push(BM);
+  for(const sd of[-1,1]){const p=new THREE.Mesh(new THREE.PlaneGeometry(BW-.1,1.6),BM);p.position.set(mx,4.6,mz+sd*.205);p.rotation.y=sd>0?0:Math.PI;g.add(p);
+   const n=rtNeon('★ DRIVE-IN ★',BW-.2,1.15,'#ff5030','#1c1c1e',120);n.position.set(mx,6.15,mz+sd*.205);n.rotation.y=sd>0?0:Math.PI;g.add(n)}
+  lights.push([mx,5,mz-1.2],[mx,5,mz+1.2])}
+ return{obs,lights,posts,spots:{ticket:[RTD.ticket[0],RTD.ticket[1]-1.6]},parts:{bulbs},mapR:[[x0,x1,z0,z1,'#a3937a']]}}
+/* the snack bar (centre (-28, -920), 4 x 3 m, serving window to the south) and the projector booth (centre
+   (-40, -916), 2.4 m block, lens to the south, door to the north), remodelled on their old footprints */
+function rtDriveHuts(g){const k=rtKit(),o=rtDriveKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r=k.r,obs=[],lights=[],box=(w,h,d,x,y,z,m)=>rtBox(g,w,h,d,x,y,z,m);
+ /* ---- snack bar: cream walls with a red base band, a serving window with a counter and a striped awning, a
+    popcorn machine and a menu board inside, SNACKS over the window, a giant popcorn box on the roof ---- */
+ {const[bx,bz]=RTD.snack,W=4,D=3,H=2.6,ZF=bz-D/2,T=.15,G=rtMotelKit().GLASS;
+  /* walls: the south wall has the window x bx-1.3..bx+1.3, y 1.0..2.1; the inside is a dim room */
+  const IN=M(0x6a5a48,{roughness:.9}),wl=(w,h,d,x,y,z,mi)=>box(w,h,d,x,y,z,mi);
+  wl(.7,H,T,bx-1.65,H/2,ZF+T/2,[o.CRM,o.CRM,o.CRM,o.CRM,IN,o.CRM]);wl(.7,H,T,bx+1.65,H/2,ZF+T/2,[o.CRM,o.CRM,o.CRM,o.CRM,IN,o.CRM]);wl(2.6,1.0,T,bx,.5,ZF+T/2,[o.CRM,o.CRM,o.CRM,o.CRM,IN,o.CRM]);wl(2.6,H-2.1,T,bx,(H+2.1)/2,ZF+T/2,[o.CRM,o.CRM,o.CRM,o.CRM,IN,o.CRM]);
+  box(W,H,T,bx,H/2,bz+D/2-T/2,[o.CRM,o.CRM,o.CRM,o.CRM,o.CRM,IN]);for(const sd of[-1,1])box(T,H,D-2*T,bx+sd*(W/2-T/2),H/2,bz,sd>0?[o.CRM,IN,o.CRM,o.CRM,o.CRM,o.CRM]:[IN,o.CRM,o.CRM,o.CRM,o.CRM,o.CRM]);
+  box(W-2*T,.03,D-2*T,bx,.015,bz,M(0x8a7a66));
+  /* red base band all round (a skin 1 cm proud), and the roof slab */
+  for(const[w,d,x,z]of[[W+.02,.01,bx,ZF-.005],[W+.02,.01,bx,bz+D/2+.005],[.01,D,bx-W/2-.005,bz],[.01,D,bx+W/2+.005,bz]])box(w,.5,d,x,.25,z,o.RED);
+  box(W+.4,.2,D+.4,bx,H+.1,bz,o.RED);box(W+.44,.04,D+.44,bx,H+.22,bz,o.CRM);
+  /* window: a frame, a sliding glass half open, the counter outside on brackets */
+  for(const x of[bx-1.3,bx+1.3])box(.06,1.04,.1,x+(x<bx?.03:-.03),1.52,ZF+.05,o.CRM);box(2.6,.06,.1,bx,2.07,ZF+.05,o.CRM);box(1.25,1.02,.01,bx+.6,1.56,ZF+.08,G);
+  box(2.9,.06,.42,bx,1.03,ZF-.21,o.TIMD);for(const sx of[-1.1,1.1])rod([bx+sx,.72,ZF],[bx+sx,1.0,ZF-.36],.025,k.STL,null,6);
+  /* the striped awning, sloping out over the counter, on two arms */
+  {const aw=rtBox(g,3.2,.03,1.1,bx,2.15,ZF-.5,o.STRIPE);aw.rotation.x=-.32;box(3.2,.18,.02,bx,1.89,ZF-1.03,o.STRIPE);for(const sx of[-1.5,1.5])rod([bx+sx,1.8,ZF],[bx+sx,1.97,ZF-1.0],.02,k.STL,null,6)}
+  /* SNACKS sign on the wall above the awning */{const s=L('SNACKS · POPCORN 3 🪙 · GWEEN SODA',3.4,.26,'#c8302a','#fff4d0',50,bx,2.46,ZF-.005,Math.PI)}
+  /* inside: the popcorn machine (glass box, yellow corn), a soda fountain, a menu board on the back wall */
+  {const pmx=bx-.9,pmz=bz+.35;box(.6,.8,.5,pmx,.4,pmz,o.RED);box(.56,.6,.46,pmx,1.1,pmz,G);box(.5,.29,.4,pmx,.955,pmz,M(0xffe070,{roughness:1,emissive:0x403000}));box(.62,.08,.52,pmx,1.44,pmz,o.RED);
+   box(.7,.9,.45,bx+.8,.45,bz+.9,M(0xc8ccd0,{metalness:.4,roughness:.4}));for(let i=0;i<3;i++)C(.025,.025,.12,bx+.6+i*.2,.93,bz+.9,k.STL,null,null,6);
+   const mb=L('MENU\nPOPCORN ....... 3\nGWEEN SODA ... 2\nHOT DOG ........ 4\nMYSTERY BOX .. 13',1.2,.8,'#1c1c1e','#f4ead2',36,bx-.2,1.7,bz+D/2-T-.006,Math.PI)}
+  /* a giant popcorn box on the roof: a striped tapered box, corn spilling over the top */
+  {const pbx=bx+.8,pbz=bz+.2,H2=1.2,yb=H+.24;const pb=new THREE.Mesh(new THREE.CylinderGeometry(.62,.45,H2,4,1,true),Object.assign(o.STRIPE.clone(),{side:THREE.DoubleSide}));pb.material.map=o.STRIPE.map.clone();pb.material.map.needsUpdate=true;pb.material.map.repeat.set(2,1);pb.rotation.y=Math.PI/4;pb.position.set(pbx,yb+H2/2,pbz);g.add(pb);
+   box(.64,.04,.64,pbx,yb+.02,pbz,o.RED);const CO=M(0xffe9a0,{roughness:1});for(let i=0;i<22;i++){const a=r()*Math.PI*2,rr=r()*.4,s=.12+r()*.08;const b=new THREE.Mesh(new THREE.IcosahedronGeometry(s,0),CO);b.position.set(pbx+Math.cos(a)*rr,yb+H2-.04+r()*.18*(1-rr/.45),pbz+Math.sin(a)*rr);b.rotation.set(r()*3,r()*3,0);g.add(b)}
+   const lid=new THREE.Mesh(new THREE.CylinderGeometry(.58,.58,.06,4),CO);lid.rotation.y=Math.PI/4;lid.position.set(pbx,yb+H2-.05,pbz);g.add(lid)}
+  /* back door (north) */box(.9,2.0,.04,bx+1.1,1.0,bz+D/2+.025,M(0xc8302a,{roughness:.6}));C(.03,.03,.05,bx+.8,1.0,bz+D/2+.05,k.STL,'z',null,8);
+  obs.push({x0:bx-W/2-.1,x1:bx+W/2+.1,z0:ZF-.1,z1:bz+D/2+.1})}
+ /* ---- projector booth: a block hut with a flat roof and a drip edge, the projector housing poking out of a port in
+    the south wall (the lens where the game's beam starts), a second port, a steel door on the north side with
+    PROJECTION · KEEP OUT, a roof vent and a film-reel badge on the east wall ---- */
+ {const[px,pz]=RTD.booth,S=2.4;box(S,S,S,px,S/2,pz,o.BLOCK);box(S+.3,.16,S+.3,px,S+.08,pz,M(0x5a5650,{roughness:.9}));box(S+.34,.06,S+.34,px,S+.19,pz,o.CRM);
+  for(const dx of[0,-.75])box(dx?.34:.62,dx?.26:.5,.04,px+dx,2.0,pz-S/2-.02,o.BLK);
+  box(.5,.4,.4,px,2.0,pz-S/2-.15,M(0x2a2a30,{metalness:.4,roughness:.5}));const lens=C(.18,.22,.3,px,2.0,pz-1.65,M(0x1a1a2a,{metalness:.5,roughness:.2}),'z',null,14);C(.14,.14,.01,px,2.0,pz-1.805,M(0x8ab0ff,{emissive:0x2040a0,roughness:.1}),'z',null,14);
+  box(.9,1.95,.05,px+.5,.98,pz+S/2+.025,M(0x6a6a70,{metalness:.5,roughness:.5}));C(.03,.03,.06,px+.15,1.0,pz+S/2+.06,k.STL,'z',null,8);L('PROJECTION\nKEEP OUT',.6,.3,'#c02020','#ffffff',50,px+.5,1.55,pz+S/2+.056,0);
+  C(.12,.12,.5,px-.6,S+.47,pz+.4,k.STL,null,null,12);C(.18,.18,.06,px-.6,S+.75,pz+.4,k.STL,null,null,12);
+  const fr=k.tex(128,128,(c,w,h)=>{c.clearRect(0,0,w,h);c.fillStyle='#2a2a2e';c.beginPath();c.arc(64,64,60,0,7);c.fill();c.fillStyle='#c8c8c8';for(let i=0;i<5;i++){const a=i/5*Math.PI*2;c.beginPath();c.arc(64+Math.cos(a)*32,64+Math.sin(a)*32,13,0,7);c.fill()}c.beginPath();c.arc(64,64,8,0,7);c.fill()});
+  const reel=new THREE.Mesh(new THREE.PlaneGeometry(.8,.8),M(0xffffff,{map:fr,transparent:true,alphaTest:.5}));reel.position.set(px+S/2+.006,1.5,pz);reel.rotation.y=Math.PI/2;g.add(reel);
+  obs.push({x0:px-1.3,x1:px+1.3,z0:pz-1.3,z1:pz+1.3})}
+ return{obs,lights}}
