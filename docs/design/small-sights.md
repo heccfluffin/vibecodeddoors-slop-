@@ -158,4 +158,4 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   first one sits on the outer slope of the rim, so use the height).
   The observatory badge: collecting all five fragments gives `badge('stars')`, the observatory's badge. Give the
   crater its own badge (for example `'meteor'`, "Star Collector") or none.
-- Checked: z-fight checker clean on both; nothing floating.
+- Checked: z-fight checker clean on both (one near-touch where the glassy floor fades out to nothing at its edge); nothing floating.
