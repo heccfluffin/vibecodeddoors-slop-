@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batch 1 approved, batch 2 for review
+Status: plan approved 2026-10-20 · batches 1 and 2 approved, batch 3 for review
 
 # Lookout Mesa and Devil's Gorge
 
@@ -107,7 +107,7 @@ Constants: `MG` (the mesa box, the road, the Quarry Skip lane kept clear, the pr
 - Draw calls: the cliff, rim, talus, fallen rock and plants are one mesh each; mark them `noChunk` if the chunker would
   split them.
 
-### Batch 2: on top of the mesa, for review · `mgMesaTop(g)`
+### Batch 2: on top of the mesa, approved 2026-10-21 · `mgMesaTop(g)`
 Replaces the top's old meshes in `xpMesa` (the cabin box, roof, door, chimney; the telescope's legs and tube; the
 flagpole and the `lab('DOORS')` flag; the campfire stones and the soda cans) and in `T('mesa')` (the binoculars' post,
 head, coin slot and label, and the summit book's lectern and book). Keep every prop, the Hermit, the smoke sprite, the
@@ -138,4 +138,40 @@ fire sprite and its light; move them as below.
   log seats, and a crate with the soda cans stacked 4-3-2-1 plus a few crushed ones. The fire sprite and light stay
   (`spots.fire`); the old obstacle stays.
 - Returns `{obs, plates, spots, parts:{flag, win}, tick, lights}`.
+
+### Batch 3: the gorge walls, rim and riverbed, for review · `mgGorgeWalls(g)`, `mgGorgeBed(g)`, `mgGorgeRim(g)`, `mgVultures(g)`
+Constants: `MGG` (the band, the ledge, the cave mouth, the bridges, the jump, the zipline; `MGG.zc(x)` and `MGG.zw(x)` are
+the river's centre line and half width). `mgBedH(x, z)` is the visual floor height (you still walk at -30).
+- **What goes:** in `xpGorge` the floor slab, the blue river strip, the long wall boxes (north, the two south pieces and
+  the lintel over the cave), the two end caps, the ledge column and its top slab, the two `sign('DANGER…')` calls; in
+  `xpGorgeCave` the 46 boulders (and their `q.deepB` boxes: they used `Math.random`), the ten sand drifts and the cave
+  mouth's arch (`ar` and its two posts). Keep the ground cut, the bridges, the jump ramp, the zipline, the cave
+  inside, the lift and every prop (batches 4 and 5 do the bridges, the jump and the zipline).
+- **`mgGorgeWalls(g)`**: the north and south walls (x -660 to 660) and the two end walls (x ±641), one mesh each,
+  `noChunk`. Sandstone in seven layers (a dark base, red, pale, orange, red, pale, the pale cap) that rise and fall a
+  little along the gorge, a ledge at the foot of each layer, buttresses and vertical joints, chutes, low alcoves at the
+  foot here and there, desert varnish streaks, and a cap rock with an undercut below it. **Every face is set back
+  into the rock (0 to 3.5 m), never into the band**, and the top edge is exactly on the band edge so the ground meets
+  it. A low rim lip (5 cm, 1.7 m wide) runs along the top on the ground side; it is sunk where the bridges, the ledge
+  and the jump are, so it never pokes through a deck or a road. The south wall wraps round the jump ledge (its sides
+  set back at most about 1 m, its top a packed-sand plane at 1.5 cm; batch 5 puts the landing pad on it). **The cave
+  mouth** is a hole in the south wall (x 188.4 to 195.6, up to -23.9) with the face flush round it, framed by big
+  fallen blocks and a lintel stone (two `deepB` boxes for the side blocks). Sand covers the band past both map ends.
+  Returns `{deepB}`.
+- **`mgGorgeBed(g)`**: one floor mesh (x -660 to 660, z -1748 to -1696), `noChunk`: a river channel winding inside the
+  band (kept north of the ledge and away from the cave), up to 45 cm deep with sloping banks, shallows, five
+  sandbars, wet sand along the water, rubble rising along the foot of both walls (it only rises in the strip you can't
+  walk on, so the stop line is where the rubble starts), flat in front of the cave. The water is a strip 5 cm above
+  the floor (`parts.water`: its texture flows when you call `tick(t)`). Pebbles along the banks, about 50 boulders, 60
+  talus heaps against the walls, two bleached dead trees (x -262 and 418) and ten pieces of driftwood. Returns
+  `{deepB, parts:{water}, tick}`: push `deepB` into `q.deepB` (boulders, the high part of each talus heap, the trees).
+  You still walk at -30; the floor you see is within 5 cm of that where you can walk, except the river (you wade, 5 cm
+  deep) and the sandbars.
+- **`mgGorgeRim(g)`**: where each of the three roads meets the rim, on both rims: an old fence (weathered posts every
+  2.5 m, three strands of sagging wire) from the bridge's rail 20 m out each way, with a DANGER · SHEER DROP · 30 m ·
+  KEEP BACK sign at each end (12 signs). Small cairns every 95 m along both rims, kept away from the bridges, the
+  zipline, the jump and the lift. Returns `{obs}` (the fences, the signs, the cairns).
+- **`mgVultures(g)`**: two vultures circling 34 to 39 m up over the Route 13 bridge, gliding with a flap now and then.
+  Returns `{tick(t)}`: call it every frame (cheap: two small groups).
+- Size: about 230,000 triangles in all (most in the two long walls and the floor), in about 15 draw calls.
 

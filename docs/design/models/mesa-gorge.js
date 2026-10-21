@@ -299,3 +299,133 @@ function mgMesaTop(g){const k=rtKit(),o=mgKit(),r=o.r,M=k.M,H=MG.H,obs=[],plates
  return{obs,plates,spots,parts:{flag,win:WGL},tick,lights:[[-323.68,H+2.3,-1560.85]]}}
 /* a round rod from a to b */
 function rodp(par,a,b,rad,m){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B),e=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,L,6),m);e.position.copy(A).add(B).multiplyScalar(.5);e.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());par.add(e);return e}
+
+/* ---------- Batch 3: Devil's Gorge walls, rim and riverbed ----------
+   GORGE band z -1744 … -1700 (the walkable floor is y -30, z0+0.7 … z1-0.7), the walls stay OUTSIDE the band (in the
+   rock), except the jump ledge which is rock inside the band as now (x 284 … 316, z -1744 … -1728).
+     mgGorgeWalls(g)  both canyon walls (one mesh each, x -660 … 660) and the two end walls (x ±641), in sandstone
+                      layers with ledges, buttresses, chutes, alcoves at the foot and a flush cap rock with an
+                      undercut below it; a low rim lip along the top (sunk where the bridges, the ledge and the jump
+                      are); the ledge's sides and top; the cave mouth in the south wall with a rock frame; sand covers
+                      over the band beyond the map ends. Returns {deepB}.
+     mgGorgeBed(g)    the floor: a winding river with banks, shallows and sandbars, rubble along the foot of the walls,
+                      pebbles, boulders (solid), two dead trees, bleached driftwood. Returns {deepB, parts:{water}, tick(t)}.
+     mgGorgeRim(g)    rim cairns, and an old fence with wire plus DANGER signs where the three roads meet the rim.
+                      Returns {obs}.
+     mgVultures(g)    two vultures circling high over the Route 13 bridge. Returns {tick(t)}.
+   ===================================================================================================== */
+const MGG={z0:-1744,z1:-1700,D:30,X:660,ends:641,ledge:{x0:284,x1:316,z1:-1728},cave:{x0:189,x1:195,top:-23.9},bridges:[[-4.6,4.6],[-444.6,-435.4],[555.4,564.6]],jump:[294,306],zip:-150,
+ zc:x=>-1722+8*Math.sin(x*.0093+.7)+4*Math.sin(x*.027+2.1)+8*Math.exp(-Math.pow((x-300)/40,2)),/* the river's centre line */ zw:x=>4.5+2*Math.sin(x*.017+1)};/* its half width */
+function mgGFeat(s,sd){const bt=Math.pow(Math.max(0,Math.sin(s*2*Math.PI/37+.8*Math.sin(s*.013+sd)+sd)),1.4)*(.6+.4*Math.sin(s*.021+sd*2));
+ const gq=s/53+.3*Math.sin(s*.017+sd),gp=gq-Math.floor(gq),gl=Math.exp(-Math.pow((gp-.5)/.045,2));
+ const aq=s/143+.25*Math.sin(s*.009+sd),ap=aq-Math.floor(aq),al=Math.exp(-Math.pow((ap-.5)/.035,2));/* alcoves */
+ const bq=s/5.1+.4*Math.sin(s*.19+sd),bi=Math.floor(bq),bf=bq-bi,h1=Math.sin(bi*12.9898+sd*7.1)*43758.5453,hr=h1-Math.floor(h1),edge=Math.min(1,Math.min(bf,1-bf)/.06);return{bt,gl,al,hr,edge}}
+const MGLY=[-30,-24.5,-20.5,-16,-11.5,-7,-3.4];
+function mgDip(s,sd){/* the layers rise and fall a little along the wall */return 1.1*Math.sin(s*.0042+sd)+.5*Math.sin(s*.017+sd*2)}
+function mgGOff(s,y,sd){/* how far the rock face is set back from the band edge (into the rock), 0 … 3.5 m */const sm=mgKit().sm,{bt,gl,al,hr}=mgGFeat(s,sd);
+ const n=.07*Math.sin(s*.7+y*1.1)+.05*Math.sin(s*1.9-y*.6)+.04*Math.sin(y*2.7+s*.3),yl=y+mgDip(s,sd)*(1-mgKit().sm(-4,-2.5,y));let li=0;while(li<6&&yl>=MGLY[li+1])li++;const lt=li<6?(yl-MGLY[li])/(MGLY[li+1]-MGLY[li]):0;
+ const jt=Math.pow(Math.abs(Math.sin(s*.61+1.7*Math.sin(s*.09+sd))),.35);/* vertical joints */
+ let o=.2+2.3*(1-bt)*(.75+.25*jt)+n-.45*Math.pow(1-lt,3)+1.6*gl*sm(-29,-6,y)+2.8*al*(1-sm(-26.5,-25,y));
+ const und=sm(-3.9,-3.2,y)*(1-sm(-2.9,-2.6,y)),cap=sm(-2.9,-2.6,y);o=o*(1-cap)+(.05+.06*hr+n*.3)*cap+.75*und;
+ o*=1-sm(-.6,0,y);return Math.max(0,Math.min(3.5,o))}
+function mgGCol(s,y,sd){const sm=mgKit().sm,{gl,edge}=mgGFeat(s,sd),j=.04*Math.sin(s*.27+y*.8)+.03*Math.sin(s*1.3);
+ const P=[[.5,.36,.28],[.72,.44,.31],[.84,.7,.54],[.78,.52,.35],[.66,.4,.29],[.8,.66,.5],[.9,.8,.64]];const yl=y+mgDip(s,sd)*(1-sm(-4,-2.5,y));let li=0;while(li<6&&yl>=MGLY[li+1])li++;let c=P[li].slice();
+ if(li==6&&y<-2.9)c=c.map(v=>v*.62);if(li==6&&y>-2.6)c=c.map(v=>v*(.9+.1*edge));
+ for(const ly of MGLY.slice(1,6))if(yl<ly&&yl>ly-.4)c=c.map(v=>v*(.78+.22*(ly-yl)/.4));
+ const st=Math.pow(Math.max(0,Math.sin(s*.83+2.3*Math.sin(s*.21+sd))),12)*(1-sm(-6,-1,y))*sm(-26,-14,y);
+ return c.map(v=>v*(1+j)*(1-.25*gl)*(1-.32*st))}
+/* one canyon wall along a polyline. segs: [[ax,az],[bx,bz],[nx,nz]] with n pointing into the rock; corners between
+   segments: 'mitre' (the rock wraps round, 270°) or 'fan' (a rock corner, 90°). lipSkip(x,z) sinks the rim lip. */
+function mgWallMesh(segs,corners,sd,opt){const o=mgKit();const cols=[];let S=0;
+ segs.forEach(([a,b,n],si)=>{const L=Math.hypot(b[0]-a[0],b[1]-a[1]),N=Math.max(1,Math.ceil(L/2));for(let i=si>0&&corners[si-1]=='mitre'?1:0;i<N;i++){const t=i/N;cols.push({b:[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],n,s:S+t*L})}S+=L;
+  if(si<segs.length-1){const nn=segs[si+1][2];if(corners[si]=='mitre')cols.push({b:b.slice(),n:[n[0]+nn[0],n[1]+nn[1]],s:S});else for(let f=0;f<=6;f++){const an=Math.atan2(n[1],n[0]),bn=Math.atan2(nn[1],nn[0]);let d=bn-an;if(d<-Math.PI)d+=2*Math.PI;if(d>Math.PI)d-=2*Math.PI;const aa=an+d*f/6;cols.push({b:b.slice(),n:[Math.cos(aa),Math.sin(aa)],s:S,fan:1})}}
+  else cols.push({b:b.slice(),n,s:S})});
+ const YS=[-30.8];for(let y=-30;y<-.05;y+=.6)YS.push(y);YS.push(-.25,0);const NR=YS.length+3,NC=cols.length;const pos=new Float32Array(NC*NR*3),col=new Float32Array(NC*NR*3),uv=new Float32Array(NC*NR*2),idx=[];
+ cols.forEach((c,i)=>{const sk=opt.lipSkip&&opt.lipSkip(c.b[0],c.b[1]),hole=opt.hole&&opt.hole(c.b[0],c.b[1]);const tp=opt.taper?opt.taper(c.b[0],c.b[1]):1;
+  const rows=YS.map(y=>[mgGOff(c.s,y,sd)*tp,y]);rows.push([.45,sk?-.4:.05],[1.7,sk?-.4:.05],[2.4,-.25]);
+  rows.forEach(([of,y],j)=>{const q=i*NR+j;pos[q*3]=c.b[0]+c.n[0]*of;pos[q*3+1]=y;pos[q*3+2]=c.b[1]+c.n[1]*of;const cc=y>-.01?[.86,.77,.62]:mgGCol(c.s,y,sd);col.set(cc,q*3);uv[q*2]=c.s/6;uv[q*2+1]=(y>-.01?of:y)/6});c.hole=hole});
+ for(let i=0;i<NC-1;i++)for(let j=0;j<NR-1;j++){if((cols[i].hole||cols[i+1].hole)&&YS[j+1]!=null&&YS[j+1]<=opt.holeTop)continue;const a=i*NR+j,b=(i+1)*NR+j,c=(i+1)*NR+j+1,d=i*NR+j+1;if(opt.flip)idx.push(a,b,d,b,c,d);else idx.push(a,d,b,b,d,c)}
+ const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.BufferAttribute(pos,3));ge.setAttribute('color',new THREE.BufferAttribute(col,3));ge.setAttribute('uv',new THREE.BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+ const m=new THREE.Mesh(ge,o.ROCK);m.userData.noSeam=true;m.userData.noChunk=1;return m}
+function mgGorgeWalls(g){const k=rtKit(),o=mgKit(),r=o.r,{z0,z1,X,ends,ledge:LG,cave:CV}=MGG,deepB=[];
+ const nearB=(x,m)=>MGG.bridges.some(([a,b])=>x>a-m&&x<b+m);
+ /* north wall: rock to the north (+z); faces the gorge (-z) */
+ g.add(mgWallMesh([[[-X,z1],[X,z1],[0,1]]],[],1.7,{flip:0,lipSkip:(x)=>nearB(x,3)||(x>MGG.jump[0]-3&&x<MGG.jump[1]+3)}));
+ /* south wall, round the ledge; the cave mouth is a hole (x 189 … 195 below y -23.9), the face flush near it */
+ g.add(mgWallMesh([[[-X,z0],[LG.x0,z0],[0,-1]],[[LG.x0,z0],[LG.x0,LG.z1],[1,0]],[[LG.x0,LG.z1],[LG.x1,LG.z1],[0,-1]],[[LG.x1,LG.z1],[LG.x1,z0],[-1,0]],[[LG.x1,z0],[X,z0],[0,-1]]],['fan','mitre','mitre','fan'],4.3,
+  {flip:1,lipSkip:(x,z)=>nearB(x,3)||(x>LG.x0-3&&x<LG.x1+3),hole:(x,z)=>x>CV.x0-.6&&x<CV.x1+.6&&Math.abs(z-z0)<.01,holeTop:CV.top,taper:(x,z)=>x>=LG.x0-.01&&x<=LG.x1+.01&&z>z0+.01?.35:Math.abs(z-z0)<.01?Math.min(1,.15+Math.max(0,Math.abs(x-(CV.x0+CV.x1)/2)-4)/6):1}));
+ /* the end walls (x ±641): rock beyond, closing the gorge */
+ for(const sx of[-1,1]){const xe=sx*ends,m=mgWallMesh([[[xe,z0-3],[xe,z1+3],[sx,0]]],[],sx*9.1,{flip:sx>0?1:0});g.add(m);
+  /* sand over the band past the map's end, so there is no hole in the ground */const p=new THREE.Mesh(new THREE.PlaneGeometry(60,z1-z0+2),k.M(0xc4a878,{roughness:1}));p.rotation.x=-Math.PI/2;p.position.set(sx*(ends+30.5),-.01,(z0+z1)/2);g.add(p)}
+ /* the ledge's top: packed sand and rock (batch 5 puts the landing pad on it) */{const p=new THREE.Mesh(new THREE.PlaneGeometry(LG.x1-LG.x0,LG.z1-z0),k.M(0xc8a87c,{roughness:1,map:o.ROAD.map.clone(),polygonOffset:true,polygonOffsetUnits:-1}));p.material.map.needsUpdate=true;p.material.map.repeat.set(4,2);p.rotation.x=-Math.PI/2;p.position.set((LG.x0+LG.x1)/2,.015,(z0+LG.z1)/2);g.add(p)}
+ /* the cave mouth: a frame of big fallen blocks, a lintel across the top */{const cx=(CV.x0+CV.x1)/2,FR=[];
+  const blk=(w,h,d,x,y,z,sd2,c)=>{const ge=new THREE.BoxGeometry(w,h,d,4,4,3),P=ge.attributes.position;for(let i=0;i<P.count;i++){const px=P.getX(i),py=P.getY(i),pz=P.getZ(i),j=.08*Math.sin(px*3.1+py*2.3+sd2)+.06*Math.sin(pz*4.1-py*1.7+sd2);P.setXYZ(i,px*(1+j*.6),py*(1+j*.4),pz+j*.5)}ge.computeVertexNormals();mgPut(FR,ge,x,y,z,0,c)};
+  blk(CV.x1-CV.x0+3.2,1.6,2.2,cx,CV.top+.65,z0-.5,1,[.84,.7,.54]);for(const sx of[-1,1]){blk(1.4,2.6,2.0,cx+sx*(3+.55),-30+1.3,z0-.6,2+sx,[.62,.4,.3]);blk(1.2,2.4,1.9,cx+sx*(3+.5),-30+3.7,z0-.65,4+sx,[.7,.44,.32])}
+  g.add(mgMerge(FR,o.ROCK));for(const sx of[-1,1])deepB.push({x0:cx+sx*3.55-.7,x1:cx+sx*3.55+.7,z0:z0-1.6,z1:z0+.45})}
+ return{deepB}}
+
+/* the floor height at (x, z): the river channel, sandbars, banks, rubble along the walls, the cave mouth kept flat */
+function mgBedH(x,z){const sm=mgKit().sm,{z0,z1,ledge:LG,cave:CV}=MGG;let h=-30+.05*Math.sin(x*.13+z*.3)+.04*Math.sin(x*.041-z*.21);
+ const zc=MGG.zc(x),w=MGG.zw(x),dz=z-zc,q=Math.abs(dz)/w;
+ if(q<1){h=-30-.45*Math.pow(1-q*q,.8)+.02*Math.sin(x*.5)}else h+=.1*Math.exp(-Math.pow((q-1.25)/.25,2));
+ for(const[xc,sd]of[[-480,1],[-210,-1],[90,1],[340,-1],[520,1]]){h+=.62*Math.exp(-Math.pow((x-xc)/12,2))*Math.exp(-Math.pow((dz-.3*w*sd)/(.38*w),2))}
+ /* distance from the rock (south: the band edge or the ledge; north: the band edge) */const inLx=x>LG.x0&&x<LG.x1;let dS=z-z0;if(x>LG.x0-20&&x<LG.x1+20){const ex=Math.max(LG.x0-x,0,x-LG.x1),ez=Math.max(z-LG.z1,0);dS=Math.min(dS,Math.hypot(ex,ez)*(inLx&&z<LG.z1?-1:1))}
+ const d=Math.min(dS,z1-z),cav=x>CV.x0-2.5&&x<CV.x1+2.5&&dS<3&&!inLx;
+ if(!cav){const a=Math.max(0,1-d/1.3);h+=Math.min(2.4,1.7*Math.pow(a,1.5)*(1+.25*Math.sin(x*.9)+.15*Math.sin(x*2.3+z)))}else if(z<z0+1)h=Math.min(h,-30.06);
+ return h}
+function mgGorgeBed(g){const k=rtKit(),o=mgKit(),r=o.r,sm=o.sm,{z0,z1,X,ledge:LG}=MGG,deepB=[];
+ /* the floor */{const NX=Math.ceil(2*X/2),NZ=z1-z0+8,pos=[],col=[],uv=[],idx=[];for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){const x=-X+i*2,z=z0-4+j,h=mgBedH(x,z);pos.push(x,h,z);
+   const zc=MGG.zc(x),w=MGG.zw(x),q=Math.abs(z-zc)/w,n=1+.06*Math.sin(x*1.3+z*.7)+.05*Math.sin(x*.31-z*2.1);let c=[.76,.62,.46];
+   if(h>-29.6)c=[.6,.42,.31];else if(h>-29.85&&q>1)c=[.68,.54,.42];if(q<1.45&&h<-29.85){const t=sm(1.45,1.0,q);c=c.map((v,m)=>v+([.5,.42,.33][m]-v)*t)}if(h>-29.93&&q<1)c=[.82,.7,.52];
+   col.push(c[0]*n,c[1]*n,c[2]*n);uv.push(x/3,z/3)}
+  for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){const a=i*(NZ+1)+j,b=(i+1)*(NZ+1)+j,c=b+1,d=a+1;idx.push(a,d,b,b,d,c)}
+  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+  const m=new THREE.Mesh(ge,o.ROCKS);m.userData.noSeam=true;m.userData.noChunk=1;g.add(m)}
+ /* the water: a strip along the channel, 5 cm above the floor's -30 */let water;{const pos=[],uv=[],idx=[];let N=0,u=0;for(let x=-X;x<=X;x+=4){const zc=MGG.zc(x),w=MGG.zw(x)+1.1;pos.push(x,-29.95,zc-w,x,-29.95,zc+w);uv.push(u,0,u,1);u+=4/12;N++}
+  for(let i=0;i<N-1;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+  const tx=k.tex(256,128,(c,w,h)=>{c.fillStyle='#3e7470';c.fillRect(0,0,w,h);for(let i=0;i<240;i++){const x=r()*w,y=r()*h,l=8+r()*30;c.strokeStyle='rgba(220,245,250,'+(.1+r()*.25)+')';c.lineWidth=1+r()*1.5;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+l/2,y+(r()-.5)*4,x+l,y);c.stroke()}for(const yy of[3,h-3]){c.fillStyle='rgba(240,250,250,.4)';c.fillRect(0,yy-2,w,4)}});
+  water=new THREE.Mesh(ge,k.M(0xffffff,{map:tx,roughness:.12,metalness:.1,transparent:true,opacity:.82,emissive:0x061a1c,emissiveIntensity:.4}));water.userData.noSeam=true;water.userData.noChunk=1;water.renderOrder=1;g.add(water)}
+ const clearOf=(x,z,m)=>{if(MGG.bridges.some(([a,b])=>x>a-6-m&&x<b+6+m))return false;if(x>LG.x0-4-m&&x<LG.x1+4+m&&z<LG.z1+4+m)return false;if(x>MGG.cave.x0-5&&x<MGG.cave.x1+5&&z<z0+6)return false;if(Math.abs(x-MGG.zip)<4)return false;return true};
+ /* pebbles on the banks and in the shallows, and boulders (solid) */const PB=[],BD=[];for(let i=0;i<1400;i++){const x=-X+20+r()*(2*X-40),zc=MGG.zc(x),w=MGG.zw(x),side=r()<.5?-1:1,z=zc+side*w*(.75+r()*1.1);if(z<z0+.8||z>z1-.8)continue;const rad=.05+r()*.11,h=mgBedH(x,z);mgPut(PB,mgRockGeo(rad,i,.6,1.3),x,h-.02,z,r()*6,r()<.3?[.8,.74,.66]:[.58,.5,.44])}
+ for(let i=0;i<70;i++){const x=-X+20+r()*(2*X-40),z=z0+2+r()*(z1-z0-4);if(!clearOf(x,z,2))continue;const zc=MGG.zc(x);if(Math.abs(z-zc)<MGG.zw(x)*.6&&r()<.6)continue;const rad=.5+r()*1.4,h=mgBedH(x,z);mgPut(BD,mgRockGeo(rad,i*3.1,.62,1.25),x,h-.1,z,r()*6,r()<.5?[.66,.42,.3]:[.82,.68,.52]);const e=rad*.8;deepB.push({x0:x-e,x1:x+e,z0:z-e,z1:z+e})}
+ g.add(mgMerge(PB,o.ROCKS));g.add(mgMerge(BD,o.ROCKS));
+ /* talus heaps at the foot of the walls (solid where high) */const TL=[];for(let i=0;i<60;i++){const x=-X+15+r()*(2*X-30),north=r()<.5;const zw0=north?z1:z0;if(!clearOf(x,north?z1-4:z0+4,6))continue;const W=4+r()*6,Dp=2.5+r()*3,Ht=1.6+r()*2.4,n=north?-1:1;
+  const NU=12,NW=8,pos=[],col=[],uv=[],idx=[],sd=i*5.7;for(let iu=0;iu<=NU;iu++)for(let iw=0;iw<=NW;iw++){const u=(iu/NU*2-1)*W,w=-2.5+(iw/NW)*(Dp+2.5),q=Math.hypot(u/W,Math.max(0,w)/Dp);let h=Ht*Math.pow(Math.max(0,1-q),1.2)+.15*Math.sin(u*2.3+sd)*Math.sin(w*1.9+sd);if(q>=1)h=-.12;h=Math.max(-.12,h);
+    const xx=x+u,zz=zw0+n*w;pos.push(xx,mgBedH(xx,zz)+h,zz);const pl=Math.max(0,Math.min(1,(Math.sin(u*.8+w*.7+sd)+Math.sin(u*1.7-w+sd*2)-.9)*1.4)),v=.92+.08*Math.sin(u*3+w*2.6);col.push((.6+.24*pl)*v,(.41+.3*pl)*v,(.3+.25*pl)*v);uv.push(u/3,w/3)}
+  for(let iu=0;iu<NU;iu++)for(let iw=0;iw<NW;iw++){const A=iu*(NW+1)+iw,B=(iu+1)*(NW+1)+iw;if(north)idx.push(A,B,A+1,B,B+1,A+1);else idx.push(A,A+1,B,B,A+1,B+1)}
+  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();TL.push(ge.toNonIndexed());
+  const zA=zw0,zB=zw0+n*Dp*.7;deepB.push({x0:x-W*.7,x1:x+W*.7,z0:Math.min(zA,zB),z1:Math.max(zA,zB)})}
+ if(TL.length)g.add(mgMerge(TL,o.ROCK));
+ /* two dead trees, bleached: a leaning trunk and crooked bare branches */const WD=[];const seg=(a,b,r1,r2,c)=>{const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B),ge=new THREE.CylinderGeometry(r2,r1,L,7);ge.translate(0,L/2,0);
+  const q4=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());ge.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q4));ge.translate(A.x,A.y,A.z);mgPut(WD,ge,0,0,0,0,c)};
+ const tree=(x,z,ht,sd)=>{const y=mgBedH(x,z)-.2,C=[.78,.74,.68];let t0=[x,y,z],ang=.2*Math.sin(sd),dir=[Math.sin(sd)*.25,1,Math.cos(sd)*.15];const top=[x+dir[0]*ht,y+ht,z+dir[2]*ht];seg(t0,top,.32,.16,C);
+  const br=(p,d,len,rad,lv)=>{const e=[p[0]+d[0]*len,p[1]+d[1]*len,p[2]+d[2]*len];seg(p,e,rad,rad*.6,C);if(lv>0)for(let b=0;b<2;b++){const a=sd*3+lv*2.1+b*2.4,nd=[d[0]*.6+Math.cos(a)*.7,d[1]*.6+.35,d[2]*.6+Math.sin(a)*.7],l=Math.hypot(...nd);br(e,nd.map(v=>v/l),len*.62,rad*.6,lv-1)}};
+  for(let b=0;b<3;b++){const a=sd+b*2.1,f=.45+b*.2,p=[x+dir[0]*ht*f,y+ht*f,z+dir[2]*ht*f],d=[Math.cos(a)*.75,.55,Math.sin(a)*.75],l=Math.hypot(...d);br(p,d.map(v=>v/l),ht*.4,.12,2)}
+  br(top,[.2,1,.1].map(v=>v/1.03),ht*.25,.1,1);deepB.push({x0:x-.5,x1:x+.5,z0:z-.5,z1:z+.5})};
+ tree(-262,-1739.5,5.5,1.3);tree(418,-1704.5,4.6,4.1);
+ /* bleached driftwood along the banks */for(let i=0;i<10;i++){const x=-560+i*120+r()*40;if(!clearOf(x,MGG.zc(x),2))continue;const zc=MGG.zc(x),w=MGG.zw(x),z=zc+(i%2?1:-1)*(w+.6+r()*1.2),a=r()*6.28,L=2+r()*3,y=mgBedH(x,z)+.1;
+  seg([x-Math.cos(a)*L/2,y,z-Math.sin(a)*L/2],[x+Math.cos(a)*L/2,y+.05,z+Math.sin(a)*L/2],.14,.09,[.84,.8,.72]);seg([x,y+.05,z],[x+Math.cos(a+1.2)*.8,y+.35,z+Math.sin(a+1.2)*.8],.06,.03,[.84,.8,.72])}
+ g.add(mgMerge(WD,k.M(0xffffff,{vertexColors:true,roughness:.85,map:o.TIMBER.map})));
+ const tick=t=>{if(water.material.map)water.material.map.offset.x=-t*.06};
+ return{deepB,parts:{water},tick}}
+
+function mgGorgeRim(g){const k=rtKit(),o=mgKit(),r=o.r,{z0,z1}=MGG,obs=[];const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,Arial,sans-serif';
+ /* old fence: weathered posts every 2.5 m, three strands of wire, along the rim either side of each road */
+ const PS=[],WL=[];const fence=(xa,xb,z)=>{const n=Math.max(1,Math.round(Math.abs(xb-xa)/2.5));let prev=null;for(let i=0;i<=n;i++){const x=xa+(xb-xa)*i/n,lean=.06*Math.sin(x*1.7),ge=new THREE.CylinderGeometry(.06,.075,1.25,6);ge.rotateZ(lean);mgPut(PS,ge,x,.55,z+.02*Math.sin(x*3),0,[.58+.06*Math.sin(x),.5,.4]);
+   if(prev!=null)for(const h of[.35,.7,1.05]){const sag=.04;const a=new THREE.Vector3(prev,h,z),b=new THREE.Vector3(x,h,z),mid=a.clone().add(b).multiplyScalar(.5);mid.y-=sag;mgPut(WL,new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a,mid,b),4,.006,3,false),0,0,0,0,[.42,.42,.4])}prev=x}
+  obs.push({x0:Math.min(xa,xb)-.08,x1:Math.max(xa,xb)+.08,z0:z-.08,z1:z+.08})};
+ const sign=(x,z,ry)=>{const G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry;g.add(G);for(const px of[-.55,.55]){const p=new THREE.Mesh(new THREE.BoxGeometry(.1,1.9,.1),o.TIMBER);p.position.set(px,.95,0);G.add(p)}
+  const c=document.createElement('canvas');c.width=512;c.height=256;const x2=c.getContext('2d');x2.fillStyle='#e8c020';x2.fillRect(0,0,512,256);x2.fillStyle='#1a1a1a';x2.fillRect(0,0,512,70);x2.fillStyle='#e8c020';x2.font='800 56px '+F;x2.textAlign='center';x2.fillText('DANGER',256,54,480);x2.fillStyle='#1a1a1a';x2.font='700 64px '+F;x2.fillText('SHEER DROP',256,140,480);x2.font='600 42px '+F;x2.fillText('30 m · KEEP BACK',256,210,480);
+  for(let i=0;i<40;i++){x2.fillStyle='rgba(120,80,30,.25)';x2.fillRect(Math.random()*512,Math.random()*256,3,3)}const t=new THREE.CanvasTexture(c);const b=new THREE.Mesh(new THREE.BoxGeometry(1.4,.7,.04),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,k.M(0xffffff,{map:t,roughness:.7}),o.TIMBER]);b.position.set(0,1.5,.07);b.rotation.z=.04;G.add(b);obs.push({x0:x-.7,x1:x+.7,z0:z-.15,z1:z+.15})};
+ for(const[a,b]of MGG.bridges){for(const[zr,rz]of[[z1+1.6,Math.PI],[z0-1.6,0]]){fence(a-2.2,a-22,zr);fence(b+2.2,b+22,zr);sign(a-24,zr+(zr>z1?1.2:-1.2),zr>z1?0:Math.PI);sign(b+24,zr+(zr>z1?1.2:-1.2),zr>z1?0:Math.PI)}}
+ g.add(mgMerge(PS,k.M(0xffffff,{vertexColors:true,roughness:.95,map:o.TIMBER.map})));g.add(mgMerge(WL,k.M(0xffffff,{vertexColors:true,metalness:.6,roughness:.5})));
+ /* cairns along both rims */const CN=[];for(let x=-600;x<=600;x+=95){for(const[zz,s]of[[z1+4.5,1],[z0-4.5,-1]]){const xx=x+(s>0?0:47);if(MGG.bridges.some(([a,b])=>xx>a-30&&xx<b+30)||Math.abs(xx-MGG.zip)<12||(xx>270&&xx<330)||(xx>180&&xx<215&&s<0))continue;let y=0;for(let i=0;i<4;i++){const rad=.42-i*.08,ge=mgRockGeo(rad,xx+i,.5,1.3);ge.computeBoundingBox();mgPut(CN,ge,xx+(r()-.5)*.08,y-.04,zz,r()*6,[.84,.74,.6]);y+=ge.boundingBox.max.y-.06}obs.push({x0:xx-.45,x1:xx+.45,z0:zz-.45,z1:zz+.45})}}
+ g.add(mgMerge(CN,o.ROCKS));return{obs}}
+
+function mgVultures(g){const k=rtKit(),M=k.M,B=[];const DK=M(0x2a2420,{roughness:.9,side:THREE.DoubleSide}),HD=M(0xc89a8a,{roughness:.8}),RF=M(0xe8e0d0,{roughness:.9});
+ const wingGeo=s=>{/* a broad wing with fingered tip, drawn as a flat shape (x out along the wing) */const sh=new THREE.Shape();sh.moveTo(0,.32);sh.lineTo(.9,.36);sh.lineTo(1.5,.3);sh.lineTo(1.75,.22);for(let f=0;f<5;f++){const y=.18-f*.09;sh.lineTo(2.0+.08*Math.sin(f),y+.02);sh.lineTo(1.72,y-.03)}sh.lineTo(1.3,-.25);sh.lineTo(.6,-.3);sh.lineTo(0,-.24);sh.lineTo(0,.32);const ge=new THREE.ShapeGeometry(sh);ge.rotateX(-Math.PI/2);if(s<0)ge.scale(-1,1,1);return ge};
+ for(let i=0;i<2;i++){const v=new THREE.Group();g.add(v);const body=new THREE.Mesh(new THREE.SphereGeometry(.3,12,8),DK);body.scale.set(.8,.6,2.0);v.add(body);const ruff=new THREE.Mesh(new THREE.SphereGeometry(.17,10,8),RF);ruff.position.set(0,.04,-.5);v.add(ruff);
+  const nk=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,.3,8),HD);nk.rotation.x=Math.PI/2;nk.position.set(0,.06,-.72);v.add(nk);const hd=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),HD);hd.scale.set(.9,.9,1.3);hd.position.set(0,.08,-.9);v.add(hd);const bk=new THREE.Mesh(new THREE.ConeGeometry(.035,.12,6),M(0xe8d8b0));bk.rotation.x=-Math.PI/2;bk.position.set(0,.06,-1.02);v.add(bk);
+  const tl=new THREE.Mesh(new THREE.BoxGeometry(.5,.03,.45),DK);tl.position.set(0,0,.72);v.add(tl);const wl=new THREE.Group(),wr=new THREE.Group();wl.position.x=-.2;wr.position.x=.2;v.add(wl,wr);wr.add(new THREE.Mesh(wingGeo(1),DK));wl.add(new THREE.Mesh(wingGeo(-1),DK));v.scale.setScalar(1.6);B.push({v,wl,wr,ph:i*Math.PI+.4,R:26+i*7,h:34+i*5})}
+ const tick=t=>{for(const b of B){const a=b.ph+t*(.14+b.R*.0005),x=Math.cos(a)*b.R+4,z=-1722+Math.sin(a)*b.R*.6;b.v.position.set(x,b.h+Math.sin(t*.3+b.ph)*1.5,z);const dx=-Math.sin(a)*b.R,dz=Math.cos(a)*b.R*.6;b.v.rotation.set(0,Math.atan2(-dx,-dz),0);b.v.rotateZ(-.32);
+  const fl=(Math.sin(t*.21+b.ph)>.85)?Math.sin(t*9)*.35:.06*Math.sin(t*1.3+b.ph);b.wr.rotation.z=fl+.08;b.wl.rotation.z=-fl-.08}};tick(0);return{tick}}
