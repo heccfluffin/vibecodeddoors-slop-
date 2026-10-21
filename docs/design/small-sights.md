@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batches 1 and 2 approved, batch 3 for review
+Status: ready to build (plan and all three model batches approved 2026-10-21)
 
 # The small sights
 
@@ -128,7 +128,7 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   `spots.map`. Obstacles in `obs` (walls with the door gap, generator, drum, mast, anchors).
 - Checked: z-fight checker clean (only the dish rim and the crank's spokes crossing inside its hub); nothing floating.
 
-### Batch 3: Skull Rock and the meteor crater, for review · `ssSkullRock(g)`, `ssCrater(g)`, `ssCraterH(x, lz)`, `ssFragment(g, x, y, z)`
+### Batch 3: Skull Rock and the meteor crater, approved 2026-10-21 · `ssSkullRock(g)`, `ssCrater(g)`, `ssCraterH(x, lz)`, `ssFragment(g, x, y, z)`
 - **Skull Rock** (`ssSkullRock`, (76, -960), facing north): replace the base skull (cranium, brow, sockets, rims,
   cheeks, temples, nose, maxilla, both rows of teeth, the dark mouth box, the jaw) and its obstacle
   `ob(sx-6,sx+6,sz-7,sz+5.8)` and map rect. Keep the loc and all props.
