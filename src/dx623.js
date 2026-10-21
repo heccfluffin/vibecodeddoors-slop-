@@ -20,31 +20,33 @@
      - the desert is walked again only when it has to be: on arriving, getting off the bus, when more new things arrived at
        once than it can keep track of, and once a minute just in case (something that was hidden and is now shown);
      - new things that are still far away go straight onto the list (they used to make it walk the whole desert again);
-     - vehicles are kept apart and checked once a second where they are NOW (the list remembered where they were when it
-       was made), so a car that drives towards you is still warmed before you see it;
+     - vehicle pieces are sorted by where the vehicle is NOW (the list remembered where they were when it was made), and
+       once a second a vehicle that has driven into range is warmed at once, so it does not wait for the next sort;
      - anything taken out of the desert is dropped from the queue; if it is put back it is noticed as new, as before. */
 const WARM={on:!/[?&]nowarm/.test(location.search),done:new WeakSet(),list:[],scan:null,scanT:0,sortT:0,q:null,fail:0,
  want:0,dirty:0,farNew:[],sx:0,sz:0,vr:[],vT:0,SAFE:60000,MOVE:20,
  R:450,BUS:10,PLAY:2.5,bs:16,lights:[],hot:[],hotC:[],HOTR:1200,stats:{objects:0,geos:0,ms:0,batches:0,maxMs:0},cam:null,prox:null};
 /* walk the desert a few thousand objects per frame and list what still needs uploading */
 function warmScanStep(q,n){const S2=WARM.scan;if(!S2)return true;const veh=S2.veh,PF=typeof PL_FAR!='undefined'?(1<<PL_FAR):64;
- while(n-->0&&S2.st.length){const[o,cx,cz]=S2.st.pop();const ud=o.userData||{};if(o.isLight)S2.lights.push(o);
+ while(n-->0&&S2.st.length){const[o,cx,cz,v0]=S2.st.pop();let vr=v0;const ud=o.userData||{};if(o.isLight)S2.lights.push(o);
   if(o!==q.g&&!o.visible){if(!(ud.chunk||ud.sm||veh.has(o)))continue}
   if(o===q.sky||o===q.zsky||o===q.zstar)continue;
-  if(veh.has(o)){S2.vr.push({o,r:WARM.R});continue}/* r651: vehicles move, so they are checked where they are now (warmVeh) */
+  if(veh.has(o)){vr=o;S2.vr.push({o,r:WARM.R})}/* r651: vehicles move, so their pieces are sorted by where the vehicle is now (warmSort, warmVeh) */
   let x=cx,z=cz;if(ud.chunk){x=ud.cx;z=ud.cz+q.OZ}
   if((o.isMesh||o.isSprite||o.isPoints||o.isLine)&&o.geometry&&!o.children.length&&!WARM.done.has(o.geometry)){const m=o.layers.mask;
-   if(((m&1)||m===PF)&&o.onBeforeRender===THREE.Object3D.prototype.onBeforeRender){let px=x,pz=z;if(px==null){/* positions of things the last frame skipped (r629) are worked out first */try{mwFresh(o)}catch(e){}const e=o.matrixWorld.elements;px=e[12];pz=e[14];if(ud.dpMerged){const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const c=g.boundingSphere.center.clone().applyMatrix4(o.matrixWorld);px=c.x;pz=c.z}}S2.out.push({o,x:px,z:pz})}}
-  for(let i=o.children.length-1;i>=0;i--)S2.st.push([o.children[i],x,z])}
+   if(((m&1)||m===PF)&&o.onBeforeRender===THREE.Object3D.prototype.onBeforeRender){let px=x,pz=z;if(px==null){/* positions of things the last frame skipped (r629) are worked out first */try{mwFresh(o)}catch(e){}const e=o.matrixWorld.elements;px=e[12];pz=e[14];if(ud.dpMerged){const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const c=g.boundingSphere.center.clone().applyMatrix4(o.matrixWorld);px=c.x;pz=c.z}}S2.out.push({o,x:px,z:pz,v:vr})}}
+  for(let i=o.children.length-1;i>=0;i--)S2.st.push([o.children[i],x,z,vr])}
  if(S2.st.length)return false;WARM.list=S2.out;WARM.lights=S2.lights;WARM.litQ=q;WARM.scan=null;
  /* vehicles that arrived while it walked (from far away) are kept too */const seen=new Set(S2.vr.map(e=>e.o));for(const e of WARM.vr)if(e.t>S2.t0&&!seen.has(e.o))S2.vr.push(e);WARM.vr=S2.vr;warmSort();return true}
 /* where to warm around: you, or while the bus is still driving in, the bus stop where it will let you off */
 function warmCtr(q){return q.roam?[P.x,P.z]:[0,-1043+q.OZ]}
-function warmSort(){const L=WARM.list,[cx,cz]=warmCtr(WARM.q);for(const it of L)it.d=Math.hypot(it.x-cx,it.z-cz);L.sort((a,b)=>b.d-a.d);WARM.sortT=performance.now();WARM.sx=cx;WARM.sz=cz;WARM.dirty=0}
-/* r651: once a second, vehicles that have come near enough are warmed (with the new things, see warmHot) */
+function warmSort(){const L=WARM.list,[cx,cz]=warmCtr(WARM.q);for(const it of L){if(it.v){const m=it.v.matrixWorld.elements;it.x=m[12];it.z=m[14]}it.d=Math.hypot(it.x-cx,it.z-cz)}
+ for(const e of WARM.vr){const m=e.o.matrixWorld.elements;e.in=Math.hypot(m[12]-cx,m[14]-cz)<=e.r}L.sort((a,b)=>b.d-a.d);WARM.sortT=performance.now();WARM.sx=cx;WARM.sz=cz;WARM.dirty=0}/* nearest at the end, popped first */
+/* r651: once a second, a vehicle that has come near enough since the list was last sorted is warmed at once (with the new
+   things, see warmHot), so a car driving up to you while you stand still does not wait for the next sort */
 function warmVeh(q){const[cx,cz]=warmCtr(q),L=WARM.vr;let j=0;
- for(let i=0;i<L.length;i++){const e=L[i],o=e.o;if(!o.parent||!mwIn(o))continue;const m=o.matrixWorld.elements;
-  if(WARM.hotC.length<400&&Math.hypot(m[12]-cx,m[14]-cz)<=e.r){warmHotList(q,o);continue}L[j++]=e}L.length=j}
+ for(let i=0;i<L.length;i++){const e=L[i],o=e.o;if(!o.parent||!mwIn(o))continue;L[j++]=e;const m=o.matrixWorld.elements,d=Math.hypot(m[12]-cx,m[14]-cz);
+  if(d<=e.r){if(!e.in&&WARM.hotC.length<400){e.in=true;warmHotList(q,o)}}else if(d>e.r+50)e.in=false}L.length=j}
 /* r651: something new that is still far away goes onto the list, each piece where it is (at the far end until the next sort, so it never
    holds up nearer things) */
 function warmFar(q,root){const PF=typeof PL_FAR!='undefined'?(1<<PL_FAR):64,st=[root];let n=0;
@@ -53,7 +55,7 @@ function warmFar(q,root){const PF=typeof PL_FAR!='undefined'?(1<<PL_FAR):64,st=[
    if(((m&1)||m===PF)&&o.onBeforeRender===THREE.Object3D.prototype.onBeforeRender){try{mwFresh(o)}catch(e){}const e=o.matrixWorld.elements;let px=e[12],pz=e[14];
     if(o.userData&&o.userData.dpMerged){const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const c=g.boundingSphere.center.clone().applyMatrix4(o.matrixWorld);px=c.x;pz=c.z}
     const it={o,x:px,z:pz};WARM.farNew.push(it);if(WARM.scan)WARM.scan.out.push(it)}}
-  for(let i=o.children.length-1;i>=0;i--)st.push(o.children[i])}}/* nearest at the end, popped first */
+  for(let i=o.children.length-1;i>=0;i--)st.push(o.children[i])}}
 /* draw a batch into one pixel so its shapes, textures and shaders reach the graphics card */
 function warmBatch(q,L,r0){if(!WARM.cam){WARM.cam=new THREE.PerspectiveCamera(60,1,.1,10);WARM.cam.layers.mask=1|(1<<(typeof PL_FAR!='undefined'?PL_FAR:6));WARM.prox=new THREE.Group();WARM.prox.matrixAutoUpdate=false}
  const prox=WARM.prox,saved=[],vp=new THREE.Vector4(),sc=new THREE.Vector4();R.getViewport(vp);R.getScissor(sc);const st=R.getScissorTest(),au=S.autoUpdate,gv=q.g.visible;
