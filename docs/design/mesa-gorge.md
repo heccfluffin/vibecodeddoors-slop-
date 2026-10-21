@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · model batches next
+Status: plan approved 2026-10-20 · batch 1 for review
 
 # Lookout Mesa and Devil's Gorge
 
@@ -71,3 +71,39 @@ the rails' obstacles), the ledge, the jump ramp, the zipline cable ends, and eve
   above the floor where you could land on it, unless it is listed in `q.deepB`.
 - The Quarry Skip flight line (x -333…-327) must stay clear on the mesa top above y 15.5 (the binoculars are 3 m
   under it today).
+
+## Part 2: models (`models/mesa-gorge.js`, needs `fort-kit.js` and `route13.js`)
+Constants: `MG` (the mesa box, the road, the Quarry Skip lane kept clear, the props' spots kept clear).
+
+### Batch 1: the mesa cliffs, rim, fallen rock and the ramp road, for review · `mgMesa(g)`, `mgMesaRoad(g)`
+- **`mgMesa(g)`** replaces the mesa's body box in `xpMesa` (the `body` mesh). Keep the sand top slab, the plate, the
+  ramp entry, the zones, the map rect and every prop.
+  - **Cliffs:** one mesh all round, measured out from the old box's sides (0.15 to 1.5 m outside, never inside):
+    a darker base with a flared foot, three red layers with a small ledge at the foot of each, a shadowed undercut, and
+    the pale cap rock jutting out over it in jointed blocks (a few broken off). Buttresses every 12 m or so, gullies
+    that cut right back, dark streaks running down from the cap. The cap rock folds over the top edge as a low lip
+    (6 cm above the sand inside the box, so the top stays flat to walk on). The face is open where the road joins
+    (z -1554.3 to -1545.5 on the east side); the road's walls hide the cut.
+  - **Rim:** cap-rock boulders along the top edge in clusters with gaps, all under 1 m high. None on the Quarry Skip
+    line (x -341 to -319), at the road's top or near the binoculars.
+  - **Fallen rock:** 18 talus heaps leaning on the cliffs (2 to 5 m high) plus a bigger one at each corner, fallen
+    cap-rock slabs and boulders, and a scatter of smaller stones. Kept off the Quarry Skip line north and south, the
+    road and the props.
+  - **Plants:** dry grass tufts and a few shrubs near the rim on top and round the foot (not solid).
+  - Returns `{obs, parts:{cliff}}`. `obs`: 2 m pieces along the foot of the cliffs (out to the rock's furthest point
+    under 2.5 m, so you can't walk into it), the talus heaps, the big fallen rocks, and the rim boulders where they
+    stand on the top. Push them all into `q.obs`.
+- **`mgMesaRoad(g)`** replaces the ramp's slab, its two kerbs, the r618 rock fill under it (dx615's `xpMesa` wrapper)
+  and the two signs (`sign('LOOKOUT MESA…')`, `sign('MESA ROAD…')`). The `q.ramps` entry and its route-grid link stay.
+  - A gravel road surface with two tyre ruts, 3 cm above the ramp's height (0 m at x -220, 14 m at x -280), z -1554
+    to -1546, running 0.6 m onto the flat at the bottom.
+  - South (the drop): a dressed sandstone retaining wall from the ground to 35 cm above the road (z -1554.65 to
+    -1554.05), with a stone cap and a timber guard rail (posts every 3 m, two rails on the outer face). Solid.
+  - North: a rock shoulder beside the road, up to 3 m above it in the middle, falling away at both ends, sloping down
+    to the ground on its north side, with loose rocks. Solid (z -1545.9 to -1540.5).
+  - Signs: MESA ROAD · STEEP · USE LOW GEAR with a 23% grade plate at the bottom (-214, -1557), and a plank sign
+    LOOKOUT MESA · ELEV. 14 m · NO LITTERING at the top (-284.5, -1559), both facing east (the way you arrive).
+  - Returns `{obs}`.
+- Draw calls: the cliff, rim, talus, fallen rock and plants are one mesh each; mark them `noChunk` if the chunker would
+  split them.
+
