@@ -165,7 +165,7 @@ stand and every prop stay as they are.
 - Checked: z-fight and floating checker clean except for faces hidden under the shop's roof and the brushes, which
   hang from their gantries.
 
-### Batch 3: Motel 13, for review · `rtMotel(g)` → `{obs, lights, doors, tvs, spots, plates}`, `rtMotelLot(g)` → `{obs, lights, neon, vac, cars, mapR}`, `rtMotelPool(g)` → `{obs, plates}`
+### Batch 3: Motel 13, approved 2026-10-21 · `rtMotel(g)` → `{obs, lights, doors, tvs, spots, plates}`, `rtMotelLot(g)` → `{obs, lights, neon, vac, cars, mapR}`, `rtMotelPool(g)` → `{obs, plates}`
 These replace the whole base motel block (`/* ---- MOTEL 13: four rooms you can walk into ...` in the far-desert
 builder, from `const mx=64,mz=-902` to its `q.locs.push({nm:'Motel 13'...})`) and the `T('motel back',...)` block.
 Keep every prop and its text, the noise TV game (`q.tvs`, `noisePush`/`noiseOut`), `q.d13`, the ice machine's
