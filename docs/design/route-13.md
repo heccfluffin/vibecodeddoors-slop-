@@ -249,6 +249,47 @@ lens (the beam stays), and the snack bar's and booth's old obstacles (same footp
   (PROJECTION · KEEP OUT, where the switch prop is), a roof vent, and a film reel badge on the east wall.
 - Checked: z-fight checker clean except the speaker cables' tight bends against themselves; nothing floating.
 
+### Batch 5: the Desert Bus depot and the water tower, for review · `rtDepot(g)` → `{obs, lights, plates, spots, mapR}`, `rtWaterTower(g)` → `{obs, parts}`
+**Depot.** Replace the base depot block (`/* ---- the Desert Bus depot: a shelter, a timetable, and the arch ...`):
+**remove** the shelter (roof, four posts, bench, its obstacle `ob(x+3,x+7,z+1,z+3)`), the timetable and its board,
+the two orange arch posts and their obstacles, the beam and its two TO LAS VEGAS labels. **Keep** the portal plane,
+its glow sprite, the two glow strips (y .04 and 5.71) and the portal animation, the loc 'Desert Bus depot', `DBX`
+and everything about the bus (it still parks at (-84, -990) facing south; the hitch-ride and get-off spot
+(-79, -985) is now on the platform).
+- **Apron:** concrete (3 m slabs) x -94…-62, z -1030…-966 under the bus and round the arch, plus a lane x -72…-62,
+  z -1049…-1030 down to **Depot Rd**, the game's road `road(-62,-1045,-3.5,-1045)` (batch 1 already leaves its mouth
+  open on Route 13). A yellow dashed BUS ONLY box round the bus's spot. Add `mapR` (apron, building, platform).
+- **Depot building** x -78…-64, z -1000…-978, 4.2 m walls and a parapet: cream stucco with an orange base band and
+  coping, big aluminium windows, a glass entrance onto the platform (z -991.2…-988.8) and another onto the lane in
+  the south wall (x -72.2…-69.8), glass doors standing open, high windows on the east side. A big DESERT BUS sign
+  (with a little bus) on a steel frame on the roof, both faces. Walk-in: a terrazzo floor, the ticket counter along
+  the north wall (TICKETS, INFORMATION, LOST & FOUND) with a stool, a DEPARTURES board (LAS VEGAS · NOW, LAS VEGAS ·
+  NOW, LAS VEGAS · ON TIME, TUCSON · YOU ARE HERE, ANYWHERE ELSE · NO) and a clock marked 5 MIN, three rows of
+  back-to-back benches, lockers, a GWEEN SODA machine, GENTS and LADIES (OUT OF ORDER) doors, the old timetable framed
+  by the platform door, ceiling lights.
+  Props at `spots`: "[E] Read the timetable" (the old text), "[E] Look at the departures" (board), "[E] Buy a ticket"
+  at the TICKETS window ("No need. The bus is free. The bus is always free. That is the problem."), "[E] Buy a
+  GWEEN SODA (2 🪙)" (+ a little health, like the snack bar).
+- **Platform:** 25 cm high, x -81.1…-78, z -1005…-976, along the bus's door side, with a yellow edge line, two
+  benches and two bins against the building, a canopy cantilevered off the wall on tie rods (two slim columns carry
+  its ends), and PLATFORM 1 · LAS VEGAS signs hanging under it. Push `plates` (y .25).
+- **Arch**, remodelled in place: orange pillars 0.9 m wide whose inner faces stay at x -90.75 and -77.25 (where the
+  portal meets them), white chevrons, concrete plinths, and a deep beam with TO LAS VEGAS · 360 MI and bulbs on both
+  faces; its bottom stays at 5.75 m, on top of the portal. Pillar obstacles in `obs`.
+- The groundskeeper's water tank at the shack moves from (-15, -1049.5) to (-15, -1052) so Depot Rd clears it.
+
+**Water tower** at (58, -1060), remodelled in place. Replace the base tower block (`/* ---- the water tower: four
+legs ...`) meshes; keep the loc, the ladder prop, the perch and the spray tag code (`T('water tower',...)`).
+- Same legs (feet at ±3.4, meeting the tank at ±2.1 at 11.2 m), now steel tubes on concrete feet, two rings of struts,
+  tension-rod X bracing with turnbuckles; a ring girder, a riveted tank (radius 3, 11.6…15.6 m) with OLD TOWN · DOORS
+  BUT DESERT · POP. 13 painted on the road (west) side, a conical roof with a finial, a red light and a vent, the
+  catwalk (radius 3.62) with a railing, the ladder exactly where it was (x 61.78) now with a safety cage, a short
+  ladder up the tank side to the roof, and the outlet pipe with a red valve wheel. Obstacles in `obs`.
+- **Spray tag:** the old flat tag plane stood out from the round tank at its edges. Use `parts.tag` instead (a curved
+  panel on the east face, same size, 2 cm off the tank): set its `material.map` to the tag canvas texture and
+  `material.opacity = 1` (it starts invisible), and drop the old plane.
+- Checked: z-fight checker clean on the depot, the arch and the tower; nothing floating.
+
 ## Things Claude Code has to keep in mind
 - **Seeded random:** everything here is built inside the seeded desert load steps; add or remove `Math.random()`
   calls and everything built after them changes. Burn the same number of calls where old code is removed (as
