@@ -16,15 +16,14 @@ function ssSeg(g,a,b,r1,r2,m,seg){const A=new THREE.Vector3(...a),B=new THREE.Ve
 function ssRibbon(g,pts,wid,side,m){const pos=[],uv=[],idx=[];for(let i=0;i<pts.length;i++){const p=pts[i],w=wid[i],s=side[i];pos.push(p[0]-s[0]*w,p[1]-s[1]*w,p[2]-s[2]*w,p[0]+s[0]*w,p[1]+s[1]*w,p[2]+s[2]*w);const u=i/(pts.length-1);uv.push(u,0,u,1);if(i){const b=(i-1)*2;idx.push(b,b+1,b+2,b+1,b+3,b+2)}}
  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();const o=new THREE.Mesh(ge,m);o.userData.noSeam=true;g.add(o);return o}
 /* a date palm: a curved, tapering ringed trunk leaning `lean` (0..1) towards angle `dir`, a crown of drooping fronds,
-   dead fronds hanging under them, and a cluster of coconuts. Returns the trunk's point at height y (for ropes) */
+   and a cluster of coconuts. Returns the trunk's point at height y (for ropes) */
 function ssPalm(g,x,z,h,lean,dir,seed){const o=ssKit(),dx=Math.cos(dir),dz=Math.sin(dir),N=9,P=[];for(let i=0;i<=N;i++){const t=i/N;P.push([x+dx*lean*h*Math.pow(t,1.7),h*t,z+dz*lean*h*Math.pow(t,1.7)])}
  for(let i=0;i<N;i++)ssSeg(g,P[i],[P[i+1][0],P[i+1][1]+.04,P[i+1][2]],.3-.14*i/N,.3-.14*(i+1)/N,o.BARK,9);
  const top=P[N],cr=new THREE.Mesh(new THREE.SphereGeometry(.24,10,8),o.BARK);cr.position.set(top[0],top[1]+.05,top[2]);g.add(cr);
  const fr=(ang,up,L,droop,w)=>{const c=Math.cos(ang),s=Math.sin(ang),pts=[],wid=[],side=[];const n=12;for(let i=0;i<=n;i++){const t=i/n,hz=L*t,y=top[1]+.1+L*(up*t-droop*t*t);pts.push([top[0]+c*hz,y,top[2]+s*hz]);wid.push(w*Math.sin(Math.PI*Math.min(1,t*1.1+.05))+.02);
   const tilt=.35;side.push([-s*Math.cos(tilt),Math.sin(tilt)*(i%2?1:1),c*Math.cos(tilt)])}return ssRibbon(g,pts,wid,side,o.FROND)};
  let a0=seed*1.7;for(let i=0;i<11;i++){const a=a0+i/11*Math.PI*2+(Math.sin(seed*7+i)*.2);fr(a,.55+.15*Math.sin(i*2.3+seed),2.6+.5*Math.sin(i*1.7+seed),1.05+.2*Math.cos(i*3.1),.42)}
- /* dead fronds: a skirt hanging down round the top of the trunk, pinned under the crown, flaring out a little at the bottom */{const yT=h-.55,t=yT/h,cx=x+dx*lean*h*Math.pow(t,1.7),cz=z+dz*lean*h*Math.pow(t,1.7),th=.22;
-  for(let i=0;i<7;i++){const a=a0+.3+i/7*Math.PI*2,c=Math.cos(a),s=Math.sin(a);const dead=new THREE.Mesh(new THREE.ConeGeometry(.09,1.2,5),ssKit().WOODD);dead.position.set(cx+c*(.2+.6*Math.sin(th)),yT,cz+s*(.2+.6*Math.sin(th)));dead.rotation.set(-s*th,0,c*th);g.add(dead)}}
+
  for(let i=0;i<5;i++){const a=a0+i*1.3,nut=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),o.NUT);nut.position.set(top[0]+Math.cos(a)*.24,top[1]-.18-(i%2)*.12,top[2]+Math.sin(a)*.24);g.add(nut)}
  return y=>{const t=Math.min(1,y/h);return[x+dx*lean*h*Math.pow(t,1.7),y,z+dz*lean*h*Math.pow(t,1.7)]}}
 
@@ -128,8 +127,8 @@ function ssCampfire(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r
   const TC=M(0xffffff,{roughness:.95,side:THREE.DoubleSide,map:k.tex(64,64,(c,w,hh)=>{c.fillStyle='#c4a874';c.fillRect(0,0,w,hh);for(let i=0;i<300;i++){c.fillStyle='rgba(120,90,50,.12)';c.fillRect(r()*w,r()*hh,2,1)}c.fillStyle='rgba(90,60,30,.25)';c.fillRect(0,0,w,2)})});
   /* the two slopes: flat sheets laid in a group tilted to the roof pitch */const sl=Math.hypot(W,Hh),ang=Math.atan2(Hh,W);for(const s of[-1,1]){const q2=new THREE.Group();q2.position.set(s*W/2,Hh/2,0);q2.rotation.z=-s*ang;t.add(q2);const p=new THREE.Mesh(new THREE.PlaneGeometry(sl,Ln),TC);p.rotation.x=-Math.PI/2;q2.add(p)}
   const tri=(z,col)=>{const sh=new THREE.Shape([new THREE.Vector2(-W,0),new THREE.Vector2(W,0),new THREE.Vector2(0,Hh)]);const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),col);m.position.set(0,0,z);t.add(m);return m};tri(-Ln/2,TC);
-  {const sh=new THREE.Shape([new THREE.Vector2(-W,0),new THREE.Vector2(-.12,0),new THREE.Vector2(-.12,Hh*.9),new THREE.Vector2(0,Hh)]);const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),TC);m.position.set(0,0,Ln/2);t.add(m);
-   const fl=new THREE.Shape([new THREE.Vector2(0,0),new THREE.Vector2(.55,0),new THREE.Vector2(0,Hh*.92)]);const f=new THREE.Mesh(new THREE.ShapeGeometry(fl),TC);f.position.set(.15,0,Ln/2+.02);f.rotation.y=-.9;t.add(f)}
+  /* the front: two side panels and a triangular doorway in the middle; both door flaps are rolled up and tied back along the doorway's edges */for(const sd of[-1,1]){const sh=new THREE.Shape([new THREE.Vector2(sd*W,0),new THREE.Vector2(sd*.5,0),new THREE.Vector2(0,Hh)]);const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),TC);m.position.set(0,0,Ln/2);t.add(m);
+   const fa=[sd*.5,.04,Ln/2+.045],fb=[sd*.06,Hh-.12,Ln/2+.045];ssSeg(t,fa,fb,.055,.035,TC,8);for(const u of[.3,.65]){const p=[fa[0]+(fb[0]-fa[0])*u,fa[1]+(fb[1]-fa[1])*u,fa[2]];h.C(.062-.02*u,.062-.02*u,.03,p[0],p[1],p[2],o.ROPE,null,null,8).rotation.z=Math.atan2(fb[0]-fa[0],fb[1]-fa[1])*-1}}
   const inside=new THREE.Mesh(new THREE.PlaneGeometry(2.4,Ln),M(0x5a4a3a,{roughness:1,polygonOffset:true,polygonOffsetUnits:-2}));inside.rotation.x=-Math.PI/2;inside.position.set(0,.012,0);inside.userData.noSeam=true;t.add(inside);
   for(const z of[-Ln/2-.02,Ln/2+.02])h.C(.025,.025,Hh+.12,0,(Hh+.12)/2,z,o.WOODD,null,null,6);h.C(.02,.02,Ln+.1,0,Hh+.005,0,o.WOODD,'z',null,6);
   for(const z of[-Ln/2,Ln/2]){rod([0,Hh+.1,z+(z>0?.02:-.02)],[0,.02,z+(z>0?1.0:-1.0)],.008,o.ROPE);h.C(.015,.012,.18,0,.07,z+(z>0?1.0:-1.0),k.STL,null,null,5)}

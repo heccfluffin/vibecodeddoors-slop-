@@ -81,7 +81,7 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   the bank, and the "Dip your feet" prop sits on the bank at the water's edge (`spots.dip`). Reed clumps (some
   cattails, the ones in the water grow from the bed), four flat rocks on the bank, a few lily pads on the water.
   Six palms of different heights (5.8 to 8.6 m) and
-  leans, ringed trunks, eleven drooping fronds each, dead fronds hanging and coconuts. A striped hammock between the
+  leans, ringed trunks, eleven drooping fronds each and a cluster of coconuts (the hanging dead fronds were dropped: they read as brown spikes, the user's note). A striped hammock between the
   two west palms (new prop at `spots.hammock`: "[E] Lie in Jeff's hammock", a short rest and a line such as "Jeff's
   hammock. Still warm. Jeff is not here."). Jeff's tip stand where the crate was: a little counter, the jar with a
   few coins, a PLEASE TIP · JEFF board. The oasis sign on two posts by the path in from the road.
@@ -95,7 +95,7 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   the first bench and the guitar meshes from `T('campfire')`, and the second bench. Keep the flame sprite and its
   light and sparks, and all three props (`spots`: warm, marshmallow, guitar), and the marshmallow stick. A ring of
   rough stones round an ash bed, five charred logs in a teepee, glowing embers (`parts.embers`: flicker their
-  `emissiveIntensity` with the flame); a ridge tent on the old spot and turn with poles, the door flap tied back, guy
+  `emissiveIntensity` with the flame); a ridge tent on the old spot and turn with poles, a triangular doorway in the front with both flaps rolled up and tied along its edges (the first version's single flap stuck out oddly, the user's note), guy
   ropes and pegs; two log benches on stumps on the old spots, both solid now; the guitar leaning on the first
   bench; a cooler, a kettle on a flat stone, a stack of firewood; string lights on two poles (`lights`: one soft
   light). Obstacles in `obs`.
