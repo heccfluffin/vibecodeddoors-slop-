@@ -107,7 +107,7 @@ used `R()` is removed, burn the same number of calls, see route-13.md).
   sprite, the pumping timer and its hint and heal, `XM.net.pump`). The old square obstacle `ob(px-2.2,...)` goes:
   only the four feet, the pump head, the tank and the crank stand are solid now, so you can walk under the tower.
   A four-leg steel tower (feet at the same spots) with girts and X braces, a ladder up the east face to a railed
-  platform under the wheel, the gearbox on a turntable, an **18-blade wheel** facing south (`parts.wheel`: spin it
+  platform under the wheel, the gearbox on a turntable, an **18-blade wheel** facing south, out in front of the platform rail on a longer shaft (the user's note: the rail was in front of it) (`parts.wheel`: spin it
   about its z, as the base spins `rot`), a red tail vane with OLD TOWN on both sides, the pump rod down the middle
   to the pump head, a pipe and spout to a **round galvanised stock tank** (`parts.water`: raise it a few cm while
   pumping, as the base raises the trough; the stream sprite goes at `spots.spout`), and **the hand crank outside

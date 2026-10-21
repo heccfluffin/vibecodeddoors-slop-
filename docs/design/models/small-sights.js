@@ -155,7 +155,7 @@ function ssCampfire(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r
 
 /* ---- batch 2a: the WIND PUMP (-55, -1000). A classic farm windmill: a four-leg steel tower on concrete feet (feet at
    2.0 m from the centre on the diagonals, 0.32 m at the 9 m top, as before) with girts and X braces, a ladder up the
-   east face to a railed platform under the wheel, the gearbox head on a turntable, an 18-blade wheel facing south, a
+   east face to a railed platform under the wheel, the gearbox head on a turntable, an 18-blade wheel facing south (out in front of the platform rail, on a longer shaft), a
    tail vane painted OLD TOWN, the pump rod down the middle to the pump head, a pipe and spout to a round galvanised
    stock tank, and the hand crank on a stand OUTSIDE the tower (west side).
    parts:{wheel (spin about its z), crank (spin about x), water (raise it a little while pumping)}, spots:{crank, spout} ---- */
@@ -171,8 +171,8 @@ function ssWindPump(g){const k=rtKit(),o=ssKit(),{B,C,rod,L,tube}=k.H(g),M=k.M,r
  {const GR=M(0x6a7074,{metalness:.5,roughness:.6}),Y=8.2,h=.95;for(const[w,d,x,z]of[[1.9,.5,px,pz-.7],[1.9,.5,px,pz+.7],[.5,.9,px-.7,pz],[.25,.9,px+.82,pz]])B(w,.04,d,x,Y,z,GR);
   for(const[a,b]of[[-1,-1],[1,-1],[1,1],[-1,1]])B(.05,h,.05,px+a*.93,Y+h/2,pz+b*.93,ST);for(const[w,d,x,z]of[[1.86,.03,px,pz-.93],[1.86,.03,px,pz+.93],[.03,1.8,px-.93,pz],[.03,.46,px+.93,pz-.68],[.03,.46,px+.93,pz+.68]]){B(w,.03,d,x,Y+h-.02,z,ST);B(w,.025,d,x,Y+h/2,z,ST)}}
  /* head: turntable, gearbox casing, the shaft out to the wheel (south) and the tail boom (north) */
- C(.36,.36,.08,px,top+.04,pz,STD,null,null,16);B(.46,.42,.8,px,top+.29,pz,M(0x6a7076,{metalness:.5,roughness:.45}));C(.23,.23,.82,px,top+.5,pz,M(0x6a7076,{metalness:.5,roughness:.45}),'z',null,14);C(.05,.05,.5,px,top+.3,pz-.6,ST,'z',null,8);
- const wheel=new THREE.Group();wheel.position.set(px,top+.3,pz-.85);g.add(wheel);{const h=k.H(wheel);h.C(.16,.16,.22,0,0,0,STD,'z',null,12);for(const rr of[.55,1.75]){const t=new THREE.Mesh(new THREE.TorusGeometry(rr,.025,5,40),ST);wheel.add(t)}
+ C(.36,.36,.08,px,top+.04,pz,STD,null,null,16);B(.46,.42,.8,px,top+.29,pz,M(0x6a7076,{metalness:.5,roughness:.45}));C(.23,.23,.82,px,top+.5,pz,M(0x6a7076,{metalness:.5,roughness:.45}),'z',null,14);C(.05,.05,1.0,px,top+.3,pz-.88,ST,'z',null,8);
+ const wheel=new THREE.Group();wheel.position.set(px,top+.3,pz-1.4);g.add(wheel);{const h=k.H(wheel);h.C(.16,.16,.22,0,0,0,STD,'z',null,12);for(const rr of[.55,1.75]){const t=new THREE.Mesh(new THREE.TorusGeometry(rr,.025,5,40),ST);wheel.add(t)}
   for(let i=0;i<6;i++){const a=i/6*Math.PI*2;h.rod([Math.cos(a)*.15,Math.sin(a)*.15,0],[Math.cos(a)*1.75,Math.sin(a)*1.75,0],.02,ST,null,4)}
   for(let i=0;i<18;i++){const bg=new THREE.Group();bg.rotation.z=i/18*Math.PI*2;wheel.add(bg);const bl=new THREE.Mesh(new THREE.BoxGeometry(.3,1.2,.012),GAL);bl.position.set(0,1.15,0);bl.rotation.y=.45;bl.scale.x=1;bg.add(bl)}}
  rod([px,top+.4,pz+.4],[px,top+.45,pz+2.4],.035,ST,null,6);rod([px,top+.15,pz+.3],[px,top+.4,pz+1.6],.02,ST,null,4);rod([px,top+.62,pz+.3],[px,top+.48,pz+1.6],.02,ST,null,4);
