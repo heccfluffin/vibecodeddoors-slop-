@@ -14,7 +14,7 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 
-In progress (design): nothing right now. Next: the desert mines.
+In progress (design): the desert mines (`desert-mines.md`: how it plays now and ideas, waiting for the user to pick).
 
 Still to design: the desert mines loop and remodel.
 
