@@ -1,4 +1,4 @@
-Status: ideas for the user to pick from (2026-10-22)
+Status: ideas picked 2026-10-22: B, C, D, E, G and H (not A or F) · writing the spec
 
 # The Desert Mines: how the run plays now, and what to change
 
