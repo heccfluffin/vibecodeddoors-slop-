@@ -99,8 +99,9 @@ async function lagBench(){const q=BUS&&BUS.ride;if(LAG.auto||LAGV.bench)return;
  out.push('Standing still at fixed views (traffic and patrols keep moving). Started from '+Math.round(home.x)+', '+Math.round(home.z-q.OZ)+'.');LAG.res=out.join('\n')+'\n(running...)';
  try{for(const[id,nm,x,z,yaw]of LAGVIEWS){if(!LAG.open)break;hint('📏 Benchmark view '+id+': '+nm+'. Please don\'t touch anything.');pin={x,z,yaw};P.dy=0;
    for(let t=0;t<10&&LAG.open;t++)await lagSleep(1000);if(!LAG.open)break;LAGV.vpos=new Map();const sp0=LAG.spikes.length;
+   /* r651: how far the far-vehicle shapes (dx637) had got when this view was measured */const fl=typeof FLV=='undefined'?'':FLV.on?'Far vehicles when measuring started: '+[...FLV.ent.values()].filter(e=>e.on).length+' drawn as simple shapes'+(FLV.job?', 1 being made':''):'Far vehicles: switched off (?noflv)';
    const A=await lagRun();if(!A)break;const spk=LAG.spikes.slice(sp0);
-   out.push('','VIEW '+id+': '+nm+' (desert '+x+', '+z+')',lagLimit(A),'Long frames during this view: '+(spk.length?'\n   '+spk.map(lagSpikeTxt).join('\n   '):'none'));LAG.res=out.join('\n')+'\n(running...)';lagDraw()}}
+   out.push('','VIEW '+id+': '+nm+' (desert '+x+', '+z+')',...(fl?[fl]:[]),lagLimit(A),'Long frames during this view: '+(spk.length?'\n   '+spk.map(lagSpikeTxt).join('\n   '):'none'));LAG.res=out.join('\n')+'\n(running...)';lagDraw()}}
  finally{pin=null;LAGV.bench=0;P.x=home.x;P.z=home.z;P.yaw=home.yaw;P.pitch=home.pitch}
  LAG.res=out.join('\n')+(out.length<5?'\n(stopped before the end)':'');lagDraw();hint('📏 Benchmark done. Press "Copy report" and paste it to Claude.')}
 /* ---------- the window: a Benchmark button, graphics card time, draw calls by kind, moving or not ---------- */
