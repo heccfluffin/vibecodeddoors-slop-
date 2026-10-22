@@ -1,4 +1,4 @@
-Status: plan approved 2026-10-20 · batches 1 to 4 approved, batch 5 for review
+Status: ready to build (plan and all five model batches approved 2026-10-22)
 
 # Lookout Mesa and Devil's Gorge
 
@@ -198,7 +198,7 @@ two piers); the rail `ob()` calls can stay or be replaced by the returned `obs` 
   remove it and use the returned `deepB` instead, or there are invisible posts under the new bridges.
 - Draw calls: about 3 to 6 per bridge (steel, concrete and timber are merged per bridge).
 
-### Batch 5: the gorge jump and the zipline towers, for review · `mgGorgeJump(g)`, `mgZipline(g)`, `mgPadTex()`
+### Batch 5: the gorge jump and the zipline towers, approved 2026-10-22 · `mgGorgeJump(g)`, `mgZipline(g)`, `mgPadTex()`
 - **`mgGorgeJump(g)`** replaces the jump ramp's plank slab and its six posts, the `sign('STUNT JUMP…')` and nothing else
   (its `q.ramps` entry, map rect and loc stay). Same footprint and slope (x 296 to 304, 0 m at z -1688 up to 3.2 m at
   z -1697): a diamond-plate steel deck 3 cm above the ramp height, a steel lip with a yellow-black stripe across the

@@ -10,10 +10,11 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `quarry-underground.md` | the mine under the Old Quarry: three levels built from pieces (tunnels, caves, The Deep), every room's versions, the shift (dynamite, rockfall, gas, pickups, map board, minimap, cage panel, Shaft sinking) | `models/quarry-under.js`, `-kit.js`, `-l1.js`, `-l2.js`, `-l2r.js`, `-l3.js`, `-shift.js` (load in that order) |
 | `route-13.md` | Old Town round the bus stop: main street, bus stop shelter, El Goblino Gas with a car wash, Motel 13 turned to face the town (office, car park, neon, pool), the drive-in, the Desert Bus depot with Depot Rd, the water tower | `models/route13.js` (needs `fort-kit.js`) |
 | `small-sights.md` | the small sights round Route 13: Jeff's Oasis (a real pond in a dip), the wishing well, the campfire, the wind pump, the radio mast and hut, Skull Rock (walk into the mouth, steps to the eye), the meteor crater (a real bowl) | `models/small-sights.js` (needs `fort-kit.js` and `route13.js`) |
+| `mesa-gorge.md` | Lookout Mesa (layered cliffs, rim, fallen rock, the road up, the cabin, summit cairn, lookout point, telescope, flagpole, campfire) and Devil's Gorge (canyon walls, cave mouth, winding river, dead trees, vultures, rim fences, the three bridges, the jump and landing pad, the zipline towers) | `models/mesa-gorge.js` (needs `fort-kit.js` and `route13.js`) |
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 
-In progress (design): Lookout Mesa and Devil's Gorge.
+In progress (design): nothing right now. Next: the desert mines.
 
 Still to design: the desert mines loop and remodel.
 
