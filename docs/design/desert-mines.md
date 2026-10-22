@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models next
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) for review
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -274,6 +274,37 @@ blocker, iron grate with bolts, wrench, lever, crawlspace door, flooded doorway 
 bridges (good and rotten) and the real chasm edges, gas vent and haze, rockfall spot and heap, wall alcoves, oil can,
 the Runaway Cart and the Runaway Train (from the chase cart), bats, the Burrower (from the dam's worm), the sand-glass and
 the mummy hands. HUD icons: satchel, air bar.
+
+## Part 1 models (`models/desert-mines.js`, needs `fort-kit.js`, `route13.js` and `mesa-gorge.js`)
+Door space: each blocker is built round a doorway at the origin (the door in the plane z 0, the room on +z, the opening
+x ±0.8, 3 m high, as `mineDoor` builds them); put the group at the door of the room it blocks. Every material has
+`userData.gd = 1` so the mines' sandy tint leaves it alone.
+
+### Batch 1: the blocked doors, for review · `dmRubble`, `dmGrate`, `dmWrench`, `dmLever`, `dmCrawl`, `dmFlood`, `dmChasm`
+- **Rubble** (`dmRubble(g)`): a rock fall burying the doorway, with a broken prop and a cracked lintel in it. Six layers;
+  `setDig(k)` clears them from the top as you dig (k = hits done / hits needed), leaving a few stones. Obstacle until
+  clear. Dynamite or the Runaway Cart clear it at once.
+- **Iron grate** (`dmGrate(g)`): a rusty barred gate in a bolted frame across the doorway, a DANGER · NO ENTRY plate,
+  hinged on the left. Three latch bolts on the right: `setBolt(i, k)` turns each out as you use the wrench (one E each);
+  then the gate swings open (`parts.leaf.rotation.y` to -1.75). **The wrench** (`dmWrench()`) lies somewhere in the room
+  (on a crate, a tool rack or the floor). **The lever** (`dmLever(g, x, z, ry)`): a lever box marked GRATE on a timber
+  post against a wall, with a cable up to the roof; pull it (`parts.handle` from -0.8 to 0.8) and the grate's bolts
+  draw back by themselves.
+- **Crawlspace** (`dmCrawl(g)`): a rock fall over the doorway with a timbered crawl hole (1.2 m wide, 1.05 m high,
+  1.9 m long) through to the door. Obstacles: the rocks, and the hole as crouch-only (`cr: 1`).
+- **Flooded sump** (`dmFlood(g, HX)`): the last 5.5 m of the room ramps down 2.2 m into a sump, and the door is at
+  the bottom, under water. **The room's exit height is -2.2** (like the stair rooms' `UP`; the next room carries on from
+  there), and `heightAt(z)` is the floor for the room's height function. The sump's sides and the end wall below the
+  floor are rock (the doorway left open). A hand pump on the right wall (a pipe down into the sump, the pump body, a
+  red valve wheel and a WATER gauge), and a FLOODED · PUMP IT FIRST sign. `setLevel(k)`: 0 full (just under the room
+  floor) to 1 dry; the gauge needle follows. Hold E at the wheel (`parts.wheel` turns) for 4 s, then it drains over
+  8 s. Wading in early: the water is over your head at the door (the air bar, C).
+- **Chasm and rope bridges** (`dmChasm(g, HX, za, zb, {rotten})`): a real chasm across the room from `za` to `zb`
+  (6 m in the preview): rock lips, rough walls going down 12 m into the dark, a faint mist far below, and two rope
+  bridges at x -1.8 and +1.8 (1.1 m wide: posts, hand ropes, foot ropes, uprights, planks). The rotten one (`rotten`:
+  -1 or 1) has missing planks, darker rope and a frayed end hanging off at the middle: the clues. `bridges` gives both
+  walkable strips; `parts.snap(k)` (0 → 1 over about 0.6 s) breaks the rotten one in the middle and swings both halves
+  down. The room's floor needs a gap between `za` and `zb` (the chasm room shape's black strip goes).
 
 # Part 2 (F): five levels and the room remodel: plan after part 1
 Levels of about 20 doors joined by a cage lift or a long ladder: 1 Old Workings, 2 Crystal Caves, 3 The Flooded Level,
