@@ -25,6 +25,7 @@ function lagCats(q){const veh=new Map();for(const v of q.vehs||[])if(v&&v.m)veh.
  for(const v of q.vehs||[]){if(!v)continue;const a=LAGV.vpos.get(v);if(a&&(Math.abs(v.x-a[0])+Math.abs(v.z-a[1])>.05||Math.abs((v.h||0)-a[2])>.01))moving.add(v);LAGV.vpos.set(v,[v.x,v.z,v.h||0])}
  const cnt={};const cat=o=>{let p=o;while(p&&p.parent&&p.parent!==q.g)p=p.parent;if(!p||p.parent!==q.g)return'sky, sun and other';
   if(p.userData.chunk){for(let x=o;x&&x!==p;x=x.parent)if(x===p.userData.smg)return'scenery small details';return'scenery chunks'}
+  if(p.userData.fsc)return'scenery far shapes';
   if(veh.has(p))return moving.has(veh.get(p))?'vehicles moving':'vehicles standing';
   if(o.isSprite||o.isPoints)return'glows and sprites';
   return o.userData.dpMerged?'later areas batched':(o.userData.dpDyn?'later areas moving pieces':'later areas single pieces')};
@@ -100,8 +101,9 @@ async function lagBench(){const q=BUS&&BUS.ride;if(LAG.auto||LAGV.bench)return;
  try{for(const[id,nm,x,z,yaw]of LAGVIEWS){if(!LAG.open)break;hint('📏 Benchmark view '+id+': '+nm+'. Please don\'t touch anything.');pin={x,z,yaw};P.dy=0;
    for(let t=0;t<10&&LAG.open;t++)await lagSleep(1000);if(!LAG.open)break;LAGV.vpos=new Map();const sp0=LAG.spikes.length;
    /* r651: how far the far-vehicle shapes (dx637) had got when this view was measured */const fl=typeof FLV=='undefined'?'':FLV.on?'Far vehicles when measuring started: '+[...FLV.ent.values()].filter(e=>e.on).length+' drawn as simple shapes'+(FLV.job?', 1 being made':''):'Far vehicles: switched off (?noflv)';
+   const fs=typeof FSC=='undefined'?'':FSC.on?'Far scenery when measuring started: '+[...FSC.ent.values()].filter(e=>e.on).length+' cells drawn as simple shapes ('+[...FSC.ent.values()].filter(e=>e.on&&e.mode==='hide').length+' of them hidden whole)'+(FSC.job?', 1 being made':''):'Far scenery: switched off (?nofsc)';
    const A=await lagRun();if(!A)break;const spk=LAG.spikes.slice(sp0);
-   out.push('','VIEW '+id+': '+nm+' (desert '+x+', '+z+')',...(fl?[fl]:[]),lagLimit(A),'Long frames during this view: '+(spk.length?'\n   '+spk.map(lagSpikeTxt).join('\n   '):'none'));LAG.res=out.join('\n')+'\n(running...)';lagDraw()}}
+   out.push('','VIEW '+id+': '+nm+' (desert '+x+', '+z+')',...(fl?[fl]:[]),...(fs?[fs]:[]),lagLimit(A),'Long frames during this view: '+(spk.length?'\n   '+spk.map(lagSpikeTxt).join('\n   '):'none'));LAG.res=out.join('\n')+'\n(running...)';lagDraw()}}
  finally{pin=null;LAGV.bench=0;P.x=home.x;P.z=home.z;P.yaw=home.yaw;P.pitch=home.pitch}
  LAG.res=out.join('\n')+(out.length<5?'\n(stopped before the end)':'');lagDraw();hint('📏 Benchmark done. Press "Copy report" and paste it to Claude.')}
 /* ---------- the window: a Benchmark button, graphics card time, draw calls by kind, moving or not ---------- */

@@ -33,7 +33,7 @@ function lagSpikeTxt(sp){const up=[];if(sp.sh)up.push(sp.sh+' new shader'+(sp.sh
 /* the things a hide switch covers, in the desert */
 function lagSet(k){const q=BUS&&BUS.ride;if(!q||!q.g||!q.roam)return[];const L=[];
  if(k=='veh'){for(const v of q.vehs||[])if(v&&v.m)L.push(v.m)}
- else if(k=='chunk'){for(const c of q.chunks||[])L.push(c)}
+ else if(k=='chunk'){for(const c of q.chunks||[])L.push(c);/* r652: the far scenery shapes (dx638) are scenery too */if(typeof FSC!='undefined'&&FSC.g)L.push(FSC.g)}
  else if(k=='small'){for(const c of q.chunks||[])if(c.userData.smg)L.push(c.userData.smg)}
  else if(k=='late'){const veh=new Set((q.vehs||[]).map(v=>v.m)),skip=new Set([q.sky,q.sun,q.zsky,q.zstar,q.sand,q.bg,BUS._sky,BUS._sun].filter(Boolean));for(const o of q.g.children)if(!o.userData.chunk&&!veh.has(o)&&!skip.has(o)&&(o.isGroup||o.type==='Object3D'))L.push(o)}
  else if(k=='spr'){if(q.dp&&q.dp.sprites)for(const s of q.dp.sprites)L.push(s)}
