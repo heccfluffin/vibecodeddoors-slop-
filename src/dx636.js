@@ -12,7 +12,7 @@
    Things that cannot be batched (see-through glass, glows, sprites, instanced pieces) are left as they are.
    ?nopkv in the address turns it off to compare.
    ===================================================================================================== */
-const PKV={on:!/[?&]nopkv/.test(location.search),q:null,list:new Map(),still:new WeakMap(),lively:new WeakMap(),mats:new Map(),R:350,FAR:450,STILL:5,COOL:30,BUDGET:.15,STEPMS:2,
+const PKV={on:!/[?&]nopkv/.test(location.search),q:null,list:new Map(),still:new WeakMap(),lively:new WeakMap(),mats:new Map(),R:350,FAR:450,STILL:5,COOL:30,BUDGET:.15,STEPMS:3,
  ri:0,ra:0,hook:0,job:null,F:0,mref:new Map(),stats:{parked:0,built:0,undone:0,why:{},draws0:0,draws1:0,ms:0,maxMs:0}};
 const _pkM=new THREE.Matrix4(),_pkN=new THREE.Matrix3(),_pkV=new THREE.Vector3(),_pkT=new THREE.Matrix4();
 /* is the vehicle being used (or about to be)? */
@@ -124,14 +124,18 @@ function pkvTick(q,dt){pkvMatsTick();if(PKV.q!==q){for(const e of[...PKV.list.va
  for(const e of[...PKV.list.values()]){const w=pkvChanged(q,e);if(w){pkvUndo(e,w);continue}const m=e.root.matrixWorld.elements;if(Math.hypot(m[12]-P.x,m[14]-P.z)>PKV.FAR)pkvUndo(e,'far away')}
  /* the deeper check, round and round, within a small budget */
  const L=[...PKV.list.values()];if(L.length){let k=0;while(k++<L.length&&performance.now()-t0<PKV.BUDGET){PKV.ra=(PKV.ra+1)%L.length;const e=L[PKV.ra];const w=pkvDeep(e,24);if(w)pkvUndo(e,w)}}
- /* a vehicle being parked: a little more of its batches each frame */
- if(PKV.job){const J=PKV.job;let done=false;try{done=pkvStep(J,PKV.STEPMS)}catch(x){pkvDrop(J);PKV.job=null;throw x}
-  if(done){PKV.job=null;const st=performance.now();if(pkvFinish(q,J))PKV.stats.parked++;const d=performance.now()-st;if(J.ms+d>PKV.stats.maxMs)PKV.stats.maxMs=+(J.ms+d).toFixed(2);PKV.stats.maxFrame=Math.max(PKV.stats.maxFrame|0,+d.toFixed(2))}}
- /* vehicles that have stood still long enough (real time, five seconds) are picked one at a time */
- const now=performance.now();let did=!!PKV.job;for(const v of q.vehs||[]){const o=v&&v.m;if(!o||o.__pkv)continue;let s=PKV.still.get(o);if(!s)PKV.still.set(o,s={t0:now,pose:pkvPose(v),cool:0});
+ /* which vehicles have stood still long enough (real time, five seconds) and are near: nearest first */
+ const now=performance.now(),cand=[];for(const v of q.vehs||[]){const o=v&&v.m;if(!o||o.__pkv)continue;let s=PKV.still.get(o);if(!s)PKV.still.set(o,s={t0:now,pose:pkvPose(v),cool:0});
   if(pkvBusy(q,v)||!pkvSame(pkvPose(v),s.pose)){s.t0=now;s.pose=pkvPose(v);continue}
-  if(did||now-s.t0<PKV.STILL*1000||now<s.cool||!o.visible)continue;const m=o.matrixWorld.elements;if(Math.hypot(m[12]-P.x,m[14]-P.z)>PKV.R||!pkvReady(v))continue;
-  did=true;const c0=performance.now();try{const J=pkvCollect(q,v);if(J&&typeof J=='object')PKV.job=J;else{/* nothing to gain: not looked at again for two minutes */s.cool=now+120000;PKV.stats.skipped=(PKV.stats.skipped|0)+1}}catch(x){s.cool=now+120000;conLog('error','parked vehicle batching: '+x.message)}
+  if(now-s.t0<PKV.STILL*1000||now<s.cool||!o.visible)continue;const m=o.matrixWorld.elements,d=Math.hypot(m[12]-P.x,m[14]-P.z);if(d>PKV.R||!pkvReady(v))continue;cand.push([d,v,s])}
+ cand.sort((a,b)=>a[0]-b[0]);PKV.waiting=cand.length;
+ /* parking, within about 3 ms a frame: the batches of the vehicle being parked, then the next one, as many as fit */
+ const t1=performance.now();let ci=0;
+ for(let guard=0;guard<12;guard++){const left=PKV.STEPMS-(performance.now()-t1);if(left<=0)break;
+  if(PKV.job){const J=PKV.job;let done=false;try{done=pkvStep(J,left)}catch(x){pkvDrop(J);PKV.job=null;throw x}if(!done)break;
+   PKV.job=null;const st=performance.now();if(pkvFinish(q,J))PKV.stats.parked++;const d=performance.now()-st;if(J.ms+d>PKV.stats.maxMs)PKV.stats.maxMs=+(J.ms+d).toFixed(2);PKV.stats.maxFrame=Math.max(PKV.stats.maxFrame|0,+d.toFixed(2));continue}
+  if(ci>=cand.length)break;const[,v,s]=cand[ci++];if(v.m.__pkv)continue;const c0=performance.now();
+  try{const J=pkvCollect(q,v);if(J&&typeof J=='object')PKV.job=J;else{/* nothing to gain: not looked at again for two minutes */s.cool=now+120000;PKV.stats.skipped=(PKV.stats.skipped|0)+1}}catch(x){s.cool=now+120000;conLog('error','parked vehicle batching: '+x.message)}
   const d=performance.now()-c0;if(d>(PKV.stats.maxCollect|0))PKV.stats.maxCollect=+d.toFixed(2);const CK=PKV.stats.collect||(PKV.stats.collect={});CK[v.k]=Math.max(CK[v.k]|0,+d.toFixed(1))}}
 /* pieces added to or taken out of a parked vehicle (a new batch, a swapped model part...) undo it */
 {const P0=THREE.Object3D.prototype,a0=P0.add,r0=P0.remove;const mark=o=>{if(PKV.hook||(!PKV.list.size&&!PKV.job))return;for(let p=o;p;p=p.parent)if(p.__pkv){p.__pkv.dirty=1;return}};
@@ -139,3 +143,5 @@ function pkvTick(q,dt){pkvMatsTick();if(PKV.q!==q){for(const e of[...PKV.list.va
 {const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(PKV.on&&q&&q.vehs&&!q.ld&&q.dp&&q.dp.merged&&typeof DP!='undefined'&&DP._mergedMat){const t=performance.now();pkvTick(q,dt);const d=performance.now()-t;const T=PKV.stats;T.tickN=(T.tickN|0)+1;T.tickMs=(T.tickMs||0)+d;if(d>(T.tickMax||0))T.tickMax=+d.toFixed(2)}else{if(PKV.job){pkvDrop(PKV.job);PKV.job=null}if(PKV.list.size)for(const e of[...PKV.list.values()])pkvUndo(e,'off')}}catch(e){conLog('error','parked vehicle batching: '+e.message);PKV.on=false;if(PKV.job){try{pkvDrop(PKV.job)}catch(y){}PKV.job=null}for(const x of[...PKV.list.values()])try{pkvUndo(x,'error')}catch(y){}}return r}}
 /* the lag window (F9) times these checks as their own part, so a report shows what they cost on your computer */
 if(typeof LAGSYS!='undefined'){LAGSYS.push(['pkvTick','Parked vehicles (checks and parking)']);{const f0=pkvTick;pkvTick=function(){if(!LAG.open)return f0.apply(this,arguments);const t=performance.now();try{return f0.apply(this,arguments)}finally{const d=performance.now()-t;LAG.sys.pkvTick=(LAG.sys.pkvTick||0)+d;LAG.cur.pkvTick=(LAG.cur.pkvTick||0)+d}}}}
+/* the lag report says how far parking has got (parked, still waiting their turn, being parked now) */
+if(typeof lagReport=='function'){const r0=lagReport;lagReport=function(){const t=r0.apply(this,arguments);try{if(!PKV.on)return t+'\nParked vehicles: switched off (?nopkv)';return t+'\nParked vehicles: '+PKV.list.size+' parked, '+(PKV.waiting|0)+' waiting their turn'+(PKV.job?', 1 being parked now':'')}catch(e){return t}}}
