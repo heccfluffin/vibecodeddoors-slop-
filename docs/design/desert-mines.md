@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) for review
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models next
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -119,7 +119,7 @@ the room remodel: that's where most of the model work is), then **E and G**. Not
 
 ---
 
-# Part 1: the spec for A, B, C, D and H (the game rules)
+# Part 1: the spec for A, B, C, D and H (the game rules), approved 2026-10-22
 The user picked everything (A to H), 2026-10-22. Order: **part 1** (this: A, B, C, D, H, the rules), then **part 2** (F:
 the five levels and the room remodel, mostly models), then **part 3** (E and G: shuffled set pieces, the Company Store,
 contracts). Part 1 needs a few small models; they come as one model batch once these rules are OK.
