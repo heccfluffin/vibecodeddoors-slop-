@@ -14,12 +14,15 @@
    only the rest of the cell is swapped. A cell that starts changing later goes back to real at once and is made again
    without the changing part. Nothing the game does with the cells is changed (collisions use their own boxes).
    ?nofsc in the address turns it all off to compare.
+   r653: cheaper upkeep (it cost about 1 ms a frame on the user's computer): the changes check looks at smaller slices
+   with a cheaper fingerprint, at most one new cell starts being watched each frame, and cells that cannot be made into
+   shapes are not tried again every two minutes.
    ===================================================================================================== */
-const FSC={on:!/[?&]nofsc/.test(location.search),q:null,g:null,ent:new Map(),watch:new Map(),job:null,D0:140,D1:160,PRE:130,BUDGET:2.5,CHECK:.25,MINR:.08,WATCH:4000,
+const FSC={on:!/[?&]nofsc/.test(location.search),q:null,g:null,ent:new Map(),watch:new Map(),job:null,D0:140,D1:160,PRE:130,BUDGET:2.5,CHECK:.12,MINR:.08,WATCH:4000,
  lively:new WeakMap(),cool:new WeakMap(),rr:0,wr:0,stats:{built:0,hideMode:0,layerMode:0,dropped:0,ms:0,why:{}}};
 /* one number per object for what can change on its own: where it is, shown or not, its colour, glow, see-through and picture offset */
 function fscSig(o){const p=o.position,r=o.quaternion,s=o.scale;let h=p.x*1.13+p.y*2.31+p.z*3.73+r._x*5.39+r._y*7.11+r._z*11.3+r._w*13.7+s.x*17.9+s.y*19.3+s.z*23.1+(o.visible?0:29.5);
- const m=o.material;if(m&&!Array.isArray(m)){if(m.color)h+=m.color.getHex()*1e-7;if(m.emissive)h+=m.emissive.getHex()*3e-7+(m.emissiveIntensity||0)*31.7;h+=(m.opacity||0)*37.1+(m.visible?0:41.3);const t=m.map;if(t)h+=t.offset.x*43.7+t.offset.y*47.9+t.rotation*53.3}return h}
+ const m=o.material;if(m&&!Array.isArray(m)){const c=m.color,e=m.emissive;if(c)h+=c.r*59.1+c.g*61.7+c.b*67.3;if(e)h+=e.r*71.9+e.g*73.1+e.b*79.7+(m.emissiveIntensity||0)*31.7;h+=(m.opacity||0)*37.1+(m.visible?0:41.3);const t=m.map;if(t)h+=t.offset.x*43.7+t.offset.y*47.9+t.rotation*53.3}return h}
 function fscObjs(c){const L=[],sg=c.userData.smg;c.traverse(o=>{if(o!==c&&o!==sg)L.push(o)});return L}/* (the cell itself and its small-details group are shown and hidden by the game and by this, so they are not compared) */
 /* cell distance as the game's own culling measures it, from the camera */
 function fscDist(q,c){const u=c.userData;return Math.hypot(u.cx-C.position.x,u.cz-(C.position.z-q.OZ))-u.ext}
@@ -65,10 +68,10 @@ function fscFinish(q,J){const e=J.e;const w=fscChanged(q,e,true);if(w){fscForget
    const mesh=new THREE.Mesh(g,M[b]);mesh.matrixAutoUpdate=false;mesh.visible=false;mesh.layers.mask=4;mesh.userData={fsc:1,dpKeep:1,noSeam:1};FSC.g.add(mesh);(k?e.sm:e.main).push(mesh)}}
  e.ok=true;FSC.ent.set(e.c,e);FSC.stats.built++;FSC.stats[e.mode==='hide'?'hideMode':'layerMode']++;FSC.stats.ms+=J.ms;return e}
 /* anything different from when the shapes were made? (full: everything; else a slice) */
-function fscChanged(q,e,full){if(e.dirty)return'added or removed';const O=e.objs,n=full?O.length:Math.min(O.length,96);for(let k=0;k<n;k++){const i=full?k:(e.ri=(e.ri+1)%O.length);const o=O[i];if(!o.parent)return'removed';
+function fscChanged(q,e,full){if(e.dirty)return'added or removed';const O=e.objs,n=full?O.length:Math.min(O.length,32);for(let k=0;k<n;k++){const i=full?k:(e.ri=(e.ri+1)%O.length);const o=O[i];if(!o.parent)return'removed';
   if(e.st.keep.includes&&e.mode==='layers'&&e.keepSet&&e.keepSet.has(o))continue;if(fscSig(o)!==e.sig[i]){e.culprit=o;return'something changed'}}
  if(e.c.children.length!==e.nc&&e.nc!=null)return'added or removed';
- const PC=e.st.pcs,pn=full?PC.length:Math.min(PC.length,64);for(let k=0;k<pn;k++){const i=full?k:(e.pi=(e.pi+1)%PC.length);const[o,m0]=PC[i],m=o.layers.mask;
+ const PC=e.st.pcs,pn=full?PC.length:Math.min(PC.length,24);for(let k=0;k<pn;k++){const i=full?k:(e.pi=(e.pi+1)%PC.length);const[o,m0]=PC[i],m=o.layers.mask;
   if(m0===4&&m!==4){e.culprit=o;return'a piece changed'}if(m0!==4&&e.on&&e.mode==='layers'&&m!==4){if(m&1){e.hid.push([o,m]);o.layers.mask=4}}else if(m0!==4&&!(e.on&&e.mode==='layers')&&m!==m0){e.culprit=o;return'a piece changed'}}
  return null}
 function fscShow(q,e){if(e.on)return;if(e.mode==='hide'){e.xv=e.c.visible;e.c.visible=false}else{for(const o of e.st.hide)if(o.layers.mask&1){e.hid.push([o,o.layers.mask]);o.layers.mask=4}for(const b of e.st.batches)if(b.layers.mask&1){e.hid.push([b,b.layers.mask]);b.layers.mask=4}}
@@ -82,7 +85,7 @@ function fscForget(e,why){if(FSC.q)fscBack(FSC.q,e);for(const m of e.main.concat
  const c=e.culprit;e.culprit=null;let L=FSC.lively.get(e.c);if(c&&c!==e.c&&!(c.userData&&c.userData.dpMerged)){if(!L)FSC.lively.set(e.c,L=new Set());L.add(c)}
  FSC.cool.set(e.c,performance.now()+(L&&L.size>=8?120000:3000))}
 /* watch a cell for a few seconds before making its shapes: what changes on its own stays real */
-function fscWatch(c,now){let w=FSC.watch.get(c);if(!w){const objs=fscObjs(c),sig=new Float64Array(objs.length);for(let i=0;i<objs.length;i++)sig[i]=fscSig(objs[i]);FSC.watch.set(c,{objs,sig,t0:now,n:objs.length});return false}
+function fscWatch(c,now,may){let w=FSC.watch.get(c);if(!w){if(!may)return false;const objs=fscObjs(c),sig=new Float64Array(objs.length);for(let i=0;i<objs.length;i++)sig[i]=fscSig(objs[i]);FSC.watch.set(c,{objs,sig,t0:now,n:objs.length});return false}
  if(now-w.t0<FSC.WATCH)return false;let L=FSC.lively.get(c);for(let i=0;i<w.objs.length;i++){const o=w.objs[i];if(fscSig(o)!==w.sig[i]){if(!L)FSC.lively.set(c,L=new Set());L.add(o)}}FSC.watch.delete(c);return true}
 function fscTick(q){fscWrapCull();if(FSC.q!==q||!FSC.g||FSC.g.parent!==q.g){for(const e of[...FSC.ent.values()])fscForget(e,'left');FSC.job=null;FSC.watch=new Map();FSC.q=q;FSC.g=new THREE.Group();FSC.g.userData={noChunk:1,dpKeep:1,fsc:1};q.g.add(FSC.g)}
  const now=performance.now(),want=[];
@@ -95,8 +98,8 @@ function fscTick(q){fscWrapCull();if(FSC.q!==q||!FSC.g||FSC.g.parent!==q.g){for(
  want.sort((a,b)=>a[0]-b[0]);const t2=performance.now();let looked=false;
  for(let guard=0;guard<12;guard++){const left=FSC.BUDGET-(performance.now()-t2);if(left<=0)break;
   if(FSC.job){const J=FSC.job;let done=false;try{done=fscStep(J,left)}catch(x){delete J.e.c.__fscJob;FSC.job=null;throw x}if(!done)break;FSC.job=null;delete J.e.c.__fscJob;fscFinish(q,J);break}
-  let next=null;for(const[,c]of want){if(fscWatch(c,now)){next=c;break}if(performance.now()-t2>FSC.BUDGET*.5)break}if(!next||looked)break;looked=true;
-  const r=fscStart(q,next);if(r&&typeof r=='object'){r.e.nc=next.children.length;r.e.keepSet=new Set();for(const k of r.e.st.keep)k.traverse(x=>r.e.keepSet.add(x));next.__fscJob=1;FSC.job=r}else{FSC.cool.set(next,now+120000);FSC.stats.why[r||'nothing']=(FSC.stats.why[r||'nothing']|0)+1}}}
+  /* (at most one cell starts being watched each frame) */let next=null,may=true;for(const[,c]of want){const had=FSC.watch.has(c);if(fscWatch(c,now,may)){next=c;break}if(!had&&FSC.watch.has(c))may=false;if(performance.now()-t2>FSC.BUDGET*.5)break}if(!next||looked)break;looked=true;
+  const r=fscStart(q,next);if(r&&typeof r=='object'){r.e.nc=next.children.length;r.e.keepSet=new Set();for(const k of r.e.st.keep)k.traverse(x=>r.e.keepSet.add(x));next.__fscJob=1;FSC.job=r}else{/* (nothing to merge never changes; one that is blocked is tried again in ten minutes) */FSC.cool.set(next,now+(r==='blocked'?600000:1800000));FSC.stats.why[r||'nothing']=(FSC.stats.why[r||'nothing']|0)+1}}}
 /* the game's own distance culling turns cells on and off: it sees each cell as if it were shown, and its decision is kept.
    (Put in place on the first frame: the r500 code that defines xpCull comes later in the page than this module.) */
 function fscWrapCull(){if(xpCull.__fsc)return;const c0=xpCull;const w=function(q,force){const H=[];if(FSC.ent.size)for(const e of FSC.ent.values())if(e.on&&e.mode==='hide'){e.c.visible=e.xv;H.push(e)}
