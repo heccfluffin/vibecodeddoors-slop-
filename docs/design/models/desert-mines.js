@@ -35,20 +35,31 @@ function dmKit(){const k=rtKit();if(k._dm)return k._dm;const o={},M=(c,op)=>{con
  o.ROCK=M(0x9a7a5a,{roughness:1,map:o.ROCKT});o.ROCKV=M(0xffffff,{vertexColors:true,roughness:1,map:o.ROCKT});o.TIMB=M(0x9a7048,{roughness:.95,map:o.PLANKT});o.TIMBV=M(0xffffff,{vertexColors:true,roughness:.95,map:o.PLANKT});
  o.IRON=M(0x8a7a70,{roughness:.6,metalness:.55,map:o.RUSTT});o.IRONV=M(0xffffff,{vertexColors:true,roughness:.6,metalness:.5,map:o.RUSTT});o.DARK=M(0x2a2622,{roughness:.8,metalness:.4});
  o.c={rock:[.66,.52,.4],rock2:[.56,.43,.32],rock3:[.74,.6,.46],tim:[.72,.54,.38],tim2:[.6,.44,.3],iron:[.62,.56,.52],iron2:[.5,.45,.42]};
- /* a mine-coloured rock for merging (lumpy, smooth-shaded) */o.rock=(list,rad,x,y,z,seed,col,sq)=>{mgPut(list,mgRockGeo(rad,seed,sq||.85,1+.3*Math.abs(Math.sin(seed))),x,y,z,seed*1.7,col,Math.sin(seed*2.3)*.22,Math.cos(seed*1.1)*.18)};
+ /* a mine-coloured rock for merging (lumpy, smooth-shaded) */o.rock=(list,rad,x,y,z,seed,col,sq)=>{mgPut(list,mgRockGeo(rad,seed,sq||1.0,1+.3*Math.abs(Math.sin(seed))),x,y,z,seed*1.7,col,Math.sin(seed*2.3)*.22,Math.cos(seed*1.1)*.18)};
  k._dm=o;return o}
 const dmF=()=>(rtKit().FONT||'"Barlow Semi Condensed",DoorsSans,Arial,sans-serif');
 function dmSign(g,w,h,lines,bg,fg,x,y,z,ry){const k=rtKit(),o=dmKit(),c=document.createElement('canvas');c.width=Math.round(256*w/h);c.height=256;const t=c.getContext('2d');t.fillStyle=bg;t.fillRect(0,0,c.width,256);t.strokeStyle=fg;t.lineWidth=10;t.strokeRect(10,10,c.width-20,236);t.fillStyle=fg;t.textAlign='center';
  const n=lines.length;lines.forEach((s,i)=>{t.font=(i?'600 ':'800 ')+(i?150/n*.7:150/n)+'px '+dmF();t.fillText(s,c.width/2,256*(i+.72)/n,c.width-40)});const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,.03),[o.TIMB,o.TIMB,o.TIMB,o.TIMB,o.M(0xffffff,{map:new THREE.CanvasTexture(c),roughness:.8}),o.TIMB]);m.position.set(x,y,z);m.rotation.y=ry||0;g.add(m);return m}
 
+/* drop rocks one at a time onto a height map, so each rests on the ground or on the rocks under it. top(x,z): the heap's
+   outline (a rock is kept only if it fits under it); init(x,z): a starting height (something to rest on); block(x,z):
+   ground to keep clear. put(rad, x, y, z, i) places a rock with its foot at y. */
+function dmPile(o2){const r=dmKit().r,CS=.08,NX=Math.ceil((o2.x1-o2.x0)/CS),NZ=Math.ceil((o2.z1-o2.z0)/CS),H=new Float32Array(NX*NZ);
+ for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++)H[i*NZ+j]=o2.init?o2.init(o2.x0+(i+.5)*CS,o2.z0+(j+.5)*CS):0;let kept=0;
+ for(let n=0;n<o2.n&&kept<o2.keep;n++){const x=o2.x0+.2+r()*(o2.x1-o2.x0-.4),z=o2.z0+.1+Math.pow(r(),o2.zb||1)*(o2.z1-o2.z0-.2);let rad=o2.rad(0);const fr=rad*.75;let base=0,bad=false;
+  for(let i=Math.max(0,Math.floor((x-fr-o2.x0)/CS));i<=Math.min(NX-1,Math.floor((x+fr-o2.x0)/CS));i++)for(let j=Math.max(0,Math.floor((z-fr-o2.z0)/CS));j<=Math.min(NZ-1,Math.floor((z+fr-o2.z0)/CS));j++){const cx=o2.x0+(i+.5)*CS,cz=o2.z0+(j+.5)*CS;if(Math.hypot(cx-x,cz-z)>fr)continue;base=Math.max(base,H[i*NZ+j]);if(o2.block&&o2.block(cx,cz))bad=true}
+  const ht=rad*.95;if(bad||base+ht>o2.top(x,z)+.25)continue;o2.put(rad,x,base-.04,z,n);kept++;
+  const fr2=rad*1.0;for(let i=Math.max(0,Math.floor((x-fr2-o2.x0)/CS));i<=Math.min(NX-1,Math.floor((x+fr2-o2.x0)/CS));i++)for(let j=Math.max(0,Math.floor((z-fr2-o2.z0)/CS));j<=Math.min(NZ-1,Math.floor((z+fr2-o2.z0)/CS));j++){const cx=o2.x0+(i+.5)*CS,cz=o2.z0+(j+.5)*CS,d=Math.hypot(cx-x,cz-z)/fr2;if(d<1){const k=i*NZ+j;H[k]=Math.max(H[k],base+ht*Math.sqrt(1-d*d)*.92)}}}}
 /* ---------- the rubble heap: rocks in six layers, cleared from the top ---------- */
 function dmRubble(g){const o=dmKit(),r=o.r,L=[[],[],[],[],[],[]];const peak=2.95;
- for(let i=0;i<120;i++){const u=r()*2-1,w=Math.pow(r(),.8)*2.6,x=u*2.3,z=.05+w;const top=peak*Math.max(0,1-Math.pow(Math.abs(u),1.6))*Math.max(0,1-w/2.7)+.1;const y=r()*top,rad=.22+r()*.38*(1-y/3.2);const li=Math.min(5,Math.floor(y/peak*6));
-  o.rock(L[li],rad,x,y-rad*.25,z,i*2.3,[o.c.rock,o.c.rock2,o.c.rock3][i%3])}
+ /* rocks dropped one by one onto the heap (each rests on what's under it, so nothing floats), up to the heap's outline */
+ const core=(x,z)=>2.0*Math.sqrt(Math.max(0,1-Math.pow(x/1.75,2)-Math.pow(z/1.5,2)));
+ dmPile({x0:-2.5,x1:2.5,z0:.02,z1:2.9,n:1400,keep:300,zb:1.5,init:core,top:(x,z)=>peak*Math.max(0,1-Math.pow(Math.abs(x)/2.35,1.6))*Math.max(0,1-z/2.8)+.15,rad:(y)=>.2+r()*.34*(1-y/3.4),put:(rad,x,y,z,i)=>o.rock(L[Math.max(0,Math.min(5,Math.floor(y/peak*6)))],rad,x,y,z,i*2.3,[o.c.rock,o.c.rock2,o.c.rock3][i%3])});
  /* a broken timber and a cracked lintel poking out */const T=[];mgBeam(T,[-1.4,.3,1.7],[.6,2.2,.3],.18,.18,o.c.tim2);mgBeam(T,[.9,.2,1.4],[1.9,1.4,.6],.16,.16,o.c.tim);L[2].push(...T);
  const layers=L.map(l=>{const m=mgMerge(l,o.STONEV);m.userData.noSeam=true;g.add(m);return m});
  /* the stones left over when it's cleared */const S=[];for(let i=0;i<9;i++)o.rock(S,.12+r()*.16,(r()*2-1)*2.4,-.03,.4+r()*2.4,i*5.1+90,o.c.rock2);g.add(mgMerge(S,o.STONEV));
- const setDig=k=>{layers.forEach((m,i)=>m.visible=k<(6-i)/6*.999+.0001)};return{parts:{layers},setDig,obs:[{x0:-2.3,x1:2.3,z0:0,z1:2.2}]}}
+ /* the dirt and gravel under the rocks (what shows between them) */const cm=new THREE.Mesh(new THREE.SphereGeometry(1,20,12,0,Math.PI*2,0,Math.PI/2),o.M(0x7a5a3e,{roughness:1,map:o.DIRTT}));cm.scale.set(1.75,2.0,1.5);g.add(cm);
+ const setDig=k=>{layers.forEach((m,i)=>m.visible=k<(6-i)/6*.999+.0001);cm.visible=k<.67;cm.scale.y=2.0*Math.max(.05,1-k*1.2)};return{parts:{layers},setDig,obs:[{x0:-2.3,x1:2.3,z0:0,z1:2.2}]}}
 
 /* ---------- the iron grate ---------- */
 function dmGrate(g){const o=dmKit(),M=o.M,F=[];const fx=.9,TOP=3.12;
@@ -77,8 +88,10 @@ function dmCrawl(g){const o=dmKit(),r=o.r,R=[],T=[];const HW=.6,HH=1.05,LEN=1.9;
  for(let i=0;i<6;i++){const x=-HW+i*(2*HW)/5;mgBeam(T,[x,HH+.26,.05],[x,HH+.26,LEN+.1],.2,.05,o.c.tim2)}for(const sx of[-1,1])for(let j=0;j<4;j++){const y=.15+j*.27;mgBeam(T,[sx*(HW+.17),y,.05],[sx*(HW+.17),y,LEN+.1],.05,.22,o.c.tim2)}
  g.add(mgMerge(T,o.TIMBV));
  /* the rocks: a heap over and round it, up to the roof of the doorway, spreading into the room; the hole runs through it */
- for(let i=0;i<160;i++){const u=r()*2-1,x=u*2.4,z=.05+Math.pow(r(),.85)*2.6,ax=Math.abs(x),rad=.18+r()*.3;const top=3.15*Math.max(0,1-Math.pow(ax/2.5,2.2))*Math.max(0,1-Math.max(0,z-1.6)/1.2)+.05;let y=r()*top;
-  if(ax-rad<HW+.25&&z-rad<LEN+.15){if(y-rad<HH+.38){y=HH+.38+rad*.8;if(y>top+.1)continue}}o.rock(R,rad,x,y-rad*.3,z,i*3.7,[o.c.rock,o.c.rock2,o.c.rock3][i%3])}
+ dmPile({x0:-2.6,x1:2.6,z0:.02,z1:2.9,n:800,keep:210,top:(x,z)=>3.15*Math.max(0,1-Math.pow(Math.abs(x)/2.55,2.2))*Math.max(0,1-Math.max(0,z-1.6)/1.25)+.1,
+  init:(x,z)=>Math.abs(x)<HW+.24&&z<LEN+.12?HH+.33:0,/* the crawl hole's lagging roof is what the rocks above it rest on */
+  block:(x,z)=>Math.abs(x)<HW+.3&&z>=LEN+.12&&z<LEN+1.6,/* keep the way into the hole clear */
+  rad:()=>.18+r()*.3,put:(rad,x,y,z,i)=>o.rock(R,rad,x,y,z,i*3.7,[o.c.rock,o.c.rock2,o.c.rock3][i%3])});
  g.add(mgMerge(R,o.STONEV));
  /* inside: dark */const dk=new THREE.Mesh(new THREE.PlaneGeometry(2*HW,HH),o.M(0x0a0806,{roughness:1}));dk.position.set(0,HH/2,.08);g.add(dk);
  return{obs:[{x0:-2.4,x1:-HW-.05,z0:0,z1:2.4},{x0:HW+.05,x1:2.4,z0:0,z1:2.4},{x0:-HW,x1:HW,z0:0,z1:LEN,cr:1}]}}

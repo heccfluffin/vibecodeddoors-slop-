@@ -281,7 +281,7 @@ x ±0.8, 3 m high, as `mineDoor` builds them); put the group at the door of the 
 `userData.gd = 1` so the mines' sandy tint leaves it alone.
 
 ### Batch 1: the blocked doors, for review · `dmRubble`, `dmGrate`, `dmWrench`, `dmLever`, `dmCrawl`, `dmFlood`, `dmChasm`
-- **Rubble** (`dmRubble(g)`): a rock fall burying the doorway, with a broken prop and a cracked lintel in it. Six layers;
+- **Rubble** (`dmRubble(g)`): a rock fall burying the doorway, with a broken prop and a cracked lintel in it. The rocks are dropped one by one onto the heap (`dmPile`), so each rests on the ground or on the rocks under it, over a dirt core that shows between them. Six layers;
   `setDig(k)` clears them from the top as you dig (k = hits done / hits needed), leaving a few stones. Obstacle until
   clear. Dynamite or the Runaway Cart clear it at once.
 - **Iron grate** (`dmGrate(g)`): a rusty barred gate in a bolted frame across the doorway, a DANGER · NO ENTRY plate,
