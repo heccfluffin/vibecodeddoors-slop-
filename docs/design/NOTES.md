@@ -1,5 +1,36 @@
 # Notes for the design chat
 
+## 2026-10-23 · candidate: the quarry underground (not released yet)
+- Built from `quarry-underground.md` on the candidate branch `wt-quarry`. `dx642` holds the seven model files byte for byte
+  (in their load order); `dx642b` is the wiring. `?nougm` in the address keeps the old mine.
+- **How it plays now:** the cage stops at level 1; the new Quarry Tycoon upgrade SHAFT SINKING (🕳️, 300 / 900 gold) opens
+  levels 2 and 3 (the cage panel dialog offers every level, locked ones say SHAFT SINKING NEEDED, and the panel model in the
+  cage lights up). Ride time is qtRide() for level 1 plus half again per extra level. Spiral declines are real ramps
+  (you walk down them), ladderways are climbed with W / S. The shift is 6:00. The rockfall comes at the plan's time (1:30-3:20)
+  on one side of a round / island; dig 8 swings or blast it. Dynamite (up to 3 sticks, 4 s fuse, blasting store plunger,
+  -20 s on the clock, knock-down within 4 m), gas from 4% of the veins on levels 2-3 (breath bar, pass out = dragged up with
+  half your ore), lunchbox + note, tag 17, fossils (sold at the assay office, 60 gold), first-aid kit, the foreman's safe and
+  logbook, the buried cart, the compressor switch, the bell, puffball spores, burning crust and geysers, the ore pass, the
+  rope raft (hold E), the zip line, the sealed station's bulkhead wheels, the refuge chamber, door 60 on level 3.
+  The minimap underground is `ugMiniDraw` (pieces you have walked through); signposts and map boards come from the kit.
+- **Built only when needed:** the plan (ugGen, 30-40 ms) is made when someone first takes the cage down; the three levels
+  are built a piece at a time during the ride (level 1 first; on the test machine 0.4-0.6 s per level, spread over frames).
+- **Changed from the models (fit):**
+  - the station's landing gate grille is a separate group that slides up 1.95 m when the cage is at that level (it was a fixed
+    grille you could not get through); the sump floor is left out on levels 1 and 2 and the shaft lining (planks and guides)
+    continues between the stations, so the cage can pass from level to level;
+  - the veins of a level are merged into one shape per ore kind (they shrink and vanish by rewriting their own corners), to
+    keep draw calls down (a vein was 9 separate meshes);
+  - veins in the plain tunnels, junctions and working faces are re-rolled to the spec's ore-by-level table (the kit gave
+    copper/iron/silver on every level); rooms keep the ore the models gave them. Big seams are 1.7x size.
+  - the flooded magazine's crate starts with 1 stick (the spec: one stick still dry).
+- **Not done / simplified:** puffballs puff spores but stay (they are merged into the room); the first-aid kit stays on its
+  shelf after you take it; frogs, bats and the glowworm "lamp off" are only looks; wading is 70% speed by a small extra step on
+  top of the game's own wading (50%); stepping onto the raft and off it is an E press (no walking over the gap), and you can haul it over from either shore;
+  the steam vents and geysers are particle puffs.
+- Question: the mine draws with a far plane of 70 m while you are below the quarry floor (the desert above was being drawn:
+  up to 1,380 draw calls looking along a drive; now 55-130). Fine for you?
+
 ## 2026-10-20 · r645: the train runs; pyramid booth stays
 - The user wanted the train to move: q.train now starts with dw:0 and done:0, so it runs in single player (stops at the station, crossing gates close). Simulated 4 minutes of desert time: 2 full passes, gates closed 8 times, no errors.
 - The Pyramid's phone booth stays in the middle of the avenue in front of the entrance (the user likes it there).
