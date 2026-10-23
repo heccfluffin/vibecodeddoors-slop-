@@ -1,6 +1,6 @@
 # Notes for the design chat
 
-## 2026-10-23 · r660 candidate: the desert map
+## 2026-10-23 · r660: the desert map
 Built from `desert-map.md` on the candidate branch `wt-map` (not released). `src/dx645.js` has the tables (KIND, AREAS, BIG,
 DROP, cls, renamed `DMKIND`, `DMAREAS`, `DMBIG`, `DMDROP`, `dmCls` so they cannot clash with game names) and the new map; a
 build.py block "r660 desert map" hands the old `dmapDraw` over to it. `?nodm2` in the address gives the old map.

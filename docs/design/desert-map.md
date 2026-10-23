@@ -1,4 +1,4 @@
-Status: built in candidate, not yet released (r660 candidate, branch wt-map, `src/dx645.js`) · approved by the user 2026-10-19 · preview "Desert Map Redo"
+Status: shipped in r660 (2026-10-23, `src/dx645.js`)
 
 # The desert map and minimap, redone
 
