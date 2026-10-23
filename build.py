@@ -274,6 +274,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx634.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx637.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx638.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx639.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx640.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -847,6 +848,8 @@ R("A(new THREE.CylinderGeometry(.18,.1,.3,10),M(0x6a5030,{metalness:.5}),hx2+sd*
 R("g.add(ht);const hg=glowSp(0xff3050,.7,2.4);","ht.userData.dpKeep=1;g.add(ht);const hg=glowSp(0xff3050,.7,2.4);")
 # r646 (src/dx632.js): let later code check a batch for pieces that moved (the batch watchdog's own check)
 R("DP._mergeRoot=(q,r,lam,sh)=>dpMergeRoot(q,r,lam,sh);","DP._mergeRoot=(q,r,lam,sh)=>dpMergeRoot(q,r,lam,sh);DP._check=(L,mv)=>dpCheckRecs(L,mv);")
+# r654: the people batching (dx640) makes its materials the way the batcher does
+R("DP._check=(L,mv)=>dpCheckRecs(L,mv);","DP._check=(L,mv)=>dpCheckRecs(L,mv);DP._mergedMat=mergedMat;")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -860,7 +863,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-23 r653';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-23 r654';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
