@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r657',['Route 13: the old town round the bus stop is rebuilt: a bus shelter, street lamps and power lines, El Goblino Gas with a new canopy, pumps and price sign','A drive-through car wash east of the gas station: stop in the bay and press E (5 gold) to clean off scorch marks and get a little health back','Motel 13 now faces the town, with a car park, neon sign, office and pool','The drive-in has a proper screen tower, speaker posts, ticket booth and marquee; the Desert Bus has a depot with a platform; the water tower is new','New side roads: Motel Rd, the drive-in drive and Depot Rd']],
 ['r656',['The mine under the Old Quarry is rebuilt: three levels of tunnels, caves and The Deep, with real rooms, a spiral decline, ladders, a raft and a zip line','The shift: rockfall, dynamite, gas, pickups, map boards and a cage panel. Buy Shaft sinking on the tycoon board to go deeper']],
 ['r655',['The jury and their seats in the courthouse now face the court (they were facing the wall)']],
 ['r654',['Smoother desert: people and other moving pieces (officers, groundskeepers, soldiers) are drawn together in a few batches instead of piece by piece. They look and move exactly as before']],
