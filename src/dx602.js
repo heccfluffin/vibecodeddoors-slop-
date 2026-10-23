@@ -15,25 +15,11 @@
    - THE MINING SHACK moved off the road (west of it, door facing the road, a dirt path to it). Walking in no
      longer starts the cutscene: press E at the door.
    ===================================================================================================== */
-function mapBaseDraw(q,c){const B=MILAA,x=c.getContext('2d'),k=c.width/DMW.S,X=w=>(w-DMW.x0)*k,Y=w=>(w-DMW.z0)*k;
- const obs=q.obs.filter(o=>!o.kd&&!o.veh&&!o.off&&!o.dest&&o.x0>B.x0&&o.x1<B.x1&&o.z0>B.z0&&o.z1<B.z1&&(o.x1-o.x0)<80&&(o.z1-o.z0)<80);
- /* wall pieces that touch belong to the same building */const n=obs.length,par=obs.map((_,i)=>i),f=i=>par[i]===i?i:(par[i]=f(par[i])),G=.6;
- for(let i=0;i<n;i++){const a=obs[i];for(let j=i+1;j<n;j++){const b=obs[j];if(a.x0-G<b.x1&&b.x0-G<a.x1&&a.z0-G<b.z1&&b.z0-G<a.z1)par[f(i)]=f(j)}}
- const cl={};obs.forEach((o,i)=>{const r=f(i),c2=cl[r]||(cl[r]={x0:1e9,x1:-1e9,z0:1e9,z1:-1e9,n:0});c2.x0=Math.min(c2.x0,o.x0);c2.x1=Math.max(c2.x1,o.x1);c2.z0=Math.min(c2.z0,o.z0);c2.z1=Math.max(c2.z1,o.z1);c2.n++;o.__cl=c2});
- const bld=Object.values(cl).filter(c2=>c2.n>=3&&c2.x1-c2.x0>=4&&c2.z1-c2.z0>=4&&c2.x1-c2.x0<=90&&c2.z1-c2.z0<=90);
- /* skip what the map already shows (a second shape on top would draw darker) */const big=r=>(r.x1-r.x0)*(r.z1-r.z0)>2500,old=(q.mapR||[]).filter(r=>!big(r)&&r.x1>B.x0&&r.x0<B.x1&&r.z1>B.z0&&r.z0<B.z1);
- const shown=b=>old.some(r=>Math.min(r.x1,b.x1)-Math.max(r.x0,b.x0)>(b.x1-b.x0)*.5&&Math.min(r.z1,b.z1)-Math.max(r.z0,b.z0)>(b.z1-b.z0)*.5);
- /* colour by kind: big sheds and hangars, huts and towers, the rest (offices, barracks) */const col=b=>{const a=(b.x1-b.x0)*(b.z1-b.z0);return a>500?'#5a5e64':a<30?'#7a6a4a':'#6a6a52'};
- x.save();for(const b of bld){if(shown(b))continue;const a=X(b.x0),y=Y(b.z0),w=(b.x1-b.x0)*k,h=(b.z1-b.z0)*k;x.fillStyle='rgba(40,30,15,.3)';x.fillRect(a+4,y+4,w,h);x.fillStyle=col(b);x.fillRect(a,y,w,h)}
- /* the walls themselves (tiny posts and props on their own are left out) */x.fillStyle='#3a3a36';for(const o of obs){const lone=!(o.__cl&&bld.includes(o.__cl));if(lone&&o.x1-o.x0<1.2&&o.z1-o.z0<1.2)continue;x.fillRect(X(o.x0)-1,Y(o.z0)-1,Math.max(2,(o.x1-o.x0)*k)+2,Math.max(2,(o.z1-o.z0)*k)+2)}
- for(const o of obs)delete o.__cl;x.restore()}
-{const mb0=dmapBg;dmapBg=function(q){if(q.mapBg)return q.mapBg;const c=mb0.apply(this,arguments);try{mapBaseDraw(q,c)}catch(e){conLog('error','base map: '+e.message)}return c}}
-/* when more of the base is built (or knocked down), draw the map again */
-{const ru6=busRoamUpd;busRoamUpd=function(q,dt){const r=ru6.apply(this,arguments);try{if(q&&q.obs&&(q.mbT=(q.mbT||0)-dt)<=0){q.mbT=3;let n=0;const B=MILAA;for(const o of q.obs)if(o.x0>B.x0&&o.x1<B.x1&&o.z0>B.z0&&o.z1<B.z1&&!o.off)n++;if(q.mbN!=null&&q.mbN!==n)q.mapBg=null;q.mbN=n}}catch(e){}return r}}
-/* names on the big map, zoomed in */
+/* r660: the base map (every building drawn from its walls) and the base names on the big map moved to dx645, which
+   does the same for every named area of the desert (docs/design/desert-map.md). MAPBN stays here: it is the list of
+   the base's building names (dx645 shows them). */
+/* names of the base's buildings, shown on the big map zoomed in and on the minimap */
 const MAPBN=[/* r616: the reworked Fort Blackout (docs/design/fort-blackout.md) */['HQ',360,-860],['Command Wing',450,-853],['Wraith Bays',450,-835],['Motor Pool',524,-909],['Parade Ground',516,-845],['Barracks',388,-912],['Latrines',474,-916],['Recruiting',586,-910],['Mess Hall',582,-892],['LZ Bravo',582,-848],['Boot Camp',364,-812],['Depot',350,-782],['Tank Park',470,-780],['Range',556,-765],['Hangar 1',375,-694],['Launch Control',527,-701],['Silo 1',578,-700],['Radar',442,-700],['Air Ops',325,-949],['Fuel Farm',373,-950],['Shelters',448,-946],['Tower',545,-944],['Runway 09',385,-980],['Power Plant',245,-911],['Water',280,-911],['Heliport West',250,-846],['PX',241,-759],['Armoury',257,-694],['Main gate',561,-930]];
-{const dd6=dmapDraw;dmapDraw=function(q,cv,cx,cz,sc,full){const r=dd6.apply(this,arguments);try{if(!full||(DMAP.zm||1)<2)return r;const x=cv.getContext('2d'),W=cv.width,H=cv.height,X=wx=>W/2+(wx-cx)*sc,Y=wz=>H/2+(wz-cz)*sc;x.save();x.font='bold 12px Arial';x.textAlign='center';x.textBaseline='middle';
-  for(const[n,wx,wz]of MAPBN){const px=X(wx),py=Y(wz);if(px<-40||py<-20||px>W+40||py>H+20)continue;const tw=x.measureText(n).width+10;x.fillStyle='rgba(30,32,26,.8)';x.fillRect(px-tw/2,py-8,tw,16);x.fillStyle='#e8f0d0';x.fillText(n,px,py+.5)}x.restore()}catch(e){}return r}}
 
 /* ---------- instanced meshes (the Speedway tyre walls and others): always drawn, never filed under a far chunk ---------- */
 function imFix(q){if(q.imFix||!q.chunks)return;q.imFix=1;const L=[];q.g.traverse(o=>{if(o.isInstancedMesh)L.push(o)});for(const o of L){o.frustumCulled=false;o.userData.noChunk=1;let p=o.parent,inChunk=false;while(p&&p!==q.g){if(p.userData&&p.userData.chunk)inChunk=true;p=p.parent}if(inChunk){o.updateMatrixWorld(true);q.g.attach(o)}}}

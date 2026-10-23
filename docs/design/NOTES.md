@@ -1,5 +1,56 @@
 # Notes for the design chat
 
+## 2026-10-23 · r660 candidate: the desert map
+Built from `desert-map.md` on the candidate branch `wt-map` (not released). `src/dx645.js` has the tables (KIND, AREAS, BIG,
+DROP, cls, renamed `DMKIND`, `DMAREAS`, `DMBIG`, `DMDROP`, `dmCls` so they cannot clash with game names) and the new map; a
+build.py block "r660 desert map" hands the old `dmapDraw` over to it. `?nodm2` in the address gives the old map.
+- **In:** the 17 areas with their kinds (tint, edge, Zone 51's hazard edge, dashed towns); buildings found from the walls in
+  every area (replaces `mapBaseDraw` and the hand-drawn prison); the background is drawn again when the walls in an area
+  change (checked every 3 s); duplicate shapes drawn once (the parade ground); the oasis water and the crater are now map
+  shapes pushed by their builder (`ssMapAll`, dx643, with an `edge` colour); roads from `xpRoadsBuild` carry `road:
+  'asphalt'|'dirt'` (the two colours stay as the fallback); the sand is world-sized. Labels in three classes; toggles for
+  Places, Base buildings, Phone booths, Stunt jumps (remembered in the browser) and a key of the kinds under the map, with the
+  old you/friends/vehicles key. The minimap banner, icons in view, the three nearest names, base names within 70 m. Smooth
+  zoom (wheel, pinch, − / + at x1.6, range 1-6, slide home below 1.35, reduced motion jumps). `DMAPV` is the one view
+  constant (dmapFull, dmapTick, the warp and the drag use it through `dmapView`). Warp works from area names, places, base
+  names (zoom 2+), phone booths and stunt jumps, from exactly what was drawn.
+- **Area rows changed to match the game now** (the others are as in the spec):
+  - Route 13: x -100..160 (was 105) so the Desert PD and its impound lot sit inside the town instead of the town's dashed
+    edge cutting through the station; label at (30, -1120).
+  - Desert PD: x 36..158, z -1034..-996 (the courthouse forecourt and the r626 impound lot x 138..156).
+  - Speedway: z from -1896 (the car park and entrance arch, speedway-farms.md), x to 420; label (300, -1904).
+  - Wind farm: x to -452 (the substation and power line poles by the road). Solar farm: x to -18, z from -1352 (control
+    hut x -34..-24 and the fence). Dusty Gulch: x to 542, z to -1428 (gulch water tower, boardwalk ends).
+  - The Pyramid: x -219..-118, z to -992 (corner pieces, the kiosk by the phone booth). Dino Dan's: x from 78 (car park).
+  - Crash site: x -90..-26, z -1180..-1150 (the wreck is at (-38, -1165); the spec's box sat 30 m east of most of it).
+- **Changed from the spec, for fit:**
+  - the big map shows 1400 m at zoom 1 (the spec said ~1460, the old map 1380): everything fits with a little margin;
+  - area names carry the area's icon ("🏰 FORT BLACKOUT"); they are drawn after the places so an icon never covers them;
+  - a place whose name doesn't fit keeps its icon (only the name is left out), so you can still see and warp to it;
+  - lone wall pieces are left out when their longest side is under 2.4 m (the spec's 1.2 m left benches, tables and signs
+    as brown specks all over the towns); posts under 1.2 m don't join pieces into one building (the boardwalk posts made one
+    roof of each side of Dusty Gulch's street); pieces under a round map shape are left to the shape (the oasis pond's ring
+    of walls drew a brown roof over the water, Skull Rock the same);
+  - like `mapBaseDraw`, a roof is not drawn where a builder's own shape already shows that building (the walls still are);
+  - zoomed in past about 2.5 the static part is painted sharp for the view; while the zoom glides or you drag, the cheaper
+    background is used and the sharp one comes back when it stops;
+  - the glide stops at its target (the preview kept animating between zoom 1 and 1.35); more wheel notches during a glide
+    keep the first point, so it really ends up under the cursor;
+  - clicking an area's name warps to its main place (Route 13 → Bus stop, Crash site → Crashed plane, the others to the place
+    with the same name), not to the label point (those are outside the areas: Fort Blackout's is on the road north of the
+    base); and the warp now never puts you inside a building (base names are in the middle of them);
+  - the minimap still shows phone booth and stunt icons (no names); its banner also says LOOKOUT MESA, DEVIL'S GORGE, or
+    UNDERGROUND in a mine; the prison's own dashed blue line is gone (its area edge is the same rectangle); the sandstorm
+    shading no longer covers the base's south part.
+- **Performance (swiftshader):** `dmapTick` median 0.3 ms at the bus stop, Fort Blackout and Dusty Gulch (r659: 0.3-0.7 ms);
+  the background (all areas, buildings) takes about 30-70 ms to build, only when something changes; the full map's 10 Hz
+  redraw ~0.5-0.9 ms.
+- **Questions:**
+  - Fenced yards (Dusty Gulch's cemetery, some compounds) come out as one roof, because the fence is a closed ring of walls.
+    Fine, or should big rings be drawn as outlines only?
+  - Fort Blackout's HQ has almost no wall obstacles, so it shows as a couple of lines without a roof. Add a map shape for it?
+  - The minimap is 150 px on screen, so its names are small (about 10 px). Make the minimap bigger?
+
 ## 2026-10-23 · r659: the small sights
 - (Claude Code, at release) The sand seam round the patches: every floor piece now starts its sand pattern from the desert's own origin (build.py) and the patches use the same coordinates, so the big light/dark patches line up. With the cheaper lighting (Lambert, worked out at the corners) the patches also leave out point and spot lights (the player's lantern lit the fine patch but never the huge floor panels, so a lit square with a sharp edge followed you). A very faint edge can still show round the crater patch at some angles on the cheaper setting.
 Built from `small-sights.md` on the candidate branch `wt-sights` (not released). `src/dx643.js` holds small-sights.js (with the

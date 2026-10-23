@@ -283,6 +283,8 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx642b.js').r
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx643.js').read()+"\n"+s[k:]
 # r658 Lookout Mesa and Devil's Gorge (docs/design/mesa-gorge.md): the design chat's models plus the wiring
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx644.js').read()+"\n"+s[k:]
+# r660 the desert map and minimap redo (docs/design/desert-map.md): areas, buildings drawn from their walls, labels, banner, smooth zoom
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx645.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -1007,6 +1009,15 @@ R("prop(rx+1.9,rz+1.9,1.3,'[E] Climb the mast (don\\'t look down)',()=>xmPerch(q
 # r659: every floor piece starts its sand pattern from the same world origin (it started at each piece's own corner, so the
 # big light/dark patches had seams wherever the floor is cut: the gorge, the quarry, and now the oasis and crater patches)
 R("t2.repeat.set((x1-x0)/10,(z1-z0)/10);","t2.repeat.set((x1-x0)/10,(z1-z0)/10);t2.offset.set(x0/10,-z1/10);")
+# r660 desert map (docs/design/desert-map.md, src/dx645.js)
+# the base map hands over to the new one (dm2Draw); if that ever throws, the old one takes over for the rest of the ride
+R("function dmapDraw(q,cv,cx,cz,sc,full){const x=cv.getContext('2d')","function dmapDraw(q,cv,cx,cz,sc,full){if(typeof DM2!='undefined'&&DM2.on)try{return dm2Draw(q,cv,cx,cz,sc,full)}catch(e){DM2.on=false;conLog('error','map: '+e.message)}const x=cv.getContext('2d')")
+# the big map's view comes from one place (DMAPV / dmapView), in dmapFull and in dmapTick
+_o,_n=("dmapDraw(q,DMAP.fc,(DMAP.zm||1)>1.01?P.x+(DMAP.px||0):0,(DMAP.zm||1)>1.01?P.z-q.OZ+(DMAP.pz||0):-1310,900/1380*(DMAP.zm||1),1)","dmapFullDraw(q)");assert s.count(_o)==2;s=s.replace(_o,_n)
+# room under the map for the toggles and the key of colours
+R("innerHeight/zm-(sh?62:130)","innerHeight/zm-(sh?62:172)")
+# roads say what they are on the map (asphalt or dirt); the two colours stay as the fallback
+R("rect(r.x0,r.x1,r.z0,r.z1,r.dirt?'#8a6a44':'#4a4440');","rect(r.x0,r.x1,r.z0,r.z1,r.dirt?'#8a6a44':'#4a4440');{const _m=q.mapR&&q.mapR[q.mapR.length-1];if(_m&&_m.x0===r.x0&&_m.z0===r.z0)_m.road=r.dirt?'dirt':'asphalt'}")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"

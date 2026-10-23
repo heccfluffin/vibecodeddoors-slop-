@@ -17,7 +17,10 @@ setTimeout(()=>{try{chbNet()}catch(e){}},2500);setInterval(()=>{try{chbNet()}cat
 /* ---------- the desert map: click (or tap) a place's icon to WARP there ---------- */
 function dmapWarpWire(){const D=DMAP;if(!D||!D.fc||D.fc.dataset.warp)return;D.fc.dataset.warp=1;D.fc.style.cursor='pointer';
  D.fc.addEventListener('click',e=>{try{e.stopPropagation();if(D.dragMoved){D.dragMoved=0;return}const q=BUS.ride;if(!q||!q.roam||!DMAP.open)return;const fc=D.fc,r=fc.getBoundingClientRect(),px=(e.clientX-r.left)*fc.width/r.width,py=(e.clientY-r.top)*fc.height/r.height;
-  const zm=D.zm||1,cx=zm>1.01?P.x+(D.px||0):0,cz=zm>1.01?P.z-q.OZ+(D.pz||0):-1310,sc=900/1380*zm,W=fc.width,H=fc.height,R2=zm>=1.6?17:14;
+  /* r660: the new map (dx645) keeps the box of every name and icon it drew, so you warp to whatever you clicked:
+     an area's name, a place, a base building (zoomed in), a phone booth or stunt jump (when shown) */
+  if(typeof DM2!='undefined'&&DM2.on){let best=null,bd=1e9;for(const h of DM2.hits||[]){if(px<h[0]-4||px>h[2]+4||py<h[1]-4||py>h[3]+4)continue;const d=Math.hypot((h[0]+h[2])/2-px,(h[1]+h[3])/2-py);if(d<bd){bd=d;best=h[4]}}if(best)dmapWarp(q,best);return}
+  const v=dmapView(q),zm=v.zm,cx=v.cx,cz=v.cz,sc=v.sc,W=fc.width,H=fc.height,R2=zm>=1.6?17:14;
   const MAJ=/^(Desert PD|Dusty Gulch|Airfield|Lookout Mesa|Old Quarry|Dark Zone 51|Mirage Lake|Speedway|Observatory|Dino Dan|Wind farm|Solar farm|Goblino's Scrap|The Pyramid|Motel 13|Devil's Gorge|Desert Bus depot|Jump ramps|X marks|Dark Penitentiary)/;
   let best=null,bd=1e9;for(const l of q.locs||[]){if(!(MAJ.test(l.nm)||zm>=1.6))continue;const d=Math.hypot(W/2+(l.x-cx)*sc-px,H/2+(l.z-cz)*sc-py);if(d<R2+6&&d<bd){bd=d;best=l}}if(!best)return;dmapWarp(q,best)}catch(err){conLog('error','map warp: '+err.message)}})}
 function dmapWarp(q,l){const no=m=>{hint(m);try{snd(180,.08)}catch(e){}};
@@ -27,8 +30,9 @@ function dmapWarp(q,l){const no=m=>{hint(m);try{snd(180,.08)}catch(e){}};
  /* r634: a place with a phone booth (within 220 m) is warped to at its booth, in front of the door, so you never land inside
     somewhere you cannot leave (the prison's marker is in the middle of the cell block); other places as before */
  let bo=null;{let bd=220;for(const b of q.booths||[]){const d=Math.hypot(b.x-l.x,b.z-l.z);if(d<bd){bd=d;bo=b}}}
- const cx=bo?bo.x:l.x,cz=bo?bo.z:l.z,rs=bo?[1.6,2.5,4,6,9,13]:[6,9,13,18,24,32];
- const inPen=(x,z)=>penArea(x,z)||(x>-512&&x<-368&&z>-842&&z<-688);
+ const cx=bo?bo.x:l.x,cz=bo?bo.z:l.z,rs=bo?[1.6,2.5,4,6,9,13]:[6,9,13,18,24,32,40,50];
+ /* r660: and never inside a building (the map knows them all now, dx645): a base building's name is in the middle of it */
+ const inPen=(x,z)=>penArea(x,z)||(x>-512&&x<-368&&z>-842&&z<-688)||(typeof dmInBld=='function'&&dmInBld(x,z));
  let tx=cx,tz=cz+rs[0];outer:for(const rr of rs)for(let a=0;a<16;a++){const x=cx+Math.sin(a/16*Math.PI*2)*rr,z=cz+Math.cos(a/16*Math.PI*2)*rr;if(free(x,z)&&!inPen(x,z)){tx=x;tz=z;break outer}}
  try{bsF.style.transition='opacity .25s';bsF.style.background='#000';bsF.style.opacity=1}catch(e){}try{snd(520,.1);setTimeout(()=>snd(780,.1),90)}catch(e){}
  setTimeout(()=>{try{P.x=tx;P.z=tz+q.OZ;P.dy=vehGround(q,tx,tz);P.yaw=Math.atan2(-(l.x-tx),-(l.z-tz));if(DMAP.open)dmapFull(q);hint('✨ Warped to '+l.ic+' '+l.nm+'.');bsF.style.transition='opacity .6s';bsF.style.opacity=0}catch(e){}},280)}
@@ -36,8 +40,10 @@ function dmapWarp(q,l){const no=m=>{hint(m);try{snd(180,.08)}catch(e){}};
 
 /* ---------- drag the zoomed-in map around ---------- */
 function dmapDragWire(){const D=DMAP;if(!D||!D.fc||D.fc.dataset.drag)return;D.fc.dataset.drag=1;const fc=D.fc;let st=null;
- const down=(x,y)=>{if((D.zm||1)<=1.01)return;st={x,y,px:D.px||0,pz:D.pz||0,m:0}};
- const move=(x,y)=>{if(!st)return;const r=fc.getBoundingClientRect(),k=fc.width/r.width,sc=900/1380*(D.zm||1),dx=(x-st.x)*k,dy=(y-st.y)*k;if(Math.hypot(dx,dy)>5)st.m=1;D.px=st.px-dx/sc;D.pz=st.pz-dy/sc;fc.style.cursor='grabbing';/* redraw at once, every animation frame, instead of waiting for the next map tick */if(!D.raf)D.raf=requestAnimationFrame(()=>{D.raf=0;try{const q=BUS.ride;if(q&&D.open)dmapDraw(q,D.fc,P.x+(D.px||0),P.z-q.OZ+(D.pz||0),900/1380*(D.zm||1),1)}catch(e){}})};
+ const down=(x,y)=>{if((D.zm||1)<=1.01)return;D.za=null;st={x,y,px:D.px||0,pz:D.pz||0,m:0}};
+ /* r660: the view comes from dmapView (dx645); between zoom 1 and 1.35 the map is partly slid back to the whole-map view, so a
+    drag moves the centre by less: divide by what is left */
+ const move=(x,y)=>{if(!st)return;const q=BUS.ride;if(!q)return;const r=fc.getBoundingClientRect(),k=fc.width/r.width,v=dmapView(q),f=1/Math.max(.05,1-v.h),dx=(x-st.x)*k,dy=(y-st.y)*k;if(Math.hypot(dx,dy)>5)st.m=1;D.dragT=performance.now();D.px=st.px-dx/v.sc*f;D.pz=st.pz-dy/v.sc*f;fc.style.cursor='grabbing';/* redraw at once, every animation frame, instead of waiting for the next map tick */if(!D.raf)D.raf=requestAnimationFrame(()=>{D.raf=0;try{const q=BUS.ride;if(q&&D.open)dmapFullDraw(q)}catch(e){}})};
  const up=()=>{if(st&&st.m)D.dragMoved=1;st=null;fc.style.cursor='pointer'};
  fc.addEventListener('mousedown',e=>{e.stopPropagation();down(e.clientX,e.clientY)});addEventListener('mousemove',e=>move(e.clientX,e.clientY));addEventListener('mouseup',up);
  fc.addEventListener('touchstart',e=>{if(e.touches.length==1)down(e.touches[0].clientX,e.touches[0].clientY);else st=null},{passive:true});fc.addEventListener('touchmove',e=>{if(e.touches.length==1)move(e.touches[0].clientX,e.touches[0].clientY)},{passive:true});fc.addEventListener('touchend',up)}

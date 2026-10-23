@@ -448,8 +448,10 @@ function ssCraterPulse(K,q){if(K&&K.cm)K.cm.material.emissiveIntensity=.85+Math.
 /* one of the five fragments: the model's burnt stone with its shards (one mesh), left out of the batches (it vanishes when picked up) */
 function ssFragB(g,x,y,z){const f=ssFragment(g,x,y,z);f.userData.dpKeep=1;f.traverse(o=>{o.userData.noSeam=true});try{ssMerge(f.children.slice(1))}catch(e){}return f}
 
-/* the map: each sight's own shape (the oasis water and the crater are still drawn by hand in dmapBg) */
-function ssMapAll(q){if(!q.mapR)return;const R=SSX.res;for(const k of['well','camp','pump','mast','skull']){const r=R[k];if(!r||!r.mapR)continue;for(const[x,z,rr,c]of r.mapR)q.mapR.push({x0:x-rr,x1:x+rr,z0:z-rr,z1:z+rr,c,circ:1})}}
+/* the map: each sight's own shape. r660: the oasis water and the meteor crater are map shapes too now (they used to be
+   drawn by hand in dmapBg); `edge` is the circle's outline on the map (desert-map.md, dx645) */
+function ssMapAll(q){if(!q.mapR)return;const R=SSX.res;for(const k of['well','camp','pump','mast','skull']){const r=R[k];if(!r||!r.mapR)continue;for(const[x,z,rr,c]of r.mapR)q.mapR.push({x0:x-rr,x1:x+rr,z0:z-rr,z1:z+rr,c,circ:1})}
+ const C=(x,z,rr,c,e)=>q.mapR.push({x0:x-rr,x1:x+rr,z0:z-rr,z1:z+rr,c,circ:1,edge:e});C(SSO.x,SSO.z,6.2,'#3a9ad8','#e8f6ff');C(SSM.x,SSM.z,7.5,'#8a6a48','#5a3a1a');C(SSM.x,SSM.z,1.6,'#3aff70')}
 
 /* the floor pieces get the sand shader (and Lambert on most settings) from the r500 'Dressing the sand' step, which only
    looks at big pieces; once the desert is loaded the two sculpted patches (oasis, crater) get exactly the same treatment,
