@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-23 r657';
+const BUILD='2026-10-23 r658';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -4328,9 +4328,9 @@ function gorgeTex(rep){const c=document.createElement('canvas');c.width=256;c.he
  for(let k=0;k<900;k++){x.fillStyle='rgba(0,0,0,'+(Math.random()*.12)+')';x.fillRect(Math.random()*256,Math.random()*256,2+Math.random()*6,1+Math.random()*2)}const g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(20,10,5,.55)');x.fillStyle=g;x.fillRect(0,0,256,256);
  const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;t.wrapT=THREE.ClampToEdgeWrapping;t.repeat.set(rep,1);return t}
 function xpGorgeCave(X){const{q,g,M,A,BX,CY,prop,loc,light,lab}=X,z0=GORGE.z0,D=30,Y=-D;q.deepB=q.deepB||[];const RKM=M(0x6a5040,{map:mineTexR('rock',3,2),roughness:1}),DRK=M(0x3a2a22,{roughness:1});
- /* boulders and a dead tree along the riverbed */for(let i=0;i<46;i++){const x=-DXB+30+Math.random()*(2*DXB-60),z=z0+3+Math.random()*(GORGE.z1-z0-6);if(Math.abs(x-192)<12||(x>280&&x<320))continue;const r=.6+Math.random()*1.6;const b=A(new THREE.DodecahedronGeometry(r,0),M(0x8a6248,{roughness:1}),x,Y+r*.5,z);b.rotation.set(Math.random()*3,Math.random()*3,0);q.deepB.push({x0:x-r*.7,x1:x+r*.7,z0:z-r*.7,z1:z+r*.7})}
- for(let i=0;i<10;i++){const x=-DXB+60+i*((2*DXB-120)/9),z=GORGE.z1-2-Math.random()*4;const dr=A(new THREE.SphereGeometry(4+Math.random()*3,10,6,0,Math.PI*2,0,Math.PI/2),M(0xd8b07a,{roughness:1}),x,Y,z);dr.scale.y=.35}
- /* the cave mouth: a dark arch in the south wall */const ar=A(BX(GCV.tx1-GCV.tx0+1.6,1,1.4),RKM,(GCV.tx0+GCV.tx1)/2,Y+5.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx0-.4,Y+2.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx1+.4,Y+2.5,z0-.2);
+ /* boulders and a dead tree along the riverbed */for(let i=0;i<46;i++){const x=-DXB+30+Math.random()*(2*DXB-60),z=z0+3+Math.random()*(GORGE.z1-z0-6);if(Math.abs(x-192)<12||(x>280&&x<320))continue;const r=.6+Math.random()*1.6;Math.random();Math.random()}
+ for(let i=0;i<10;i++){const x=-DXB+60+i*((2*DXB-120)/9),z=GORGE.z1-2-Math.random()*4;Math.random()}
+ /* the cave mouth: a dark arch in the south wall */
  /* the tunnel and the chamber: floor, walls, ceiling */const cx=(GCV.cx0+GCV.cx1)/2,cz=(GCV.cz0+GCV.cz1)/2,CW=GCV.cx1-GCV.cx0,CD=GCV.cz1-GCV.cz0,H=6;
  /* r607: floors run 0.3 m under the walls, the tunnel 1 m out into the riverbed (1 cm lower there), a rock slab under it all */A(BX(GCV.tx1-GCV.tx0+.6,.2,(z0+1)-(GCV.cz1-.3)),DRK,(GCV.tx0+GCV.tx1)/2,Y-.11,((z0+1)+(GCV.cz1-.3))/2);A(BX(CW+.6,.2,CD+.6),DRK,cx,Y-.1,cz);A(BX(CW+1.2+1.6,.6,(z0+1)-(GCV.cz0-1.4)),M(0x2a1e18,{roughness:1}),cx,Y-.32,((z0+1)+(GCV.cz0-1.4))/2);
  for(const sx of[GCV.tx0-.3,GCV.tx1+.3])A(BX(.6,H,z0-GCV.cz1+.6),RKM,sx,Y+H/2,(z0+GCV.cz1)/2);A(BX(GCV.tx1-GCV.tx0+1.2,.6,z0-GCV.cz1+1.4),RKM,(GCV.tx0+GCV.tx1)/2,Y+H+.3,(z0+GCV.cz1)/2);
@@ -4350,7 +4350,7 @@ function xpGorgeCave(X){const{q,g,M,A,BX,CY,prop,loc,light,lab}=X,z0=GORGE.z0,D=
  /* r607: the lift is the design chat's model (gorgeLiftBuild in dx603) */try{gorgeLiftBuild(X,GCV.lx,GCV.lz)}catch(e){conLog('error','gorge lift: '+e.message)}loc('Old Gorge Mine',GCV.lx,GCV.lz,'⛏️');q.mapR.push({x0:GCV.lx-2.2,x1:GCV.lx+2.2,z0:GCV.lz-2.2,z1:GCV.lz+2.2,c:'#6a4a2a'})}
 /* walking at the bottom: the riverbed, the tunnel, the chamber */
 function deepOK(q,x,lz){if(q.deep===2)return pyrDeepOK(q,x,lz);const r=.3,G=GORGE,inG=x>-DXB+.5&&x<DXB-.5&&lz>G.z0+.7&&lz<G.z1-.7,inT=x>GCV.tx0+r&&x<GCV.tx1-r&&lz>GCV.cz1-1&&lz<G.z0+1.2,inC=x>GCV.cx0+r&&x<GCV.cx1-r&&lz>GCV.cz0+r&&lz<GCV.cz1-r;if(!inG&&!inT&&!inC)return false;
- const L=G.ledge;if(x>L.x0-r&&x<L.x1+r&&lz<L.z1+r)return false;for(const[b0,b1]of G.bridges){const W=b1-b0,cx=(b0+b1)/2,mz=(G.z0+G.z1)/2;for(const sd of[-1,1]){const px=cx+sd*(W/2+.2);if(Math.abs(x-px)<.3+r&&Math.abs(lz-mz)<.3+r)return false}}
+ const L=G.ledge;if(x>L.x0-r&&x<L.x1+r&&lz<L.z1+r)return false;/* r658: the bridges' piers are in q.deepB */
  for(const b of q.deepB||[])if(x>b.x0-r&&x<b.x1+r&&lz>b.z0-r&&lz<b.z1+r)return false;return true}
 function deepEnter(q){q.deep=1;q.deepY=-30;P.dy=-30;{const lz=P.z-q.OZ;if(!deepOK(q,P.x,lz)){let done=0;for(let r=.5;r<8&&!done;r+=.5)for(let a=0;a<6.28&&!done;a+=.4){const x=P.x+Math.cos(a)*r,z=lz+Math.sin(a)*r;if(deepOK(q,x,z)){P.x=x;P.z=z+q.OZ;done=1}}}}P.roll=0;camShake(.5,.4);snd(70,.6);snd(110,.3);try{vfx('dust',P.x,-29.8,P.z,{n:24,w:2})}catch(e){}
  hint(SV.gfell?'🏜️ Down the gorge again. The cave is in the south wall, near the middle.':'🏜️ You tumble down DEVIL\'S GORGE... and land in a soft drift of sand at the bottom. Ow. But alive. Somewhere along the south wall there is a dark CAVE MOUTH.');SV.gfell=1;try{saveGame()}catch(e){}try{badge('gorge')}catch(e){}}
@@ -6168,14 +6168,13 @@ function xpMoreTown(X){const{q,g,M,A,BX,CY,ob,prop,loc,rect,sign,anim,light,lab,
    airfield, the scrapyard, the lake, the quarry, the solar farm, Sunny Acres, the cemetery, Dino Dan's, Zone 51 ---- */
 function xpMoreFar(X){const{q,g,M,A,BX,CY,ob,prop,loc,rect,sign,anim,light,lab,R}=X,MT=X.MT,DK=X.DK,PK=X.PK,T=(nm,f)=>{try{f()}catch(e){conLog('error','more far ('+nm+'): '+e.message)}};q.taxiF=q.taxiF||[];
  /* ZIPLINES over Devil's Gorge: two timber towers, a cable each way; ride one south and the other back */
- T('ziplines',()=>{const zx=-150,zN=GORGE.z1+7,zS=GORGE.z0-7,HT=12,HL=3.2;/* z1 is the north rim: north is +z */const tower=(z,hiX,loX)=>{for(const[a,b]of[[-1,-1],[1,-1],[1,1],[-1,1]]){rodTo(g,PK,zx+a*1.5,0,z+b*1.5,zx+a*1.1,HT,z+b*1.1,.14,7)}for(const y of[3,6,9])for(const sd of[-1,1]){const f=1.5+(1.1-1.5)*y/HT;rodTo(g,PK,zx-f,y,z+sd*f,zx+f,y,z+sd*f,.06);rodTo(g,PK,zx+sd*f,y,z-f,zx+sd*f,y,z+f,.06)}
-   A(BX(3.2,.16,3.2),PK,zx,HT,z);A(BX(3.2,.16,3.2),PK,zx,HL-.3,z);for(let i=0;i<8;i++){const a=i/8*Math.PI*2;A(BX(.06,1,.06),PK,zx+Math.cos(a)*1.55,HT+.55,z+Math.sin(a)*1.55)}A(new THREE.TorusGeometry(1.55,.03,5,24),PK,zx,HT+1.05,z).rotation.x=Math.PI/2;A(BX(.3,HT+1.2,.3),PK,zx+hiX,(HT+1.2)/2,z);A(BX(.3,HL+1.5,.3),PK,zx+loX,(HL+1.5)/2,z);rect(zx-1.6,zx+1.6,z-1.6,z+1.6,'#8a6a3a');ob(zx-1.6,zx+1.6,z-1.6,z+1.6)};
-  tower(zN,.7,-.7);tower(zS,-.7,.7);const CB=M(0x3a3a3a,{metalness:.8,roughness:.3});rodTo(g,CB,zx+.7,HT+1.1,zN,zx+.7,HL+1.4,zS,.03,5);rodTo(g,CB,zx-.7,HT+1.1,zS,zx-.7,HL+1.4,zN,.03,5);
+ T('ziplines',()=>{const zx=-150,zN=GORGE.z1+7,zS=GORGE.z0-7,HT=12,HL=3.2;/* z1 is the north rim: north is +z */const tower=(z,hiX,loX)=>{rect(zx-1.6,zx+1.6,z-1.6,z+1.6,'#8a6a3a')};
+  tower(zN,.7,-.7);tower(zS,-.7,.7);mgZipIn(q,g);const CB=M(0x3a3a3a,{metalness:.8,roughness:.3});rodTo(g,CB,zx+.7,HT+1.1,zN,zx+.7,HL+1.4,zS,.03,5);rodTo(g,CB,zx-.7,HT+1.1,zS,zx-.7,HL+1.4,zN,.03,5);
   XM.net.zip=o=>{const dir=o.d>0?1:-1,u=Math.max(0,Math.min(1,+o.u||0)),x=zx+(dir>0?.7:-.7),z0=dir>0?zN:zS,z1=dir>0?zS:zN,sag=Math.sin(u*Math.PI)*1.3,cy=HT+1.1+(HL+1.4-HT-1.1)*u-sag,tr=dir>0?tA:tB;tr.visible=true;tr.position.set(x,cy-.2,z0+(z1-z0)*u);clearTimeout(tr.hT);tr.hT=setTimeout(()=>{if(!(q.xr&&q.xr.k=='ride'))tr.visible=false},1500)};const trolley=()=>{const t=new THREE.Group();t.userData.mv=1;g.add(t);const w=new THREE.Mesh(CY(.14,.14,.08,10),MT);w.rotation.x=Math.PI/2;t.add(w);const b=new THREE.Mesh(BX(.1,.6,.06),MT);b.position.y=-.35;t.add(b);const h=new THREE.Mesh(BX(.9,.05,.05),M(0x8a2020));h.position.y=-.65;t.add(h);t.visible=false;return t};const tA=trolley(),tB=trolley();
   const len=Math.hypot(zS-zN,HT-HL);const ride=(dir)=>{const x=zx+(dir>0?.7:-.7),z0=dir>0?zN:zS,z1=dir>0?zS:zN;xmRide(q,{fade:1,len,v0:1.5,sp:(u,t)=>Math.max(3,Math.min(15,2+t*7))*(u>.86?.45:1),f:u=>{const sag=Math.sin(u*Math.PI)*1.3,cy=HT+1.1+(HL+1.4-HT-1.1)*u-sag;return[x,z0+(z1-z0)*u,cy-2.05]},txt:'🪢 ...zzzzzip...',tick:(st,dt,p)=>{const tr=dir>0?tA:tB;tr.visible=true;tr.position.set(p[0],p[2]+1.85,p[1]);if((st.sT=(st.sT||0)-dt)<=0){st.sT=.12;snd(300+st.v*60,.06)}if((st.nT=(st.nT||0)-dt)<=0){st.nT=.2;xmNet(q,'zip',{d:dir,u:+st.u.toFixed(3)})}},end:st=>{(dir>0?tA:tB).visible=false;xmFade(()=>{P.x=zx+(dir>0?3:-3);P.z=(dir>0?zS:zN)+q.OZ;P.dy=0;snd(200,.2);hint(dir>0?'🪢 You land on the south rim. Your hands are still buzzing. The other cable goes back.':'🪢 Back on the north rim. That was the fast one.');if(!SV.zip){SV.zip=1;try{saveGame()}catch(e){}}})}});
    hint('🪢 You clip on, step off the platform and... DROP.');snd(900,.2)};
   prop(zx+3,zN,1.6,'[E] Climb the tower and ride the zipline SOUTH',()=>ride(1));prop(zx-3,zS,1.6,'[E] Climb the tower and ride the zipline NORTH',()=>ride(-1));
-  sign('DEVIL\'S GORGE ZIPLINE\nCLIP ON · DON\'T LOOK DOWN','#c02020',zx+8,zN+4,-.6);loc('Gorge zipline',zx,(zN+zS)/2,'🪢')});
+  loc('Gorge zipline',zx,(zN+zS)/2,'🪢')});
  /* THE RAILROAD: telegraph poles along the line, a signal that drops for the train, a siding by the station with a handcar */
  T('railroad',()=>{const z=RAIL.z;const pg=CY(.1,.13,7,7),ag=BX(1.4,.1,.1),pm=new THREE.InstancedMesh(pg,M(0x5a4a3a,{roughness:1}),84),am=new THREE.InstancedMesh(ag,M(0x5a4a3a,{roughness:1}),84),mm=new THREE.Matrix4();let n=0;for(let x=-DXB+8;x<-DXB;x+=32){if(Math.abs(x)<12||Math.abs(x+440)<12||Math.abs(x-560)<12)continue;mm.makeTranslation(x,3.5,z+6);pm.setMatrixAt(n,mm);mm.makeTranslation(x,6.5,z+6);am.setMatrixAt(n,mm);n++;ob(x-.2,x+.2,z+5.8,z+6.2)}pm.count=am.count=n;pm.instanceMatrix.needsUpdate=am.instanceMatrix.needsUpdate=true;pm.userData.noChunk=am.userData.noChunk=1;g.add(pm);g.add(am);
   /* the signal: red until the train is close, then green while it rolls through */const sx=420,sz=z-4;A(CY(.08,.1,5,8),M(0xd8d8d8),sx,2.5,sz);A(BX(.5,1.1,.3),DK,sx,4.6,sz);const rl=A(new THREE.SphereGeometry(.14,8,6),M(0xff2020,{emissive:0xff2020}),sx,4.85,sz+.16),gl=A(new THREE.SphereGeometry(.14,8,6),M(0x20ff40,{emissive:0x104010}),sx,4.35,sz+.16);ob(sx-.2,sx+.2,sz-.2,sz+.2);
@@ -6190,13 +6189,12 @@ function xpMoreFar(X){const{q,g,M,A,BX,CY,ob,prop,loc,rect,sign,anim,light,lab,R
   XM.net.hc=o=>{if(q.xr&&q.xr.k=='hc')return;H.x=Math.max(x0+2.4,Math.min(x1-2.4,+o.x||H.x));H.v=+o.v||0;H.rem=Date.now();hc.position.x=H.x;hp.x=H.x;H.ph+=Math.abs(H.v)*.2*2.2;H.beam.rotation.z=Math.sin(H.ph)*.4};
   anim(452,sz2,300,dt=>{if(!q.xr||q.xr.k!='hc'){if(H.rem&&Date.now()-H.rem<1500)return;H.v*=Math.max(0,1-dt*.6);if(Math.abs(H.v)>.01){H.x+=H.v*dt;hc.position.x=H.x;hp.x=H.x}}});loc('Handcar siding',452,sz2,'🛤️')});
  /* LOOKOUT MESA: coin binoculars on the south rim, and a summit book in the hermit's cabin */
- T('mesa',()=>{const{x0,x1,z0,z1,y:H}=MESA,cx=(x0+x1)/2,cz=(z0+z1)/2;const bx=cx+10,bz=z0+4;/* the south rim, looking out over the gorge */A(CY(.08,.1,1.2,8),MT,bx,H+.6,bz);const bn=new THREE.Group();bn.position.set(bx,H+1.3,bz);g.add(bn);for(const sd of[-1,1]){const c=new THREE.Mesh(CY(.11,.13,.5,10),M(0x3a3a40,{metalness:.6}));c.rotation.x=Math.PI/2;c.position.x=sd*.14;bn.add(c)}const cb=new THREE.Mesh(BX(.5,.22,.3),M(0x3a3a40,{metalness:.6}));bn.add(cb);const cs=new THREE.Mesh(BX(.08,.14,.04),M(0xc0a040,{metalness:.8}));cs.position.set(0,.1,.2);bn.add(cs);ob(bx-.3,bx+.3,bz-.3,bz+.3);
-  const bl=lab('LOOKOUT · 1 🪙\nSEE THE WHOLE DESERT',1.4,.5,'#2a2a6a','#ffe0a0',48);bl.position.set(bx,H+.5,bz+.35);g.add(bl);
-  prop(bx,bz-1.2,1.3,()=>q.xr?'':'[E] Look through the binoculars (1 🪙)',()=>{if(q.xr)return;if(gold<1){hint('🔭 One gold. The binoculars have a slot and no sympathy.');return}gold-=1;try{saveGame()}catch(e){}snd(700,.06);for(const k in keys)keys[k]=0;P.x=bx;P.z=bz-.6+q.OZ;P.yaw=0;XM.fov=22;let t=0;
-   q.xr={k:'bino',txt:()=>'[E] Stop looking  ('+Math.ceil(40-t)+'s left)',act:()=>{XM.fov=0;q.xr=null;snd(300,.08)},tick:dt=>{t+=dt;P.x=bx;P.z=bz-.6+q.OZ;P.dy=H;P.sp=0;if(t>40){XM.fov=0;q.xr=null;hint('🔭 Click. Your gold ran out. So did the view.')}}};
+ T('mesa',()=>{const{x0,x1,z0,z1,y:H}=MESA,cx=(x0+x1)/2,cz=(z0+z1)/2;const bx=cx+10,bz=z0+4;/* r658: the binoculars are the lookout point's model (dx644) */
+  prop(bx,bz+1.2,1.3,()=>q.xr?'':'[E] Look through the binoculars (1 🪙)',()=>{if(q.xr)return;if(gold<1){hint('🔭 One gold. The binoculars have a slot and no sympathy.');return}gold-=1;try{saveGame()}catch(e){}snd(700,.06);for(const k in keys)keys[k]=0;P.x=bx;P.z=bz+.6+q.OZ;P.yaw=0;XM.fov=22;let t=0;
+   q.xr={k:'bino',txt:()=>'[E] Stop looking  ('+Math.ceil(40-t)+'s left)',act:()=>{XM.fov=0;q.xr=null;snd(300,.08)},tick:dt=>{t+=dt;P.x=bx;P.z=bz+.6+q.OZ;P.dy=H;P.sp=0;if(t>40){XM.fov=0;q.xr=null;hint('🔭 Click. Your gold ran out. So did the view.')}}};
    hint('🔭 Click. The desert jumps closer: the gorge, Zone 51, the speedway... [mouse to look round]')});
-  const hx=cx+20,hz=cz-10;prop(hx-4.6,hz,1.3,'[E] Sign the summit book',()=>{const nm=(SV.nm||'').toString().trim().slice(0,14)||'A STRANGER';SV.mbook=(SV.mbook||[]).filter(e=>e!==nm);SV.mbook.unshift(nm);SV.mbook=SV.mbook.slice(0,6);try{saveGame()}catch(e){}snd(500,.06);hint('📖 You sign the summit book: "'+nm+'". Above you: '+(SV.mbook.slice(1).concat(['SEEK (every page)','THE HERMIT','JEFF (?)']).slice(0,4).join(', '))+'.')});
-  A(BX(.5,.06,.4),M(0xf0e8d0),hx-4.3,H+1.05,hz);A(BX(.6,1.0,.5),PK,hx-4.3,H+.5,hz)});
+  const bk=(q.mgTop&&q.mgTop.spots&&q.mgTop.spots.book)||[cx-4.95,cz+6.25];prop(bk[0],bk[1],1.3,'[E] Sign the summit book',()=>{const nm=(SV.nm||'').toString().trim().slice(0,14)||'A STRANGER';SV.mbook=(SV.mbook||[]).filter(e=>e!==nm);SV.mbook.unshift(nm);SV.mbook=SV.mbook.slice(0,6);try{saveGame()}catch(e){}snd(500,.06);hint('📖 You sign the summit book: "'+nm+'". Above you: '+(SV.mbook.slice(1).concat(['SEEK (every page)','THE HERMIT','JEFF (?)']).slice(0,4).join(', '))+'.')});
+  });
  /* THE WIND FARM: a service lift up turbine 1, and a railed walkway on the nacelle roof */
  T('wind farm lift',()=>{const tx=-600,tz=-1215,TOP=40.6;A(BX(.12,38,.12),MT,tx+1.95,19.5,tz+.4);A(BX(.12,38,.12),MT,tx+1.95,19.5,tz-.4);const cage=new THREE.Group();cage.position.set(tx+2.6,0,tz);g.add(cage);const cm=M(0xe8c020);for(const[a,b]of[[-.55,-.55],[.55,-.55],[-.55,.55],[.55,.55]]){const p=new THREE.Mesh(BX(.06,2.2,.06),cm);p.position.set(a,1.1,b);cage.add(p)}const fl=new THREE.Mesh(BX(1.2,.08,1.2),DK);fl.position.y=.04;cage.add(fl);const rf=new THREE.Mesh(BX(1.2,.06,1.2),cm);rf.position.y=2.2;cage.add(rf);for(const y of[.6,1.2])for(const sd of[-1,1]){const r=new THREE.Mesh(BX(.04,.04,1.2),cm);r.position.set(sd*.55,y,0);cage.add(r)}ob(tx+2,tx+3.2,tz-.7,tz+.7);
   for(let i=0;i<10;i++){const a=i/10*Math.PI*2;A(BX(.05,1,.05),MT,tx+Math.cos(a)*1.9,TOP+.5,tz+1.0+Math.sin(a)*2.6)}A(new THREE.TorusGeometry(2.3,.03,5,28),MT,tx,TOP+1.0,tz+1.0).rotation.x=Math.PI/2;
@@ -15903,6 +15901,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r658',['Lookout Mesa is rebuilt: layered cliffs, a proper road up with a guard rail, a cabin, the summit cairn, a lookout point with a telescope, a flagpole and a campfire','Devil\'s Gorge is rebuilt: canyon walls, a winding river, dead trees, vultures, rim fences, three new bridges, the jump and its landing pad, and new zipline towers','You can no longer fall off the mesa\'s edge into the rock','Fixed: on the cheaper graphics settings, big painted surfaces came out white']],
 ['r657',['Route 13: the old town round the bus stop is rebuilt: a bus shelter, street lamps and power lines, El Goblino Gas with a new canopy, pumps and price sign','A drive-through car wash east of the gas station: stop in the bay and press E (5 gold) to clean off scorch marks and get a little health back','Motel 13 now faces the town, with a car park, neon sign, office and pool','The drive-in has a proper screen tower, speaker posts, ticket booth and marquee; the Desert Bus has a depot with a platform; the water tower is new','New side roads: Motel Rd, the drive-in drive and Depot Rd']],
 ['r656',['The mine under the Old Quarry is rebuilt: three levels of tunnels, caves and The Deep, with real rooms, a spiral decline, ladders, a raft and a zip line','The shift: rockfall, dynamite, gas, pickups, map boards and a cage panel. Buy Shaft sinking on the tycoon board to go deeper']],
 ['r655',['The jury and their seats in the courthouse now face the court (they were facing the wall)']],
@@ -35708,6 +35707,698 @@ if(UGW.on){
  if(typeof sknRoots=='function'){const s0=sknRoots;sknRoots=function(q){return s0(q).filter(o=>o!==MN.g)}}
 }
 
+
+/* =====================================================================================================
+   r658 candidate: LOOKOUT MESA AND DEVIL'S GORGE (docs/design/mesa-gorge.md).
+   First the design chat's model file, docs/design/models/mesa-gorge.js, unchanged (it needs the Fort kit, fbKit in
+   dx614, and route13.js, rtKit in dx641; both are already in the game). Then the wiring, at the end of this file:
+   - xpMesa is redefined: the old plain box, the ramp slab and kerbs, the r618 rock fill (dx615), the cabin, telescope,
+     flagpole, campfire stones, soda cans and the two signs are the models now. The plate, the ramp and its route-grid
+     link, the zones, the map, the Hermit, every prompt, the smoke, the fire and its light stay (moved where the
+     models say).
+   - xpGorge is redefined: the floor slab, the blue strip, the long wall boxes, the end caps, the ledge column, the
+     bridges, the jump's plank ramp and the signs are the models. The ground cut, the ramps, the map, the cave and
+     its lift stay. The old wall pictures drew 13,500 numbers from the desert's seeded random; they are still drawn.
+   - build.py patches ("r658 mesa and gorge"): the cave's old boulders, sand drifts and arch go (their random
+     numbers are still drawn), the coin binoculars and the summit book move (T('mesa')), the zipline towers are the
+     model (T('ziplines'); the cables, trolleys and the ride are unchanged), and deepOK's check for the old bridge
+     piers goes (the new bridges list their own posts in q.deepB).
+   - xpCover is wrapped: cacti, rocks and Joshua trees the scatter dropped on the new cliffs' skirt, the rims and the
+     zipline anchors are taken away afterwards (so the scatter's random numbers are unchanged).
+   ===================================================================================================== */
+/* =====================================================================================================
+   LOOKOUT MESA and DEVIL'S GORGE (spec: docs/design/mesa-gorge.md). Needs fort-kit.js and route13.js.
+   Desert-local x/z (+z north), ground y 0. New globals start with mg.
+
+   Batch 1: the mesa cliffs, rim, scree and the ramp road.
+     mgMesa(g)       the cliffs all round the mesa (one mesh), the cap-rock lip and rim boulders along the top edge,
+                     shrubs and dry grass on top, and the skirt of fallen rock round the foot.
+                     Returns {obs, parts:{cliff}}. obs: boxes along the foot of the cliffs (so you can't walk into
+                     the rock), the big fallen rocks, and the rim boulders where they stand on the top.
+     mgMesaRoad(g)   the ramp road up the east side: a gravel road surface with ruts, a dressed-stone retaining wall
+                     with a timber guard rail on the south (drop) side, a rock shoulder on the north side, and the two
+                     signs (MESA ROAD at the bottom, LOOKOUT MESA ELEV. 14 m at the top). Returns {obs}.
+   ===================================================================================================== */
+const MG={x0:-400,x1:-280,z0:-1600,z1:-1500,H:14,
+ road:{s:-220,e:-280,z0:-1554,z1:-1546},      /* the ramp road (its q.ramps entry is kept) */
+ lane:[-341,-319],                            /* the Quarry Skip flight line, kept clear north and south */
+ keep:[[-320,-1560,8],[-380,-1550,3],[-310,-1520,2.5],[-340,-1525,5],[-330,-1596,5],[-345,-1545,3]]};/* cabin, telescope, flagpole, campfire, binoculars, summit cairn */
+function mgKit(){const k=rtKit();if(k._mg)return k._mg;const M=k.M,o={};let sd=8080;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;o.r=r;
+ o.sm=(a,b,v)=>{const t=Math.min(1,Math.max(0,(v-a)/(b-a)));return t*t*(3-2*t)};
+ /* rock: pale grey-white so the vertex colours give the bands; thin strata lines, darker weathering streaks running down */
+ o.ROCKT=k.tex(256,256,(c,w,h)=>{c.fillStyle='#e6e0d8';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=3+(r()*6|0)){c.fillStyle='rgba(90,70,55,'+(.04+r()*.1)+')';c.fillRect(0,y,w,1+(r()*2|0))}
+  for(let i=0;i<70;i++){const x=r()*w,l=20+r()*120,y=r()*h;const gr=c.createLinearGradient(0,y,0,y+l);gr.addColorStop(0,'rgba(70,50,40,.16)');gr.addColorStop(1,'rgba(70,50,40,0)');c.fillStyle=gr;c.fillRect(x,y,2+r()*5,l)}
+  for(let i=0;i<2600;i++){c.fillStyle=r()<.5?'rgba(80,60,45,.14)':'rgba(255,250,240,.16)';c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}});
+ o.ROCK=M(0xffffff,{vertexColors:true,roughness:.97,map:o.ROCKT});
+ /* loose rocks: speckle only (strata lines on a round stone look like wood grain) */o.ROCKS=M(0xffffff,{vertexColors:true,roughness:.97,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#e2dcd2';c.fillRect(0,0,w,h);for(let i=0;i<1600;i++){c.fillStyle=r()<.5?'rgba(80,60,45,.16)':'rgba(255,250,240,.18)';c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}for(let i=0;i<10;i++){c.fillStyle='rgba(70,50,40,.1)';c.beginPath();c.arc(r()*w,r()*h,4+r()*12,0,7);c.fill()}})});
+ o.STONE=M(0xffffff,{roughness:.95,map:k.tex(256,256,(c,w,h)=>{/* dressed sandstone blocks, 0.5 m courses, 2 m a tile */c.fillStyle='#6e5a48';c.fillRect(0,0,w,h);for(let row=0;row<4;row++){let x=-(row%2)*40;while(x<w){const bw=56+r()*40;const v=150+r()*30|0;c.fillStyle='rgb('+(v+40)+','+(v+10)+','+(v-25)+')';c.fillRect(x+2,row*64+2,bw-4,60);for(let i=0;i<40;i++){c.fillStyle='rgba(90,60,40,.15)';c.fillRect(x+2+r()*(bw-6),row*64+2+r()*58,2,2)}x+=bw}}})});o.STONE.map.repeat.set(.5,.5);
+ o.ROAD=M(0xffffff,{roughness:1,map:k.tex(256,256,(c,w,h)=>{/* packed gravel; u across the road, v along it: two tyre ruts and a grassy hump in the middle */c.fillStyle='#a8916e';c.fillRect(0,0,w,h);
+  for(const x of[.27,.73]){const gr=c.createLinearGradient(w*(x-.09),0,w*(x+.09),0);gr.addColorStop(0,'rgba(80,60,40,0)');gr.addColorStop(.5,'rgba(80,60,40,.35)');gr.addColorStop(1,'rgba(80,60,40,0)');c.fillStyle=gr;c.fillRect(w*(x-.09),0,w*.18,h)}
+  for(let i=0;i<4200;i++){const v=r();c.fillStyle=v<.45?'rgba(70,55,40,'+(.1+r()*.2)+')':v<.85?'rgba(225,210,185,'+(.1+r()*.2)+')':'rgba(140,110,80,.3)';const s=1+r()*2.5;c.fillRect(r()*w,r()*h,s,s)}
+  for(let i=0;i<60;i++){c.fillStyle='rgba(120,110,60,.35)';c.fillRect(w*.5+(r()-.5)*24,r()*h,1,3+r()*4)}
+  for(const x of[.03,.97])for(let i=0;i<300;i++){c.fillStyle='rgba(120,90,60,.25)';c.fillRect(w*x+(r()-.5)*14,r()*h,2,2)}})});o.ROAD.map.repeat.set(1,4);
+ o.TIMBER=M(0x8a6844,{roughness:.9,map:k.tex(64,256,(c,w,h)=>{c.fillStyle='#8a6844';c.fillRect(0,0,w,h);for(let i=0;i<70;i++){c.fillStyle='rgba(50,32,18,'+(.12+r()*.2)+')';c.fillRect(r()*w,r()*h,1,10+r()*60)}for(let i=0;i<30;i++){c.fillStyle='rgba(220,200,170,.15)';c.fillRect(r()*w,r()*h,1,8+r()*30)}})});
+ o.PLANT=M(0xffffff,{vertexColors:true,roughness:.9,side:THREE.DoubleSide});
+ k._mg=o;return o}
+/* a rock: a lumpy, smooth-shaded stone r across, its foot just under the ground. sq squashes it (fallen slabs: .45) */
+function mgRockGeo(rad,seed,sq,stretch){const ge=new THREE.SphereGeometry(1,10,7),P=ge.attributes.position;const s1=seed*1.37,s2=seed*.71+2;
+ for(let i=0;i<P.count;i++){let x=P.getX(i),y=P.getY(i),z=P.getZ(i);const j=1+.22*Math.sin(x*2.1+y*1.7+s1)+.14*Math.sin(z*2.9-x*1.3+s2)+.08*Math.sin(y*4.3+z*3.1+s1*2);
+  x*=j*(stretch||1);z*=j;y*=j*(sq||.75);if(y<-.15)y=-.15-(y+.15)*.2;P.setXYZ(i,x*rad,(y+.15*(sq||.75))*rad,z*rad)}ge.computeVertexNormals();return ge}
+/* add a geometry to a merge list, placed, with one colour (multiplied by a little noise per vertex) */
+function mgPut(list,ge,x,y,z,ry,col,rx,rz){ge.rotateY(ry||0);if(rx)ge.rotateX(rx);if(rz)ge.rotateZ(rz);ge.translate(x,y,z);const g2=ge.index?ge.toNonIndexed():ge;const n=g2.attributes.position.count,c=new Float32Array(n*3),P=g2.attributes.position;
+ for(let i=0;i<n;i++){const v=1+.07*Math.sin(P.getX(i)*3.1+P.getY(i)*5.3)+.05*Math.sin(P.getZ(i)*4.7);c[i*3]=col[0]*v;c[i*3+1]=col[1]*v;c[i*3+2]=col[2]*v}g2.setAttribute('color',new THREE.BufferAttribute(c,3));list.push(g2)}
+function mgMerge(list,mat){let n=0;list.forEach(g=>n+=g.attributes.position.count);const P=new Float32Array(n*3),N=new Float32Array(n*3),C=new Float32Array(n*3),U=new Float32Array(n*2);let o=0;
+ list.forEach(g=>{P.set(g.attributes.position.array,o*3);N.set(g.attributes.normal.array,o*3);C.set(g.attributes.color.array,o*3);if(g.attributes.uv)U.set(g.attributes.uv.array,o*2);o+=g.attributes.position.count});
+ const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.BufferAttribute(P,3));ge.setAttribute('normal',new THREE.BufferAttribute(N,3));ge.setAttribute('color',new THREE.BufferAttribute(C,3));ge.setAttribute('uv',new THREE.BufferAttribute(U,2));ge.computeBoundingSphere();
+ const m=new THREE.Mesh(ge,mat);m.userData.noSeam=true;return m}
+
+/* ---------- the cliffs ----------
+   The cliff face is measured out from the old box's sides: off(s, y) is how far out the rock is at perimeter
+   distance s and height y. Always 0.15 … 1.5 m (outside the box, never more than 1.5 m out).
+   Bands, bottom to top: a darker base with a flared foot (0 … 3.8 m), the red middle in three layers with small
+   ledges (3.8 … 11.6), a shadowed undercut (11.6 … 12.4), the pale cap rock jutting out over it (12.4 … 14). */
+function mgOff(s,y){/* the outline closes at s 440 = s 0: blend the last 20 m into the start */if(s>420){const w=mgKit().sm(420,440,s);return mgOff0(s,y)*(1-w)+mgOff0(s-440,y)*w}return mgOff0(s,y)}
+function mgFeat(s){/* what the cliff does at perimeter distance s: buttress (bt 0…1), gully (gl 0…1), and the cap rock's
+   jointed blocks (hr: this block's random 0…1, a few broken off; edge: 0 at a joint) */
+ const bt=Math.pow(Math.max(0,Math.sin(s*2*Math.PI/12.1+.9*Math.sin(s*.047)+1.3)),1.5)*(.6+.4*Math.sin(s*.13+.5));
+ const gq=s/17.3+.35*Math.sin(s*.05),gp=gq-Math.floor(gq),gw=.05+.025*Math.sin(s*.11),gl=Math.exp(-Math.pow((gp-.5)/gw,2));
+ const bq=s/4.3+.4*Math.sin(s*.21),bi=Math.floor(bq),bf=bq-bi,h1=Math.sin(bi*12.9898+3.1)*43758.5453,hr=h1-Math.floor(h1),edge=Math.min(1,Math.min(bf,1-bf)/.06);
+ return{bt,gl,hr,edge}}
+function mgOff0(s,y){const sm=mgKit().sm,{bt,gl,hr,edge}=mgFeat(s);
+ const n=.06*Math.sin(s*.9+y*1.3)+.04*Math.sin(s*2.3-y*.7)+.03*Math.sin(y*3.1+s*.4);
+ const LY=[0,3.8,6.4,9.2,11.6];let li=0;while(li<4&&y>=LY[li+1])li++;const lt=li<4?(y-LY[li])/(LY[li+1]-LY[li]):0;
+ const ledge=li>0?.32*Math.pow(1-lt,3):0;/* each layer juts out a little at its foot: a ledge */
+ const mid=.25+.85*bt+ledge+n+1.1*Math.pow(Math.max(0,1-y/3),2),midG=mid*(1-gl)+(.15+.1*Math.max(0,1-y/2))*gl;/* gullies cut right back */
+ const und=.18+.25*bt+n*.4,capO=(hr<.12?.35:.6+.6*hr)*(.75+.25*edge)+n*.5,cap=capO*(1-gl*.7)+.15*gl*.7;
+ const wc=sm(12.25,12.6,y),wu=sm(11.3,11.85,y)*(1-wc);return Math.max(.15,Math.min(1.5,midG*(1-wu-wc)+und*wu+cap*wc))}
+function mgBandCol(y,s){/* rock colour by height: dark base, red layers with a shadow line under each ledge, the pale cap;
+   gullies and dark streaks of desert varnish running down from the cap */const sm=mgKit().sm,{gl,edge}=mgFeat(s),j=.04*Math.sin(s*.31+y*.9)+.03*Math.sin(s*1.7);
+ const base=[.56,.39,.29],red=[.76,.48,.33],red2=[.66,.41,.29],und=[.48,.34,.27],cap=[.89,.79,.63];
+ let c;if(y<3.8){const t=sm(3.0,3.8,y);c=base.map((v,i)=>v+(red2[i]-v)*t)}else if(y<11.6){const li=y<6.4?0:y<9.2?1:2;c=[red,red2,red][li].slice()}
+ else if(y<12.4){const t=sm(11.6,12.0,y);c=red.map((v,i)=>v+(und[i]-v)*t)}else{const t=sm(12.4,12.6,y);c=und.map((v,i)=>v+(cap[i]-v)*t);if(y>12.6)c=c.map(v=>v*(.88+.12*edge))}
+ for(const ly of[3.8,6.4,9.2])if(y<ly&&y>ly-.35)c=c.map(v=>v*(.8+.2*(ly-y)/.35));
+ const st=Math.pow(Math.max(0,Math.sin(s*1.37+2.1*Math.sin(s*.31))),14)*Math.min(1,y/5)*(y<12.4?1:.4);
+ return c.map(v=>v*(1+j)*(1-.22*gl)*(1-.3*st))}
+function mgMesa(g){const k=rtKit(),o=mgKit(),r=o.r,sm=o.sm,{x0,x1,z0,z1,H}=MG,obs=[];
+ /* walk the outline anticlockwise from the south-west corner: south side (+x), east (+z), north (-x), west (-z).
+    Each column: a point on the box edge b, its outward normal n, the perimeter distance s. Corners get a fan. */
+ const sides=[[[x0,z0],[x1,z0],[0,-1]],[[x1,z0],[x1,z1],[1,0]],[[x1,z1],[x0,z1],[0,1]],[[x0,z1],[x0,z0],[-1,0]]];const cols=[];let S=0;
+ const RD=MG.road,inNotch=(b,n)=>n[0]==1&&b[1]>RD.z0-.3&&b[1]<RD.z1+.5;
+ sides.forEach(([a,b,n],si)=>{const L=Math.hypot(b[0]-a[0],b[1]-a[1]),N=Math.ceil(L/.7);for(let i=0;i<N;i++){const t=i/N,p=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];cols.push({b:p,n,s:S+t*L,cut:inNotch(p,n)})}S+=L;
+  const nn=sides[(si+1)%4][2];for(let f=0;f<=6;f++){const an=Math.atan2(n[1],n[0]),bn=Math.atan2(nn[1],nn[0]);let d=bn-an;if(d<-Math.PI)d+=2*Math.PI;if(d>Math.PI)d-=2*Math.PI;const aa=an+d*f/6;cols.push({b:b.slice(),n:[Math.cos(aa),Math.sin(aa)],s:S,corner:[n,nn]})}});
+ /* rows: heights up the cliff, then the lip over the top edge */
+ const YS=[];for(let y=-.3;y<13.85;y+=.3)YS.push(y);YS.push(13.85);const NR=YS.length+4,NC=cols.length;
+ const pos=new Float32Array(NC*NR*3),col=new Float32Array(NC*NR*3),uv=new Float32Array(NC*NR*2);const idx=[];
+ cols.forEach((c,i)=>{const s=c.s,F=mgFeat(s),br=F.hr<.12||F.gl>.5,lh=br?-.18:(.06+.3*F.hr)*(.6+.4*F.edge);let rows=YS.map(y=>[mgOff(s,y),y]);const cp=mgOff(s,13.85);
+  rows.push([cp-.04,14.0+lh],[Math.max(.3,cp*.5),14.07+Math.max(0,lh)*.6],[-.6,14.08],[-1.3,13.9]);
+  /* near the road the rock steps back so the road's walls hide the cut edge */const nd=c.n[0]==1?Math.min(Math.abs(c.b[1]-(RD.z0-.3)),Math.abs(c.b[1]-(RD.z1+.5))):99,tp=c.n[0]==1&&nd<3?.35+.65*nd/3:1;
+  rows.forEach(([of,y],j)=>{let px,pz;if(of<0&&c.corner){const[na,nb]=c.corner;px=c.b[0]+of*(na[0]+nb[0]);pz=c.b[1]+of*(na[1]+nb[1])}else{const f=of>0?of*tp:of;px=c.b[0]+c.n[0]*f;pz=c.b[1]+c.n[1]*f}
+   const q=(i*NR+j);pos[q*3]=px;pos[q*3+1]=y;pos[q*3+2]=pz;const cc=y>13.8?[.88,.79,.64]:mgBandCol(y,s);const dk=y<0?.8:1;col[q*3]=cc[0]*dk;col[q*3+1]=cc[1]*dk;col[q*3+2]=cc[2]*dk;uv[q*2]=s/6;uv[q*2+1]=(y>13.9?14+(of<0?-of:0):y)/6})});
+ for(let i=0;i<NC;i++){const i2=(i+1)%NC;if(cols[i].cut||cols[i2].cut)continue;for(let j=0;j<NR-1;j++){const a=i*NR+j,b=i2*NR+j,c=i2*NR+j+1,d=i*NR+j+1;idx.push(a,d,b,b,d,c)}}
+ const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.BufferAttribute(pos,3));ge.setAttribute('color',new THREE.BufferAttribute(col,3));ge.setAttribute('uv',new THREE.BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+ const cliff=new THREE.Mesh(ge,o.ROCK);cliff.userData.noSeam=true;g.add(cliff);
+ /* obstacles along the foot: 2 m pieces, out to the rock's furthest point under 2.5 m */
+ sides.forEach(([a,b,n],si)=>{const L=Math.hypot(b[0]-a[0],b[1]-a[1]),s0=[0,120,220,340][si];for(let t=0;t<L;t+=2){let mo=0;for(let u=t;u<=Math.min(L,t+2);u+=.5)for(let y=0;y<2.5;y+=.5)mo=Math.max(mo,mgOff(s0+u,y));const e=mo-.1,p=[a[0]+(b[0]-a[0])*t/L,a[1]+(b[1]-a[1])*t/L],p2=[a[0]+(b[0]-a[0])*Math.min(L,t+2)/L,a[1]+(b[1]-a[1])*Math.min(L,t+2)/L];
+  if(n[0]==1&&Math.max(p[1],p2[1])>RD.z0-1&&Math.min(p[1],p2[1])<RD.z1+1)continue;
+  const xa=Math.min(p[0],p2[0]),xb=Math.max(p[0],p2[0]),za=Math.min(p[1],p2[1]),zb=Math.max(p[1],p2[1]);
+  if(n[0])obs.push({x0:n[0]>0?x1:x0-e,x1:n[0]>0?x1+e:x0,z0:za,z1:zb});else obs.push({x0:xa,x1:xb,z0:n[1]>0?z1:z0-e,z1:n[1]>0?z1+e:z0})}});
+ const clear=(x,z,m)=>{if(x>MG.lane[0]-m&&x<MG.lane[1]+m&&(z<z0+3||z>z1-3))return false;if(x>x1-4&&z>RD.z0-6-m&&z<RD.z1+8+m)return false;for(const[a,b,rr]of MG.keep)if(Math.hypot(x-a,z-b)<rr+m)return false;return true};
+ const at=(s)=>{/* point on the box edge and its normal at perimeter distance s */s=((s%440)+440)%440;if(s<120)return[[x0+s,z0],[0,-1]];if(s<220)return[[x1,z0+s-120],[1,0]];if(s<340)return[[x1-(s-220),z1],[0,1]];return[[x0,z1-(s-340)],[-1,0]]};
+ /* the rim: cap-rock boulders along the top edge, in clusters with gaps; solid where they stand on the top */
+ const RL=[];for(let s=0;s<440;){const run=4+r()*9;for(let u=0;u<run;u+=.9+r()*1.4){const ss=s+u,[b,n]=at(ss);if(Math.abs(b[0]-x0)<1.5&&Math.abs(b[1]-z0)<1.5)continue;const of=-.7+r()*.9,x=b[0]+n[0]*of,z=b[1]+n[1]*of;if(!clear(x,z,1.5))continue;
+   const rad=.3+r()*.55;mgPut(RL,mgRockGeo(rad,ss,.55+r()*.25,1+r()*.4),x,14.0,z,r()*6,[.86+r()*.06,.76+r()*.05,.6]);if(of<-.1&&rad>.35){const e=rad*.75;obs.push({x0:x-e,x1:x+e,z0:z-e,z1:z+e})}}s+=run+5+r()*14}
+ g.add(mgMerge(RL,o.ROCKS));
+ /* talus: heaps of broken rock leaning on the cliff, where the face has crumbled (solid) */
+ const TL=[],TR=[];const TP=[];const heap=(b,n,W,D,Ht,s)=>{const tt=[-n[1],n[0]];
+  const NU=16,NW=10,pos=[],col=[],uv=[],idx=[],sd=s*3.7;for(let iu=0;iu<=NU;iu++)for(let iw=0;iw<=NW;iw++){const u=(iu/NU*2-1)*W,w=-.8+(iw/NW)*(D+.8),q=Math.hypot(u/W,Math.max(0,w)/D);
+   let h=Ht*Math.pow(Math.max(0,1-q),1.25)+.18*Math.sin(u*2.1+sd)*Math.sin(w*1.7+sd)+.12*Math.sin(u*4.3-w*3.1+sd);if(q>=1)h=-.1;h=Math.max(-.1,h-.05);
+   const x=b[0]+tt[0]*u+n[0]*w,z=b[1]+tt[1]*u+n[1]*w;pos.push(x,h,z);const v=.92+.08*Math.sin(u*3.3+w*2.9+sd),pl=Math.max(0,Math.min(1,(Math.sin(u*.8+w*.6+sd)+Math.sin(u*1.9-w*1.3+sd*2)-.9)*1.5)),c=[.6+.26*pl,.41+.35*pl,.3+.3*pl];col.push(c[0]*v,c[1]*v,c[2]*v);uv.push(u/3,w/3)}
+  for(let iu=0;iu<NU;iu++)for(let iw=0;iw<NW;iw++){const A=iu*(NW+1)+iw,B=(iu+1)*(NW+1)+iw,Cc=B+1,Dd=A+1;idx.push(A,Dd,B,B,Dd,Cc)}
+  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+  const tg=ge.toNonIndexed();/* check the winding faces up */{const P=tg.attributes.position,N=tg.attributes.normal;let up=0;for(let v=0;v<N.count;v++)up+=N.getY(v);if(up<0){ge.setIndex(idx.map((_,m)=>idx[m-m%3+[0,2,1][m%3]]));ge.computeVertexNormals()}}
+  TL.push(ge.toNonIndexed());
+  for(let m=0;m<10;m++){const u=(r()*2-1)*W*.8,w=r()*D*.9,q=Math.hypot(u/W,w/D);if(q>.95)continue;const h=Ht*Math.pow(1-q,1.25),rad=.25+r()*.5;mgPut(TR,mgRockGeo(rad,s+m,.6,1.2),b[0]+tt[0]*u+n[0]*w,h-.15,b[1]+tt[1]*u+n[1]*w,r()*6,r()<.4?[.86,.76,.6]:[.62,.42,.31])}
+  const e1=[b[0]+tt[0]*W*.65,b[1]+tt[1]*W*.65],e2=[b[0]-tt[0]*W*.65+n[0]*D*.6,b[1]-tt[1]*W*.65+n[1]*D*.6];obs.push({x0:Math.min(e1[0],e2[0]),x1:Math.max(e1[0],e2[0]),z0:Math.min(e1[1],e2[1]),z1:Math.max(e1[1],e2[1])})};
+ for(let tries=0;tries<200&&TP.length<18;tries++){const s=r()*440,[b,n]=at(s);const W=4+r()*5,D=5+r()*4,Ht=2.2+r()*2.8,tt=[-n[1],n[0]];
+  if(Math.abs(b[0]-x0)+Math.abs(b[1]-z0)<W+3||Math.abs(b[0]-x1)+Math.abs(b[1]-z1)<W+3||Math.abs(b[0]-x0)+Math.abs(b[1]-z1)<W+3||Math.abs(b[0]-x1)+Math.abs(b[1]-z0)<W+3)continue;
+  let ok=1;for(const u of[-W,0,W])for(const w of[1,D]){if(!clear(b[0]+tt[0]*u+n[0]*w,b[1]+tt[1]*u+n[1]*w,1))ok=0}if(!ok)continue;if(TP.some(p=>Math.abs(p-s)<W+8||Math.abs(p-s)>440-W-8))continue;TP.push(s);heap(b,n,W,D,Ht,s)}
+ /* a bigger heap at each corner, so they don't stand sharp */for(const[cx,cz,nx,nz,si]of[[x0,z0,-1,-1,1],[x1,z0,1,-1,2],[x1,z1,1,1,3],[x0,z1,-1,1,4]]){const l=Math.SQRT2;heap([cx,cz],[nx/l,nz/l],7+r()*2,6+r()*2,3.6+r()*1.4,si*97)}
+ g.add(mgMerge(TL,o.ROCK));g.add(mgMerge(TR,o.ROCKS));
+ /* the skirt round the foot: fallen cap-rock slabs and boulders (solid), smaller stones and scree (not solid) */
+ const SC=[];for(let i=0;i<800;i++){const s=r()*440,[b,n]=at(s),big=i<44,med=!big&&i<150,d=big?2.2+r()*6:med?1.4+r()*5.5:1.0+Math.pow(r(),1.6)*4.5;const tt=[-n[1],n[0]],sl=(r()-.5)*.6;
+  const x=b[0]+n[0]*d+tt[0]*sl,z=b[1]+n[1]*d+tt[1]*sl;if(!clear(x,z,big?2:1))continue;const rad=big?.9+r()*.9:med?.4+r()*.45:.1+r()*.25;const pale=big&&r()<.5;
+  const cc=pale?[.86,.76,.6]:r()<.5?[.66,.42,.3]:[.56,.4,.3];mgPut(SC,mgRockGeo(rad,i,pale?.45:.6+r()*.3,1+r()*.5),x,-.02,z,r()*6,cc,pale?(r()-.5)*.4:0,pale?(r()-.5)*.4:0);if(big){const e=rad*.8;obs.push({x0:x-e,x1:x+e,z0:z-e,z1:z+e})}}
+ g.add(mgMerge(SC,o.ROCKS));
+ /* shrubs and dry grass on the top (near the rim, away from the props), and a few round the foot */
+ const PL=[];const tuft=(x,y,z,h,seed)=>{for(let b=0;b<7;b++){const a=b/7*6.28+seed,l=h*(.7+.5*Math.sin(seed*3+b)),ge2=new THREE.BufferGeometry(),w=.035,lx=Math.cos(a)*.18*h,lz=Math.sin(a)*.18*h;
+   ge2.setAttribute('position',new THREE.BufferAttribute(new Float32Array([-w*Math.sin(a),0,w*Math.cos(a),w*Math.sin(a),0,-w*Math.cos(a),lx,l,lz]),3));ge2.computeVertexNormals();ge2.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(6),2));
+   const c=new Float32Array(9);[[.62,.56,.36],[.62,.56,.36],[.86,.8,.56]].forEach((v,j)=>c.set(v,j*3));ge2.setAttribute('color',new THREE.BufferAttribute(c,3));ge2.translate(x,y,z);PL.push(ge2)}};
+ const shrub=(x,y,z,sz,seed)=>{for(let b=0;b<4;b++){const a=b*1.7+seed,rr=sz*(.45+.2*Math.sin(seed+b));mgPut(PL,mgRockGeo(rr,seed*7+b,.8,1),x+Math.cos(a)*sz*.35,y+sz*.05,z+Math.sin(a)*sz*.35,a,b%2?[.42,.46,.28]:[.5,.52,.32])}};
+ for(let i=0;i<70;i++){const s=r()*440,[b,n]=at(s),d=1.5+r()*14,x=b[0]-n[0]*d,z=b[1]-n[1]*d;if(!clear(x,z,1.2)||x<x0+1||x>x1-1||z<z0+1||z>z1-1)continue;if(i%5==0)shrub(x,H,z,.5+r()*.4,i);else tuft(x,H,z,.35+r()*.3,i)}
+ for(let i=0;i<40;i++){const s=r()*440,[b,n]=at(s),d=3+r()*10,x=b[0]+n[0]*d,z=b[1]+n[1]*d;if(!clear(x,z,1.5))continue;if(i%4==0)shrub(x,0,z,.45+r()*.4,i+100);else tuft(x,0,z,.3+r()*.3,i+100)}
+ g.add(mgMerge(PL,o.PLANT));
+ return{obs,parts:{cliff}}}
+
+/* ---------- the ramp road ----------
+   road(x): the deck height of the kept q.ramps entry: 0 at x -220, 14 at x -280. The road is 8 m wide (z -1554 … -1546). */
+function mgMesaRoad(g){const k=rtKit(),o=mgKit(),r=o.r,sm=o.sm,{s,e,z0,z1}=MG.road,H=MG.H,obs=[],road=x=>H*Math.min(1,Math.max(0,(s-x)/(s-e))),ang=Math.atan2(H,s-e),hyp=Math.hypot(s-e,H);
+ /* the road surface: 3 cm above the deck height, running 0.6 m out onto the flat at the bottom */
+ {const ge=new THREE.PlaneGeometry(z1-z0,hyp+.6,1,24),P=ge.attributes.position;for(let i=0;i<P.count;i++){const u=P.getX(i),v=P.getY(i)/(hyp+.6)+.5;const x=s+.6-v*(s+.6-e),y=road(x)+.03;P.setXYZ(i,x,y,(z0+z1)/2-u)}ge.computeVertexNormals();
+  const m=new THREE.Mesh(ge,o.ROAD);m.material.polygonOffset=true;m.material.polygonOffsetUnits=-2;m.userData.noSeam=true;g.add(m);o.ROAD.map.repeat.set(1,hyp/8)}
+ /* the retaining wall on the south (drop) side: dressed stone from the ground to 35 cm above the road, and its cap */
+ const WZ0=z0-.65,WZ1=z0-.05;{const sh=new THREE.Shape();sh.moveTo(e-1,-.2);sh.lineTo(s+.4,-.2);sh.lineTo(s+.4,.35);sh.lineTo(e,H+.35);sh.lineTo(e-1,H+.35);sh.lineTo(e-1,-.2);
+  const ge=new THREE.ExtrudeGeometry(sh,{depth:WZ1-WZ0,bevelEnabled:false});ge.translate(0,0,WZ0);const m=new THREE.Mesh(ge,o.STONE);m.userData.noSeam=true;g.add(m);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(hyp+.5,.1,WZ1-WZ0+.1),k.M(0x9a8a76,{roughness:.9}));cap.position.set((s+e)/2+.2,H/2+.35+.05/Math.cos(ang),(WZ0+WZ1)/2);cap.rotation.z=-ang;g.add(cap);
+  obs.push({x0:e,x1:s+.4,z0:WZ0,z1:WZ1+.02})}
+ /* the timber guard rail on the wall: posts every 3 m, two rails on their outer face */
+ {const pz=(WZ0+WZ1)/2;for(let x=s-1;x>e+.5;x-=3){const y=road(x)+.35,p=new THREE.Mesh(new THREE.BoxGeometry(.18,1.05,.18),o.TIMBER);p.position.set(x,y+.43,pz);g.add(p)}
+  {const x=e+.6,y=road(x)+.35,p=new THREE.Mesh(new THREE.BoxGeometry(.18,1.05,.18),o.TIMBER);p.position.set(x,y+.43,pz);g.add(p)}
+  for(const hy of[.42,.82]){const L=Math.hypot(s-1-(e+.6),road(e+.6)-road(s-1)),rl=new THREE.Mesh(new THREE.BoxGeometry(L+.2,.18,.06),o.TIMBER);rl.position.set((s-1+e+.6)/2,(road(s-1)+road(e+.6))/2+.35+hy,pz-.12);rl.rotation.z=-ang;g.add(rl)}}
+ /* the rock shoulder on the north side: rises beside the middle of the road, falls away at both ends */
+ {const XS=[];for(let x=s+.3;x>e-.7;x-=.8)XS.push(x);XS.push(e-.7);const NP=12,pos=[],col=[],uv=[],idx=[];
+  XS.forEach((x,i)=>{const t=Math.min(1,Math.max(0,(s-x)/(s-e))),hc=3.0*sm(.05,.55,t)*(1-sm(.82,.99,t))+.25*sm(.02,.2,t),ry=Math.min(road(x),H-.1)-.06*(1-sm(0,.1,t)),yt=Math.min(ry+hc,x<e+.5?H-.1:99),n1=.18*Math.sin(x*.7)+.12*Math.sin(x*1.9+1),n2=.3*Math.sin(x*.37+2)+.2*Math.sin(x*1.3);
+   const prof=[[z1-.05,ry-.2]];for(let j=1;j<=4;j++){const u=j/4;prof.push([z1+.15+.35*u+n1*u*(1-u)*2,ry+(yt-ry)*u])}prof.push([z1+1.2+n1*.5,yt+.12*(hc>.5?1:0)]);const zt=z1+2.3+n2*.4;
+   for(let j=1;j<=6;j++){const u=j/6,nj=(.45*Math.sin(x*.53+j*2.1)+.25*Math.sin(x*1.7-j*.9))*Math.sin(Math.PI*u),zz=zt+(4.2+n2)*Math.pow(u,1.3)+nj,yy=yt*(1-u)+(-.15)*u-(hc>.5?.4*Math.sin(Math.PI*u):0)+(j%2?.25:-.1)*Math.min(1,yt/3)*Math.sin(Math.PI*u);prof.push([zz,yy])}
+   prof.forEach(([zz,yy],j)=>{pos.push(x,yy,zz);const cc=mgBandCol(yy<0?0:Math.min(13.9,yy+(H-yt)*.0),x*3.1);col.push(...cc);uv.push(x/6,yy/6+zz/6)})});
+  for(let i=0;i<XS.length-1;i++)for(let j=0;j<NP-1;j++){const a=i*NP+j,b=(i+1)*NP+j,c=(i+1)*NP+j+1,d=i*NP+j+1;idx.push(a,b,d,b,c,d)}
+  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+  const m=new THREE.Mesh(ge,o.ROCK);m.userData.noSeam=true;g.add(m);for(let x=s-6;x>e;x-=4){obs.push({x0:x-4,x1:x,z0:z1+.1,z1:z1+5.5})}
+  /* loose rocks on the shoulder and at its foot */const RL=[];for(let i=0;i<46;i++){const x=s-3-r()*(s-e-4),t=(s-x)/(s-e),hc=3.0*sm(.05,.55,t)*(1-sm(.82,.99,t)),ry=road(x),side=r();let z,y;if(side<.5){z=z1+2.6+r()*2.2;y=Math.max(0,(ry+hc)*(1-Math.pow((z-z1-2.3)/4.4,1.3)))}else{z=z1+6.2+r()*3;y=0}
+   const rad=y>0?.25+r()*.45:.3+r()*.6;mgPut(RL,mgRockGeo(rad,i*5.3,.6,1.2),x,y-.12,z,r()*6,r()<.3?[.86,.76,.6]:[.62,.42,.31])} g.add(mgMerge(RL,o.ROCKS))}
+ /* signs */
+ const board=(w,h,draw)=>{const c=document.createElement('canvas');c.width=Math.round(256*w/h);c.height=256;draw(c.getContext('2d'),c.width,c.height);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return new THREE.MeshStandardMaterial({map:t,roughness:.8})};
+ const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';
+ /* MESA ROAD at the bottom: a yellow warning board and a steep-grade plate on a steel post, facing the way in (east) */
+ {const sx=-214,sz=-1557,G=new THREE.Group();G.position.set(sx,0,sz);G.rotation.y=Math.PI/2;g.add(G);const post=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,3.1,8),k.M(0x8a8a8a,{metalness:.6,roughness:.4}));post.position.set(0,1.55,-.06);G.add(post);
+  const m1=board(1.6,.9,(c,w,h)=>{c.fillStyle='#f0c020';c.fillRect(0,0,w,h);c.strokeStyle='#1a1a1a';c.lineWidth=12;c.strokeRect(10,10,w-20,h-20);c.fillStyle='#1a1a1a';c.textAlign='center';c.font='700 92px '+F;c.fillText('MESA ROAD',w/2,108,w-60);c.font='600 60px '+F;c.fillText('STEEP · USE LOW GEAR',w/2,200,w-60)});
+  const b1=new THREE.Mesh(new THREE.BoxGeometry(1.6,.9,.03),[k.M(0xd0a818),k.M(0xd0a818),k.M(0xd0a818),k.M(0xd0a818),m1,k.M(0x8a8a8a)]);b1.position.set(0,2.55,0);G.add(b1);
+  const m2=board(.9,.9,(c,w,h)=>{c.fillStyle='#f0c020';c.fillRect(0,0,w,h);c.strokeStyle='#1a1a1a';c.lineWidth=12;c.strokeRect(10,10,w-20,h-20);c.fillStyle='#1a1a1a';c.beginPath();c.moveTo(40,190);c.lineTo(216,190);c.lineTo(216,100);c.closePath();c.fill();c.textAlign='center';c.font='700 66px '+F;c.fillText('23%',96,90)});
+  const b2=new THREE.Mesh(new THREE.BoxGeometry(.9,.9,.03),[k.M(0xd0a818),k.M(0xd0a818),k.M(0xd0a818),k.M(0xd0a818),m2,k.M(0x8a8a8a)]);b2.position.set(0,1.55,0);G.add(b2);obs.push({x0:sx-.15,x1:sx+.15,z0:sz-.15,z1:sz+.15})}
+ /* LOOKOUT MESA at the top: a routed plank board on two log posts, facing the road as you arrive */
+ {const sx=-284.5,sz=-1559,G=new THREE.Group();G.position.set(sx,H,sz);G.rotation.y=Math.PI/2;g.add(G);for(const px of[-1.15,1.15]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.11,.13,2.3,9),o.TIMBER);p.position.set(px,1.15,0);G.add(p)}
+  const m=board(2.6,1.1,(c,w,h)=>{c.fillStyle='#6a4a2c';c.fillRect(0,0,w,h);for(let i=0;i<40;i++){c.fillStyle='rgba(40,25,12,.25)';c.fillRect(0,Math.random()*h,w,1)}c.fillStyle='#3a2414';c.fillRect(0,h/2-2,w,4);c.fillStyle='#f2e2c0';c.textAlign='center';c.font='700 100px '+F;c.fillText('LOOKOUT MESA',w/2,108,w-50);c.font='600 62px '+F;c.fillText('ELEV. 14 m · NO LITTERING',w/2,206,w-50)});
+  const b=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.1,.08),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,m,o.TIMBER]);b.position.set(0,1.55,.13);G.add(b);
+  const rf=new THREE.Mesh(new THREE.BoxGeometry(2.9,.06,.4),o.TIMBER);rf.position.set(0,2.18,.1);rf.rotation.x=.25;G.add(rf);for(const px of[-1.15,1.15])obs.push({x0:sx-.15,x1:sx+.15,z0:sz+px-.15,z1:sz+px+.15})}
+ return{obs}}
+
+/* ---------- Batch 2: on top of the mesa ----------
+   mgMesaTop(g)  the Hermit's cabin, the summit cairn, the lookout point, the telescope, the flagpole and the campfire,
+                 in the same places as now (the summit book moves to the cairn). Returns
+                 {obs, plates, spots, parts:{flag, bino}, tick(t), lights}:
+                   spots.hermit [x,y,z]   the Hermit stands on the porch (y = porch floor)
+                   spots.book   [x,z]     "Sign the summit book" (south side of the cairn)
+                   spots.smoke  [x,y,z]   the stove pipe's top, for the smoke sprite
+                   spots.binoUse [x,z]    where you stand to use the binoculars (north of them, looking south)
+                   spots.binoProp [x,z]   the binoculars' E prompt
+                   spots.fire  [x,y,z]    the campfire's flame (as now)
+                 tick(t): call every frame (t in seconds) to wave the flag. lights: [x,y,z] of the porch lamp (night).
+                 parts.win: the cabin windows' glass; at night set parts.win.emissiveIntensity = .5 (a lamp inside). */
+function mgMesaTop(g){const k=rtKit(),o=mgKit(),r=o.r,M=k.M,H=MG.H,obs=[],plates=[],spots={};
+ const bx=(w,h,d,x,y,z,m,ry,rx,rz,par)=>{const e=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);e.position.set(x,y,z);e.rotation.set(rx||0,ry||0,rz||0);(par||g).add(e);return e};
+ const cy=(r1,r2,h,x,y,z,m,seg,par)=>{const e=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,seg||12),m);e.position.set(x,y,z);(par||g).add(e);return e};
+ const tm=(t,rx,ry,op)=>{const m=M(0xffffff,Object.assign({roughness:.9},op||{}));m.map=t.clone();m.map.needsUpdate=true;m.map.repeat.set(rx,ry);return m};
+ const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';
+ /* textures: weathered board-and-batten (2 m square a tile), corrugated tin (ribs every 7.6 cm), deck planks */
+ const BB=k.tex(256,256,(c,w,h)=>{c.fillStyle='#8a7a66';c.fillRect(0,0,w,h);for(let i=0;i<8;i++){const v=118+r()*24|0;c.fillStyle='rgb('+(v+8)+','+(v-2)+','+(v-18)+')';c.fillRect(i*32+1,0,30,h);for(let j=0;j<10;j++){c.fillStyle='rgba(50,40,30,.18)';c.fillRect(i*32+2+r()*26,r()*h,1,10+r()*40)}}
+  for(let i=0;i<8;i++){c.fillStyle='rgba(30,22,15,.45)';c.fillRect(i*32+26,0,3,h);c.fillStyle='#9a8a74';c.fillRect(i*32+29,0,6,h);c.fillStyle='rgba(255,245,225,.18)';c.fillRect(i*32+29,0,2,h)}
+  for(let i=0;i<6;i++){c.fillStyle='rgba(60,40,25,.12)';c.fillRect(0,r()*h,w,2+r()*6)}});
+ const TIN=k.tex(128,128,(c,w,h)=>{for(let x=0;x<w;x++){const v=150+60*Math.sin(x/w*Math.PI*2*8);c.fillStyle='rgb('+(v*.95|0)+','+(v*.92|0)+','+(v*.88|0)+')';c.fillRect(x,0,1,h)}for(let i=0;i<26;i++){c.fillStyle='rgba(150,80,40,'+(.12+r()*.2)+')';c.fillRect(r()*w,r()*h,2+r()*14,2+r()*30)}});
+ const DECK=k.tex(128,128,(c,w,h)=>{c.fillStyle='#6a5440';c.fillRect(0,0,w,h);for(let i=0;i<8;i++){const v=120+r()*30|0;c.fillStyle='rgb('+v+','+(v-14)+','+(v-34)+')';c.fillRect(0,i*16+1,w,14);c.fillStyle='rgba(30,20,10,.4)';c.fillRect(0,i*16+15,w,1)}});
+ const BARK=M(0x5a4430,{roughness:1,map:k.tex(64,64,(c,w,h)=>{c.fillStyle='#6a5038';c.fillRect(0,0,w,h);for(let i=0;i<50;i++){c.fillStyle='rgba(30,20,12,'+(.2+r()*.3)+')';c.fillRect(r()*w,0,1+r()*2,h)}})});
+ const ENDW=M(0xc8a878,{roughness:.9}),TRIM=M(0xd8ccb4,{roughness:.8}),DARK=M(0x2a2420,{roughness:.9}),IRON=M(0x26282a,{roughness:.5,metalness:.6}),BRASS=M(0xc8a040,{roughness:.3,metalness:.8}),STONE=M(0x9a8a76,{roughness:.95}),GLASS=M(0x1c2630,{roughness:.15,metalness:.3}),WGL=M(0x1c2630,{roughness:.15,metalness:.3,emissive:0xffb060,emissiveIntensity:0});
+ const lab=(w,h,draw,ppm)=>{const c=document.createElement('canvas');c.width=Math.round(w*(ppm||256));c.height=Math.round(h*(ppm||256));draw(c.getContext('2d'),c.width,c.height);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return M(0xffffff,{map:t,roughness:.6})};
+ const plane=(w,h,m,x,y,z,ry,par)=>{const e=new THREE.Mesh(new THREE.PlaneGeometry(w,h),m);e.position.set(x,y,z);e.rotation.y=ry||0;(par||g).add(e);return e};
+
+ /* ===== the Hermit's cabin, (-320, -1560): 7 x 5 m, door and porch on the west, tin roof ridged along x ===== */
+ {const hx=-320,hz=-1560,X0=hx-3.5,X1=hx+3.5,Z0=hz-2.5,Z1=hz+2.5,E=H+3.2,RISE=1.2,th=Math.atan2(RISE,2.5),SL=Math.hypot(2.5,RISE),OV=.4,RG=E+RISE;
+  /* stone footing all round, then the walls (board and batten), the gables */
+  const FT=M(0x8a7a66,{roughness:1,map:o.STONE.map.clone()});FT.map.needsUpdate=true;FT.map.repeat.set(3,.3);bx(7.1,.35,5.1,hx,H+.17,hz,FT);
+  const WL=t=>tm(BB,t/2,1.45);bx(7,2.85,.15,hx,H+1.77,Z0+.075,WL(7));bx(7,2.85,.15,hx,H+1.77,Z1-.075,WL(7));bx(.15,2.85,4.7,X0+.075,H+1.77,hz,WL(4.7));bx(.15,2.85,4.7,X1-.075,H+1.77,hz,WL(4.7));
+  for(const x of[X0+.075,X1-.075]){const sh=new THREE.Shape();sh.moveTo(-2.5,0);sh.lineTo(2.5,0);sh.lineTo(0,RISE);sh.lineTo(-2.5,0);const ge=new THREE.ExtrudeGeometry(sh,{depth:.15,bevelEnabled:false});ge.translate(0,0,-.075);const m=new THREE.Mesh(ge,tm(BB,.5,.5));m.rotation.y=Math.PI/2;m.position.set(x,E,hz);g.add(m)}
+  /* corner boards and the eave boards */for(const x of[X0-.02,X1+.02])for(const z of[Z0-.02,Z1+.02])bx(.16,2.9,.16,x,H+1.8,z,TRIM);for(const z of[Z0-.03,Z1+.03])bx(7.1,.18,.06,hx,E-.1,z,TRIM);
+  /* the roof: two tin sheets on the slopes, a ridge cap, fascia under the eaves */
+  for(const sd of[-1,1]){const L=SL+OV,cz=hz+sd*(L/2)*Math.cos(th),cy2=RG-(L/2)*Math.sin(th)+.035*Math.cos(th);bx(7.9,.07,L,hx,cy2,cz+sd*.035*Math.sin(th),tm(TIN,7.9/2,1,{metalness:.5,roughness:.55}),0,sd*th);
+   const ez=hz+sd*L*Math.cos(th),ey=RG-L*Math.sin(th);bx(7.9,.16,.05,hx,ey-.07,ez+sd*.02,TRIM)}
+  {const rc=bx(7.95,.08,.36,hx,RG+.1,hz,M(0x9a9690,{metalness:.5,roughness:.5}));}
+  /* the barge boards along the gable ends */for(const x of[X0-.42,X1+.42])for(const sd of[-1,1]){const L=SL+OV;bx(.05,.18,L,x,RG-(L/2)*Math.sin(th)+.03,hz+sd*(L/2)*Math.cos(th),TRIM,0,sd*th)}
+  /* the door (west) */{const dz=hz;bx(.08,2.15,1.25,X0-.04,H+.35+1.07,dz,TRIM);const d=bx(.06,2.0,1.0,X0-.09,H+.35+1.0,dz,M(0x6a5038,{roughness:.9,map:DECK.clone()}));d.material.map.needsUpdate=true;d.material.map.rotation=Math.PI/2;cy(.035,.035,.08,X0-.15,H+1.35,dz+.38,BRASS,8).rotation.z=Math.PI/2;
+   for(const y of[.5,1.6])bx(.07,.12,.9,X0-.12,H+.35+y,dz,M(0x5a4430))}
+  /* windows: south x2, north x1, east x1: frame, dark glass, a sill, a curtain behind */
+  const win=(x,z,ry)=>{const G=new THREE.Group();G.position.set(x,H+1.9,z);G.rotation.y=ry;g.add(G);bx(1.1,1.0,.06,0,0,.03,TRIM,0,0,0,G);bx(.94,.84,.03,0,0,.065,WGL,0,0,0,G);bx(.04,.82,.035,0,0,.075,TRIM,0,0,0,G);bx(.92,.04,.035,0,0,.086,TRIM,0,0,0,G);bx(1.2,.06,.14,0,-.53,.08,TRIM,0,0,0,G);};
+  win(hx-1.6,Z0,Math.PI);win(hx+1.7,Z0,Math.PI);win(hx-.6,Z1,0);win(X1,hz+.6,Math.PI/2);
+  /* the stove pipe through the north slope, with flashing and a rain cap; smoke comes out at spots.smoke */
+  {const px=hx+2,pz=hz+1,ry=RG-1*Math.tan(th);cy(.12,.12,1.6,px,ry+.6,pz,M(0x3a3634,{metalness:.6,roughness:.5}),12);cy(.24,.3,.1,px,ry+.08,pz,M(0x8a8680,{metalness:.5,roughness:.6}),14).rotation.x=th;cy(.0,.26,.18,px,ry+1.55,pz,M(0x3a3634,{metalness:.6,roughness:.5}),12);for(let i=0;i<3;i++)rodp(g,[px+Math.cos(i*2.1)*.12,ry+1.4,pz+Math.sin(i*2.1)*.12],[px+Math.cos(i*2.1)*.2,ry+1.47,pz+Math.sin(i*2.1)*.2],.012,IRON);spots.smoke=[px,ry+1.95,pz]}
+  /* a solar panel on the south slope */{const sz=hz-1.3*Math.cos(th),sy=RG-1.3*Math.sin(th);const P=new THREE.Group();P.position.set(hx-1.6,sy,sz);P.rotation.x=-th;g.add(P);bx(1.7,.05,1.0,0,.16,0,M(0x1a2a4a,{roughness:.25,metalness:.4,map:k.tex(128,64,(c,w,h)=>{c.fillStyle='#1a2a4a';c.fillRect(0,0,w,h);c.strokeStyle='#8a9ab0';c.lineWidth=1;for(let i=0;i<=8;i++){c.beginPath();c.moveTo(i*16,0);c.lineTo(i*16,h);c.stroke()}for(let j=0;j<=4;j++){c.beginPath();c.moveTo(0,j*16);c.lineTo(w,j*16);c.stroke()}})}),0,0,0,P);bx(1.74,.06,1.04,0,.12,0,M(0xb0b4b8,{metalness:.6,roughness:.4}),0,0,0,P);for(const a of[-.7,.7])for(const b of[-.35,.35])bx(.05,.12,.05,a,.05,b,M(0xb0b4b8,{metalness:.6}),0,0,0,P)}
+  /* the porch: a plank deck 30 cm up, one step, a lean-to tin roof on two posts, a rocking chair, a lamp */
+  {const PX0=X0-2.5;const dk=bx(2.5,.12,5.4,(PX0+X0)/2,H+.24,hz,tm(DECK,1.2,2.6));for(const z of[hz-2.55,hz+2.55])bx(2.3,.28,.08,(PX0+X0)/2+.03,H+.14,z,M(0x5a4430));bx(.08,.28,5.2,PX0+.1,H+.14,hz,M(0x5a4430));
+   bx(.36,.15,1.4,PX0-.18,H+.075,hz,tm(DECK,.3,.7));plates.push({x0:PX0,x1:X0,z0:hz-2.7,z1:hz+2.7,y:H+.3},{x0:PX0-.36,x1:PX0,z0:hz-.7,z1:hz+.7,y:H+.15});
+   const ry0=E-.25,ry1=E-.65,pa=Math.atan2(ry0-ry1,2.75);for(const z of[hz-2.4,hz+2.4]){bx(.14,ry1-.16-(H+.3),.14,PX0+.2,(ry1-.16+H+.3)/2,z,o.TIMBER);obs.push({x0:PX0+.1,x1:PX0+.3,z0:z-.1,z1:z+.1})}bx(.12,.16,5.0,PX0+.2,ry1-.08,hz,o.TIMBER);bx(2.75,.12,.1,X0-1.375,(ry0+ry1)/2-.1,hz-2.4,o.TIMBER,0,0,pa);bx(2.75,.12,.1,X0-1.375,(ry0+ry1)/2-.1,hz+2.4,o.TIMBER,0,0,pa);bx(.1,.16,5.0,X0-.08,ry0-.12,hz,o.TIMBER);
+   const pr=bx(3.0,.06,5.8,X0-1.45,(ry0+ry1)/2+.02,hz,tm(TIN,5.8/2,1,{metalness:.5,roughness:.55}),0,0,pa);pr.material.map.rotation=Math.PI/2;
+   /* rocking chair, facing west at the north end */{const C2=new THREE.Group();C2.position.set(PX0+1.1,H+.3,hz+1.7);C2.rotation.y=-Math.PI/2;g.add(C2);const W=o.TIMBER;
+    for(const sx of[-.24,.24]){const pts=[];for(let i=0;i<=10;i++){const a=-.5+i*.1;pts.push(new THREE.Vector3(sx,.42-.42*Math.cos(a*1.1),Math.sin(a*1.1)*.55))}const t=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),12,.025,6,false),W);C2.add(t);
+     for(const z of[-.22,.2])bx(.04,.38,.04,sx,.25,z,W,0,0,0,C2);bx(.04,.55,.04,sx,.7,-.24,W,0,-.15,0,C2);bx(.05,.04,.45,sx,.66,0,W,0,0,0,C2)}
+    bx(.52,.05,.46,0,.45,0,W,0,0,0,C2);for(let i=0;i<4;i++)bx(.07,.55,.025,-.18+i*.12,.76,-.26,W,0,-.15,0,C2);bx(.52,.06,.04,0,1.04,-.3,W,0,-.15,0,C2)}
+   /* the porch lamp by the door */{cy(.07,.09,.22,X0-.18,H+2.3,hz-.85,M(0xfff0c0,{emissive:0xffc070,emissiveIntensity:.6}),10);cy(.1,.1,.04,X0-.18,H+2.43,hz-.85,IRON,10);bx(.2,.03,.03,X0-.08,H+2.43,hz-.85,IRON);}
+   spots.hermit=[PX0+1.3,H+.3,hz];}
+  /* the rain barrel at the north-east corner, fed by a gutter and a downpipe */{const gz=hz+(SL+OV)*Math.cos(th)-.04,gy=RG-(SL+OV)*Math.sin(th)-.1;bx(7.6,.1,.12,hx,gy-.05,gz+.1,M(0x8a8680,{metalness:.5,roughness:.5}));cy(.045,.045,gy-.05-(H+1.1),X1+.5,(gy-.05+H+1.1)/2,gz+.1,M(0x8a8680,{metalness:.5,roughness:.5}),8);bx(.62,.06,.06,X1+.21,gy-.05,gz+.1,M(0x8a8680,{metalness:.5}));
+   const bxx=X1+.5,bzz=gz+.04;cy(.38,.36,1.0,bxx,H+.5,bzz,M(0x4a5a6a,{roughness:.6,metalness:.3}),16);for(const y of[.15,.85])cy(.395,.395,.05,bxx,H+y,bzz,M(0x2a2a2a,{metalness:.6}),16);cy(.36,.36,.02,bxx,H+1.0,bzz,M(0x203040,{roughness:.1}),16);obs.push({x0:bxx-.4,x1:bxx+.4,z0:bzz-.4,z1:bzz+.4})}
+  /* the woodpile along the east wall, a chopping block and an axe */{const WP=[];for(let row=0;row<6;row++)for(let i=0;i<19;i++){const z=hz-1.6+i*.17+(row%2)*.08;if(z>hz+1.7)continue;const ge=new THREE.CylinderGeometry(.08,.08,.62,7);ge.rotateZ(Math.PI/2);mgPut(WP,ge,X1+.42+(r()-.5)*.06,H+.09+row*.155,z,0,[.56+r()*.08,.48+r()*.05,.38])}
+   g.add(mgMerge(WP,M(0xffffff,{vertexColors:true,roughness:.95})));obs.push({x0:X1,x1:X1+.8,z0:hz-1.8,z1:hz+1.85});
+   cy(.28,.3,.5,X1+1.6,H+.25,hz-2.6,BARK,12);cy(.27,.27,.01,X1+1.6,H+.505,hz-2.6,ENDW,12);{const ax=bx(.04,.7,.04,X1+1.6,H+.8,hz-2.6,o.TIMBER,0,0,.35);bx(.16,.1,.03,X1+1.48,H+.55,hz-2.6,IRON,0,0,.35)}}
+  obs.push({x0:X0-.1,x1:X1+.1,z0:Z0-.1,z1:Z1+.1})}
+
+ /* ===== the summit cairn, (-345, -1545): stacked flat stones with a steel register box on top ===== */
+ {const cx=-345,cz=-1545,CL=[];let y=H;const lv=[.8,.68,.56,.46,.36];lv.forEach((rad,i)=>{let lt=y;const n=i<2?5:i<4?3:1;for(let j=0;j<n;j++){const a=j/n*6.28+i,dd=n>1?rad*.42:0,ge=mgRockGeo(rad*.6,i*9+j,.5,1.3);ge.computeBoundingBox();lt=Math.max(lt,y-.05+ge.boundingBox.max.y);mgPut(CL,ge,cx+Math.cos(a)*dd,y-.05,cz+Math.sin(a)*dd,a,[.8+r()*.08,.72+r()*.05,.6])}y=lt-.04});
+  g.add(mgMerge(CL,o.ROCKS));const top=y-.02;const bxg=new THREE.Group();bxg.position.set(cx,top,cz);bxg.rotation.y=.1;g.add(bxg);const OD=M(0x4a5a3a,{roughness:.6,metalness:.4});
+  bx(.46,.02,.3,0,.01,0,OD,0,0,0,bxg);for(const sx of[-1,1]){bx(.02,.22,.3,sx*.22,.13,0,OD,0,0,0,bxg);bx(.42,.22,.02,0,.13,sx*.14,OD,0,0,0,bxg)}const lid=new THREE.Group();lid.position.set(0,.252,-.15);lid.rotation.x=-1.1;bxg.add(lid);bx(.48,.03,.32,0,.015,.16,OD,0,0,0,lid);bx(.08,.04,.04,0,.03,.3,M(0x8a8a8a,{metalness:.7}),0,0,0,lid);
+  bx(.3,.05,.22,0,.045,-.01,M(0x8a2a20,{roughness:.8}),0,0,0,bxg);bx(.28,.012,.2,0,.076,-.01,M(0xf0e8d0,{roughness:.9}),0,0,0,bxg);bx(.012,.012,.14,.09,.088,-.01,M(0x2a4a8a),0,1.2,0,bxg);
+  const pl=lab(.44,.14,(c,w,h)=>{c.fillStyle='#d8c890';c.fillRect(0,0,w,h);c.fillStyle='#2a2414';c.textAlign='center';c.font='700 '+(h*.55|0)+'px '+F;c.fillText('SUMMIT REGISTER',w/2,h*.7,w-8)},400);plane(.44,.14,pl,0,.12,.157,0,bxg);
+  obs.push({x0:cx-.75,x1:cx+.75,z0:cz-.75,z1:cz+.75});spots.book=[cx+.05,cz+1.25]}
+
+ /* ===== the lookout point on the south rim: paving, an iron railing, coin binoculars, a bench and a direction dial ===== */
+ {const bxx=-330,bzz=-1596,PX0=-335.5,PX1=-324.5,PZ0=-1599.4,PZ1=-1592.4;
+  const PV=M(0xffffff,{roughness:.95,map:k.tex(256,256,(c,w,h)=>{c.fillStyle='#7a6a58';c.fillRect(0,0,w,h);for(let row=0;row<5;row++){let x=-(row%2)*26;while(x<w){const bw=40+r()*36;const v=170+r()*30|0;c.fillStyle='rgb('+(v+10)+','+(v-4)+','+(v-30)+')';c.fillRect(x+2,row*51+2,bw-4,47);x+=bw}}})});PV.map.repeat.set((PX1-PX0)/3,(PZ1-PZ0)/3);PV.polygonOffset=true;PV.polygonOffsetUnits=-2;
+  {const p=new THREE.Mesh(new THREE.PlaneGeometry(PX1-PX0,PZ1-PZ0),PV);p.rotation.x=-Math.PI/2;p.position.set((PX0+PX1)/2,H+.05,(PZ0+PZ1)/2);g.add(p)}
+  for(const[a,b,c2,d]of[[PX0-.15,PX0,PZ0,PZ1+.15],[PX1,PX1+.15,PZ0,PZ1+.15],[PX0,PX1,PZ1,PZ1+.15]])bx(b-a,.12,d-c2,(a+b)/2,H+.06,(c2+d)/2,STONE);
+  /* railing: iron posts with ball tops, two rails, along the south edge and back along both sides (open to the north) */
+  const RZ=PZ0+.15,rp=(x,z)=>{cy(.03,.03,1.0,x,H+.6,z,IRON,8);const b=new THREE.Mesh(new THREE.SphereGeometry(.045,10,8),IRON);b.position.set(x,H+1.12,z);g.add(b)};
+  const RX0=PX0+.08,RX1=PX1-.08,RZ1=PZ1-1.6;for(let i=0;i<=10;i++)rp(RX0+(RX1-RX0)*i/10,RZ);for(const x of[RX0,RX1])for(let i=1;i<=5;i++)rp(x,RZ+(RZ1-RZ)*i/5);
+  for(const y of[.55,1.0]){bx(RX1-RX0,.04,.04,(RX0+RX1)/2,H+y+.05,RZ,IRON);for(const x of[RX0,RX1])bx(.04,.04,RZ1-RZ,x,H+y+.05,(RZ+RZ1)/2,IRON)}
+  obs.push({x0:RX0-.1,x1:RX1+.1,z0:RZ-.1,z1:RZ+.1},{x0:RX0-.1,x1:RX0+.1,z0:RZ,z1:RZ1+.05},{x0:RX1-.1,x1:RX1+.1,z0:RZ,z1:RZ1+.05});
+  /* the coin binoculars: a pedestal on a round foot, a coin box, a yoke and the twin-barrelled head looking south */
+  {const B2=new THREE.Group();B2.position.set(bxx,H,bzz);g.add(B2);const BL=M(0x2a4a6a,{roughness:.45,metalness:.5});cy(.28,.32,.1,0,.1,0,STONE,16,B2);cy(.07,.09,.95,0,.6,0,BL,12,B2);cy(.12,.12,.06,0,1.08,0,BL,12,B2);
+   bx(.18,.22,.14,0,.78,.1,BL,0,0,0,B2);bx(.02,.06,.005,0,.83,.182,M(0x101010),0,0,0,B2);
+   const hd=new THREE.Group();hd.position.set(0,1.22,0);B2.add(hd);for(const sx of[-1,1])bx(.04,.2,.06,sx*.2,0,0,BL,0,0,0,hd);
+   const head=new THREE.Group();hd.add(head);head.rotation.x=.08;bx(.38,.24,.3,0,0,0,BL,0,0,0,head);for(const sx of[-1,1]){const b=cy(.08,.085,.3,sx*.1,0,-.28,BL,14,head);b.rotation.x=Math.PI/2;const l=cy(.07,.07,.01,sx*.1,0,-.433,GLASS,14,head);l.rotation.x=Math.PI/2;const ep=cy(.04,.04,.08,sx*.07,.03,.19,DARK,10,head);ep.rotation.x=Math.PI/2}
+   bx(.36,.05,.08,0,.06,.2,DARK,0,0,0,head);
+   const pl=lab(.34,.2,(c,w,h)=>{c.fillStyle='#e8d8a8';c.fillRect(0,0,w,h);c.fillStyle='#1a2a4a';c.textAlign='center';c.font='700 '+(h*.32|0)+'px '+F;c.fillText('LOOKOUT · 1 GOLD',w/2,h*.42,w-10);c.font='600 '+(h*.22|0)+'px '+F;c.fillText('SEE THE WHOLE DESERT',w/2,h*.8,w-10)},400);plane(.17,.1,pl,0,.74,.177,0,B2);
+   spots.bino=[bxx,bzz];obs.push({x0:bxx-.3,x1:bxx+.3,z0:bzz-.3,z1:bzz+.3})}
+  spots.binoUse=[bxx,bzz+.6];spots.binoProp=[bxx,bzz+1.2];
+  /* a bench facing the view */{const bz2=-1594.2,bx2=-333.4;for(const sx of[-.75,.75]){bx(.1,.42,.42,bx2+sx,H+.26,bz2,STONE)}bx(1.8,.07,.45,bx2,H+.5,bz2,o.TIMBER);bx(1.8,.3,.05,bx2,H+.82,bz2+.25,o.TIMBER,0,-.15);for(const sx of[-.75,.75])bx(.06,.45,.06,bx2+sx,H+.72,bz2+.24,IRON,0,-.15);obs.push({x0:bx2-.95,x1:bx2+.95,z0:bz2-.25,z1:bz2+.3})}
+  /* a direction dial on a stone plinth: arrows to the places you can see */{const dx2=-326.6,dz2=-1594.4;bx(.5,.85,.5,dx2,H+.48,dz2,STONE);const dm=lab(.6,.6,(c,w,h)=>{c.fillStyle='#8a6a30';c.fillRect(0,0,w,h);const g2=c.createRadialGradient(w/2,h/2,10,w/2,h/2,w/2);g2.addColorStop(0,'#d8b058');g2.addColorStop(1,'#9a7434');c.fillStyle=g2;c.beginPath();c.arc(w/2,h/2,w/2-4,0,7);c.fill();
+    c.translate(w/2,h/2);const pts=[['GORGE',-Math.PI/2],['ZONE 51',Math.atan2(-274,-220)],['ROUTE 13',Math.atan2(596,330)],['LAKE',Math.atan2(36,580)]];c.strokeStyle='#3a2810';c.fillStyle='#3a2810';c.lineWidth=4;
+    for(const[t,a]of pts){c.save();c.rotate(a);c.beginPath();c.moveTo(14,0);c.lineTo(w*.22,0);c.stroke();c.beginPath();c.moveTo(w*.22+10,0);c.lineTo(w*.22-4,-7);c.lineTo(w*.22-4,7);c.fill();c.restore();const tx=Math.cos(a)*w*.37,ty=Math.sin(a)*w*.37;c.save();c.translate(tx,ty);c.font='700 '+(w*.05|0)+'px '+F;c.textAlign='center';c.textBaseline='middle';c.fillText(t,0,0);c.restore()}
+    c.beginPath();c.arc(0,0,10,0,7);c.fill()},300);const dial=new THREE.Mesh(new THREE.CircleGeometry(.24,28),dm);dial.rotation.x=-Math.PI/2;dial.position.set(dx2,H+.936,dz2);g.add(dial);cy(.25,.25,.02,dx2,H+.915,dz2,BRASS,28);obs.push({x0:dx2-.3,x1:dx2+.3,z0:dz2-.3,z1:dz2+.3})}}
+
+ /* ===== the telescope on a little rise (-380, -1550): a flat stone top 30 cm up, brass on a wooden tripod ===== */
+ {const tx=-380,tz=-1550,RS=[];for(let i=0;i<16;i++){const a=i/16*6.28+r()*.2,rr=1.55+r()*.35;mgPut(RS,mgRockGeo(.45+r()*.25,i*3.3,.55,1.4),tx+Math.cos(a)*rr,H-.06,tz+Math.sin(a)*rr,a+1.57,[.82,.72,.58])}g.add(mgMerge(RS,o.ROCKS));
+  const st=cy(1.75,1.85,.3,tx,H+.15,tz,M(0xffffff,{roughness:.95,map:o.STONE.map.clone()}),20);st.material.map.needsUpdate=true;st.material.map.repeat.set(2,.3);
+  plates.push({x0:tx-1.2,x1:tx+1.2,z0:tz-1.2,z1:tz+1.2,y:H+.3});const T=new THREE.Group();T.position.set(tx,H+.3,tz);g.add(T);
+  for(let i=0;i<3;i++){const a=i*2.094+.5,fx=Math.cos(a)*.55,fz=Math.sin(a)*.55;rodp(T,[fx,0,fz],[0,1.2,0],.03,o.TIMBER);cy(.035,.04,.06,fx,.03,fz,BRASS,8,T)}
+  cy(.07,.07,.12,0,1.24,0,BRASS,12,T);const tb=new THREE.Group();tb.position.set(0,1.36,0);tb.rotation.set(0,-.785,0);T.add(tb);const tube=new THREE.Group();tube.rotation.x=.12;tb.add(tube);
+  {const a=cy(.09,.12,1.3,0,0,-.2,BRASS,16,tube);a.rotation.x=Math.PI/2;for(const z of[-.8,.1,.4]){const b=cy(.125,.125,.04,0,0,z,M(0x8a6a30,{metalness:.8,roughness:.35}),16,tube);b.rotation.x=Math.PI/2}const ep=cy(.03,.035,.18,0,0,.53,DARK,10,tube);ep.rotation.x=Math.PI/2;const ln=cy(.11,.11,.01,0,0,-.856,GLASS,16,tube);ln.rotation.x=Math.PI/2}
+  obs.push({x0:tx-.4,x1:tx+.4,z0:tz-.4,z1:tz+.4})}
+
+ /* ===== the flagpole (-310, -1520): concrete base, an 8 m white pole, ball top, halyard; the DOORS flag waves ===== */
+ let flag=null,fgP=null;{const fx=-310,fz=-1520;cy(.45,.5,.3,fx,H+.15,fz,M(0xb0aaa0,{roughness:.9}),16);cy(.07,.05,8,fx,H+4.3,fz,M(0xf0f0ec,{roughness:.4,metalness:.3}),12);const bl=new THREE.Mesh(new THREE.SphereGeometry(.1,14,10),BRASS);bl.position.set(fx,H+8.38,fz);g.add(bl);cy(.09,.09,.06,fx,H+8.28,fz,M(0xd0d0d0,{metalness:.6}),12);
+  rodp(g,[fx+.07,H+8.25,fz],[fx+.07,H+1.2,fz],.008,M(0xe8e4d8));bx(.04,.18,.04,fx+.09,H+1.15,fz,M(0x9a9a9a,{metalness:.6}));obs.push({x0:fx-.5,x1:fx+.5,z0:fz-.5,z1:fz+.5});
+  const fm=lab(2.0,1.2,(c,w,h)=>{c.fillStyle='#c02020';c.fillRect(0,0,w,h);c.fillStyle='#fff';c.fillRect(0,h*.08,w,h*.05);c.fillRect(0,h*.87,w,h*.05);c.textAlign='center';c.textBaseline='middle';c.font='800 '+(h*.5|0)+'px '+F;c.fillText('DOORS',w/2,h*.52,w*.86)},200);fm.side=THREE.DoubleSide;fm.roughness=.85;
+  const fg=new THREE.PlaneGeometry(2.0,1.2,16,6);fg.translate(1.0,0,0);flag=new THREE.Mesh(fg,fm);flag.position.set(fx+.07,H+7.6,fz);g.add(flag);fgP=fg.attributes.position.array.slice()}
+ const tick=t=>{if(!flag)return;const P=flag.geometry.attributes.position;for(let i=0;i<P.count;i++){const x=fgP[i*3],y=fgP[i*3+1],w=x/2;P.setZ(i,(Math.sin(x*2.6-t*5.2+y*.6)*.16+Math.sin(x*4.1-t*7.3)*.05)*w);P.setY(i,y-w*w*.1)}P.needsUpdate=true;flag.geometry.computeVertexNormals()};tick(0);
+
+ /* ===== the campfire (-340, -1525): a ring of stones, charred logs, three log seats, a crate with the soda can stack ===== */
+ {const fx=-340,fz=-1525,FR=[];for(let i=0;i<13;i++){const a=i/13*6.28;mgPut(FR,mgRockGeo(.2+r()*.06,i*2.7,.75,1.2),fx+Math.cos(a)*.85,H-.02,fz+Math.sin(a)*.85,a,[.6,.58,.55])}g.add(mgMerge(FR,M(0xffffff,{vertexColors:true,roughness:.95})));
+  {const ash=new THREE.Mesh(new THREE.CircleGeometry(.72,24),M(0x3a3634,{roughness:1,polygonOffset:true,polygonOffsetUnits:-2}));ash.rotation.x=-Math.PI/2;ash.position.set(fx,H+.035,fz);g.add(ash)}
+  const CH=M(0x1e1a18,{roughness:1,emissive:0x501800,emissiveIntensity:.5});for(let i=0;i<5;i++){const a=i*1.257+.4;rodp(g,[fx+Math.cos(a)*.42,H+.03,fz+Math.sin(a)*.42],[fx+Math.cos(a)*.05,H+.62,fz+Math.sin(a)*.05],.055,CH)}
+  for(const a of[Math.PI/2,Math.PI*1.17,Math.PI*1.83]){const d=2.4,x=fx+Math.cos(a)*d,z=fz+Math.sin(a)*d,lg=cy(.21,.21,1.7,x,H+.17,z,BARK,12);lg.rotation.set(0,Math.PI/2-a,Math.PI/2);for(const s of[-1,1]){const e=cy(.195,.195,.012,x+Math.sin(a)*s*.855,H+.17,z-Math.cos(a)*s*.855,ENDW,12);e.rotation.set(0,Math.PI/2-a,Math.PI/2)}}
+  /* the crate and the can stack (4, 3, 2, 1), plus a few crushed ones */{const cx2=fx+3.3,cz2=fz-.7;bx(.66,.42,.46,cx2,H+.21,cz2,tm(DECK,.6,.4));const CN=M(0x40c060,{roughness:.35,metalness:.5,emissive:0x0a3010,emissiveIntensity:.4,map:k.tex(64,32,(c,w,h)=>{c.fillStyle='#3ab858';c.fillRect(0,0,w,h);c.fillStyle='#fff';c.fillRect(0,h*.42,w,h*.16);c.fillStyle='#106020';c.fillRect(0,0,w,3);c.fillRect(0,h-3,w,3)})});
+   for(let row=0;row<4;row++)for(let i=0;i<4-row;i++)cy(.05,.05,.14,cx2-.18+row*.06+i*.12,H+.49+row*.142,cz2,CN,12);for(let i=0;i<3;i++){const c3=cy(.05,.05,.06,cx2-.5+i*.3,H+.03,cz2+.5-i*.2,CN,10);c3.rotation.set(Math.PI/2,r()*3,0)}obs.push({x0:cx2-.35,x1:cx2+.35,z0:cz2-.25,z1:cz2+.25})}
+  spots.fire=[fx,H+.6,fz]}
+ return{obs,plates,spots,parts:{flag,win:WGL},tick,lights:[[-323.68,H+2.3,-1560.85]]}}
+/* a round rod from a to b */
+function rodp(par,a,b,rad,m){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B),e=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,L,6),m);e.position.copy(A).add(B).multiplyScalar(.5);e.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());par.add(e);return e}
+
+/* ---------- Batch 3: Devil's Gorge walls, rim and riverbed ----------
+   GORGE band z -1744 … -1700 (the walkable floor is y -30, z0+0.7 … z1-0.7), the walls stay OUTSIDE the band (in the
+   rock), except the jump ledge which is rock inside the band as now (x 284 … 316, z -1744 … -1728).
+     mgGorgeWalls(g)  both canyon walls (one mesh each, x -660 … 660) and the two end walls (x ±641), in sandstone
+                      layers with ledges, buttresses, chutes, alcoves at the foot and a flush cap rock with an
+                      undercut below it; a low rim lip along the top (sunk where the bridges, the ledge and the jump
+                      are); the ledge's sides and top; the cave mouth in the south wall with a rock frame; sand covers
+                      over the band beyond the map ends. Returns {deepB}.
+     mgGorgeBed(g)    the floor: a winding river with banks, shallows and sandbars, rubble along the foot of the walls,
+                      pebbles, boulders (solid), two dead trees, bleached driftwood. Returns {deepB, parts:{water}, tick(t)}.
+     mgGorgeRim(g)    rim cairns, and an old fence with wire plus DANGER signs where the three roads meet the rim.
+                      Returns {obs}.
+     mgVultures(g)    two vultures circling high over the Route 13 bridge. Returns {tick(t)}.
+   ===================================================================================================== */
+const MGG={z0:-1744,z1:-1700,D:30,X:660,ends:641,ledge:{x0:284,x1:316,z1:-1728},cave:{x0:189,x1:195,top:-23.9},bridges:[[-4.6,4.6],[-444.6,-435.4],[555.4,564.6]],jump:[294,306],zip:-150,
+ zc:x=>-1722+8*Math.sin(x*.0093+.7)+4*Math.sin(x*.027+2.1)+8*Math.exp(-Math.pow((x-300)/40,2)),/* the river's centre line */ zw:x=>4.5+2*Math.sin(x*.017+1)};/* its half width */
+function mgGFeat(s,sd){const bt=Math.pow(Math.max(0,Math.sin(s*2*Math.PI/37+.8*Math.sin(s*.013+sd)+sd)),1.4)*(.6+.4*Math.sin(s*.021+sd*2));
+ const gq=s/53+.3*Math.sin(s*.017+sd),gp=gq-Math.floor(gq),gl=Math.exp(-Math.pow((gp-.5)/.045,2));
+ const aq=s/143+.25*Math.sin(s*.009+sd),ap=aq-Math.floor(aq),al=Math.exp(-Math.pow((ap-.5)/.035,2));/* alcoves */
+ const bq=s/5.1+.4*Math.sin(s*.19+sd),bi=Math.floor(bq),bf=bq-bi,h1=Math.sin(bi*12.9898+sd*7.1)*43758.5453,hr=h1-Math.floor(h1),edge=Math.min(1,Math.min(bf,1-bf)/.06);return{bt,gl,al,hr,edge}}
+const MGLY=[-30,-24.5,-20.5,-16,-11.5,-7,-3.4];
+function mgDip(s,sd){/* the layers rise and fall a little along the wall */return 1.1*Math.sin(s*.0042+sd)+.5*Math.sin(s*.017+sd*2)}
+function mgGOff(s,y,sd){/* how far the rock face is set back from the band edge (into the rock), 0 … 3.5 m */const sm=mgKit().sm,{bt,gl,al,hr}=mgGFeat(s,sd);
+ const n=.07*Math.sin(s*.7+y*1.1)+.05*Math.sin(s*1.9-y*.6)+.04*Math.sin(y*2.7+s*.3),yl=y+mgDip(s,sd)*(1-mgKit().sm(-4,-2.5,y));let li=0;while(li<6&&yl>=MGLY[li+1])li++;const lt=li<6?(yl-MGLY[li])/(MGLY[li+1]-MGLY[li]):0;
+ const jt=Math.pow(Math.abs(Math.sin(s*.61+1.7*Math.sin(s*.09+sd))),.35);/* vertical joints */
+ let o=.2+2.3*(1-bt)*(.75+.25*jt)+n-.45*Math.pow(1-lt,3)+1.6*gl*sm(-29,-6,y)+2.8*al*(1-sm(-26.5,-25,y));
+ const und=sm(-3.9,-3.2,y)*(1-sm(-2.9,-2.6,y)),cap=sm(-2.9,-2.6,y);o=o*(1-cap)+(.05+.06*hr+n*.3)*cap+.75*und;
+ o*=1-sm(-.6,0,y);return Math.max(0,Math.min(3.5,o))}
+function mgGCol(s,y,sd){const sm=mgKit().sm,{gl,edge}=mgGFeat(s,sd),j=.04*Math.sin(s*.27+y*.8)+.03*Math.sin(s*1.3);
+ const P=[[.5,.36,.28],[.72,.44,.31],[.84,.7,.54],[.78,.52,.35],[.66,.4,.29],[.8,.66,.5],[.9,.8,.64]];const yl=y+mgDip(s,sd)*(1-sm(-4,-2.5,y));let li=0;while(li<6&&yl>=MGLY[li+1])li++;let c=P[li].slice();
+ if(li==6&&y<-2.9)c=c.map(v=>v*.62);if(li==6&&y>-2.6)c=c.map(v=>v*(.9+.1*edge));
+ for(const ly of MGLY.slice(1,6))if(yl<ly&&yl>ly-.4)c=c.map(v=>v*(.78+.22*(ly-yl)/.4));
+ const st=Math.pow(Math.max(0,Math.sin(s*.83+2.3*Math.sin(s*.21+sd))),12)*(1-sm(-6,-1,y))*sm(-26,-14,y);
+ return c.map(v=>v*(1+j)*(1-.25*gl)*(1-.32*st))}
+/* one canyon wall along a polyline. segs: [[ax,az],[bx,bz],[nx,nz]] with n pointing into the rock; corners between
+   segments: 'mitre' (the rock wraps round, 270°) or 'fan' (a rock corner, 90°). lipSkip(x,z) sinks the rim lip. */
+function mgWallMesh(segs,corners,sd,opt){const o=mgKit();const cols=[];let S=0;
+ segs.forEach(([a,b,n],si)=>{const L=Math.hypot(b[0]-a[0],b[1]-a[1]),N=Math.max(1,Math.ceil(L/2));for(let i=si>0&&corners[si-1]=='mitre'?1:0;i<N;i++){const t=i/N;cols.push({b:[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],n,s:S+t*L})}S+=L;
+  if(si<segs.length-1){const nn=segs[si+1][2];if(corners[si]=='mitre')cols.push({b:b.slice(),n:[n[0]+nn[0],n[1]+nn[1]],s:S});else for(let f=0;f<=6;f++){const an=Math.atan2(n[1],n[0]),bn=Math.atan2(nn[1],nn[0]);let d=bn-an;if(d<-Math.PI)d+=2*Math.PI;if(d>Math.PI)d-=2*Math.PI;const aa=an+d*f/6;cols.push({b:b.slice(),n:[Math.cos(aa),Math.sin(aa)],s:S,fan:1})}}
+  else cols.push({b:b.slice(),n,s:S})});
+ const YS=[-30.8];for(let y=-30;y<-.05;y+=.6)YS.push(y);YS.push(-.25,0);const NR=YS.length+3,NC=cols.length;const pos=new Float32Array(NC*NR*3),col=new Float32Array(NC*NR*3),uv=new Float32Array(NC*NR*2),idx=[];
+ cols.forEach((c,i)=>{const sk=opt.lipSkip&&opt.lipSkip(c.b[0],c.b[1]),hole=opt.hole&&opt.hole(c.b[0],c.b[1]);const tp=opt.taper?opt.taper(c.b[0],c.b[1]):1;
+  const rows=YS.map(y=>[mgGOff(c.s,y,sd)*tp,y]);rows.push([.45,sk?-.4:.05],[1.7,sk?-.4:.05],[2.4,-.25]);
+  rows.forEach(([of,y],j)=>{const q=i*NR+j;pos[q*3]=c.b[0]+c.n[0]*of;pos[q*3+1]=y;pos[q*3+2]=c.b[1]+c.n[1]*of;const cc=y>-.01?[.86,.77,.62]:mgGCol(c.s,y,sd);col.set(cc,q*3);uv[q*2]=c.s/6;uv[q*2+1]=(y>-.01?of:y)/6});c.hole=hole});
+ for(let i=0;i<NC-1;i++)for(let j=0;j<NR-1;j++){if((cols[i].hole||cols[i+1].hole)&&YS[j+1]!=null&&YS[j+1]<=opt.holeTop)continue;const a=i*NR+j,b=(i+1)*NR+j,c=(i+1)*NR+j+1,d=i*NR+j+1;if(opt.flip)idx.push(a,b,d,b,c,d);else idx.push(a,d,b,b,d,c)}
+ const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.BufferAttribute(pos,3));ge.setAttribute('color',new THREE.BufferAttribute(col,3));ge.setAttribute('uv',new THREE.BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+ const m=new THREE.Mesh(ge,o.ROCK);m.userData.noSeam=true;m.userData.noChunk=1;return m}
+function mgGorgeWalls(g){const k=rtKit(),o=mgKit(),r=o.r,{z0,z1,X,ends,ledge:LG,cave:CV}=MGG,deepB=[];
+ const nearB=(x,m)=>MGG.bridges.some(([a,b])=>x>a-m&&x<b+m);
+ /* north wall: rock to the north (+z); faces the gorge (-z) */
+ g.add(mgWallMesh([[[-X,z1],[X,z1],[0,1]]],[],1.7,{flip:0,lipSkip:(x)=>nearB(x,3)||(x>MGG.jump[0]-3&&x<MGG.jump[1]+3)}));
+ /* south wall, round the ledge; the cave mouth is a hole (x 189 … 195 below y -23.9), the face flush near it */
+ g.add(mgWallMesh([[[-X,z0],[LG.x0,z0],[0,-1]],[[LG.x0,z0],[LG.x0,LG.z1],[1,0]],[[LG.x0,LG.z1],[LG.x1,LG.z1],[0,-1]],[[LG.x1,LG.z1],[LG.x1,z0],[-1,0]],[[LG.x1,z0],[X,z0],[0,-1]]],['fan','mitre','mitre','fan'],4.3,
+  {flip:1,lipSkip:(x,z)=>nearB(x,3)||(x>LG.x0-3&&x<LG.x1+3),hole:(x,z)=>x>CV.x0-.6&&x<CV.x1+.6&&Math.abs(z-z0)<.01,holeTop:CV.top,taper:(x,z)=>x>=LG.x0-.01&&x<=LG.x1+.01&&z>z0+.01?.35:Math.abs(z-z0)<.01?Math.min(1,.15+Math.max(0,Math.abs(x-(CV.x0+CV.x1)/2)-4)/6):1}));
+ /* the end walls (x ±641): rock beyond, closing the gorge */
+ for(const sx of[-1,1]){const xe=sx*ends,m=mgWallMesh([[[xe,z0-3],[xe,z1+3],[sx,0]]],[],sx*9.1,{flip:sx>0?1:0});g.add(m);
+  /* sand over the band past the map's end, so there is no hole in the ground */const p=new THREE.Mesh(new THREE.PlaneGeometry(60,z1-z0+2),k.M(0xc4a878,{roughness:1}));p.rotation.x=-Math.PI/2;p.position.set(sx*(ends+30.5),-.01,(z0+z1)/2);g.add(p)}
+ /* the ledge's top: the landing pad (packed sand, tyre marks, LAND HERE, edge lines; mgPadTex, batch 5) */{const p=new THREE.Mesh(new THREE.PlaneGeometry(LG.x1-LG.x0,LG.z1-z0),k.M(0xffffff,{roughness:1,map:mgPadTex(),polygonOffset:true,polygonOffsetUnits:-1}));p.rotation.x=-Math.PI/2;p.position.set((LG.x0+LG.x1)/2,.015,(z0+LG.z1)/2);g.add(p)}
+ /* the cave mouth: a frame of big fallen blocks, a lintel across the top */{const cx=(CV.x0+CV.x1)/2,FR=[];
+  const blk=(w,h,d,x,y,z,sd2,c)=>{const ge=new THREE.BoxGeometry(w,h,d,4,4,3),P=ge.attributes.position;for(let i=0;i<P.count;i++){const px=P.getX(i),py=P.getY(i),pz=P.getZ(i),j=.08*Math.sin(px*3.1+py*2.3+sd2)+.06*Math.sin(pz*4.1-py*1.7+sd2);P.setXYZ(i,px*(1+j*.6),py*(1+j*.4),pz+j*.5)}ge.computeVertexNormals();mgPut(FR,ge,x,y,z,0,c)};
+  blk(CV.x1-CV.x0+3.2,1.6,2.2,cx,CV.top+.65,z0-.5,1,[.84,.7,.54]);for(const sx of[-1,1]){blk(1.4,2.6,2.0,cx+sx*(3+.55),-30+1.3,z0-.6,2+sx,[.62,.4,.3]);blk(1.2,2.4,1.9,cx+sx*(3+.5),-30+3.7,z0-.65,4+sx,[.7,.44,.32])}
+  g.add(mgMerge(FR,o.ROCK));for(const sx of[-1,1])deepB.push({x0:cx+sx*3.55-.7,x1:cx+sx*3.55+.7,z0:z0-1.6,z1:z0+.45})}
+ return{deepB}}
+
+/* the floor height at (x, z): the river channel, sandbars, banks, rubble along the walls, the cave mouth kept flat */
+function mgBedH(x,z){const sm=mgKit().sm,{z0,z1,ledge:LG,cave:CV}=MGG;const zc=MGG.zc(x),w=MGG.zw(x),dz=z-zc,q=Math.abs(dz)/w;
+ /* the floor is smooth near the water, so the shoreline is a clean curve */let h=-30+(.05*Math.sin(x*.13+z*.3)+.04*Math.sin(x*.041-z*.21))*sm(1.5,2.6,q);
+ if(q<1){h=-30-.45*Math.pow(1-q*q,.8)}else h+=.12*Math.exp(-Math.pow((q-1.3)/.3,2))+.02*(q-1)*(q<2?1:0);
+ for(const[xc,sd]of[[-480,1],[-210,-1],[90,1],[340,-1],[520,1]]){h+=.62*Math.exp(-Math.pow((x-xc)/12,2))*Math.exp(-Math.pow((dz-.3*w*sd)/(.38*w),2))}
+ /* distance from the rock (south: the band edge or the ledge; north: the band edge) */const inLx=x>LG.x0&&x<LG.x1;let dS=z-z0;if(x>LG.x0-20&&x<LG.x1+20){const ex=Math.max(LG.x0-x,0,x-LG.x1),ez=Math.max(z-LG.z1,0);dS=Math.min(dS,Math.hypot(ex,ez)*(inLx&&z<LG.z1?-1:1))}
+ const d=Math.min(dS,z1-z),cav=x>CV.x0-2.5&&x<CV.x1+2.5&&dS<3&&!inLx;
+ if(!cav){const a=Math.max(0,1-d/1.3);h+=Math.min(2.4,1.7*Math.pow(a,1.5)*(1+.25*Math.sin(x*.9)+.15*Math.sin(x*2.3+z)))}else if(z<z0+1)h=Math.min(h,-30.06);
+ return h}
+function mgGorgeBed(g){const k=rtKit(),o=mgKit(),r=o.r,sm=o.sm,{z0,z1,X,ledge:LG}=MGG,deepB=[];
+ /* the floor */{const NX=Math.ceil(2*X/2),NZ=(z1-z0+8)*2,pos=[],col=[],uv=[],idx=[];for(let i=0;i<=NX;i++)for(let j=0;j<=NZ;j++){const x=-X+i*2,z=z0-4+j*.5,h=mgBedH(x,z);pos.push(x,h,z);
+   const zc=MGG.zc(x),w=MGG.zw(x),q=Math.abs(z-zc)/w,n=1+.06*Math.sin(x*1.3+z*.7)+.05*Math.sin(x*.31-z*2.1);let c=[.76,.62,.46];
+   if(h>-29.6)c=[.6,.42,.31];else if(h>-29.85&&q>1)c=[.68,.54,.42];if(q<1.45&&h<-29.85){const t=sm(1.45,1.0,q);c=c.map((v,m)=>v+([.5,.42,.33][m]-v)*t)}if(h>-29.93&&q<1)c=[.82,.7,.52];
+   col.push(c[0]*n,c[1]*n,c[2]*n);uv.push(x/3,z/3)}
+  for(let i=0;i<NX;i++)for(let j=0;j<NZ;j++){const a=i*(NZ+1)+j,b=(i+1)*(NZ+1)+j,c=b+1,d=a+1;idx.push(a,d,b,b,d,c)}
+  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+  const m=new THREE.Mesh(ge,o.ROCKS);m.userData.noSeam=true;m.userData.noChunk=1;g.add(m)}
+ /* the water: a strip along the channel, 5 cm above the floor's -30 */let water;{const pos=[],uv=[],idx=[];let N=0,u=0;for(let x=-X;x<=X;x+=2){const zc=MGG.zc(x),w=MGG.zw(x)+.45;pos.push(x,-29.95,zc-w,x,-29.95,zc+w);uv.push(u,0,u,1);u+=2/12;N++}
+  for(let i=0;i<N-1;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
+  const tx=k.tex(256,128,(c,w,h)=>{c.fillStyle='#3e7470';c.fillRect(0,0,w,h);for(let i=0;i<240;i++){const x=r()*w,y=r()*h,l=8+r()*30;c.strokeStyle='rgba(220,245,250,'+(.1+r()*.25)+')';c.lineWidth=1+r()*1.5;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+l/2,y+(r()-.5)*4,x+l,y);c.stroke()}/* fade out at both banks so the shoreline is soft */c.globalCompositeOperation='destination-in';const fg=c.createLinearGradient(0,0,0,h);fg.addColorStop(0,'rgba(0,0,0,0)');fg.addColorStop(.13,'rgba(0,0,0,1)');fg.addColorStop(.87,'rgba(0,0,0,1)');fg.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=fg;c.fillRect(0,0,w,h)});tx.wrapT=THREE.ClampToEdgeWrapping;
+  water=new THREE.Mesh(ge,k.M(0xffffff,{map:tx,roughness:.12,metalness:.1,transparent:true,opacity:.85,depthWrite:false,emissive:0x061a1c,emissiveIntensity:.4}));water.userData.noSeam=true;water.userData.noChunk=1;water.renderOrder=1;g.add(water)}
+ const clearOf=(x,z,m)=>{if(MGG.bridges.some(([a,b])=>x>a-6-m&&x<b+6+m))return false;if(x>LG.x0-4-m&&x<LG.x1+4+m&&z<LG.z1+4+m)return false;if(x>MGG.cave.x0-5&&x<MGG.cave.x1+5&&z<z0+6)return false;if(Math.abs(x-MGG.zip)<4)return false;return true};
+ /* pebbles on the banks and in the shallows, and boulders (solid) */const PB=[],BD=[];for(let i=0;i<1400;i++){const x=-X+20+r()*(2*X-40),zc=MGG.zc(x),w=MGG.zw(x),side=r()<.5?-1:1,z=zc+side*w*(.75+r()*1.1);if(z<z0+.8||z>z1-.8)continue;const rad=.05+r()*.11,h=mgBedH(x,z);mgPut(PB,mgRockGeo(rad,i,.6,1.3),x,h-.02,z,r()*6,r()<.3?[.8,.74,.66]:[.58,.5,.44])}
+ for(let i=0;i<70;i++){const x=-X+20+r()*(2*X-40),z=z0+2+r()*(z1-z0-4);if(!clearOf(x,z,2))continue;const zc=MGG.zc(x);if(Math.abs(z-zc)<MGG.zw(x)*.6&&r()<.6)continue;const rad=.5+r()*1.4,h=mgBedH(x,z);mgPut(BD,mgRockGeo(rad,i*3.1,.62,1.25),x,h-.1,z,r()*6,r()<.5?[.66,.42,.3]:[.82,.68,.52]);const e=rad*.8;deepB.push({x0:x-e,x1:x+e,z0:z-e,z1:z+e})}
+ g.add(mgMerge(PB,o.ROCKS));g.add(mgMerge(BD,o.ROCKS));
+ /* talus heaps at the foot of the walls (solid where high) */const TL=[];for(let i=0;i<60;i++){const x=-X+15+r()*(2*X-30),north=r()<.5;const zw0=north?z1:z0;if(!clearOf(x,north?z1-4:z0+4,6))continue;const W=4+r()*6,Dp=2.5+r()*3,Ht=1.6+r()*2.4,n=north?-1:1;
+  const NU=12,NW=8,pos=[],col=[],uv=[],idx=[],sd=i*5.7;for(let iu=0;iu<=NU;iu++)for(let iw=0;iw<=NW;iw++){const u=(iu/NU*2-1)*W,w=-2.5+(iw/NW)*(Dp+2.5),q=Math.hypot(u/W,Math.max(0,w)/Dp);let h=Ht*Math.pow(Math.max(0,1-q),1.2)+.15*Math.sin(u*2.3+sd)*Math.sin(w*1.9+sd);if(q>=1)h=-.12;h=Math.max(-.12,h);
+    const xx=x+u,zz=zw0+n*w;pos.push(xx,mgBedH(xx,zz)+h,zz);const pl=Math.max(0,Math.min(1,(Math.sin(u*.8+w*.7+sd)+Math.sin(u*1.7-w+sd*2)-.9)*1.4)),v=.92+.08*Math.sin(u*3+w*2.6);col.push((.6+.24*pl)*v,(.41+.3*pl)*v,(.3+.25*pl)*v);uv.push(u/3,w/3)}
+  for(let iu=0;iu<NU;iu++)for(let iw=0;iw<NW;iw++){const A=iu*(NW+1)+iw,B=(iu+1)*(NW+1)+iw;if(north)idx.push(A,B,A+1,B,B+1,A+1);else idx.push(A,A+1,B,B,A+1,B+1)}
+  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();TL.push(ge.toNonIndexed());
+  const zA=zw0,zB=zw0+n*Dp*.7;deepB.push({x0:x-W*.7,x1:x+W*.7,z0:Math.min(zA,zB),z1:Math.max(zA,zB)})}
+ if(TL.length)g.add(mgMerge(TL,o.ROCK));
+ /* two dead trees, bleached: a leaning trunk and crooked bare branches */const WD=[];const seg=(a,b,r1,r2,c)=>{const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B),ge=new THREE.CylinderGeometry(r2,r1,L,7);ge.translate(0,L/2,0);
+  const q4=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());ge.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q4));ge.translate(A.x,A.y,A.z);mgPut(WD,ge,0,0,0,0,c)};
+ const tree=(x,z,ht,sd)=>{const y=mgBedH(x,z)-.2,C=[.78,.74,.68];let t0=[x,y,z],ang=.2*Math.sin(sd),dir=[Math.sin(sd)*.25,1,Math.cos(sd)*.15];const top=[x+dir[0]*ht,y+ht,z+dir[2]*ht];seg(t0,top,.32,.16,C);
+  const br=(p,d,len,rad,lv)=>{const e=[p[0]+d[0]*len,p[1]+d[1]*len,p[2]+d[2]*len];seg(p,e,rad,rad*.6,C);if(lv>0)for(let b=0;b<2;b++){const a=sd*3+lv*2.1+b*2.4,nd=[d[0]*.6+Math.cos(a)*.7,d[1]*.6+.35,d[2]*.6+Math.sin(a)*.7],l=Math.hypot(...nd);br(e,nd.map(v=>v/l),len*.62,rad*.6,lv-1)}};
+  for(let b=0;b<3;b++){const a=sd+b*2.1,f=.45+b*.2,p=[x+dir[0]*ht*f,y+ht*f,z+dir[2]*ht*f],d=[Math.cos(a)*.75,.55,Math.sin(a)*.75],l=Math.hypot(...d);br(p,d.map(v=>v/l),ht*.4,.12,2)}
+  br(top,[.2,1,.1].map(v=>v/1.03),ht*.25,.1,1);deepB.push({x0:x-.5,x1:x+.5,z0:z-.5,z1:z+.5})};
+ tree(-262,-1739.5,5.5,1.3);tree(418,-1704.5,4.6,4.1);
+ /* bleached driftwood along the banks */for(let i=0;i<10;i++){const x=-560+i*120+r()*40;if(!clearOf(x,MGG.zc(x),2))continue;const zc=MGG.zc(x),w=MGG.zw(x),z=zc+(i%2?1:-1)*(w+.6+r()*1.2),a=r()*6.28,L=2+r()*3,y=mgBedH(x,z)+.1;
+  seg([x-Math.cos(a)*L/2,y,z-Math.sin(a)*L/2],[x+Math.cos(a)*L/2,y+.05,z+Math.sin(a)*L/2],.14,.09,[.84,.8,.72]);seg([x,y+.05,z],[x+Math.cos(a+1.2)*.8,y+.35,z+Math.sin(a+1.2)*.8],.06,.03,[.84,.8,.72])}
+ g.add(mgMerge(WD,k.M(0xffffff,{vertexColors:true,roughness:.85,map:o.TIMBER.map})));
+ const tick=t=>{if(water.material.map)water.material.map.offset.x=-t*.06};
+ return{deepB,parts:{water},tick}}
+
+function mgGorgeRim(g){const k=rtKit(),o=mgKit(),r=o.r,{z0,z1}=MGG,obs=[];const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';
+ /* old fence: weathered posts every 2.5 m, three strands of wire, along the rim either side of each road */
+ const PS=[],WL=[];const fence=(xa,xb,z)=>{const n=Math.max(1,Math.round(Math.abs(xb-xa)/2.5));let prev=null;for(let i=0;i<=n;i++){const x=xa+(xb-xa)*i/n,lean=.06*Math.sin(x*1.7),ge=new THREE.CylinderGeometry(.06,.075,1.25,6);ge.rotateZ(lean);mgPut(PS,ge,x,.55,z+.02*Math.sin(x*3),0,[.58+.06*Math.sin(x),.5,.4]);
+   if(prev!=null)for(const h of[.35,.7,1.05]){const sag=.04;const a=new THREE.Vector3(prev,h,z),b=new THREE.Vector3(x,h,z),mid=a.clone().add(b).multiplyScalar(.5);mid.y-=sag;mgPut(WL,new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(a,mid,b),4,.006,3,false),0,0,0,0,[.42,.42,.4])}prev=x}
+  obs.push({x0:Math.min(xa,xb)-.08,x1:Math.max(xa,xb)+.08,z0:z-.08,z1:z+.08})};
+ const sign=(x,z,ry)=>{const G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry;g.add(G);for(const px of[-.55,.55]){const p=new THREE.Mesh(new THREE.BoxGeometry(.1,1.9,.1),o.TIMBER);p.position.set(px,.95,0);G.add(p)}
+  const c=document.createElement('canvas');c.width=512;c.height=256;const x2=c.getContext('2d');x2.fillStyle='#e8c020';x2.fillRect(0,0,512,256);x2.fillStyle='#1a1a1a';x2.fillRect(0,0,512,70);x2.fillStyle='#e8c020';x2.font='800 56px '+F;x2.textAlign='center';x2.fillText('DANGER',256,54,480);x2.fillStyle='#1a1a1a';x2.font='700 64px '+F;x2.fillText('SHEER DROP',256,140,480);x2.font='600 42px '+F;x2.fillText('30 m · KEEP BACK',256,210,480);
+  for(let i=0;i<40;i++){x2.fillStyle='rgba(120,80,30,.25)';x2.fillRect(Math.random()*512,Math.random()*256,3,3)}const t=new THREE.CanvasTexture(c);const b=new THREE.Mesh(new THREE.BoxGeometry(1.4,.7,.04),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,k.M(0xffffff,{map:t,roughness:.7}),o.TIMBER]);b.position.set(0,1.5,.07);b.rotation.z=.04;G.add(b);obs.push({x0:x-.7,x1:x+.7,z0:z-.15,z1:z+.15})};
+ for(const[a,b]of MGG.bridges){for(const[zr,rz]of[[z1+1.6,Math.PI],[z0-1.6,0]]){fence(a-2.2,a-22,zr);fence(b+2.2,b+22,zr);sign(a-24,zr+(zr>z1?1.2:-1.2),zr>z1?0:Math.PI);sign(b+24,zr+(zr>z1?1.2:-1.2),zr>z1?0:Math.PI)}}
+ g.add(mgMerge(PS,k.M(0xffffff,{vertexColors:true,roughness:.95,map:o.TIMBER.map})));g.add(mgMerge(WL,k.M(0xffffff,{vertexColors:true,metalness:.6,roughness:.5})));
+ /* cairns along both rims */const CN=[];for(let x=-600;x<=600;x+=95){for(const[zz,s]of[[z1+4.5,1],[z0-4.5,-1]]){const xx=x+(s>0?0:47);if(MGG.bridges.some(([a,b])=>xx>a-30&&xx<b+30)||Math.abs(xx-MGG.zip)<12||(xx>270&&xx<330)||(xx>180&&xx<215&&s<0))continue;let y=0;for(let i=0;i<4;i++){const rad=.42-i*.08,ge=mgRockGeo(rad,xx+i,.5,1.3);ge.computeBoundingBox();mgPut(CN,ge,xx+(r()-.5)*.08,y-.04,zz,r()*6,[.84,.74,.6]);y+=ge.boundingBox.max.y-.06}obs.push({x0:xx-.45,x1:xx+.45,z0:zz-.45,z1:zz+.45})}}
+ g.add(mgMerge(CN,o.ROCKS));return{obs}}
+
+function mgVultures(g){const k=rtKit(),M=k.M,B=[];const DK=M(0x2a2420,{roughness:.9,side:THREE.DoubleSide}),HD=M(0xc89a8a,{roughness:.8}),RF=M(0xe8e0d0,{roughness:.9});
+ const wingGeo=s=>{/* a broad wing with fingered tip, drawn as a flat shape (x out along the wing) */const sh=new THREE.Shape();sh.moveTo(0,.32);sh.lineTo(.9,.36);sh.lineTo(1.5,.3);sh.lineTo(1.75,.22);for(let f=0;f<5;f++){const y=.18-f*.09;sh.lineTo(2.0+.08*Math.sin(f),y+.02);sh.lineTo(1.72,y-.03)}sh.lineTo(1.3,-.25);sh.lineTo(.6,-.3);sh.lineTo(0,-.24);sh.lineTo(0,.32);const ge=new THREE.ShapeGeometry(sh);ge.rotateX(-Math.PI/2);if(s<0)ge.scale(-1,1,1);return ge};
+ for(let i=0;i<2;i++){const v=new THREE.Group();g.add(v);const body=new THREE.Mesh(new THREE.SphereGeometry(.3,12,8),DK);body.scale.set(.8,.6,2.0);v.add(body);const ruff=new THREE.Mesh(new THREE.SphereGeometry(.17,10,8),RF);ruff.position.set(0,.04,-.5);v.add(ruff);
+  const nk=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,.3,8),HD);nk.rotation.x=Math.PI/2;nk.position.set(0,.06,-.72);v.add(nk);const hd=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),HD);hd.scale.set(.9,.9,1.3);hd.position.set(0,.08,-.9);v.add(hd);const bk=new THREE.Mesh(new THREE.ConeGeometry(.035,.12,6),M(0xe8d8b0));bk.rotation.x=-Math.PI/2;bk.position.set(0,.06,-1.02);v.add(bk);
+  const tl=new THREE.Mesh(new THREE.BoxGeometry(.5,.03,.45),DK);tl.position.set(0,0,.72);v.add(tl);const wl=new THREE.Group(),wr=new THREE.Group();wl.position.x=-.2;wr.position.x=.2;v.add(wl,wr);wr.add(new THREE.Mesh(wingGeo(1),DK));wl.add(new THREE.Mesh(wingGeo(-1),DK));v.scale.setScalar(1.6);B.push({v,wl,wr,ph:i*Math.PI+.4,R:26+i*7,h:34+i*5})}
+ const tick=t=>{for(const b of B){const a=b.ph+t*(.14+b.R*.0005),x=Math.cos(a)*b.R+4,z=-1722+Math.sin(a)*b.R*.6;b.v.position.set(x,b.h+Math.sin(t*.3+b.ph)*1.5,z);const dx=-Math.sin(a)*b.R,dz=Math.cos(a)*b.R*.6;b.v.rotation.set(0,Math.atan2(-dx,-dz),0);b.v.rotateZ(-.32);
+  const fl=(Math.sin(t*.21+b.ph)>.85)?Math.sin(t*9)*.35:.06*Math.sin(t*1.3+b.ph);b.wr.rotation.z=fl+.08;b.wl.rotation.z=-fl-.08}};tick(0);return{tick}}
+
+/* ---------- Batch 4: the three bridges over Devil's Gorge ----------
+   Each keeps its deck (W + 1.4 m wide, top at y -0.02, z -1746 … -1698) and the rail obstacles at cx ± (W/2+0.4 … W/2+0.7).
+     mgBridgeSteel(g, cx, W)     Route 13 (x 0): a riveted steel through-truss (Pratt, 12 panels of 4 m, 5.8 m high,
+                                 5.3 m clearance under the portals) with a DEVIL'S GORGE BRIDGE nameplate on both
+                                 portals, an asphalt deck with markings, a W-beam guard rail inside the trusses, floor
+                                 beams underneath, a braced steel tower in the middle and concrete abutments.
+     mgBridgeTrestle(g, cx, W)   Coyote Rd (x -440): a timber trestle: five braced bents of posts down to concrete pads,
+                                 stringers and a plank deck, timber guard rails, log cribs at both rims.
+     mgBridgeArch(g, cx, W)      Dune Rd South (x 560): a concrete viaduct: two tall tapered piers and three arches
+                                 (side arches springing from the gorge walls), arch rings, a cornice, solid parapets.
+   Each returns {obs, deepB}. deepB: everything that stands on the gorge floor (piers, posts, footings).
+   ===================================================================================================== */
+/* a box from a to b (its length along a→b), w wide and h tall, into a merge list */
+function mgBeam(list,a,b,w,h,col,up){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),L=A.distanceTo(B),ge=new THREE.BoxGeometry(w,h,L),d=B.clone().sub(A).normalize();
+ const U=up?new THREE.Vector3(...up):(Math.abs(d.y)>.95?new THREE.Vector3(1,0,0):new THREE.Vector3(0,1,0)),m=new THREE.Matrix4().lookAt(A,B,U);m.setPosition(A.clone().add(B).multiplyScalar(.5));ge.applyMatrix4(m);mgPut(list,ge,0,0,0,0,col);return ge}
+function mgBridgeKit(){const o=mgKit();if(o._br)return o._br;const k=rtKit(),M=k.M,r=o.r,b={};
+ b.STEEL=M(0xffffff,{vertexColors:true,roughness:.55,metalness:.45,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#d8d8d4';c.fillRect(0,0,w,h);for(let i=0;i<500;i++){c.fillStyle='rgba(120,70,40,'+(r()*.18)+')';c.fillRect(r()*w,r()*h,1+r()*4,1+r()*3)}for(let y=8;y<h;y+=16)for(let x=8;x<w;x+=16){c.fillStyle='rgba(60,60,60,.5)';c.beginPath();c.arc(x,y,2.2,0,7);c.fill();c.fillStyle='rgba(255,255,255,.35)';c.beginPath();c.arc(x-.6,y-.6,1,0,7);c.fill()}})});
+ b.CONC=M(0xffffff,{vertexColors:true,roughness:.92,map:k.tex(256,256,(c,w,h)=>{c.fillStyle='#d6d0c4';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=32){c.fillStyle='rgba(90,80,65,.16)';c.fillRect(0,y,w,2)}for(let i=0;i<2400;i++){c.fillStyle=r()<.5?'rgba(90,80,65,.1)':'rgba(255,250,240,.12)';c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}for(let i=0;i<30;i++){const x=r()*w,y=r()*h,l=20+r()*80;const gr=c.createLinearGradient(0,y,0,y+l);gr.addColorStop(0,'rgba(110,80,50,.18)');gr.addColorStop(1,'rgba(110,80,50,0)');c.fillStyle=gr;c.fillRect(x,y,3+r()*6,l)}})});
+ b.WOOD=M(0xffffff,{vertexColors:true,roughness:.92,map:o.TIMBER.map});
+ o._br=b;return b}
+function mgDeckTex(W,L,kind){const k=rtKit(),r=mgKit().r;return k.tex(256,1024,(c,w,h)=>{const s=w/(W+1.4);if(kind=='asphalt'){c.fillStyle='#4a4644';c.fillRect(0,0,w,h);for(let i=0;i<6000;i++){c.fillStyle=r()<.5?'rgba(20,20,20,.25)':'rgba(140,130,120,.2)';c.fillRect(r()*w,r()*h,1,1)}
+  c.fillStyle='#e8c030';for(const dx of[-.12,.12])c.fillRect(w/2+dx*s-.06*s,0,.12*s,h);c.fillStyle='#e8e4dc';for(const ex of[.7+.15,W+1.4-.7-.15])c.fillRect(ex*s-.07*s,0,.14*s,h)}
+ else{c.fillStyle='#a49c8e';c.fillRect(0,0,w,h);for(let i=0;i<5000;i++){c.fillStyle=r()<.5?'rgba(90,80,65,.14)':'rgba(255,250,240,.12)';c.fillRect(r()*w,r()*h,1+r(),1+r())}for(const x of[.3,.7]){const gr=c.createLinearGradient(w*(x-.08),0,w*(x+.08),0);gr.addColorStop(0,'rgba(60,55,50,0)');gr.addColorStop(.5,'rgba(60,55,50,.18)');gr.addColorStop(1,'rgba(60,55,50,0)');c.fillStyle=gr;c.fillRect(w*(x-.08),0,w*.16,h)}for(let y=0;y<h;y+=h/(L/6)){c.fillStyle='rgba(60,55,50,.35)';c.fillRect(0,y,w,2)}}})}
+
+function mgBridgeSteel(g,cx,W){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),{z0,z1}=MGG,Za=z0-2,Zb=z1+2,L=Zb-Za,mz=(z0+z1)/2,TX=W/2+.55,TY=5.8,obs=[],deepB=[],SL=[],CL=[];
+ const RED=[.62,.26,.2],RD2=[.55,.22,.17],GRY=[.78,.76,.72];
+ /* the deck: concrete slab with an asphalt top (its own texture: lines), floor beams and stringers under it */
+ {const dm=k.M(0xffffff,{roughness:.9,map:mgDeckTex(W,L,'asphalt')}),cm=k.M(0x8a8680,{roughness:.9}),dk=new THREE.Mesh(new THREE.BoxGeometry(2*(TX-.18),.45,L),[cm,cm,dm,cm,cm,cm]);dk.position.set(cx,-.245,mz);g.add(dk)}
+ for(let i=0;i<=12;i++){const z=Za+i*L/12;mgBeam(SL,[cx-TX,-.95,z],[cx+TX,-.95,z],.3,.7,RD2)}for(const sx of[-3.4,-1.15,1.15,3.4])mgBeam(SL,[cx+sx,-.62,Za],[cx+sx,-.62,Zb],.25,.35,RD2);
+ /* two trusses: bottom chord, top chord, inclined end posts, verticals, Pratt diagonals (sloping down towards the middle), gusset plates */
+ for(const sx of[-1,1]){const x=cx+sx*TX;mgBeam(SL,[x,-.4,Za],[x,-.4,Zb],.36,.6,RED);mgBeam(SL,[x,TY,Za+4],[x,TY,Zb-4],.42,.5,RED);mgBeam(SL,[x,-.3,Za+.2],[x,TY,Za+4],.42,.5,RED);mgBeam(SL,[x,-.3,Zb-.2],[x,TY,Zb-4],.42,.5,RED);
+  for(let i=1;i<12;i++){const z=Za+i*4;mgBeam(SL,[x,-.1,z],[x,TY-.2,z],.3,.24,RED);if(i<11){const zn=Za+(i+1)*4;if(i<6)mgBeam(SL,[x,TY-.2,z],[x,-.1,zn],.22,.16,RD2);else if(i>=6)mgBeam(SL,[x,TY-.2,zn],[x,-.1,z],.22,.16,RD2)}
+   for(const y of[-.3,TY]){const gp=new THREE.BoxGeometry(.03,1.0,1.1);gp.translate(x+sx*.23,y,z);mgPut(SL,gp,0,0,0,0,RD2)}}
+  /* the guard rail inside: posts and a W-beam */for(let z=Za+1;z<Zb;z+=2){mgBeam(SL,[x-sx*.42,0,z],[x-sx*.42,.75,z],.12,.12,GRY)}mgBeam(SL,[x-sx*.5,.6,Za+.5],[x-sx*.5,.6,Zb-.5],.06,.32,GRY);
+  obs.push({x0:cx+sx*(W/2+.4)-(sx<0?.3:0),x1:cx+sx*(W/2+.4)+(sx>0?.3:0),z0:Za,z1:Zb})}
+ /* overhead: struts and X bracing between the top chords; portals with knee braces at both ends */
+ for(let i=1;i<12;i++){const z=Za+i*4;mgBeam(SL,[cx-TX,TY+.05,z],[cx+TX,TY+.05,z],.3,.36,RED);if(i<11){const zn=z+4;mgBeam(SL,[cx-TX,TY+.25,z],[cx+TX,TY+.25,zn],.1,.08,RD2);mgBeam(SL,[cx+TX,TY+.36,z],[cx-TX,TY+.36,zn],.1,.08,RD2)}}
+ const PY=TY-.4;for(const[ze,dz]of[[Za+3.75,1],[Zb-3.75,-1]]){mgBeam(SL,[cx-TX,PY,ze],[cx+TX,PY,ze],.36,.6,RED);for(const sx of[-1,1])mgBeam(SL,[cx+sx*TX,PY-1.2,ze-dz*.6],[cx+sx*(TX-1.4),PY-.2,ze],.18,.18,RD2)}
+ g.add(mgMerge(SL.splice(0),b.STEEL));
+ /* the nameplate on both portals */const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';const np=k.tex(1024,192,(c,w,h)=>{c.fillStyle='#1e2a24';c.fillRect(0,0,w,h);c.strokeStyle='#c8b070';c.lineWidth=8;c.strokeRect(10,10,w-20,h-20);c.fillStyle='#e8d8a0';c.textAlign='center';c.font='800 92px '+F;c.fillText("DEVIL'S GORGE BRIDGE",w/2,108,w-80);c.font='600 40px '+F;c.fillText('ROUTE 13 · BUILT 1931 · 30 m DROP',w/2,160,w-80)});
+ for(const[ze,ry]of[[Za+3.75-.35,Math.PI],[Zb-3.75+.35,0]]){const m=new THREE.Mesh(new THREE.PlaneGeometry(6.4,1.2),k.M(0xffffff,{map:np,roughness:.6}));m.position.set(cx,PY+.95,ze);m.rotation.y=ry;g.add(m);const bk=new THREE.Mesh(new THREE.BoxGeometry(6.6,1.35,.08),k.M(0x2a3a32,{metalness:.4,roughness:.6}));bk.position.set(cx,PY+.95,ze+(ry?.045:-.045));g.add(bk);for(const sx of[-2.6,2.6]){const p=new THREE.Mesh(new THREE.BoxGeometry(.12,.7,.12),k.M(0x2a3a32,{metalness:.4}));p.position.set(cx+sx,PY+.25,ze+(ry?.12:-.12));g.add(p)}}
+ /* the middle tower: four battered steel legs on concrete footings, struts and X bracing on all four faces above the
+    lowest panel (you can walk under it), a cross girder under the trusses */
+ {const fy=-30,TOPY=-1.15,lx=(y,s1)=>cx+s1*(4.2+(TOPY-y)/(TOPY-fy)*3.6),lz=(y,s2)=>mz+s2*(1.6+(TOPY-y)/(TOPY-fy)*2.4);
+  for(const s1 of[-1,1])for(const s2 of[-1,1]){mgBeam(SL,[lx(fy+.6,s1),fy+.6,lz(fy+.6,s2)],[lx(TOPY,s1),TOPY,lz(TOPY,s2)],.55,.55,RED);const ft=new THREE.BoxGeometry(1.5,.9,1.5);ft.translate(lx(fy,s1),fy+.25,lz(fy,s2));mgPut(CL,ft,0,0,0,0,[.8,.78,.74]);deepB.push({x0:lx(fy,s1)-.8,x1:lx(fy,s1)+.8,z0:lz(fy,s2)-.8,z1:lz(fy,s2)+.8})}
+  const LV=[-25.5,-20,-14.5,-9,-3.5];LV.forEach((y,li)=>{for(const s2 of[-1,1])mgBeam(SL,[lx(y,-1),y,lz(y,s2)],[lx(y,1),y,lz(y,s2)],.28,.32,RD2);for(const s1 of[-1,1])mgBeam(SL,[lx(y,s1),y,lz(y,-1)],[lx(y,s1),y,lz(y,1)],.28,.32,RD2);
+   const yn=li<LV.length-1?LV[li+1]:TOPY;for(const s2 of[-1,1]){mgBeam(SL,[lx(y,-1),y,lz(y,s2)],[lx(yn,1),yn,lz(yn,s2)],.14,.14,RD2);mgBeam(SL,[lx(y,1),y,lz(y,s2)],[lx(yn,-1),yn,lz(yn,s2)],.14,.14,RD2)}
+   for(const s1 of[-1,1]){mgBeam(SL,[lx(y,s1),y,lz(y,-1)],[lx(yn,s1),yn,lz(yn,1)],.14,.14,RD2);mgBeam(SL,[lx(y,s1),y,lz(y,1)],[lx(yn,s1),yn,lz(yn,-1)],.14,.14,RD2)}});
+  /* the cap: two cross girders whose tops carry the stringers, and bearing plates under the bottom chords */for(const s2 of[-1,1]){mgBeam(SL,[cx-TX-.4,TOPY,lz(TOPY,s2)],[cx+TX+.4,TOPY,lz(TOPY,s2)],.6,.7,RED);for(const s1 of[-1,1]){const bp=new THREE.BoxGeometry(.5,.12,.5);bp.translate(cx+s1*TX,-.76,lz(TOPY,s2));mgPut(SL,bp,0,0,0,0,RD2)}}for(const s1 of[-1,1])mgBeam(SL,[lx(TOPY,s1),TOPY-.1,lz(TOPY,-1)],[lx(TOPY,s1),TOPY-.1,lz(TOPY,1)],.5,.5,RED)}
+ g.add(mgMerge(SL.splice(0),b.STEEL));
+ /* the abutments: concrete seats at both rims (they run back into the rock) */for(const[a,c]of[[z0-4.5,z0+.3],[z1-.3,z1+4.5]]){const ab=new THREE.BoxGeometry(2*TX+1.2,3.0,c-a);ab.translate(cx,-2.15,(a+c)/2);mgPut(CL,ab,0,0,0,0,[.78,.74,.68])}
+ g.add(mgMerge(CL,b.CONC));return{obs,deepB}}
+
+function mgBridgeTrestle(g,cx,W){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),r=o.r,{z0,z1}=MGG,Za=z0-2,Zb=z1+2,L=Zb-Za,mz=(z0+z1)/2,obs=[],deepB=[],TL=[],CL=[];
+ const T1=[.62,.5,.38],T2=[.52,.41,.31],T3=[.7,.58,.44],HW=W/2+.7;
+ /* the plank deck (planks across the road) on stringers */{const pm=k.M(0xffffff,{roughness:.95,map:k.tex(128,512,(c,w,h)=>{c.fillStyle='#7a6248';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=8){const v=110+r()*30|0;c.fillStyle='rgb('+(v+10)+','+(v-6)+','+(v-30)+')';c.fillRect(0,y+1,w,6);c.fillStyle='rgba(30,20,10,.5)';c.fillRect(0,y+7,w,1);for(const x of[w*.27,w*.73]){c.fillStyle='rgba(40,30,20,.15)';c.fillRect(x-10,y,20,8)}}})});pm.map.repeat.set(1,L/16);
+  const dm=k.M(0x5a4430,{roughness:.95});const dk=new THREE.Mesh(new THREE.BoxGeometry(2*HW,.25,L),[dm,dm,pm,dm,dm,dm]);dk.position.set(cx,-.145,mz);g.add(dk)}
+ for(const sx of[-4.2,-2.5,-.85,.85,2.5,4.2])mgBeam(TL,[cx+sx,-.55,Za],[cx+sx,-.55,Zb],.3,.55,T2);
+ /* the guard rails: posts every 2 m, two rails */for(const sx of[-1,1]){const x=cx+sx*(W/2+.55);for(let z=Za+.45;z<=Zb-.3;z+=2)mgBeam(TL,[x,-.3,z],[x,1.1,z],.2,.2,T1);for(const y of[.55,1.0])mgBeam(TL,[x+sx*.13,y,Za+.2],[x+sx*.13,y,Zb-.2],.08,.18,T3);obs.push({x0:cx+sx*(W/2+.4)-(sx<0?.3:0),x1:cx+sx*(W/2+.4)+(sx>0?.3:0),z0:Za,z1:Zb})}
+ /* five bents: a cap, four upright posts, two battered outer posts, girts every 5.5 m, X bracing above the lowest panel,
+    concrete pads; struts between the bents along the gorge */
+ const BZ=[];for(let i=0;i<10;i++)BZ.push(z0+2.2+i*(z1-z0-4.4)/9);const XQ=[-4.5,-1.6,1.6,4.5],bat=[2.6,.5,.5,2.6];
+ BZ.forEach((bz,bi)=>{const fy=mgBedH(cx,bz),TOPY=-1.15,px=(j,y)=>cx+XQ[j]+Math.sign(XQ[j])*bat[j]*(TOPY-y)/(TOPY-fy);mgBeam(TL,[cx-HW-.25,-1.0,bz],[cx+HW+.25,-1.0,bz],.4,.36,T2);
+  for(let j=0;j<4;j++){const yb=mgBedH(px(j,fy),bz)+.2,xb=px(j,yb);mgBeam(TL,[xb,yb,bz],[px(j,TOPY),TOPY,bz],.38,.38,T1);const pd=new THREE.BoxGeometry(.85,.5,.85);pd.translate(xb,yb-.2,bz);mgPut(CL,pd,0,0,0,0,[.78,.74,.66]);deepB.push({x0:xb-.5,x1:xb+.5,z0:bz-.5,z1:bz+.5})}
+  const LV=[-25,-19.5,-14,-8.5,-3];LV.forEach((y,li)=>{mgBeam(TL,[px(0,y)-.3,y,bz+.24],[px(3,y)+.3,y,bz+.24],.12,.3,T2);mgBeam(TL,[px(0,y)-.3,y,bz-.24],[px(3,y)+.3,y,bz-.24],.12,.3,T2);const yn=li<LV.length-1?LV[li+1]:TOPY+.15;
+   for(let j=0;j<3;j++){const sd=(j+li)%2?1:-1;mgBeam(TL,[px(j,y),y,bz+sd*.36],[px(j+1,yn),yn,bz+sd*.36],.1,.26,T3);mgBeam(TL,[px(j+1,y),y,bz+sd*.48],[px(j,yn),yn,bz+sd*.48],.1,.26,T3)}});
+  if(bi<BZ.length-1){const bn=BZ[bi+1];for(const j of[0,3])for(const y of[-19.5,-8.5]){mgBeam(TL,[px(j,y),y,bz],[px(j,y),y,bn],.18,.28,T2)}for(const j of[0,3])mgBeam(TL,[px(j,-19.5),-19.5,bz],[px(j,-8.5),-8.5,bn],.12,.22,T3)}});
+ /* log cribs at both rims, running back into the rock */for(const[a,c]of[[z0-4.5,z0+.4],[z1-.4,z1+4.5]])for(let i=0;i<6;i++){const y=-1.3-i*.42;if(i%2==0)for(const sx of[-1,1])mgBeam(TL,[cx+sx*(HW-.2),y,a],[cx+sx*(HW-.2),y,c],.4,.4,T2);else for(const zz of[a+.3,c-.3])mgBeam(TL,[cx-HW,y,zz],[cx+HW,y,zz],.4,.4,T2)}
+ g.add(mgMerge(TL,b.WOOD));g.add(mgMerge(CL,b.CONC));
+ /* a small sign at the north end */{const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif',tx=k.tex(512,160,(c,w,h)=>{c.fillStyle='#6a4a2c';c.fillRect(0,0,w,h);c.fillStyle='#f2e2c0';c.textAlign='center';c.font='700 60px '+F;c.fillText('COYOTE RD TRESTLE',w/2,70,w-30);c.font='600 40px '+F;c.fillText('1908 · 10 TONNE LIMIT · ONE AT A TIME',w/2,130,w-30)});
+  const s=new THREE.Mesh(new THREE.BoxGeometry(2.0,.62,.06),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,k.M(0xffffff,{map:tx,roughness:.8}),o.TIMBER]);s.position.set(cx+W/2+1.6,1.5,Zb+1.0);g.add(s);for(const px of[-.8,.8]){const p=new THREE.Mesh(new THREE.BoxGeometry(.1,1.8,.1),o.TIMBER);p.position.set(cx+W/2+1.6+px,.9,Zb+.96);g.add(p)}obs.push({x0:cx+W/2+.5,x1:cx+W/2+2.7,z0:Zb+.85,z1:Zb+1.1})}
+ return{obs,deepB}}
+
+function mgBridgeArch(g,cx,W){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),{z0,z1}=MGG,Za=z0-2,Zb=z1+2,L=Zb-Za,mz=(z0+z1)/2,obs=[],deepB=[],CL=[],HW=W/2+.7;
+ const P=[-1733.5,-1710.5],SPR=-7,SOF=-1.3,FY=-30.5;
+ /* the side profile (world z, y), then extruded across the road: deck, spandrels, three arches, two piers */
+ const pts=[];const arch=(za,zb)=>{const c=(za+zb)/2,a=(zb-za)/2,bb=SOF-SPR;for(let i=0;i<=16;i++){const t=Math.PI*(1-i/16);pts.push([c+a*Math.cos(t),SPR+bb*Math.sin(t)])}};
+ pts.push([Za,-.02],[Zb,-.02],[Zb,-.9],[z1+4,-.9],[z1+4,-8],[z1,-8]);/* north abutment, into the rock */
+ /* going south along the underside: side arch, pier 2, centre arch, pier 1, side arch */
+ const tw=1.0,bw=1.6;{const c=[];/* each arch from its north end to its south end */}
+ const archR=(zn,zs)=>{const c=(zn+zs)/2,a=(zn-zs)/2,bb=SOF-SPR;for(let i=0;i<=16;i++){const t=Math.PI*i/16;pts.push([c+a*Math.cos(t),SPR+bb*Math.sin(t)])}};
+ pts.push([z1,SPR]);archR(z1,P[1]+tw);pts.push([P[1]+tw,SPR],[P[1]+bw,FY],[P[1]-bw,FY],[P[1]-tw,SPR]);archR(P[1]-tw,P[0]+tw);pts.push([P[0]+tw,SPR],[P[0]+bw,FY],[P[0]-bw,FY],[P[0]-tw,SPR]);archR(P[0]-tw,z0);
+ pts.push([z0,SPR],[z0,-8],[z0-4,-8],[z0-4,-.9],[Za,-.9]);
+ const sh=new THREE.Shape();const clean=pts.filter((p,i)=>i==0||Math.hypot(p[0]-pts[i-1][0],p[1]-pts[i-1][1])>.01);sh.moveTo(-clean[0][0],clean[0][1]);for(let i=1;i<clean.length;i++)sh.lineTo(-clean[i][0],clean[i][1]);
+ const D=2*HW,ge=new THREE.ExtrudeGeometry(sh,{depth:D,bevelEnabled:false,curveSegments:1});ge.rotateY(Math.PI/2);ge.translate(cx-D/2,0,0);
+ {const P2=ge.attributes.position,n=P2.count,c=new Float32Array(n*3);for(let i=0;i<n;i++){const y=P2.getY(i),v=.84+.04*Math.sin(P2.getZ(i)*.7)+(y<-26?-.08:0);c[i*3]=v*.98;c[i*3+1]=v*.94;c[i*3+2]=v*.86}ge.setAttribute('color',new THREE.BufferAttribute(c,3));
+  const uvA=ge.attributes.uv;for(let i=0;i<uvA.count;i++)uvA.setXY(i,uvA.getX(i)/4,uvA.getY(i)/4)}
+ const body=new THREE.Mesh(ge,b.CONC);body.userData.noSeam=true;g.add(body);
+ /* the road surface on top (concrete with wear), a cornice either side, the arch rings standing proud, pier caps and footings */
+ {const dm=k.M(0xffffff,{roughness:.9,map:mgDeckTex(W,L,'conc'),polygonOffset:true,polygonOffsetUnits:-2}),p=new THREE.Mesh(new THREE.PlaneGeometry(W+.8,L),dm);p.rotation.x=-Math.PI/2;p.position.set(cx,-.015,mz);g.add(p)}
+ for(const sx of[-1,1]){const x=cx+sx*(D/2+.08);mgBeam(CL,[x,-.45,Za],[x,-.45,Zb],.2,.5,[.86,.82,.74]);
+  /* arch rings: thin extruded bands following each arch */const ring=(zn,zs)=>{const c=(zn+zs)/2,a=(zn-zs)/2,bb=SOF-SPR;for(let i=0;i<16;i++){const t1=Math.PI*i/16,t2=Math.PI*(i+1)/16;mgBeam(CL,[x,SPR+(bb+.25)*Math.sin(t1),c+(a+.25)*Math.cos(t1)],[x,SPR+(bb+.25)*Math.sin(t2),c+(a+.25)*Math.cos(t2)],.12,.55,[.8,.76,.68])}};
+  ring(z1,P[1]+tw);ring(P[1]-tw,P[0]+tw);ring(P[0]-tw,z0);
+  for(const pz of P){mgBeam(CL,[x-sx*.0,SPR-.25,pz-tw-.35],[x,SPR-.25,pz+tw+.35],.14,.5,[.8,.76,.68])}}
+ for(const pz of P){const f=new THREE.BoxGeometry(D+1.2,1.2,2*bw+1.0);f.translate(cx,FY+.9,pz);mgPut(CL,f,0,0,0,0,[.74,.7,.64]);deepB.push({x0:cx-D/2-.7,x1:cx+D/2+.7,z0:pz-bw-.6,z1:pz+bw+.6})}
+ /* parapets: solid, with a cap and drain slots at the foot */for(const sx of[-1,1]){const x=cx+sx*(W/2+.55);mgBeam(CL,[x,-.02+.55,Za],[x,-.02+.55,Zb],.3,1.1,[.86,.82,.74]);mgBeam(CL,[x,1.13,Za],[x,1.13,Zb],.42,.1,[.9,.86,.78]);obs.push({x0:cx+sx*(W/2+.4)-(sx<0?.3:0),x1:cx+sx*(W/2+.4)+(sx>0?.3:0),z0:Za,z1:Zb})}
+ g.add(mgMerge(CL,b.CONC));
+ {const F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif',tx=k.tex(512,128,(c,w,h)=>{c.fillStyle='#8a6a3a';c.fillRect(0,0,w,h);c.fillStyle='#e8d8a8';c.fillRect(6,6,w-12,h-12);c.fillStyle='#4a3418';c.textAlign='center';c.font='700 50px '+F;c.fillText('DUNE RD VIADUCT · 1956',w/2,80,w-40)});for(const[z,ry,dx]of[[Zb-1,0,1],[Za+1,Math.PI,-1]]){const m=new THREE.Mesh(new THREE.PlaneGeometry(1.4,.35),k.M(0xffffff,{map:tx,roughness:.5,metalness:.4}));m.position.set(cx+dx*(W/2+.39),.7,z);m.rotation.y=dx>0?-Math.PI/2:Math.PI/2;g.add(m)}}
+ return{obs,deepB}}
+
+/* ---------- Batch 5: the gorge jump and the zipline towers ----------
+     mgGorgeJump(g)   the jump ramp (same footprint and slope as its q.ramps entry: x 296 … 304, 0 m at z -1688 up to
+                      3.2 m at z -1697): a diamond-plate steel kicker on a timber frame, chevron side boards, a steel lip,
+                      two flag poles with chequered flags; a big STUNT JUMP board; and on the ledge the landing pad (packed
+                      sand, tyre marks, LAND HERE, edge lines; replaces batch 3's plain top) and a YOU MADE IT sign.
+                      Returns {obs, tick(t)} (tick waves the flags).
+     mgZipline(g)     the two zipline towers at x -150 (z -1693 north, -1751 south): battered timber towers, stairs
+                      up the side where you press E (east on the north tower, west on the south one) with a landing
+                      at the low platform, a roofed top platform with a railing open where the cable leaves, the cable
+                      head and pulley, the low-end buffer, back-stay cables to concrete anchors, and the ZIPLINE sign.
+                      The two ride cables stay where they are. Returns {obs}.
+   ===================================================================================================== */
+function mgFlag(g,x,y,z,draw){const k=rtKit(),c=document.createElement('canvas');c.width=128;c.height=80;draw(c.getContext('2d'),128,80);const ge=new THREE.PlaneGeometry(1.4,.85,10,4);ge.translate(.7,0,0);
+ const m=new THREE.Mesh(ge,k.M(0xffffff,{map:new THREE.CanvasTexture(c),side:THREE.DoubleSide,roughness:.85}));m.position.set(x,y,z);g.add(m);const P0=ge.attributes.position.array.slice();
+ return t=>{const P=ge.attributes.position;for(let i=0;i<P.count;i++){const px=P0[i*3],py=P0[i*3+1],w=px/1.4;P.setZ(i,(Math.sin(px*3.2-t*6+py)*.12+Math.sin(px*5-t*8.5)*.04)*w);P.setY(i,py-w*w*.06)}P.needsUpdate=true;ge.computeVertexNormals()}}
+function mgGorgeJump(g){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),r=o.r,M=k.M,F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif',obs=[],ticks=[];
+ const X0=296,X1=304,ZG=-1688,ZL=-1697,HH=3.2,th=Math.atan2(HH,ZG-ZL),hyp=Math.hypot(HH,ZG-ZL),cxr=(X0+X1)/2,hz=z=>HH*(ZG-z)/(ZG-ZL);
+ /* the deck: diamond plate, 3 cm above the ramp's height */{const dp=M(0xffffff,{roughness:.5,metalness:.25,map:k.tex(128,128,(c,w,h)=>{c.fillStyle='#a8aaac';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=16)for(let x=(y/16%2)*8;x<w;x+=16){c.save();c.translate(x+4,y+4);c.rotate(.6);c.fillStyle='#b0b2b4';c.fillRect(-5,-1.2,10,2.4);c.fillStyle='#6a6c6e';c.fillRect(-5,1.2,10,1);c.restore()}for(let i=0;i<200;i++){c.fillStyle='rgba(120,70,40,.15)';c.fillRect(r()*w,r()*h,2+r()*6,1+r()*3)}})});dp.map.repeat.set(8/1.2,hyp/1.2);
+  const d=new THREE.Mesh(new THREE.BoxGeometry(X1-X0,.1,hyp),[M(0x6a6c6e),M(0x6a6c6e),dp,M(0x5a5c5e),M(0x6a6c6e),M(0x6a6c6e)]);d.rotation.x=th;d.position.set(cxr,HH/2+.03-.05/Math.cos(th),(ZG+ZL)/2);g.add(d);
+  /* the lip: a steel edge, and a yellow-black stripe painted across the last metre */const lp=new THREE.Mesh(new THREE.BoxGeometry(X1-X0+.1,.12,.16),M(0x3a3c3e,{metalness:.7,roughness:.4}));lp.position.set(cxr,HH+.0,ZL+.02);g.add(lp);
+  const st=M(0xffffff,{roughness:.6,map:k.tex(256,32,(c,w,h)=>{for(let i=-2;i<20;i++){c.fillStyle=i%2?'#1a1a1a':'#f0c020';c.beginPath();c.moveTo(i*16,0);c.lineTo(i*16+16,0);c.lineTo(i*16+8,h);c.lineTo(i*16-8,h);c.fill()}}),polygonOffset:true,polygonOffsetUnits:-3});const sp=new THREE.Mesh(new THREE.PlaneGeometry(X1-X0,.9),st);sp.rotation.x=-Math.PI/2+th;sp.position.set(cxr,hz(ZL+.5)+.045,ZL+.5);g.add(sp)}
+ /* the timber frame under it: posts every 1.5 m on both sides and in the middle, cross beams, bracing; the open front shows it */
+ const TL=[];const T1=[.6,.48,.36],T2=[.5,.4,.3];for(let z=ZL+.25;z<ZG-.6;z+=1.5){const top=hz(z)-.07;for(const x of[X0+.25,cxr,X1-.25])mgBeam(TL,[x,0,z],[x,top,z],.2,.2,T1);mgBeam(TL,[X0+.2,top-.12,z],[X1-.2,top-.12,z],.18,.2,T2);if(top>1.2)mgBeam(TL,[X0+.25,.25,z],[X1-.25,top-.3,z],.08,.16,T2)}
+ for(const x of[X0+.25,X1-.25])mgBeam(TL,[x,.18,ZL+.25],[x,.18,ZG-.6],.16,.16,T2);g.add(mgMerge(TL,b.WOOD));
+ /* chevron side boards (triangles), pointing the way you go */for(const sx of[-1,1]){const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(ZG-ZL,0);sh.lineTo(0,HH);sh.lineTo(0,0);const ge=new THREE.ShapeGeometry(sh);
+  const P=ge.attributes.position,U=ge.attributes.uv;for(let i=0;i<P.count;i++)U.setXY(i,1-P.getX(i)/(ZG-ZL),P.getY(i)/HH);
+  const cm=M(0xffffff,{roughness:.7,side:THREE.DoubleSide,map:k.tex(512,192,(c,w,h)=>{c.fillStyle='#f0c020';c.fillRect(0,0,w,h);c.fillStyle='#1a1a1a';for(let i=-1;i<9;i++){const x=i*64;c.beginPath();c.moveTo(x,0);c.lineTo(x+28,0);c.lineTo(x+60,h/2);c.lineTo(x+28,h);c.lineTo(x,h);c.lineTo(x+32,h/2);c.closePath();c.fill()}})});
+  const m=new THREE.Mesh(ge,cm);m.rotation.y=-Math.PI/2;m.position.set(sx>0?X1+.06:X0-.06,0,ZL);g.add(m)}
+ /* flags on the lip corners */for(const x of[X0-.5,X1+.5]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,6.5,8),M(0xe8e8e8,{metalness:.4,roughness:.4}));p.position.set(x,3.25,ZL+.3);g.add(p);const ft=new THREE.Mesh(new THREE.ConeGeometry(.3,.4,10),M(0x8a8a8a));ft.position.set(x,.2,ZL+.3);g.add(ft);
+  ticks.push(mgFlag(g,x+.05,5.9,ZL+.3,(c,w,h)=>{for(let i=0;i<8;i++)for(let j=0;j<5;j++){c.fillStyle=(i+j)%2?'#111':'#f4f4f4';c.fillRect(i*16,j*16,16,16)}}));obs.push({x0:x-.25,x1:x+.25,z0:ZL+.05,z1:ZL+.55})}
+ /* the STUNT JUMP board */{const sx=309.5,sz=-1684,G=new THREE.Group();G.position.set(sx,0,sz);G.rotation.y=-.35;g.add(G);for(const px of[-1.7,1.7]){const p=new THREE.Mesh(new THREE.BoxGeometry(.18,3.2,.18),o.TIMBER);p.position.set(px,1.6,0);G.add(p)}
+  const bm=M(0xffffff,{roughness:.6,map:k.tex(768,384,(c,w,h)=>{c.fillStyle='#c02020';c.fillRect(0,0,w,h);c.fillStyle='#f0c020';c.fillRect(0,0,w,26);c.fillRect(0,h-26,w,26);c.fillStyle='#fff';c.textAlign='center';c.font='900 120px '+F;c.fillText('STUNT JUMP',w/2,150,w-60);c.font='800 70px '+F;c.fillStyle='#f0c020';c.fillText('31 m · FLOOR IT',w/2,250,w-60);c.font='600 40px '+F;c.fillStyle='#fff';c.fillText('LAND ON THE LEDGE · OR DON\'T',w/2,320,w-60)})});
+  const bd=new THREE.Mesh(new THREE.BoxGeometry(4.2,2.1,.08),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,bm,o.TIMBER]);bd.position.set(0,2.55,.13);G.add(bd);obs.push({x0:sx-2,x1:sx+2,z0:sz-.6,z1:sz+.6})}
+ /* on the ledge: YOU MADE IT, at the side of the way out */{const LG=MGG.ledge,sx=LG.x0+3,sz=MGG.z0+3.5,G=new THREE.Group();G.position.set(sx,0,sz);G.rotation.y=.5;g.add(G);for(const px of[-1.1,1.1]){const p=new THREE.Mesh(new THREE.BoxGeometry(.14,2.4,.14),o.TIMBER);p.position.set(px,1.2,0);G.add(p)}
+  const bm=M(0xffffff,{roughness:.6,map:k.tex(512,256,(c,w,h)=>{c.fillStyle='#1e6a3a';c.fillRect(0,0,w,h);c.strokeStyle='#f2f2e8';c.lineWidth=10;c.strokeRect(12,12,w-24,h-24);c.fillStyle='#f2f2e8';c.textAlign='center';c.font='900 96px '+F;c.fillText('YOU MADE IT',w/2,125,w-60);c.font='600 40px '+F;c.fillText('THE GORGE IS STILL DOWN THERE',w/2,195,w-60)})});
+  const bd=new THREE.Mesh(new THREE.BoxGeometry(2.8,1.4,.07),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,bm,o.TIMBER]);bd.position.set(0,1.75,.11);G.add(bd);obs.push({x0:sx-1.4,x1:sx+1.4,z0:sz-.7,z1:sz+.7})}
+ return{obs,tick:t=>ticks.forEach(f=>f(t))}}
+/* the landing pad's texture (packed sand, tyre marks, LAND HERE, edge lines), used for the ledge top */
+function mgPadTex(){const k=rtKit(),r=mgKit().r,F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif';return k.tex(1024,512,(c,w,h)=>{c.fillStyle='#c8a87c';c.fillRect(0,0,w,h);for(let i=0;i<9000;i++){const v=r();c.fillStyle=v<.5?'rgba(110,85,55,'+(.08+r()*.12)+')':'rgba(240,225,195,'+(.08+r()*.12)+')';c.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}
+ /* tyre marks: pairs of dark streaks running from the north edge (canvas bottom) south, a few swerving */for(let i=0;i<9;i++){const x0=w*(.2+r()*.6),sw=(r()-.5)*160,len=h*(.5+r()*.5);for(const dx of[-26,26]){c.strokeStyle='rgba(50,38,28,'+(.18+r()*.15)+')';c.lineWidth=7+r()*4;c.beginPath();c.moveTo(x0+dx,h);c.bezierCurveTo(x0+dx,h-len*.4,x0+dx+sw*.5,h-len*.7,x0+dx+sw,h-len);c.stroke()}}
+ c.fillStyle='rgba(245,240,225,.75)';c.textAlign='center';c.font='900 120px '+F;c.fillText('LAND HERE',w/2,h*.6,w*.7);c.strokeStyle='rgba(245,240,225,.8)';c.lineWidth=10;c.beginPath();c.moveTo(18,0);c.lineTo(18,h-18);c.lineTo(w-18,h-18);c.lineTo(w-18,0);c.stroke()})}
+
+function mgZipline(g){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),M=k.M,F=k.FONT||'"Barlow Semi Condensed",DoorsSans,DoorsSans,Arial,sans-serif',zx=-150,HT=12,HL=3.2,obs=[];const T1=[.6,.48,.36],T2=[.5,.4,.3],T3=[.68,.56,.42];
+ const TIN=M(0x9a9690,{metalness:.5,roughness:.5,side:THREE.DoubleSide}),CB=M(0x3a3a3a,{metalness:.8,roughness:.3}),CON=M(0xb0aaa0,{roughness:.9});
+ const tower=(z,hiX,loX,ss,gd)=>{/* ss: the stair side (+1 east, -1 west); gd: the way to the gorge (-1 south, +1 north) */const TL=[];const pc=(sx,sz,y)=>[zx+sx*(1.5-.4*y/HT),y,z+sz*(1.5-.4*y/HT)];
+  /* four battered corner posts up to the deck, then straight up to the roof */for(const sx of[-1,1])for(const sz of[-1,1]){mgBeam(TL,pc(sx,sz,0),pc(sx,sz,HT),.3,.3,T1);mgBeam(TL,[zx+sx*1.1,HT,z+sz*1.1],[zx+sx*1.1,HT+2.76,z+sz*1.1],.2,.2,T1);const ft=new THREE.BoxGeometry(.7,.3,.7);ft.translate(...pc(sx,sz,.05));mgPut(TL,ft,0,0,0,0,[.72,.7,.66])}
+  /* girts and X bracing; the gorge face is left open where the riders pass (girts at 6 and 9 only, no braces) */
+  for(const y of[3,6,9]){for(const[f0,f1]of[[[-1,-1],[1,-1]],[[1,-1],[1,1]],[[1,1],[-1,1]],[[-1,1],[-1,-1]]]){const gz=(f0[1]+f1[1])/2==gd,gorge=f0[1]==gd&&f1[1]==gd;if(gorge&&y==3)continue;mgBeam(TL,pc(f0[0],f0[1],y),pc(f1[0],f1[1],y),.14,.2,T2);
+    if(!gorge){const yn=y+3>=HT?HT-.2:y+3,y0=y-3;mgBeam(TL,pc(f0[0],f0[1],y0+.2),pc(f1[0],f1[1],y-.1),.08,.16,T3);mgBeam(TL,pc(f1[0],f1[1],y0+.2),pc(f0[0],f0[1],y-.1),.08,.16,T3);if(y==9){mgBeam(TL,pc(f0[0],f0[1],y+.1),pc(f1[0],f1[1],yn),.08,.16,T3);mgBeam(TL,pc(f1[0],f1[1],y+.1),pc(f0[0],f0[1],yn),.08,.16,T3)}}}}
+  /* the decks: low (arrivals) at 3.0, top (departures) at 12 */const DK=M(0xffffff,{roughness:.95,map:o.TIMBER.map});for(const[y,s2]of[[HL-.2,3.3],[HT+.0,3.3]]){const d=new THREE.BoxGeometry(s2,.16,s2);d.translate(zx,y-.08,z);mgPut(TL,d,0,0,0,0,[.62,.52,.4])}
+  /* railing round the top, open on the gorge side where the cable leaves */for(const[a,c]of[[[-1.6,-1.6],[1.6,-1.6]],[[1.6,-1.6],[1.6,1.6]],[[1.6,1.6],[-1.6,1.6]],[[-1.6,1.6],[-1.6,-1.6]]]){const gorge=a[1]==1.6*gd&&c[1]==1.6*gd;const seg=(p,q)=>{for(const y of[.55,1.05])mgBeam(TL,[zx+p[0],HT+y,z+p[1]],[zx+q[0],HT+y,z+q[1]],.07,.1,T3)};
+    const back=a[1]==-1.6*gd&&c[1]==-1.6*gd;if(gorge||back){const xa=Math.min(a[0],c[0]),xb=Math.max(a[0],c[0]);seg([xa,a[1]],[hiX-.55,a[1]]);seg([hiX+.55,a[1]],[xb,a[1]]);for(const x of[hiX-.55,hiX+.55])mgBeam(TL,[zx+x,HT,z+a[1]],[zx+x,HT+1.18,z+a[1]],.1,.1,T1)}else if(!(a[0]==1.6*ss&&c[0]==1.6*ss))seg(a,c);else seg([1.6*ss,-.8],[1.6*ss,1.6])}
+  /* the roof: a pyramid of tin on a timber ring, eaves at 14.55 */const RY=HT+2.55,AP=RY+1.3;for(const[a,c]of[[[-1.1,-1.1],[1.1,-1.1]],[[1.1,-1.1],[1.1,1.1]],[[1.1,1.1],[-1.1,1.1]],[[-1.1,1.1],[-1.1,-1.1]]]){mgBeam(TL,[zx+a[0],RY+.29,z+a[1]],[zx+c[0],RY+.29,z+c[1]],.16,.16,T2);
+    const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute([zx+a[0]*1.5,RY-.08,z+a[1]*1.5,zx+c[0]*1.5,RY-.08,z+c[1]*1.5,zx,AP,z],3));ge.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,.5,1],2));ge.computeVertexNormals();const m=new THREE.Mesh(ge,TIN);g.add(m)}
+  /* the cable head: a gantry over the top deck with a pulley; the low-end buffer post */
+  for(const dx of[-.4,.4])mgBeam(TL,[zx+hiX+dx,HT,z],[zx+hiX+dx,HT+1.55,z],.16,.16,T1);mgBeam(TL,[zx+hiX-.5,HT+1.55,z],[zx+hiX+.5,HT+1.55,z],.18,.18,T1);
+  {const pu=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.08,16),M(0x6a6a6a,{metalness:.7,roughness:.35}));pu.rotation.z=Math.PI/2;pu.position.set(zx+hiX,HT+1.24,z);g.add(pu);const br=new THREE.Mesh(new THREE.BoxGeometry(.1,.3,.1),M(0x3a3a3a,{metalness:.6}));br.position.set(zx+hiX,HT+1.42,z);g.add(br)}
+  mgBeam(TL,[zx+loX,0,z],[zx+loX,HL+1.8,z],.28,.28,T1);{const sp=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.5,10),M(0xc02020,{metalness:.4,roughness:.5}));sp.rotation.x=Math.PI/2;sp.position.set(zx+loX,HL+1.4,z+gd*.4);g.add(sp)}
+  /* back stays to concrete anchors behind the tower */for(const[x,y,d]of[[zx+hiX,HT+1.55,16],[zx+loX,HL+1.5,7]]){const az=z-gd*d;const an=new THREE.Mesh(new THREE.BoxGeometry(1.0,.6,1.0),CON);an.position.set(x,.2,az);g.add(an);obs.push({x0:x-.55,x1:x+.55,z0:az-.55,z1:az+.55});rodp(g,[x,y,z],[x,.5,az],.025,CB);const ey=new THREE.Mesh(new THREE.TorusGeometry(.12,.03,6,12),CB);ey.position.set(x,.58,az);g.add(ey)}
+  /* the stairs: eight flights of 1.5 m up the stair side, a landing at the low deck and at the top */const sx0=zx+ss*1.65,sx1=zx+ss*2.6,smx=(sx0+sx1)/2;
+  for(let f=0;f<8;f++){const y0=f*1.5,y1=y0+1.5,za=z+(f%2?1.1:-1.1),zb=z+(f%2?-1.1:1.1);for(const x of[sx0,sx1])mgBeam(TL,[x,y0,za],[x,y1,zb],.08,.28,T2);for(let t=1;t<9;t++){const u=t/9,tz=za+(zb-za)*u,ty=y0+1.5*u;const tr=new THREE.BoxGeometry(.95,.05,.26);tr.translate(smx,ty,tz);mgPut(TL,tr,0,0,0,0,T3)}
+   mgBeam(TL,[sx1,y0+1.0,za],[sx1,y1+1.0,zb],.06,.08,T3);const lz=z+(f%2?-1.35:1.35);const ld=new THREE.BoxGeometry(.95,.08,.5);ld.translate(smx,y1-.04,lz);mgPut(TL,ld,0,0,0,0,T3)}
+  for(const sz of[-1,1]){mgBeam(TL,[sx1,0,z+sz*1.6],[sx1,HT+1.1,z+sz*1.6],.14,.14,T1);mgBeam(TL,[sx0,0,z+sz*1.6],[sx0,HT-.12,z+sz*1.6],.12,.12,T1)}
+  obs.push({x0:zx-1.6,x1:zx+1.6,z0:z-1.6,z1:z+1.6},{x0:Math.min(sx0,sx1)-.05,x1:Math.max(sx0,sx1)+.05,z0:z-1.65,z1:z+1.65});
+  g.add(mgMerge(TL,b.WOOD))};
+ tower(MGG.z1+7,.7,-.7,1,-1);tower(MGG.z0-7,-.7,.7,-1,1);
+ /* the sign */{const sx=zx+8,sz=MGG.z1+4,G=new THREE.Group();G.position.set(sx,0,sz);G.rotation.y=-.6;g.add(G);for(const px of[-1.1,1.1]){const p=new THREE.Mesh(new THREE.BoxGeometry(.14,2.5,.14),o.TIMBER);p.position.set(px,1.25,0);G.add(p)}
+  const bm=M(0xffffff,{roughness:.6,map:k.tex(512,256,(c,w,h)=>{c.fillStyle='#c02020';c.fillRect(0,0,w,h);c.fillStyle='#fff';c.textAlign='center';c.font='900 64px '+F;c.fillText("DEVIL'S GORGE",w/2,82,w-40);c.font='900 76px '+F;c.fillText('ZIPLINE',w/2,160,w-40);c.font='600 34px '+F;c.fillText("CLIP ON · DON'T LOOK DOWN",w/2,218,w-40)})});
+  const bd=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.3,.07),[o.TIMBER,o.TIMBER,o.TIMBER,o.TIMBER,bm,o.TIMBER]);bd.position.set(0,1.8,.11);G.add(bd);obs.push({x0:sx-1.2,x1:sx+1.2,z0:sz-.8,z1:sz+.8})}
+ return{obs}}
+
+/* =====================================================================================================
+   r658: THE WIRING (see the comment at the top of this file)
+   ===================================================================================================== */
+/* run a model builder into its own group, mark its meshes noSeam (the models handle their own depth nudges), then
+   move the pieces into the desert root (the group is at the origin, so nothing moves) so the chunks and the batching
+   treat them like any other scenery. pre(group) runs before the move (to flag the animated pieces dpKeep). */
+function mgIn(g,f,pre){const tg=new THREE.Group();const r=f(tg);tg.traverse(m=>{if(m.isMesh&&m.userData.noSeam===undefined)m.userData.noSeam=true});if(pre)pre(tg);while(tg.children.length)g.add(tg.children[0]);return r}
+/* a model's obstacle boxes into q.obs (keeping any extra fields) */
+function mgObs(ob){return L=>{for(const b of L||[]){const{x0,x1,z0,z1,...e}=b;ob(Math.min(x0,x1),Math.max(x0,x1),Math.min(z0,z1),Math.max(z0,z1),e)}}}
+const mgTry=(w,n,f)=>{try{f()}catch(e){conLog('error',w+' ('+n+'): '+e.message)}};
+
+/* ---- Lookout Mesa ---- */
+xpMesa=function(X){const{q,g,M,A,BX,ob,prop,loc,rect,anim,light,zone}=X,{x0,x1,z0,z1,y:H}=MESA,cx=(x0+x1)/2,cz=(z0+z1)/2,obs=mgObs(ob),T=(n,f)=>mgTry('Lookout Mesa',n,f);
+ q.plates.push({x0,x1,z0,z1,y:H});zone(x0-2,x1+2,z0-2,z1+2);zone(-222,x1,-1556,-1544);
+ /* the sand on top: the same slab, now exactly the plate's size so it stays inside the cliffs' lip */
+ const top=A(BX(x1-x0,.42,z1-z0),M(0xd8b878,{map:sandTex().clone(),roughness:1}),cx,H-.19,cz);top.material.map.needsUpdate=true;top.material.map.repeat.set(12,10);
+ /* the cliffs, the rim, the fallen rock (the foot boxes keep you out of the rock, and off the edge up top) */
+ T('cliffs',()=>obs(mgIn(g,mgMesa).obs));
+ /* the ramp road: the same q.ramps entry, so the route grid's link up the mesa is unchanged (the model's signs use the browser's own random) */
+ const s=-220,len=60;q.ramps.push({ax:'x',s,dir:-1,len,H,y0:0,x0:x1,x1:s,z0:-1554,z1:-1546});
+ T('road',()=>obs(noSeed(()=>mgIn(g,mgMesaRoad)).obs));
+ rect(x0,x1,z0,z1,'#b8946a');rect(x1,s,-1554,-1546,'#a07040');
+ /* on top: the cabin, the cairn, the lookout point, the telescope, the flagpole and the campfire */
+ let MT=null;T('top',()=>{MT=mgIn(g,mgMesaTop);obs(MT.obs);for(const p of MT.plates||[])q.plates.push(p);if(MT.parts&&MT.parts.flag)MT.parts.flag.userData.dpKeep=1;q.mgTop=MT});
+ const sp=(MT&&MT.spots)||{},hx=cx+20,hz=cz-10;
+ /* the smoke comes out of the new stove pipe */{const sk=sp.smoke||[hx+2,H+5,hz+1];const sm=glowSp(0x9a9a9a,.5,1.2);sm.material.blending=THREE.NormalBlending;sm.position.set(sk[0],sk[1],sk[2]);g.add(sm);
+  anim(hx,hz,80,dt=>{sm.position.y=sk[1]+Math.sin(q.rt*.8)*.4;sm.scale.setScalar(1.2+Math.sin(q.rt*.5)*.3)})}
+ /* the Hermit stands on his porch (the talk prompt is where it was) */
+ {const hm=mkGoblino();hm.scale.setScalar(.85);const hp=sp.hermit||[hx-5,H,hz];hm.position.set(hp[0],hp[1],hp[2]);hm.rotation.y=Math.PI/2;g.add(hm);hm.traverse(o=>{if(o.isMesh&&o.material&&o.material.color&&o.material.color.getHex()==0xc0302a){o.material=o.material.clone();o.material.color.setHex(0x8a8a9a)}});
+  const HL=['"Been up here forty years. Came for the view. Stayed because the ramp is a nightmare to drive down."','"See that pyramid? Built it myself. ...No I did not. But I watched."','"The gorge? Jumped it once. In a dream. Landed fine. In the dream."','"Dark Zone 51, south-west. They say there is a flying saucer in the hangar. They say a lot of things. They are right."','"The train has not stopped at Dusty Gulch since 1952. It is not going to start for you."','"Bring me a Gween Soda next time. The green one. ...They are all green."','"I saw Seek drive into the gorge once. He said it was on purpose. Darkly."'];let hi=0;
+  prop(hx-5,hz,2.2,'[E] Talk to the Hermit',()=>{snd(300,.08);const t=HL[hi++%HL.length];try{say('The Hermit',t.replace(/^"|"$/g,''))}catch(e){}hint('🧓 The Hermit: '+t)})}
+ /* the telescope (same spot and prompt) */
+ {const tx=cx-40,tz=cz;const VW=['🔭 The Desert Bus, 2 km east, crawling along the highway. Someone is on the roof.','🔭 Dusty Gulch. The bank. Nobody is guarding the bank.','🔭 A flying saucer hovering in a hangar, far to the south-west. The hermit was right.','🔭 The pyramid. The gold cap glints. A tiny figure is reading a stele.','🔭 Seek, in his cruiser, parked outside the PD, eating a sandwich. He looks up. He saw you.','🔭 The wind farm. One turbine is going the wrong way.','🔭 A tumbleweed the size of a bus, rolling along Southern Pass.'];let vi=0;
+  prop(tx,tz,2,'[E] Look through the telescope',()=>{snd(600,.05);hint(VW[vi++%VW.length]);if(!q.scoped){q.scoped=1;for(const l of q.locs)l.seen=1;hint('🗺️ From up here you can see everything: every place is on your map now (M).')}})}
+ /* the flag waves */anim(cx+30,cz+30,120,dt=>{if(MT&&MT.tick)MT.tick(q.rt)});
+ /* the campfire: the same flame, light and obstacle */
+ {const fx=cx,fz=cz+25,fs=sp.fire||[fx,H+.6,fz];const fire=glowSp(0xff8020,.9,2.2);fire.position.set(fs[0],fs[1],fs[2]);g.add(fire);const fL=light(0xff9040,1.4,12,fx,H+1.2,fz);anim(fx,fz,60,dt=>{fire.scale.setScalar(1.8+Math.sin(q.rt*17)*.3);fL.intensity=1.2+Math.sin(q.rt*11)*.3});ob(fx-1,fx+1,fz-1,fz+1)}
+ loc('Lookout Mesa',cx,cz,'⛰️')};
+
+/* ---- Devil's Gorge ---- */
+xpGorge=function(X){const{q,g,ob,rect,anim,loc}=X,z0=GORGE.z0,z1=GORGE.z1,obs=mgObs(ob),T=(n,f)=>mgTry('Devil\'s Gorge',n,f);
+ /* the old walls' three gorgeTex pictures drew 3 x 4,500 numbers from the desert's seeded random: still drawn, so everything built after the gorge stays where it was */
+ for(let i=0;i<13500;i++)Math.random();
+ q.deepB=q.deepB||[];const DB=L=>{for(const b of L||[])q.deepB.push(b)};
+ /* the sand covers past the map ends: trimmed to end where the ground's cut ends (x ±680), so they don't lie 1 cm under the desert floor beyond it */
+ T('walls',()=>DB(mgIn(g,mgGorgeWalls,G=>{for(const m of G.children){const p=m.isMesh&&m.geometry.parameters;if(p&&p.width===60&&Math.abs(Math.abs(m.position.x)-(MGG.ends+30.5))<.01){const sx=Math.sign(m.position.x),e=DXB+40;m.scale.x=(e-MGG.ends)/60;m.position.x=sx*(MGG.ends+e)/2}}}).deepB));
+ let bed=null;T('riverbed',()=>{bed=mgIn(g,mgGorgeBed);DB(bed.deepB);if(bed.parts&&bed.parts.water)bed.parts.water.userData.dpKeep=1});
+ T('rim',()=>obs(noSeed(()=>mgIn(g,mgGorgeRim)).obs));
+ let vu=null;T('vultures',()=>{vu=mgIn(g,mgVultures,G=>G.traverse(o=>{o.userData.dpKeep=1}))});
+ /* the river flows and the vultures circle while you are anywhere near */
+ anim(0,(z0+z1)/2,720,dt=>{if(bed&&bed.tick)bed.tick(q.rt)});anim(4,(z0+z1)/2,450,dt=>{if(vu)vu.tick(q.rt)});
+ rect(-DXB,DXB,z0,z1,'#2a1a10');loc('Devil\'s Gorge',0,(z0+z1)/2,'🏜️');
+ /* the three bridges: Route 13 steel truss, Coyote Rd trestle, Dune Rd South viaduct (same decks and rail boxes) */
+ for(const[bx0,bx1]of GORGE.bridges){const cx=(bx0+bx1)/2,W=bx1-bx0,f=Math.abs(cx)<1?mgBridgeSteel:cx<0?mgBridgeTrestle:mgBridgeArch;T('bridge at x '+cx,()=>{const B=mgIn(g,G=>f(G,cx,W));obs(B.obs);DB(B.deepB)})}
+ /* the stunt ledge (its sides and landing pad are part of the walls) and the jump: the same ramp */
+ q.ramps.push({x0:296,x1:304,z0:z1+12,len:9,H:3.2,dir:-1,stunt:'GORGE JUMP',sj:1});
+ let J=null;T('jump',()=>{J=mgIn(g,mgGorgeJump,G=>G.traverse(o=>{const p=o.isMesh&&o.geometry&&o.geometry.parameters;if(p&&p.width==1.4&&p.height==.85&&p.widthSegments==10)o.userData.dpKeep=1}));obs(J.obs)});
+ anim(300,z1+8,160,dt=>{if(J&&J.tick)J.tick(q.rt)});
+ q.mapR.push({x0:296,x1:304,z0:z1+3,z1:z1+12,c:'#a07040'});loc('Gorge jump',300,z1+10,'🛹');
+ try{xpGorgeCave(X)}catch(e){conLog('error','gorge cave: '+e.message)}};
+
+/* ---- the zipline towers (called from T('ziplines') in xpMoreFar, build.py r658) ---- */
+function mgZipIn(q,g){try{const Z=mgIn(g,mgZipline);for(const o of Z.obs||[])q.obs.push(o);q.obsDirty=1}catch(e){conLog('error','zipline towers: '+e.message)}}
+
+/* ---- the scatter must not land on the new cliffs' skirt, the road's shoulder, the rims or the zipline anchors:
+   take away what it dropped there (after it ran, so its random numbers are unchanged) ---- */
+const MGCLR=[[-414,-266,-1614,-1486],[-290,-206,-1562,-1532],[-680,680,GORGE.z1,GORGE.z1+7],[-680,680,GORGE.z0-7,GORGE.z0],[-157,-143,-1696,-1674],[-157,-143,-1770,-1748],[304,315,-1688,-1680]];
+{const f0=xpCover;xpCover=function(X){const q=X&&X.q,n0=q?q.obs.length:0;const r=f0.apply(this,arguments);try{const g=X.g;let n=0;for(let i=q.obs.length-1;i>=n0;i--){const o=q.obs[i],cx=(o.x0+o.x1)/2,cz=(o.z0+o.z1)/2;if(!MGCLR.some(a=>cx>a[0]-1&&cx<a[1]+1&&cz>a[2]-1&&cz<a[3]+1))continue;
+   let m=o.m;if(!m)m=g.children.find(c=>c.isGroup&&Math.abs(c.position.x-cx)<.01&&Math.abs(c.position.z-cz)<.01);if(m&&m.parent)m.parent.remove(m);q.obs.splice(i,1);n++}q.mgClr=n}catch(e){conLog('error','mesa and gorge scatter clear: '+e.message)}return r}}
+
 </script><script>
 /* ======================================================================================================
    r500: THE DESERT, POLISHED. A layer on top of the desert code (every hook is wrapped in try/catch, so a
@@ -35769,7 +36460,7 @@ function dpSandShader(m){if(!m||m.userData.dpSand)return;m.userData.dpSand=1;m.o
 function dpGroundMats(q){const g=q.g,img=sandTex().image,lam=cfg().lam;let n=0,sw=0;
  for(const o of g.children){if(!o.isMesh||o.isInstancedMesh||Array.isArray(o.material))continue;const m=o.material;if(!m||m.type!=='MeshStandardMaterial'||m.transparent)continue;
   const big=o.geometry&&(o.geometry.boundingSphere||(o.geometry.computeBoundingSphere(),o.geometry.boundingSphere))&&o.geometry.boundingSphere.radius*Math.max(o.scale.x,o.scale.y,o.scale.z)>40;
-  let mt=m;if(lam&&big&&m.onBeforeCompile===THREE.Material.prototype.onBeforeCompile){mt=new THREE.MeshLambertMaterial({color:m.color.getHex(),map:m.map||null,emissive:m.emissive?m.emissive.getHex():0,side:m.side,polygonOffset:m.polygonOffset,polygonOffsetFactor:m.polygonOffsetFactor,polygonOffsetUnits:m.polygonOffsetUnits,alphaTest:m.alphaTest,depthWrite:m.depthWrite,fog:m.fog});mt.userData=Object.assign({},m.userData,{dpLam:1});o.material=mt;sw++}
+  let mt=m;if(lam&&big&&m.onBeforeCompile===THREE.Material.prototype.onBeforeCompile){mt=new THREE.MeshLambertMaterial({color:m.color.getHex(),map:m.map||null,emissive:m.emissive?m.emissive.getHex():0,side:m.side,polygonOffset:m.polygonOffset,polygonOffsetFactor:m.polygonOffsetFactor,polygonOffsetUnits:m.polygonOffsetUnits,alphaTest:m.alphaTest,depthWrite:m.depthWrite,fog:m.fog,vertexColors:m.vertexColors});mt.userData=Object.assign({},m.userData,{dpLam:1});o.material=mt;sw++}
   if(big&&mt.map&&mt.map.image===img){dpSandShader(mt);n++;if(o.geometry.type==='SphereGeometry')mt.color.setHex(0xe9d6b6)}}
  log('sand shader on '+n+' ground materials'+(sw?', '+sw+' swapped to Lambert':''))}
 
