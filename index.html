@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-23 r654';
+const BUILD='2026-10-23 r655';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15946,6 +15946,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r655',['The jury and their seats in the courthouse now face the court (they were facing the wall)']],
 ['r654',['Smoother desert: people and other moving pieces (officers, groundskeepers, soldiers) are drawn together in a few batches instead of piece by piece. They look and move exactly as before']],
 ['r653',['Smoother desert: far scenery takes a little less work to keep up, and the hidden parts of vehicles (damage looks, spare missiles, lights that are off) are no longer worked out every frame']],
 ['r652',['Smoother desert: scenery more than 160 m away is drawn as simple shapes, and far places with nothing moving in them are skipped entirely until you get closer. Closer than 140 m everything looks exactly as before']],
@@ -27242,7 +27243,7 @@ function pdCourtRoom(g){const k=pdKit(),I=pdInterior(),{M,MT,can,R}=k,{A,B,Cy,ro
  /* the stenographer's desk on the judge's right (Tim sits here) */{const x=45,z=-1026.95;B(1.2,.75,.6,WD,x,.375,z);B(1.25,.04,.65,WD2,x,.77,z);B(.3,.08,.22,MT.dark,x,.83,z+.05);B(.2,.002,.25,M(0xf4f0e6),x+.35,.792,z);B(.5,.45,.5,WD2,x,.225,z-.65);obs.push({x0:x-.62,x1:x+.62,z0:z-.95,z1:z+.32})}
  /* the jury box along the east wall: a low platform, a panelled rail with a little gate, three seats facing west */
  {const x0=55.3,x1=ri-.02,z0=-1028.7,z1=-1023.4;B(x1-x0,.18,z1-z0,WD,(x0+x1)/2,.09,(z0+z1)/2);B(.08,1.0,z1-z0,WP,x0,.5,(z0+z1)/2,null,1.2);B(.12,.05,z1-z0,WD2,x0,1.02,(z0+z1)/2);for(const z of[z0,z1])B(x1-x0,1.0,.08,WP,(x0+x1)/2,.5,z,null,1.2);
-  for(const z of[-1027.6,-1026.0,-1024.4]){const c=new THREE.Group();c.position.set(56.2,.18,z);c.rotation.y=-Math.PI/2;g.add(c);const q=k.H(c);q.B(.5,.06,.5,M(0x5a1a1a),0,.42,0);q.B(.5,.6,.06,M(0x5a1a1a),0,.74,.24);for(const u of[-.21,.21])for(const v of[-.21,.21])q.B(.04,.4,.04,RAIL,u,.2,v)}
+  for(const z of[-1027.6,-1026.0,-1024.4]){const c=new THREE.Group();c.position.set(56.2,.18,z);/* (r655: +90°, the seats face the court; they faced the wall) */c.rotation.y=Math.PI/2;g.add(c);const q=k.H(c);q.B(.5,.06,.5,M(0x5a1a1a),0,.42,0);q.B(.5,.6,.06,M(0x5a1a1a),0,.74,.24);for(const u of[-.21,.21])for(const v of[-.21,.21])q.B(.04,.4,.04,RAIL,u,.2,v)}
   lab('THE JURY',.9,.16,null,'#e8d0a0',0,x0-.045,.75,(z0+z1)/2,-Math.PI/2);obs.push({x0:x0-.05,x1,z0,z1})}
  /* counsel tables */for(const[x,nm]of[[46.3,'DARK PROSECUTION'],[53.7,'THE DEFENCE (IF ANY)']]){B(2.4,.06,.9,WD2,x,.76,-1024.5);for(const u of[-1.1,1.1])for(const v of[-.38,.38])B(.06,.73,.06,RAIL,x+u,.37,-1024.5+v);B(.32,.004,.24,M(0xf4f0e6),x-.4,.792,-1024.5);B(.12,.12,.12,MT.dark,x+.6,.83,-1024.6);lab(nm,1.2,.14,'#2a1a0a','#e8d0a0',0,x,.66,-1024.04,0);
   for(const u of[-.6,.6]){const c=new THREE.Group();c.position.set(x+u,0,-1023.6);g.add(c);const q=k.H(c);q.B(.46,.06,.46,M(0x5a1a1a),0,.47,0);q.B(.46,.55,.06,M(0x5a1a1a),0,.78,.22);for(const a of[-.19,.19])for(const b of[-.19,.19])q.B(.04,.45,.04,RAIL,a,.22,b)}obs.push({x0:x-1.2,x1:x+1.2,z0:-1024.95,z1:-1024.05})}
@@ -27253,7 +27254,7 @@ function pdCourtRoom(g){const k=pdKit(),I=pdInterior(),{M,MT,can,R}=k,{A,B,Cy,ro
  /* a clock and a portrait on the west wall */{const ck=can(128,128,(c,w,h)=>{c.fillStyle='#f8f4e8';c.beginPath();c.arc(64,64,62,0,7);c.fill();c.strokeStyle='#3a2a1a';c.lineWidth=6;c.stroke();for(let i=0;i<12;i++){const a=i/12*Math.PI*2;c.lineWidth=3;c.beginPath();c.moveTo(64+Math.cos(a)*48,64+Math.sin(a)*48);c.lineTo(64+Math.cos(a)*56,64+Math.sin(a)*56);c.stroke()}c.lineWidth=5;c.beginPath();c.moveTo(64,64);c.lineTo(64,26);c.stroke();c.beginPath();c.moveTo(64,64);c.lineTo(90,70);c.stroke()});
   Cy(.3,.3,.05,WD2,li+.05,3.0,-1026,'x',null,24);const cp=A(new THREE.CircleGeometry(.27,24),new THREE.MeshStandardMaterial({map:ck,roughness:.6}),li+.081,3.0,-1026);cp.rotation.y=Math.PI/2}
  pdNoSeam(g);
- return{obs,wig,gav,spots:{judge:{x:50,y:1.56,z:-1028.85,ry:Math.PI},dock:{x:50,z:-1024.2},address:{x:50,z:-1026.3},jury:[{x:56.2,z:-1027.6},{x:56.2,z:-1026.0},{x:56.2,z:-1024.4}],juryRy:-Math.PI/2,juryFloor:.18,tim:{x:45,y:.7,z:-1027.6},exit:{x:50,z:-1014.5,yaw:Math.PI}}}}
+ return{obs,wig,gav,spots:{judge:{x:50,y:1.56,z:-1028.85,ry:Math.PI},dock:{x:50,z:-1024.2},address:{x:50,z:-1026.3},jury:[{x:56.2,z:-1027.6},{x:56.2,z:-1026.0},{x:56.2,z:-1024.4}],juryRy:Math.PI/2,juryFloor:.18,tim:{x:45,y:.7,z:-1027.6},exit:{x:50,z:-1014.5,yaw:Math.PI}}}}
 
 /* =====================================================================================================
    Batch 5, the HQ annex (PDH: x 106..134, z -1025..-1013), in the station's style.
