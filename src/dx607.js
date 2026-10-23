@@ -218,7 +218,7 @@ const WDSP=[
  {nm:'Water tower',x:58,z:-1052.5,ry:Math.PI},/* just north of the tower's legs */
  {nm:'Gulch water tower',x:538.5,z:-1500,ry:-Math.PI/2},/* east of the tower, facing the road */
  {nm:"Jeff's Oasis",x:-38,z:-1019.5,ry:Math.PI},/* north of the pool, between the palms */
- {nm:'Mining shack',x:-15,z:-1049.5,ry:Math.PI},/* beside the shack's north wall */
+ {nm:'Mining shack',x:-15,z:-1052,ry:Math.PI},/* beside the shack's north wall (r655: 2.5 m south, clear of Depot Rd) */
  {nm:'Campfire',x:12,z:-1100,ry:Math.PI}];
 const WDEL={q:null,spots:[],li:0};
 const WDLN=['The tanks are thirsty. So am I. I don\'t drink.','Mind the funnel.','*a long gurgle from the helmet*','Six cans a truck. I count them. Twice.','The sand drinks too. Slower than me.','Don\'t tap the glass.'];

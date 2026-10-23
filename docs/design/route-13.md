@@ -1,4 +1,4 @@
-Status: ready to build (plan and all five model batches approved 2026-10-21)
+Status: built in candidate, not yet released (r655 candidate, 2026-10-23, `src/dx641.js`; plan and all five model batches approved 2026-10-21)
 
 # Route 13: the old town round the bus stop
 

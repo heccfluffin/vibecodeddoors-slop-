@@ -275,6 +275,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx637.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx638.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx639.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx640.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx641.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -850,6 +851,64 @@ R("g.add(ht);const hg=glowSp(0xff3050,.7,2.4);","ht.userData.dpKeep=1;g.add(ht);
 R("DP._mergeRoot=(q,r,lam,sh)=>dpMergeRoot(q,r,lam,sh);","DP._mergeRoot=(q,r,lam,sh)=>dpMergeRoot(q,r,lam,sh);DP._check=(L,mv)=>dpCheckRecs(L,mv);")
 # r654: the people batching (dx640) makes its materials the way the batcher does
 R("DP._check=(L,mv)=>dpCheckRecs(L,mv);","DP._check=(L,mv)=>dpCheckRecs(L,mv);DP._mergedMat=mergedMat;")
+# ---------------------------------------------------------------------------------------------------------------
+# r655 Route 13 (docs/design/route-13.md, src/dx641.js): the old town round the bus stop
+# ---------------------------------------------------------------------------------------------------------------
+def RB(a,b,new):
+    """replace the text from marker a up to (not including) marker b; a must occur exactly once"""
+    global s
+    c=s.count(a);assert c==1,(a[:70],c);i=s.index(a);j=s.index(b,i);s=s[:i]+new+s[j:]
+# the bus stop: the old bench and skull go (the bench is inside the new shelter), and the bench's obstacle
+R("const bench=new THREE.Mesh(new THREE.BoxGeometry(.5,.08,1.6),PM2);bench.position.set(.8,.45,0);ss.add(bench);for(const z of[-.7,.7]){const lg=new THREE.Mesh(new THREE.BoxGeometry(.08,.45,.08),PM2);lg.position.set(.8,.22,z);ss.add(lg)}","/* r655: the bench is in the new shelter (dx641) */")
+R("const skl=new THREE.Mesh(new THREE.SphereGeometry(.14,8,6),new THREE.MeshStandardMaterial({color:0xf0ece0}));skl.position.set(1.4,.12,1.2);ss.add(skl);","")
+R("ob(4.0,4.6,-1043.8,-1043.2);ob(4.8,5.4,-1044.4,-1042.6)}","ob(4.0,4.6,-1043.8,-1043.2)}")
+# the ground hole of the old shaft at (0, -1066) (unused since the shack moved in r606)
+R("[[-hx0,hx0,HZ0-hx0,HZ0+hx0],[-DXB-40,","[[-DXB-40,")
+# no bus-ride cactus or rock inside the town (taken away after the scatter, so its random numbers are unchanged)
+R("Q.obs.push(...ROB)}],","Q.obs.push(...rtScatter(ROB,g))}],")
+# El Goblino Gas: the canopy, fascia, pumps, pole sign and the shop's west wall are the models now (rtGasB, rtShopB)
+R("const can=A(BX(14,.4,10),M(0x5a9a2a),cx,4.6,cz);for(const[x,z]of[[cx-6,cz-4],[cx+6,cz-4],[cx-6,cz+4],[cx+6,cz+4]]){A(new THREE.CylinderGeometry(.18,.18,4.6,10),MT,x,2.3,z);ob(x-.3,x+.3,z-.3,z+.3)}","const RTGS=rtGasB(q,g,obs);")
+R("A(BX(14.2,.9,.3),M(0xe8e0c8),cx,4.1,cz+5);const cs=txt('EL GOBLINO GAS',8,.8,'#e8e0c8','#c02020',56);cs.position.set(cx,4.1,cz+5.17);g.add(cs);","")
+R("A(BX(1.2,.3,1.6),DK,cx,.15,pz);const pm=A(BX(.8,1.7,.6),RD,cx,1.0,pz);const pa=A(BX(.5,.3,.05),M(0x111111),cx,1.5,pz+.31),pb=A(BX(.1,.9,.1),DK,cx+.32,1.0,pz+.33);ob(cx-.6,cx+.6,pz-.8,pz+.8);obs[obs.length-1].m=pm;obs[obs.length-1].kd='pump';obs[obs.length-1].extra=[pa,pb];",
+  "const pm=RTGS.pumps[pz<cz?0:1];ob(cx-1.2,cx+1.2,pz-.6,pz+.6);if(pm){obs[obs.length-1].m=pm;obs[obs.length-1].kd='pump'}")
+R("const sp=dsSign('EL GOBLINO GAS\\nBREAD 12 GOLD','#5a9a2a');sp.position.set(cx-6,0,cz+9);sp.rotation.y=.3;g.add(sp);","")
+R("for(const[a,b]of[[sz0,cz-1.3],[cz+1.3,sz1]]){A(BX(.3,H,b-a),WM,sx0,H/2,(a+b)/2);ob(sx0-.2,sx0+.2,a,b)}A(BX(.3,H-2.6,2.6),WM,sx0,H-(H-2.6)/2,cz);",
+  "for(const[a,b]of[[sz0,cz-1.3],[cz+1.3,sz1]]){ob(sx0-.2,sx0+.2,a,b)}rtShopB(g);")
+R("for(const sd of[-1,1]){const wz=cz+sd*3.5;A(BX(.06,1.1,1.6),new THREE.MeshStandardMaterial({color:0x9ac8e0,transparent:true,opacity:.35,roughness:.1}),sx0,2.2,wz)}","")
+# the MINING Co. SHACK billboard pointed at nothing since r606
+R("const bb=dsSign('MINING Co. SHACK →\\nMIND THE SHAFT','#c86a1a');bb.position.set(-7,0,-1048);bb.rotation.y=.5;g.add(bb);","")
+# the main street, the bus stop shelter and the car wash
+R("q.obs=obs;q.props=props;q.anims=anims;try{vehBuild(q,g)}","rtTownB(q,g,obs,props,anims);q.obs=obs;q.props=props;q.anims=anims;try{vehBuild(q,g)}")
+# desertLocs: the water tower model (the ladder, perch and tag are in xpMoreTown)
+RB("/* ---- the water tower: four legs","/* ---- the wind pump: a tapering","/* ---- the water tower: r655, the Route 13 model ---- */\n rtTowerB(q,g);\n ")
+# desertLocs: Motel 13 turned round. The old block drew 1400 random numbers (its car park picture); they are still drawn
+RB("{const mx=64,mz=-902,W=24,D=6,","/* ---- the radio mast: a lattice tower","{for(let i=0;i<1400;i++)R();/* r655: the Route 13 model, every prop kept (dx641) */rtMotelB(q,g,STT)}\n ")
+# desertLocs: the drive-in's screen, posts and speakers are the models (the picture, the cars and the popcorn stay)
+R("for(const sd of[-1,1])A(BX(.5,9,.5),DK,cx+sd*7.55,4.5,cz-8.05);for(const sd of[-1,1])A(BX(.32,.25,.25),DK,cx+sd*7.37,6,cz-8.05);const scr=A(BX(14.5,7,.3),M(0xe8e8e0),cx,6,cz-8);ob(cx-7.5,cx+7.5,cz-8.4,cz-7.6);rect(cx-7.5,cx+7.5,cz-8.4,cz-7.6,'#4a4a4a');","rtDriveB(q,g);")
+R("for(let i=0;i<6;i++){const sx=cx-8+i*3.2,sz=cz+4;A(new THREE.CylinderGeometry(.05,.05,1.2,6),MT,sx,.6,sz);A(BX(.3,.25,.15),DK,sx,1.25,sz)}","")
+# desertLocs: the depot (the shelter, timetable, arch posts and beam are the model; the portal and its glow stay)
+RB("A(BX(4,.15,2),M(0x6a6a6a),x+5,2.6,z+2);","/* a square portal fills the frame","rtDepotB(q,g);")
+# the two barrels at the gas station move out of the forecourt's north lane, beside the air post
+R("[[44,-996],[45.2,-996.4],[30,-1013],","[[37.4,-1012.4],[38.4,-1012.5],[30,-1013.8],")
+# (the one at the forecourt's edge steps off the new kerb; the one by the Desert Bus was on the new platform: it goes to the bus's other side)
+R("[-34,-1172],[-80,-1000]]","[-34,-1172],[-89.5,-1000]]")
+# the map: forecourt, car wash, shelter, then the shop and the new canopy
+R("rect(36,48,-1011,-999,'#d8c8a8');rect(22,34,-1010,-1000,'#5a9a2a')}","rtMap(q);rect(36,48,-1011,-999,'#d8c8a8');rect(20.6,35.4,-1010.6,-999.4,'#3a8a2a')}")
+# xpMoreTown: the spray tag goes on the tower's curved panel
+R("tag.position.set(tx+3.03,top+2.4,tz);tag.rotation.y=Math.PI/2;g.add(tag);","rtTagUse(q,g,tag,tagT);")
+# xpMoreTown: the snack bar and projector booth are the models (their props, the light and the beam stay); no cables
+R("A(BX(4,2.6,3),M(0xf0e0c0),bx,1.3,bz);A(BX(4.4,.25,3.4),M(0xc03030),bx,2.7,bz);A(BX(2.6,1,.08),X.GL,bx,1.5,bz-1.52);A(BX(2.8,.12,.5),PK,bx,1.05,bz-1.7);const sl=lab('SNACKS · POPCORN 3 🪙 · GWEEN SODA',4,.6,'#c03030','#fff4d0',50);sl.position.set(bx,2.3,bz-1.55);g.add(sl);ob(bx-2.1,bx+2.1,bz-1.6,bz+1.6);","")
+R("A(BX(2.4,2.4,2.4),M(0x6a6a6a),px,1.2,pz);A(BX(2.6,.2,2.6),DK,px,2.5,pz);A(BX(.5,.4,.5),DK,px,2.0,pz-1.3);const lens=A(CY(.18,.22,.3,10),M(0x1a1a2a),px,2.0,pz-1.65);lens.rotation.x=Math.PI/2;ob(px-1.3,px+1.3,pz-1.3,pz+1.3);","")
+R("for(let i=0;i<5;i++){const x0=cx-8+i*3.2,x1=x0+3.2;const c=A(BX(3.2,.02,.02),DK,(x0+x1)/2,.95,cz+4);c.position.y=.95-.08;}","")
+# xpMoreTown: the motel's back yard is in the model; the ice machine and the washing line keep working
+RB("T('motel back',()=>{"," /* Jeff's Oasis: cool your feet */","T('motel back',()=>rtMotelBack(X));\n")
+# xpRoadFix: the dead loop round the shack's old spot goes; Motel Rd, the drive-in's drive and Depot Rd come in
+R("road(3.5,-1048.5,16.5,-1048.5);road(13,-1045,13,-1079.5);road(3.5,-1076,16.5,-1076);/* round the mining shack, which sits on the old road */",
+  "road(56,-922,3.5,-922);road(-20,-912,-3.5,-912);road(-62,-1045,-3.5,-1045);/* r655: Motel Rd, the drive-in's drive and Depot Rd */")
+R("const rs=[[-3.5,3.5,-1204,-1186],[3.5,16.5,-1052,-1045],[9.5,16.5,-1079.5,-1045],[3.5,16.5,-1079.5,-1072.5],[3.5,103.5,-1040.5,-1033.5],[96.5,103.5,-1040.5,-1026.5]];",
+  "const rs=[[-3.5,3.5,-1204,-1186],[3.5,56,-925.5,-918.5],[-20,-3.5,-915.5,-908.5],[-62,-3.5,-1048.5,-1041.5],[3.5,103.5,-1040.5,-1033.5],[96.5,103.5,-1040.5,-1026.5]];")
+# the Highway Patrol route stays on Route 13 instead of the loop
+R("[0,-1120],[0,-1076],[13,-1076],[13,-1048.5],[0,-1048.5]];","[0,-1120],[0,-1048.5]];")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
