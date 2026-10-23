@@ -1,4 +1,4 @@
-Status: ready to build (plan and all three model batches approved 2026-10-21)
+Status: built in candidate, not yet released (r658 candidate on branch wt-sights, src/dx643.js; plan and all three model batches approved 2026-10-21)
 
 # The small sights
 

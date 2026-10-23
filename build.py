@@ -279,6 +279,8 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx641.js').re
 # quarry underground (docs/design/quarry-underground.md): dx642 = the design chat's models, dx642b = the wiring
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx642.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx642b.js').read()+"\n"+s[k:]
+# the small sights round Route 13 (docs/design/small-sights.md): the models and the wiring
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx643.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -912,6 +914,69 @@ R("const rs=[[-3.5,3.5,-1204,-1186],[3.5,16.5,-1052,-1045],[9.5,16.5,-1079.5,-10
   "const rs=[[-3.5,3.5,-1204,-1186],[3.5,56,-925.5,-918.5],[-20,-3.5,-915.5,-908.5],[-62,-3.5,-1048.5,-1041.5],[3.5,103.5,-1040.5,-1033.5],[96.5,103.5,-1040.5,-1026.5]];")
 # the Highway Patrol route stays on Route 13 instead of the loop
 R("[0,-1120],[0,-1076],[13,-1076],[13,-1048.5],[0,-1048.5]];","[0,-1120],[0,-1048.5]];")
+# ---------------------------------------------------------------------------------------------------------------
+# r658 small sights (docs/design/small-sights.md, src/dx643.js): Jeff's Oasis, the wishing well, the campfire, the wind
+# pump, the radio mast, Skull Rock and the meteor crater are the design chat's models; every prop, loc and save is kept
+# ---------------------------------------------------------------------------------------------------------------
+# the desert floor gets two square holes, filled by the oasis's and the crater's own ground (busBoard0)
+R("[QUARRY.x0,QUARRY.x1,QUARRY.z0,QUARRY.z1]]))gp(a,b,c,d)}","[QUARRY.x0,QUARRY.x1,QUARRY.z0,QUARRY.z1]].concat(ssCuts())))gp(a,b,c,d)}")
+# busRoamBuild: Jeff's Oasis (the old pool, its square wall, the palms, the sign, the crate and the jar); the tip prop stays
+RB("{const ox=-38,oz=-1030;const pool=","props.push({x:ox+8.5,z:oz+4,r:1.8","{const ox=-38,oz=-1030;ssOasisB(q,g,obs,props,M,st);\n  ")
+# busRoamBuild: the wishing well (drum, black disc, posts, roof slab, rod; the model has the obstacle); the toss prop stays
+R("A(new THREE.CylinderGeometry(1.1,1.2,1.0,14),M(0x8a7a6a),wx,.5,wz);A(new THREE.CylinderGeometry(.85,.85,.2,14),M(0x101010),wx,.95,wz);for(const sx of[-1,1])A(BX(.14,2.4,.14),PK,wx+sx*.9,1.6,wz);A(BX(2.4,.14,1.6),PK,wx,2.9,wz);A(new THREE.CylinderGeometry(.08,.08,2.0,8),M(0x8a6a3a),wx,2.3,wz).rotation.z=Math.PI/2;ob(wx-1.2,wx+1.2,wz-1.2,wz+1.2);",
+  "ssWellB(q,g,obs,anims);")
+# busRoamBuild: the campfire's stones and logs, the tent and the first bench (the flame, its light, the sparks and the prop stay)
+RB("{const fx=18,fz=-1105;for(let i=0;i<6;i++){const a=i/6*Math.PI*2;A(new THREE.DodecahedronGeometry(.3,0)","const fire=glowSp(0xff8020,.9,2.2);","{const fx=18,fz=-1105;ssCampB(q,g,obs,anims);\n  ")
+RB("ob(fx-1,fx+1,fz-1,fz+1);const tt=new THREE.Group();tt.position.set(fx+4,0,fz-2);","props.push({x:fx,z:fz,r:2.2,txt:()=>'[E] Warm your hands'","ob(fx+2.4,fx+5.6,fz-3.8,fz-.2);/* r658: the tent's box; the fire ring, tent and benches are ssCampfire */")
+# desertLocs: the wind pump (the trough, the wheel, the tower; the creak only near it)
+RB("/* ---- the wind pump: a tapering four-leg tower","/* ---- MOTEL 13:","/* ---- the wind pump: r658, the small-sights model (ssWindPump) ---- */\n ssPumpB(q,g);\n ")
+# desertLocs: the radio mast's legs, beacon, the hut's walls, roof, floor, glass and door (the furniture, props and map stay)
+RB("{const rx=-62,rz=-905,H=28;for(let i=0;i<3;i++)","const bl=A(new THREE.SphereGeometry(.25,8,6)","{const rx=-62,rz=-905,H=28;const SR=ssMastB(q,g);")
+R("const bl=A(new THREE.SphereGeometry(.25,8,6),M(0x401010,{emissive:0xff2020}),rx,H+.3,rz);","const bl=SR.parts.beacon,bm=SR.parts.mid;")
+R("bl.material.emissive.setHex(on?0xff2020:0x200000)})","bl.material.emissive.setHex(on?0xff2020:0x200000);bm.material.emissive.setHex(on?0xff2020:0x200000)})")
+R("A(BX(4.4,.2,3.8),M(0x6a6a6a),rx+5,2.7,rz+1);rect(x0,x1,z0,z1,'#9a9a90');A(BX(3.9,.03,3.3),M(0x7a6a5a),rx+5,.02,rz+1);","rect(x0,x1,z0,z1,'#9a9a90');")
+R("WALL('x',x0,x1,z1,2.6,HM,[[rx+4.55,rx+5.45,2.05],[rx+5.9,rx+6.7,2.0,1.2]]);glass('x',rx+5.9,rx+6.7,z1,1.2,2.0);WALL('x',x0,x1,z0,2.6,HM);WALL('z',z0,z1,x0,2.6,HM);WALL('z',z0,z1,x1,2.6,HM);","/* r658: the hut's walls, roof, floor and door are ssRadioMast */")
+R("const dr=A(BX(.9,1.95,.05),M(0x4a5a6a),rx+4.6,1.0,z1-.5);dr.rotation.y=Math.PI/2;dr.position.x=rx+4.58;","")
+R("mp.position.set(x1-.12,1.5,rz+1);mp.rotation.y=-Math.PI/2;g.add(mp);","{const s=SR.spots.map;mp.position.set(s[0],s[1],s[2]);mp.rotation.y=Math.PI;g.add(mp)}")
+# desertLocs: Skull Rock (the old skull, its square wall and map box); the shout prop moves into the mouth
+RB("{const sx=76,sz=-960,BN=M(0xd8c8a4","q.props.push({x:sx,z:sz+6.6,r:2.2,txt:()=>'[E] Shout into the mouth'","{const sx=76,sz=-960,SK=ssSkullB(q,g);\n  ")
+R("q.props.push({x:sx,z:sz+6.6,r:2.2,txt:()=>'[E] Shout into the mouth'","q.props.push(SSX.shout={x:SK.spots.shout[0],z:SK.spots.shout[1],r:2.2,txt:()=>'[E] Shout into the mouth'")
+# pyrBuild: the meteor crater (rim, pit, the spinning rock); the glow stays, down in the bowl; the prop moves to the model's spot
+RB("const rim=A(new THREE.TorusGeometry(6,1.1,6,24),M(0x9a7a50),kx,-.2,kz);","q.locs.push({nm:'Meteor crater'","const KC=ssCraterB(q,g);const gl=glowSp(0x40ff70,.5,3.5);gl.position.set(kx,ssCraterH(kx,kz)+.9,kz);g.add(gl);q.anims.push(dt=>{gl.scale.setScalar(3+Math.sin(q.rt*4)*.4);ssCraterPulse(KC,q)});\n  ")
+R("q.props.push({x:kx+1.4,z:kz,r:1.6,txt:()=>'[E] Touch the glowing rock'","q.props.push(SSX.touch={x:kx+1.6,z:kz,r:1.6,txt:()=>'[E] Touch the glowing rock'")
+R("vfx('sparkle',kx,1,kz+q.OZ,{n:30,c:0x40ff70,up:1})","vfx('sparkle',kx,-.3,kz+q.OZ,{n:30,c:0x40ff70,up:1})")
+# xpMoreTown: the wind pump's crank, pipes and spout are the model's; the stream comes out of its spout into the stock tank
+RB("T('wind pump',()=>{const px=-55,pz=-1000;A(BX(.56,1.25,.56)","const stream=glowSp(0x6ad0ff,0,1.2);","T('wind pump',()=>{const px=-55,pz=-1000,SP=SSX.res.pump,crank=SP?SP.parts.crank:new THREE.Group(),SPT=SP?SP.spots.spout:[px+2.34,.5,pz];")
+R("stream.position.set(px+2.34,.5,pz);g.add(stream);const trough=g.children.find(o=>o.isMesh&&o.geometry.type=='BoxGeometry'&&Math.abs(o.position.x-(px+3.2))<.01&&Math.abs(o.position.y-.4)<.01);",
+  "stream.position.set(SPT[0],SPT[1],SPT[2]);g.add(stream);const trough=SP?SP.parts.water:null;")
+R("stream.scale.set(.5,1.4+Math.sin(q.rt*25)*.2,1);if(trough)trough.position.y=.4+Math.min(.1,(20-t)*.008);if(Math.random()<dt*8)try{vfx('spark',px+2.34+(R()-.5)*.3,.5,pz+q.OZ,{n:1,c:0x80d0ff})}catch(e){}",
+  "stream.scale.set(.3,.55+Math.sin(q.rt*25)*.08,1);if(trough)trough.position.y=.42+Math.min(.1,(20-t)*.008);if(Math.random()<dt*8)try{vfx('spark',SPT[0]+(R()-.5)*.3,.5,SPT[2]+q.OZ,{n:1,c:0x80d0ff})}catch(e){}")
+R("prop(px-.9,pz+1.4,1.4,()=>t>0?","prop(SP?SP.spots.crank[0]:px-.9,SP?SP.spots.crank[1]:pz+1.4,1.4,()=>t>0?")
+# xpMoreTown: the campfire's guitar and second bench are in the model (the marshmallow stick and the three props stay)
+RB("const gt=new THREE.Group();gt.position.set(fx-2.6,.62,fz+2.3);","const stick=A(CY(.012,.012,1.3,5)","")
+R("prop(fx-2.6,fz+3.2,1.3,'[E] Strum the guitar'","prop(fx-2.6,fz+2.2,1.3,'[E] Strum the guitar'")
+R("const bn2=new THREE.Group();bn2.position.set(fx+2.8,0,fz+2.4);bn2.rotation.y=-1.1;g.add(bn2);const pl=new THREE.Mesh(BX(2.2,.12,.45),PK);pl.position.y=.5;bn2.add(pl);for(const ex of[-.8,.8]){const st2=new THREE.Mesh(new THREE.CylinderGeometry(.18,.2,.44,10),M(0x6a4a2a));st2.position.set(ex,.22,0);bn2.add(st2)}ob(fx+1.8,fx+3.8,fz+1.6,fz+3.2)});","});")
+# xpMoreTown: the bucket goes down the well and back up while you wind it
+R("busy=1;for(let i=0;i<6;i++)setTimeout(()=>snd(200+i*30,.08),i*220);","busy=1;ssWellGo();for(let i=0;i<6;i++)setTimeout(()=>snd(200+i*30,.08),i*220);")
+# xpMoreTown: the five fragments are the model's stones, sitting on the ground (the first is on the rim's outer slope); the crater's own badge
+R("const fr=A(new THREE.DodecahedronGeometry(.28,0),M(0x1a3a1a,{emissive:0x30ff60,emissiveIntensity:.8}),px,.22,pz);const gl=glowSp(0x40ff70,.45,1.4);gl.position.set(px,.4,pz);g.add(gl);anim(px,pz,30,dt=>{fr.rotation.y+=dt;gl.scale.setScalar(1.3+Math.sin(q.rt*5+i)*.2)});",
+  "const fy=ssCraterH(px,pz),fr=ssFragB(g,px,fy,pz);const gl=glowSp(0x40ff70,.45,1.4);gl.position.set(px,fy+.4,pz);g.add(gl);anim(px,pz,30,dt=>{gl.scale.setScalar(1.3+Math.sin(q.rt*5+i)*.2)});")
+R("if(n>=5){gold+=40;try{saveGame();badge('stars')}","if(n>=5){gold+=40;try{saveGame();badge('meteor')}")
+R("const kp=q.props.find(p=>Math.abs(p.x-(kx+1.4))<.01&&Math.abs(p.z-kz)<.01);","const kp=SSX.touch||q.props.find(p=>Math.abs(p.x-(kx+1.4))<.01&&Math.abs(p.z-kz)<.01);")
+# xpMoreTown: Skull Rock's bats fly out of the mouth; the eye socket is reached from the ledge at the top of the steps
+R("T('skull rock',()=>{const sx=76,sz=-960;const bats=[];","T('skull rock',()=>{const sx=76,sz=-960,SKR=SSX.res.skull,BT=SKR?SKR.spots.bats:[sx,5.7,sz+5.2];const bats=[];")
+R("b.position.set(sx+(R()-.5)*3,5.7,sz+5.2);b.visible=false;","b.position.set(BT[0]+(R()-.5)*.6,BT[1],BT[2]);b.visible=false;")
+R("b.position.set(sx+Math.cos(a)*(2+i*.7)*(1-t*.3),5.7+(6-bt)*1.4*(1+i*.1),sz+5.2+Math.sin(a*1.3)*3);",
+  "{const k=6-bt,o=Math.min(1,Math.max(0,(k-1.2)/1.5));b.position.set(BT[0]+Math.cos(a)*(.25+(1.7+i*.7)*o)*(1-t*.3),BT[1]+Math.max(0,k-1)*1.5*(1+i*.1),BT[2]+Math.min(k,1.2)*2.6+Math.sin(a*1.3)*3*o)}")
+R("const sp=q.props.find(p=>Math.abs(p.x-sx)<.01&&Math.abs(p.z-(sz+6.6))<.01);","const sp=SSX.shout||q.props.find(p=>Math.abs(p.x-sx)<.01&&Math.abs(p.z-(sz+6.6))<.01);")
+R("prop(sx-2.3,sz+6.3,1.4,()=>SV.skEye?","prop(SKR?SKR.spots.eye[0]:sx-2.3,SKR?SKR.spots.eye[1]:sz+6.3,SKR?.95:1.4,()=>SV.skEye?")
+# xpMoreTown: dip your feet from the oasis bank
+R("T('oasis',()=>{const[ox,oz]=freeSpot(q,-33.5,-1030,.5);","T('oasis',()=>{const[ox,oz]=ssDipSpot(q);")
+# xpMoreTown: the mast's platform and rings are the model's; climb at the ladder's foot, the perch on the platform
+R("A(BX(2.2,.08,2.2),MT,rx,16,rz);for(let i=0;i<8;i++){const a=i/8*Math.PI*2;A(BX(.04,.9,.04),MT,rx+Math.cos(a)*1.1,16.5,rz+Math.sin(a)*1.1)}A(new THREE.TorusGeometry(1.1,.02,5,24),MT,rx,16.95,rz).rotation.x=Math.PI/2;",
+  "const SM2=ssMast(),CL=SM2.spots.climb,PE=SM2.spots.perch;")
+R("prop(rx+1.9,rz+1.9,1.3,'[E] Climb the mast (don\\'t look down)',()=>xmPerch(q,{x:rx+.6,z:rz,y:16.1,yaw:.7,pitch:.12,dx:rx+1.9,dz:rz+1.9,",
+  "prop(CL[0],CL[1],1.3,'[E] Climb the mast (don\\'t look down)',()=>xmPerch(q,{x:PE[0],z:PE[2],y:PE[1],yaw:.7,pitch:.12,dx:CL[0],dz:CL[1],")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
