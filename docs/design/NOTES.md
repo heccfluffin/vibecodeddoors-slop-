@@ -1,5 +1,42 @@
 # Notes for the design chat
 
+## 2026-10-23 · r659: the small sights
+- (Claude Code, at release) The sand seam round the patches: every floor piece now starts its sand pattern from the desert's own origin (build.py) and the patches use the same coordinates, so the big light/dark patches line up. With the cheaper lighting (Lambert, worked out at the corners) the patches also leave out point and spot lights (the player's lantern lit the fine patch but never the huge floor panels, so a lit square with a sharp edge followed you). A very faint edge can still show round the crater patch at some angles on the cheaper setting.
+Built from `small-sights.md` on the candidate branch `wt-sights` (not released). `src/dx643.js` holds small-sights.js (with the
+three changes below), then the wiring; build.py has a block "r658 small sights" that swaps the old meshes for the models.
+- **All seven are in, every prop, loc and save kept:** Jeff's Oasis (a real pond: the floor has a square hole and the sculpted
+  patch fills it; the water is the wall, the bank is walkable ground, "Dip your feet" sits on the bank), the hammock with its new
+  prop "[E] Lie in Jeff's hammock" (+8 HP, 12 s rest between goes, three lines) and small boxes along it so you can't walk
+  through it; the wishing well (the bucket goes down into the water and back up while you wind it, drum and crank turning);
+  the campfire (both benches solid, the guitar prop moved onto the guitar at the first bench, embers flicker with the flame,
+  one soft light for the string lights); the wind pump (walk under the tower, crank outside on the west, the stream comes out
+  of the spout into the stock tank, whose water rises while pumping; the creak only within 40 m); the radio mast and hut
+  (door on the east as the model has it, climb at the ladder's foot, the perch on the platform, both lights blink, the base's
+  map hangs on the north wall); Skull Rock (walk into the mouth, "Shout" just inside, the bats fly out of the mouth, six steps
+  up to the ledge, "Reach into the eye socket" on the ledge); the meteor crater (a real bowl: players and cars go down into it
+  and over the rim, the crystals pulse, the rock no longer spins, the five fragments are ssFragment on the ground's height).
+- **Ground:** `vehGround` returns the oasis bank's and the crater's heights where nothing else (plate, ramp) is. The patches
+  get the floor's own treatment once loaded (Lambert and the r500 sand shader, as `dpGroundMats` gives the big floor pieces),
+  so they match the floor round them.
+- **Changed from the models, for fit:**
+  - the well's sign says **WISHES 10 🪙**: the toss costs 10 gold in the game (an earlier rebalance), not 1;
+  - the crater's inner wall is gentler: the game's walking rule blocks you wherever the ground within 0.5 m is more than
+    0.6 m higher than where you stand, and the model's wall (from 3.6 m out) was too steep in two thirds of the directions,
+    so you got stuck halfway in or out. It now rises from 1 m out (`Math.pow(sm(1,R0,d),1.3)`); depth, rim and gap are the same;
+  - the campfire's tent keeps the old tent box as its obstacle (the model had none);
+  - the crater's own badge: **Star Collector ('meteor', ☄️)**, "Find all five meteorite fragments round the meteor crater";
+    the observatory keeps Stargazer.
+- **Map:** the well, campfire, wind pump (and its tank), mast and Skull Rock are circles in `q.mapR` (Skull Rock's old box is
+  gone); the oasis water and the crater are still drawn by hand in `dmapBg` (desert-map.md moves them).
+- **Seeded random:** unchanged (881,320 seeded numbers during the load before and after); the models use their own seed,
+  restarted every ride. No bus-ride cactus or rock lands on any of the seven (the town box already covers six; the crater is
+  outside the scatter's reach).
+- **Known:** where the oasis and crater patches meet the floor you can see a faint change in the big light/dark sand patches
+  (the sand shader's pattern follows each floor piece's own texture position, and every floor piece already has its own).
+- **Questions:**
+  - Skull Rock faces north, so in the afternoon sun its face is in shade and reads darker brown than the pale stone of its
+    sunny west side. Fine, or a lighter stone colour?
+  - The eye-socket prop now only reaches 0.95 m, so it works from the ledge and not from the sand in front. OK?
 ## 2026-10-23 · r658: Lookout Mesa and Devil's Gorge
 Built from `mesa-gorge.md`. `src/dx644.js` holds mesa-gorge.js unchanged, then the wiring: `xpMesa` and `xpGorge` are redefined there, and a build.py block ("r659 mesa and gorge") changes the cave builder, the binoculars and summit book (`T('mesa')`), the zipline towers (`T('ziplines')`) and `deepOK`.
 - **Everything in the five batches is in:** the cliffs, rim, talus, skirt and plants; the road up with its retaining wall, guard rail, rock shoulder and both signs; the cabin and porch (the Hermit stands on it), the summit cairn, the lookout point, the telescope, the waving flag, the campfire; the canyon walls, cave mouth, riverbed with the flowing river, the trees, driftwood and the two vultures; the rim fences, DANGER signs and cairns; the three bridges; the jump, the landing pad and both boards; the zipline towers.

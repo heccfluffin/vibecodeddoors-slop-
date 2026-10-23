@@ -7,7 +7,6 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
 | `desert-map.md` | the desert map and minimap redo: areas, auto-drawn buildings, label classes, minimap banner, smooth zoom | `models/desert-map.js` (tables + reference renderer) |
-| `small-sights.md` | the small sights round Route 13: Jeff's Oasis (a real pond in a dip), the wishing well, the campfire, the wind pump, the radio mast and hut, Skull Rock (walk into the mouth, steps to the eye), the meteor crater (a real bowl) | `models/small-sights.js` (needs `fort-kit.js` and `route13.js`) |
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 

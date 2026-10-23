@@ -1,4 +1,4 @@
-Status: ready to build (plan and all three model batches approved 2026-10-21)
+Status: shipped in r659 (2026-10-23, `src/dx643.js`)
 
 # The small sights
 
