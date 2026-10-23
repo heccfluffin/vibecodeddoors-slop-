@@ -279,6 +279,8 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx641.js').re
 # quarry underground (docs/design/quarry-underground.md): dx642 = the design chat's models, dx642b = the wiring
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx642.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx642b.js').read()+"\n"+s[k:]
+# r659 Lookout Mesa and Devil's Gorge (docs/design/mesa-gorge.md): the design chat's models plus the wiring
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx644.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -912,6 +914,32 @@ R("const rs=[[-3.5,3.5,-1204,-1186],[3.5,16.5,-1052,-1045],[9.5,16.5,-1079.5,-10
   "const rs=[[-3.5,3.5,-1204,-1186],[3.5,56,-925.5,-918.5],[-20,-3.5,-915.5,-908.5],[-62,-3.5,-1048.5,-1041.5],[3.5,103.5,-1040.5,-1033.5],[96.5,103.5,-1040.5,-1026.5]];")
 # the Highway Patrol route stays on Route 13 instead of the loop
 R("[0,-1120],[0,-1076],[13,-1076],[13,-1048.5],[0,-1048.5]];","[0,-1120],[0,-1048.5]];")
+# ---------------------------------------------------------------------------------------------------------------
+# r659 mesa and gorge (docs/design/mesa-gorge.md, src/dx644.js): xpMesa and xpGorge are redefined in dx644; these are
+# the other places the old meshes were built
+# ---------------------------------------------------------------------------------------------------------------
+# xpGorgeCave: the 46 boulders, the ten sand drifts and the cave mouth's arch are the riverbed and wall models now.
+# Their random numbers are still drawn, so everything built after them stays where it was.
+R("const b=A(new THREE.DodecahedronGeometry(r,0),M(0x8a6248,{roughness:1}),x,Y+r*.5,z);b.rotation.set(Math.random()*3,Math.random()*3,0);q.deepB.push({x0:x-r*.7,x1:x+r*.7,z0:z-r*.7,z1:z+r*.7})","Math.random();Math.random()")
+R("const dr=A(new THREE.SphereGeometry(4+Math.random()*3,10,6,0,Math.PI*2,0,Math.PI/2),M(0xd8b07a,{roughness:1}),x,Y,z);dr.scale.y=.35","Math.random()")
+R("const ar=A(BX(GCV.tx1-GCV.tx0+1.6,1,1.4),RKM,(GCV.tx0+GCV.tx1)/2,Y+5.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx0-.4,Y+2.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx1+.4,Y+2.5,z0-.2);","")
+# deepOK: the old bridges' two piers were checked here; the new bridges put their posts and piers in q.deepB
+R("for(const[b0,b1]of G.bridges){const W=b1-b0,cx=(b0+b1)/2,mz=(G.z0+G.z1)/2;for(const sd of[-1,1]){const px=cx+sd*(W/2+.2);if(Math.abs(x-px)<.3+r&&Math.abs(lz-mz)<.3+r)return false}}","/* r659: the bridges' piers are in q.deepB */")
+# T('mesa'): the coin binoculars are the lookout point's model; you stand north of them now, looking south through them.
+# The summit book moves to the cairn (q.mgTop.spots.book); its old lectern and book go.
+RB("/* the south rim, looking out over the gorge */A(CY(.08,.1,1.2,8),MT,bx,H+.6,bz);","prop(bx,bz-1.2,1.3,","/* r659: the binoculars are the lookout point's model (dx644) */\n  ")
+R("prop(bx,bz-1.2,1.3,()=>q.xr?'':'[E] Look through the binoculars","prop(bx,bz+1.2,1.3,()=>q.xr?'':'[E] Look through the binoculars")
+_o,_n="P.x=bx;P.z=bz-.6+q.OZ;","P.x=bx;P.z=bz+.6+q.OZ;";assert s.count(_o)==2;s=s.replace(_o,_n)
+R("const hx=cx+20,hz=cz-10;prop(hx-4.6,hz,1.3,'[E] Sign the summit book'","const bk=(q.mgTop&&q.mgTop.spots&&q.mgTop.spots.book)||[cx-4.95,cz+6.25];prop(bk[0],bk[1],1.3,'[E] Sign the summit book'")
+R("A(BX(.5,.06,.4),M(0xf0e8d0),hx-4.3,H+1.05,hz);A(BX(.6,1.0,.5),PK,hx-4.3,H+.5,hz)})","})")
+# T('ziplines'): the two towers and the sign are the model (mgZipIn); the cables, trolleys, prompts and the ride stay
+RB("const tower=(z,hiX,loX)=>{for(const[a,b]of[[-1,-1],[1,-1],[1,1],[-1,1]]){rodTo(g,PK,","rect(zx-1.6,zx+1.6,z-1.6,z+1.6,'#8a6a3a');","const tower=(z,hiX,loX)=>{")
+R("rect(zx-1.6,zx+1.6,z-1.6,z+1.6,'#8a6a3a');ob(zx-1.6,zx+1.6,z-1.6,z+1.6)};","rect(zx-1.6,zx+1.6,z-1.6,z+1.6,'#8a6a3a')};")
+R("tower(zN,.7,-.7);tower(zS,-.7,.7);","tower(zN,.7,-.7);tower(zS,-.7,.7);mgZipIn(q,g);")
+R("sign('DEVIL\\'S GORGE ZIPLINE\\nCLIP ON · DON\\'T LOOK DOWN','#c02020',zx+8,zN+4,-.6);","")
+# dpGroundMats (r500) swaps big standard materials to Lambert on the cheaper settings: it dropped vertex colours, so the
+# vertex-coloured cliffs, canyon walls and riverbed came out white. Keep them.
+R("alphaTest:m.alphaTest,depthWrite:m.depthWrite,fog:m.fog});mt.userData=Object.assign({},m.userData,{dpLam:1});","alphaTest:m.alphaTest,depthWrite:m.depthWrite,fog:m.fog,vertexColors:m.vertexColors});mt.userData=Object.assign({},m.userData,{dpLam:1});")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"

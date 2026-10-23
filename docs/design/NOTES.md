@@ -1,5 +1,27 @@
 # Notes for the design chat
 
+## 2026-10-23 · r659 candidate: Lookout Mesa and Devil's Gorge
+Built from `mesa-gorge.md` on the candidate branch `wt-mesa` (not released yet). `src/dx644.js` holds mesa-gorge.js unchanged, then the wiring: `xpMesa` and `xpGorge` are redefined there, and a build.py block ("r659 mesa and gorge") changes the cave builder, the binoculars and summit book (`T('mesa')`), the zipline towers (`T('ziplines')`) and `deepOK`.
+- **Everything in the five batches is in:** the cliffs, rim, talus, skirt and plants; the road up with its retaining wall, guard rail, rock shoulder and both signs; the cabin and porch (the Hermit stands on it), the summit cairn, the lookout point, the telescope, the waving flag, the campfire; the canyon walls, cave mouth, riverbed with the flowing river, the trees, driftwood and the two vultures; the rim fences, DANGER signs and cairns; the three bridges; the jump, the landing pad and both boards; the zipline towers.
+- **Kept as they were:** the mesa plate, the ramp and its route-grid link (an AI route from the desert still climbs the road to the top, same 40 steps as before), the gorge band, the fall (walking off the rim still drops you to the floor), the cave and lift, the Quarry Skip, the jump ramp, every prompt, the smoke (now from the stove pipe), the fire and its light, the map.
+- **Seeded random unchanged:** the old wall pictures drew 13,500 numbers and the cave's boulders and drifts drew theirs; the same numbers are still drawn. The model's two uses of `Math.random` (the plank grain on the LOOKOUT MESA sign, the specks on the DANGER signs) run on the browser's own random, so the model file did not need changing. A test counted every seeded number during the load: 879,462 before and after.
+- **Changed from the spec, for fit:**
+  - the binoculars' prompt is 1.2 m north of them and you stand 0.6 m north, looking south through them (as specced); the summit book prompt is at the cairn;
+  - the sand on top is now exactly the plate (it was 20 cm bigger each side and could poke out of the new cap rock);
+  - the cliff's foot boxes also stop you at the top edge, so you can no longer walk or drive off the mesa (you would have landed inside the rock skirt);
+  - the desert has no night, so the cabin windows stay dark and the porch lamp gets no real light (its bulb glows);
+  - the lookout paving (5 cm) is walked on as ground, not a raised plate;
+  - the sand covers past the map ends are trimmed to stop where the ground's cut stops (x ±680); beyond it they lay 1 cm under the desert floor and would flicker;
+  - the zipline towers are scenery: the ride, cables and trolleys are the old ones;
+  - the old check for the bridges' two piers in `deepOK` is gone (the new bridges list their posts and piers in `q.deepB`), and so is the old 46-boulder list;
+  - cacti, rocks and Joshua trees the scatter dropped on the skirt, the road shoulder, the rims and the zipline anchors are taken away after it runs (12 this seed).
+- **Found and fixed in the game:** on the cheaper quality settings the r500 performance code swaps big materials to a cheaper kind and dropped vertex colours, so the cliffs, canyon walls and riverbed came out white. It keeps them now (one build.py line; it helps any future vertex-coloured model too).
+- **Performance (swiftshader, after the batcher ran), draw calls and triangles before → after:** across the gorge from the north rim 152 → 192 calls, 234k → 725k triangles; on the mesa top 306 → 337 calls, 293k → 1.0M; the lookout point 336 → 380, 321k → 1.02M; the Route 13 bridge 155 → 201, 197k → 691k; the bottom of the mesa road 192 → 222, 237k → 949k. Draw calls stay low (the big pieces are one mesh each), but triangles roughly triple near here. The biggest single piece is the riverbed's 1,400 pebbles (168k triangles in one mesh across the whole gorge, always drawn), then the floor (138k), the two long walls (about 70k each) and the mesa skirt (82k).
+- **Seen in the screenshots, not changed:** on the cheaper settings (per-corner lighting) the small ledges on the canyon walls catch the light as a row of bright dots at some layer lines; on the normal settings they read as a line.
+- **Questions:**
+  - Could the pebbles (and the skirt's small stones) use a much lower-poly rock (for example 6 x 4 segments instead of 10 x 7)? They are 5-16 cm, and that would take about 120k triangles off every gorge view.
+  - Is it right that you can't walk off the mesa's edge any more? (Before, you could walk or drive off it; now you would land inside the fallen rock at the foot.)
+
 ## 2026-10-23 · r657: Route 13
 `src/dx641.js` holds route13.js unchanged (the Fort kit it needs, fbKit, was already in the game in dx614, identical to fort-kit.js, so it is not copied twice). The wiring is a block of build.py patches ("r655 Route 13") plus wrappers in dx641.
 - **Everything in the plan is in:** main street (shoulders, lamps, power line, both town signs), the bus stop shelter and BUS STOP bay, El Goblino Gas (forecourt, canopy, pumps, price sign, air and water, the new shop front; the shop's inside untouched), the car wash, Motel 13 turned round with the office, car park, neon, pool and back yard, Motel Rd, the drive-in with its drive, ticket booth, marquee and the remodelled snack bar and projector booth, the Desert Bus depot with Depot Rd, the apron, the platform and the arch, and the water tower (the spray tag now goes on the curved panel).

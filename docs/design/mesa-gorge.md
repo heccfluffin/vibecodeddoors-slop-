@@ -1,4 +1,4 @@
-Status: ready to build (plan and all five model batches approved 2026-10-22)
+Status: built in candidate, not yet released (branch wt-mesa, src/dx644.js; plan and all five model batches approved 2026-10-22)
 
 # Lookout Mesa and Devil's Gorge
 
