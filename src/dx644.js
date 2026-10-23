@@ -1,5 +1,5 @@
 /* =====================================================================================================
-   r659 candidate: LOOKOUT MESA AND DEVIL'S GORGE (docs/design/mesa-gorge.md).
+   r658 candidate: LOOKOUT MESA AND DEVIL'S GORGE (docs/design/mesa-gorge.md).
    First the design chat's model file, docs/design/models/mesa-gorge.js, unchanged (it needs the Fort kit, fbKit in
    dx614, and route13.js, rtKit in dx641; both are already in the game). Then the wiring, at the end of this file:
    - xpMesa is redefined: the old plain box, the ramp slab and kerbs, the r618 rock fill (dx615), the cabin, telescope,
@@ -9,7 +9,7 @@
    - xpGorge is redefined: the floor slab, the blue strip, the long wall boxes, the end caps, the ledge column, the
      bridges, the jump's plank ramp and the signs are the models. The ground cut, the ramps, the map, the cave and
      its lift stay. The old wall pictures drew 13,500 numbers from the desert's seeded random; they are still drawn.
-   - build.py patches ("r659 mesa and gorge"): the cave's old boulders, sand drifts and arch go (their random
+   - build.py patches ("r658 mesa and gorge"): the cave's old boulders, sand drifts and arch go (their random
      numbers are still drawn), the coin binoculars and the summit book move (T('mesa')), the zipline towers are the
      model (T('ziplines'); the cables, trolleys and the ride are unchanged), and deepOK's check for the old bridge
      piers goes (the new bridges list their own posts in q.deepB).
@@ -620,7 +620,7 @@ function mgZipline(g){const k=rtKit(),o=mgKit(),b=mgBridgeKit(),M=k.M,F=k.FONT||
  return{obs}}
 
 /* =====================================================================================================
-   r659: THE WIRING (see the comment at the top of this file)
+   r658: THE WIRING (see the comment at the top of this file)
    ===================================================================================================== */
 /* run a model builder into its own group, mark its meshes noSeam (the models handle their own depth nudges), then
    move the pieces into the desert root (the group is at the origin, so nothing moves) so the chunks and the batching
@@ -680,7 +680,7 @@ xpGorge=function(X){const{q,g,ob,rect,anim,loc}=X,z0=GORGE.z0,z1=GORGE.z1,obs=mg
  q.mapR.push({x0:296,x1:304,z0:z1+3,z1:z1+12,c:'#a07040'});loc('Gorge jump',300,z1+10,'🛹');
  try{xpGorgeCave(X)}catch(e){conLog('error','gorge cave: '+e.message)}};
 
-/* ---- the zipline towers (called from T('ziplines') in xpMoreFar, build.py r659) ---- */
+/* ---- the zipline towers (called from T('ziplines') in xpMoreFar, build.py r658) ---- */
 function mgZipIn(q,g){try{const Z=mgIn(g,mgZipline);for(const o of Z.obs||[])q.obs.push(o);q.obsDirty=1}catch(e){conLog('error','zipline towers: '+e.message)}}
 
 /* ---- the scatter must not land on the new cliffs' skirt, the road's shoulder, the rims or the zipline anchors:

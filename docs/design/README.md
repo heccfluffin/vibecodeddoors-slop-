@@ -8,7 +8,6 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
 | `desert-map.md` | the desert map and minimap redo: areas, auto-drawn buildings, label classes, minimap banner, smooth zoom | `models/desert-map.js` (tables + reference renderer) |
 | `small-sights.md` | the small sights round Route 13: Jeff's Oasis (a real pond in a dip), the wishing well, the campfire, the wind pump, the radio mast and hut, Skull Rock (walk into the mouth, steps to the eye), the meteor crater (a real bowl) | `models/small-sights.js` (needs `fort-kit.js` and `route13.js`) |
-| `mesa-gorge.md` | Lookout Mesa (layered cliffs, rim, fallen rock, the road up, the cabin, summit cairn, lookout point, telescope, flagpole, campfire) and Devil's Gorge (canyon walls, cave mouth, winding river, dead trees, vultures, rim fences, the three bridges, the jump and landing pad, the zipline towers) | `models/mesa-gorge.js` (needs `fort-kit.js` and `route13.js`) |
 
 Build `desert-map.md` after the places it lists (pyramid, crash site, Dusty Gulch, lake) or together with them: their `AREAS` rows are already in.
 

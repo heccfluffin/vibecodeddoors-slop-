@@ -279,7 +279,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx641.js').re
 # quarry underground (docs/design/quarry-underground.md): dx642 = the design chat's models, dx642b = the wiring
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx642.js').read()+"\n"+s[k:]
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx642b.js').read()+"\n"+s[k:]
-# r659 Lookout Mesa and Devil's Gorge (docs/design/mesa-gorge.md): the design chat's models plus the wiring
+# r658 Lookout Mesa and Devil's Gorge (docs/design/mesa-gorge.md): the design chat's models plus the wiring
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx644.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
@@ -915,7 +915,7 @@ R("const rs=[[-3.5,3.5,-1204,-1186],[3.5,16.5,-1052,-1045],[9.5,16.5,-1079.5,-10
 # the Highway Patrol route stays on Route 13 instead of the loop
 R("[0,-1120],[0,-1076],[13,-1076],[13,-1048.5],[0,-1048.5]];","[0,-1120],[0,-1048.5]];")
 # ---------------------------------------------------------------------------------------------------------------
-# r659 mesa and gorge (docs/design/mesa-gorge.md, src/dx644.js): xpMesa and xpGorge are redefined in dx644; these are
+# r658 mesa and gorge (docs/design/mesa-gorge.md, src/dx644.js): xpMesa and xpGorge are redefined in dx644; these are
 # the other places the old meshes were built
 # ---------------------------------------------------------------------------------------------------------------
 # xpGorgeCave: the 46 boulders, the ten sand drifts and the cave mouth's arch are the riverbed and wall models now.
@@ -924,10 +924,10 @@ R("const b=A(new THREE.DodecahedronGeometry(r,0),M(0x8a6248,{roughness:1}),x,Y+r
 R("const dr=A(new THREE.SphereGeometry(4+Math.random()*3,10,6,0,Math.PI*2,0,Math.PI/2),M(0xd8b07a,{roughness:1}),x,Y,z);dr.scale.y=.35","Math.random()")
 R("const ar=A(BX(GCV.tx1-GCV.tx0+1.6,1,1.4),RKM,(GCV.tx0+GCV.tx1)/2,Y+5.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx0-.4,Y+2.5,z0-.2);A(BX(.8,5,1.4),RKM,GCV.tx1+.4,Y+2.5,z0-.2);","")
 # deepOK: the old bridges' two piers were checked here; the new bridges put their posts and piers in q.deepB
-R("for(const[b0,b1]of G.bridges){const W=b1-b0,cx=(b0+b1)/2,mz=(G.z0+G.z1)/2;for(const sd of[-1,1]){const px=cx+sd*(W/2+.2);if(Math.abs(x-px)<.3+r&&Math.abs(lz-mz)<.3+r)return false}}","/* r659: the bridges' piers are in q.deepB */")
+R("for(const[b0,b1]of G.bridges){const W=b1-b0,cx=(b0+b1)/2,mz=(G.z0+G.z1)/2;for(const sd of[-1,1]){const px=cx+sd*(W/2+.2);if(Math.abs(x-px)<.3+r&&Math.abs(lz-mz)<.3+r)return false}}","/* r658: the bridges' piers are in q.deepB */")
 # T('mesa'): the coin binoculars are the lookout point's model; you stand north of them now, looking south through them.
 # The summit book moves to the cairn (q.mgTop.spots.book); its old lectern and book go.
-RB("/* the south rim, looking out over the gorge */A(CY(.08,.1,1.2,8),MT,bx,H+.6,bz);","prop(bx,bz-1.2,1.3,","/* r659: the binoculars are the lookout point's model (dx644) */\n  ")
+RB("/* the south rim, looking out over the gorge */A(CY(.08,.1,1.2,8),MT,bx,H+.6,bz);","prop(bx,bz-1.2,1.3,","/* r658: the binoculars are the lookout point's model (dx644) */\n  ")
 R("prop(bx,bz-1.2,1.3,()=>q.xr?'':'[E] Look through the binoculars","prop(bx,bz+1.2,1.3,()=>q.xr?'':'[E] Look through the binoculars")
 _o,_n="P.x=bx;P.z=bz-.6+q.OZ;","P.x=bx;P.z=bz+.6+q.OZ;";assert s.count(_o)==2;s=s.replace(_o,_n)
 R("const hx=cx+20,hz=cz-10;prop(hx-4.6,hz,1.3,'[E] Sign the summit book'","const bk=(q.mgTop&&q.mgTop.spots&&q.mgTop.spots.book)||[cx-4.95,cz+6.25];prop(bk[0],bk[1],1.3,'[E] Sign the summit book'")
@@ -953,7 +953,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-23 r657';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-10-23 r658';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
