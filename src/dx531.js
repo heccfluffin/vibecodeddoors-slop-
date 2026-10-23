@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r654',['Smoother desert: people and other moving pieces (officers, groundskeepers, soldiers) are drawn together in a few batches instead of piece by piece. They look and move exactly as before']],
 ['r653',['Smoother desert: far scenery takes a little less work to keep up, and the hidden parts of vehicles (damage looks, spare missiles, lights that are off) are no longer worked out every frame']],
 ['r652',['Smoother desert: scenery more than 160 m away is drawn as simple shapes, and far places with nothing moving in them are skipped entirely until you get closer. Closer than 140 m everything looks exactly as before']],
 ['r651',['Smoother desert: vehicles more than 160 m away are drawn as one simple shape instead of up to a hundred pieces (the Fort\'s motor pool was thousands of pieces). Closer than 140 m they look exactly as before, and everything they do is unchanged']],
