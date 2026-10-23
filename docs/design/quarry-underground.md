@@ -1,4 +1,4 @@
-Status: plan approved by the user 2026-10-19 · batch 1 (the kit, tunnels, stations, rounds, ladderway, decline) approved 2026-10-20 · batch 2 (level 1 rooms) approved 2026-10-20 · batch 3 (level 2, the caves) approved 2026-10-20 · batch 4 (level 3, The Deep) approved 2026-10-20 · batch 5 (the shift props) approved 2026-10-20 · built in candidate, not yet released (2026-10-23, branch wt-quarry: dx642 + dx642b)
+Status: shipped in r656 (2026-10-23)
 
 # The Old Quarry underground: the quarry mine, rebuilt
 

@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r656',['The mine under the Old Quarry is rebuilt: three levels of tunnels, caves and The Deep, with real rooms, a spiral decline, ladders, a raft and a zip line','The shift: rockfall, dynamite, gas, pickups, map boards and a cage panel. Buy Shaft sinking on the tycoon board to go deeper']],
 ['r655',['The jury and their seats in the courthouse now face the court (they were facing the wall)']],
 ['r654',['Smoother desert: people and other moving pieces (officers, groundskeepers, soldiers) are drawn together in a few batches instead of piece by piece. They look and move exactly as before']],
 ['r653',['Smoother desert: far scenery takes a little less work to keep up, and the hidden parts of vehicles (damage looks, spare missiles, lights that are off) are no longer worked out every frame']],

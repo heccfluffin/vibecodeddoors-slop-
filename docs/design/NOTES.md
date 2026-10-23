@@ -1,6 +1,6 @@
 # Notes for the design chat
 
-## 2026-10-23 · candidate: the quarry underground (not released yet)
+## 2026-10-23 · r656: the quarry underground
 - Built from `quarry-underground.md` on the candidate branch `wt-quarry`. `dx642` holds the seven model files byte for byte
   (in their load order); `dx642b` is the wiring. `?nougm` in the address keeps the old mine.
 - **How it plays now:** the cage stops at level 1; the new Quarry Tycoon upgrade SHAFT SINKING (🕳️, 300 / 900 gold) opens
