@@ -343,12 +343,14 @@ function ugmCloud(L,x,y,z,kind){const lev=UGM.L[L];if(!lev)return;const g=ugGasC
 function ugmVeinBroke(q,n,local){if(n.gas){const r=n.rec;ugmCloud(n.L,r.c.x+r.dx*1.6,UGLY(n.L),r.c.z+r.dz*1.6,'gas');if(q.deep===5&&n.L===UGM.lv){snd(200,.6);hint('☁️ A hiss from the rock... GAS! Yellow air: walk out of it before your breath runs out.')}}
  if(n.ur)MN.ur=MN.nodes.filter(m=>m.L===UGM.lv&&m.ur&&!m.gone)}
 function ugmInRefuge(mx,mz){const lev=UGM.L[UGM.lv];return!!(lev&&lev.refuge&&Math.hypot(mx-lev.refuge.x,mz-lev.refuge.z)<2.7)}
-function ugmGasTick(q,dt){let inG=false;const mx=P.x-MN.ox,mz=P.z-q.OZ-MN.oz,my=(P.dy||0)-UGL[0].y;
+function ugmGasTick(q,dt){const now=performance.now();if(now-(UGM.gt||0)>2000)UGM.breath=1;/* (back after being away: a full breath) */UGM.gt=now;let inG=false;const mx=P.x-MN.ox,mz=P.z-q.OZ-MN.oz,my=(P.dy||0)-UGL[0].y;
  for(let i=UGM.gas.length-1;i>=0;i--){const c=UGM.gas[i];c.t+=dt;if(!c.g.userData.tick(c.t,c.life)){UGM.gas.splice(i,1);if(c.g.parent)c.g.parent.remove(c.g);c.g.traverse(o=>{if(o.material&&o.material.userData)o.material.userData.ugOwn=1});ugmFree(c.g);continue}
   if(c.kind=='gas'&&q.deep===5&&!MN.ride&&c.L===UGM.lv&&c.t<c.life-3&&Math.hypot(mx-c.x,mz-c.z)<3.3&&Math.abs(my-c.y)<3)inG=true}
  if(inG&&ugmInRefuge(mx,mz))inG=false;
  if(inG){UGM.breath=Math.max(0,UGM.breath-dt/6);if(UGM.breath<=0&&!UGM.out)ugmPassOut(q)}else UGM.breath=Math.min(1,UGM.breath+dt/3);
  ugmUI(inG,UGM.breath)}
+/* r661: the breath bar only while the mine's gas check is running (it stayed on screen, empty, after you left the mine mid-gas) */
+setInterval(()=>{const d=document.getElementById('ugmGas');if(d&&d.style.display!=='none'&&!(performance.now()-(UGM.gt||0)<300)){d.style.display='none'}},250);
 function ugmUI(inG,b){let d=document.getElementById('ugmGas');if(!inG&&b>=1){if(d)d.style.display='none';return}if(!d){d=document.createElement('div');d.id='ugmGas';d.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:30;display:none';d.innerHTML='<div style="position:absolute;inset:0;background:radial-gradient(circle,rgba(200,224,80,.12),rgba(160,190,40,.42))"></div><div style="position:absolute;left:50%;bottom:22%;transform:translateX(-50%);width:220px;font:bold 13px DoorsSans,Arial;color:#f0f0c0;text-align:center;text-shadow:0 1px 2px #000">BREATH<div style="margin-top:3px;height:10px;border:2px solid #e0e090;border-radius:6px;background:#0008;overflow:hidden"><div id="ugmGasB" style="height:100%;background:#d8e050"></div></div></div>';document.body.appendChild(d)}
  d.style.display='block';d.firstChild.style.opacity=inG?1:.35;const bb=document.getElementById('ugmGasB');if(bb)bb.style.width=Math.round(b*100)+'%'}
 function ugmPassOut(q){UGM.out=1;const aid=UGM.aid;try{bsF.style.transition='opacity .6s';bsF.style.background='#000';bsF.style.opacity=1}catch(e){}snd(80,.8);
