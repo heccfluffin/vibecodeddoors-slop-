@@ -31,6 +31,7 @@ function fscCollect(q,c,sm,st){const root=sm?c.userData.smg:c;if(!root)return nu
  const mems=[[],[],[]];let nv=[0,0,0],ni=[0,0,0];const mcache=new Map();
  const walk=o=>{if(!sm&&o===c.userData.smg)return;if(o!==root&&!o.visible)return;st.nodes.push(o);
   if(lv&&lv.has(o)){st.keep.push(o);return}/* (it changes on its own: stays real) */
+  if(o.__skn&&o.isMesh){st.keep.push(o);return}/* (r662: drawn by the people batching, dx640: stays as it is) */
   if(o.isLight){st.keep.push(o);return}
   if(o.userData.dpMerged){if(o.layers.mask&1)st.batches.push(o);return}
   if(o.isSprite||o.isPoints||o.isLine||o.isInstancedMesh||o.isSkinnedMesh){st.keep.push(o);return}
@@ -56,7 +57,7 @@ function fscStart(q,c){const LV=FSC.lively.get(c);const st={inv:new THREE.Matrix
  const main=fscCollect(q,c,false,st),sm=fscCollect(q,c,true,st);if(!main&&!sm)return'nothing';
  /* something that stays real but is hidden inside a batch that would be hidden: it would vanish, so the cell stays as it is */
  if(st.keep.length){const own=new Map();for(const r of[c,c.userData.smg])if(r)for(const rec of(r.userData.dpRecs||[]))if(!rec.dead&&rec.mesh)for(const mm of rec.mems)if(!mm.out)own.set(mm.o,rec.mesh);
-  for(const k of st.keep)if(k.isMesh&&k.layers.mask===4)return'blocked';
+  for(const k of st.keep)if(k.isMesh&&k.layers.mask===4&&!k.__skn)return'blocked';
   const kept=new Set();for(const k of st.keep)k.traverse(x=>kept.add(x));for(const b of st.batches){const rec=[c,c.userData.smg].map(r=>r&&(r.userData.dpRecs||[]).find(x=>x.mesh===b)).find(Boolean);if(rec&&rec.mems.some(mm=>!mm.out&&kept.has(mm.o)))return'blocked'}}
  const objs=fscObjs(c),sig=new Float64Array(objs.length);for(let i=0;i<objs.length;i++)sig[i]=fscSig(objs[i]);
  const e={c,mode:st.keep.length?'layers':'hide',main:[],sm:[],on:false,ok:false,xv:true,st,objs,sig,hid:[],ri:0,pi:0,mats:[...st.mats].map(m=>[m,flvSig(m)]),t:performance.now()};

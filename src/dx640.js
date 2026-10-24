@@ -13,10 +13,15 @@
    drawn on its own at once, and that material is not batched again. Pieces with their own render code, pictures that
    are not plain images, mirrored pieces and pieces stretched unevenly are left alone.
    ?noskn in the address turns it off to compare.
+   r662: the people and other moving things standing inside the scenery cells (soldiers at the Fort, workers...) are
+   batched too (they were left out because far scenery looks after the cells; far scenery now leaves these pieces to
+   this, see dx638). Still scenery stays with the batcher and far scenery. Pieces in cells are not hidden by the
+   distance culling of loose pieces (it never applied to the cells; the cells hide as a whole). ?nosknc turns this
+   part off.
    ===================================================================================================== */
 /* two sets of bones: pieces that move (sent to the graphics card every frame) and still pieces (sent only when one changes) */
 function sknPools(){return[{id:'m',recs:[],free:[],sk:null,cap:0,ch:false},{id:'s',recs:[],free:[],sk:null,cap:0,ch:false}]}
-const SKN={on:!/[?&]noskn/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
+const SKN={on:!/[?&]noskn(?:[&=]|$)/.test(location.search),cells:!/[?&]nosknc(?:[&=]|$)/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
  scan:null,scanT:-1e9,pend:new Map(),lively:new WeakSet(),mats:new Map(),drop:[],rb:new Set(),af:0,gm:new Float64Array(16),
  SCAN:30000,BUD:.25,fr:0,stats:{pieces:0,batches:0,dropped:0,builds:0,ms:0,why:{}}};
 const _skM=new THREE.Matrix4(),_skG=new THREE.Matrix4(),_skN=new THREE.Matrix3(),_skV=new THREE.Vector3(),_skI=new THREE.Matrix4();
@@ -42,7 +47,8 @@ function sknWhy(q,o,lam){if(!o.isMesh||o.children.length||o.isSprite||o.isPoints
 /* the places to look in: everything in the desert that is not scenery cells, vehicles or the far shapes */
 function sknRoots(q){const veh=new Set((q.vehs||[]).map(v=>v&&v.m));if(q.heli&&q.heli.m)veh.add(q.heli.m);const skip=new Set([q.sky,q.sun,q.zsky,q.zstar,q.sand,q.bg,BUS._sky,BUS._sun,SKN.g].filter(Boolean));
  if(typeof FSC!='undefined'&&FSC.g)skip.add(FSC.g);if(typeof WARM!='undefined'&&WARM.prox)skip.add(WARM.prox);
- return q.g.children.filter(o=>!o.userData.chunk&&!veh.has(o)&&!skip.has(o)&&!o.__mwKeep&&!o.userData.fsc&&!o.userData.flv&&(o.isGroup||o.type==='Object3D')&&o.updateMatrixWorld===_mwP)}
+ /* (r662: the scenery cells too, for their moving things only) */const cells=SKN.cells?(q.chunks||[]).filter(c=>c.parent===q.g):[];
+ return cells.concat(q.g.children.filter(o=>!o.userData.chunk&&!veh.has(o)&&!skip.has(o)&&!o.__mwKeep&&!o.userData.fsc&&!o.userData.flv&&(o.isGroup||o.type==='Object3D')&&o.updateMatrixWorld===_mwP))}
 /* look for new pieces, a little each frame */
 function sknScan(q,budget){const t0=performance.now(),now=t0;let S2=SKN.scan;if(!S2){if(now-SKN.scanT<SKN.SCAN)return;SKN.scanT=now;S2=SKN.scan={st:sknRoots(q).map(r=>[r,0]),n:0}}
  const lam=DP.cfg().lam;let k=0;
@@ -50,7 +56,7 @@ function sknScan(q,budget){const t0=performance.now(),now=t0;let S2=SKN.scan;if(
   if(top[1]>=o.children.length){S2.st.pop();continue}const c=o.children[top[1]++];if(!c.visible&&!c.isMesh)continue;
   if(c.children.length){if(c.updateMatrixWorld===_mwP&&!c.__mwKeep)S2.st.push([c,0]);continue}
   if(c.__skn||!c.isMesh)continue;const w=sknWhy(q,c,lam);if(w){SKN.stats.why[w]=(SKN.stats.why[w]|0)+1;continue}
-  if(SKN.P[0].recs.length+SKN.P[1].recs.length+S2.n>60000)break;let mv=false;for(let p=c;p&&p!==q.g;p=p.parent){const u=p.userData;if(u.dpDyn||u.dpKeep||u.mv){mv=true;break}}const key=(mv?'m':'s')+'|'+sknKey(c.material);let L=SKN.pend.get(key);if(!L)SKN.pend.set(key,L=[]);L.push(c);c.__skn=1;S2.n++}
+  if(SKN.P[0].recs.length+SKN.P[1].recs.length+S2.n>60000)break;let mv=false,cell=false;for(let p=c;p&&p!==q.g;p=p.parent){const u=p.userData;if(u.dpDyn||u.dpKeep||u.mv)mv=true;if(u.chunk)cell=true}if(cell&&!mv){SKN.stats.why['scenery, still']=(SKN.stats.why['scenery, still']|0)+1;continue}const key=(mv?'m':'s')+'|'+sknKey(c.material);let L=SKN.pend.get(key);if(!L)SKN.pend.set(key,L=[]);L.push(c);c.__skn=1;S2.n++}
  SKN.scan=null;for(const key of SKN.pend.keys())SKN.rb.add(key)}
 /* the shared skeleton (one bone per piece); it grows when needed */
 function sknSkel(P,n){if(P.sk&&n<=P.cap)return false;let cap=Math.max(256,P.cap||0);while(cap<n)cap*=2;const b=new THREE.Bone(),I=new THREE.Matrix4();
@@ -60,7 +66,7 @@ function sknSkel(P,n){if(P.sk&&n<=P.cap)return false;let cap=Math.max(256,P.cap|
 function sknRec(q,o,P){const slot=P.free.length?P.free.pop():P.recs.length;const self=sknEven(o.matrixWorld.elements);
  const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const bs=g.boundingSphere;
  const r={o,slot,mat:o.material,geo:o.geometry,pv:g.attributes.position.version,mask:o.layers.mask,self,pm:self?null:Float64Array.from(o.matrix.elements),bm:new Float64Array(16),f:-1,af:-1,on:false,vis:false,dead:false,
-  c:bs.center.clone(),rad:bs.radius,wx:0,wy:0,wz:0,wr:0,key:null,P};P.recs[slot]=r;o.layers.mask=1<<DP.HID;o.userData.dpDyn=1;
+  c:bs.center.clone(),rad:bs.radius,wx:0,wy:0,wz:0,wr:0,key:null,P,ch:false};for(let p=o.parent;p;p=p.parent)if(p.userData&&p.userData.chunk){r.ch=true;break}P.recs[slot]=r;o.layers.mask=1<<DP.HID;o.userData.dpDyn=1;
  let ms=SKN.mats.get(r.mat);if(!ms){ms={sig:sknMatSig(r.mat),n:0,f:-1,bad:false};SKN.mats.set(r.mat,ms)}ms.n++;r.ms=ms;return r}
 /* (re)make the shape for one kind of material: every live piece of that kind, each vertex tied to its piece's bone */
 function sknBuild(q,key){const t0=performance.now(),P=SKN.P[key[0]==='m'?0:1];let B=SKN.bat.get(key);if(!B){B={key,P,recs:[],mesh:null,dead:0,later:[]};SKN.bat.set(key,B)}
@@ -108,7 +114,7 @@ function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SK
    const c=r.c,x=c.x,y=c.y,z=c.z;r.wx=ow[0]*x+ow[4]*y+ow[8]*z+ow[12];r.wy=ow[1]*x+ow[5]*y+ow[9]*z+ow[13];r.wz=ow[2]*x+ow[6]*y+ow[10]*z+ow[14];
    r.wr=r.rad*(r.self?Math.sqrt(ow[0]*ow[0]+ow[1]*ow[1]+ow[2]*ow[2]):o.matrixWorld.getMaxScaleOnAxis());r.f=f;r.af=SKN.af;r.dirty=true}
   r.vis=true;
-  if(pc&&(need||turn||mov)){const dx=r.wx-cx,dy=r.wy-cy,dz=r.wz-cz,w=r.wr,lim=(w<1.2?D0:w<4?D1:1e9);const L=(lim<far?lim:far)+w;r.cull=dx*dx+dy*dy+dz*dz>L*L}else if(!pc)r.cull=false;
+  if(r.ch)r.cull=false;else if(pc&&(need||turn||mov)){const dx=r.wx-cx,dy=r.wy-cy,dz=r.wz-cz,w=r.wr,lim=(w<1.2?D0:w<4?D1:1e9);const L=(lim<far?lim:far)+w;r.cull=dx*dx+dy*dy+dz*dz>L*L}else if(!pc)r.cull=false;
   if(!r.cull){const ms=r.ms;if(ms.f!==fr){ms.f=fr;if(!ms.bad&&!sknMatSame(r.mat,ms.sig)){ms.bad=true;SKN.lively.add(r.mat)}}
    if(ms.bad||r.geo.attributes.position.version!==r.pv){sknDrop(r,ms.bad?'look changed':'shape changed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}continue}
    if(!r.on||r.dirty){const bm=r.bm;for(let i=0;i<16;i++)B[j+i]=bm[i];r.on=true;r.dirty=false;wr=true}const b=r.B;if(b){b.n++;const w=r.wr;if(r.wx-w<b.x0)b.x0=r.wx-w;if(r.wx+w>b.x1)b.x1=r.wx+w;if(r.wy-w<b.y0)b.y0=r.wy-w;if(r.wy+w>b.y1)b.y1=r.wy+w;if(r.wz-w<b.z0)b.z0=r.wz-w;if(r.wz+w>b.z1)b.z1=r.wz+w}}
