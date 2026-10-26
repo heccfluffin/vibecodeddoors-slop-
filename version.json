@@ -1,1 +1,1 @@
-{"b": "r662", "notes": "Smoother desert: moving things among the scenery are drawn together in a few batches"}
+{"b": "r663", "notes": "Smoother desert in Firefox: only the people and moving things that moved are sent to the graphics card each frame"}

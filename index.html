@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-10-25 r662';
+const BUILD='2026-10-26 r663';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15890,6 +15890,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r663',['Smoother desert in Firefox: the game now only sends the people and moving things that actually moved to your graphics card each frame, instead of all of them (r662 made that list four times bigger). Nothing looks different']],
 ['r662',['Smoother desert: soldiers, workers and other moving things standing among the scenery (like at Fort Blackout) are now drawn together in a few batches too. They look and move exactly as before']],
 ['r661',['The mine\'s BREATH bar now only shows while you are in gas or getting your breath back (it could stay on screen after leaving the mine)']],
 ['r660',['The desert map is redone: every area is outlined and named, buildings are drawn where they really are, and roads show as asphalt or dirt','Smooth zoom that stays on the point under your mouse, and switches under the map for places, base buildings, phone booths and stunt jumps','The minimap shows the name of the area you are in (and the nearest base building in Fort Blackout) and icons for the places round you','Map warps work from area names, places and base names too, and never drop you inside a building']],
@@ -32117,8 +32118,8 @@ const MWV={on:!/[?&]nomwv/.test(location.search),skipped:0};
    part off.
    ===================================================================================================== */
 /* two sets of bones: pieces that move (sent to the graphics card every frame) and still pieces (sent only when one changes) */
-function sknPools(){return[{id:'m',recs:[],free:[],sk:null,cap:0,ch:false},{id:'s',recs:[],free:[],sk:null,cap:0,ch:false}]}
-const SKN={on:!/[?&]noskn(?:[&=]|$)/.test(location.search),cells:!/[?&]nosknc(?:[&=]|$)/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
+function sknPools(){return[{id:'m',recs:[],free:[],sk:null,cap:0,ch:false,dq:[]},{id:'s',recs:[],free:[],sk:null,cap:0,ch:false,dq:[]}]}
+const SKN={on:!/[?&]noskn(?:[&=]|$)/.test(location.search),sub:!/[?&]nosknsub(?:[&=]|$)/.test(location.search),ds:[],up:{full:0,part:0,rows:0,bytes:0},cells:!/[?&]nosknc(?:[&=]|$)/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
  scan:null,scanT:-1e9,pend:new Map(),lively:new WeakSet(),mats:new Map(),drop:[],rb:new Set(),af:0,gm:new Float64Array(16),
  SCAN:30000,BUD:.25,fr:0,stats:{pieces:0,batches:0,dropped:0,builds:0,ms:0,why:{}}};
 const _skM=new THREE.Matrix4(),_skG=new THREE.Matrix4(),_skN=new THREE.Matrix3(),_skV=new THREE.Vector3(),_skI=new THREE.Matrix4();
@@ -32188,6 +32189,21 @@ function sknBuild(q,key){const t0=performance.now(),P=SKN.P[key[0]==='m'?0:1];le
 /* every frame, before drawing: each piece's bone from the piece itself (called by three.js for the skeleton, once per drawing) */
 /* is this group shown, all the way up? (worked out once per group per frame; null = no longer in the desert) */
 function sknVis(p,q,fr){if(p.__skf===fr)return p.__skv;let v;if(!p.visible)v=false;else{const pp=p.parent;v=pp===q.g?true:pp?sknVis(pp,q,fr):null}p.__skf=fr;p.__skv=v;return v}
+/* r663: sending the bones to the graphics card. three.js keeps a batch's bones in one square picture and sends ALL of it
+   whenever anything changed (1 MB a frame once the moving list grew past 4,096 pieces in r662). Now only the rows that
+   changed are sent, in a few strips; the whole picture is still sent the first time, after a rebuild, or when most of it
+   changed. ?nosknsub in the address sends the whole picture every time, like r662 */
+function sknUp(P,ds){const sk=P.sk,t=sk&&sk.boneTexture;if(!t){P.dq.length=0;return}const pr=R.properties.get(t),sz=sk.boneTextureSize,U=SKN.up;
+ const full=()=>{t.needsUpdate=true;P.dq.length=0;U.full++;U.bytes+=sz*sz*16};
+ if(!SKN.sub||!pr.__webglTexture||pr.__version!==t.version||!sz)return full();
+ const rows=SKN.rows&&SKN.rows.length===sz?SKN.rows:(SKN.rows=new Uint8Array(sz));rows.fill(0);const per=sz/4;let n=0;
+ for(const s of ds){const y=(s/per)|0;if(!rows[y]){rows[y]=1;n++}}for(const s of P.dq){const y=(s/per)|0;if(y<sz&&!rows[y]){rows[y]=1;n++}}P.dq.length=0;
+ if(n>sz/2)return full();
+ /* strips: rows next to each other (or 4 apart) go together */
+ const runs=[];for(let y=0;y<sz;y++){if(!rows[y])continue;const L=runs[runs.length-1];if(L&&y-L[1]<=4)L[1]=y+1;else runs.push([y,y+1])}
+ if(runs.length>24)return full();
+ const gl=R.getContext();R.state.bindTexture(gl.TEXTURE_2D,pr.__webglTexture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);gl.pixelStorei(gl.UNPACK_ALIGNMENT,4);
+ const B=sk.boneMatrices;for(const[a,b]of runs){gl.texSubImage2D(gl.TEXTURE_2D,0,0,a,sz,b-a,gl.RGBA,gl.FLOAT,B.subarray(a*sz*4,b*sz*4));U.rows+=b-a;U.bytes+=(b-a)*sz*16}U.part++}
 /* every frame, right after the frame's own position update and before anything is drawn: each piece's bone from the piece itself */
 function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SKN.bt===SKN.tn&&SKN.bx===cp.x&&SKN.by===cp.y&&SKN.bz===cp.z&&!SKN.force)return;SKN.bt=SKN.tn;SKN.bx=cp.x;SKN.by=cp.y;SKN.bz=cp.z;SKN.force=false;const fr=++SKN.fr;for(const B of SKN.bat.values()){B.n=0;B.x0=B.y0=B.z0=1e30;B.x1=B.y1=B.z1=-1e30}const G=SKN.g.matrixWorld.elements,gm=SKN.gm;
  let gch=false;for(let i=0;i<16;i++)if(G[i]!==gm[i]){gch=true;gm[i]=G[i]}if(gch){SKN.af++;_skG.fromArray(gm).invert()}
@@ -32195,34 +32211,34 @@ function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SK
  /* the distance culling of small far pieces (r603, perfCull) applies to them as before (it looks at each piece in turn; so
     does this: still pieces and pieces already culled are looked at again every 8th frame, moving shown pieces every frame) */
  const pc=typeof PERF!='undefined'&&PERF.on;let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}const cx=C.position.x,cy=C.position.y,cz=C.position.z,D0=PERF_D[0],D1=PERF_D[1];
- for(const P of SKN.P){const sk=P.sk;if(!sk)continue;const B=sk.boneMatrices,R2=P.recs,mov=P.id==='m';let wr=false;
+ for(const P of SKN.P){const sk=P.sk;if(!sk)continue;const B=sk.boneMatrices,R2=P.recs,mov=P.id==='m';let wr=false;const ds=SKN.ds;ds.length=0;
  for(let s=0,n=R2.length;s<n;s++){const r=R2[s];if(!r||r.dead)continue;const o=r.o,j=s*16;
   const turn=SKN.allTurn||((s+fr)&7)===0;if(r.cull&&r.vis&&!turn)continue;
-  if(o.material!==r.mat||o.geometry!==r.geo||o.layers.mask!==4||!o.parent){sknDrop(r,!o.parent?'removed':o.layers.mask!==4?'layer changed':'material or shape changed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}continue}
-  let vis=o.visible&&r.mat.visible;if(vis){const pv=sknVis(o.parent,q,fr);if(pv===null){sknDrop(r,'removed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}continue}vis=pv}
-  if(!vis){if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}r.vis=false;continue}
+  if(o.material!==r.mat||o.geometry!==r.geo||o.layers.mask!==4||!o.parent){sknDrop(r,!o.parent?'removed':o.layers.mask!==4?'layer changed':'material or shape changed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}
+  let vis=o.visible&&r.mat.visible;if(vis){const pv=sknVis(o.parent,q,fr);if(pv===null){sknDrop(r,'removed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}vis=pv}
+  if(!vis){if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}r.vis=false;continue}
   /* its place in the world, exactly as the frame's own update would work it out */
   let ch;if(stamp)ch=mwSelf(o,false);else{if(o.matrixAutoUpdate)o.updateMatrix();o.matrixWorld.multiplyMatrices(o.parent.matrixWorld,o.matrix);o.matrixWorldNeedsUpdate=false;ch=true}
   const need=ch||!r.vis||r.af!==SKN.af||r.f<0;
   if(need){const ow=o.matrixWorld.elements,e=r.self?ow:o.parent.matrixWorld.elements;
-   if(!r.self){const m=o.matrix.elements,pm=r.pm;let same=true;for(let i=0;i<16;i++)if(m[i]!==pm[i]){same=false;break}if(!same){sknDrop(r,'piece moved inside');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}continue}}
-   if(!sknEven(e)){sknDrop(r,'stretched');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}continue}
+   if(!r.self){const m=o.matrix.elements,pm=r.pm;let same=true;for(let i=0;i<16;i++)if(m[i]!==pm[i]){same=false;break}if(!same){sknDrop(r,'piece moved inside');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}}
+   if(!sknEven(e)){sknDrop(r,'stretched');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}
    _skM.fromArray(e);_skM.premultiply(_skG);const bm=r.bm,me=_skM.elements;for(let i=0;i<16;i++)bm[i]=me[i];
    const c=r.c,x=c.x,y=c.y,z=c.z;r.wx=ow[0]*x+ow[4]*y+ow[8]*z+ow[12];r.wy=ow[1]*x+ow[5]*y+ow[9]*z+ow[13];r.wz=ow[2]*x+ow[6]*y+ow[10]*z+ow[14];
    r.wr=r.rad*(r.self?Math.sqrt(ow[0]*ow[0]+ow[1]*ow[1]+ow[2]*ow[2]):o.matrixWorld.getMaxScaleOnAxis());r.f=f;r.af=SKN.af;r.dirty=true}
   r.vis=true;
   if(r.ch)r.cull=false;else if(pc&&(need||turn||mov)){const dx=r.wx-cx,dy=r.wy-cy,dz=r.wz-cz,w=r.wr,lim=(w<1.2?D0:w<4?D1:1e9);const L=(lim<far?lim:far)+w;r.cull=dx*dx+dy*dy+dz*dz>L*L}else if(!pc)r.cull=false;
   if(!r.cull){const ms=r.ms;if(ms.f!==fr){ms.f=fr;if(!ms.bad&&!sknMatSame(r.mat,ms.sig)){ms.bad=true;SKN.lively.add(r.mat)}}
-   if(ms.bad||r.geo.attributes.position.version!==r.pv){sknDrop(r,ms.bad?'look changed':'shape changed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}continue}
-   if(!r.on||r.dirty){const bm=r.bm;for(let i=0;i<16;i++)B[j+i]=bm[i];r.on=true;r.dirty=false;wr=true}const b=r.B;if(b){b.n++;const w=r.wr;if(r.wx-w<b.x0)b.x0=r.wx-w;if(r.wx+w>b.x1)b.x1=r.wx+w;if(r.wy-w<b.y0)b.y0=r.wy-w;if(r.wy+w>b.y1)b.y1=r.wy+w;if(r.wz-w<b.z0)b.z0=r.wz-w;if(r.wz+w>b.z1)b.z1=r.wz+w}}
-  else if(r.on){B.fill(0,j,j+16);r.on=false;wr=true}}
- if((wr||P.ch)&&sk.boneTexture)sk.boneTexture.needsUpdate=true;P.ch=false}
+   if(ms.bad||r.geo.attributes.position.version!==r.pv){sknDrop(r,ms.bad?'look changed':'shape changed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}
+   if(!r.on||r.dirty){const bm=r.bm;for(let i=0;i<16;i++)B[j+i]=bm[i];r.on=true;r.dirty=false;wr=true;ds.push(s)}const b=r.B;if(b){b.n++;const w=r.wr;if(r.wx-w<b.x0)b.x0=r.wx-w;if(r.wx+w>b.x1)b.x1=r.wx+w;if(r.wy-w<b.y0)b.y0=r.wy-w;if(r.wy+w>b.y1)b.y1=r.wy+w;if(r.wz-w<b.z0)b.z0=r.wz-w;if(r.wz+w>b.z1)b.z1=r.wz+w}}
+  else if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}}
+ if(wr||P.ch)sknUp(P,ds);P.ch=false}
  const gs=Math.sqrt(_skG.elements[0]**2+_skG.elements[1]**2+_skG.elements[2]**2);
  for(const b of SKN.bat.values()){const m=b.mesh;if(!m)continue;m.visible=b.n>0;if(!b.n)continue;const bs=m.geometry.boundingSphere||(m.geometry.boundingSphere=new THREE.Sphere());
   bs.center.set((b.x0+b.x1)/2,(b.y0+b.y1)/2,(b.z0+b.z1)/2).applyMatrix4(_skG);bs.radius=Math.hypot(b.x1-b.x0,b.y1-b.y0,b.z1-b.z0)/2*gs+.01}}
 /* a piece that goes back to being drawn on its own */
 function sknDrop(r,why){if(r.dead)return;r.dead=true;const o=r.o;/* (back on the normal layer: the distance culling decides again from there) */if(o.layers.mask===4)o.layers.mask=1;delete o.__skn;const P=r.P;P.recs[r.slot]=null;
- if(P.sk){P.sk.boneMatrices.fill(0,r.slot*16,r.slot*16+16);P.ch=true}const ms=SKN.mats.get(r.mat);if(ms&&--ms.n<=0)SKN.mats.delete(r.mat);
+ if(P.sk){P.sk.boneMatrices.fill(0,r.slot*16,r.slot*16+16);P.dq.push(r.slot);P.ch=true}const ms=SKN.mats.get(r.mat);if(ms&&--ms.n<=0)SKN.mats.delete(r.mat);
  const B=SKN.bat.get(r.key);if(B){B.dead++;B.later.push(r.slot);if(B.dead*3>B.recs.length)SKN.rb.add(r.key)}else P.free.push(r.slot);SKN.stats.dropped++;SKN.stats.why[why]=(SKN.stats.why[why]|0)+1}
 function sknForgetAll(why){for(const P of SKN.P)for(const r of P.recs)if(r)sknDrop(r,why);for(const B of SKN.bat.values())if(B.mesh){if(B.mesh.parent)B.mesh.parent.remove(B.mesh);try{B.mesh.geometry.dispose()}catch(e){}}
  for(const L of SKN.pend.values())for(const o of L)if(o)delete o.__skn;for(const P of SKN.P)if(P.sk)try{P.sk.dispose()}catch(e){}SKN.P=sknPools();SKN.bat=new Map();SKN.pend=new Map();SKN.mats=new Map();SKN.drop=[];SKN.rb=new Set();SKN.scan=null;
@@ -32238,7 +32254,7 @@ function sknTick(q){const t0=performance.now();SKN.tn=(SKN.tn|0)+1;
  try{if(SKN.on&&q&&q.g&&q.chunks&&!q.ld&&q.dp&&q.dp.merged&&DP._mergedMat&&R.capabilities.floatVertexTextures&&typeof mwSelf=='function')sknTick(q);else if(SKN.g||SKN.bat.size)sknForgetAll('off')}
  catch(e){conLog('error','people batching: '+e.message);SKN.on=false;try{sknForgetAll('error')}catch(x){}}return r}}
 {const u0=S.updateMatrixWorld;S.updateMatrixWorld=function(){const r=u0.apply(this,arguments);if(SKN.on&&SKN.g&&SKN.q&&SKN.g.parent===SKN.q.g)try{sknBones()}catch(e){conLog('error','people batching: '+e.message);SKN.on=false}return r}}
-if(typeof LAGSYS!='undefined'){LAGSYS.push(['sknTick','People and moving pieces (batched)']);{const f0=sknTick;sknTick=function(){if(!LAG.open)return f0.apply(this,arguments);const t=performance.now();try{return f0.apply(this,arguments)}finally{const d=performance.now()-t;LAG.sys.sknTick=(LAG.sys.sknTick||0)+d;LAG.cur.sknTick=(LAG.cur.sknTick||0)+d}}}}
+if(typeof LAGSYS!='undefined'){LAGSYS.push(['sknTick','People and moving pieces (batched)']);LAGSYS.push(['sknBones','People batching: bones (inside drawing)']);{const f0=sknBones;sknBones=function(){if(!LAG.open)return f0.apply(this,arguments);const t=performance.now();try{return f0.apply(this,arguments)}finally{const d=performance.now()-t;LAG.sys.sknBones=(LAG.sys.sknBones||0)+d;LAG.cur.sknBones=(LAG.cur.sknBones||0)+d}}}{const f0=sknTick;sknTick=function(){if(!LAG.open)return f0.apply(this,arguments);const t=performance.now();try{return f0.apply(this,arguments)}finally{const d=performance.now()-t;LAG.sys.sknTick=(LAG.sys.sknTick||0)+d;LAG.cur.sknTick=(LAG.cur.sknTick||0)+d}}}}
 /* for testing: look everywhere and make every shape now */
 function sknForce(){const q=BUS.ride;if(!q||!SKN.g)return null;SKN.scan=null;SKN.scanT=-1e9;sknScan(q,1e9);while(SKN.rb.size){const k=SKN.rb.values().next().value;SKN.rb.delete(k);sknBuild(q,k)}return SKN.stats}
 
