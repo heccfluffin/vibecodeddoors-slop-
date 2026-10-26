@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r663',['Smoother desert in Firefox: the game now only sends the people and moving things that actually moved to your graphics card each frame, instead of all of them (r662 made that list four times bigger). Nothing looks different']],
 ['r662',['Smoother desert: soldiers, workers and other moving things standing among the scenery (like at Fort Blackout) are now drawn together in a few batches too. They look and move exactly as before']],
 ['r661',['The mine\'s BREATH bar now only shows while you are in gas or getting your breath back (it could stay on screen after leaving the mine)']],
 ['r660',['The desert map is redone: every area is outlined and named, buildings are drawn where they really are, and roads show as asphalt or dirt','Smooth zoom that stays on the point under your mouse, and switches under the map for places, base buildings, phone booths and stunt jumps','The minimap shows the name of the area you are in (and the nearest base building in Fort Blackout) and icons for the places round you','Map warps work from area names, places and base names too, and never drop you inside a building']],
