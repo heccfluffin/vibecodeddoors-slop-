@@ -21,7 +21,7 @@
    ===================================================================================================== */
 /* two sets of bones: pieces that move (sent to the graphics card every frame) and still pieces (sent only when one changes) */
 function sknPools(){return[{id:'m',recs:[],free:[],sk:null,cap:0,ch:false,dq:[]},{id:'s',recs:[],free:[],sk:null,cap:0,ch:false,dq:[]}]}
-const SKN={on:!/[?&]noskn(?:[&=]|$)/.test(location.search),sub:!/[?&]nosknsub(?:[&=]|$)/.test(location.search),ds:[],up:{full:0,part:0,rows:0,bytes:0},cells:!/[?&]nosknc(?:[&=]|$)/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
+const SKN={on:!/[?&]noskn(?:[&=]|$)/.test(location.search),quick:!/[?&]nosknq(?:[&=]|$)/.test(location.search),qn:0,qh:0,qg:0,gv:0,sub:!/[?&]nosknsub(?:[&=]|$)/.test(location.search),ds:[],up:{full:0,part:0,rows:0,bytes:0},cells:!/[?&]nosknc(?:[&=]|$)/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
  scan:null,scanT:-1e9,pend:new Map(),lively:new WeakSet(),mats:new Map(),drop:[],rb:new Set(),af:0,gm:new Float64Array(16),
  SCAN:30000,BUD:.25,fr:0,stats:{pieces:0,batches:0,dropped:0,builds:0,ms:0,why:{}}};
 const _skM=new THREE.Matrix4(),_skG=new THREE.Matrix4(),_skN=new THREE.Matrix3(),_skV=new THREE.Vector3(),_skI=new THREE.Matrix4();
@@ -66,7 +66,7 @@ function sknSkel(P,n){if(P.sk&&n<=P.cap)return false;let cap=Math.max(256,P.cap|
 function sknRec(q,o,P){const slot=P.free.length?P.free.pop():P.recs.length;const self=sknEven(o.matrixWorld.elements);
  const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const bs=g.boundingSphere;
  const r={o,slot,mat:o.material,geo:o.geometry,pv:g.attributes.position.version,mask:o.layers.mask,self,pm:self?null:Float64Array.from(o.matrix.elements),bm:new Float64Array(16),f:-1,af:-1,on:false,vis:false,dead:false,
-  c:bs.center.clone(),rad:bs.radius,wx:0,wy:0,wz:0,wr:0,key:null,P,ch:false};for(let p=o.parent;p;p=p.parent)if(p.userData&&p.userData.chunk){r.ch=true;break}P.recs[slot]=r;o.layers.mask=1<<DP.HID;o.userData.dpDyn=1;
+  c:bs.center.clone(),rad:bs.radius,wx:0,wy:0,wz:0,wr:0,key:null,P,ch:false};for(let p=o.parent;p;p=p.parent)if(p.userData&&p.userData.chunk){r.ch=true;break}P.recs[slot]=r;SKN.gv++;o.layers.mask=1<<DP.HID;o.userData.dpDyn=1;
  let ms=SKN.mats.get(r.mat);if(!ms){ms={sig:sknMatSig(r.mat),n:0,f:-1,bad:false};SKN.mats.set(r.mat,ms)}ms.n++;r.ms=ms;return r}
 /* (re)make the shape for one kind of material: every live piece of that kind, each vertex tied to its piece's bone */
 function sknBuild(q,key){const t0=performance.now(),P=SKN.P[key[0]==='m'?0:1];let B=SKN.bat.get(key);if(!B){B={key,P,recs:[],mesh:null,dead:0,later:[]};SKN.bat.set(key,B)}
@@ -107,6 +107,11 @@ function sknUp(P,ds){const sk=P.sk,t=sk&&sk.boneTexture;if(!t){P.dq.length=0;ret
  const gl=R.getContext();R.state.bindTexture(gl.TEXTURE_2D,pr.__webglTexture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);gl.pixelStorei(gl.UNPACK_ALIGNMENT,4);
  const B=sk.boneMatrices;for(const[a,b]of runs){gl.texSubImage2D(gl.TEXTURE_2D,0,0,a,sz,b-a,gl.RGBA,gl.FLOAT,B.subarray(a*sz*4,b*sz*4));U.rows+=b-a;U.bytes+=(b-a)*sz*16}U.part++}
 /* every frame, right after the frame's own position update and before anything is drawn: each piece's bone from the piece itself */
+/* r666: each pool's pieces sorted by the group they sit in */
+function sknGroups(P){const M=new Map();for(let s=0;s<P.recs.length;s++){const r=P.recs[s];if(!r||r.dead)continue;const p=r.o.parent;let g=M.get(p);if(!g){g={p,sl:[],skip:0,cl:-1};M.set(p,g)}g.sl.push(s)}P.G=[...M.values()];P.gv=SKN.gv}
+/* after a group's full look: can it be passed over next time? 1 = every piece culled, 2 = every piece hidden (checked again each frame) */
+function sknGroupEnd(g,R2){let c=true,h=true,n=0;for(const s of g.sl){const r=R2[s];if(!r||r.dead)continue;n++;if(r.on){c=h=false;break}if(!(r.cull&&r.vis))c=false;if(!(r.vis===false&&r.par===g.p))h=false;if(!c&&!h)break}
+ g.skip=!n||!g.p?0:c?1:h?2:0;g.cl=g.p?(g.p.__bkO!==undefined?g.p.__bkO:g.p.children).length:-1}
 function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SKN.bt===SKN.tn&&SKN.bx===cp.x&&SKN.by===cp.y&&SKN.bz===cp.z&&!SKN.force)return;SKN.bt=SKN.tn;SKN.bx=cp.x;SKN.by=cp.y;SKN.bz=cp.z;SKN.force=false;const fr=++SKN.fr;for(const B of SKN.bat.values()){B.n=0;B.x0=B.y0=B.z0=1e30;B.x1=B.y1=B.z1=-1e30}const G=SKN.g.matrixWorld.elements,gm=SKN.gm;
  let gch=false;for(let i=0;i<16;i++)if(G[i]!==gm[i]){gch=true;gm[i]=G[i]}if(gch){SKN.af++;_skG.fromArray(gm).invert()}
  const stamp=typeof MWC!='undefined'&&MWC.on&&MWX.on&&MWX.used,f=stamp?MWC.f:-2;
@@ -114,11 +119,26 @@ function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SK
     does this: still pieces and pieces already culled are looked at again every 8th frame, moving shown pieces every frame) */
  const pc=typeof PERF!='undefined'&&PERF.on;let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}const cx=C.position.x,cy=C.position.y,cz=C.position.z,D0=PERF_D[0],D1=PERF_D[1];
  for(const P of SKN.P){const sk=P.sk;if(!sk)continue;const B=sk.boneMatrices,R2=P.recs,mov=P.id==='m';let wr=false;const ds=SKN.ds;ds.length=0;
- for(let s=0,n=R2.length;s<n;s++){const r=R2[s];if(!r||r.dead)continue;const o=r.o,j=s*16;
-  const turn=SKN.allTurn||((s+fr)&7)===0;if(r.cull&&r.vis&&!turn)continue;
+ /* r666: piece by piece within each group; a group whose pieces were all culled, or which is hidden as a whole, is passed
+    over with one look (every group gets the full look every 8th frame, like each piece did before) */
+ if(P.gv!==SKN.gv)sknGroups(P);const GG=P.G;
+ for(let gi=0,gn=GG.length;gi<gn;gi++){const g=GG[gi],gp=g.p;const turn=SKN.allTurn||((gi+fr)&7)===0;
+ if(SKN.quick&&!turn&&g.skip&&gp&&(gp.__bkO!==undefined?gp.__bkO:gp.children).length===g.cl){if(g.skip===1){SKN.qg++;continue}if((gp.__skf===fr?gp.__skv:sknVis(gp,q,fr))===false){SKN.qg++;continue}}
+ const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;const o=r.o,j=s*16;if(o.parent!==gp)SKN.gv++;
+  if(r.cull&&r.vis&&!turn)continue;
+  /* r666: the quick way for a shown piece where nothing changed since last frame (same group, still shown, same look and
+     shape, not moved, its group not moved): it only joins its batch's box. Anything else, and every 8th frame, goes the full way */
+  /* r666: a hidden piece whose group is already known to be hidden this frame (another of its pieces asked): nothing to do */
+  if(SKN.quick&&!turn&&!r.on&&r.vis===false&&r.par!==undefined){const p=o.parent;if(p===r.par&&p.__skf===fr&&p.__skv===false){SKN.qh++;continue}}
+  if(SKN.quick&&!turn&&stamp&&r.on&&!r.dirty&&r.vis&&!r.cull&&r.af===SKN.af&&r.f>=0&&r.par!==undefined){const p=o.parent;
+   if(p===r.par&&o.visible&&o.material===r.mat&&o.geometry===r.geo&&o.matrixAutoUpdate&&o.__mwpar===p&&(p.__mwchg|0)<=(o.__mwf|0)&&r.mat.visible&&(p.__skf===fr?p.__skv:sknVis(p,q,fr))===true&&o.layers.mask===4&&r.geo.attributes.position.version===r.pv){
+    const ms=r.ms;if(ms.f!==fr){ms.f=fr;if(!ms.bad&&!sknMatSame(r.mat,ms.sig)){ms.bad=true;SKN.lively.add(r.mat)}}
+    const P3=o.position,Q=o.quaternion,Sc=o.scale,c=o.__mwc;
+    if(!ms.bad&&c&&c[0]===P3.x&&c[1]===P3.y&&c[2]===P3.z&&c[3]===Q._x&&c[4]===Q._y&&c[5]===Q._z&&c[6]===Q._w&&c[7]===Sc.x&&c[8]===Sc.y&&c[9]===Sc.z){o.__mwf=MWC.f;SKN.qn++;
+     const b=r.B;if(b){b.n++;const w=r.wr;if(r.wx-w<b.x0)b.x0=r.wx-w;if(r.wx+w>b.x1)b.x1=r.wx+w;if(r.wy-w<b.y0)b.y0=r.wy-w;if(r.wy+w>b.y1)b.y1=r.wy+w;if(r.wz-w<b.z0)b.z0=r.wz-w;if(r.wz+w>b.z1)b.z1=r.wz+w}continue}}}
   if(o.material!==r.mat||o.geometry!==r.geo||o.layers.mask!==4||!o.parent){sknDrop(r,!o.parent?'removed':o.layers.mask!==4?'layer changed':'material or shape changed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}
   let vis=o.visible&&r.mat.visible;if(vis){const pv=sknVis(o.parent,q,fr);if(pv===null){sknDrop(r,'removed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}vis=pv}
-  if(!vis){if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}r.vis=false;continue}
+  if(!vis){if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}r.vis=false;r.par=o.parent;continue}
   /* its place in the world, exactly as the frame's own update would work it out */
   let ch;if(stamp)ch=mwSelf(o,false);else{if(o.matrixAutoUpdate)o.updateMatrix();o.matrixWorld.multiplyMatrices(o.parent.matrixWorld,o.matrix);o.matrixWorldNeedsUpdate=false;ch=true}
   const need=ch||!r.vis||r.af!==SKN.af||r.f<0;
@@ -128,18 +148,19 @@ function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SK
    _skM.fromArray(e);_skM.premultiply(_skG);const bm=r.bm,me=_skM.elements;for(let i=0;i<16;i++)bm[i]=me[i];
    const c=r.c,x=c.x,y=c.y,z=c.z;r.wx=ow[0]*x+ow[4]*y+ow[8]*z+ow[12];r.wy=ow[1]*x+ow[5]*y+ow[9]*z+ow[13];r.wz=ow[2]*x+ow[6]*y+ow[10]*z+ow[14];
    r.wr=r.rad*(r.self?Math.sqrt(ow[0]*ow[0]+ow[1]*ow[1]+ow[2]*ow[2]):o.matrixWorld.getMaxScaleOnAxis());r.f=f;r.af=SKN.af;r.dirty=true}
-  r.vis=true;
+  r.vis=true;r.par=o.parent;
   if(r.ch)r.cull=false;else if(pc&&(need||turn||mov)){const dx=r.wx-cx,dy=r.wy-cy,dz=r.wz-cz,w=r.wr,lim=(w<1.2?D0:w<4?D1:1e9);const L=(lim<far?lim:far)+w;r.cull=dx*dx+dy*dy+dz*dz>L*L}else if(!pc)r.cull=false;
   if(!r.cull){const ms=r.ms;if(ms.f!==fr){ms.f=fr;if(!ms.bad&&!sknMatSame(r.mat,ms.sig)){ms.bad=true;SKN.lively.add(r.mat)}}
    if(ms.bad||r.geo.attributes.position.version!==r.pv){sknDrop(r,ms.bad?'look changed':'shape changed');if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}continue}
    if(!r.on||r.dirty){const bm=r.bm;for(let i=0;i<16;i++)B[j+i]=bm[i];r.on=true;r.dirty=false;wr=true;ds.push(s)}const b=r.B;if(b){b.n++;const w=r.wr;if(r.wx-w<b.x0)b.x0=r.wx-w;if(r.wx+w>b.x1)b.x1=r.wx+w;if(r.wy-w<b.y0)b.y0=r.wy-w;if(r.wy+w>b.y1)b.y1=r.wy+w;if(r.wz-w<b.z0)b.z0=r.wz-w;if(r.wz+w>b.z1)b.z1=r.wz+w}}
   else if(r.on){B.fill(0,j,j+16);r.on=false;wr=true;ds.push(s)}}
+ sknGroupEnd(g,R2)}
  if(wr||P.ch)sknUp(P,ds);P.ch=false}
  const gs=Math.sqrt(_skG.elements[0]**2+_skG.elements[1]**2+_skG.elements[2]**2);
  for(const b of SKN.bat.values()){const m=b.mesh;if(!m)continue;m.visible=b.n>0;if(!b.n)continue;const bs=m.geometry.boundingSphere||(m.geometry.boundingSphere=new THREE.Sphere());
   bs.center.set((b.x0+b.x1)/2,(b.y0+b.y1)/2,(b.z0+b.z1)/2).applyMatrix4(_skG);bs.radius=Math.hypot(b.x1-b.x0,b.y1-b.y0,b.z1-b.z0)/2*gs+.01}}
 /* a piece that goes back to being drawn on its own */
-function sknDrop(r,why){if(r.dead)return;r.dead=true;const o=r.o;/* (back on the normal layer: the distance culling decides again from there) */if(o.layers.mask===4)o.layers.mask=1;delete o.__skn;const P=r.P;P.recs[r.slot]=null;
+function sknDrop(r,why){if(r.dead)return;r.dead=true;const o=r.o;/* (back on the normal layer: the distance culling decides again from there) */if(o.layers.mask===4)o.layers.mask=1;delete o.__skn;const P=r.P;P.recs[r.slot]=null;SKN.gv++;
  if(P.sk){P.sk.boneMatrices.fill(0,r.slot*16,r.slot*16+16);P.dq.push(r.slot);P.ch=true}const ms=SKN.mats.get(r.mat);if(ms&&--ms.n<=0)SKN.mats.delete(r.mat);
  const B=SKN.bat.get(r.key);if(B){B.dead++;B.later.push(r.slot);if(B.dead*3>B.recs.length)SKN.rb.add(r.key)}else P.free.push(r.slot);SKN.stats.dropped++;SKN.stats.why[why]=(SKN.stats.why[why]|0)+1}
 function sknForgetAll(why){for(const P of SKN.P)for(const r of P.recs)if(r)sknDrop(r,why);for(const B of SKN.bat.values())if(B.mesh){if(B.mesh.parent)B.mesh.parent.remove(B.mesh);try{B.mesh.geometry.dispose()}catch(e){}}
