@@ -1,1 +1,1 @@
-{"b": "r663", "notes": "Smoother desert in Firefox: only the people and moving things that moved are sent to the graphics card each frame"}
+{"b": "r664", "notes": "Lag window and Benchmark: new test switches to measure skipping far, off-screen and already-batched things. No game change"}
