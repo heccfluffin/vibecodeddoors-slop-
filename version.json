@@ -1,1 +1,1 @@
-{"b": "r665", "notes": "Smoother desert: batched scenery pieces are no longer walked through every frame (6-10 ms saved in the Benchmark test)"}
+{"b": "r666", "notes": "Smoother desert: people and moving things in batches cost much less each frame"}
