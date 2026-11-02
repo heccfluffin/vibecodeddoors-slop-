@@ -16,9 +16,9 @@
    The lists are found a little at a time (0.5 ms a frame) and found again every 5 s, so newly shown places join in.
    ?nobake in the address turns it off.
    ===================================================================================================== */
-const BAKE={on:!/[?&]nobake(?:[&=]|$)/.test(location.search),q:null,L:[],job:null,t:-1e9,n:0,up:0,fr:0,swp:[],nb:0,dirty:new Set(),wired:0};
+const BAKE={on:!/[?&]nobake(?:[&=]|$)/.test(location.search),q:null,L:[],job:null,t:-1e9,n:0,up:0,fr:0,swp:[],nb:0,dirty:new Set(),wired:0,mids:[],posts:[],rid:0,midR:-1};
 /* a piece the frame's position update leaves out anyway (dx621/dx633/dx639 use the same test) */
-const bakeLeaf=c=>c.isMesh&&!c.isSprite&&c.layers.mask===4&&c.children.length===0&&c.updateMatrixWorld===_mwP&&!c.__mwKeep;
+const bakeLeaf=c=>c.isMesh&&!c.isSprite&&c.layers.mask===4&&c.children.length===0&&c.updateMatrixWorld===_mwP&&!c.__mwKeep&&!c.__abt;
 /* a left-out piece's layers tell its group when they change (only left-out pieces get this, and nothing reads them every frame) */
 function bakeWire(c){if(c.__bk)return;c.__bk=1;BAKE.wired++;const L=c.layers;let m=L.mask;
  Object.defineProperty(L,'mask',{configurable:true,enumerable:true,get(){return m},set(v){if(v!==m){m=v;BAKE.dirty.add(c)}}})}
@@ -44,9 +44,9 @@ function bakeFind(q,ms){const t0=performance.now();let J=BAKE.job;
  for(const e of BAKE.L){const p=e.p;const ok=p.children===e.orig&&e.orig.length===e.len;
   if(!ok){const f=bakeEntry(p);if(!f){e.sk=[];e.orig=p.children;e.len=e.orig.length;continue}e.orig=f.orig;e.len=f.len;e.keep=f.keep;e.sk=f.sk}
   p.__bkE=e;if(!e.sk.length||p.__bkO!==undefined)continue;p.__bkO=e.orig;p.children=e.keep;p.__bkN=e.keep.length;sw.push(p);n+=e.sk.length}
- const t1=performance.now();BAKE.inR=1;
+ const t1=performance.now();BAKE.inR=1;BAKE.rid++;
  try{return r0.apply(this,arguments)}
- finally{BAKE.inR=0;const t2=performance.now();
+ finally{BAKE.inR=0;for(const f of BAKE.posts)try{f()}catch(e){conLog('error','after drawing: '+e.message)}const t2=performance.now();
   /* the real lists back; anything added while drawing goes into the real list too */
   for(const p of sw){const a=p.children,orig=p.__bkO;if(a!==orig&&a.length!==p.__bkN){for(const c of a)if(!orig.includes(c))orig.push(c)}p.children=orig;p.__bkO=undefined}sw.length=0;
   const d=(t1-t0)+(performance.now()-t2);BAKE.n=n;BAKE.up+=d;BAKE.fr++;
@@ -65,5 +65,6 @@ if(BAKE.on){for(let i=LAGHIDE.length-1;i>=0;i--)if(LAGSK.keys[LAGHIDE[i][0]])LAG
 function bakeBack(mid){for(const c of BAKE.dirty){const p=c.parent,e=p&&p.__bkE;if(!e||bakeLeaf(c))continue;const i=e.sk.indexOf(c);if(i<0)continue;
   e.sk.splice(i,1);e.keep.push(c);if(mid&&p.children===e.keep){p.__bkN++;if(typeof mwSelf=='function'&&MWC.on)mwSelf(c,false);else c.updateWorldMatrix(false,false)}}
  BAKE.dirty.clear()}
-{const u0=S.updateMatrixWorld;S.updateMatrixWorld=function(){const r=u0.apply(this,arguments);if(BAKE.inR&&BAKE.dirty.size)try{bakeBack(true)}catch(e){conLog('error','batched pieces: '+e.message)}return r}}
+{const u0=S.updateMatrixWorld;S.updateMatrixWorld=function(){const r=u0.apply(this,arguments);if(BAKE.inR){if(BAKE.dirty.size)try{bakeBack(true)}catch(e){conLog('error','batched pieces: '+e.message)}
+  /* (r667: things that need this frame's positions before anything is drawn, once per drawing) */if(BAKE.midR!==BAKE.rid){BAKE.midR=BAKE.rid;for(const f of BAKE.mids)try{f()}catch(e){conLog('error','before drawing: '+e.message)}}}return r}}
 {const st=lagSpikeTxt;lagSpikeTxt=function(){const t=st.apply(this,arguments);return typeof t=='string'?t.replace(/Hide nothing, but batched pieces walked again \(r665 off, to compare\)/g,'Batched pieces walked again (r665 switched off, to compare)'):t}}
