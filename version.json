@@ -1,1 +1,1 @@
-{"b": "r664", "notes": "Lag window and Benchmark: new test switches to measure skipping far, off-screen and already-batched things. No game change"}
+{"b": "r665", "notes": "Smoother desert: batched scenery pieces are no longer walked through every frame (6-10 ms saved in the Benchmark test)"}
