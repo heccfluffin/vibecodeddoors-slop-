@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r666',['Smoother desert: the people and moving things drawn in batches now cost much less to keep up to date each frame (hidden and far-away groups are passed over with one look, unchanged pieces with a few quick checks). Nothing looks different','Lag window: tidier test step names, and no more short hitch from re-sorting batched pieces']],
 ['r665',['Smoother desert: the game no longer walks through the thousands of scenery pieces that are already drawn as part of a batch, every frame. In the Benchmark test this saved 6 to 10 ms a frame (about 31 to 45 FPS at the Fort). Nothing looks different. Add ?nobake to the address to compare']],
 ['r664',['Lag window (F9) and Benchmark: three new test switches that measure how much smoother the desert could get if far, off-screen and already-batched things were skipped. Nothing in the game changes']],
 ['r663',['Smoother desert in Firefox: the game now only sends the people and moving things that actually moved to your graphics card each frame, instead of all of them (r662 made that list four times bigger). Nothing looks different']],
