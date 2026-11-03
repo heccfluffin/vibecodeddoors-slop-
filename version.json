@@ -1,1 +1,1 @@
-{"b": "r668", "notes": "Smoother desert: single scenery pieces join the area batches too. Nothing looks different"}
+{"b": "r669", "notes": "Smoother desert: no more hitch every 8th frame from the batch watchdog; less upkeep for far scenery and area batches"}
