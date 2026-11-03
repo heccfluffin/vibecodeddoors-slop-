@@ -1024,6 +1024,29 @@ _o,_n=("dmapDraw(q,DMAP.fc,(DMAP.zm||1)>1.01?P.x+(DMAP.px||0):0,(DMAP.zm||1)>1.0
 R("innerHeight/zm-(sh?62:130)","innerHeight/zm-(sh?62:172)")
 # roads say what they are on the map (asphalt or dirt); the two colours stay as the fallback
 R("rect(r.x0,r.x1,r.z0,r.z1,r.dirt?'#8a6a44':'#4a4440');","rect(r.x0,r.x1,r.z0,r.z1,r.dirt?'#8a6a44':'#4a4440');{const _m=q.mapR&&q.mapR[q.mapR.length-1];if(_m&&_m.x0===r.x0&&_m.z0===r.z0)_m.road=r.dirt?'dirt':'asphalt'}")
+
+# r669 the batch watchdog (r500) spread over frames and made cheaper (?nodpw = the old way)
+R("function memDirty(rec,m){const o=m.o;if(!o.parent||!o.visible)return 1;let p=o.parent;while(p&&p!==rec.root){if(!p.visible)return 1;p=p.parent}if(!p)return 1;if(typeof mwFresh==='function')mwFresh(o);",
+  "/* r669: the watchdog. Things that can move were all checked every 8th frame (about 7,800 pieces near the Fort: a 20-30 ms\n   hitch every 8th frame); now a slice is checked every frame (dpWatchSlice). Each check is cheaper too: the chain up to the\n   batch's group is looked at once per group per pass, and the position compare is skipped when the position system's\n   change stamps (r647) say neither the piece nor its group was worked out again since it was last found unchanged */\n"
+  "const DPW={on:!/[?&]nodpw(?:[&=]|$)/.test(location.search),ps:0,MB:.4,RB:.2,one:[null]};\n"
+  "function memDirty(rec,m){const o=m.o;if(!o.parent||!o.visible)return 1;let p=o.parent;"
+  "if(DPW.on&&p.__wdc===DPW.ps&&p.__wdr===rec.root){if(!p.__wdv)return 1}else{let x=p,ok=true;while(x&&x!==rec.root){if(!x.visible){ok=false;break}x=x.parent}if(!x)ok=false;p.__wdc=DPW.ps;p.__wdr=rec.root;p.__wdv=ok;if(!ok)return 1}"
+  "if(typeof mwFresh==='function')mwFresh(o);")
+R(" _mA.multiplyMatrices(rec.inv,o.matrixWorld);const e=_mA.elements,s=m.m;for(let i=0;i<16;i++)if(Math.abs(e[i]-s[i])>2.5e-3)return 1;return 0}",
+  " const st=DPW.on&&typeof MWC!=='undefined'&&MWC.on&&typeof MWX!=='undefined'&&MWX.on&&MWX.used;if(st&&m.oc!==undefined&&(o.__mwchg|0)===m.oc&&(rec.root.__mwchg|0)===m.rc)return 0;\n"
+  " _mA.multiplyMatrices(rec.inv,o.matrixWorld);const e=_mA.elements,s=m.m;for(let i=0;i<16;i++)if(Math.abs(e[i]-s[i])>2.5e-3)return 1;if(st){m.oc=o.__mwchg|0;m.rc=rec.root.__mwchg|0}return 0}")
+R(" /* things that move get checked every time (they are the ones that change: wheels, doors, damage); the static chunks go round-robin, ~1.5 ms a go */for(const r of D.movers){if(r.userData.dpRecs&&rootShown(r,q.g))n+=dpCheckRecs(r.userData.dpRecs,1)}\n const roots=D.roots;if(roots&&roots.length){let k=0;while(k<roots.length&&performance.now()-t0<1.5){D.wc=((D.wc|0)+1)%roots.length;const r=roots[D.wc];k++;if(!r.userData.dpRecs||!rootShown(r,q.g))continue;n+=dpCheckRecs(r.userData.dpRecs,0)}}",
+  " /* (r669: the rest is done a slice a frame by dpWatchSlice; ?nodpw keeps the old way here) */if(!DPW.on){for(const r of D.movers){if(r.userData.dpRecs&&rootShown(r,q.g))n+=dpCheckRecs(r.userData.dpRecs,1)}\n const roots=D.roots;if(roots&&roots.length){let k=0;while(k<roots.length&&performance.now()-t0<1.5){D.wc=((D.wc|0)+1)%roots.length;const r=roots[D.wc];k++;if(!r.userData.dpRecs||!rootShown(r,q.g))continue;n+=dpCheckRecs(r.userData.dpRecs,0)}}}")
+R("function dpCheckRecs(L,moving){let n=0;for(let i=L.length-1;i>=0;i--){",
+  "/* every frame: things that can move, record by record within about 0.5 ms (each looked at within a quarter of a second or so),\n   then the still parts round-robin within about 0.2 ms (it was 1.5 ms every 8th frame) */\n"
+  "function dpWatchSlice(q){const D=q.dp;if(!D||!D.merged)return;const t0=performance.now();let n=0;const M=D.movers||[],one=DPW.one;\n"
+  " if(M.length){let guard=0;const G=M.length*2+64;while(guard++<G&&performance.now()-t0<DPW.MB){let mi=D.wmi|0;if(mi>=M.length){mi=0;D.wri=0}D.wmi=mi;const r=M[mi];const L=r&&r.userData.dpRecs;\n"
+  "  if(!L||!rootShown(r,q.g)||(D.wri|0)>=L.length){D.wmi=(mi+1)%M.length;D.wri=0;continue}one[0]=L[D.wri|0];D.wri=(D.wri|0)+1;n+=dpCheckRecs(one,1)}}\n"
+  " const roots=D.roots;if(roots&&roots.length){const t1=performance.now();let k=0;while(k<roots.length&&performance.now()-t1<DPW.RB){D.wc=((D.wc|0)+1)%roots.length;const r=roots[D.wc];k++;if(!r.userData.dpRecs||!rootShown(r,q.g))continue;n+=dpCheckRecs(r.userData.dpRecs,0)}}\n"
+  " if(n)D.unmerged=(D.unmerged|0)+n}\n"
+  "function dpCheckRecs(L,moving){DPW.ps++;let n=0;for(let i=L.length-1;i>=0;i--){")
+R("xpCull=function(q,force){if(!q.chunks)return;if(!force&&(q.cullT=(q.cullT||0)-1)>0)return;",
+  "xpCull=function(q,force){if(!q.chunks)return;if(DPW.on&&q.dp&&q.dp.merged&&q.dp.roots)try{dpWatchSlice(q)}catch(e){err('watchdog',e)}if(!force&&(q.cullT=(q.cullT||0)-1)>0)return;")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -1037,7 +1060,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-03 r668';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-03 r669';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

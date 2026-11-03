@@ -18,7 +18,7 @@
    with a cheaper fingerprint, at most one new cell starts being watched each frame, and cells that cannot be made into
    shapes are not tried again every two minutes.
    ===================================================================================================== */
-const FSC={on:!/[?&]nofsc/.test(location.search),q:null,g:null,ent:new Map(),watch:new Map(),job:null,D0:140,D1:160,PRE:130,BUDGET:2.5,CHECK:.12,MINR:.08,WATCH:4000,
+const FSC={on:!/[?&]nofsc/.test(location.search),slow:!/[?&]nofscslow(?:[&=]|$)/.test(location.search),q:null,g:null,ent:new Map(),watch:new Map(),job:null,D0:140,D1:160,PRE:130,BUDGET:2.5,CHECK:.12,MINR:.08,WATCH:4000,
  lively:new WeakMap(),cool:new WeakMap(),rr:0,wr:0,stats:{built:0,hideMode:0,layerMode:0,dropped:0,ms:0,why:{}}};
 /* one number per object for what can change on its own: where it is, shown or not, its colour, glow, see-through and picture offset */
 function fscSig(o){const p=o.position,r=o.quaternion,s=o.scale;let h=p.x*1.13+p.y*2.31+p.z*3.73+r._x*5.39+r._y*7.11+r._z*11.3+r._w*13.7+s.x*17.9+s.y*19.3+s.z*23.1+(o.visible?0:29.5);
@@ -89,14 +89,17 @@ function fscForget(e,why){if(FSC.q)fscBack(FSC.q,e);for(const m of e.main.concat
 function fscWatch(c,now,may){let w=FSC.watch.get(c);if(!w){if(!may)return false;const objs=fscObjs(c),sig=new Float64Array(objs.length);for(let i=0;i<objs.length;i++)sig[i]=fscSig(objs[i]);FSC.watch.set(c,{objs,sig,t0:now,n:objs.length});return false}
  if(now-w.t0<FSC.WATCH)return false;let L=FSC.lively.get(c);for(let i=0;i<w.objs.length;i++){const o=w.objs[i];if(fscSig(o)!==w.sig[i]){if(!L)FSC.lively.set(c,L=new Set());L.add(o)}}FSC.watch.delete(c);return true}
 function fscTick(q){fscWrapCull();if(FSC.q!==q||!FSC.g||FSC.g.parent!==q.g){for(const e of[...FSC.ent.values()])fscForget(e,'left');FSC.job=null;FSC.watch=new Map();FSC.q=q;FSC.g=new THREE.Group();FSC.g.userData={noChunk:1,dpKeep:1,fsc:1};q.g.add(FSC.g)}
- const now=performance.now(),want=[];
- for(const c of q.chunks||[]){const e=FSC.ent.get(c);const shown=e&&e.on&&e.mode==='hide'?e.xv:c.visible;if(!shown){if(e&&e.on)fscBack(q,e);continue}const d=fscDist(q,c);
+ /* r669: cells 140-160 m away do not need looking at every frame: the pass over all cells runs every 2nd frame, the
+    re-check of cells with shapes every 4th, and the look for new cells every 2nd (a shape being made still goes on every
+    frame). ?nofscslow = every frame, as before */
+ const fr=FSC.fr=(FSC.fr|0)+1,slow=FSC.slow,now=performance.now(),want=[];
+ if(!slow||(fr&1)===0)for(const c of q.chunks||[]){const e=FSC.ent.get(c);const shown=e&&e.on&&e.mode==='hide'?e.xv:c.visible;if(!shown){if(e&&e.on)fscBack(q,e);continue}const d=fscDist(q,c);
   if(e){if(e.on&&d<FSC.D0)fscBack(q,e);else if(!e.on&&d>FSC.D1)fscShow(q,e);if(e.on)fscSmSync(e)}
   else if(d>FSC.PRE&&!c.__fscJob&&!((FSC.cool.get(c)||0)>now))want.push([d,c])}
  /* the cells with shapes: a slice of each looked at again, round and round */
- const L=[...FSC.ent.values()];if(L.length){const t1=performance.now();let k=0;while(k++<L.length&&performance.now()-t1<FSC.CHECK){FSC.rr=(FSC.rr+1)%L.length;const e=L[FSC.rr];const w=fscChanged(q,e,false);if(w)fscForget(e,w)}}
+ const L=slow&&(fr&3)!==0?[]:[...FSC.ent.values()];if(L.length){const t1=performance.now();let k=0;while(k++<L.length&&performance.now()-t1<FSC.CHECK){FSC.rr=(FSC.rr+1)%L.length;const e=L[FSC.rr];const w=fscChanged(q,e,false);if(w)fscForget(e,w)}}
  /* new cells: watched first (a few seconds), then their shapes made, nearest first, within about 2.5 ms a frame */
- want.sort((a,b)=>a[0]-b[0]);const t2=performance.now();let looked=false;
+ want.sort((a,b)=>a[0]-b[0]);const t2=performance.now();let looked=false;if(slow&&(fr&1)!==0&&!FSC.job)return;
  for(let guard=0;guard<12;guard++){const left=FSC.BUDGET-(performance.now()-t2);if(left<=0)break;
   if(FSC.job){const J=FSC.job;let done=false;try{done=fscStep(J,left)}catch(x){delete J.e.c.__fscJob;FSC.job=null;throw x}if(!done)break;FSC.job=null;delete J.e.c.__fscJob;fscFinish(q,J);break}
   /* (at most one cell starts being watched each frame) */let next=null,may=true;for(const[,c]of want){const had=FSC.watch.has(c);if(fscWatch(c,now,may)){next=c;break}if(!had&&FSC.watch.has(c))may=false;if(performance.now()-t2>FSC.BUDGET*.5)break}if(!next||looked)break;looked=true;
