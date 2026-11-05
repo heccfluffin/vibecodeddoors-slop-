@@ -21,7 +21,7 @@
    ===================================================================================================== */
 /* two sets of bones: pieces that move (sent to the graphics card every frame) and still pieces (sent only when one changes) */
 function sknPools(){return[{id:'m',recs:[],free:[],sk:null,cap:0,ch:false,dq:[]},{id:'s',recs:[],free:[],sk:null,cap:0,ch:false,dq:[]}]}
-const SKN={on:!/[?&]noskn(?:[&=]|$)/.test(location.search),quick:!/[?&]nosknq(?:[&=]|$)/.test(location.search),qn:0,qh:0,qg:0,gv:0,sub:!/[?&]nosknsub(?:[&=]|$)/.test(location.search),ds:[],up:{full:0,part:0,rows:0,bytes:0},cells:!/[?&]nosknc(?:[&=]|$)/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
+const SKN={/* r679: groups outside the view skipped; ?nosknfc = the old way */fc:!/[?&]nosknfc(?:[&=]|$)/.test(location.search),ocam:0,fcg:0,on:!/[?&]noskn(?:[&=]|$)/.test(location.search),quick:!/[?&]nosknq(?:[&=]|$)/.test(location.search),qn:0,qh:0,qg:0,gv:0,sub:!/[?&]nosknsub(?:[&=]|$)/.test(location.search),ds:[],up:{full:0,part:0,rows:0,bytes:0},cells:!/[?&]nosknc(?:[&=]|$)/.test(location.search),q:null,g:null,P:sknPools(),bat:new Map(),
  scan:null,scanT:-1e9,pend:new Map(),lively:new WeakSet(),mats:new Map(),drop:[],rb:new Set(),af:0,gm:new Float64Array(16),
  SCAN:30000,BUD:.25,fr:0,stats:{pieces:0,batches:0,dropped:0,builds:0,ms:0,why:{}}};
 const _skM=new THREE.Matrix4(),_skG=new THREE.Matrix4(),_skN=new THREE.Matrix3(),_skV=new THREE.Vector3(),_skI=new THREE.Matrix4();
@@ -112,17 +112,30 @@ function sknGroups(P){const M=new Map();for(let s=0;s<P.recs.length;s++){const r
 /* after a group's full look: can it be passed over next time? 1 = every piece culled, 2 = every piece hidden (checked again each frame) */
 function sknGroupEnd(g,R2){let c=true,h=true,n=0;for(const s of g.sl){const r=R2[s];if(!r||r.dead)continue;n++;if(r.on){c=h=false;break}if(!(r.cull&&r.vis))c=false;if(!(r.vis===false&&r.par===g.p))h=false;if(!c&&!h)break}
  g.skip=!n||!g.p?0:c?1:h?2:0;g.cl=g.p?(g.p.__bkO!==undefined?g.p.__bkO:g.p.children).length:-1}
+/* r679: a ball around a group's pieces, in its parent's space (generous: pieces swing and walk inside their group) */
+const _skFS=new THREE.Sphere(),_skFF=new THREE.Frustum(),_skFM=new THREE.Matrix4();
+function sknGroupBall(g,R2){const SL=g.sl;let sx=0,sy=0,sz=0,n=0;const pts=[];for(let si=0;si<SL.length;si++){const r=R2[SL[si]];if(!r||r.dead||!r.o)continue;const o=r.o;if(o.parent!==g.p){g.lr=-1;return}
+  const gg=o.geometry;if(!gg.boundingSphere)gg.computeBoundingSphere();const b=gg.boundingSphere,ms=Math.max(Math.abs(o.scale.x),Math.abs(o.scale.y),Math.abs(o.scale.z));
+  const m=o.matrix.elements,c=b.center,x=m[0]*c.x+m[4]*c.y+m[8]*c.z+m[12],y=m[1]*c.x+m[5]*c.y+m[9]*c.z+m[13],z=m[2]*c.x+m[6]*c.y+m[10]*c.z+m[14],rad=b.radius*ms;if(!isFinite(x+y+z+rad)){g.lr=-1;return}pts.push(x,y,z,rad);sx+=x;sy+=y;sz+=z;n++}
+ if(!n){g.lr=-1;return}const cx=sx/n,cy=sy/n,cz=sz/n;let R=0;for(let i=0;i<pts.length;i+=4)R=Math.max(R,Math.hypot(pts[i]-cx,pts[i+1]-cy,pts[i+2]-cz)+pts[i+3]);
+ g.lc=[cx,cy,cz];g.lr=R*1.3+1.5}
 function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SKN.bt===SKN.tn&&SKN.bx===cp.x&&SKN.by===cp.y&&SKN.bz===cp.z&&!SKN.force)return;SKN.bt=SKN.tn;SKN.bx=cp.x;SKN.by=cp.y;SKN.bz=cp.z;SKN.force=false;const fr=++SKN.fr;for(const B of SKN.bat.values()){B.n=0;B.x0=B.y0=B.z0=1e30;B.x1=B.y1=B.z1=-1e30}const G=SKN.g.matrixWorld.elements,gm=SKN.gm;
  let gch=false;for(let i=0;i<16;i++)if(G[i]!==gm[i]){gch=true;gm[i]=G[i]}if(gch){SKN.af++;_skG.fromArray(gm).invert()}
  const stamp=typeof MWC!='undefined'&&MWC.on&&MWX.on&&MWX.used,f=stamp?MWC.f:-2;
  /* the distance culling of small far pieces (r603, perfCull) applies to them as before (it looks at each piece in turn; so
     does this: still pieces and pieces already culled are looked at again every 8th frame, moving shown pieces every frame) */
  const pc=typeof PERF!='undefined'&&PERF.on;let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}const cx=C.position.x,cy=C.position.y,cz=C.position.z,D0=PERF_D[0],D1=PERF_D[1];
+ /* r679: the view, for leaving out groups outside it (not while another camera draws the scene, like the office monitors) */
+ const fcOn=SKN.fc&&!(SKN.ocam>performance.now());if(fcOn){C.updateWorldMatrix(true,false);_skFM.multiplyMatrices(C.projectionMatrix,C.matrixWorldInverse);_skFF.setFromProjectionMatrix(_skFM)}
  for(const P of SKN.P){const sk=P.sk;if(!sk)continue;const B=sk.boneMatrices,R2=P.recs,mov=P.id==='m';let wr=false;const ds=SKN.ds;ds.length=0;
  /* r666: piece by piece within each group; a group whose pieces were all culled, or which is hidden as a whole, is passed
     over with one look (every group gets the full look every 8th frame, like each piece did before) */
  if(P.gv!==SKN.gv)sknGroups(P);const GG=P.G;
  for(let gi=0,gn=GG.length;gi<gn;gi++){const g=GG[gi],gp=g.p;const turn=SKN.allTurn||((gi+fr)&7)===0;
+ /* r679: a group wholly behind you or past the fog: its pieces are put away once (as when hidden) and skipped until it is in view */
+ if(fcOn&&gp){if(turn||g.lr===undefined)sknGroupBall(g,R2);else if(g.lr>0){const e=gp.matrixWorld.elements,lc=g.lc,x=e[0]*lc[0]+e[4]*lc[1]+e[8]*lc[2]+e[12],y=e[1]*lc[0]+e[5]*lc[1]+e[9]*lc[2]+e[13],z=e[2]*lc[0]+e[6]*lc[1]+e[10]*lc[2]+e[14];
+  const sc=Math.sqrt(Math.max(e[0]*e[0]+e[1]*e[1]+e[2]*e[2],e[4]*e[4]+e[5]*e[5]+e[6]*e[6],e[8]*e[8]+e[9]*e[9]+e[10]*e[10])),rr=g.lr*sc;_skFS.center.set(x,y,z);_skFS.radius=rr;
+  const dx=x-cx,dy=y-cy,dz=z-cz;if((dx*dx+dy*dy+dz*dz>(far+rr)*(far+rr))||!_skFF.intersectsSphere(_skFS)){const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;if(r.on){B.fill(0,s*16,s*16+16);r.on=false;wr=true;ds.push(s)}r.vis=false}SKN.fcg++;continue}}}
  if(SKN.quick&&!turn&&g.skip&&gp&&(gp.__bkO!==undefined?gp.__bkO:gp.children).length===g.cl){if(g.skip===1){SKN.qg++;continue}if((gp.__skf===fr?gp.__skv:sknVis(gp,q,fr))===false){SKN.qg++;continue}}
  const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;const o=r.o,j=s*16;if(o.parent!==gp)SKN.gv++;
   if(r.cull&&r.vis&&!turn)continue;
@@ -180,3 +193,6 @@ function sknTick(q){const t0=performance.now();SKN.tn=(SKN.tn|0)+1;
 if(typeof LAGSYS!='undefined'){LAGSYS.push(['sknTick','People and moving pieces (batched)']);LAGSYS.push(['sknBones','People batching: bones (inside drawing)']);{const f0=sknBones;sknBones=function(){if(!LAG.open)return f0.apply(this,arguments);const t=performance.now();try{return f0.apply(this,arguments)}finally{const d=performance.now()-t;LAG.sys.sknBones=(LAG.sys.sknBones||0)+d;LAG.cur.sknBones=(LAG.cur.sknBones||0)+d}}}{const f0=sknTick;sknTick=function(){if(!LAG.open)return f0.apply(this,arguments);const t=performance.now();try{return f0.apply(this,arguments)}finally{const d=performance.now()-t;LAG.sys.sknTick=(LAG.sys.sknTick||0)+d;LAG.cur.sknTick=(LAG.cur.sknTick||0)+d}}}}
 /* for testing: look everywhere and make every shape now */
 function sknForce(){const q=BUS.ride;if(!q||!SKN.g)return null;SKN.scan=null;SKN.scanT=-1e9;sknScan(q,1e9);while(SKN.rb.size){const k=SKN.rb.values().next().value;SKN.rb.delete(k);sknBuild(q,k)}return SKN.stats}
+
+/* r679: another camera drawing the desert (the office squad monitors...) sees everything: no leaving out for a second */
+{const r0=R.render;R.render=function(sc,cam){if(sc===S&&cam!==C&&cam&&!(typeof WARM!='undefined'&&cam===WARM.cam))SKN.ocam=performance.now()+1000;return r0.apply(this,arguments)}}

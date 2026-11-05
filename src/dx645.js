@@ -96,6 +96,11 @@ function dmScan(q){const per=new Map();for(const a of DMAREAS)per.set(a,[]);
 /* the area counts that, when they change, mean something was built or knocked down */
 /* r673: obstacles that can be switched on and off (doors, gates, the prison fan...) are not counted: every door opening
    or closing used to redraw the whole map background (25-50 ms in one frame). The map shows them as they were at the last redraw */
+/* r679: the map background is drawn again only for real changes: a place built or taken away (4 obstacles or more, or a
+   change in the map's own building list), or any change once you open the big map. One or two obstacles coming and going
+   (a parked police car driving out, a door, speed-check cones) used to redraw it all: a 25-50 ms hitch */
+function dmChanged(q){const c=dmCount(q);if(c===DM2.cnt)return false;const[a,b]=c.split('/').map(Number),[a0,b0]=String(DM2.cnt).split('/').map(Number);
+ if(b!==b0||!(Math.abs(a-a0)<4))return true;return typeof DMAP!='undefined'&&!!DMAP.open}
 function dmCount(q){let n=0;for(const o of q.obs){if(o.kd||o.veh||('off' in o)||o.dest||o.dead)continue;if(dmArea((o.x0+o.x1)/2,(o.z0+o.z1)/2))n++}return n+'/'+((q.mapR||[]).length)}
 /* is this spot inside a building (used by the map warp, so it never puts you inside one) */
 function dmInBld(x,z){const D=DM2.data;if(!D)return false;for(const b of D.bld)if(x>b.x0-.5&&x<b.x1+.5&&z>b.z0-.5&&z<b.z1+.5)return true;return false}
@@ -140,7 +145,7 @@ function dmPaint(q,x,X,Y,k,vr){const D=DM2.data;if(!D)return;const vis=vr?(r=>r.
  x.clearRect(0,0,N,N);x.drawImage(dmSand(),0,0,N,N);dmScan(q);dmPaint(q,x,X,Y,k,null);
  DM2.bgc=c;DM2.bgq=q;q.mapBg=c;DM2.gen++;DM2.stK='';DM2.cnt=dmCount(q);DM2.bgMs=performance.now()-t0;return c}}
 /* when more of a place is built (or knocked down), draw the background again */
-{const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(DM2.on&&q&&q.obs&&q.mapBg&&(DM2.ct=(DM2.ct||0)-dt)<=0){DM2.ct=3;if(dmCount(q)!==DM2.cnt)q.mapBg=null}}catch(e){}return r}}
+{const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(DM2.on&&q&&q.obs&&q.mapBg&&(DM2.ct=(DM2.ct||0)-dt)<=0){DM2.ct=3;if(dmChanged(q))q.mapBg=null}}catch(e){}return r}}
 /* the zoomed-in big map: the static part painted sharp for exactly this view, kept until the view changes */
 function dmStatic(q,W,H,cx,cz,sc){const key=DM2.gen+'|'+W+'|'+H+'|'+cx.toFixed(2)+'|'+cz.toFixed(2)+'|'+sc.toFixed(4);if(DM2.stK===key&&DM2.st)return DM2.st;
  const c=DM2.st||(DM2.st=document.createElement('canvas'));if(c.width!==W)c.width=W;if(c.height!==H)c.height=H;const x=c.getContext('2d'),X=wx=>W/2+(wx-cx)*sc,Y=wz=>H/2+(wz-cz)*sc;

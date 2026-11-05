@@ -1079,6 +1079,15 @@ R("const c=o.material.color,cr=c.r,cg=c.g,cb=c.b;","const c=o.material.color,cr=
 R("col[k]=cr;col[k+1]=cg;col[k+2]=cb;","if(vca){const j=i*3;col[k]=cr*vca[j];col[k+1]=cg*vca[j+1];col[k+2]=cb*vca[j+2]}else{col[k]=cr;col[k+1]=cg;col[k+2]=cb}")
 # r677: the sky's colour strip reuses its pixel buffer instead of making a new one every 0.4 s
 R("const x=D.skyCv.getContext('2d'),im=x.createImageData(4,512),d=im.data;","const x=D.skyCv.getContext('2d'),im=D.skyIm||(D.skyIm=x.createImageData(4,512)),d=im.data;")
+# r679 batch watchdog: the still places are checked batch by batch within the time slice too (a place was checked whole, and
+# the desert group itself now holds hundreds of one-piece batches: up to ~10 ms in one frame); slices a little smaller
+R("const roots=D.roots;if(roots&&roots.length){const t1=performance.now();let k=0;while(k<roots.length&&performance.now()-t1<DPW.RB){D.wc=((D.wc|0)+1)%roots.length;const r=roots[D.wc];k++;if(!r.userData.dpRecs||!rootShown(r,q.g))continue;n+=dpCheckRecs(r.userData.dpRecs,0)}}",
+  "const roots=D.roots;if(roots&&roots.length){const t1=performance.now();let guard=0;const G2=roots.length*2+64;while(guard++<G2&&performance.now()-t1<DPW.RB){let ri=D.wc|0;if(ri>=roots.length){ri=0;D.wcr=0}D.wc=ri;const r=roots[ri];const L=r&&r.userData.dpRecs;if(!L||!rootShown(r,q.g)||(D.wcr|0)>=L.length){D.wc=(ri+1)%roots.length;D.wcr=0;continue}{const st=dpCheckPart(L[D.wcr|0],0);if(st)D.wcr=(D.wcr|0)+1;if(st===2)n++}}}")
+R("DP._check=(L,mv)=>dpCheckRecs(L,mv);DP._mergedMat=mergedMat;","DP._check=(L,mv)=>dpCheckRecs(L,mv);DP._mergedMat=mergedMat;DP._dpw=()=>DPW;")
+# (and a big batch is checked 48 pieces per slice, carrying on next frame: one batch can hold hundreds of pieces)
+R("one[0]=L[D.wri|0];D.wri=(D.wri|0)+1;n+=dpCheckRecs(one,1)}}","{const st=dpCheckPart(L[D.wri|0],1);if(st)D.wri=(D.wri|0)+1;if(st===2)n++}}}")
+R("function dpCheckRecs(L,moving){","/* r679: part of one batch: 0 = not finished yet, 1 = finished and nothing changed, 2 = finished and made again */\nfunction dpCheckPart(rec,moving){if(!rec||rec.dead)return 1;DPW.ps++;let i=rec.__wi|0;if(i===0)rec.__wd=0;if(moving)rec.inv.copy(rec.root.matrixWorld).invert();const M=rec.mems,e=Math.min(M.length,i+48);for(;i<e;i++){const m=M[i];if(!m.out&&memDirty(rec,m)){m.out=1;rec.__wd=1}}if(i<M.length){rec.__wi=i;return 0}rec.__wi=0;if(rec.__wd){rec.__wd=0;dpRebuild(rec);return 2}return 1}\nfunction dpCheckRecs(L,moving){")
+R("const DPW={on:!/[?&]nodpw(?:[&=]|$)/.test(location.search),ps:0,MB:.4,RB:.2,one:[null]};","const DPW={on:!/[?&]nodpw(?:[&=]|$)/.test(location.search),ps:0,MB:.35,RB:.15,one:[null]};")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -1092,7 +1101,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r678';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r679';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

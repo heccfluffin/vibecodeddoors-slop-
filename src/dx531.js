@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r679',['Desert speed-up: people and moving pieces behind you or past the fog are no longer worked out every frame','The map no longer redraws itself (a short hitch) when a police car drives out of the PD, a car-wash door opens or speed-check cones are put out','No more occasional 10 ms hitches from the scenery watchdog: big batches are checked a little at a time','With a graphics card of its own, the desert\'s scenery batches may use 300 MB of video memory for pictures (200 MB with built-in graphics)']],
 ['r678',['Test switch: ?abtmb=350 in the address sets how much video memory the desert\'s scenery batches may use for pictures (normally 200 MB). More can mean fewer draw calls in busy places, but needs a graphics card with memory to spare']],
 ['r677',['Desert: the scenery batches cost less to look after every frame, and the warm-up and the sky make less garbage (fewer small pauses for memory clean-up)']],
 ['r676',['Fixed quarter-second freezes in the desert when new scenery batches came into view: they needed up to 20 different shaders, each made the first time it was drawn; now about 8','Fixed short hitches while walking around (pieces coming back into view were put back one at a time)']],
