@@ -14,7 +14,7 @@
                              0 → -1.75), parts.bolts (3; turn and pop out with setBolt(i, k)). obs while shut.
      dmWrench()              the big wrench you find in the room (a group, 0.5 m long, lying flat).
      dmLever(g, x, z, ry)    a lever box on a timber post with a cable up to the roof. parts.handle: rotation.x
-                             -0.8 (up, shut) → 0.8 (down, open).
+                             0.35 (up, leaning out: shut) → 2.6 (down, leaning out: open).
      dmCrawl(g)              a rock fall over the doorway with a timbered crawl hole (1.2 wide, 1.05 high) through to the
                              door. obs: the rocks, and the hole as a crouch-only box (cr: 1).
      dmFlood(g, HX)          the last 5.5 m of the room ramps down 2.2 m into a flooded sump with the door at the
@@ -78,8 +78,8 @@ function dmWrench(){const o=dmKit(),G=new THREE.Group(),S=[];const st=new THREE.
  for(const sx of[-1,1]){const jaw=new THREE.TorusGeometry(.06,.022,6,12,Math.PI*1.4);jaw.rotateX(Math.PI/2);jaw.rotateY(sx>0?-.7:Math.PI-.7);jaw.translate(sx*.25,.02,0);mgPut(S,jaw,0,0,0,0,[.66,.64,.6])}G.add(mgMerge(S,o.IRONV));return G}
 function dmLever(g,x,z,ry){const o=dmKit(),M=o.M,G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry||0;g.add(G);const T=[];mgBeam(T,[0,0,0],[0,1.6,0],.18,.18,o.c.tim);G.add(mgMerge(T,o.TIMBV));
  const box=new THREE.Mesh(new THREE.BoxGeometry(.32,.46,.16),M(0x4a5a4a,{metalness:.5,roughness:.5}));box.position.set(0,1.25,.17);G.add(box);const slot=new THREE.Mesh(new THREE.BoxGeometry(.06,.36,.02),o.DARK);slot.position.set(0,1.25,.255);G.add(slot);
- const handle=new THREE.Group();handle.position.set(0,1.25,.26);handle.rotation.x=-.8;G.add(handle);const hb=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.5,8),M(0x8a8a8a,{metalness:.7,roughness:.35}));hb.position.y=.25;handle.add(hb);const kn=new THREE.Mesh(new THREE.SphereGeometry(.05,10,8),M(0xc02020,{roughness:.5}));kn.position.y=.5;handle.add(kn);
- const lbl=dmSign(G,.3,.1,['GRATE'],'#e8e0c8','#1a1a1a',0,1.55,.255);
+ const handle=new THREE.Group();handle.position.set(0,1.25,.26);handle.rotation.x=.35;G.add(handle);const hb=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.5,8),M(0x8a8a8a,{metalness:.7,roughness:.35}));hb.position.y=.25;handle.add(hb);const kn=new THREE.Mesh(new THREE.SphereGeometry(.05,10,8),M(0xc02020,{roughness:.5}));kn.position.y=.5;handle.add(kn);
+ const lbl=dmSign(G,.3,.1,['GRATE'],'#e8e0c8','#1a1a1a',0,.92,.105);
  /* the cable up the post to the roof */const cb=new THREE.Mesh(new THREE.CylinderGeometry(.015,.015,2.6,6),M(0x2a2a2a,{roughness:.6}));cb.position.set(.06,2.75,.11);G.add(cb);return{parts:{handle},obs:[{x0:x-.15,x1:x+.15,z0:z-.15,z1:z+.15}]}}
 
 /* ---------- the crawlspace: a rock fall with a timbered crawl hole through it ---------- */

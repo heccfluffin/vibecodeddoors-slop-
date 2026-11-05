@@ -288,7 +288,7 @@ x ±0.8, 3 m high, as `mineDoor` builds them); put the group at the door of the 
   hinged on the left. Three latch bolts on the right: `setBolt(i, k)` turns each out as you use the wrench (one E each);
   then the gate swings open (`parts.leaf.rotation.y` to -1.75). **The wrench** (`dmWrench()`) lies somewhere in the room
   (on a crate, a tool rack or the floor). **The lever** (`dmLever(g, x, z, ry)`): a lever box marked GRATE on a timber
-  post against a wall, with a cable up to the roof; pull it (`parts.handle` from -0.8 to 0.8) and the grate's bolts
+  post against a wall, with a cable up to the roof; pull it down (`parts.handle.rotation.x` from 0.35, up, to 2.6, down; it leans out towards you either way) and the grate's bolts
   draw back by themselves.
 - **Crawlspace** (`dmCrawl(g)`): a rock fall over the doorway with a timbered crawl hole (1.2 m wide, 1.05 m high,
   1.9 m long) through to the door. Obstacles: the rocks, and the hole as crouch-only (`cr: 1`).
