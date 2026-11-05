@@ -98,7 +98,7 @@ function imcBall(e){const o=e.o,g=o.geometry;if(!g.boundingSphere)g.computeBound
    The batching watchdog then looks after it within its usual time budget, and the area batches join it with its
    neighbours. ?noone1 turns it off.
    ===================================================================================================== */
-const ONE={on:!/[?&]noone1(?:[&=]|$)/.test(location.search),n:0,veh:null,vq:null,cur:false};
+const ONE={on:!/[?&]noone1(?:[&=]|$)/.test(location.search),/* r675: vehicles' lone parts too; ?noone1v leaves vehicles out */v:!/[?&]noone1v(?:[&=]|$)/.test(location.search),n:0,veh:null,vq:null,cur:false};
 /* a picture drawn as it is (not moved, repeated or turned) */
 function dpTexId(t){if(!t)return false;if(t.matrixAutoUpdate)return t.offset.x===0&&t.offset.y===0&&t.repeat.x===1&&t.repeat.y===1&&t.rotation===0;const e=t.matrix.elements;return e[0]===1&&e[1]===0&&e[2]===0&&e[3]===0&&e[4]===1&&e[5]===0&&e[6]===0&&e[7]===0&&e[8]===1}
 /* (a plain function: the r500 block that holds DP comes later in the page than this module) */
@@ -106,7 +106,7 @@ function dpOneOK(o,root,made){if(!ONE.on||typeof ABT=='undefined'||!ABT.on)retur
  const m=o.material;if(!m||Array.isArray(m)||m.transparent||o.renderOrder!==0)return false;const t=m.type;if(t!=='MeshStandardMaterial'&&t!=='MeshLambertMaterial'&&t!=='MeshBasicMaterial')return false;
  if(m.map&&!abtTexKey(m.map,true))return false;if(m.userData&&m.userData.dpSand)return false;
  if(ONE.vq!==q||!ONE.veh||ONE.veh.size!==(q.vehs||[]).length){ONE.vq=q;ONE.veh=new Set((q.vehs||[]).map(v=>v&&v.m).filter(Boolean))}
- for(let p=root;p&&p!==q.g;p=p.parent)if(p.__mwKeep||ONE.veh.has(p))return false;
+ if(!ONE.v)for(let p=root;p&&p!==q.g;p=p.parent)if(p.__mwKeep||ONE.veh.has(p))return false;
  if(made){ONE.n++;ONE.cur=true}return true}
 
 /* =====================================================================================================
@@ -130,7 +130,69 @@ function late1Tick(q){const D=q.dp;if(!D||!D.merged||typeof DP=='undefined'||!DP
  if(!ok.length)return;
  /* one shallow pass over the desert's own pieces that sees only these (the others are flagged to be left alone just for it) */
  const want=new Set(ok),tmp=[];for(const o of q.g.children){if(o.isMesh&&!want.has(o)&&!(o.userData&&o.userData.dpKeep)){(o.userData||(o.userData={})).dpKeep=1;tmp.push(o)}}
- let k=[0,0];try{k=DP._mergeRoot(q,q.g,DP.cfg().lam,true)}catch(e){conLog('error','late loose batching: '+e.message)}finally{for(const o of tmp)delete o.userData.dpKeep}
+ /* (the batcher starts by working out the positions of everything under the group it is given, here the whole desert:
+    only these pieces and the desert group itself are brought up to date instead, then that step is skipped) */
+ const g=q.g,own=Object.prototype.hasOwnProperty.call(g,'updateMatrixWorld'),u0=g.updateMatrixWorld;
+ try{if(typeof mwFresh=='function'){mwFresh(g);for(const o of ok)mwFresh(o)}else{g.updateWorldMatrix(true,false);for(const o of ok)o.updateWorldMatrix(false,false)}}catch(e){}
+ let k=[0,0];g.updateMatrixWorld=function(){};try{k=DP._mergeRoot(q,g,DP.cfg().lam,true)}catch(e){conLog('error','late loose batching: '+e.message)}finally{if(own)g.updateMatrixWorld=u0;else delete g.updateMatrixWorld;for(const o of tmp)delete o.userData.dpKeep}
  for(const o of ok){o.userData.late1=1;seen.delete(o)}if(q.g.userData.dpRecs&&q.g.userData.dpRecs.length&&D.roots&&!D.roots.includes(q.g))D.roots.push(q.g);
  LATE1.n+=ok.length;LATE1.b+=k[0];LATE1.ms+=performance.now()-t0}
 {const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(LATE1.on&&q&&q.g&&q.roam)late1Tick(q)}catch(e){conLog('error','late loose batching: '+e.message);LATE1.on=false}return r}}
+
+/* =====================================================================================================
+   r675: ANIMATIONS FAR AWAY.
+   Most moving things in the desert already only move while you are near them. A few ran all the time wherever you were:
+   - the motel TVs' static and the drive-in screen were redrawn and sent to the graphics card many times a second.
+     They now stop while you are too far to see them (60 m for the little TVs, 300 m for the big screen);
+   - the prison (searchlights, guards on their rounds, cameras, fans, doors) is game logic too, so it keeps running, but
+     while you are far beyond the fog and no prison break is on, it is worked out every 6th frame with the time added up
+     (guards still stop exactly at each corner of their rounds, lights still sweep in step).
+   Everything that can be seen from a distance keeps moving as before. ?noanf turns this off.
+   ===================================================================================================== */
+const ANF={on:!/[?&]noanf(?:[&=]|$)/.test(location.search),pdt:0,pn:0};
+function tvsNear(q){if(!ANF.on||!q||!q.tvs||!q.tvs.length)return true;const lz=P.z-q.OZ;for(const t of q.tvs)if(Math.abs(P.x-t.x)<60&&Math.abs(lz-t.z)<60)return true;return false}
+{const pa=penAnim;penAnim=function(q,dt){
+ if(!ANF.on||!q||!q.penW||(q.pen&&q.pen.on))return ANF.pdt?(dt+=ANF.pdt,ANF.pdt=0,pa(q,dt)):pa(q,dt);
+ /* how far is the prison (its searchlights' rounds give its middle) */
+ const W=q.penW;if(W.__c==null){let sx=0,sz=0,n=0;for(const L of W.lights||[])for(const p of L.path||[]){sx+=p[0];sz+=p[1];n++}W.__c=n&&isFinite(sx/n)&&isFinite(sz/n)?[sx/n,sz/n]:[-460,-768]}
+ let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far}catch(e){}
+ const d=Math.hypot(P.x-W.__c[0],P.z-q.OZ-W.__c[1]);
+ if(!(d>=far+250))return ANF.pdt?(dt+=ANF.pdt,ANF.pdt=0,pa(q,dt)):pa(q,dt);
+ ANF.pdt+=dt;if(++ANF.pn<6)return;ANF.pn=0;const t=ANF.pdt;ANF.pdt=0;return pa(q,t)}}
+
+/* =====================================================================================================
+   r675: PIECES WITH SEVERAL MATERIALS, AND PIECES WITH PER-CORNER COLOURS, BATCHED.
+   The batching (r500) could only take a piece with one material and no per-corner colours. Two kinds were left drawn
+   one by one (crates and boxes with a different picture per side, signs, many vehicle parts...):
+   - a piece with several materials is handed to the batching as one stand-in per material, each pointing at its part of
+     the piece's shape and following the real piece in everything else (place, visibility, being moved). It only joins
+     when every part can be batched (so nothing can go missing), and when one part changes the piece is drawn itself again;
+   - a piece with per-corner colours has them multiplied into the batch's own colours, and the watchdog keeps an eye on them.
+   ?nodpx turns both off (?nodpxm only the several-materials part, ?nodpxc only the colours).
+   ===================================================================================================== */
+const DPX={on:!/[?&]nodpx(?:[&=]|$)/.test(location.search),multi:!/[?&]nodpxm(?:[&=]|$)/.test(location.search),vc:!/[?&]nodpxc(?:[&=]|$)/.test(location.search),subs:new WeakMap(),nm:0,nv:0};
+const _dpxM=new THREE.Matrix4();
+/* the parts of a shape, one per material: the same corners, only that part's triangles */
+function dpxSubs(g){let S2=DPX.subs.get(g);if(S2!==undefined)return S2;S2=null;try{const G=g.groups,A=g.attributes,n=A.position.count,L=[];
+ for(const gr of G){const cnt=g.index?Math.min(gr.count,g.index.count-gr.start):Math.min(gr.count,n-gr.start);if(!(cnt>0)||!(gr.start>=0)){L.length=0;break}
+  const s=new THREE.BufferGeometry();for(const k in A)s.setAttribute(k,A[k]);let ix;
+  if(g.index){const src=g.index.array;ix=(n>65535?new Uint32Array(cnt):new Uint16Array(cnt));for(let i=0;i<cnt;i++)ix[i]=src[gr.start+i]}
+  else{ix=(n>65535?new Uint32Array(cnt):new Uint16Array(cnt));for(let i=0;i<cnt;i++)ix[i]=gr.start+i}
+  s.setIndex(new THREE.BufferAttribute(ix,1));L.push(s)}
+ if(L.length===G.length)S2=L}catch(e){S2=null}DPX.subs.set(g,S2);return S2}
+/* a stand-in for one material of a piece: everything else comes from the real piece */
+function dpxProxy(real,i,mi,sub){const g0=real.geometry,p=Object.create(real);
+ Object.defineProperty(p,'material',{configurable:true,get(){const a=real.material;return Array.isArray(a)?a[mi]:a}});
+ Object.defineProperty(p,'geometry',{configurable:true,get(){return real.geometry===g0?sub:real.geometry}});
+ p.__dpR=real;p.__dpG=i;return p}
+/* called by the batching for each piece it looks at: true = dealt with here (taken, or left out) */
+function dpxConsider(ch,lam,inv,groups,mk,root){const m=ch.material;
+ if(Array.isArray(m)){if(!DPX.multi)return false;const g=ch.geometry,G=g.groups;if(!G||!G.length||G.length>16)return true;
+  _dpxM.multiplyMatrices(inv,ch.matrixWorld);if(_dpxM.determinant()<=0)return true;
+  const subs=dpxSubs(g);if(!subs)return true;const px=[];
+  for(let i=0;i<G.length;i++){const mt=m[G[i].materialIndex];if(!mt||mt.vertexColors)return true;const k=mk(mt,lam);if(!k)return true;const p=dpxProxy(ch,i,G[i].materialIndex,subs[i]);if(!dpOneOK(p,root))return true;px.push([k,p])}
+  for(const[k,p]of px){let L=groups.get(k);if(!L)groups.set(k,L=[]);L.push(p)}DPX.nm++;return true}
+ if(m&&m.vertexColors){if(!DPX.vc)return false;const c=ch.geometry.attributes.color;if(!c||c.itemSize!==3||c.normalized||c.isInterleavedBufferAttribute||!(c.array instanceof Float32Array))return true;
+  const v0=m.vertexColors;let k=null;m.vertexColors=false;try{k=mk(m,lam)}finally{m.vertexColors=v0}if(!k)return true;
+  _dpxM.multiplyMatrices(inv,ch.matrixWorld);if(_dpxM.determinant()<=0)return true;let L=groups.get(k);if(!L)groups.set(k,L=[]);L.push(ch);DPX.nv++;return true}
+ return false}

@@ -19,7 +19,7 @@
    once they have looked and sat exactly the same at two looks. When it moves, its parts draw themselves that same frame;
    it is not barred for good (it can join again once it stands still). ?noabtv turns this part off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,/* r675: a parked vehicle's moving parts (wheels...) join too */vmov:!/[?&]noabtvm(?:[&=]|$)/.test(location.search),mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
@@ -59,7 +59,7 @@ function abtScanStep(q,ms){const t0=performance.now();let J=ABT.scan;
   for(const c of o.children){if(c.isLight){J.lights.push(c);continue}const u=c.userData||{};
    /* r672: a vehicle nobody is in and that is not moving is looked inside: its far shape and its batched parts can join */
    if(J.veh.has(c)){if(ABT.veh&&abtParked(J.vmap.get(c))&&c.children.length){J.inV.add(c);J.st.push(c)}continue}
-   const isM=J.mset.has(c);if(isM&&iv)continue;
+   const isM=J.mset.has(c);if(isM&&iv&&!ABT.vmov)continue;
    if(J.skip.has(c)||(!iv&&c.__mwKeep)||u.dpDyn||u.mv||u.fsc||u.skn||c.updateMatrixWorld!==_mwP)continue;
    if((u.dpKeep||u.flv)&&!(iv&&c.isMesh&&u.flv&&u.dpMerged))continue;
    if(c.isMesh&&c.children.length===0&&(u.dpMerged||(ABT.ones&&!c.isSprite&&(c.layers.mask===1||c.layers.mask===64)))){const m=c.material;if(m&&m.map)J.users.set(m.map,(J.users.get(m.map)||0)+1);
@@ -239,7 +239,7 @@ if(typeof BAKE!='undefined'){BAKE.mids.push(()=>abtMid());BAKE.posts.push(()=>ab
   if(ABT.on&&ABT.ok&&q&&q.g&&!q.ld&&q.dp&&q.dp.merged&&MWC.on&&MWX.on&&BAKE.on)abtTick(q);else if(ABT.B.length)abtForget()}
  catch(e){conLog('error','area batches: '+e.message);ABT.on=false;try{abtForget()}catch(x){}}return r}}
 /* for testing: look everywhere and make everything now */
-function abtForce(){const q=BUS.ride;if(!q)return null;ABT.force=true;/* (two looks: pieces that must look the same twice) */try{for(let k=0;k<2;k++){ABT.scanT=-1e9;ABT.scan=null;for(let i=0;i<50&&(ABT.scan||ABT.queue.length||ABT.job||i===0);i++)abtTick(q)}}finally{ABT.force=false}return{batches:ABT.B.length,members:ABT.mem.size,textureMB:Math.round(ABT.texMB),arrays:ABT.arrs.size}}
+function abtForce(){const q=BUS.ride;if(!q)return null;ABT.force=true;/* (two looks: pieces that must look the same twice) */try{for(let k=0;k<2;k++){ABT.scanT=-1e9;ABT.scan=null;for(let i=0;i<600&&(ABT.scan||ABT.queue.length||ABT.job||i===0);i++)abtTick(q)}}finally{ABT.force=false}return{batches:ABT.B.length,members:ABT.mem.size,textureMB:Math.round(ABT.texMB),arrays:ABT.arrs.size}}
 /* the lag window: own time, a switch to compare, a draw-call kind, and a line per Benchmark view */
 LAGSYS.push(['abt','Scenery area batches (upkeep)']);
 {const t0=abtTick;abtTick=function(){if(!LAG.open)return t0.apply(this,arguments);const u=ABT.up;try{return t0.apply(this,arguments)}finally{const d=ABT.up-u;LAG.sys.abt=(LAG.sys.abt||0)+d;LAG.cur.abt=(LAG.cur.abt||0)+d}}}

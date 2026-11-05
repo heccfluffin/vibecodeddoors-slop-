@@ -37,7 +37,7 @@ function mwFull(o,force){force=mwSelf(o,force);
   if(c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
   if(c.__mwKeep){mwFull(c,force);continue}
   if(!c.visible){c.__mwSk=MWX.fr;MWX.skipped++;continue}
-  if(c.layers.mask===4&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
+  if((c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
   mwWalk(c,force)}}}
 /* the scene itself: without this, the scene's own matrix was made again every frame, which forced every object below it
    to work out its place in the world again, moved or not */

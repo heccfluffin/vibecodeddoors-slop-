@@ -1062,6 +1062,21 @@ R("const flush=()=>{if(b.length<2){b=[];nv=0;return}","const flush=()=>{ONE.cur=
 # (a one-piece batch keeps the piece's own picture when it is not moved or repeated: no second copy on the graphics card)
 R("map:src.map?canonTex(src.map,texKey(src.map)):null","map:src.map?(ONE.cur&&dpTexId(src.map)?src.map:canonTex(src.map,texKey(src.map))):null")
 R("if(recs.length)root.userData.dpRecs=recs;return[recs.length,saved]}","ONE.cur=false;if(recs.length)root.userData.dpRecs=recs;return[recs.length,saved]}")
+# r675 far animations: the motel TVs' static and the drive-in screen are redrawn (and sent to the graphics card) only
+# when you are near enough to see them. The prison's animations run less often far away (dx649, PENFAR).
+R("q.anims.push(dt=>{if(Math.random()<.5)draw()});return t2};","q.anims.push(dt=>{if(Math.random()<.5&&tvsNear(q))draw()});return t2};")
+R("let ft=0;q.anims.push(dt=>{ft+=dt;if(((ft*8)|0)===((ft-dt)*8|0))return;","let ft=0;q.anims.push(dt=>{ft+=dt;if(((ft*8)|0)===((ft-dt)*8|0))return;if(ANF.on&&Math.hypot(P.x-cx,P.z-q.OZ-cz)>300)return;")
+# r675 multi-material and per-corner-colour pieces batched (dx649, DPX): stand-ins for each material slot of a
+# multi-material piece (dpxConsider/dpxProxy) are handed to the batcher like ordinary pieces; per-corner colours are
+# multiplied into the batch's colours. The watchdog asks the real piece about its "moved" stamps.
+R("geoOK(ch.geometry)){const key=matKey(ch.material,lam);","geoOK(ch.geometry)){if(DPX.on&&dpxConsider(ch,lam,inv,groups,matKey,root))return;const key=matKey(ch.material,lam);")
+R("if(typeof mwFresh==='function')mwFresh(o);if(o.material!==m.mat","if(typeof mwFresh==='function')mwFresh(o.__dpR||o);if(o.material!==m.mat")
+R("if(st&&m.oc!==undefined&&(o.__mwchg|0)===m.oc&&","if(st&&m.oc!==undefined&&((o.__dpR||o).__mwchg|0)===m.oc&&")
+R("if(st){m.oc=o.__mwchg|0;m.rc=rec.root.__mwchg|0}return 0}","if(st){m.oc=(o.__dpR||o).__mwchg|0;m.rc=rec.root.__mwchg|0}return 0}")
+R("||o.geometry.attributes.position.version!==m.pv)return 1;","||o.geometry.attributes.position.version!==m.pv||!!mt.vertexColors!==m.vcf||(m.vcf&&(o.geometry.attributes.color?o.geometry.attributes.color.version:-1)!==m.cv))return 1;")
+R("pv:o.geometry.attributes.position.version}}","pv:o.geometry.attributes.position.version,vcf:!!m.vertexColors,cv:o.geometry.attributes.color?o.geometry.attributes.color.version:-1}}")
+R("const c=o.material.color,cr=c.r,cg=c.g,cb=c.b;","const c=o.material.color,cr=c.r,cg=c.g,cb=c.b;const vca=o.material.vertexColors&&g.attributes.color&&g.attributes.color.itemSize===3&&!g.attributes.color.normalized&&!g.attributes.color.isInterleavedBufferAttribute?g.attributes.color.array:null;")
+R("col[k]=cr;col[k+1]=cg;col[k+2]=cb;","if(vca){const j=i*3;col[k]=cr*vca[j];col[k+1]=cg*vca[j+1];col[k+2]=cb*vca[j+2]}else{col[k]=cr;col[k+1]=cg;col[k+2]=cb}")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -1075,7 +1090,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r674';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r675';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

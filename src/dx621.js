@@ -15,7 +15,9 @@
    game itself always do the full update, as before: only the renderer's own per-frame update skips.
    Turn it off with ?nomwx in the address, or MWX.on=false in the console, to compare.
    ===================================================================================================== */
-const MWX={on:!/[?&]nomwx/.test(location.search),used:0,fr:0,inR:0,skipped:0,fresh:0};
+const MWX={on:!/[?&]nomwx/.test(location.search),used:0,fr:0,inR:0,skipped:0,fresh:0,
+ /* r675: pieces the distance culling hides (layer 6) are left out of the walk too, like batched ones; ?nofarskip = old way */
+ far:!/[?&]nofarskip(?:[&=]|$)/.test(location.search)};
 const _mwP=THREE.Object3D.prototype.updateMatrixWorld;
 /* the same as three.js r128's updateMatrixWorld, but it leaves out what cannot be drawn this frame */
 function mwWalk(o,force){if(o.matrixAutoUpdate)o.updateMatrix();
@@ -23,7 +25,7 @@ function mwWalk(o,force){if(o.matrixAutoUpdate)o.updateMatrix();
  const ch=o.children;for(let i=0,l=ch.length;i<l;i++){const c=ch[i];
   if(c.__mwKeep||c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
   if(!c.visible){c.__mwSk=MWX.fr;MWX.skipped++;continue}
-  if(c.layers.mask===4&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
+  if((c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
   mwWalk(c,force)}}
 function mwDesertUMW(force){if(MWX.on&&MWX.inR){MWX.used=1;MWX.fr++;MWX.skipped=0;mwWalk(this,force)}else _mwP.call(this,force)}
 /* the renderer is the only caller of the scene's own update (the game never calls it), so that is when skipping is allowed */
@@ -31,7 +33,7 @@ S.updateMatrixWorld=function(force){MWX.inR=1;try{_mwP.call(this,force)}finally{
 /* is o inside the desert (and not inside a vehicle)? */
 function mwIn(o){for(let p=o;p;p=p.parent){if(p.__mwx)return true}return false}
 /* make o's world matrix up to date if the last render skipped it or one of its parents */
-function mwFresh(o){if(!MWX.used||!o||o.__mwKeep||o.__mwx)return;const leaf=o.isMesh&&!o.isSprite&&o.layers.mask===4&&!o.children.length;let chain=!o.visible||o.__mwSk===MWX.fr;
+function mwFresh(o){if(!MWX.used||!o||o.__mwKeep||o.__mwx)return;const leaf=o.isMesh&&!o.isSprite&&(o.layers.mask===4||(MWX.far&&o.layers.mask===64))&&!o.children.length;let chain=!o.visible||o.__mwSk===MWX.fr;
  for(let p=o.parent;p;p=p.parent){if(p.__mwKeep)return;if(p.__mwx){if(chain){o.updateWorldMatrix(true,false);MWX.fresh++}else if(leaf){if(o.matrixAutoUpdate)o.updateMatrix();o.matrixWorld.multiplyMatrices(o.parent.matrixWorld,o.matrix);MWX.fresh++}return}if(!p.visible||p.__mwSk===MWX.fr)chain=true}}
 /* readers that use matrixWorld directly */
 {const P0=THREE.Object3D.prototype;const l0=P0.localToWorld,w0=P0.worldToLocal;P0.localToWorld=function(v){mwFresh(this);return l0.call(this,v)};P0.worldToLocal=function(v){mwFresh(this);return w0.call(this,v)};

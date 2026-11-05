@@ -18,7 +18,7 @@
    ===================================================================================================== */
 const BAKE={on:!/[?&]nobake(?:[&=]|$)/.test(location.search),q:null,L:[],job:null,t:-1e9,n:0,up:0,fr:0,swp:[],nb:0,dirty:new Set(),wired:0,mids:[],posts:[],rid:0,midR:-1};
 /* a piece the frame's position update leaves out anyway (dx621/dx633/dx639 use the same test) */
-const bakeLeaf=c=>c.isMesh&&!c.isSprite&&c.layers.mask===4&&c.children.length===0&&c.updateMatrixWorld===_mwP&&!c.__mwKeep&&!c.__abt;
+const bakeLeaf=c=>c.isMesh&&!c.isSprite&&(c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.children.length===0&&c.updateMatrixWorld===_mwP&&!c.__mwKeep&&!c.__abt;
 /* a left-out piece's layers tell its group when they change (only left-out pieces get this, and nothing reads them every frame) */
 function bakeWire(c){if(c.__bk)return;c.__bk=1;BAKE.wired++;const L=c.layers;let m=L.mask;
  Object.defineProperty(L,'mask',{configurable:true,enumerable:true,get(){return m},set(v){if(v!==m){m=v;BAKE.dirty.add(c)}}})}
