@@ -1,4 +1,4 @@
-Status: plan approved 2026-11-05 · models: batch 1 (the coach) approved 2026-11-05, batch 2 (the stations) for review (shown on the desert road plan map, change 12)
+Status: ready to build · plan approved 2026-11-05 · models: batch 1 (the coach) and batch 2 (the stations) approved 2026-11-05 (shown on the desert road plan map, change 12)
 
 # The railway: four stations, both ways, and a train you can ride
 
@@ -70,7 +70,7 @@ Westbound the whole train is turned round, so seats and doors turn with it. The 
 update the stopping points in railway.md's table by 14 m if the coach goes anywhere other than behind the tender (it
 was planned there; the table assumes it).
 
-### Batch 2: the stations, for review · `RRSTN`, `rrStation(g, st)`, `rrBoard()`
+### Batch 2: the stations, approved 2026-11-05 · `RRSTN`, `rrStation(g, st)`, `rrBoard()`
 Each new halt is a 60 m platform on the north side of the track (0.6 m high, its edge 1.6 m from the track's middle,
 6 m deep, like Dusty Gulch's): concrete with a yellow edge strip and a white line, a 6 m ramp down at the road end
 (with a handrail on the track side), a railing along the back. On it: a timber shelter with an open front, a tin roof
