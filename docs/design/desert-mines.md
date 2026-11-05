@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · part 2 (F) plan for review · part 3 (E, G) still to design
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · part 2 (F) plan approved 2026-11-05, models batch 1 (the looks and the stations) for review · part 3 (E, G) still to design
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -356,7 +356,7 @@ Room space: the mine room (walls at x ±4, roof 4 m). Rolled with the room (seed
   patch of churned sand. `setRise(k)` (0 hidden → 1 out to the elbow), `setGrab(k)` closes the fingers. Several at a
   time, round where you stand still.
 
-# Part 2 (F): five levels and the room remodel · plan for review
+# Part 2 (F): five levels and the room remodel · plan approved 2026-11-05
 Only in the Desert Mines run (`DSRT.on`); the Daily run's mine stretch uses level 1's look and rooms. Part 1's rules
 (ore table, blockers, dangers, creatures) all stay; the levels only change the look, the room mix and how often things
 happen. Everything is rolled in `mkRoomRaw` with the seeded `Math.random`, as now.
@@ -443,5 +443,100 @@ tunnels):
 2. **The working rooms:** powder magazine, lamp room, canteen, old office, ore chute, pump room.
 3. **The cave rooms:** fork, side drift, wide gallery, stope, geode, dip, ladder raise.
 4. **The deep rooms:** lava steps, steam vents, bone pit, old temple.
+
+## Part 2 models (`models/desert-mines.js`, the same file as part 1)
+
+### Batch 1: the five looks and the cage stations, for review · `DMLV`, `dmShell`, `dmDress`, `dmFloorMat`, `dmStation`, `dmCage`, `dmManway`, `dmManwayFoot`
+**What's in it:**
+- **The rough rock shell** for every mine room: lumpy walls that bulge out up to 0.3 m, and a vaulted roof (higher on
+  levels 2 and 5). Both end walls have their door holes. It only ever goes outwards from the room's box, so the box
+  stays the collision. The only exception is the top corners of the box, above 3.4 m, which the vault rounds off.
+- **Each level's rock and floor pictures:**
+  - 1: sandy brown.
+  - 2: grey-blue with glints.
+  - 3: dark, wet and streaked, with green slime.
+  - 4: black basalt with faint column joints. It has no glow of its own: the glowing cracks are placed per room.
+  - 5: almost black.
+- **Each level's dressing:**
+  - 1: plank lagging laid over the timber sets, and boards behind the posts; old tools and a water barrel.
+  - 2: glowing blue and violet crystal clusters on the walls and roof, small ones at the foot of the walls.
+  - 3: puddles, a rusty pipe along one wall on brackets, ankle-deep water in wet rooms.
+  - 4: glowing cracks placed one by one in each room, so no two rooms look alike and nothing repeats. Each crack
+    starts on the floor a little way out from the wall, runs to the foot of the wall and climbs it, sometimes with a
+    branch, as a bright core with a soft glow that breathes slowly. Two cracks cross the roof, and up to two magma
+    seeps (glowing pools with a dark crust) sit where the biggest cracks meet the floor. The rock warms to red
+    towards the floor. Also basalt columns along the foot of the walls and two steam vents with faint steam.
+  - 5: glowing fungus at the foot of the walls; bones (long bones, ribs, a horned skull); a fallen carved stone block.
+- **The station hall:** a concrete apron with a yellow line, the level board and the next level's board on posts, a
+  bench and two lamp posts.
+- **The cage** in the last 2.75 m of the hall:
+  - a concrete front wall with a steel frame and a hazard stripe;
+  - a mesh landing gate that lifts;
+  - the car: checker-plate floor, mesh sides, the hoist bow and ropes, a lamp, a bell cord;
+  - a back gate in the exit door hole;
+  - red and green signal lamps, a bell and a signals board;
+  - a 'CABLE SHORT · USE THE MANWAY' board for station 80.
+- **The ride is faked:** nothing really moves.
+  - The shaft rock slides up past the mesh sides, with lamps going by, and the car shakes.
+  - A rock plate rises behind the front gate as the car "leaves" the hall.
+  - Behind the back gate you see shaft rock until the next level's landing door ("LEVEL 3") comes up into place as the
+    car "arrives". The landing door then lifts with the back gate.
+- **The manway** (station 80): a timber collar round a 1.2 m hole, a hand rail, a sign, a ladder 10 m down a
+  plank-lined shaft.
+- **The manway's foot** (room 81): the ladder coming down out of a lined raise in the roof, with a collar frame.
+
+**Wiring (Claude Code):**
+- **Levels:** `dmLevel(nn)` = 1 + floor((nn - 1) / 20) for doors 1 to 99 (door 20 is still level 1: its station is
+  the bottom of level 1). The level decides the look, the room mix (part 2's table), the lights and the sounds.
+- **The shell:**
+  - In `desertDecor`, for each mine room that is a plain box (not a turn leg, not a set piece, not door 100), build
+    `dmShell(G2, {HX, HY, Z: L + 2, lv, dIn, dOut, seed: nn})` with the group at the room's entry wall (z +1 in the
+    room's space).
+  - `dIn`/`dOut` are the doors' x. Pass `dIn: null` for a room entered by the manway (room 81).
+  - Hide the room's old wall, end-wall and ceiling meshes (keep their obstacles). Corner legs keep the old flat re-skin
+    for now.
+  - The shell only uses the seed it is given, never the seeded `Math.random`, so co-op rooms stay the same.
+- **The floor:** put `dmFloorMat(lv)` on the floor box (texture repeat: 2.5 m per tile).
+- **Timber sets:** level 1 as now (every 3.2 m). Level 3 every 6.4 m in darker wood. None on levels 2 and 4. Level 5:
+  one or two broken old sets.
+- **Dressing:** `dmDress(G2, shell, {seed: nn, sets: [the sets' z], capTop, wet})`.
+  - `capTop` is the top of the sets' caps.
+  - `wet` is for about half the rooms on level 3.
+  - Call `tick(t)` each frame while the room is near (steam, the water's ripples).
+  - `obs` go into the room's obstacles.
+- **Lights:**
+  - Lanterns as part 1: level 1 every other set; levels 2 and 3 about every 8 m; level 4 only at the doors; level 5
+    none.
+  - `dress.glow` lists up to a few spots where a pool light (blue on 2, orange on 4, teal on 5, short range) makes the
+    crystals, cracks and fungus light the room. Take them from the existing light pool, don't add lights.
+  - The level-5 rooms are meant to be dark: your lantern and the fungus are the light.
+- **Stations (doors 20, 40, 60 and 80):**
+  - Each is a hall with HX 5, HY 5 and Z 16, in the level's look (`dmShell` + `dmDress` with no rails), plus
+    `dmStation(G2, {lv, HX: 5, Z: 16})`.
+  - Add `dmCage(G2, {lv, HX: 5, HY: 5, Z: 16, x: dOut})` at the exit. The car's inside is x ±1.1, z 0.2..2.4 from the
+    exit wall.
+  - Collision:
+    - the front wall is solid except the 1.5 m opening while the front gate is up;
+    - the car's sides are solid;
+    - the back gate is solid until it's up.
+- **The ride** (like the hotel's lift):
+  - When everyone is in the car, or 30 s after the first player steps in (stragglers are moved in), call
+    `signal('go')`, close the front gate (`gate('f', k)` over 1.5 s) and `ride(30)`.
+  - For 12 s, call `tick(dt, speed)` with speed ramping 0 → 1 over 2 s and back to 0 over the last 2 s. That's 30 m of
+    "travel", and the plates and the landing door follow it.
+  - Build the next room while the gates are shut. Then `signal('stop')`, open the back gate (`gate('b', k)`, 1.5 s),
+    ding, and show the level's name.
+  - Hang a pool light at `lamp` while someone is in the car.
+- **Station 80:**
+  - The cage runs as above but stops with a jolt after 8 s. Then `short(true)` and the front gate opens again ("The
+    cable won't go any further.").
+  - `dmManway(G2, x, z)` stands in the hall beside the cage. The preview uses (2.4, -9.6) in a 16 m hall; the game
+    cuts the floor at `hole`.
+  - E at the ladder (`top`) starts a 5 s climb down (the camera goes down the rungs, fades). You come out at the foot
+    of `dmManwayFoot(G2, x, z, HY, 5, HX)` near room 81's entry wall, facing into the room.
+  - Room 81's shell takes `holes: [foot.hole]`, and its entry door is never used: the cage's back gate stays shut at
+    80.
+  - Co-op: each player climbs on their own.
+- **Badges:** "Five Levels Down" when you reach the foot of the ladder.
 
 # Part 3 (E, G): shuffled set pieces, the Company Store and contracts: plan after part 2
