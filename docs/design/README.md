@@ -1,14 +1,15 @@
 # Design specs
 
-## Ready to build (approved by the user, not in the game yet) · updated 2026-10-21
+## Ready to build (approved by the user, not in the game yet) · updated 2026-11-05
 Claude Code: these are waiting. Each spec's own status line and wiring notes say what's in it.
 | Spec | What it is | Models |
 |---|---|---|
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
+| `silo.md` | **part 1 only, urgent** (a bug fix, no models): Silo 1's walkable rooms don't join, so you can't get back to the elevator; one outline, arrive in the cage, a second prompt, a safety net. Part 2 (the new look) is still a plan | none |
 
 
-In progress (design): the desert mines (`desert-mines.md`: how it plays now and ideas, waiting for the user to pick).
+In progress (design): the desert mines (`desert-mines.md`, part 1 models), Silo 1's new look (`silo.md` part 2), the desert road layout (planning).
 
 Still to design: the desert mines loop and remodel.
 
