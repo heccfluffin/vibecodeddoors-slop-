@@ -302,8 +302,25 @@ function dmBurrower(){const o=dmKit(),M=o.M,G=new THREE.Group(),N=14,SEG=.62;con
   H.position.set(...head);H.lookAt(head[0]-d.x,head[1]-d.y,head[2]-d.z);for(let i=1;i<N;i++){const a=segs[i-1].position,b=segs[i].position,v=b.clone().sub(a);const l=v.length()||1;b.copy(a).add(v.multiplyScalar(SEG/l));segs[i].lookAt(a.x*2-b.x,a.y*2-b.y,a.z*2-b.z);segs[i].lookAt(a)}
   const op=open==null?1:open;H.userData.teeth.forEach((t2,i)=>t2.rotation.x=-.2-.45*op)};
  const reset=()=>{init=false};return{group:G,tick,reset,segs}}
-function dmBurrowHole(g,x,y,z,ry){const o=dmKit(),G=new THREE.Group();G.position.set(x,y,z);G.rotation.y=ry||0;g.add(G);const dk=new THREE.Mesh(new THREE.CircleGeometry(.95,20),o.M(0x060403,{roughness:1}));dk.position.z=.01;G.add(dk);
- const R=[];for(let i=0;i<18;i++){const a=i/18*6.28+o.r()*.2;o.rock(R,.16+o.r()*.12,Math.cos(a)*1.05,Math.sin(a)*1.05,0,i*7.3+x,[o.c.rock2,o.c.rock3][i%2],.7)}{const m=mgMerge(R,o.STONEV);G.add(m)}const F=[];for(let i=0;i<12;i++)o.rock(F,.08+o.r()*.12,(o.r()-.5)*2.4,-y-.02,.3+o.r()*1.2,i*4.1+z,o.c.rock2);G.add(mgMerge(F,o.STONEV));return G}
+/* the Burrower's hole: 2.6 m across (radius 1.3 with its rim), centred on a wall. Keep it BETWEEN timber sets: the
+   middle of a bay, so nothing stands within 1.4 m of its centre along the wall (sets 3.2 m apart leave just room),
+   and no lamp, pipe or sign on the wall within 1.4 m either.
+   x,y,z: the centre on the wall face; ry turns it so its front (+z) faces into the tunnel. */
+function dmBurrowHole(g,x,y,z,ry){const k=rtKit(),o=dmKit(),G=new THREE.Group();G.position.set(x,y,z);G.rotation.y=ry||0;g.add(G);
+ /* the dark mouth: black in the middle fading to dark earth at the edge, so it reads as deep */
+ const dt=k.tex(128,128,(c,w,h)=>{const gr=c.createRadialGradient(w/2,h/2,4,w/2,h/2,w/2);gr.addColorStop(0,'#000');gr.addColorStop(.55,'#070403');gr.addColorStop(.85,'#1e130b');gr.addColorStop(1,'#3a2716');c.fillStyle=gr;c.fillRect(0,0,w,h)});
+ const dk=new THREE.Mesh(new THREE.CircleGeometry(.95,28),o.M(0xffffff,{roughness:1,map:dt,polygonOffset:true,polygonOffsetUnits:-4}));dk.position.z=.012;G.add(dk);
+ /* the broken lip: a jagged ring of torn earth bulging out of the wall */
+ const N=36,pos=[],col=[],idx=[];for(let i=0;i<=N;i++){const a=i/N*6.283,ri=.93,ro=1.12+.14*Math.sin(a*5+1.3)*Math.sin(a*3)+.06*Math.sin(a*11),zo=.1+.05*Math.sin(a*7);
+  pos.push(Math.cos(a)*ri,Math.sin(a)*ri,.02, Math.cos(a)*(ri+ro)/2,Math.sin(a)*(ri+ro)/2,zo, Math.cos(a)*ro,Math.sin(a)*ro,0);col.push(.32,.22,.14,.55,.42,.3,.62,.5,.36)}
+ for(let i=0;i<N;i++){const a=i*3,b=(i+1)*3;for(let r=0;r<2;r++)idx.push(a+r,a+r+1,b+r,a+r+1,b+r+1,b+r)}
+ const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));lg.setAttribute('color',new THREE.Float32BufferAttribute(col,3));lg.setIndex(idx);lg.computeVertexNormals();
+ const lip=new THREE.Mesh(lg,o.M(0xffffff,{roughness:1,vertexColors:true,map:o.DIRTT}));G.add(lip);
+ /* chunks of rock torn loose, half sunk into the wall round the lip (round, not flat) */
+ const R=[];for(let i=0;i<13;i++){const a=i/13*6.283+o.r()*.25,rr=1.02+o.r()*.14;o.rock(R,.1+o.r()*.09,Math.cos(a)*rr,Math.sin(a)*rr,.02,i*7.3+x,[o.c.rock2,o.c.rock3][i%2])}G.add(mgMerge(R,o.STONEV));
+ /* rubble spilled on the floor in front of it */
+ const F=[];for(let i=0;i<12;i++)o.rock(F,.08+o.r()*.12,(o.r()-.5)*2.2,-y-.02+.04,.3+o.r()*1.2,i*4.1+z,o.c.rock2);G.add(mgMerge(F,o.STONEV));
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return G}
 
 function dmSandGlass(){const k=rtKit(),o=dmKit(),M=o.M,G=new THREE.Group();const W=M(0x6a4a2a,{roughness:.7,map:o.PLANKT}),Gl=M(0xd8e8f0,{roughness:.05,metalness:.1,transparent:true,opacity:.28,depthWrite:false}),Sd=M(0xe0c070,{roughness:.9,emissive:0x5a3a10,emissiveIntensity:.4});
  for(const y of[-.62,.62]){const p=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,.1,6),W);p.position.y=y;G.add(p);const c2=new THREE.Mesh(new THREE.TorusGeometry(.36,.035,6,6),M(0xc8a040,{metalness:.8,roughness:.3}));c2.rotation.x=Math.PI/2;c2.position.y=y*.92;G.add(c2)}

@@ -347,7 +347,8 @@ Room space: the mine room (walls at x ±4, roof 4 m). Rolled with the room (seed
   a head that is open at the front, with three rings of teeth and a red glow down its throat (a red point light inside).
   `tick(dt, head, dir, open)`: put the head at a point facing `dir`, and the body follows, each segment trailing the
   one before; `open` 0 to 1 flares the teeth. `reset()` before it comes out again. **`dmBurrowHole(g, x, y, z, ry)`**
-  is the broken hole it bursts out of (and leaves), with rubble on the floor.
+  is the broken hole it bursts out of (and leaves), with rubble on the floor. It is 2.6 m across: put it in the
+  middle of a bay between two timber sets, with no lamp, pipe or sign within 1.4 m of its centre.
 - **The sand-glass** (`dmSandGlass()`): the curse's sand timer, hanging over the door: a carved wooden frame with gold
   bands, two glass bulbs, sand running from top to bottom, a soft golden glow. `setK(k)` (0 full → 1 run out),
   `tick(t)` turns it slowly.
