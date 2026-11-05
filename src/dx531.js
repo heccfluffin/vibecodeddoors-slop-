@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r674',['Desert speed-up: far fewer draw calls (about half at the Fort). Pieces of scenery that are the only one of their kind, loose pieces in the newer places, and the Fort, PD, prison and other later-built places are now drawn together with their neighbours','Dust, sparks and other little puffs are drawn together instead of one by one','Rows of barriers, posts and panels are no longer drawn when they are behind you','To compare, these can be switched off in the address: ?noone1, ?nolate1, ?noabtm, ?noptb, ?noimc']],
 ['r673',['Fixed a short hitch every so often in the desert: each time a door or gate opened or closed somewhere, the whole map was redrawn']],
 ['r672',['Desert speed-up: parked cars, planes and helicopters that nobody is in and that have stood still for a while are now drawn together with the scenery around them (fewer draw calls). A vehicle that moves goes straight back to being drawn on its own','?noabtv in the address turns this off, to compare']],
 ['r671',['Single scenery pieces no longer join the area batches (your benchmark showed the same speed without them, and they used more graphics memory). Add ?abt1 to the address to turn them back on']],

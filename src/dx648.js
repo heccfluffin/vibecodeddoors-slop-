@@ -19,7 +19,7 @@
    once they have looked and sat exactly the same at two looks. When it moves, its parts draw themselves that same frame;
    it is not barred for good (it can join again once it stands still). ?noabtv turns this part off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
@@ -33,7 +33,7 @@ const _abM=new THREE.Matrix4(),_abN=new THREE.Matrix3(),_abV=new THREE.Vector3()
 /* which merged batches can be joined, and with what (null = stays as it is) */
 function abtTexKey(t,loose){const im=t.image;if(!im||!(im.width>0)||!(im.height>0))return null;if(!(typeof HTMLCanvasElement!='undefined'&&im instanceof HTMLCanvasElement))return null;
  if(im.width*im.height>512*720||t.encoding!==THREE.LinearEncoding||t.format!==THREE.RGBAFormat||t.type!==THREE.UnsignedByteType||t.premultiplyAlpha)return null;
- if(!loose&&(t.matrixAutoUpdate||!t.matrix.equals(_abI3)))return null;
+ if(!loose&&(t.matrixAutoUpdate?!dpTexId(t):!t.matrix.equals(_abI3)))return null;/* (r674: a one-piece batch keeps its own picture when it is drawn as it is) */
  return im.width+'x'+im.height+'/'+t.wrapS+'/'+t.wrapT+'/'+t.magFilter+'/'+t.minFilter+'/'+t.anisotropy+'/'+(t.flipY?1:0)+'/'+(t.generateMipmaps?1:0)}
 const _abI3=new THREE.Matrix3();
 /* r668: single pieces (not in any batch) can join too: their colour is stored per vertex, their picture's offset and
@@ -50,26 +50,28 @@ function abtKey(o){const m=o.material,g=o.geometry;if(!m||Array.isArray(m)||!g||
 /* ---------- looking through the desert (a little each frame) ---------- */
 function abtScanStep(q,ms){const t0=performance.now();let J=ABT.scan;
  if(!J){const veh=new Set();for(const v of q.vehs||[])if(v&&v.m)veh.add(v.m);const skip=new Set([q.sky,q.sun,q.zsky,q.zstar,q.bg,BUS._sky,BUS._sun,typeof SKN!='undefined'?SKN.g:null].filter(Boolean));
-  for(const o of (q.dp&&q.dp.movers)||[])if(o&&o.isObject3D)skip.add(o);
+  /* r674: places that are watched as possibly moving (all the later-built ones) are looked into too: their pieces must sit still for two looks */
+  const mset=new Set();for(const o of (q.dp&&q.dp.movers)||[])if(o&&o.isObject3D)(ABT.mov?mset:skip).add(o);
   const vmap=new Map();for(const v of q.vehs||[])if(v&&v.m)vmap.set(v.m,v);
-  ABT.scanN=(ABT.scanN|0)+1;J=ABT.scan={st:[q.g],veh,vmap,inV:new Set(),skip,G:new Map(),users:new Map(),tex:new Map(),lights:[],inv:new THREE.Matrix4().copy(q.g.matrixWorld).invert()}}
+  ABT.scanN=(ABT.scanN|0)+1;J=ABT.scan={st:[q.g],veh,vmap,inV:new Set(),mset,inM:new Set(),skip,G:new Map(),users:new Map(),tex:new Map(),lights:[],inv:new THREE.Matrix4().copy(q.g.matrixWorld).invert()}}
  while(J.st.length){const o=J.st.pop();
-  const iv=J.inV.has(o);
+  const iv=J.inV.has(o),im=J.inM.has(o);
   for(const c of o.children){if(c.isLight){J.lights.push(c);continue}const u=c.userData||{};
    /* r672: a vehicle nobody is in and that is not moving is looked inside: its far shape and its batched parts can join */
    if(J.veh.has(c)){if(ABT.veh&&abtParked(J.vmap.get(c))&&c.children.length){J.inV.add(c);J.st.push(c)}continue}
+   const isM=J.mset.has(c);if(isM&&iv)continue;
    if(J.skip.has(c)||(!iv&&c.__mwKeep)||u.dpDyn||u.mv||u.fsc||u.skn||c.updateMatrixWorld!==_mwP)continue;
    if((u.dpKeep||u.flv)&&!(iv&&c.isMesh&&u.flv&&u.dpMerged))continue;
    if(c.isMesh&&c.children.length===0&&(u.dpMerged||(ABT.ones&&!c.isSprite&&(c.layers.mask===1||c.layers.mask===64)))){const m=c.material;if(m&&m.map)J.users.set(m.map,(J.users.get(m.map)||0)+1);
     if(c.isSkinnedMesh||c.isInstancedMesh||c.onBeforeRender!==_abOBR||ABT.lively.has(c))continue;const k=abtKey(c);if(!k)continue;
     /* r669: a single piece joins only once it has looked and sat exactly the same at two looks in a row (8 s apart) */
-    if(!u.dpMerged||iv){/* (a parked vehicle's parts too: it has to stand still for a look) */if(typeof mwFresh=='function')mwFresh(c);const sn=ABT.seen.get(c),now=ABT.scanN;
+    if(!u.dpMerged||iv||im){/* (a parked vehicle's parts too: it has to stand still for a look) */if(typeof mwFresh=='function')mwFresh(c);const sn=ABT.seen.get(c),now=ABT.scanN;
      if(!sn||sn.mat!==m||sn.geo!==c.geometry||!abtSigOK(m,sn.sig)||!abtSame(c.matrixWorld.elements,sn.mw)){ABT.seen.set(c,{mat:m,geo:c.geometry,sig:abtSig(m),mw:Float64Array.from(c.matrixWorld.elements),n:now});continue}
      if(sn.n>=now)continue}
     if(typeof mwFresh=='function')mwFresh(c);/* (pieces in hidden places are not kept up to date by the frame) */const g=c.geometry;if(!g.boundingSphere)g.computeBoundingSphere();_abV.copy(g.boundingSphere.center).applyMatrix4(c.matrixWorld).applyMatrix4(J.inv);
     /* (parked vehicles are spread out, so they share bigger areas: 432 m) */const AR=iv?ABT.AREA*3:ABT.AREA,ax=Math.floor(_abV.x/AR),az=Math.floor(_abV.z/AR),gk=(iv?'V':'')+ax+','+az+'#'+k;let e=J.G.get(gk);if(!e)J.G.set(gk,e={gk,k,ax,az,ar:AR,L:[]});e.L.push(c);
     if(m.map){const tk=k.split('|')[1];let s=J.tex.get(tk);if(!s)J.tex.set(tk,s=new Set());s.add(m.map.image)}}
-   else if(c.children.length){J.st.push(c);if(iv)J.inV.add(c)}}
+   else if(c.children.length){J.st.push(c);if(iv)J.inV.add(c);if(im||isM)J.inM.add(c)}}
   if(performance.now()-t0>ms)return false}
  return true}
 const _abOBR=THREE.Object3D.prototype.onBeforeRender;

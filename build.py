@@ -291,6 +291,7 @@ k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx646.js').re
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx647.js').read()+"\n"+s[k:]
 # r667 scenery area batches (fewer draw calls)
 k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx648.js').read()+"\n"+s[k:]
+k=s.index('</script>',s.index('const HUBWX'));s=s[:k]+"\n"+open(S+'dx649.js').read()+"\n"+s[k:]
 R("A(BX(.3,.4,.12),RD,BX0+.4,1.5,-690);A(BX(.1,.2,.14),WH,BX0+.4,1.5,-690);","A(BX(.12,.4,.3),RD,BX0+.4,1.5,-690);A(BX(.14,.2,.1),WH,BX0+.42,1.5,-690);")
 R("if(!N.tgt&&!q.ngSeen)return","if(!N.tgt&&!q.ngSeen&&!milSV().ngSeen)return")
 R("{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;return","{const ng0=ngDlg;ngDlg=function(q){q.ngSeen=1;try{const S=milSV();if(!S.ngSeen){S.ngSeen=1;milSave()}}catch(e){}return")
@@ -1053,6 +1054,14 @@ R("xpCull=function(q,force){if(!q.chunks)return;if(!force&&(q.cullT=(q.cullT||0)
 R("function dailyColUpd(dt){if(!DAILY.on||!DAILY.th)return;const r=RMS[ci];if(!r||!r.dcol)return;for(const q of r.dcol){if(q.got)continue;q.m.rotation.y+=dt*2;q.m.position.y=.35+Math.sin(t*3+q.x)*.06;\n  if(Math.hypot(P.x-q.x,P.z-q.z)<1.35&&Math.abs(P.dy||0)<2.6){",
   "const dcolW=new THREE.Vector3();function dailyColUpd(dt){if(!DAILY.on||!DAILY.th)return;for(let k=Math.max(0,ci-1);k<=ci+1;k++){const r=RMS[k];if(!r||!r.dcol)continue;for(const q of r.dcol){if(q.got)continue;q.m.rotation.y+=dt*2;q.m.position.y=.35+Math.sin(t*3+q.x)*.06;q.m.updateWorldMatrix(true,false);dcolW.setFromMatrixPosition(q.m.matrixWorld);\n  if(Math.hypot(P.x-dcolW.x,P.z-dcolW.z)<1.35&&Math.abs(P.dy||0)<2.6){")
 R("const T2=DTH[DAILY.th];hint(T2.colIc+' '+DAILY.col+' '+T2.col+' collected!')}}}","const T2=DTH[DAILY.th];hint(T2.colIc+' '+DAILY.col+' '+T2.col+' collected!')}}}}")
+# r674 one-piece batches: a piece whose look is the only one of its kind in its place used to stay on its own (a batch
+# needs two). Now it gets a batch of one when the scenery area batches (dx648) can take it, so it can be drawn together
+# with its neighbours, and the batching watchdog keeps an eye on it like any other batched piece. dpOneOK is in dx649.
+R("for(const[key,L]of groups){if(L.length<2)continue;","for(const[key,L]of groups){if(L.length<2&&!dpOneOK(L[0],root))continue;")
+R("const flush=()=>{if(b.length<2){b=[];nv=0;return}","const flush=()=>{ONE.cur=false;if(b.length<2&&!(b.length===1&&dpOneOK(b[0],root,1))){b=[];nv=0;return}")
+# (a one-piece batch keeps the piece's own picture when it is not moved or repeated: no second copy on the graphics card)
+R("map:src.map?canonTex(src.map,texKey(src.map)):null","map:src.map?(ONE.cur&&dpTexId(src.map)?src.map:canonTex(src.map,texKey(src.map))):null")
+R("if(recs.length)root.userData.dpRecs=recs;return[recs.length,saved]}","ONE.cur=false;if(recs.length)root.userData.dpRecs=recs;return[recs.length,saved]}")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -1066,7 +1075,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r673';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r674';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
