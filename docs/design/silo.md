@@ -1,4 +1,4 @@
-Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan for review
+Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) for review
 
 # Silo 1: getting out again, and a new look
 
@@ -57,4 +57,44 @@ inside, glowing balls for lights, a flat disc for the floor, a ring for the catw
 6. **From the surface:** the open lid shows the real shaft below (no black disc), with the missile's nose visible when
    it's loaded.
 
-Model batches once this is OK: (1) elevator and tunnel, (2) shaft, catwalk and cradle, (3) the surface tie-in.
+Model batches: (1) elevator and tunnel, (2) shaft, catwalk and cradle, (3) the surface tie-in.
+
+## Part 2 models (`models/silo.js`, needs `fort-kit.js`)
+Everything is built in **silo space**: one group at the shaft centre on the ground, world (578, 0, -700), not turned
+(+z is north, the tunnel is north of the shaft). World = silo + (578, 0, -700). The file's header lists every builder.
+
+### Batch 1: the lift and the tunnel, for review · `slElevator`, `slTunnel`
+- **The lift is a rack-and-pinion lift** (a change from the plan's cage on cables): the bunker is only 4 m tall, so
+  there's no room for a winch and cables overhead. A lattice mast stands on the shaft's north wall from the pit to the
+  bunker floor, with a toothed rack; the car's drive unit (two motors, brakes, an amber beacon) sits on the car's
+  north edge and its pinions climb the rack. The car: diamond-plate deck, hazard edges, side rails with mesh, folding
+  gates at the west end (the bunker) and the east end (the tunnel), a control box (UP, DOWN, stop), a lamp.
+  The shaft: cast concrete, a pit with two spring buffers and a ladder, depth marks every 3 m, caged lamps. At the top:
+  yellow posts, a mesh screen on the south and east sides, the sign over the west side.
+- **The tunnel:** arched (3.4 m to the crown), cast concrete with ribs, the floor with a drain grating along the north
+  wall and yellow walkway lines, three pipes (FUEL red, AIR grey, OXIDIZER yellow) on struts with flanges, valves and
+  labels, a cable tray on the south wall, caged lamps on the crown, **BLAST DOOR 1** halfway (a concrete bulkhead with
+  a 2 x 2.4 m doorway; the door is 0.5 m thick, shown open against the north side, a wheel on each face, red/green lamps),
+  the passage south into the shaft at the east end (3 m wide, yellow portal, SILO 1 · CATWALK), signs, an extinguisher,
+  an emergency phone, the power cabinet on the end wall.
+
+**Wiring (Claude Code):**
+1. In `siloBuild` (dx579), make `const R=new THREE.Group();R.position.set(578,0,-700)` in the silo group, then
+   `EL=slElevator(R)`, `TU=slTunnel(R)`. Remove the old cage posts, mesh bars, platform, sign, the boxes under the cage,
+   the tunnel/connector boxes, pipes, strip lights and the SILO 1 arrow. **Keep the hole in the bunker floor** (the
+   `colorWrite:false` plane over the cage) and give every mesh of the shaft, the mast, the pit and the car
+   `renderOrder=-2`, like the old pieces under the cage, so the bunker floor doesn't cover them.
+2. `q.silo.plat` becomes `EL.car`: `siloTick` calls `EL.setY(y)` and `EL.tick(dt, riding)` every frame. Gates: both
+   shut while riding (`EL.setGates(0,0)`), the east one open at the bottom (`setGates(0,1)`), the west one at the top
+   (`setGates(1,0)`).
+3. **Where you can walk** (this replaces part 1's numbers; still one joined outline, overlapping 1 m where pieces meet):
+   the car x 553.7..559.6, z -694.5..-688.7 (the north strip is the mast and the drive unit), the tunnel as now
+   (x 559.6..580, z -693.4..-688.8), the passage x 576.5..579.5, z -695.6..-693.4. Not walkable: `TU.blockers` moved to
+   world, which are the bulkhead x 569.3..570.3 except z -692.1..-690.1 (the doorway), and the open door x 570.3..572.8,
+   z -690.1..-688.8. Arrive at the car's centre (556.6, -691.6).
+4. **Lights:** point lights at `TU.lamps[1]`, `[3]`, `[5]` and one on the car at `EL.lamp` (car space). Keep them in the
+   scene all the time and set their intensity to 0 when you're not underground (adding or removing lights makes the
+   game rebuild its shaders and stutter).
+5. The batching must leave the car and the door alone (`dpKeep` is already set on both); everything else is still.
+6. Test: ride down (the gate opens to the tunnel), walk through the blast door, to the passage, back, ride up (the gate
+   opens to the bunker); look up the shaft from the car halfway; check the bunker floor doesn't hide the shaft.
