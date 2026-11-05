@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · parts 2 (F) and 3 (E, G) still to design
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · part 2 (F) plan for review · part 3 (E, G) still to design
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -356,9 +356,92 @@ Room space: the mine room (walls at x ±4, roof 4 m). Rolled with the room (seed
   patch of churned sand. `setRise(k)` (0 hidden → 1 out to the elbow), `setGrab(k)` closes the fingers. Several at a
   time, round where you stand still.
 
-# Part 2 (F): five levels and the room remodel: plan after part 1
-Levels of about 20 doors joined by a cage lift or a long ladder: 1 Old Workings, 2 Crystal Caves, 3 The Flooded Level,
-4 The Hot Rocks, 5 The Deep, each with its own room pool, look, ore, music and dangers; many more room types and turns;
-real cave shapes instead of boxes. Planned once part 1 is approved.
+# Part 2 (F): five levels and the room remodel · plan for review
+Only in the Desert Mines run (`DSRT.on`); the Daily run's mine stretch uses level 1's look and rooms. Part 1's rules
+(ore table, blockers, dangers, creatures) all stay; the levels only change the look, the room mix and how often things
+happen. Everything is rolled in `mkRoomRaw` with the seeded `Math.random`, as now.
+
+## The five levels
+| Level | Doors | Look | Light | Ore (part 1) | More of / less of |
+|---|---|---|---|---|---|
+| 1 Old Workings | 1-19 | sandy brown rock, a timber set every 3.2 m, plank lagging in places, rails | a lantern on every other set (as now) | copper, iron | more boards, rockfall, Runaway Carts; no gas or water (as part 1) |
+| 2 Crystal Caves | 21-39 | no timber: natural caves in grey-blue rock, crystal clusters in the walls and roof glowing blue and violet, bigger caverns; old rusty rails half buried in sand | half the lanterns (part 1); the crystals light the rest | iron, copper, silver | more chasms, rope bridges and bats; fewer boards |
+| 3 The Flooded Level | 41-59 | dark wet rock that shines, puddles, ankle-deep water in about half the rooms (looks and splashes only), pipes along the walls | half the lanterns | silver, iron, gold | more flooded passages, rising water and gas; less rockfall |
+| 4 The Hot Rocks | 61-79 | black basalt with glowing orange cracks, steam from the floor, a heat shimmer near lava | only the door lanterns (part 1); the cracks glow orange | gold, silver, crystal | chasm rooms become **lava channels** (falling in: as a chasm, but 60 damage and you burn for 3 s); more gas and Burrower |
+| 5 The Deep | 81-99 | huge dark spaces, room heights up to 8 m, old bones, faint glowing fungus, the carved stone of an older dig (the Pharaoh's people) | **no lanterns at all**: your lantern and the fungus only | gold, crystal, diamond | more bats, Burrower and curse (every 60-90 s instead of 1-2 min) |
+
+Door 100 stays Seek's dam, the finale. The set pieces stay where they are until part 3 shuffles them; they take on the
+look of the level they fall in (the minecart chase 25-34 runs through crystal caves, Seek's sewer 65-74 through the hot
+rocks).
+
+**Sound:** each level has its own background, made from the game's existing sounds (no new music files): 1 creaking
+timber and drips, 2 a soft glassy hum, 3 running water and a slow pump thud, 4 bubbling and hissing, 5 almost silence
+with a deep far-off rumble. Arriving on a level shows its name for 3 s ("LEVEL 3 · THE FLOODED LEVEL · 180 m").
+
+## The cage stations (doors 20, 40, 60 and 80)
+- Each is a station hall at the bottom of the level (HX 5, L 15, in the level's look) with the cage at its far end, the
+  level board ("LEVEL 2 · CRYSTAL CAVES · 120 m DOWN"), a bell, a winding signal board and a bench.
+- **The cage is a through car, like the hotel's lift** (`hotel-loop.md` B2): in at the front gate, out at the back gate
+  into the next level's first room. Nothing really moves: the cage shakes, the shaft's rock wall slides up past the
+  open mesh sides (a moving texture), lamps go by, 12 s. The next room is built while the gates are shut. Co-op: it goes
+  when everyone is in, or 30 s after the first player steps in (stragglers are moved in before the gates close), as in
+  the hotel.
+- **Door 60's hall** gets the Company Store counter in part 3. The quarry's 1-in-100 old shaft lands you in this hall.
+- **The last cage (80) stops short:** "The cable won't go any further." A ladder beside it goes down the last 10 m: E
+  on the ladder, a 5 s climb down (the camera goes down the rungs), then The Deep.
+- Badges: **Five Levels Down** (reach The Deep), **Spelunker** (see every room type in the mines, over any number of runs).
+
+## The rooms
+**The room frame stays as now:** a box with the entry at one end and the exit at the other, corners from the turn
+system. That keeps co-op seeding, turns, the creatures' paths and the doors working. Every room still starts and ends
+at floor height 0; going down happens in the cages (and the dip, below).
+
+**Rough walls:** every mine room's walls and roof get a lumpy rock shell over the box (the quarry underground's
+rock-wall kit), in the level's rock. The box stays for collision; the shell only makes it look like a cave.
+
+**Corners:** as often as on the hotel's upper floors. The fork and the side drift (below) add more ways to go.
+
+**The mix per level** (the existing eleven shapes plus seventeen new rooms; plain tunnel = the share of ordinary
+tunnels):
+
+| Level | Plain tunnel | Existing shapes | New rooms |
+|---|---|---|---|
+| 1 | 40% | zigzag, pillars, collapsed, junction, dig, cart puzzle, pinch | powder magazine, lamp room, canteen, old office, ore chute |
+| 2 | 25% | cavern, chasm, crystal, pinch | geode, wide gallery, fork, stope, lamp room |
+| 3 | 35% | stream, pillars, junction, cart puzzle | pump room, dip, fork, side drift, ladder raise |
+| 4 | 30% | chasm (lava channel), collapsed, pinch | lava steps, steam vents, ore chute, stope |
+| 5 | 20% | cavern, collapsed, chasm | bone pit, old temple, wide gallery, side drift, ladder raise |
+
+**The new rooms, and what they do:**
+1. **Fork:** a rock pillar splits the room into two passages that meet again before the exit. One side has a find (a
+   vein or a crate), the other a danger (a rockfall spot or the edge of a gas pocket).
+2. **Side drift:** a short dead-end tunnel off one wall (6 m). At its end: two veins, a crate, or a miner's skeleton
+   with an oil can (level 5). Sometimes it's where the Burrower is.
+3. **Wide gallery:** twice as wide, two rows of rock pillars, two tracks.
+4. **Stope:** a tall worked-out space (8 m) with timber props across it; a ladder up to a ledge with a rich vein.
+5. **Ore chute:** a timber chute from the roof over a cart. Pull its gate (E): ore rattles down, one free ore each, but
+   it's loud (+4 noise, the Burrower).
+6. **Pump room:** a big old steam pump with a wheel. Turn it on (hold E, 4 s) and the next flooded passage is already
+   drained when you get there.
+7. **Powder magazine:** an iron cupboard behind a DANGER sign: one stick of dynamite per player. Never next to a gas room.
+8. **Lamp room:** racks of lamps and an oil drum: E fills your lantern (once each).
+9. **Canteen:** a table and benches, lunch tins, a kettle, crates and drawers to search.
+10. **Old office:** a desk, drawers, and a level map on the wall that marks which of the next five rooms have gas.
+11. **Geode:** you walk through a giant hollow crystal geode, glowing; a silver vein inside; quiet (no bats here).
+12. **Dip:** timber steps down 1.2 m into a flooded hollow (waist-deep, half speed) and up the other side.
+13. **Ladder raise:** a rock wall across the room; the way on is up a 3 m ladder onto a ledge and down the other side.
+    Ladders are climbed with W/S (new, also used in the stope).
+14. **Lava steps:** a lava channel across the room with stepping stones to jump; some sink a little when you land.
+15. **Steam vents:** vents in the floor blow in turns (a hiss 2 s before): 15 damage and a shove. Walk between bursts.
+16. **Bone pit:** a huge dark cavern; the path goes under the rib cage of something enormous.
+17. **Old temple:** carved stone pillars, steps and a carved doorway from an older dig. The curse likes to start here.
+
+## Models (after this plan is OK), in four batches
+1. **The stations and the five looks:** the station hall and through cage with the moving shaft wall, the level
+   boards, the ladder down to The Deep; the rough rock shell and each level's dressing (timber sets, crystal clusters,
+   wet walls and pipes, glowing cracks, bones and fungus). Preview: a plain tunnel in each look, and a cage ride.
+2. **The working rooms:** powder magazine, lamp room, canteen, old office, ore chute, pump room.
+3. **The cave rooms:** fork, side drift, wide gallery, stope, geode, dip, ladder raise.
+4. **The deep rooms:** lava steps, steam vents, bone pit, old temple.
 
 # Part 3 (E, G): shuffled set pieces, the Company Store and contracts: plan after part 2
