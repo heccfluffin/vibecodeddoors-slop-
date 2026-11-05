@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) for review
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) next
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -306,7 +306,7 @@ x ±0.8, 3 m high, as `mineDoor` builds them); put the group at the door of the 
   walkable strips; `parts.snap(k)` (0 → 1 over about 0.6 s) breaks the rotten one in the middle and swings both halves
   down. The room's floor needs a gap between `za` and `zb` (the chasm room shape's black strip goes).
 
-### Batch 2: things in the rooms, for review · `dmVein`, `dmOreCart`, `dmAlcove`, `dmOil`, `dmGas`, `dmRockfall`
+### Batch 2: things in the rooms, approved 2026-11-05 · `dmVein`, `dmOreCart`, `dmAlcove`, `dmOil`, `dmGas`, `dmRockfall`
 Room space: the mine room (walls at x ±4, roof 4 m). Rolled with the room (seeded) like everything else.
 - **Ore veins** (`dmVein(g, x, y, z, ry, ore, seed)`, chest height y 1.35, its back on the wall: `ry` PI/2 on the left
   wall, -PI/2 on the right). A rough rock boss standing out of the wall, in the ore's own rock and flecked with it:
