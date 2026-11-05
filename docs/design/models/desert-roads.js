@@ -69,7 +69,9 @@ function drDense(pts,st){st=st||25;const o=[pts[0]];for(let i=1;i<pts.length;i++
 
 /* ---------------------------------------- a road piece ---------------------------------------- */
 function drPiece(g,pts,kind,o){o=o||{};const k=drKit(),K=DRK[kind],h=K.w/2,G=new THREE.Group();G.userData.road=kind;g.add(G);
- for(const P of drCut(drDense(pts),100)){const F=drFrames(P),Gp=new THREE.Group();G.add(Gp);
+ /* frames for the whole road first, so pieces share their joins exactly and the dashes keep one rhythm */
+ const D=drDense(pts),FA=drFrames(D),parts=[];{let i0=0;for(let i=1;i<D.length;i++)if((FA[i].s-FA[i0].s>=100&&i<D.length-2)||i==D.length-1){parts.push([i0,i]);i0=i}}
+ for(const[i0,i1]of parts){const P=D.slice(i0,i1+1),F=FA.slice(i0,i1+1),Gp=new THREE.Group();G.add(Gp);
   Gp.add(drStrip(P,-h,h,DRY,K.dirt?k.DIRT:k.ASPH,null,F));
   if(K.sh){Gp.add(drStrip(P,h-.05,h+K.sh,DRY-.004,k.SHLD,null,F));Gp.add(drStrip(P,-h+.05,-h-K.sh,DRY-.004,k.SHLD,null,F))}
   if(K.lines){for(const sd of[1,-1])Gp.add(drStrip(P,sd*(h-.38),sd*(h-.23),DRY,k.WHITE,1,F))}
