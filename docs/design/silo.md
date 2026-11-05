@@ -1,4 +1,4 @@
-Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) approved 2026-11-05 · batch 2 (shaft, catwalk, cradle) approved 2026-11-05 · batch 3 (the surface) for review
+Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) approved 2026-11-05 · batch 2 (shaft, catwalk, cradle) approved 2026-11-05 · batch 3 (the surface) approved 2026-11-05 · **part 2 ready to build** (all three batches)
 
 # Silo 1: getting out again, and a new look
 
@@ -129,7 +129,7 @@ Everything is built in **silo space**: one group at the shaft centre on the grou
    near the floor look right (the preview uses those four).
 6. The surface tube still ends in the black disc at ground level until batch 3.
 
-### Batch 3: the surface, for review · `slSurface`
+### Batch 3: the surface, approved 2026-11-05 · `slSurface`
 With the lid open you look down the real shaft: the lining lit by the sun at the top, getting darker to black 9 m
 down, the rails and cable ladders, the strobes during a countdown, and the missile's black nose 1.7 m below the ground.
 A steel ring joins the shaft to the collar.
