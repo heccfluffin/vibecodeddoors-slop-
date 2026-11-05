@@ -3,7 +3,7 @@
    Desert-local coordinates, flat ground at y 0, +z north, right-hand traffic.
    Note on sides: in three.js a driver facing (dx, dz) has their RIGHT hand towards (-dz, dx) (right = forward x up).
    Kinds (DRK): h = highway 8 m (edge lines, yellow centre dash, 1.2 m gravel shoulders, reflector posts),
-                t = town road 7 m (edge lines, dash), d = dirt track 5 m (ruts, ragged edges).
+                t = town road 7 m (edge lines, dash, 0.8 m shoulders), d = dirt track 5 m (ruts, ragged edges).
    Batch 1: the pieces.
    drArc(cx,cz,r,a0,a1,n)        points on an arc (angles from +x towards +z), for curves in a centre line.
    drPiece(g,pts,kind,o)         a road piece along a centre line [[x,z],...] between two junctions (or a road end).
@@ -19,7 +19,7 @@
    Heights: everything at y .06 (asphalt and dirt), shoulders .056, mouths .058; lines on top with polygonOffsetUnits
    only. Every mesh is noSeam. Pieces are cut every ~100 m so the batching can keep them with their scenery cells.
    ===================================================================================================== */
-const DRK={h:{w:8,sh:1.2,lines:1,dash:1,posts:1},t:{w:7,sh:0,lines:1,dash:1,posts:0},d:{w:5,sh:0,lines:0,dash:0,posts:0,dirt:1}};
+const DRK={h:{w:8,sh:1.2,lines:1,dash:1,posts:1},t:{w:7,sh:.8,lines:1,dash:1,posts:0},d:{w:5,sh:0,lines:0,dash:0,posts:0,dirt:1}};
 const DRY=.06;
 function drKit(){if(drKit.k)return drKit.k;const f=fbKit(),k=Object.create(f);drKit.k=k;const tex=f.tex;
  let sd=97531;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;k.r=r;
@@ -93,17 +93,21 @@ function drJunction(g,x,z,arms,o){o=o||{};const k=drKit(),r=o.r||9,G=new THREE.G
  const ends={};for(const d of DRCCW)if(arms[d])ends[d]=perp(d)+r+1.5;
  /* a point in arm d's frame: a out along the arm, b to the right when looking out along it (so traffic coming IN keeps to b < 0) */
  const pt=(d,a,b)=>{const[ux,uz]=DRDIR[d];return[x+ux*a-uz*b,z+uz*a+ux*b]};
- const present=DRCCW.filter(d=>arms[d]),out=[],lines=[];
+ const present=DRCCW.filter(d=>arms[d]),out=[],lines=[],edges=[];
  present.forEach((d,i)=>{const e=present[(i+1)%present.length],di=DRCCW.indexOf(d),ei=DRCCW.indexOf(e),turn=(ei-di+4)%4;
   out.push(pt(d,ends[d],-hw(d)),pt(d,ends[d],hw(d)));
   if(turn==1){/* a rounded kerb corner between d's left edge and e's right edge */const cA=pt(d,hw(e)+r,hw(d)+r),a0=Math.atan2(pt(d,hw(e)+r,hw(d))[1]-cA[1],pt(d,hw(e)+r,hw(d))[0]-cA[0]),a1=Math.atan2(pt(e,hw(d)+r,-hw(e))[1]-cA[1],pt(e,hw(d)+r,-hw(e))[0]-cA[0]);
    let da=a1-a0;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;const arc=drArc(cA[0],cA[1],r,a0,a0+da,10);out.push(...arc);
+   edges.push({p:[pt(d,ends[d],hw(d)),pt(d,hw(e)+r,hw(d)),...arc.slice(1,-1),pt(e,hw(d)+r,-hw(e)),pt(e,ends[e],-hw(e))],sh:Math.max(DRK[arms[d].k].sh,DRK[arms[e].k].sh)});
    /* the edge line: along d's stub, round the corner, out along e's stub */const L=[pt(d,ends[d],hw(d)-.3),pt(d,hw(e)+r,hw(d)-.3),...drArc(cA[0],cA[1],r+.3,a0,a0+da,10),pt(e,hw(d)+r,-hw(e)+.3),pt(e,ends[e],-hw(e)+.3)];lines.push(L)}
-  else if(turn==2){/* straight across (the side with no road): the through road's edge line carries on */lines.push([pt(d,ends[d],hw(d)-.3),pt(e,ends[e],-hw(e)+.3)])}});
+  else if(turn==2){/* straight across (the side with no road): the through road's edge line carries on */lines.push([pt(d,ends[d],hw(d)-.3),pt(e,ends[e],-hw(e)+.3)]);edges.push({p:[pt(d,ends[d],hw(d)),pt(e,ends[e],-hw(e))],sh:Math.max(DRK[arms[d].k].sh,DRK[arms[e].k].sh)})}});
  /* the patch (one shape, world-aligned asphalt) */
  {const sh=new THREE.Shape(out.map(p=>new THREE.Vector2(p[0],-p[1])));const ge=new THREE.ShapeGeometry(sh);ge.rotateX(-Math.PI/2);const uv=ge.attributes.uv,p=ge.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/4,-p.getZ(i)/4);
   const m=new THREE.Mesh(ge,k.ASPH);m.position.y=DRY;m.userData.noSeam=true;G.add(m)}
  /* edge lines: drawn as strips centred on each line */for(const L of lines)G.add(drStrip(L,-.075,.075,DRY,k.WHITE,1));
+ /* the gravel shoulder round every kerb edge, like along the roads: find which side of each edge is away from the junction */
+ for(const E of edges){if(!E.sh)continue;const P=E.p.filter((p,i)=>!i||Math.hypot(p[0]-E.p[i-1][0],p[1]-E.p[i-1][1])>.01),F=drFrames(P),m=F[Math.floor(F.length/2)],nl=Math.hypot(m.nx,m.nz)||1;
+  const sg=Math.hypot(m.x+m.nx/nl-x,m.z+m.nz/nl-z)>Math.hypot(m.x-x,m.z-z)?1:-1;G.add(drStrip(P,-sg*.05,sg*E.sh,DRY-.004,k.SHLD,null,F))}
  /* minor arms: a stop line across the lane coming in, and a STOP sign on its right */
  for(const d of present){if(!arms[d].minor)continue;const h=hw(d),a=perp(d)+r*.35+1;const L=[pt(d,a,-.15),pt(d,a,-(h-.3))];G.add(drStrip(L,-.2,.2,DRY,k.WHITE,1));
   const sp=pt(d,a+1.2,-(h+1.3));G.add(drStopSign(sp[0],sp[1],Math.atan2(DRDIR[d][0],DRDIR[d][1])))}

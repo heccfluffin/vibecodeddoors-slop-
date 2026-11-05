@@ -75,11 +75,11 @@ the map (`dm2Draw`) should read `DROADS` for road shapes and kinds; `NAV` road c
 
 ### Batch 1: pieces, junctions, dirt track mouths, for review · `drPiece`, `drJunction`, `drMouth`, `drStopSign`
 - `drPiece(g, centreLine, kind)`: the road between two junctions, from a list of points (curves made with `drArc`).
-  Cut into ~100 m pieces. Highways have gravel shoulders with ragged outer edges, white edge lines, a yellow centre
+  Cut into ~100 m pieces (frames worked out along the whole road first, so pieces join exactly and the dashes keep one rhythm). Highways have 1.2 m gravel shoulders with ragged outer edges (town roads 0.8 m), white edge lines, a yellow centre
   dash (3 m on, 9 m off) and reflector posts every 25 m (alternate sides); town roads lines only; dirt tracks ruts and
   ragged edges.
 - `drJunction(g, x, z, arms)`: T junctions and crossroads, all at right angles (every junction in the plan is). Rounded
-  kerb corners (9 m), edge lines that follow them, a stop line and a STOP sign on each road that gives way. Returns how
+  kerb corners (9 m), edge lines that follow them, the gravel shoulder all round the kerbs, a stop line and a STOP sign on each road that gives way. Returns how
   far from the centre each road piece starts.
 - `drMouth(g, x, z, dir, halfWidth)`: a gravel mouth where a dirt track leaves an asphalt road; the asphalt road and
   its edge line run straight past.
