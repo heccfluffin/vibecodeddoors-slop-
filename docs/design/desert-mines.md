@@ -336,7 +336,7 @@ Room space: the mine room (walls at x ±4, roof 4 m). Rolled with the room (seed
 
 ### Batch 3: the creatures, for review · `dmRunCart`, `dmBats`, `dmBurrower`, `dmBurrowHole`, `dmSandGlass`, `dmMummyHand`
 - **The Runaway Cart** (`dmRunCart(1)`) and **the Runaway Train** (`dmRunCart(3)`): ore carts heaped with dark ore that
-  glows red in the cracks, the front one with a big headlamp, a faint light cone ahead and two little red lamps; iron
+  glows red in the cracks, the front one with a big headlamp, a faint light cone (narrow at the lamp, widening and fading ahead) and two little red lamps; iron
   chains between the train's carts. Faces -z; move the group along Rush's path. `tick(t, speed)` spins the wheels,
   throws sparks off them and rattles the carts. Put a point light at `light` (its own space): the headlamp lights the
   tunnel as it comes.
