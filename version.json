@@ -1,1 +1,1 @@
-{"b": "r676", "notes": "Fixed quarter-second freezes when new scenery batches came into view, and short hitches while walking."}
+{"b": "r677", "notes": "Desert: cheaper scenery-batch upkeep, less garbage from the warm-up and the sky."}
