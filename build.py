@@ -1047,6 +1047,12 @@ R("function dpCheckRecs(L,moving){let n=0;for(let i=L.length-1;i>=0;i--){",
   "function dpCheckRecs(L,moving){DPW.ps++;let n=0;for(let i=L.length-1;i>=0;i--){")
 R("xpCull=function(q,force){if(!q.chunks)return;if(!force&&(q.cullT=(q.cullT||0)-1)>0)return;",
   "xpCull=function(q,force){if(!q.chunks)return;if(DPW.on&&q.dp&&q.dp.merged&&q.dp.roots)try{dpWatchSlice(q)}catch(e){err('watchdog',e)}if(!force&&(q.cullT=(q.cullT||0)-1)>0)return;")
+
+# r669 holiday daily pickups (candy, presents, chocolates): use their real place in the world, in this room and the ones next to it.
+# Rooms are turned and moved since the r590 turns, so the room's own numbers no longer matched the player's.
+R("function dailyColUpd(dt){if(!DAILY.on||!DAILY.th)return;const r=RMS[ci];if(!r||!r.dcol)return;for(const q of r.dcol){if(q.got)continue;q.m.rotation.y+=dt*2;q.m.position.y=.35+Math.sin(t*3+q.x)*.06;\n  if(Math.hypot(P.x-q.x,P.z-q.z)<1.35&&Math.abs(P.dy||0)<2.6){",
+  "const dcolW=new THREE.Vector3();function dailyColUpd(dt){if(!DAILY.on||!DAILY.th)return;for(let k=Math.max(0,ci-1);k<=ci+1;k++){const r=RMS[k];if(!r||!r.dcol)continue;for(const q of r.dcol){if(q.got)continue;q.m.rotation.y+=dt*2;q.m.position.y=.35+Math.sin(t*3+q.x)*.06;q.m.updateWorldMatrix(true,false);dcolW.setFromMatrixPosition(q.m.matrixWorld);\n  if(Math.hypot(P.x-dcolW.x,P.z-dcolW.z)<1.35&&Math.abs(P.dy||0)<2.6){")
+R("const T2=DTH[DAILY.th];hint(T2.colIc+' '+DAILY.col+' '+T2.col+' collected!')}}}","const T2=DTH[DAILY.th];hint(T2.colIc+' '+DAILY.col+' '+T2.col+' collected!')}}}}")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -1060,7 +1066,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-03 r669';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r670';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)
