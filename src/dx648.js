@@ -19,7 +19,7 @@
    once they have looked and sat exactly the same at two looks. When it moves, its parts draw themselves that same frame;
    it is not barred for good (it can join again once it stands still). ?noabtv turns this part off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,/* r675: a parked vehicle's moving parts (wheels...) join too */vmov:!/[?&]noabtvm(?:[&=]|$)/.test(location.search),mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,uni:!/[?&]noabtu(?:[&=]|$)/.test(location.search),/* r675: a parked vehicle's moving parts (wheels...) join too */vmov:!/[?&]noabtvm(?:[&=]|$)/.test(location.search),mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
@@ -110,20 +110,27 @@ function abtCopyImg(a,im,i){let d;const cx=im.getContext&&im.getContext('2d');if
 function abtLayer(a,t,one){let i=a.L.get(t.image);if(i!=null){if(!a.ver.has(t))a.ver.set(t,t.version);return i}if(a.L.size>=a.cap&&((one&&ABT.texMB>ABT.TEXMB*.6)||!abtGrow(a)))return -1;i=a.L.size;abtCopy(a,t,i);a.L.set(t.image,i);return i}
 function abtMips(a){if(!a.dirty)return;a.dirty=false;if(!a.mip)return;const gl=R.getContext(),pr=R.properties.get(a.tex);R.state.bindTexture(gl.TEXTURE_2D_ARRAY,pr.__webglTexture);gl.generateMipmap(gl.TEXTURE_2D_ARRAY)}
 /* ---------- the area batch's material: the same kind of material, with glow, roughness, metal and picture per vertex ---------- */
-function abtMat(src,arr,vt,n,E,RM){const T=src.type,X=!!arr;
- const base={vertexColors:true,side:src.side,alphaTest:src.alphaTest,opacity:src.opacity,transparent:false,depthWrite:src.depthWrite,depthTest:src.depthTest,fog:src.fog,blending:src.blending,depthFunc:src.depthFunc,polygonOffset:src.polygonOffset,polygonOffsetFactor:src.polygonOffsetFactor,polygonOffsetUnits:src.polygonOffsetUnits,dithering:src.dithering,toneMapped:src.toneMapped,colorWrite:src.colorWrite,premultipliedAlpha:src.premultipliedAlpha};
- let m;if(T==='MeshBasicMaterial')m=new THREE.MeshBasicMaterial(base);else if(T==='MeshLambertMaterial')m=new THREE.MeshLambertMaterial(base);else m=new THREE.MeshStandardMaterial(Object.assign(base,{flatShading:!!src.flatShading,roughness:src.roughness,metalness:src.metalness}));
- if(!E&&T!=='MeshBasicMaterial')m.emissive.setHex(0);
- if(X)m.defines={USE_UV:''};const U={abVis:{value:vt},abN:{value:n},abTex:{value:arr?arr.tex:null}};m.userData.abt=U;
+/* r676: one shader per material kind and picture-or-not (was up to 20 kinds: every mix of glow, roughness and cut-out level
+   was its own shader, and each new one is compiled the first time it is drawn: a quarter of a second in Firefox).
+   Glow and roughness per corner are switched on by a number instead (a batch without them reads zeros, times nothing),
+   and the cut-out level is a number too. ?noabtu = the old way */
+function abtMat(src,arr,vt,n,E,RM){const T=src.type,X=!!arr,UN=ABT.uni,STD=T==='MeshStandardMaterial',BAS=T==='MeshBasicMaterial';
+ const base={vertexColors:true,side:src.side,alphaTest:UN?0:src.alphaTest,opacity:src.opacity,transparent:false,depthWrite:src.depthWrite,depthTest:src.depthTest,fog:src.fog,blending:src.blending,depthFunc:src.depthFunc,polygonOffset:src.polygonOffset,polygonOffsetFactor:src.polygonOffsetFactor,polygonOffsetUnits:src.polygonOffsetUnits,dithering:src.dithering,toneMapped:src.toneMapped,colorWrite:src.colorWrite,premultipliedAlpha:src.premultipliedAlpha};
+ let m;if(BAS)m=new THREE.MeshBasicMaterial(base);else if(T==='MeshLambertMaterial')m=new THREE.MeshLambertMaterial(base);else m=new THREE.MeshStandardMaterial(Object.assign(base,{flatShading:!!src.flatShading,roughness:src.roughness,metalness:src.metalness}));
+ if(!E&&!BAS)m.emissive.setHex(0);
+ if(X)m.defines={USE_UV:''};const U={abVis:{value:vt},abN:{value:n},abTex:{value:arr?arr.tex:null},abE:{value:E?1:0},abRMf:{value:RM?1:0},abRM0:{value:new THREE.Vector2(src.roughness||0,src.metalness||0)},abAT:{value:src.alphaTest||0}};m.userData.abt=U;
  const rp=(s,a,b)=>{if(s.indexOf(a)<0)throw new Error('shader part missing: '+a);return s.replace(a,b)};
- m.onBeforeCompile=function(sh){sh.uniforms.abVis=U.abVis;sh.uniforms.abN=U.abN;if(X)sh.uniforms.abTex=U.abTex;
-  sh.vertexShader=rp(sh.vertexShader,'#include <common>','#include <common>\nattribute float aM;uniform sampler2D abVis;uniform float abN;'+(E?'attribute vec3 aE;varying vec3 vAE;':'')+(RM?'attribute vec2 aRM;varying vec2 vRM;':'')+(X?'attribute float aL;varying float vAL;':''));
-  sh.vertexShader=rp(sh.vertexShader,'#include <project_vertex>','#include <project_vertex>\nif(texture2D(abVis,vec2((aM+.5)/abN,.5)).r<.5)gl_Position=vec4(2.,2.,2.,1.);'+(E?'vAE=aE;':'')+(RM?'vRM=aRM;':'')+(X?'vAL=aL;':''));
-  sh.fragmentShader=rp(sh.fragmentShader,'#include <common>','#include <common>\n'+(E?'varying vec3 vAE;':'')+(RM?'varying vec2 vRM;':'')+(X?'varying float vAL;uniform mediump sampler2DArray abTex;':''));
+ /* with UN, every batch of a kind has the same shader text: glow and roughness attributes are always read, and used only when switched on */
+ const uE=UN?!BAS:E,uRM=UN?STD:RM;
+ m.onBeforeCompile=function(sh){sh.uniforms.abVis=U.abVis;sh.uniforms.abN=U.abN;if(X)sh.uniforms.abTex=U.abTex;if(UN){sh.uniforms.abE=U.abE;sh.uniforms.abRMf=U.abRMf;sh.uniforms.abRM0=U.abRM0;sh.uniforms.abAT=U.abAT}
+  sh.vertexShader=rp(sh.vertexShader,'#include <common>','#include <common>\nattribute float aM;uniform sampler2D abVis;uniform float abN;'+(uE?'attribute vec3 aE;varying vec3 vAE;':'')+(uRM?'attribute vec2 aRM;varying vec2 vRM;':'')+(X?'attribute float aL;varying float vAL;':'')+(UN?(uE?'uniform float abE;':'')+(uRM?'uniform float abRMf;uniform vec2 abRM0;':''):''));
+  sh.vertexShader=rp(sh.vertexShader,'#include <project_vertex>','#include <project_vertex>\nif(texture2D(abVis,vec2((aM+.5)/abN,.5)).r<.5)gl_Position=vec4(2.,2.,2.,1.);'+(uE?(UN?'vAE=aE*abE;':'vAE=aE;'):'')+(uRM?(UN?'vRM=mix(abRM0,aRM,abRMf);':'vRM=aRM;'):'')+(X?'vAL=aL;':''));
+  sh.fragmentShader=rp(sh.fragmentShader,'#include <common>','#include <common>\n'+(uE?'varying vec3 vAE;':'')+(uRM?'varying vec2 vRM;':'')+(X?'varying float vAL;uniform mediump sampler2DArray abTex;':'')+(UN?'uniform float abAT;':''));
   if(X)sh.fragmentShader=rp(sh.fragmentShader,'#include <map_fragment>','diffuseColor*=texture(abTex,vec3(vUv,vAL));');
-  if(E)sh.fragmentShader=rp(sh.fragmentShader,'vec3 totalEmissiveRadiance = emissive;','vec3 totalEmissiveRadiance = vAE;');/* (without: the material's own glow, black, and roughness and metal are the members' common ones) */
-  if(RM){sh.fragmentShader=rp(sh.fragmentShader,'#include <roughnessmap_fragment>','float roughnessFactor = vRM.x;');sh.fragmentShader=rp(sh.fragmentShader,'#include <metalnessmap_fragment>','float metalnessFactor = vRM.y;')}};
- m.customProgramCacheKey=()=>'abt|'+T+'|'+(X?1:0)+(E?1:0)+(RM?1:0);return m}
+  if(UN)sh.fragmentShader=rp(sh.fragmentShader,'#include <alphatest_fragment>','if(diffuseColor.a<abAT)discard;');
+  if(uE)sh.fragmentShader=rp(sh.fragmentShader,'vec3 totalEmissiveRadiance = emissive;','vec3 totalEmissiveRadiance = vAE;');/* (without: the material's own glow, black, and roughness and metal are the members' common ones) */
+  if(uRM){sh.fragmentShader=rp(sh.fragmentShader,'#include <roughnessmap_fragment>','float roughnessFactor = vRM.x;');sh.fragmentShader=rp(sh.fragmentShader,'#include <metalnessmap_fragment>','float metalnessFactor = vRM.y;')}};
+ m.customProgramCacheKey=()=>UN?'abt2|'+T+'|'+(X?1:0):'abt|'+T+'|'+(X?1:0)+(E?1:0)+(RM?1:0);return m}
 /* ---------- making one area batch, a few members per frame ---------- */
 function abtStart(q,e){const L=e.L.filter(o=>!ABT.mem.has(o)||ABT.mem.get(o).gk===e.gk);if(L.length<2)return null;
  const chunks=[];let cur=[],nv=0;for(const o of L){const n=o.geometry.attributes.position.count;if(cur.length&&(cur.length>=ABT.MAXM||nv+n>ABT.MAXV)){chunks.push(cur);cur=[];nv=0}cur.push(o);nv+=n}if(cur.length)chunks.push(cur);

@@ -62,9 +62,13 @@ if(BAKE.on){for(let i=LAGHIDE.length-1;i>=0;i--)if(LAGSK.keys[LAGHIDE[i][0]])LAG
    changes its look): it goes back into its group's list right away, with its position, before anything is drawn */
 /* pieces that said they changed: one no longer left out goes back into its group's list (while drawing too, with its
    position worked out the way the frame would). One that became a batched piece again waits for the next look (5 s) */
-function bakeBack(mid){for(const c of BAKE.dirty){const p=c.parent,e=p&&p.__bkE;if(!e||bakeLeaf(c))continue;const i=e.sk.indexOf(c);if(i<0)continue;
-  e.sk.splice(i,1);e.keep.push(c);if(mid&&p.children===e.keep){p.__bkN++;if(typeof mwSelf=='function'&&MWC.on)mwSelf(c,false);else c.updateWorldMatrix(false,false)}}
- BAKE.dirty.clear()}
+/* r676: pieces of one group are taken out of its list together (one at a time it was slow in big groups: the distance
+   culling switches hundreds of pieces while you walk, 50 ms hitches) */
+function bakeBack(mid){let by=null;for(const c of BAKE.dirty){const p=c.parent,e=p&&p.__bkE;if(!e||bakeLeaf(c))continue;(by||(by=new Map()));let L=by.get(e);if(!L)by.set(e,L=[]);L.push(c)}
+ BAKE.dirty.clear();if(!by)return;
+ for(const[e,L]of by){const p=e.p;let mv;if(L.length<=4){mv=[];for(const c of L){const i=e.sk.indexOf(c);if(i<0)continue;e.sk.splice(i,1);mv.push(c)}}
+  else{const S2=new Set(L),nk=[];mv=[];for(const x of e.sk)(S2.has(x)?mv:nk).push(x);e.sk=nk}
+  for(const c of mv){e.keep.push(c);if(mid&&p.children===e.keep){p.__bkN++;if(typeof mwSelf=='function'&&MWC.on)mwSelf(c,false);else c.updateWorldMatrix(false,false)}}}}
 {const u0=S.updateMatrixWorld;S.updateMatrixWorld=function(){const r=u0.apply(this,arguments);if(BAKE.inR){if(BAKE.dirty.size)try{bakeBack(true)}catch(e){conLog('error','batched pieces: '+e.message)}
   /* (r667: things that need this frame's positions before anything is drawn, once per drawing) */if(BAKE.midR!==BAKE.rid){BAKE.midR=BAKE.rid;for(const f of BAKE.mids)try{f()}catch(e){conLog('error','before drawing: '+e.message)}}}return r}}
 {const st=lagSpikeTxt;lagSpikeTxt=function(){const t=st.apply(this,arguments);return typeof t=='string'?t.replace(/Hide nothing, but batched pieces walked again \(r665 off, to compare\)/g,'Batched pieces walked again (r665 switched off, to compare)'):t}}
