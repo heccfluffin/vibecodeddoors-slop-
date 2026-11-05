@@ -1,4 +1,4 @@
-Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) approved 2026-11-05 · batch 2 (shaft, catwalk, cradle) for review
+Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) approved 2026-11-05 · batch 2 (shaft, catwalk, cradle) approved 2026-11-05 · batch 3 (the surface) for review
 
 # Silo 1: getting out again, and a new look
 
@@ -101,7 +101,7 @@ Everything is built in **silo space**: one group at the shaft centre on the grou
 6. Test: ride down (the gate opens to the tunnel), walk through the blast door, to the passage, back, ride up (the gate
    opens to the bunker); look up the shaft from the car halfway; check the bunker floor doesn't hide the shaft.
 
-### Batch 2: the shaft, the catwalk and the cradle, for review · `slShaft`, `slCatwalk`, `slCradle`
+### Batch 2: the shaft, the catwalk and the cradle, approved 2026-11-05 · `slShaft`, `slCatwalk`, `slCradle`
 - **The shaft:** radius 4.7 (the surface tube's size; the old one was 6), cast concrete from the floor (y -20.4) up to
   the ground, steel rings every 3 m, four guide rails on the diagonals, two cable ladders, caged lamps at four heights,
   four red strobes, a yellow steel portal where the passage comes in (TUNNEL · ELEVATOR). The floor: a cone-shaped
@@ -128,3 +128,25 @@ Everything is built in **silo space**: one group at the shaft centre on the grou
 5. **Lights:** the pool from batch 1 also takes `SH.lamps` (shaft space = silo space). Two near the catwalk and two
    near the floor look right (the preview uses those four).
 6. The surface tube still ends in the black disc at ground level until batch 3.
+
+### Batch 3: the surface, for review · `slSurface`
+With the lid open you look down the real shaft: the lining lit by the sun at the top, getting darker to black 9 m
+down, the rails and cable ladders, the strobes during a countdown, and the missile's black nose 1.7 m below the ground.
+A steel ring joins the shaft to the collar.
+
+**Wiring (Claude Code):**
+1. `fbSilo` (dx614): leave out the black gradient tube and the black disc (`tube`, `pit`). The collar's own inner face is
+   the tube's top 1.2 m.
+2. **Cut the desert floor** round the shaft like the oasis and the crater (r659, `ssCuts` in busBoard0's floor cuts):
+   the square x 573.2..582.8, z -704.8..-695.2. The collar (radius 7.2) covers its corners. If any Fort ground layer
+   (pads, road patches) lies inside the collar, cut or move it too.
+3. `SF=slSurface(R)` in `siloBuild`. `SF.shade.set(q.deep!==4)` every frame (or when q.deep changes): the shade only
+   shows from the surface.
+4. **Show the missile from the surface:** dx579 shows it only while you're underground (`show=q.deep===4&&...`). Make it
+   `N.st=='idle'&&!(N.cool>0)` so it stands in its cradle all the time it's loaded.
+5. The shaft is no longer behind the bunker floor's hole trick from above: its meshes keep `renderOrder=-2` (needed
+   for the elevator view), which is harmless from the surface.
+6. Test: open the lid from launch control and look down from the collar; walk round the collar with it shut; ride
+   down and look up the shaft (the shade must be gone).
+
+Once these three batches are built, part 2 is done.

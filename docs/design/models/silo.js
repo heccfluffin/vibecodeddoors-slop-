@@ -239,12 +239,12 @@ function slShaft(g){const k=slKit(),H=k.H(g),{B,C}=H,R=SLD.R,Y=SLD.Y,FL=SLS.FL,P
  for(const y of SLS.RINGS){const gap=y>Y&&y<Y+PH,a0=gap?PA+.02:0,a1=gap?Math.PI*2-PA-.02:Math.PI*2;g.add(slTube(R-.1,y-.09,y+.09,a0,a1,k.GRY,true));g.add(slAnn(R-.1,R,y+.09,k.GRY,false,a0,a1));g.add(slAnn(R-.1,R,y-.09,k.GRY,true,a0,a1))}
  /* guide rails on the diagonals, on brackets */
  {const L=[];for(const a of SLS.RAILS){const sx=Math.sin(a),cz=Math.cos(a),put=(w,h,d,r,y)=>{L.push([new THREE.BoxGeometry(w,h,d),new THREE.Matrix4().compose(new THREE.Vector3(r*sx,y,r*cz),new THREE.Quaternion().setFromEuler(new THREE.Euler(0,a,0)),new THREE.Vector3(1,1,1))])};
-  put(.05,-FL,.14,R-.24,FL/2);put(.16,-FL,.03,R-.31,FL/2);for(let y=FL+.8;y<-.3;y+=1.5)put(.22,.08,.2,R-.1,y)}g.add(k.merge(L,k.GRY))}
+  put(.05,-FL-.2,.14,R-.24,(FL-.2)/2);put(.16,-FL-.26,.03,R-.31,(FL-.26)/2);for(let y=FL+.8;y<-.3;y+=1.5)put(.22,.08,.2,R-.1,y)}g.add(k.merge(L,k.GRY))}
  /* cable ladders with cables */
  {const L=[],Cb=[];for(const a of SLS.CAB){const sx=Math.sin(a),cz=Math.cos(a),q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,a,0)),put=(w,h,d,r,y,lt)=>{(lt||L).push([new THREE.BoxGeometry(w,h,d),new THREE.Matrix4().compose(new THREE.Vector3(r*sx,y,r*cz),q,new THREE.Vector3(1,1,1))])};
-  for(const dx of[-.2,.2]){const tx=Math.cos(a)*dx,tz=-Math.sin(a)*dx;L.push([new THREE.BoxGeometry(.025,-FL,.07),new THREE.Matrix4().compose(new THREE.Vector3((R-.12)*sx+tx,FL/2,(R-.12)*cz+tz),q,new THREE.Vector3(1,1,1))])}
-  for(let y=FL+.2;y<0;y+=.3)put(.4,.02,.025,R-.12,y);
-  [-.12,-.04,.05,.13].forEach((dx,i)=>{const tx=Math.cos(a)*dx,tz=-Math.sin(a)*dx,r=.02+i%2*.01;k.rodL(Cb,[(R-.16)*sx+tx,FL,(R-.16)*cz+tz],[(R-.16)*sx+tx,0,(R-.16)*cz+tz],r,8)})}
+  for(const dx of[-.2,.2]){const tx=Math.cos(a)*dx,tz=-Math.sin(a)*dx;L.push([new THREE.BoxGeometry(.025,-FL-.2,.07),new THREE.Matrix4().compose(new THREE.Vector3((R-.12)*sx+tx,(FL-.2)/2,(R-.12)*cz+tz),q,new THREE.Vector3(1,1,1))])}
+  for(let y=FL+.2;y<-.25;y+=.3)put(.4,.02,.025,R-.12,y);
+  [-.12,-.04,.05,.13].forEach((dx,i)=>{const tx=Math.cos(a)*dx,tz=-Math.sin(a)*dx,r=.02+i%2*.01;k.rodL(Cb,[(R-.16)*sx+tx,FL,(R-.16)*cz+tz],[(R-.16)*sx+tx,-.18,(R-.16)*cz+tz],r,8)})}
   g.add(k.merge(L,k.GRY));g.add(k.merge(Cb,k.BLK))}
  /* caged lamps */
  const lamps=[];for(const a of SLS.LAMPA)for(const y of[-18.6,-15.6,-9.2,-4.2]){const l=k.cageLamp('side'),r=R-.01;l.position.set(r*Math.sin(a),y,r*Math.cos(a));l.rotation.y=a+Math.PI;g.add(l);lamps.push(new THREE.Vector3((r-.5)*Math.sin(a),y,(r-.5)*Math.cos(a)))}
@@ -306,3 +306,19 @@ function slCradle(g){const k=slKit(),H=k.H(g),{B,C}=H,FL=SLS.FL,TOP=-18,STL=k.M(
   const P=new THREE.Group();P.position.set(0,TOP+.24,1.76);G.add(P);const PH=k.H(P);PH.B(.2,.36,.1,0,.11,-.06,k.YEL);PH.B(.19,.12,.3,0,.27,-.215,k.YEL);PH.B(.18,.24,.05,0,.13,-.36,k.BLK);arms.push(P)}
  const set=u=>{for(const P of arms)P.rotation.x=u*.9};set(0);
  g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true;if(o.isGroup&&o!==g)o.userData.dpKeep=1});return{set}}
+
+/* =====================================================================================================
+   Batch 3: the surface. slSurface(g) -> {shade:{set(onSurface)}}
+       Where the shaft meets the collar: a steel joint ring at ground level, and the "depth shade" seen from the surface:
+       a see-through black sleeve inside the lining that darkens it from clear at the ground to black at 9 m down, and a
+       black disc at 9 m down. Shown only while you're on the surface (shade.set(true)); hidden underground (set(false)),
+       where the lamps light the shaft. The missile's nose (top at y -1.7) stands above the disc, so you see it when
+       the lid is open.
+   ===================================================================================================== */
+function slSurface(g){const k=slKit(),R=SLD.R,D=-9;
+ g.add(slTube(R-.05,-.16,.14,0,Math.PI*2,k.GRY,true,48));g.add(slAnn(R-.05,R,.14,k.GRY));g.add(slAnn(R-.05,R,-.16,k.GRY,true));
+ const am=k.tex(4,128,(x,w,h)=>{const gr=x.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#000');gr.addColorStop(.25,'#3a3a3a');gr.addColorStop(.7,'#c8c8c8');gr.addColorStop(1,'#fff');x.fillStyle=gr;x.fillRect(0,0,w,h)});am.wrapS=am.wrapT=THREE.ClampToEdgeWrapping;
+ const sl=new THREE.Mesh(new THREE.CylinderGeometry(R-.06,R-.06,-D,48,1,true),new THREE.MeshBasicMaterial({color:0x000000,alphaMap:am,transparent:true,depthWrite:false,side:THREE.BackSide}));sl.position.y=D/2-.1;g.add(sl);
+ const ds=new THREE.Mesh(new THREE.CircleGeometry(R,48),new THREE.MeshBasicMaterial({color:0x000000}));ds.rotation.x=-Math.PI/2;ds.position.y=D;g.add(ds);
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});
+ return{shade:{set(v){sl.visible=ds.visible=!!v}}}}
