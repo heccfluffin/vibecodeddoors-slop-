@@ -1,4 +1,4 @@
-Status: plan approved 2026-11-05 · models: batch 1 (the coach) for review (shown on the desert road plan map, change 12)
+Status: plan approved 2026-11-05 · models: batch 1 (the coach) approved 2026-11-05, batch 2 (the stations) for review (shown on the desert road plan map, change 12)
 
 # The railway: four stations, both ways, and a train you can ride
 
@@ -54,7 +54,7 @@ tracks join the road plan (`desert-roads.md`), so they are built with it.
 ## Models (after the plan is approved)
 `models/railway.js` (needs `fort-kit.js`, `airfield.js`, `lake.js`).
 
-### Batch 1: the passenger coach, for review · `rrCoach()`
+### Batch 1: the passenger coach, approved 2026-11-05 · `rrCoach()`
 A 14 m wooden coach in the train's style: dark green with a cream window band and gold lining, DOORS BUT DESERT RAILWAY
 on the letterboard, No 1 on the side, a clerestory roof with little windows, drip rails, truss rods underneath, two
 bogies and couplers like the wagons. Open end platforms with brass railings (a gap in the middle to step across to the
@@ -70,5 +70,31 @@ Westbound the whole train is turned round, so seats and doors turn with it. The 
 update the stopping points in railway.md's table by 14 m if the coach goes anywhere other than behind the tender (it
 was planned there; the table assumes it).
 
-Batch 2: the platform kit (platform, shelter, departure board, station sign, bench, lamp, bin) and the three new
-stations put together.
+### Batch 2: the stations, for review · `RRSTN`, `rrStation(g, st)`, `rrBoard()`
+Each new halt is a 60 m platform on the north side of the track (0.6 m high, its edge 1.6 m from the track's middle,
+6 m deep, like Dusty Gulch's): concrete with a yellow edge strip and a white line, a 6 m ramp down at the road end
+(with a handrail on the track side), a railing along the back. On it: a timber shelter with an open front, a tin roof
+sloping back, a bench and a timetable poster; the departure board on two posts in the middle; a station sign at each
+end (name on both sides); two lamps; a bench and a bin on the open platform; a gravel patch at the ramp's foot where the
+station track ends. Quarry & Gorge also gets a viewing bench at its west end facing the gorge, with a small sign
+("DEVIL'S GORGE · 70 m DOWN").
+
+**Wiring (Claude Code):**
+- `RRSTN` holds the three new halts (name, platform x0..x1, `road` = the end the track comes in at, `view`). Build each
+  with `rrStation(q.g, st)` in dx631's railway build (desert-local coordinates, z from lake.js's `RRZ`). It returns
+  `{board, obs, props, lamps, g}`: push `obs` into `q.obs`; `props` are the press-E spots (`what:'board'` = read the
+  times; `what:'wait'` = the boarding spot along the platform, where "[E] Board the train" shows while the train is
+  stopped there); `lamps` are lantern positions: light the nearest two from the existing pool at night, don't add lights.
+  The platform top (y 0.6) and the ramp must be walkable (add them like Dusty Gulch's platform); the ramp is 4.8 m wide
+  at z RRZ+2.8..RRZ+7.6 beside the slab's road end.
+- `board.userData.set(dir, mins, secs)` redraws the board: `dir` 'EASTBOUND' or 'WESTBOUND' from the train's real
+  position and speed (time until its coach stops here), or `''` for none due ("NONE DUE --:--"). Redraw at most once
+  a second, only when a player is within ~60 m.
+- Dusty Gulch gets one `rrBoard()` too, beside its station house facing the track (`rotation.y = PI`: as built the
+  board looks +z).
+- The station tracks are in the road plan (`desert-roads.md`); the gravel patch sits where each one ends.
+- Everything is `noSeam`; nothing moves, so the batching may take it all except the board (`dpKeep` on the board's face
+  mesh, its texture changes).
+
+Preview: the three halts on one stretch of track, the train stopped at Quarry & Gorge, a fake countdown on the boards
+and a night switch (the lamps lit). The dark band south of Quarry & Gorge is a stand-in for the gorge.

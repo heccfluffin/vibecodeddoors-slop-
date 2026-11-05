@@ -68,3 +68,66 @@ function rrCoach(){const g=new THREE.Group(),k=lkKit(),M=k.M,
  g.userData.spin=d=>{for(const w of wheels)w.rotation.z=-d/.42};g.userData.seats=seats;g.userData.len=14;g.userData.lamp={x:0,y:3.2,z:0};
  g.userData.doors=[[-6.5,-1],[-6.5,1],[6.5,-1],[6.5,1]].map(([x,s])=>({x,z:s*(HW+.9),side:s}));
  g.traverse(m=>{if(m.isMesh){m.userData.noSeam=true;m.userData.dpKeep=1}});return g}
+
+/* =====================================================================================================
+   Batch 2: the stations. Desert-local coordinates; the track runs along z = RRZ (-1640), platforms on its north side
+   (+z) with their edge 1.6 m from the track's middle, top 0.6 m (like Dusty Gulch's).
+   RRSTN                         the three new halts: name, platform x0..x1, the end the road comes in at, extras.
+   rrStation(g, st)              one halt: the platform (concrete, a white safety line and a yellow edge strip, a ramp
+                                 down at the road end, a back railing), a timber shelter with a tin lean-to roof, a
+                                 bench and a timetable poster, two station signs on posts facing the track, two
+                                 lamps, a bin, the departure board, a gravel patch where the track road ends; the
+                                 Quarry & Gorge halt also gets a viewing bench at its west end looking across the
+                                 tracks into the gorge. Returns {board, obs, props, lamps}.
+                                 props: [{x,z,r,what}] for the press-E spots ('board' = read the times, 'wait' = the
+                                 platform's boarding spot). obs: the shelter's walls, the railing, the signs, lamps.
+   rrBoard()                     the departure board on its own (Dusty Gulch gets one too). board.set(dir, mins, secs)
+                                 redraws it: dir 'EASTBOUND'/'WESTBOUND' or '' (no train due), the time to the next
+                                 train. Its origin is its foot; as built its face looks +z: turn it (rotation.y = PI) to face the track.
+   ===================================================================================================== */
+const RRSTN=[{name:'LOOKOUT MESA',x0:-360,x1:-300,road:'W'},{name:'QUARRY & GORGE',x0:-190,x1:-130,road:'E',view:1},{name:'MIRAGE LAKE',x0:220,x1:280,road:'E'}];
+function rrBoard(){const k=lkKit(),M=k.M,G=new THREE.Group(),DK=M(0x1a1a1c,{roughness:.5}),ST=M(0x6a6e74,{metalness:.5,roughness:.5});
+ for(const sx of[-.75,.75]){const p=new THREE.Mesh(new THREE.BoxGeometry(.08,2.58,.08),ST);p.position.set(sx,1.29,0);G.add(p)}
+ const c=document.createElement('canvas');c.width=256;c.height=128;const tx=new THREE.CanvasTexture(c);tx.anisotropy=4;
+ const draw=(dir,m,s)=>{const x=c.getContext('2d');x.fillStyle='#0e0f10';x.fillRect(0,0,256,128);x.fillStyle='rgba(255,180,40,.06)';for(let i=0;i<256;i+=4)for(let j=0;j<128;j+=4)x.fillRect(i,j,2,2);
+  x.fillStyle='#ffb428';x.textAlign='center';x.font='bold 20px '+(k.FONT||'Arial');x.fillText('NEXT TRAIN',128,30);x.font='bold 26px '+(k.FONT||'Arial');x.fillText(dir||'NONE DUE',128,66);
+  x.font='bold 30px monospace';x.fillText(dir?((m|0)+':'+String(s|0).padStart(2,'0')):'--:--',128,106);tx.needsUpdate=true};draw('EASTBOUND',1,20);
+ const face=new THREE.MeshBasicMaterial({map:tx}),b=new THREE.Mesh(new THREE.BoxGeometry(1.6,.8,.1),[DK,DK,DK,DK,face,DK]);b.position.set(0,2.2,0);G.add(b);
+ const hood=new THREE.Mesh(new THREE.BoxGeometry(1.72,.06,.3),DK);hood.position.set(0,2.63,.08);G.add(hood);
+ G.userData.set=draw;G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return G}
+function rrStation(g,st){const k=lkKit(),M=k.M,Z=RRZ,ZE=Z+1.6,ZB=Z+7.6,PY=.6,{x0,x1}=st,xc=(x0+x1)/2,G=new THREE.Group();g.add(G);const obs=[],props=[],lamps=[];
+ const CON=M(0xb0aa9e,{roughness:.9}),CON2=M(0x8e887c,{roughness:.9}),WD=M(0x8a5a32,{roughness:.75}),WD2=M(0x5a3a22,{roughness:.8}),TIN=M(0x8a8e92,{metalness:.5,roughness:.5}),RUST=M(0x7a4a2a,{roughness:.8}),DK=M(0x1a1a1c,{roughness:.5}),
+  WH=M(0xe8e4da,Object.assign({roughness:.7},k.PO||{})),YL=M(0xe0b420,Object.assign({roughness:.7},k.PO||{}));
+ const B=(w,h,d,x,y,z,m,par)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);(par||G).add(o);return o};
+ /* the platform: a slab, its coping, the lines, the ramp at the road end */
+ B(x1-x0,PY-.06,ZB-ZE,xc,(PY-.06)/2,(ZE+ZB)/2,CON2);B(x1-x0,.06,ZB-ZE,xc,PY-.03,(ZE+ZB)/2,CON);
+ B(x1-x0,.004,.25,xc,PY+.002,ZE+.13,YL);B(x1-x0,.004,.08,xc,PY+.002,ZE+.6,WH);
+ const re=st.road=='W'?x0:x1,rs=st.road=='W'?-1:1;{/* a 6 m ramp down to the ground beside the slab's road end */const L=6,ge=new THREE.BufferGeometry(),xa=re,xb=re+rs*L,za=ZE+1.2,zb=ZB;
+  const P=[xa,PY,za, xa,PY,zb, xb,0,za, xb,0,zb, xa,0,za, xa,0,zb],I=[0,2,1,1,2,3, 0,4,2, 1,3,5];ge.setAttribute('position',new THREE.Float32BufferAttribute(I.flatMap(i=>P.slice(i*3,i*3+3)),3));ge.computeVertexNormals();
+  const m=new THREE.Mesh(ge,CON);m.material=CON.clone();m.material.side=THREE.DoubleSide;G.add(m);
+  /* the ramp's handrail on its track side */for(let i=0;i<=3;i++){const t=i/3;B(.05,1,.05,xa+rs*L*t,PY*(1-t)+.5,za+.05,TIN)}const hr=new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(L,PY)+.05,.05,.05),TIN);hr.position.set(xa+rs*L/2,PY/2+1.02,za+.05);hr.rotation.z=-rs*Math.atan2(PY,L);G.add(hr)}
+ /* the back railing (gaps for the ramp) */{const ra=st.road=='W'?x0+.3:x0+.3,rb=st.road=='W'?x1-.3:x1-.3;for(let x=ra;x<=rb+.01;x+=(rb-ra)/Math.round((rb-ra)/2.5))B(.06,1.03,.06,x,PY+.515,ZB-.15,TIN);for(const y of[PY+1.02,PY+.55])B(rb-ra,.05,.05,(ra+rb)/2,y,ZB-.15,TIN);obs.push({x0,x1,z0:ZB-.3,z1:ZB})}
+ /* the shelter: three timber walls, an open front towards the track, a tin lean-to roof sloping back; a bench and a poster inside */
+ {const sx=xc+(st.road=='W'?6:-6),sw=5,sd=2.6,sz0=ZB-.4-sd,h0=2.9,h1=2.5;B(sw-.2,h1+.03,.1,sx,PY+(h1+.03)/2,ZB-.45,WD);for(const e of[-1,1]){const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(sd,0);sh.lineTo(sd,h1-.01);sh.lineTo(0,h0-.01);sh.lineTo(0,0);const w=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.1,bevelEnabled:false}),WD);w.rotation.y=-Math.PI/2;w.position.set(sx+e*(sw/2-.05)+.05,PY,sz0);G.add(w)}
+  for(let i=0;i<9;i++)if(i<6||i>7)B(.02,h1,.01,sx-sw/2+.3+i*.55,PY+h1/2,ZB-.505,WD2);/* no battens behind the poster */
+  const roof=new THREE.Mesh(new THREE.BoxGeometry(sw+.5,.06,sd+.7),TIN);roof.position.set(sx,PY+(h0+h1)/2+.1*(h0-h1)/sd+.035,sz0+sd/2-.1);roof.rotation.x=Math.atan2(h0-h1,sd);G.add(roof);
+  B(sw-.4,.08,.45,sx,PY+.45,ZB-.8,WD);B(sw-.4,.45,.06,sx,PY+.75,ZB-.58,WD);for(const dx of[-1.8,0,1.8])B(.06,.45,.4,sx+dx,PY+.22,ZB-.8,WD2);
+  {const p=k.lab('TIMETABLE\nAll trains stop here,\nboth ways, for 15 s.\nSee the board for\nthe next one.\nDOORS BUT DESERT RAILWAY',1,1.2,'#f0e8c8','#2a2018',40);p.position.set(sx+1.6,PY+1.6,ZB-.52);p.rotation.y=Math.PI;G.add(p)}
+  obs.push({x0:sx-sw/2,x1:sx+sw/2,z0:ZB-.5,z1:ZB-.4},{x0:sx-sw/2,x1:sx-sw/2+.1,z0:sz0,z1:ZB-.4},{x0:sx+sw/2-.1,x1:sx+sw/2,z0:sz0,z1:ZB-.4})}
+ /* station signs at both ends, white boards with black letters on two posts, facing the track */
+ for(const sx of[x0+2.5,x1-2.5]){for(const dx of[-1.1,1.1])B(.08,2.4,.08,sx+dx,PY+1.2,ZE+3.4,TIN);const s=k.lab(st.name,2.6,.45,'#f4f2ec','#141414',70);s.position.set(sx,PY+2.1,ZE+3.37);s.rotation.y=Math.PI;G.add(s);const s2=s.clone();s2.position.z=ZE+3.43;s2.rotation.y=0;G.add(s2);
+  const bk=B(2.66,.51,.04,sx,PY+2.1,ZE+3.4,DK);obs.push({x0:sx-1.2,x1:sx+1.2,z0:ZE+3.3,z1:ZE+3.5})}
+ /* lamps: tall posts with a lantern */
+ for(const lx of[xc-14,xc+14]){B(.12,.2,.12,lx,PY+.1,ZE+2.6,DK);const p=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,3.4,8),DK);p.position.set(lx,PY+1.9,ZE+2.6);G.add(p);B(.6,.04,.04,lx-.25,PY+3.5,ZE+2.6,DK);
+  const lt=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.32,6),M(0xfff0c8,{emissive:0xffd890,emissiveIntensity:1.1}));lt.position.set(lx-.5,PY+3.27,ZE+2.6);G.add(lt);B(.34,.05,.34,lx-.5,PY+3.455,ZE+2.6,DK);lamps.push({x:lx-.5,y:PY+3.15,z:ZE+2.6});obs.push({x0:lx-.1,x1:lx+.1,z0:ZE+2.5,z1:ZE+2.7})}
+ /* the departure board near the boarding spot, a bin, a bench on the open platform */
+ const board=rrBoard();board.position.set(xc,PY,ZE+4.6);board.rotation.y=Math.PI;G.add(board);obs.push({x0:xc-.9,x1:xc+.9,z0:ZE+4.5,z1:ZE+4.7});
+ {const bx=xc+(st.road=='W'?-6:6);B(1.6,.06,.42,bx,PY+.45,ZE+4.2,WD);B(1.6,.42,.05,bx,PY+.74,ZE+4.42,WD);for(const dx of[-.7,.7])B(.06,.45,.42,bx+dx,PY+.22,ZE+4.2,DK)}
+ {const bn=new THREE.Mesh(new THREE.CylinderGeometry(.22,.2,.8,12),M(0x2c4a34,{roughness:.6}));bn.position.set(xc+(st.road=='W'?-2.5:2.5),PY+.4,ZE+5.2);G.add(bn);const lid=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.06,12),DK);lid.position.set(xc+(st.road=='W'?-2.5:2.5),PY+.83,ZE+5.2);G.add(lid)}
+ /* the gravel patch where the track road ends, beside the ramp's foot */
+ {const gx=re+rs*11,gm=M(0x8e7f66,{roughness:1,polygonOffset:true,polygonOffsetUnits:-2});const p=new THREE.Mesh(new THREE.PlaneGeometry(10,ZB+6-ZE-1),gm);p.rotation.x=-Math.PI/2;p.position.set(gx,.03,(ZE+1+ZB+6)/2);G.add(p)}
+ /* Quarry & Gorge: a viewing bench at the west end, looking across the tracks to the gorge */
+ if(st.view){const vx=x0+1.4;B(1.6,.06,.42,vx,PY+.45,ZE+1.6,WD);B(1.6,.42,.05,vx,PY+.74,ZE+1.82,WD);for(const dx of[-.7,.7])B(.06,.45,.42,vx+dx,PY+.22,ZE+1.6,DK);
+  const s=k.lab("DEVIL'S GORGE · 70 m DOWN",1.2,.3,'#5a3a22','#f0e0b8',50);for(const dx of[-.5,.5])B(.05,1.2,.05,vx+dx+.2,PY+.6,ZE+.9,WD2);B(1.26,.34,.03,vx+.2,PY+1.1,ZE+.915,WD2);s.position.set(vx+.2,PY+1.1,ZE+.935);G.add(s)}
+ props.push({x:xc,z:ZE+3.9,r:2,what:'board'},{x:xc,z:ZE+1.4,r:Math.max(3,(x1-x0)/2),what:'wait'});
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{board,obs,props,lamps,g:G}}
