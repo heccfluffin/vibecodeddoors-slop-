@@ -39,7 +39,7 @@ function dmKit(){const k=rtKit();if(k._dm)return k._dm;const o={},M=(c,op)=>{con
  k._dm=o;return o}
 const dmF=()=>(rtKit().FONT||'"Barlow Semi Condensed",DoorsSans,Arial,sans-serif');
 function dmSign(g,w,h,lines,bg,fg,x,y,z,ry){const k=rtKit(),o=dmKit(),c=document.createElement('canvas');c.width=Math.round(256*w/h);c.height=256;const t=c.getContext('2d');t.fillStyle=bg;t.fillRect(0,0,c.width,256);t.strokeStyle=fg;t.lineWidth=10;t.strokeRect(10,10,c.width-20,236);t.fillStyle=fg;t.textAlign='center';
- const n=lines.length;lines.forEach((s,i)=>{t.font=(i?'600 ':'800 ')+(i?150/n*.7:150/n)+'px '+dmF();t.fillText(s,c.width/2,256*(i+.72)/n,c.width-40)});const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,.03),[o.TIMB,o.TIMB,o.TIMB,o.TIMB,o.M(0xffffff,{map:new THREE.CanvasTexture(c),roughness:.8}),o.TIMB]);m.position.set(x,y,z);m.rotation.y=ry||0;g.add(m);return m}
+ const n=lines.length;lines.forEach((s,i)=>{t.font=(i?'600 ':'800 ')+(i?150/n*.7:150/n)+'px '+dmF();t.fillText(s,c.width/2,256*(i+.72)/n,c.width-90)});const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,.03),[o.TIMB,o.TIMB,o.TIMB,o.TIMB,o.M(0xffffff,{map:new THREE.CanvasTexture(c),roughness:.8}),o.TIMB]);m.position.set(x,y,z);m.rotation.y=ry||0;g.add(m);return m}
 
 /* drop rocks one at a time onto a height map, so each rests on the ground or on the rocks under it. top(x,z): the heap's
    outline (a rock is kept only if it fits under it); init(x,z): a starting height (something to rest on); block(x,z):
