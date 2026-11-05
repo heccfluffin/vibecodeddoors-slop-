@@ -1,4 +1,4 @@
-Status: part 1 (the layout plan) approved 2026-11-05, right-hand traffic · part 2 (the road look: models) batch 1 for review · part 3 (AI on the roads) after that
+Status: part 1 (the layout plan) approved 2026-11-05, right-hand traffic · part 2 (the road look: models) batch 1 approved 2026-11-05, batch 2 (the whole network, bridge ends, signs) for review · part 3 (AI on the roads) after that
 
 # Desert roads: a tidy layout, one look, and AI that drives on them
 
@@ -29,7 +29,7 @@ The places stay where they are. The bridges and the railway crossings stay at x 
 **Highways (8 m):** Route 13 x 0 from the bus ride to Southern Pass (T at (0,-1900)); Sunset Blvd z -1037 from Route 13
 to Dune Rd (one straight road; was -1037 then -1030 with a jog); Dune Rd x 560 from the Fort gate (560,-1004) south,
 turning west on a 45 m curve into Southern Pass; Southern Pass z -1900; Coyote Rd x -440 from the **prison gate
-(-440,-860)** south, turning east on a 25 m curve into Southern Pass; Gulch Rd z -1420 from Coyote Rd to Dune Rd;
+(-440,-860)** south, turning east on a 15 m curve into Southern Pass (just below the Hangar Rd junction); Gulch Rd z -1420 from Coyote Rd to Dune Rd;
 Pyramid Way z -1120 from Route 13 to Coyote Rd.
 
 **Town roads (7 m):** Motel Rd, the drive-in, Depot Rd, the pyramid spur, the PD road (its corner rounded); the
@@ -73,7 +73,7 @@ One builder, `drBuild`, from one table `DROADS` (each road: name, kind, a centre
 The AI routes above; the street signs `S`; `xpCover` keeps clear of the new roads by itself (it follows mapR);
 the map (`dm2Draw`) should read `DROADS` for road shapes and kinds; `NAV` road cells from `DROADS`.
 
-### Batch 1: pieces, junctions, dirt track mouths, for review · `drPiece`, `drJunction`, `drMouth`, `drStopSign`
+### Batch 1: pieces, junctions, dirt track mouths, approved 2026-11-05 · `drPiece`, `drJunction`, `drMouth`, `drStopSign`
 - `drPiece(g, centreLine, kind)`: the road between two junctions, from a list of points (curves made with `drArc`).
   Cut into ~100 m pieces (frames worked out along the whole road first, so pieces join exactly and the dashes keep one rhythm). Highways have 1.2 m gravel shoulders with ragged outer edges (town roads 0.8 m), white edge lines, a yellow centre
   dash (3 m on, 9 m off) and reflector posts every 25 m (alternate sides); town roads lines only; dirt tracks ruts and
@@ -87,5 +87,33 @@ the map (`dm2Draw`) should read `DROADS` for road shapes and kinds; `NAV` road c
   to that side: the AI's lane centre is 2 m that way from the centre line (part 3).
 - Everything is flat at y .06 (the old strips' height), with lines nudged by `polygonOffsetUnits` only.
 
-Next: batch 2, the gorge bridge ends, the town roads' kerbs and pavements, road signs (names at junctions, speed
-limits, the distance signs), and the plan's whole network as a `DROADS` table.
+### Batch 2: the whole network, bridge ends, signs, for review · `DROADS`, `drNetwork`, `drBridgeEnd`, signs
+- **`DROADS`** is the approved layout as data: 15 junctions (`J`: x, z, arms, the two names for the street sign),
+  52 road pieces (`P`: name, kind, centre line with the curves), 12 gravel mouths (`M`), the three bridges (`B`, rims
+  `RIM`), the airfield turning circle (`TC`), speed limits per kind (`LIM`: highway 90, town 50, dirt 40 km/h) and four
+  direction boards (`GS`). **`drNetwork(g)`** builds it all: junctions first, then each piece trimmed to the arm it
+  leaves by (a piece's end on a junction centre takes the arm pointing its way; ends on a gravel mouth start beyond it),
+  bridge ends, the turning circle, street-name signs at every junction, speed limit signs 40 m after junctions on
+  pieces over 150 m long, the direction boards. Returns `{J, obs, pieces}` (`obs`: the guard rails).
+- **Staggered side roads:** the drive-in joins 10 m north of Motel Rd and Depot Rd 8 m south of Sunset Blvd, so those
+  two junctions take a side road shifted along the main road (`off` on the arm). One junction each, no overlap.
+- **Bridge ends** (`drBridgeEnd`): the road stops 5 m from the rim; a concrete approach slab slopes down to the rim
+  (the decks' top is at y -0.02, the roads at .06); a steel expansion joint; W-beam guard rails on both shoulders for
+  18 m, lined up with the bridges' own rails, their far ends turned down into the ground; yellow-black end markers.
+- **Signs:** green street-name blades on every junction; white SPEED LIMIT signs; green direction boards before Route 13
+  at Pyramid Way and at Gulch Rd, on Sunset Blvd before the Fort Link, and on Dune Rd before Sunset Blvd.
+- **Changed from the plan:** Hangar Rd leaves Coyote Rd at z -1870 (the gate's line) and runs straight; the Southern
+  Pass west corner is 15 m (was 25 m) so it fits below that junction.
+
+**Wiring notes (Claude Code), for when part 2 is built:**
+1. Build with `drNetwork(q.g)` (desert-local coordinates are q.g space, like the old roads) in place of
+   `xpRoadsBuild`'s strips and junction patches, the `patWorld` road boxes and busBoard0's bus road plane; keep the
+   Fort's own streets (`fbRoad`, flagged `fb`). Record each piece into `q.xroads` with its kind, so the map and
+   `xpCover`'s keep-clear still work.
+2. `drNetwork(...).obs` are q.obs boxes.
+3. Route 13's painted BUS STOP bay (route13.js) sits on top of the new road; check it still shows (it may need the
+   same `polygonOffsetUnits` nudge as the lines).
+4. The level crossings' boards sit above the road (rails at .3), so the roads simply run under them.
+5. The gorge rim's fences (mesa-gorge) start 2.2 m either side of each bridge; the guard rails here stand on the
+   shoulders inside them, so they don't overlap.
+6. Check the bridge decks' ends line up with the approach slabs at the rims (deck z -1746..-1698, rims -1744/-1700).

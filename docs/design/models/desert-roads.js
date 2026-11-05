@@ -89,18 +89,21 @@ function drSub(F,a,b){const o=[];const A=drAt(F,a);o.push([A.x,A.z]);for(const f
 /* ---------------------------------------- junctions ---------------------------------------- */
 const DRDIR={E:[1,0],N:[0,1],W:[-1,0],S:[0,-1]},DRCCW=['E','N','W','S'];
 function drJunction(g,x,z,arms,o){o=o||{};const k=drKit(),r=o.r||9,G=new THREE.Group();g.add(G);
- const hw=d=>arms[d]?DRK[arms[d].k].w/2:0,perp=d=>{const i=DRCCW.indexOf(d);return Math.max(hw(DRCCW[(i+1)%4]),hw(DRCCW[(i+3)%4]))};
+ /* arms[d].off: a side road that joins a few metres off the junction's centre (z shift for E/W arms, x shift for N/S),
+    for staggered side roads like the drive-in across from Motel Rd */
+ const hw=d=>arms[d]?DRK[arms[d].k].w/2:0,bo=d=>!arms[d]||!arms[d].off?0:(d=='E'||d=='S')?arms[d].off:-arms[d].off,Pp=d=>bo(d)+hw(d),Mm=d=>bo(d)-hw(d),
+  perp=d=>{const i=DRCCW.indexOf(d);let m=0;for(const q of[DRCCW[(i+1)%4],DRCCW[(i+3)%4]])if(arms[q])m=Math.max(m,Math.abs(bo(q))+hw(q));return m};
  const ends={};for(const d of DRCCW)if(arms[d])ends[d]=perp(d)+r+1.5;
- /* a point in arm d's frame: a out along the arm, b to the right when looking out along it (so traffic coming IN keeps to b < 0) */
+ /* a point in arm d's frame: a out along the arm, b to the right when looking out along it (so traffic coming IN keeps to b < bo(d)) */
  const pt=(d,a,b)=>{const[ux,uz]=DRDIR[d];return[x+ux*a-uz*b,z+uz*a+ux*b]};
- const present=DRCCW.filter(d=>arms[d]),out=[],lines=[],edges=[];
- present.forEach((d,i)=>{const e=present[(i+1)%present.length],di=DRCCW.indexOf(d),ei=DRCCW.indexOf(e),turn=(ei-di+4)%4;
-  out.push(pt(d,ends[d],-hw(d)),pt(d,ends[d],hw(d)));
-  if(turn==1){/* a rounded kerb corner between d's left edge and e's right edge */const cA=pt(d,hw(e)+r,hw(d)+r),a0=Math.atan2(pt(d,hw(e)+r,hw(d))[1]-cA[1],pt(d,hw(e)+r,hw(d))[0]-cA[0]),a1=Math.atan2(pt(e,hw(d)+r,-hw(e))[1]-cA[1],pt(e,hw(d)+r,-hw(e))[0]-cA[0]);
-   let da=a1-a0;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;const arc=drArc(cA[0],cA[1],r,a0,a0+da,10);out.push(...arc);
-   edges.push({p:[pt(d,ends[d],hw(d)),pt(d,hw(e)+r,hw(d)),...arc.slice(1,-1),pt(e,hw(d)+r,-hw(e)),pt(e,ends[e],-hw(e))],sh:Math.max(DRK[arms[d].k].sh,DRK[arms[e].k].sh)});
-   /* the edge line: along d's stub, round the corner, out along e's stub */const L=[pt(d,ends[d],hw(d)-.3),pt(d,hw(e)+r,hw(d)-.3),...drArc(cA[0],cA[1],r+.3,a0,a0+da,10),pt(e,hw(d)+r,-hw(e)+.3),pt(e,ends[e],-hw(e)+.3)];lines.push(L)}
-  else if(turn==2){/* straight across (the side with no road): the through road's edge line carries on */lines.push([pt(d,ends[d],hw(d)-.3),pt(e,ends[e],-hw(e)+.3)]);edges.push({p:[pt(d,ends[d],hw(d)),pt(e,ends[e],-hw(e))],sh:Math.max(DRK[arms[d].k].sh,DRK[arms[e].k].sh)})}});
+ const present=DRCCW.filter(d=>arms[d]),out=[],lines=[],edges=[],corners=[];
+ present.forEach((d,i)=>{const e=present[(i+1)%present.length],di=DRCCW.indexOf(d),ei=DRCCW.indexOf(e),turn=(ei-di+4)%4,shw=Math.max(DRK[arms[d].k].sh,DRK[arms[e].k].sh);
+  out.push(pt(d,ends[d],Mm(d)),pt(d,ends[d],Pp(d)));
+  if(turn==1){/* a rounded kerb corner between d's outer edge and e's */const A=-Mm(e)+r,Bv=Pp(d)+r,cA=pt(d,A,Bv),s0=pt(d,A,Pp(d)),s1=pt(e,Bv,Mm(e)),a0=Math.atan2(s0[1]-cA[1],s0[0]-cA[0]),a1=Math.atan2(s1[1]-cA[1],s1[0]-cA[0]);
+   let da=a1-a0;while(da>Math.PI)da-=2*Math.PI;while(da<-Math.PI)da+=2*Math.PI;const arc=drArc(cA[0],cA[1],r,a0,a0+da,10);out.push(...arc);corners.push(cA);
+   edges.push({p:[pt(d,ends[d],Pp(d)),s0,...arc.slice(1,-1),s1,pt(e,ends[e],Mm(e))],sh:shw});
+   lines.push([pt(d,ends[d],Pp(d)-.3),pt(d,A,Pp(d)-.3),...drArc(cA[0],cA[1],r+.3,a0,a0+da,10),pt(e,Bv,Mm(e)+.3),pt(e,ends[e],Mm(e)+.3)])}
+  else if(turn==2){/* straight across (the side with no road): the through road's edge line carries on */lines.push([pt(d,ends[d],Pp(d)-.3),pt(e,ends[e],Mm(e)+.3)]);edges.push({p:[pt(d,ends[d],Pp(d)),pt(e,ends[e],Mm(e))],sh:shw})}});
  /* the patch (one shape, world-aligned asphalt) */
  {const sh=new THREE.Shape(out.map(p=>new THREE.Vector2(p[0],-p[1])));const ge=new THREE.ShapeGeometry(sh);ge.rotateX(-Math.PI/2);const uv=ge.attributes.uv,p=ge.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/4,-p.getZ(i)/4);
   const m=new THREE.Mesh(ge,k.ASPH);m.position.y=DRY;m.userData.noSeam=true;G.add(m)}
@@ -109,9 +112,12 @@ function drJunction(g,x,z,arms,o){o=o||{};const k=drKit(),r=o.r||9,G=new THREE.G
  for(const E of edges){if(!E.sh)continue;const P=E.p.filter((p,i)=>!i||Math.hypot(p[0]-E.p[i-1][0],p[1]-E.p[i-1][1])>.01),F=drFrames(P),m=F[Math.floor(F.length/2)],nl=Math.hypot(m.nx,m.nz)||1;
   const sg=Math.hypot(m.x+m.nx/nl-x,m.z+m.nz/nl-z)>Math.hypot(m.x-x,m.z-z)?1:-1;G.add(drStrip(P,-sg*.05,sg*E.sh,DRY-.004,k.SHLD,null,F))}
  /* minor arms: a stop line across the lane coming in, and a STOP sign on its right */
- for(const d of present){if(!arms[d].minor)continue;const h=hw(d),a=perp(d)+r*.35+1;const L=[pt(d,a,-.15),pt(d,a,-(h-.3))];G.add(drStrip(L,-.2,.2,DRY,k.WHITE,1));
-  const sp=pt(d,a+1.2,-(h+1.3));G.add(drStopSign(sp[0],sp[1],Math.atan2(DRDIR[d][0],DRDIR[d][1])))}
- G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{g:G,ends}}
+ for(const d of present){if(!arms[d].minor)continue;const a=perp(d)+r*.35+1;const L=[pt(d,a,bo(d)-.15),pt(d,a,Mm(d)+.3)];G.add(drStrip(L,-.2,.2,DRY,k.WHITE,1));
+  const sp=pt(d,a+1.2,Mm(d)-1.3);G.add(drStopSign(sp[0],sp[1],Math.atan2(DRDIR[d][0],DRDIR[d][1])))}
+ /* where a street-name sign can stand: the first kerb corner, 2.6 m back from the asphalt */
+ let nameAt=null;if(corners.length){const c=corners[0],dx=x-c[0],dz=z-c[1],L=Math.hypot(dx,dz);nameAt=[c[0]+dx/L*(r-2.6),c[1]+dz/L*(r-2.6)]}
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});
+ return{g:G,ends,nameAt,anchor:d=>pt(d,0,bo(d)),start:d=>pt(d,ends[d],bo(d))}}
 /* a STOP sign facing along (sin ry, cos ry): post, red octagon with a white rim, the word */
 function drStopSign(x,z,ry){const k=drKit(),G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry;
  const p=new THREE.Mesh(new THREE.BoxGeometry(.07,2.3,.07),k.STEEL);p.position.y=1.15;G.add(p);
@@ -132,3 +138,138 @@ function drMouth(g,x,z,dir,hMain,o){o=o||{};const k=drKit(),r=o.r||4,h=DRK.d.w/2
  const sh=new THREE.Shape(P.map(p=>new THREE.Vector2(p[0],-p[1])));const ge=new THREE.ShapeGeometry(sh);ge.rotateX(-Math.PI/2);const uv=ge.attributes.uv,pp=ge.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,pp.getX(i)/3,-pp.getZ(i)/3);
  const m=new THREE.Mesh(ge,k.GRAV);m.position.y=DRY-.002;m.userData.noSeam=true;G.add(m);
  return{g:G,len:L}}
+
+/* =====================================================================================================
+   Batch 2: bridge ends, signs, the turning circle, and the whole network (DROADS + drNetwork).
+   drBridgeEnd(g,x,zRim,dir)     where a highway meets a gorge bridge. zRim = the gorge rim (-1700 north, -1744 south),
+                                 dir = +1 on the north side (the road runs off to +z), -1 on the south side. The road piece
+                                 stops 5 m back; an approach slab slopes from the road (y .06) to the rim (y 0), a steel
+                                 expansion joint at the rim, W-beam guard rails 18 m along both shoulders that line up with
+                                 the bridge rails and turn down into the ground at their far ends, yellow-black end markers.
+                                 Returns {obs:[{x0,x1,z0,z1}]} for the guard rails.
+   drTurnCircle(g,x,z,R)         a round asphalt turning circle at a road's end (edge line and gravel round it).
+   drNameSign(g,x,z,ry,a,b)      a street-name sign: two green blades on a post, road a along ry, road b across it.
+   drLimitSign(g,x,z,ry,kmh)     a SPEED LIMIT sign facing along ry (towards the traffic it's for).
+   drGuideSign(g,x,z,ry,rows)    a green direction board on two posts: rows [[arrow,'Place','1.2 km'],...].
+   DROADS / drNetwork(g)         the approved layout (desert-roads.md part 1) as data, and its builder: junctions first,
+                                 then the pieces trimmed to them, the dirt mouths, bridge ends, signs. Returns
+                                 {J, obs}. Coordinates are desert-local (x, z).
+   ===================================================================================================== */
+/* a quad (4 corners: two at one end, two at the other) that always faces up */
+function drQuadUp(P,m){const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(P,3));ge.setIndex([0,1,2,1,3,2]);ge.computeVertexNormals();if(ge.attributes.normal.getY(0)<0){ge.setIndex([0,2,1,1,2,3]);ge.computeVertexNormals()}const o=new THREE.Mesh(ge,m);o.userData.noSeam=true;return o}
+function drBridgeEnd(g,x,zRim,dir){const k=drKit(),G=new THREE.Group();g.add(G);const W=4.6,L=5,obs=[];
+ const CON=new THREE.MeshStandardMaterial({color:0x9a958c,roughness:.9});CON.userData.gd=1;const STL=k.STEEL;
+ /* the approach slab: a sloped quad from the road's end down to the rim */
+ {const zA=zRim+dir*L;G.add(drQuadUp([-W,DRY,zA, W,DRY,zA, -W,0,zRim, W,0,zRim].map((v,i)=>i%3==0?v+x:v),CON));
+  /* its edge lines follow the slope */for(const sx of[-1,1]){const xa=x+sx*(4-.3);G.add(drQuadUp([xa-.075,DRY,zA, xa+.075,DRY,zA, xa-.075,0,zRim, xa+.075,0,zRim],k.WHITE))}}
+ /* the expansion joint: a steel strip across the rim */
+ {const j=new THREE.Mesh(new THREE.BoxGeometry(2*W,.03,.3),STL);j.position.set(x,.003,zRim+dir*.15);G.add(j);for(let i=-4;i<=4;i++){const t=new THREE.Mesh(new THREE.BoxGeometry(.04,.032,.26),k.POST);t.position.set(x+i*1.05,.004,zRim+dir*.15);G.add(t)}}
+ /* guard rails: posts every 2 m, a W-beam on blocks, the far end turned down into the ground */
+ for(const sx of[-1,1]){const rx=x+sx*4.45,L2=18,z0=zRim+dir*2,z1=zRim+dir*L2,LL=[],BB=[];
+  for(let d=0;d<=L2-2;d+=2){const zz=zRim+dir*(2+d);LL.push([new THREE.BoxGeometry(.1,.78,.1),new THREE.Matrix4().makeTranslation(rx+sx*.16,.39,zz)]);LL.push([new THREE.BoxGeometry(.08,.16,.1),new THREE.Matrix4().makeTranslation(rx+sx*.07,.55,zz)])}
+  const beam=new THREE.Mesh(new THREE.BoxGeometry(.05,.32,L2-6),STL);beam.position.set(rx,.55,zRim+dir*(2+(L2-6)/2));G.add(beam);
+  const groove=new THREE.Mesh(new THREE.BoxGeometry(.056,.06,L2-6),k.M(0x6a6e72,{metalness:.6,roughness:.45}));groove.position.copy(beam.position);G.add(groove);
+  /* the end: the beam sloping down to the ground over the last 4 m, flared out */{const zs=zRim+dir*(L2-4),ze=zRim+dir*(L2+.5),xe=rx+sx*.9,dx=xe-rx,dz=ze-zs,len=Math.hypot(dx,dz,.47),t=new THREE.Mesh(new THREE.BoxGeometry(.05,.32,len),STL);
+   t.position.set((rx+xe)/2,(.55+.08)/2,(zs+ze)/2);t.lookAt(xe,.08,ze);G.add(t);const a=new THREE.Mesh(new THREE.BoxGeometry(.3,.12,.5),CON);a.position.set(xe,.04,ze);G.add(a)}
+  G.add(k.merge?k.merge(LL,STL):(()=>{const gg=new THREE.Group();LL.forEach(([ge,mx])=>{const m=new THREE.Mesh(ge,STL);m.applyMatrix4(mx);gg.add(m)});return gg})());
+  /* the yellow-black end marker at the bridge end of each rail, facing the traffic coming onto the bridge */
+  {const mk=drMarker();mk.position.set(rx+sx*.55,0,zRim+dir*1.2);mk.rotation.y=dir>0?0:Math.PI;G.add(mk)}
+  obs.push({x0:Math.min(rx-.05,rx+sx*.25),x1:Math.max(rx-.05,rx+sx*.25),z0:Math.min(z0,zRim+dir*(L2-4)),z1:Math.max(z0,zRim+dir*(L2-4))})}
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{g:G,obs}}
+/* a yellow board with black diagonal stripes on a post (an object marker) */
+function drMarker(){const k=drKit(),G=new THREE.Group();if(!drKit.mk){const c=document.createElement('canvas');c.width=64;c.height=192;const x=c.getContext('2d');x.fillStyle='#f0c020';x.fillRect(0,0,64,192);x.fillStyle='#141414';for(let i=-4;i<10;i++){x.beginPath();x.moveTo(0,i*32);x.lineTo(64,i*32-48);x.lineTo(64,i*32-32);x.lineTo(0,i*32+16);x.closePath();x.fill()}const t=new THREE.CanvasTexture(c);drKit.mk=new THREE.MeshStandardMaterial({map:t,roughness:.5})}
+ const p=new THREE.Mesh(new THREE.BoxGeometry(.06,1.1,.06),k.STEEL);p.position.y=.55;G.add(p);const b=new THREE.Mesh(new THREE.BoxGeometry(.3,.9,.025),[k.STEEL,k.STEEL,k.STEEL,k.STEEL,drKit.mk,drKit.mk]);b.position.set(0,1.45,0);G.add(b);return G}
+function drTurnCircle(g,x,z,R){const k=drKit(),G=new THREE.Group();g.add(G);
+ const d=new THREE.Mesh(new THREE.CircleGeometry(R,48),k.ASPH);d.rotation.x=-Math.PI/2;d.position.set(x,DRY,z);const uv=d.geometry.attributes.uv,p=d.geometry.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,(p.getX(i)+x)/4,(p.getY(i)-z)/4);G.add(d);
+ const ring=[];for(let i=0;i<=48;i++){const a=i/48*Math.PI*2;ring.push([x+Math.cos(a)*R,z+Math.sin(a)*R])}
+ G.add(drStrip(ring.map(([a,b])=>[x+(a-x)*(R-.3)/R,z+(b-z)*(R-.3)/R]),-.075,.075,DRY,k.WHITE,1));
+ {const F=drFrames(ring),m=F[0],sg=Math.hypot(m.x+m.nx-x,m.z+m.nz-z)>R?1:-1;G.add(drStrip(ring,-sg*.05,sg*1.2,DRY-.004,k.SHLD,null,F))}
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return G}
+
+/* ---------------------------------------- signs ---------------------------------------- */
+function drTxt(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t}
+function drNameSign(g,x,z,ry,a,b){const k=drKit(),G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry;g.add(G);
+ const p=new THREE.Mesh(new THREE.BoxGeometry(.07,3.1,.07),k.STEEL);p.position.y=1.55;G.add(p);
+ const blade=(name,y,rot)=>{const t=drTxt(256,48,(c,w,h)=>{c.fillStyle='#1d6a3c';c.fillRect(0,0,w,h);c.strokeStyle='#f2f0e8';c.lineWidth=3;c.strokeRect(4,4,w-8,h-8);c.fillStyle='#f2f0e8';c.font='bold 28px '+(k.FONT||'Arial');c.textAlign='center';c.textBaseline='middle';c.fillText(name.toUpperCase(),w/2,h/2+1)});
+  const m=new THREE.MeshStandardMaterial({map:t,roughness:.5}),bg=new THREE.Mesh(new THREE.BoxGeometry(1.25,.23,.025),[k.STEEL,k.STEEL,k.STEEL,k.STEEL,m,m]);bg.position.y=y;bg.rotation.y=rot;G.add(bg)};
+ blade(a,3.0,0);if(b)blade(b,2.74,Math.PI/2);G.add(new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,.04,10),k.STEEL).translateY(3.13));
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return G}
+function drLimitSign(g,x,z,ry,kmh){const k=drKit(),G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry;g.add(G);
+ const p=new THREE.Mesh(new THREE.BoxGeometry(.07,2.2,.07),k.STEEL);p.position.y=1.1;G.add(p);
+ const t=drTxt(128,160,(c,w,h)=>{c.fillStyle='#f4f2ec';c.fillRect(0,0,w,h);c.strokeStyle='#141414';c.lineWidth=5;c.strokeRect(7,7,w-14,h-14);c.fillStyle='#141414';c.textAlign='center';c.font='bold 20px '+(k.FONT||'Arial');c.fillText('SPEED',w/2,36);c.fillText('LIMIT',w/2,58);c.font='bold 58px '+(k.FONT||'Arial');c.fillText(String(kmh),w/2,116);c.font='bold 16px '+(k.FONT||'Arial');c.fillText('km/h',w/2,140)});
+ const m=new THREE.MeshStandardMaterial({map:t,roughness:.5}),b=new THREE.Mesh(new THREE.BoxGeometry(.6,.75,.025),[k.STEEL,k.STEEL,k.STEEL,k.STEEL,m,k.STEEL]);b.position.set(0,2.1,.05);G.add(b);
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return G}
+function drGuideSign(g,x,z,ry,rows){const k=drKit(),G=new THREE.Group();G.position.set(x,0,z);G.rotation.y=ry;g.add(G);const H=.32+rows.length*.42,W=3.2,y0=2.2;
+ for(const sx of[-1.1,1.1]){const p=new THREE.Mesh(new THREE.BoxGeometry(.1,y0+H,.1),k.STEEL);p.position.set(sx,(y0+H)/2,-.06);G.add(p)}
+ const t=drTxt(512,Math.round(512*H/W),(c,w,h)=>{c.fillStyle='#1d6a3c';c.fillRect(0,0,w,h);c.strokeStyle='#f2f0e8';c.lineWidth=5;c.strokeRect(8,8,w-16,h-16);c.fillStyle='#f2f0e8';c.textBaseline='middle';const rh=(h-24)/rows.length;
+  rows.forEach(([ar,name,dist],i)=>{const y=12+rh*(i+.5);c.font='bold 40px '+(k.FONT||'Arial');c.textAlign='left';c.fillText(ar,26,y);c.font='bold 34px '+(k.FONT||'Arial');c.fillText(name,84,y);c.textAlign='right';c.font='30px '+(k.FONT||'Arial');c.fillText(dist||'',w-26,y)})});
+ const m=new THREE.MeshStandardMaterial({map:t,roughness:.5}),b=new THREE.Mesh(new THREE.BoxGeometry(W,H,.04),[k.STEEL,k.STEEL,k.STEEL,k.STEEL,m,k.STEEL]);b.position.set(0,y0+H/2,0);G.add(b);
+ G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return G}
+
+/* ---------------------------------------- the network ---------------------------------------- */
+const DRH={k:'h'},DRT={k:'t'};
+const DROADS={
+ /* junctions: [x, z, arms, the two names for the street sign] (minor = gives way; off = side road shifted along the main road) */
+ J:{motel:[0,-922,{N:DRH,S:DRH,E:{k:'t',minor:1},W:{k:'t',minor:1,off:10}},['Route 13','Motel Rd']],
+  pdrd:[0,-990,{N:DRH,S:DRH,E:{k:'t',minor:1}},['Route 13','Precinct Rd']],
+  depot:[0,-1037,{N:DRH,S:DRH,E:{k:'h',minor:1},W:{k:'t',minor:1,off:-8}},['Route 13','Sunset Blvd']],
+  fortlk:[205,-1037,{E:DRH,W:DRH,N:{k:'t',minor:1}},['Sunset Blvd','Fort Link']],
+  airfd:[300,-1037,{E:DRH,W:DRH,S:{k:'t',minor:1}},['Sunset Blvd','Airfield Rd']],
+  dunesun:[560,-1037,{N:DRH,S:DRH,W:{k:'h',minor:1}},['Dune Rd','Sunset Blvd']],
+  pyr13:[0,-1120,{N:DRH,S:DRH,W:{k:'h',minor:1}},['Route 13','Pyramid Way']],
+  pyrsp:[-175,-1120,{E:DRH,W:DRH,N:{k:'t',minor:1}},['Pyramid Way','Pyramid Spur']],
+  coypyr:[-440,-1120,{N:DRH,S:DRH,E:{k:'h',minor:1}},['Coyote Rd','Pyramid Way']],
+  coygul:[-440,-1420,{N:DRH,S:DRH,E:{k:'h',minor:1}},['Coyote Rd','Gulch Rd']],
+  r13gul:[0,-1420,{N:DRH,S:DRH,E:{k:'h',minor:1},W:{k:'h',minor:1}},['Route 13','Gulch Rd']],
+  dungul:[560,-1420,{N:DRH,S:DRH,W:{k:'h',minor:1}},['Dune Rd','Gulch Rd']],
+  z51:[-440,-1870,{N:DRH,S:DRH,W:{k:'t',minor:1}},['Coyote Rd','Hangar Rd']],
+  barr:[-540,-1870,{E:DRT,W:DRT,N:{k:'t',minor:1}},['Hangar Rd','Barracks Rd']],
+  r13sp:[0,-1900,{E:DRH,W:DRH,N:{k:'h',minor:1}},['Southern Pass','Route 13']]},
+ /* roads: [name, kind, centre line]. Ends that sit on a junction (or on a side road's shifted start) are trimmed to it */
+ P:[['Route 13','h',[[0,200],[0,-922]]],['Route 13','h',[[0,-922],[0,-990]]],['Route 13','h',[[0,-990],[0,-1037]]],['Route 13','h',[[0,-1037],[0,-1120]]],['Route 13','h',[[0,-1120],[0,-1420]]],['Route 13','h',[[0,-1420],[0,-1695]]],['Route 13','h',[[0,-1749],[0,-1900]]],
+  ['Motel Rd','t',[[0,-922],[56,-922]]],['Drive-in','t',[[0,-912],[-20,-912]]],['Depot Rd','t',[[0,-1045],[-62,-1045]]],
+  ['Precinct Rd','t',[[0,-990],[80,-990],...drArc(80,-998,8,Math.PI/2,0,6).slice(1),[88,-1013.3]]],
+  ['Sunset Blvd','h',[[0,-1037],[205,-1037]]],['Sunset Blvd','h',[[205,-1037],[300,-1037]]],['Sunset Blvd','h',[[300,-1037],[560,-1037]]],
+  ['Fort Link','t',[[205,-1037],[205,-902],...drArc(222,-902,17,Math.PI,Math.PI/2,10).slice(1)]],
+  ['Airfield Rd','t',[[300,-1037],[300,-1192]]],
+  ['Dune Rd','h',[[560,-1004],[560,-1037]]],['Dune Rd','h',[[560,-1037],[560,-1420]]],['Dune Rd','h',[[560,-1420],[560,-1695]]],
+  ['Southern Pass','h',[[560,-1749],[560,-1855],...drArc(515,-1855,45,0,-Math.PI/2,16).slice(1),[0,-1900]]],
+  ['Southern Pass','h',[[0,-1900],[-425,-1900],...drArc(-425,-1885,15,-Math.PI/2,-Math.PI,8).slice(1),[-440,-1870]]],
+  ['Coyote Rd','h',[[-440,-860],[-440,-1120]]],['Coyote Rd','h',[[-440,-1120],[-440,-1420]]],['Coyote Rd','h',[[-440,-1420],[-440,-1695]]],['Coyote Rd','h',[[-440,-1749],[-440,-1870]]],
+  ['Pyramid Way','h',[[0,-1120],[-175,-1120]]],['Pyramid Way','h',[[-175,-1120],[-440,-1120]]],['Pyramid Spur','t',[[-175,-1120],[-175,-1078]]],
+  ['Gulch Rd','h',[[-440,-1420],[0,-1420]]],['Gulch Rd','h',[[0,-1420],[560,-1420]]],
+  ['Hangar Rd','t',[[-440,-1870],[-540,-1870]]],['Hangar Rd','t',[[-540,-1870],[-555,-1870]]],['Barracks Rd','t',[[-540,-1870],[-540,-1810]]],
+  /* dirt tracks (each leaves its road through a gravel mouth, listed in M) */
+  ['Solar Track','d',[[0,-1300],[-42,-1300]]],['Scrap Track','d',[[0,-1340],[62,-1340]]],['Mesa Track','d',[[0,-1550],[-222,-1550]]],['Quarry Station Track','d',[[0,-1622],[-130,-1622]]],
+  ['Wind Farm Track','d',[[-440,-1265],[-480,-1265]]],['Mesa Station Track','d',[[-440,-1622],[-360,-1622]]],['Observatory Track','d',[[560,-1480],[592,-1480]]],
+  ['Quarry Track','d',[[-138,-1420],[-138,-1452],...drArc(-160,-1452,22,0,-62*Math.PI/180,8).slice(1)]],['Lake Track','d',[[250,-1420],[250,-1498]]],
+  ['Lake Station Track','d',[[320,-1420],[320,-1597],...drArc(295,-1597,25,0,-Math.PI/2,10).slice(1)]],['Main St','d',[[450,-1420],[450,-1628]]],['Speedway Track','d',[[300,-1900],[300,-1880]]]],
+ /* gravel mouths: [x, z, which way the track leaves, the asphalt road's half width] */
+ M:[[0,-1300,'W',4],[0,-1340,'E',4],[0,-1550,'W',4],[0,-1622,'W',4],[-440,-1265,'W',4],[-440,-1622,'E',4],[560,-1480,'E',4],[-138,-1420,'S',4],[250,-1420,'S',4],[320,-1420,'S',4],[450,-1420,'S',4],[300,-1900,'N',4]],
+ /* gorge bridges (x) and their rims */
+ B:[0,-440,560],RIM:[-1700,-1744],
+ /* the airfield road's turning circle */
+ TC:[[300,-1206,14]],
+ /* speed limits: per kind, km/h */
+ LIM:{h:90,t:50,d:40},
+ /* direction boards before four big junctions: [x, z, which way the board faces (ry), rows]. A board stands on the
+    right of the traffic it's for and faces it; arrows are as that driver sees them (in three.js a driver facing +z has +x on the LEFT) */
+ GS:[[7.6,-1080,0,[['◀','Pyramid Way · Penitentiary','0.7 km'],['▲','Gulch Rd · Dusty Gulch','0.8 km']]],[-7.6,-1460,Math.PI,[['◀','Gulch Rd · Dusty Gulch','0.5 km'],['▶','Gulch Rd · Coyote Rd','0.4 km'],['▲','Devil\'s Gorge','0.3 km']]],
+  [170,-1029.4,-Math.PI/2,[['▶','Fort Blackout','0.2 km'],['◀','Airfield','0.3 km']]],[552.4,-1080,Math.PI,[['▶','Sunset Blvd · Route 13','0.6 km'],['▲','Fort Blackout','0.1 km']]]]};
+function drNetwork(g){const k=drKit(),D=DROADS,J={},obs=[];
+ for(const id in D.J){const[x,z,arms,names]=D.J[id];J[id]=drJunction(g,x,z,arms);J[id].names=names;J[id].x=x;J[id].z=z;J[id].arms=arms}
+ /* every point a road may start from: junction arms (with shifts) and gravel mouths */
+ const anchors=[];for(const id in J)for(const d in J[id].arms)anchors.push({p:J[id].anchor(d),s:J[id].start(d)});
+ for(const[x,z,dir,h]of D.M){const m=drMouth(g,x,z,dir,h),[ux,uz]=DRDIR[dir];anchors.push({p:[x,z],s:[x+ux*m.len,z+uz*m.len]})}
+ /* several arms share a junction's centre: take the one pointing the way the road leaves */
+ const trim=(P)=>{const dx=P[1][0]-P[0][0],dz=P[1][1]-P[0][1];let a=null,best=-1e9;for(const A of anchors){if(Math.hypot(A.p[0]-P[0][0],A.p[1]-P[0][1])>=.5)continue;const v=(A.s[0]-A.p[0])*dx+(A.s[1]-A.p[1])*dz;if(v>best){best=v;a=A}}if(!a)return P;const out=[a.s];const L=Math.hypot(a.s[0]-a.p[0],a.s[1]-a.p[1]);for(let i=1;i<P.length;i++)if(Math.hypot(P[i][0]-a.p[0],P[i][1]-a.p[1])>L+.5)out.push(P[i]);return out};
+ const pieces=[];for(const[name,kind,pts]of D.P){let P=trim(pts);P=trim(P.slice().reverse()).reverse();if(P.length<2)continue;drPiece(g,P,kind);pieces.push({name,kind,P})}
+ for(const bx of D.B){const a=drBridgeEnd(g,bx,D.RIM[0],1),b=drBridgeEnd(g,bx,D.RIM[1],-1);obs.push(...a.obs,...b.obs)}
+ for(const[x,z,R]of D.TC)drTurnCircle(g,x,z,R);
+ /* street-name signs at every junction's first corner, turned square to the roads */
+ for(const id in J){const j=J[id];if(j.nameAt)drNameSign(g,j.nameAt[0],j.nameAt[1],0,j.names[0],j.names[1])}
+ /* speed limits 40 m after each junction on the right, facing the traffic, on pieces longer than 150 m */
+ for(const p of pieces){const F=drFrames(p.P),Lt=F[F.length-1].s;if(Lt<150||p.kind=='d')continue;const K=DRK[p.kind],off=K.w/2+K.sh+1.2;
+  for(const[s,back]of[[40,0],[Lt-40,1]]){const f=drAt(F,s),nl=Math.hypot(f.nx,f.nz)||1,sd=back?-1:1,x=f.x+f.nx/nl*off*sd,z=f.z+f.nz/nl*off*sd,ux=back?-f.tx:f.tx,uz=back?-f.tz:f.tz;drLimitSign(g,x,z,Math.atan2(-ux,-uz),D.LIM[p.kind])}}
+ for(const[x,z,ry,rows]of D.GS)drGuideSign(g,x,z,ry,rows);
+ return{J,obs,pieces}}
