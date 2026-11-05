@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-11-03 r669';
+const BUILD='2026-11-05 r670';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -8567,8 +8567,8 @@ function dailyDecor(r,th){const T2=DTH[th];if(!T2||!r.G||r.n===0)return;const H=
   else if(th=='christmas'){const bx=new THREE.Mesh(new THREE.BoxGeometry(.24,.2,.24),M([0xd02a2a,0x2a8a3a,0x2a5ad0][i%3]));m.add(bx);const rb=new THREE.Mesh(new THREE.BoxGeometry(.26,.21,.05),M(0xffd040,0x302000));m.add(rb);const rb2=rb.clone();rb2.rotation.y=Math.PI/2;m.add(rb2)}
   else{const bx=new THREE.Mesh(new THREE.BoxGeometry(.22,.06,.16),M(0x5a2a14));m.add(bx);const hr=new THREE.Mesh(new THREE.SphereGeometry(.06,8,6),M(0xe02a5a,0x300010));hr.position.y=.07;m.add(hr)}
   const gl=glowSp(T2.light[0],.5,.55);m.add(gl);r.dcol.push({x,z,m,got:0})}}
-function dailyColUpd(dt){if(!DAILY.on||!DAILY.th)return;const r=RMS[ci];if(!r||!r.dcol)return;for(const q of r.dcol){if(q.got)continue;q.m.rotation.y+=dt*2;q.m.position.y=.35+Math.sin(t*3+q.x)*.06;
-  if(Math.hypot(P.x-q.x,P.z-q.z)<1.35&&Math.abs(P.dy||0)<2.6){q.got=1;q.m.visible=false;DAILY.col=(DAILY.col|0)+1;snd(1400,.06);setTimeout(()=>snd(1900,.08),80);const T2=DTH[DAILY.th];hint(T2.colIc+' '+DAILY.col+' '+T2.col+' collected!')}}}
+const dcolW=new THREE.Vector3();function dailyColUpd(dt){if(!DAILY.on||!DAILY.th)return;for(let k=Math.max(0,ci-1);k<=ci+1;k++){const r=RMS[k];if(!r||!r.dcol)continue;for(const q of r.dcol){if(q.got)continue;q.m.rotation.y+=dt*2;q.m.position.y=.35+Math.sin(t*3+q.x)*.06;q.m.updateWorldMatrix(true,false);dcolW.setFromMatrixPosition(q.m.matrixWorld);
+  if(Math.hypot(P.x-dcolW.x,P.z-dcolW.z)<1.35&&Math.abs(P.dy||0)<2.6){q.got=1;q.m.visible=false;DAILY.col=(DAILY.col|0)+1;snd(1400,.06);setTimeout(()=>snd(1900,.08),80);const T2=DTH[DAILY.th];hint(T2.colIc+' '+DAILY.col+' '+T2.col+' collected!')}}}}
 
 /* ---------- holiday currency and the HOLIDAY SHOP (a stall in the Multiplayer Lobby) ----------
    Candy, presents and chocolates collected in holiday Daily Runs are kept, and spent here. The shop is open all year. */
@@ -15890,6 +15890,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r670',['Holiday Daily Runs: candy (and presents and chocolates) in turned or shifted rooms now spins and can be picked up again. It used to sit still and could not be collected']],
 ['r669',['Smoother desert: the batch watchdog no longer checks every piece of the Fort and other big places all at once every 8th frame (that was a short hitch about 5 times a second); it now checks a small slice every frame. Nothing looks different','The far scenery and the area batches need less upkeep, single scenery pieces only join once they stay still, and the area batches use less graphics memory']],
 ['r668',['Smoother desert: single scenery pieces (signs, boxes, posts, parts of buildings) are now drawn together in the area batches too, with their colours and pictures kept exactly. Anything that changes or moves draws itself again straight away. ?noabt1 in the address leaves single pieces out','Lag window: the Benchmark now says how many draw calls the people batching saves, and a few hitch reports are labelled better']],
 ['r667',['Smoother desert: scenery is now drawn in far fewer pieces. In each 144 m square, batches that only differ in glow, shine or picture are drawn together (the pictures are copied pixel for pixel), which cuts hundreds of draw calls in busy views. Nothing looks different. Add ?noabt to the address to compare','Lag window: a new Benchmark step compares with this switched off']],
