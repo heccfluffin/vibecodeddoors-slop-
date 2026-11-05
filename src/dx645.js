@@ -94,7 +94,9 @@ function dmScan(q){const per=new Map();for(const a of DMAREAS)per.set(a,[]);
   let t=u0+1.5;const seg=(p0,p1)=>{if(p1-p0<2)return;dash.push(hz?[p0,c,p1,c]:[c,p0,c,p1])};for(const[c0,c1]of cut){if(c1<t)continue;seg(t,Math.min(c0,u1-1.5));t=Math.max(t,c1)}seg(t,u1-1.5)}
  DM2.data={gr,rd,bld,wall,dash,bigS}}
 /* the area counts that, when they change, mean something was built or knocked down */
-function dmCount(q){let n=0;for(const o of q.obs){if(o.kd||o.veh||o.off||o.dest||o.dead)continue;if(dmArea((o.x0+o.x1)/2,(o.z0+o.z1)/2))n++}return n+'/'+((q.mapR||[]).length)}
+/* r673: obstacles that can be switched on and off (doors, gates, the prison fan...) are not counted: every door opening
+   or closing used to redraw the whole map background (25-50 ms in one frame). The map shows them as they were at the last redraw */
+function dmCount(q){let n=0;for(const o of q.obs){if(o.kd||o.veh||('off' in o)||o.dest||o.dead)continue;if(dmArea((o.x0+o.x1)/2,(o.z0+o.z1)/2))n++}return n+'/'+((q.mapR||[]).length)}
 /* is this spot inside a building (used by the map warp, so it never puts you inside one) */
 function dmInBld(x,z){const D=DM2.data;if(!D)return false;for(const b of D.bld)if(x>b.x0-.5&&x<b.x1+.5&&z>b.z0-.5&&z<b.z1+.5)return true;return false}
 
