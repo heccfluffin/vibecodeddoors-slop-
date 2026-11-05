@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) for review
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · parts 2 (F) and 3 (E, G) still to design
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -334,7 +334,7 @@ Room space: the mine room (walls at x ±4, roof 4 m). Rolled with the room (seed
   drop. `warn(true)` starts a trickle of dust (the 1.2 s warning), `fall(k)` (0 → 1 over 0.6 s) drops the stones, and
   at 1 a small heap stays (`obs`, as in the spec).
 
-### Batch 3: the creatures, for review · `dmRunCart`, `dmBats`, `dmBurrower`, `dmBurrowHole`, `dmSandGlass`, `dmMummyHand`
+### Batch 3: the creatures, approved 2026-11-05 · `dmRunCart`, `dmBats`, `dmBurrower`, `dmBurrowHole`, `dmSandGlass`, `dmMummyHand`
 - **The Runaway Cart** (`dmRunCart(1)`) and **the Runaway Train** (`dmRunCart(3)`): ore carts heaped with dark ore that
   glows red in the cracks, the front one with a big headlamp, a faint light cone (narrow at the lamp, widening and fading ahead) and two little red lamps; iron
   chains between the train's carts. Faces -z; move the group along Rush's path. `tick(t, speed)` spins the wheels,
