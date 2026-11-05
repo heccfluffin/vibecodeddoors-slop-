@@ -14,8 +14,12 @@
    Once an area batch has been drawn, the originals' copies on the graphics card are freed (they are sent again if
    an original ever has to draw itself), so memory stays about the same.
    ?noabt in the address turns it off.
+   r672: PARKED VEHICLES join too. A vehicle nobody is in, not moving, not wrecked and not on autopilot is looked inside:
+   its batched parts and its far shape join area batches of their own (432 m squares, as parked vehicles are spread out),
+   once they have looked and sat exactly the same at two looks. When it moves, its parts draw themselves that same frame;
+   it is not barred for good (it can join again once it stands still). ?noabtv turns this part off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
@@ -47,30 +51,38 @@ function abtKey(o){const m=o.material,g=o.geometry;if(!m||Array.isArray(m)||!g||
 function abtScanStep(q,ms){const t0=performance.now();let J=ABT.scan;
  if(!J){const veh=new Set();for(const v of q.vehs||[])if(v&&v.m)veh.add(v.m);const skip=new Set([q.sky,q.sun,q.zsky,q.zstar,q.bg,BUS._sky,BUS._sun,typeof SKN!='undefined'?SKN.g:null].filter(Boolean));
   for(const o of (q.dp&&q.dp.movers)||[])if(o&&o.isObject3D)skip.add(o);
-  ABT.scanN=(ABT.scanN|0)+1;J=ABT.scan={st:[q.g],veh,skip,G:new Map(),users:new Map(),tex:new Map(),lights:[],inv:new THREE.Matrix4().copy(q.g.matrixWorld).invert()}}
+  const vmap=new Map();for(const v of q.vehs||[])if(v&&v.m)vmap.set(v.m,v);
+  ABT.scanN=(ABT.scanN|0)+1;J=ABT.scan={st:[q.g],veh,vmap,inV:new Set(),skip,G:new Map(),users:new Map(),tex:new Map(),lights:[],inv:new THREE.Matrix4().copy(q.g.matrixWorld).invert()}}
  while(J.st.length){const o=J.st.pop();
-  for(const c of o.children){if(c.isLight){J.lights.push(c);continue}const u=c.userData||{};if(J.veh.has(c)||J.skip.has(c)||c.__mwKeep||u.dpKeep||u.dpDyn||u.mv||u.flv||u.fsc||u.skn||c.updateMatrixWorld!==_mwP)continue;
+  const iv=J.inV.has(o);
+  for(const c of o.children){if(c.isLight){J.lights.push(c);continue}const u=c.userData||{};
+   /* r672: a vehicle nobody is in and that is not moving is looked inside: its far shape and its batched parts can join */
+   if(J.veh.has(c)){if(ABT.veh&&abtParked(J.vmap.get(c))&&c.children.length){J.inV.add(c);J.st.push(c)}continue}
+   if(J.skip.has(c)||(!iv&&c.__mwKeep)||u.dpDyn||u.mv||u.fsc||u.skn||c.updateMatrixWorld!==_mwP)continue;
+   if((u.dpKeep||u.flv)&&!(iv&&c.isMesh&&u.flv&&u.dpMerged))continue;
    if(c.isMesh&&c.children.length===0&&(u.dpMerged||(ABT.ones&&!c.isSprite&&(c.layers.mask===1||c.layers.mask===64)))){const m=c.material;if(m&&m.map)J.users.set(m.map,(J.users.get(m.map)||0)+1);
     if(c.isSkinnedMesh||c.isInstancedMesh||c.onBeforeRender!==_abOBR||ABT.lively.has(c))continue;const k=abtKey(c);if(!k)continue;
     /* r669: a single piece joins only once it has looked and sat exactly the same at two looks in a row (8 s apart) */
-    if(!u.dpMerged){if(typeof mwFresh=='function')mwFresh(c);const sn=ABT.seen.get(c),now=ABT.scanN;
+    if(!u.dpMerged||iv){/* (a parked vehicle's parts too: it has to stand still for a look) */if(typeof mwFresh=='function')mwFresh(c);const sn=ABT.seen.get(c),now=ABT.scanN;
      if(!sn||sn.mat!==m||sn.geo!==c.geometry||!abtSigOK(m,sn.sig)||!abtSame(c.matrixWorld.elements,sn.mw)){ABT.seen.set(c,{mat:m,geo:c.geometry,sig:abtSig(m),mw:Float64Array.from(c.matrixWorld.elements),n:now});continue}
      if(sn.n>=now)continue}
     if(typeof mwFresh=='function')mwFresh(c);/* (pieces in hidden places are not kept up to date by the frame) */const g=c.geometry;if(!g.boundingSphere)g.computeBoundingSphere();_abV.copy(g.boundingSphere.center).applyMatrix4(c.matrixWorld).applyMatrix4(J.inv);
-    const ax=Math.floor(_abV.x/ABT.AREA),az=Math.floor(_abV.z/ABT.AREA),gk=ax+','+az+'#'+k;let e=J.G.get(gk);if(!e)J.G.set(gk,e={gk,k,ax,az,L:[]});e.L.push(c);
+    /* (parked vehicles are spread out, so they share bigger areas: 432 m) */const AR=iv?ABT.AREA*3:ABT.AREA,ax=Math.floor(_abV.x/AR),az=Math.floor(_abV.z/AR),gk=(iv?'V':'')+ax+','+az+'#'+k;let e=J.G.get(gk);if(!e)J.G.set(gk,e={gk,k,ax,az,ar:AR,L:[]});e.L.push(c);
     if(m.map){const tk=k.split('|')[1];let s=J.tex.get(tk);if(!s)J.tex.set(tk,s=new Set());s.add(m.map.image)}}
-   else if(c.children.length)J.st.push(c)}
+   else if(c.children.length){J.st.push(c);if(iv)J.inV.add(c)}}
   if(performance.now()-t0>ms)return false}
  return true}
 const _abOBR=THREE.Object3D.prototype.onBeforeRender;
+/* r672: a vehicle that can join: nobody in it, not moving, not wrecked (it must also stand exactly still for a look) */
+function abtParked(v){return !!(v&&v.m&&v.m.visible&&!(v.occ||[]).some(Boolean)&&!(Math.abs(v.sp||0)>.01)&&!v.wreck&&!v.gone&&!v.ap)}
 /* what to build or retire once a look is finished */
 function abtPlan(q){const J=ABT.scan;ABT.scan=null;ABT.users=J.users;ABT.lights=J.lights;ABT.texSeen=J.tex;_abV.copy(C.position).applyMatrix4(J.inv);const cx=_abV.x,cz=_abV.z,A=ABT.AREA;
- const dist=(ax,az)=>{const x0=ax*A,z0=az*A,dx=Math.max(x0-cx,0,cx-x0-A),dz=Math.max(z0-cz,0,cz-z0-A);return Math.hypot(dx,dz)};
- const want=new Map();for(const e of J.G.values())if(e.L.length>=2&&dist(e.ax,e.az)<=ABT.NEAR){e.L.sort((a,b)=>a.id-b.id);want.set(e.gk,e)}
+ const dist=(ax,az,a)=>{const A2=a||A,x0=ax*A2,z0=az*A2,dx=Math.max(x0-cx,0,cx-x0-A2),dz=Math.max(z0-cz,0,cz-z0-A2);return Math.hypot(dx,dz)};
+ const want=new Map();for(const e of J.G.values())if(e.L.length>=2&&dist(e.ax,e.az,e.ar)<=ABT.NEAR){e.L.sort((a,b)=>a.id-b.id);want.set(e.gk,e)}
  ABT.texNear=new Map();for(const e of want.values()){const tk=e.k.split('|')[1];if(!tk)continue;let S2=ABT.texNear.get(tk);if(!S2)ABT.texNear.set(tk,S2=new Set());for(const o of e.L)if(o.userData&&o.userData.dpMerged)S2.add(o.material.map.image)}
  /* batches already made: kept while their members are the same and nothing in them changed, else made again */
  const have=new Map();for(const b of ABT.B){let L=have.get(b.gk);if(!L)have.set(b.gk,L=[]);L.push(b)}
- for(const[gk,L]of have){const e=J.G.get(gk);const far=!e||dist(e.ax,e.az)>ABT.FAR;
+ for(const[gk,L]of have){const e=J.G.get(gk);const far=!e||dist(e.ax,e.az,e.ar)>ABT.FAR;
   if(far){for(const b of L)abtRetire(b);continue}
   const same=L[0].sig===e.L.map(o=>o.id).join(',')&&!L.some(b=>b.dirty);
   if(same)want.delete(gk);else if(!want.has(gk)&&e.L.length<2){for(const b of L)abtRetire(b)}}
@@ -117,13 +129,13 @@ function abtStart(q,e){const L=e.L.filter(o=>!ABT.mem.has(o)||ABT.mem.get(o).gk=
 function abtChunkInit(J,L){const q=J.q;let nv=0,ni=0;for(const o of L){const g=o.geometry;nv+=g.attributes.position.count;ni+=g.index?g.index.count:g.attributes.position.count}
  const src=L[0].material,T=src.type,X=!!src.map,ci=+J.e.k.split('|').pop();
  /* the batch's own place: the middle of its area, in the desert group's space */
- const A=ABT.AREA,ox=(J.e.ax+.5)*A,oz=(J.e.az+.5)*A;
+ const A=J.e.ar||ABT.AREA,ox=(J.e.ax+.5)*A,oz=(J.e.az+.5)*A;
  const inv=new THREE.Matrix4().copy(q.g.matrixWorld).invert();
  /* glow per vertex only if some member glows; roughness and metal per vertex only if they differ */
  const glow=T!=='MeshBasicMaterial'&&L.some(o=>{const m=o.material;return m.emissive&&m.emissive.getHex()!==0&&(m.emissiveIntensity==null?1:m.emissiveIntensity)>0});
  const rmv=T==='MeshStandardMaterial'&&L.some(o=>o.material.roughness!==src.roughness||o.material.metalness!==src.metalness);
  const c={L,i:0,nv,ni,vo:0,io:0,pos:new Float32Array(nv*3),nor:new Float32Array(nv*3),col:new Float32Array(nv*ci),ci,uv:X?new Float32Array(nv*2):null,aM:new Uint8Array(nv),aE:glow?new Float32Array(nv*3):null,aRM:rmv?new Float32Array(nv*2):null,aL:X?new Uint8Array(nv):null,
-  idx:nv>65535?new Uint32Array(ni):new Uint16Array(ni),inv,ox,oz,recs:[],arr:null,src,bad:false};
+  idx:nv>65535?new Uint32Array(ni):new Uint16Array(ni),inv,ox,oz,recs:[],arr:null,src,bad:false,veh:J.e.gk[0]==='V'};
  if(X){const tk=J.e.k.split('|')[1],onlyOne=!L.some(o=>o.userData&&o.userData.dpMerged);/* (pictures of single pieces only get a new array while the budget is under 60%) */c.arr=onlyOne&&!ABT.arrs.has(tk)&&ABT.texMB>ABT.TEXMB*.6?null:abtArr(tk,new Set(L.map(o=>o.material.map.image)).size);if(!c.arr)c.bad=true}
  return c}
 function abtChunkStep(c,ms,t0){while(c.i<c.L.length){const o=c.L[c.i],k=c.i++;const g=o.geometry,A=g.attributes,n=A.position.count,m=o.material;if(typeof mwFresh=='function')mwFresh(o);
@@ -142,14 +154,14 @@ function abtChunkStep(c,ms,t0){while(c.i<c.L.length){const o=c.L[c.i],k=c.i++;co
   if(c.aRM){for(let i=0;i<n;i++){c.aRM[(vo+i)*2]=m.roughness;c.aRM[(vo+i)*2+1]=m.metalness}}
   if(c.aL){const li=one?li1:abtLayer(c.arr,m.map,false);if(li<0){c.bad=true;return true}c.aL.fill(li,vo,vo+n)}
   const I=g.index;if(I){const ia=I.array;for(let i=0,l=I.count;i<l;i++)c.idx[c.io+i]=ia[i]+vo;c.io+=I.count}else{for(let i=0;i<n;i++)c.idx[c.io+i]=vo+i;c.io+=n}
-  c.vo+=n;c.recs.push({o,par:o.parent,geo:g,mat:m,pv:A.position.version,chg:o.__mwchg|0,mw:Float64Array.from(o.matrixWorld.elements),fb:false,i:k,tex:m.map||null,freed:false,one,sig:one?abtSig(m):null,av:one?abtAv(g):0,idx0:g.index});
+  c.vo+=n;c.recs.push({o,par:o.parent,geo:g,mat:m,pv:A.position.version,chg:o.__mwchg|0,mw:Float64Array.from(o.matrixWorld.elements),fb:false,i:k,tex:m.map||null,freed:!!c.veh,veh:!!c.veh,one,sig:one?abtSig(m):null,av:one?abtAv(g):0,idx0:g.index});
   if(performance.now()-t0>ms)return c.i>=c.L.length}
  return true}
 function abtChunkMesh(c,gk){const g=new THREE.BufferGeometry();if(c.vo<c.nv){const v=c.vo;c.pos=c.pos.subarray(0,v*3);c.nor=c.nor.subarray(0,v*3);c.col=c.col.subarray(0,v*c.ci);if(c.uv)c.uv=c.uv.subarray(0,v*2);c.aM=c.aM.subarray(0,v);if(c.aE)c.aE=c.aE.subarray(0,v*3);if(c.aRM)c.aRM=c.aRM.subarray(0,v*2);if(c.aL)c.aL=c.aL.subarray(0,v);c.idx=c.idx.subarray(0,c.io)}g.setAttribute('position',new THREE.BufferAttribute(c.pos,3));g.setAttribute('normal',new THREE.BufferAttribute(c.nor,3));g.setAttribute('color',new THREE.BufferAttribute(c.col,c.ci));
  if(c.uv)g.setAttribute('uv',new THREE.BufferAttribute(c.uv,2));g.setAttribute('aM',new THREE.BufferAttribute(c.aM,1));if(c.aE)g.setAttribute('aE',new THREE.BufferAttribute(c.aE,3));if(c.aRM)g.setAttribute('aRM',new THREE.BufferAttribute(c.aRM,2));if(c.aL)g.setAttribute('aL',new THREE.BufferAttribute(c.aL,1));
  g.setIndex(new THREE.BufferAttribute(c.idx,1));g.computeBoundingSphere();
  const n=c.L.length,vis=new Uint8Array(n*4),vt=new THREE.DataTexture(vis,n,1,THREE.RGBAFormat);vt.magFilter=vt.minFilter=THREE.NearestFilter;vt.generateMipmaps=false;vt.needsUpdate=true;
- const mat=abtMat(c.src,c.arr,vt,n,!!c.aE,!!c.aRM);const mesh=new THREE.Mesh(g,mat);mesh.__abt=1;mesh.matrixAutoUpdate=false;mesh.matrix.makeTranslation(c.ox,0,c.oz);mesh.name='area batch';
+ const mat=abtMat(c.src,c.arr,vt,n,!!c.aE,!!c.aRM);const mesh=new THREE.Mesh(g,mat);mesh.__abt=1;if(c.veh)mesh.__abtV=1;mesh.matrixAutoUpdate=false;mesh.matrix.makeTranslation(c.ox,0,c.oz);mesh.name='area batch';
  /* (the big arrays are not needed once they are on the graphics card) */for(const k in g.attributes)g.attributes[k].onUpload(function(){this.array=null});g.index.onUpload(function(){this.array=null});
  return{gk,mem:c.recs,mesh,mat,vis,vt,arr:c.arr,dirty:false,drawn:false,sw:new THREE.Sphere(),swq:-1}}
 function abtRetire(b){const i=ABT.B.indexOf(b);if(i>=0)ABT.B.splice(i,1);for(const r of b.mem)if(ABT.mem.get(r.o)===b)ABT.mem.delete(r.o);try{b.mesh.geometry.dispose();b.mat.dispose();b.vt.dispose()}catch(e){}}
@@ -195,7 +207,7 @@ function abtMid(){if(!ABT.act)return;const t0=performance.now(),q=ABT.q,fr=++ABT
    /* (a single piece's look every frame, once per material; its vertex data a quarter of the pieces each frame) */
    if(r.one&&!r.fb){const mm=r.mat;if(mm.__abq!==fr){mm.__abq=fr;mm.__abok=abtSigOK(mm,r.sig)}let w=!mm.__abok?'look':((r.i+fr)&3)===0&&(abtAv(r.geo)!==r.av||r.geo.index!==r.idx0)?'shape changed':null;
     if(w){ABT.why[w]=(ABT.why[w]||0)+1;if(w==='look')ABT.livelyMat.add(mm);ABT.lively.add(o);r.fb=true;b.dirty=true;ABT.dirty=true;ABT.st.fb++}}/* (its place was worked out again, to the same numbers) */
-   if(!r.fb&&(o.parent!==r.par||o.geometry!==r.geo||o.material!==r.mat||(o.__mwchg|0)!==r.chg||(((r.i+fr)&3)===1&&r.geo.attributes.position.version!==r.pv))){const w=o.parent!==r.par?'group':o.geometry!==r.geo?'shape replaced':o.material!==r.mat?'material':r.geo.attributes.position.version!==r.pv?'shape changed':'moved';ABT.why[w]=(ABT.why[w]||0)+1;if(w==='moved'||w==='group')ABT.lively.add(o);r.fb=true;b.dirty=true;ABT.dirty=true;ABT.st.fb++}
+   if(!r.fb&&(o.parent!==r.par||o.geometry!==r.geo||o.material!==r.mat||(o.__mwchg|0)!==r.chg||(((r.i+fr)&3)===1&&r.geo.attributes.position.version!==r.pv))){const w=o.parent!==r.par?'group':o.geometry!==r.geo?'shape replaced':o.material!==r.mat?'material':r.geo.attributes.position.version!==r.pv?'shape changed':'moved';ABT.why[w]=(ABT.why[w]||0)+1;if((w==='moved'||w==='group')&&!r.veh)ABT.lively.add(o);if(r.veh)ABT.seen.delete(o);r.fb=true;b.dirty=true;ABT.dirty=true;ABT.st.fb++}
    let dr=!r.fb&&o.visible&&(o.layers.mask&1)!==0&&r.mat.visible;if(dr){const p=r.par;dr=p.__abf===fr?p.__abv:abtVis(p,q,fr)}
    const v=dr?255:0;if(V[r.i*4]!==v){V[r.i*4]=v;ch=true}
    if(dr){any=true;nm++;o.__abX=fr;const p=r.par;if(p.__abH!==fr){p.__abH=fr;p.__abK=0;p.__abC=0;ps.push(p)}p.__abK+=o.id;p.__abC++}}}
@@ -225,14 +237,14 @@ if(typeof BAKE!='undefined'){BAKE.mids.push(()=>abtMid());BAKE.posts.push(()=>ab
   if(ABT.on&&ABT.ok&&q&&q.g&&!q.ld&&q.dp&&q.dp.merged&&MWC.on&&MWX.on&&BAKE.on)abtTick(q);else if(ABT.B.length)abtForget()}
  catch(e){conLog('error','area batches: '+e.message);ABT.on=false;try{abtForget()}catch(x){}}return r}}
 /* for testing: look everywhere and make everything now */
-function abtForce(){const q=BUS.ride;if(!q)return null;ABT.force=true;ABT.scanT=-1e9;ABT.scan=null;try{for(let i=0;i<50&&(ABT.scan||ABT.queue.length||ABT.job||i===0);i++)abtTick(q)}finally{ABT.force=false}return{batches:ABT.B.length,members:ABT.mem.size,textureMB:Math.round(ABT.texMB),arrays:ABT.arrs.size}}
+function abtForce(){const q=BUS.ride;if(!q)return null;ABT.force=true;/* (two looks: pieces that must look the same twice) */try{for(let k=0;k<2;k++){ABT.scanT=-1e9;ABT.scan=null;for(let i=0;i<50&&(ABT.scan||ABT.queue.length||ABT.job||i===0);i++)abtTick(q)}}finally{ABT.force=false}return{batches:ABT.B.length,members:ABT.mem.size,textureMB:Math.round(ABT.texMB),arrays:ABT.arrs.size}}
 /* the lag window: own time, a switch to compare, a draw-call kind, and a line per Benchmark view */
 LAGSYS.push(['abt','Scenery area batches (upkeep)']);
 {const t0=abtTick;abtTick=function(){if(!LAG.open)return t0.apply(this,arguments);const u=ABT.up;try{return t0.apply(this,arguments)}finally{const d=ABT.up-u;LAG.sys.abt=(LAG.sys.abt||0)+d;LAG.cur.abt=(LAG.cur.abt||0)+d}}}
 {const m0=abtMid;abtMid=function(){if(!LAG.open)return m0.apply(this,arguments);const u=ABT.up;try{return m0.apply(this,arguments)}finally{const d=ABT.up-u;LAG.sys.abt=(LAG.sys.abt||0)+d;LAG.cur.abt=(LAG.cur.abt||0)+d}}}
 if(ABT.on)LAGHIDE.push(['noabt','Nothing, but scenery area batches off (r667 off, to compare)']);
 {const ls=lagSet;lagSet=function(k){if(k==='noabt')return[];return ls.apply(this,arguments)}}
-{const lc=lagCats;lagCats=function(q){const r=lc.apply(this,arguments);if(r&&r.cat){const c0=r.cat;r.cat=o=>o&&o.__abt?'scenery area batches':c0(o)}return r}}
+{const lc=lagCats;lagCats=function(q){const r=lc.apply(this,arguments);if(r&&r.cat){const c0=r.cat;r.cat=o=>o&&o.__abt?(o.__abtV?'parked vehicles (area batches)':'scenery area batches'):c0(o)}return r}}
 {const lr=lagRun;lagRun=async function(){const A=await lr.apply(this,arguments);if(A)A.abt={b:ABT.B.length,d:ABT.st.drawn,m:ABT.st.drawnMembers,mb:Math.round(ABT.texMB),fb:ABT.st.fb,why:Object.entries(ABT.why).map(([k,v])=>k+' '+v).join(', ')};return A}}
 {const ll=lagLimit;lagLimit=function(A){let s=ll.apply(this,arguments);try{if(ABT.on&&A&&A.abt)s='Scenery area batches: '+A.abt.b+' made, '+A.abt.d+' drawn this frame for '+A.abt.m+' original batches (pictures '+A.abt.mb+' MB, '+A.abt.fb+' originals went back to drawing themselves'+(A.abt.why?': '+A.abt.why:'')+')\n'+s;
   s=s.replace(/Hide nothing, but scenery area batches off \(r667 off, to compare\)/g,'Scenery area batches off (r667 switched off, to compare)')}catch(e){}return s}}

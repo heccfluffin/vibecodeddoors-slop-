@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r672',['Desert speed-up: parked cars, planes and helicopters that nobody is in and that have stood still for a while are now drawn together with the scenery around them (fewer draw calls). A vehicle that moves goes straight back to being drawn on its own','?noabtv in the address turns this off, to compare']],
 ['r671',['Single scenery pieces no longer join the area batches (your benchmark showed the same speed without them, and they used more graphics memory). Add ?abt1 to the address to turn them back on']],
 ['r670',['Holiday Daily Runs: candy (and presents and chocolates) in turned or shifted rooms now spins and can be picked up again. It used to sit still and could not be collected']],
 ['r669',['Smoother desert: the batch watchdog no longer checks every piece of the Fort and other big places all at once every 8th frame (that was a short hitch about 5 times a second); it now checks a small slice every frame. Nothing looks different','The far scenery and the area batches need less upkeep, single scenery pieces only join once they stay still, and the area batches use less graphics memory']],
