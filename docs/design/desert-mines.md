@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · part 2 (F) plan approved 2026-11-05, models batch 1 (the looks and the stations) for review · part 3 (E, G) still to design
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · part 2 (F) plan approved 2026-11-05, models batch 1 (the looks and the stations) approved 2026-11-05, batch 2 (the working rooms) for review · part 3 (E, G) still to design
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -446,7 +446,7 @@ tunnels):
 
 ## Part 2 models (`models/desert-mines.js`, the same file as part 1)
 
-### Batch 1: the five looks and the cage stations, for review · `DMLV`, `dmShell`, `dmDress`, `dmFloorMat`, `dmStation`, `dmCage`, `dmManway`, `dmManwayFoot`
+### Batch 1: the five looks and the cage stations, approved 2026-11-05 · `DMLV`, `dmShell`, `dmDress`, `dmFloorMat`, `dmStation`, `dmCage`, `dmManway`, `dmManwayFoot`
 **What's in it:**
 - **The rough rock shell** for every mine room: lumpy walls that bulge out up to 0.3 m, and a vaulted roof (higher on
   levels 2 and 5). Both end walls have their door holes. It only ever goes outwards from the room's box, so the box
@@ -540,5 +540,64 @@ tunnels):
     80.
   - Co-op: each player climbs on their own.
 - **Badges:** "Five Levels Down" when you reach the foot of the ladder.
+
+### Batch 2: the working rooms, for review · `dmMagazine`, `dmLampRoom`, `dmCanteen`, `dmOffice`, `dmChute`, `dmPump`
+Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 1) with one big thing against one wall.
+
+**What's in it:**
+- **Powder magazine:**
+  - a red iron cupboard with two doors, warning triangles and a "DANGER · EXPLOSIVES" plate;
+  - inside: two crates of explosives and a tray of four dynamite sticks;
+  - a fire bucket on a hook, and a "NO NAKED LIGHTS" sign on a post.
+- **Lamp room:**
+  - a three-shelf rack of miners' lamps, with a few gaps;
+  - the "LAMP CHECKS" tally board, with brass tags on hooks and some missing;
+  - a blue oil drum on a timber cradle, with a brass tap and a drip tray;
+  - a workbench with a funnel and a lit lantern.
+- **Canteen:**
+  - a table and two benches, with lunch tins and mugs;
+  - an iron stove with a glowing door, a kettle and a chimney up into the rock;
+  - a dresser with four drawers and plates on its rack;
+  - a notice board ("NO SNAP ON THE TRACKS", "WASH YOUR HANDS", "LAMPS BACK BY 6").
+- **Old office:**
+  - a desk with six drawers, papers, an inkwell and a lit lamp, and a chair;
+  - a filing cabinet and a shelf of ledgers;
+  - the level plan on a board: five rooms in a row, the gas ones marked with a green cloud and "GAS" in red.
+- **Ore chute:**
+  - a timbered box hole high in the wall;
+  - a plank trough sloping down to a sliding gate, on two legs;
+  - a lever;
+  - a small tub on a spur of track under the mouth.
+
+  When it pours, lumps rattle down the trough and the heap in the tub grows.
+- **Pump room:**
+  - a brick plinth with the steam cylinder, a red valve wheel and a pressure gauge;
+  - a 1.8 m flywheel with a crank;
+  - an A-frame with a rocking beam, its pump rod going down into a timber sump box of dark water;
+  - a riser pipe up the wall, and steam from the exhaust pipe.
+
+  When it runs, the wheel turns, the beam rocks, the needle rises and the water trembles.
+
+**Wiring (Claude Code):**
+- **Placing a thing:**
+  - Each is called with the room's group and `{side, z, HX}` (the chute also takes the room's shell). It stands
+    against that wall, centred at `z`.
+  - Put it midway between two timber sets, and leave out any set that falls within its length. The lengths along the
+    wall are: magazine 2.2 m, lamp room 6.5 m, canteen 8 m, office 6.5 m, chute 3.5 m, pump 6.5 m.
+  - Call `dmDress` with `noProps: true` in these rooms, so the random barrel, tools, bones and carved block stay out
+    of the way.
+  - Add `obs` to the room. Each thing returns its own `props` for its press-E spots.
+  - `lights` are spots for pool lights: take them from the pool, don't add lights.
+- **Powder magazine** (`what: 'magazine'`): E opens the doors (`parts.doors(k)` over 0.8 s) and gives you one
+  dynamite stick, once per player. Hide one of `parts.sticks` for each stick taken. Never in a gas room or next to one.
+- **Lamp room** (`'oil'`): E at the drum fills your lantern, once per player (a glug sound).
+- **Canteen** (`'kettle'`): a joke. "The kettle's still warm. Someone was here not long ago." The four dresser drawers
+  (`parts.drawers`) are ordinary drawer spots for the game's drawer loot.
+- **Old office** (`'map'`, `'desk'`): build the map with `parts.map(rooms)`. Rooms are the next five rooms after this
+  one, `{gas: true}` for the gas rooms (known from the seeded roll). The desk is a drawer spot.
+- **Ore chute** (`'chute'`): E pulls the lever and opens the gate (`parts.gate(1)`). Over 6 s, `parts.pour(k)` runs
+  from 0 to 1 and each player gets one free ore of the level's ore table. +4 noise (the Burrower). Once per room.
+- **Pump room** (`'pump'`): hold E on the valve for 4 s. `parts.run(k)` eases to 1 over 3 s; call `tick(t, dt)` each
+  frame while near. The next flooded passage (part 1's blocker) on this level is already drained when you reach it.
 
 # Part 3 (E, G): shuffled set pieces, the Company Store and contracts: plan after part 2
