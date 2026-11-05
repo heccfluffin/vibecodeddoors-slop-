@@ -23,15 +23,15 @@ function rrCoach(){const g=new THREE.Group(),k=lkKit(),M=k.M,
  const plank=afCanvas(256,256,(c,w,h)=>{c.fillStyle='#8a6038';c.fillRect(0,0,w,h);for(let y=0;y<h;y+=32){c.fillStyle='rgba(0,0,0,'+(.08+Math.random()*.1)+')';c.fillRect(0,y,w,32);c.fillStyle='rgba(30,18,8,.6)';c.fillRect(0,y,w,2)}for(let i=0;i<300;i++){c.fillStyle='rgba(40,24,10,.25)';c.fillRect(Math.random()*w,Math.random()*h,8+Math.random()*30,1)}});
  plank.wrapS=plank.wrapT=THREE.RepeatWrapping;const PL=new THREE.MeshStandardMaterial({map:plank,roughness:.8});
  /* ---- underframe ---- */
- B(14,.3,2.5,0,1.15,0,DK);
+ B(13.96,.3,2.5,0,1.15,0,DK);
  for(const s of[-1,1]){/* truss rods with queen posts */for(const qx of[-1.6,1.6])B(.08,.45,.08,qx,.8,s*1.0,DK);for(const[a,b]of[[[-5.2,1.0],[-1.6,.58]],[[-1.6,.58],[1.6,.58]],[[1.6,.58],[5.2,1.0]]]){const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);const r=add(new THREE.CylinderGeometry(.025,.025,len,6),ST,[(a[0]+b[0])/2,(a[1]+b[1])/2,s*1.0]);r.rotation.z=-Math.atan2(dx,dy)}}
  B(1.4,.5,.8,0,.8,0,DK);/* battery box */B(.9,.35,.5,2.4,.85,-.5,DK);/* brake cylinder */
  const wheels=[...rrBogie(g,-4.8,M),...rrBogie(g,4.8,M)];rrCoupler(g,6.95,1,M);rrCoupler(g,-6.95,-1,M);
  /* ---- the body: floor, walls with windows, end walls with doors ---- */
- {const f=add(new THREE.BoxGeometry(L,.08,2*HW),PL,[0,FL+.04,0]);const uv=f.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*6,uv.getY(i)*1.5)}
+ {const f=add(new THREE.BoxGeometry(L,.08,2*(HW-WT)),PL,[0,FL+.04,0])/* edges stay inside the side walls */;const uv=f.geometry.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*6,uv.getY(i)*1.5)}
  const NW=8,SP=L/NW,WW=.95;/* windows: eight a side, 1.5 m apart */
  for(const s of[-1,1]){const z=s*(HW-WT/2);
-  B(L,Y1-FL,WT,0,(FL+Y1)/2,z,GRN);/* lower panels */B(L,.06,WT+.02,0,Y1+.03,z,CRM);/* sill */
+  B(L,Y1-FL,WT,0,(FL+Y1)/2,z,GRN);/* lower panels */B(L+.02,.06,WT+.02,0,Y1+.02,z,CRM);/* sill */
   B(L,TOP-Y2,WT,0,(Y2+TOP)/2,z,GRN);/* the letterboard above the windows */
   for(let i=0;i<=NW;i++){const x=-L/2+i*SP,w=i==0||i==NW?(SP-WW)/2:SP-WW;const cx=i==0?-L/2+w/2:i==NW?L/2-w/2:x;B(w,Y2-Y1,WT,cx,(Y1+Y2)/2,z,CRM)}
   for(let i=0;i<NW;i++){const x=-L/2+SP*(i+.5);add(new THREE.PlaneGeometry(WW,Y2-Y1),GLS,[x,(Y1+Y2)/2,z],[0,s>0?0:Math.PI,0]);B(WW,.05,.03,x,(Y1+Y2)/2+.1,z+s*.03,CRM);/* sash bar */}
@@ -41,13 +41,13 @@ function rrCoach(){const g=new THREE.Group(),k=lkKit(),M=k.M,
  /* end walls with a doorway in the middle; the doors stand open, folded back inside */
  for(const e of[-1,1]){const x=e*(L/2-WT/2),DW=.8,DH=2.05;
   for(const zs of[-1,1]){const w=HW-WT-DW/2;B(WT,TOP-FL-.08,w,x,(FL+.08+TOP)/2,zs*(DW/2+w/2),GRN)}B(WT,TOP-FL-DH,DW,x,FL+DH+(TOP-FL-DH)/2,0,GRN);
-  B(WT+.02,.06,DW+.12,x,FL+DH+.03,0,CRM);
+  B(WT+.02,.06,DW+.12,x,FL+DH+.02,0,CRM);
   const dr=new THREE.Group();dr.position.set(x-e*.04,FL,DW/2);dr.rotation.y=e>0?1.45:-1.45;g.add(dr);B(.05,DH-.02,DW-.02,0,(DH)/2,-(DW-.02)/2,WD,dr);add(new THREE.PlaneGeometry(.5,.6),GLS,[e>0?.03:-.03,1.45,-(DW-.02)/2],[0,Math.PI/2,0],dr);B(.06,.06,.12,e>0?.04:-.04,1.0,-(DW-.1),BR,dr)}
  /* ---- the roof: an arched main roof over everything, the clerestory on top ---- */
  {const RL=14.2,R=2.2,ang=Math.asin((HW+.12)/R),ge=new THREE.CylinderGeometry(R,R,RL,24,1,true,-ang,2*ang);ge.rotateZ(Math.PI/2);ge.rotateX(-Math.PI/2);
   /* the arc's centre sits so its edges meet the wall tops */const cy=TOP-R*Math.cos(ang)+.02;const rf=add(ge,ROOF,[0,cy,0]);rf.material=ROOF.clone();rf.material.side=THREE.DoubleSide;
   B(L-.6,.48,1.3,0,cy+R+.12,0,GRN);B(L-.4,.06,1.5,0,cy+R+.39,0,ROOF);/* clerestory and its cap */
-  for(const s of[-1,1])for(let i=0;i<10;i++){add(new THREE.PlaneGeometry(.5,.22),M(0x1a2a2a,{roughness:.2,metalness:.2}),[-L/2+.9+i*1.15,cy+R+.14,s*.652],[0,s>0?0:Math.PI,0])}
+  for(const s of[-1,1])for(let i=0;i<10;i++){add(new THREE.PlaneGeometry(.5,.22),M(0x1a2a2a,{roughness:.2,metalness:.2}),[-L/2+.9+i*1.15,cy+R+.14,s*.665],[0,s>0?0:Math.PI,0])}
   for(const s of[-1,1])B(RL,.08,.06,0,TOP+.02,s*(HW+.1),DK);/* drip rails */}
  /* ---- the end platforms: decking, railings with a gap and a gate, steps down both sides, grab rails ---- */
  for(const e of[-1,1]){const x0=e*L/2,x1=e*7,cx=(x0+x1)/2;
