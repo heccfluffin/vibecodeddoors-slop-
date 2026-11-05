@@ -6,11 +6,12 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 |---|---|---|
 | `hotel-loop.md` | the hotel run: part 1 (A, C, E, F, G, H) and part 2 (four floors and their looks, the lift lobby, Halt, Timothy, Eyes) | `models/hotel.js` |
 | `hotel-rooms.md` | twenty new hotel room types, the jog room, more turns, floor room pools, the room-roll bug fix (all four batches approved) | `models/hotel-rooms.js` (needs `hotel.js`) |
+| `desert-roads.md` | **parts 1-3**: the tidied layout (prison road, the Fort link, Sunset Blvd straight, curves, the stubs and jogs gone), one road look (highways, town roads, dirt tracks; junctions with rounded corners, stop lines and signs; bridge ends with guard rails; street names, speed limits, direction boards), and AI cars that keep to their lane, give way and follow the roads | `models/desert-roads.js` (needs `fort-kit.js`) |
 | `desert-mines.md` | **part 1 only** (A, B, C, D, H): real mining with ore veins and the ore cart, seven kinds of blocked doors, room dangers (gas, rockfall, oil), the three creatures (Runaway Cart, bats, the Burrower) and the curse, and the fixes. Parts 2 and 3 are still being designed | `models/desert-mines.js` (needs `fort-kit.js`, `route13.js`, `mesa-gorge.js`) |
 | `silo.md` | **urgent part first**: part 1 fixes being stuck in Silo 1 (the walkable rooms don't join). Part 2 is the new look: rack-and-pinion freight lift, arched tunnel with Blast Door 1, the shaft at the surface tube's size, see-through catwalk, umbilical arm, missile cradle, and the open lid showing the real shaft | `models/silo.js` (needs `fort-kit.js`; the preview also uses `weapons.js` and `fort-mid.js`) |
 
 
-In progress (design): the desert mines (`desert-mines.md` parts 2 and 3), the desert road layout (`desert-roads.md`, plan approved, road models next), railway stations (`railway.md`, plan approved, models after the roads).
+In progress (design): the desert mines (`desert-mines.md` parts 2 and 3), railway stations (`railway.md`, plan approved, models after the roads).
 
 Still to design: the desert mines loop and remodel.
 

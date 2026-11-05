@@ -1,4 +1,4 @@
-Status: part 1 (the layout plan) approved 2026-11-05, right-hand traffic · part 2 (the road look: models) batch 1 approved 2026-11-05, batch 2 (the whole network, bridge ends, signs) for review · part 3 (AI on the roads) after that
+Status: part 1 (the layout plan) approved 2026-11-05, right-hand traffic · part 2 (the road look: models) batch 1 and 2 approved 2026-11-05 · part 3 (AI on the roads) written 2026-11-05 · **parts 1-3 ready to build**
 
 # Desert roads: a tidy layout, one look, and AI that drives on them
 
@@ -57,20 +57,62 @@ One builder, `drBuild`, from one table `DROADS` (each road: name, kind, a centre
 - The bus road, the patWorld boxes and the xroads strips are all replaced; Fort streets keep `fbRoad` but are recorded
   at their real widths.
 
-## Part 3: AI on the roads (after part 2)
-- `DROADS` also makes a **road graph**: junctions and road ends as nodes, lanes as paths (right-hand traffic: lane
-  centre 2 m right of the centre line on highways and town roads; the middle on dirt).
-- Routes: from the car to the nearest road, along the graph (shortest time, speed limit per road), off the road only
-  for the last stretch. `navReq` asks the graph first and falls back to the grid.
-- Driving: slow for curves and junctions (speed from the curve's radius), give way at T junctions to the through road,
-  stop at stop lines when something is crossing, keep a 2 s gap behind the car ahead in the same lane, pass a stopped
-  car only when the other lane is clear.
-- Traffic loops, Highway Patrol, Seek's patrols and the police beats become lists of road names or junctions, so they
-  follow any later change to the layout by themselves.
-- Speed limits: highways 90 km/h, town 50, dirt 40 (the cars' own top speed still caps them).
+## Part 3: AI on the roads (for Claude Code; no models)
+Today the traffic cars (`LA/LB/LC` in `xpVehicles`), the Highway Patrol (`HWPR`), the police beats (`PCRB`, dx608) and
+Seek's patrol (`PATR`) follow hand-typed point lists with a fixed 1.8 m side offset; everyone else plans on the 3 m
+route grid (`navReq`/`navSteer`), which likes road cells but doesn't know lanes, junctions or who goes first.
+The shared driver `aiCtl` (dx601) stays: this part gives it a road to follow.
+
+**1. The road graph (`DRG`), made from `DROADS` when the desert loads (same data on every player's game):**
+- Nodes: the junctions (by id) and every road end. Edges: the pieces, after `drNetwork`'s trimming, as their centre
+  lines (points every 5 m, from `drDense`), with kind, name and length.
+- Lanes: right-hand traffic. A driver facing (dx, dz) has their right hand towards (-dz, dx) in three.js, so each
+  edge has two lane lines: the centre line moved 2 m to the right of its direction (1.75 m on town roads). Dirt
+  tracks have one lane down the middle; two cars meeting there each move 1.2 m to their right and slow to 25 km/h.
+- Turns inside a junction: for every pair (arm in, arm out), a curved path from the incoming lane's end to the
+  outgoing lane's start (a quadratic curve whose control point is where the two lane lines cross; for a straight-on
+  it's a line). A right turn hugs the kerb corner; a left turn crosses in front of the oncoming lane's stop point.
+  U-turns at junctions only where nothing else works (dead-end roads use the turning circle or a three-point turn).
+- Each lane point carries: speed limit (DROADS.LIM), whether it's a stop line (minor arms) and the junction it
+  enters. Stop lines are 0.6 m before the painted bar.
+
+**2. Planning a route (`drRoute(from, to)`):**
+- From where the car is to the nearest lane point that goes the right way (within 30 m; further off-road, use the
+  grid for that first leg), then the graph (A* on travel time = length / speed limit, plus 4 s for each turn across
+  traffic), then off the road at the point nearest the goal and the grid for the last leg (buildings, car parks).
+- `navReq` asks `drRoute` first and falls back to the grid when there's no road near the start or the goal (the
+  Fort's streets stay on `bgPath`; the mesa and quarry ramps keep their route-grid levels).
+- The point lists become waypoints: `LA/LB/LC`, `HWPR`, `PCRB` and `PATR` keep their points (and their 'stop' and
+  'end' tags), but each point snaps to the nearest lane and the legs between them are routed on the graph. Later
+  road changes then never leave a patrol cutting across the sand.
+
+**3. Driving (a wrapper round `aiCtl` for cars on a road route):**
+- Look-ahead point 6 m + 0.6 s of travel along the lane path (`navSteer` style).
+- Speed: the lowest of the road's limit, the car's own top speed, the bend speed (sqrt(4 x radius) m/s, radius from the
+  next 30 m of path) and 25 km/h for the last 15 m before a turn at a junction.
+- **Stop lines:** a car on a minor arm stops (0.5 s), then goes when no car on the main road will reach the junction
+  in the next 4 s (cars within 60 m on the lanes that cross or join its path). On the main road it goes straight
+  through; turning left across the oncoming lane it waits at the middle until that lane is clear for 3 s.
+- **Following:** the nearest car ahead in the same lane (within 50 m): keep 2 s plus 6 m; brake harder when closing
+  fast. Horn (the traffic cars' existing honk) when stuck behind a stopped car for 5 s.
+- **Passing a stopped car** (stopped 3 s or more, not at a stop line or a level crossing): when the other lane is
+  clear for 80 m, swing out round it and back.
+- Level crossings: `xgPass` already holds AI cars at the gates; the lane path makes them stop square in their lane.
+- Chases and getaways ignore stop lines and limits (police with lights on, crooks fleeing, squads on a hot job) but
+  still use the roads to plan; anything that loses the road (pushed off, wrecked and respawned) replans.
+- The player's own autopilot uses the same routes and keeps the limits only in its "careful" mode (dx604's L cycles
+  modes; add the limits to the existing slow mode).
+
+**4. Co-op:** the same host rules as now (lowest id drives traffic and patrols); the graph is built identically on
+every game, so nothing new is sent.
+
+**5. Checks (short, by simulation like r605, no rendering):** a car from the town to Dusty Gulch, to the prison and to
+Zone 51 by road (time, never off the asphalt except the last leg); two cars meeting at a T (the minor one waits);
+a car following another at 2 s; the three traffic loops and the Highway Patrol for 10 game minutes without getting
+stuck; a car turning out of each staggered junction (Motel/drive-in, Sunset/Depot).
 
 ## Has to move with it (for Claude Code)
-The AI routes above; the street signs `S`; `xpCover` keeps clear of the new roads by itself (it follows mapR);
+The AI routes above (they keep their points, snapped to the lanes); the old street signs `S` (replaced by drNetwork's name signs); `xpCover` keeps clear of the new roads by itself (it follows mapR);
 the map (`dm2Draw`) should read `DROADS` for road shapes and kinds; `NAV` road cells from `DROADS`.
 
 ### Batch 1: pieces, junctions, dirt track mouths, approved 2026-11-05 · `drPiece`, `drJunction`, `drMouth`, `drStopSign`
@@ -87,7 +129,7 @@ the map (`dm2Draw`) should read `DROADS` for road shapes and kinds; `NAV` road c
   to that side: the AI's lane centre is 2 m that way from the centre line (part 3).
 - Everything is flat at y .06 (the old strips' height), with lines nudged by `polygonOffsetUnits` only.
 
-### Batch 2: the whole network, bridge ends, signs, for review · `DROADS`, `drNetwork`, `drBridgeEnd`, signs
+### Batch 2: the whole network, bridge ends, signs, approved 2026-11-05 · `DROADS`, `drNetwork`, `drBridgeEnd`, signs
 - **`DROADS`** is the approved layout as data: 15 junctions (`J`: x, z, arms, the two names for the street sign),
   52 road pieces (`P`: name, kind, centre line with the curves), 12 gravel mouths (`M`), the three bridges (`B`, rims
   `RIM`), the airfield turning circle (`TC`), speed limits per kind (`LIM`: highway 90, town 50, dirt 40 km/h) and four
