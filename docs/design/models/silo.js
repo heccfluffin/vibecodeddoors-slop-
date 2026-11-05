@@ -121,7 +121,7 @@ function slElevator(g){const k=slKit(),H=k.H(g),{B,C}=H,E=SLD.E,Y=SLD.Y,xc=E.xc,
  {const t=k.sign(car,'LIFT',.26,.06,'#1a1a1a','#e8c020',.48,1.27,CZ1-.656,Math.PI)}
  k.sign(car,'DRIVE UNIT · KEEP CLEAR',1.1,.16,'#e8c020','#1a1a1a',0,1.38,CZ1-.557,Math.PI);
  {const l=k.cageLamp('side');l.position.set(-.4,1.2,CZ1-.55);l.rotation.y=Math.PI;car.add(l)}
- CH.C(.1,.12,.08,0,2.03,CZ1-.3,k.BLK,null,null,14);const dome=new THREE.Mesh(new THREE.SphereGeometry(.11,16,10,0,Math.PI*2,0,Math.PI/2),k.AMB);dome.position.set(0,2.07,CZ1-.3);car.add(dome);
+ CH.C(.035,.035,.47,0,1.765,CZ1-.3,k.GRY,null,null,10);CH.C(.06,.08,.02,0,1.54,CZ1-.3,k.GRY,null,null,12);CH.C(.1,.12,.08,0,2.03,CZ1-.3,k.BLK,null,null,14);const dome=new THREE.Mesh(new THREE.SphereGeometry(.11,16,10,0,Math.PI*2,0,Math.PI/2),k.AMB);dome.position.set(0,2.07,CZ1-.3);car.add(dome);
  const bcn=new THREE.Group();bcn.position.set(0,2.12,CZ1-.3);car.add(bcn);{const rf=new THREE.Mesh(new THREE.BoxGeometry(.14,.06,.02),k.GLOW);rf.position.z=.03;bcn.add(rf);const sp=k.glow(.7,0xffa040);sp.position.set(0,0,.1);bcn.add(sp);bcn.userData.sp=sp}
  /* the two folding gates: flat slats on a top track, crossed bars between them, folding up against the north end */
  const gates=[];for(const sx of[-1,1]){const x=sx*(CW-.03);for(const z of[CZ0+.05,CZ1-.05])CH.B(.08,2.2,.08,x,1.1,z,k.YEL);CH.B(.08,.08,cd-.1,x,2.18,czm,k.YEL);
