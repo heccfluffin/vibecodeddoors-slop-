@@ -1,4 +1,4 @@
-Status: part 1 (the layout plan) for review 2026-11-05 · part 2 (the road look: models) and part 3 (AI on the roads) after that
+Status: part 1 (the layout plan) approved 2026-11-05, right-hand traffic · part 2 (the road look: models) in progress · part 3 (AI on the roads) after that
 
 # Desert roads: a tidy layout, one look, and AI that drives on them
 
@@ -22,7 +22,7 @@ are randomly placed" and "allowing the ai of cars to drive on them better, would
 - **AI:** the route grid (`navBuild`, 3 m cells) prefers road cells but doesn't need them; traffic `LA/LB/LC`, Highway
   Patrol `HWPR`, Seek's `PATR`/`HROUTE` and the police beats `PCRB` are hand-typed point lists.
 
-## Part 1: the layout (for review; see the map preview)
+## Part 1: the layout (approved 2026-11-05; see the map preview)
 The places stay where they are. The bridges and the railway crossings stay at x 0, -440 and 560 (so `GORGE.bridges`,
 `RRX`, `q.xings`, `LKCLR` and the gate arms don't move). Coordinates are desert-local (x, z).
 

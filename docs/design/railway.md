@@ -1,4 +1,4 @@
-Status: plan for review 2026-11-05 (shown on the desert road plan map, change 12)
+Status: plan approved 2026-11-05 (models after the roads) (shown on the desert road plan map, change 12)
 
 # The railway: four stations, both ways, and a train you can ride
 

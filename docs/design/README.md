@@ -10,7 +10,7 @@ Claude Code: these are waiting. Each spec's own status line and wiring notes say
 | `silo.md` | **urgent part first**: part 1 fixes being stuck in Silo 1 (the walkable rooms don't join). Part 2 is the new look: rack-and-pinion freight lift, arched tunnel with Blast Door 1, the shaft at the surface tube's size, see-through catwalk, umbilical arm, missile cradle, and the open lid showing the real shaft | `models/silo.js` (needs `fort-kit.js`; the preview also uses `weapons.js` and `fort-mid.js`) |
 
 
-In progress (design): the desert mines (`desert-mines.md` parts 2 and 3), the desert road layout (`desert-roads.md`, part 1 plan for review), railway stations (`railway.md`, plan for review).
+In progress (design): the desert mines (`desert-mines.md` parts 2 and 3), the desert road layout (`desert-roads.md`, plan approved, road models next), railway stations (`railway.md`, plan approved, models after the roads).
 
 Still to design: the desert mines loop and remodel.
 
