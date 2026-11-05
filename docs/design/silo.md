@@ -1,4 +1,4 @@
-Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) for review
+Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) approved 2026-11-05 · batch 2 (shaft, catwalk, cradle) in progress
 
 # Silo 1: getting out again, and a new look
 
@@ -63,7 +63,7 @@ Model batches: (1) elevator and tunnel, (2) shaft, catwalk and cradle, (3) the s
 Everything is built in **silo space**: one group at the shaft centre on the ground, world (578, 0, -700), not turned
 (+z is north, the tunnel is north of the shaft). World = silo + (578, 0, -700). The file's header lists every builder.
 
-### Batch 1: the lift and the tunnel, for review · `slElevator`, `slTunnel`
+### Batch 1: the lift and the tunnel, approved 2026-11-05 · `slElevator`, `slTunnel`
 - **The lift is a rack-and-pinion lift** (a change from the plan's cage on cables): the bunker is only 4 m tall, so
   there's no room for a winch and cables overhead. A lattice mast stands on the shaft's north wall from the pit to the
   bunker floor, with a toothed rack; the car's drive unit (two motors, brakes, an amber beacon) sits on the car's
