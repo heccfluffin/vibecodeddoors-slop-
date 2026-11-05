@@ -1,1 +1,1 @@
-{"b": "r674", "notes": "Desert speed-up: about half the draw calls at the Fort (lone pieces, loose pieces and later-built places drawn together with their neighbours; dust and sparks drawn together; rows of barriers culled when behind you)."}
+{"b": "r675", "notes": "Desert speed-up: parked vehicles near you, multi-material and painted pieces batched; far pieces skipped in the position update; far TV/drive-in/prison animations eased."}

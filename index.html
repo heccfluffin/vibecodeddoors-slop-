@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-11-05 r674';
+const BUILD='2026-11-05 r675';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -6823,7 +6823,7 @@ function desertLocs(q,g){const R=Math.random,M=(c,o)=>{const m=new THREE.MeshSta
  const GLS=new THREE.MeshStandardMaterial({color:0x9ac8e0,transparent:true,opacity:.28,roughness:.05,metalness:.2,depthWrite:false});GLS.userData={gd:1};
  const glass=(ax,u0,u1,c,y0,y1)=>{const p2=new THREE.Mesh(new THREE.PlaneGeometry(u1-u0,y1-y0),GLS);p2.position.set(ax=='x'?(u0+u1)/2:c,(y0+y1)/2,ax=='x'?c:(u0+u1)/2);if(ax!='x')p2.rotation.y=Math.PI/2;p2.material.side=THREE.DoubleSide;g.add(p2);return p2};
  const pic=(draw,w,h)=>{const c=document.createElement('canvas');c.width=256;c.height=Math.round(256*h/w);draw(c.getContext('2d'),c.width,c.height);return new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c)}))};
- const tvStatic=()=>{const c=document.createElement('canvas');c.width=64;c.height=48;const x=c.getContext('2d'),t2=new THREE.CanvasTexture(c);const draw=()=>{for(let i=0;i<220;i++){const v=Math.random()*255|0;x.fillStyle='rgb('+v+','+v+','+v+')';x.fillRect(Math.random()*64|0,Math.random()*48|0,4,2)}t2.needsUpdate=true};draw();q.anims.push(dt=>{if(Math.random()<.5)draw()});return t2};
+ const tvStatic=()=>{const c=document.createElement('canvas');c.width=64;c.height=48;const x=c.getContext('2d'),t2=new THREE.CanvasTexture(c);const draw=()=>{for(let i=0;i<220;i++){const v=Math.random()*255|0;x.fillStyle='rgb('+v+','+v+','+v+')';x.fillRect(Math.random()*64|0,Math.random()*48|0,4,2)}t2.needsUpdate=true};draw();q.anims.push(dt=>{if(Math.random()<.5&&tvsNear(q))draw()});return t2};
  const STT=tvStatic();
  q.locs=[{nm:'Mining shack',x:SHKP.cx,z:-1062,ic:'⛏️'},{nm:'Bus stop',x:4,z:-1043,ic:'🚏'},{nm:'El Goblino Gas',x:36,z:-1005,ic:'⛽'},{nm:"Jeff's Oasis",x:-38,z:-1030,ic:'🌴'},{nm:'Wishing well',x:-22,z:-1095,ic:'🪙'},{nm:'Campfire',x:20,z:-1105,ic:'🔥'},{nm:'Broken-down car',x:-7.5,z:-985,ic:'🚗'}];
  /* ---- the water tower: r657, the Route 13 model ---- */
@@ -6851,7 +6851,7 @@ function desertLocs(q,g){const R=Math.random,M=(c,o)=>{const m=new THREE.MeshSta
  /* ---- the drive-in: a big screen showing "DOORS", speaker posts, two parked old cars ---- */
  {const cx=-40,cz=-930;rtDriveB(q,g);
   const c=document.createElement('canvas');c.width=256;c.height=128;const cx2=c.getContext('2d'),tx=new THREE.CanvasTexture(c),pl=new THREE.Mesh(new THREE.PlaneGeometry(14,6.6),new THREE.MeshBasicMaterial({map:tx,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));pl.position.set(cx,6,cz-7.8);g.add(pl);
-  let ft=0;q.anims.push(dt=>{ft+=dt;if(((ft*8)|0)===((ft-dt)*8|0))return;const k=(ft*.5)%6;cx2.fillStyle='#101010';cx2.fillRect(0,0,256,128);cx2.fillStyle='#e8d0a0';cx2.font='bold 30px DoorsSans,Arial,sans-serif';cx2.textAlign='center';if(k<2){cx2.fillText('NOW SHOWING',128,50);cx2.fillText('D O O R S',128,92)}else if(k<4){cx2.fillStyle='#000';cx2.fillRect(0,0,256,128);cx2.fillStyle='#fff';const ey=64+Math.sin(ft*3)*8;cx2.beginPath();cx2.ellipse(128,ey,40,26,0,0,7);cx2.fill();cx2.fillStyle='#000';cx2.beginPath();cx2.arc(128+Math.sin(ft*2)*14,ey,13,0,7);cx2.fill()}else{cx2.fillText('RUN.',128,70)}for(let i=0;i<40;i++){cx2.fillStyle='rgba(255,255,255,'+(Math.random()*.15)+')';cx2.fillRect(Math.random()*256,Math.random()*128,2,2)}tx.needsUpdate=true});
+  let ft=0;q.anims.push(dt=>{ft+=dt;if(((ft*8)|0)===((ft-dt)*8|0))return;if(ANF.on&&Math.hypot(P.x-cx,P.z-q.OZ-cz)>300)return;const k=(ft*.5)%6;cx2.fillStyle='#101010';cx2.fillRect(0,0,256,128);cx2.fillStyle='#e8d0a0';cx2.font='bold 30px DoorsSans,Arial,sans-serif';cx2.textAlign='center';if(k<2){cx2.fillText('NOW SHOWING',128,50);cx2.fillText('D O O R S',128,92)}else if(k<4){cx2.fillStyle='#000';cx2.fillRect(0,0,256,128);cx2.fillStyle='#fff';const ey=64+Math.sin(ft*3)*8;cx2.beginPath();cx2.ellipse(128,ey,40,26,0,0,7);cx2.fill();cx2.fillStyle='#000';cx2.beginPath();cx2.arc(128+Math.sin(ft*2)*14,ey,13,0,7);cx2.fill()}else{cx2.fillText('RUN.',128,70)}for(let i=0;i<40;i++){cx2.fillStyle='rgba(255,255,255,'+(Math.random()*.15)+')';cx2.fillRect(Math.random()*256,Math.random()*128,2,2)}tx.needsUpdate=true});
   for(const[ox,col,st]of[[-4,0x6a9ac8,0xf0e8d8],[3,0xd85a6a,0x2a2a2a]]){const car=mkOldCar(col,{seat:st});car.position.set(cx+ox,0,cz+7);g.add(car);ob(cx+ox-1,cx+ox+1,cz+4.6,cz+9.4,{m:car,kd:'car'})}
   q.locs.push({nm:'Drive-in',x:cx,z:cz,ic:'🎬'})}
  /* ---- Skull Rock: a big rock with a skull face you can climb into the mouth of ---- */
@@ -15890,6 +15890,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r675',['Desert speed-up: parked cars, trucks and planes near you are drawn with far fewer draw calls (their one-of-a-kind parts, wheels and parts with several materials now join the batches)','Boxes, crates, signs and other things with a different material per side, and things with painted-on colours, are batched too','Things hidden by distance are no longer worked out every frame','The motel TVs\' static and the drive-in screen stop redrawing when you are too far away to see them, and the prison is worked out less often while you are far away (it still runs)','To compare: ?nodpx, ?noone1v, ?noabtvm, ?nofarskip, ?noanf']],
 ['r674',['Desert speed-up: far fewer draw calls (about half at the Fort). Pieces of scenery that are the only one of their kind, loose pieces in the newer places, and the Fort, PD, prison and other later-built places are now drawn together with their neighbours','Dust, sparks and other little puffs are drawn together instead of one by one','Rows of barriers, posts and panels are no longer drawn when they are behind you','To compare, these can be switched off in the address: ?noone1, ?nolate1, ?noabtm, ?noptb, ?noimc']],
 ['r673',['Fixed a short hitch every so often in the desert: each time a door or gate opened or closed somewhere, the whole map was redrawn']],
 ['r672',['Desert speed-up: parked cars, planes and helicopters that nobody is in and that have stood still for a while are now drawn together with the scenery around them (fewer draw calls). A vehicle that moves goes straight back to being drawn on its own','?noabtv in the address turns this off, to compare']],
@@ -28699,7 +28700,9 @@ function penAnim(q,dt){const W=q.penW;if(!W)return;W.t=(W.t||0)+dt;const t=W.t,p
    game itself always do the full update, as before: only the renderer's own per-frame update skips.
    Turn it off with ?nomwx in the address, or MWX.on=false in the console, to compare.
    ===================================================================================================== */
-const MWX={on:!/[?&]nomwx/.test(location.search),used:0,fr:0,inR:0,skipped:0,fresh:0};
+const MWX={on:!/[?&]nomwx/.test(location.search),used:0,fr:0,inR:0,skipped:0,fresh:0,
+ /* r675: pieces the distance culling hides (layer 6) are left out of the walk too, like batched ones; ?nofarskip = old way */
+ far:!/[?&]nofarskip(?:[&=]|$)/.test(location.search)};
 const _mwP=THREE.Object3D.prototype.updateMatrixWorld;
 /* the same as three.js r128's updateMatrixWorld, but it leaves out what cannot be drawn this frame */
 function mwWalk(o,force){if(o.matrixAutoUpdate)o.updateMatrix();
@@ -28707,7 +28710,7 @@ function mwWalk(o,force){if(o.matrixAutoUpdate)o.updateMatrix();
  const ch=o.children;for(let i=0,l=ch.length;i<l;i++){const c=ch[i];
   if(c.__mwKeep||c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
   if(!c.visible){c.__mwSk=MWX.fr;MWX.skipped++;continue}
-  if(c.layers.mask===4&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
+  if((c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
   mwWalk(c,force)}}
 function mwDesertUMW(force){if(MWX.on&&MWX.inR){MWX.used=1;MWX.fr++;MWX.skipped=0;mwWalk(this,force)}else _mwP.call(this,force)}
 /* the renderer is the only caller of the scene's own update (the game never calls it), so that is when skipping is allowed */
@@ -28715,7 +28718,7 @@ S.updateMatrixWorld=function(force){MWX.inR=1;try{_mwP.call(this,force)}finally{
 /* is o inside the desert (and not inside a vehicle)? */
 function mwIn(o){for(let p=o;p;p=p.parent){if(p.__mwx)return true}return false}
 /* make o's world matrix up to date if the last render skipped it or one of its parents */
-function mwFresh(o){if(!MWX.used||!o||o.__mwKeep||o.__mwx)return;const leaf=o.isMesh&&!o.isSprite&&o.layers.mask===4&&!o.children.length;let chain=!o.visible||o.__mwSk===MWX.fr;
+function mwFresh(o){if(!MWX.used||!o||o.__mwKeep||o.__mwx)return;const leaf=o.isMesh&&!o.isSprite&&(o.layers.mask===4||(MWX.far&&o.layers.mask===64))&&!o.children.length;let chain=!o.visible||o.__mwSk===MWX.fr;
  for(let p=o.parent;p;p=p.parent){if(p.__mwKeep)return;if(p.__mwx){if(chain){o.updateWorldMatrix(true,false);MWX.fresh++}else if(leaf){if(o.matrixAutoUpdate)o.updateMatrix();o.matrixWorld.multiplyMatrices(o.parent.matrixWorld,o.matrix);MWX.fresh++}return}if(!p.visible||p.__mwSk===MWX.fr)chain=true}}
 /* readers that use matrixWorld directly */
 {const P0=THREE.Object3D.prototype;const l0=P0.localToWorld,w0=P0.worldToLocal;P0.localToWorld=function(v){mwFresh(this);return l0.call(this,v)};P0.worldToLocal=function(v){mwFresh(this);return w0.call(this,v)};
@@ -31693,7 +31696,7 @@ function mwFull(o,force){force=mwSelf(o,force);
   if(c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
   if(c.__mwKeep){mwFull(c,force);continue}
   if(!c.visible){c.__mwSk=MWX.fr;MWX.skipped++;continue}
-  if(c.layers.mask===4&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
+  if((c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.isMesh&&!c.isSprite&&!c.children.length){MWX.skipped++;continue}
   mwWalk(c,force)}}}
 /* the scene itself: without this, the scene's own matrix was made again every frame, which forced every object below it
    to work out its place in the world again, moved or not */
@@ -32100,13 +32103,13 @@ const MWV={on:!/[?&]nomwv/.test(location.search),skipped:0};
  const ch=o.children;for(let i=0,l=ch.length;i<l;i++){const c=ch[i];
   if(c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
   if(!c.visible){c.__mwSk=MWX.fr;MWV.skipped++;continue}
-  if(c.layers.mask===4&&c.isMesh&&!c.isSprite&&!c.children.length){MWV.skipped++;continue}
+  if((c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.isMesh&&!c.isSprite&&!c.children.length){MWV.skipped++;continue}
   mwFull(c,force)}}}
 /* the fresh-position helper (r629) used to stop at a vehicle, because vehicles were always up to date. A single batched
    piece (its parent was worked out by the frame) now uses the frame's own "did it change" check (r647) instead of
    working out its matrix again every time: the batching watchdog asks for every vehicle piece every few frames */
 {const f0=mwFresh;mwFresh=function(o){if(!MWV.on||!MWC.on)return f0(o);if(!MWX.used||!o||o.__mwKeep||o.__mwx)return;
- const leaf=o.isMesh&&!o.isSprite&&o.layers.mask===4&&!o.children.length;let chain=!o.visible||o.__mwSk===MWX.fr;
+ const leaf=o.isMesh&&!o.isSprite&&(o.layers.mask===4||(MWX.far&&o.layers.mask===64))&&!o.children.length;let chain=!o.visible||o.__mwSk===MWX.fr;
  for(let p=o.parent;p;p=p.parent){if(p.__mwx){if(chain){o.updateWorldMatrix(true,false);MWX.fresh++}else if(leaf){mwSelf(o,false);MWX.fresh++}return}if(!p.visible||p.__mwSk===MWX.fr)chain=true}}}
 
 
@@ -37265,7 +37268,7 @@ const _lzF=new THREE.Frustum(),_lzM=new THREE.Matrix4(),_lzP=[];let _lzFr=0;
    ===================================================================================================== */
 const BAKE={on:!/[?&]nobake(?:[&=]|$)/.test(location.search),q:null,L:[],job:null,t:-1e9,n:0,up:0,fr:0,swp:[],nb:0,dirty:new Set(),wired:0,mids:[],posts:[],rid:0,midR:-1};
 /* a piece the frame's position update leaves out anyway (dx621/dx633/dx639 use the same test) */
-const bakeLeaf=c=>c.isMesh&&!c.isSprite&&c.layers.mask===4&&c.children.length===0&&c.updateMatrixWorld===_mwP&&!c.__mwKeep&&!c.__abt;
+const bakeLeaf=c=>c.isMesh&&!c.isSprite&&(c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.children.length===0&&c.updateMatrixWorld===_mwP&&!c.__mwKeep&&!c.__abt;
 /* a left-out piece's layers tell its group when they change (only left-out pieces get this, and nothing reads them every frame) */
 function bakeWire(c){if(c.__bk)return;c.__bk=1;BAKE.wired++;const L=c.layers;let m=L.mask;
  Object.defineProperty(L,'mask',{configurable:true,enumerable:true,get(){return m},set(v){if(v!==m){m=v;BAKE.dirty.add(c)}}})}
@@ -37338,7 +37341,7 @@ function bakeBack(mid){for(const c of BAKE.dirty){const p=c.parent,e=p&&p.__bkE;
    once they have looked and sat exactly the same at two looks. When it moves, its parts draw themselves that same frame;
    it is not barred for good (it can join again once it stands still). ?noabtv turns this part off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,/* r675: a parked vehicle's moving parts (wheels...) join too */vmov:!/[?&]noabtvm(?:[&=]|$)/.test(location.search),mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
@@ -37378,7 +37381,7 @@ function abtScanStep(q,ms){const t0=performance.now();let J=ABT.scan;
   for(const c of o.children){if(c.isLight){J.lights.push(c);continue}const u=c.userData||{};
    /* r672: a vehicle nobody is in and that is not moving is looked inside: its far shape and its batched parts can join */
    if(J.veh.has(c)){if(ABT.veh&&abtParked(J.vmap.get(c))&&c.children.length){J.inV.add(c);J.st.push(c)}continue}
-   const isM=J.mset.has(c);if(isM&&iv)continue;
+   const isM=J.mset.has(c);if(isM&&iv&&!ABT.vmov)continue;
    if(J.skip.has(c)||(!iv&&c.__mwKeep)||u.dpDyn||u.mv||u.fsc||u.skn||c.updateMatrixWorld!==_mwP)continue;
    if((u.dpKeep||u.flv)&&!(iv&&c.isMesh&&u.flv&&u.dpMerged))continue;
    if(c.isMesh&&c.children.length===0&&(u.dpMerged||(ABT.ones&&!c.isSprite&&(c.layers.mask===1||c.layers.mask===64)))){const m=c.material;if(m&&m.map)J.users.set(m.map,(J.users.get(m.map)||0)+1);
@@ -37558,7 +37561,7 @@ if(typeof BAKE!='undefined'){BAKE.mids.push(()=>abtMid());BAKE.posts.push(()=>ab
   if(ABT.on&&ABT.ok&&q&&q.g&&!q.ld&&q.dp&&q.dp.merged&&MWC.on&&MWX.on&&BAKE.on)abtTick(q);else if(ABT.B.length)abtForget()}
  catch(e){conLog('error','area batches: '+e.message);ABT.on=false;try{abtForget()}catch(x){}}return r}}
 /* for testing: look everywhere and make everything now */
-function abtForce(){const q=BUS.ride;if(!q)return null;ABT.force=true;/* (two looks: pieces that must look the same twice) */try{for(let k=0;k<2;k++){ABT.scanT=-1e9;ABT.scan=null;for(let i=0;i<50&&(ABT.scan||ABT.queue.length||ABT.job||i===0);i++)abtTick(q)}}finally{ABT.force=false}return{batches:ABT.B.length,members:ABT.mem.size,textureMB:Math.round(ABT.texMB),arrays:ABT.arrs.size}}
+function abtForce(){const q=BUS.ride;if(!q)return null;ABT.force=true;/* (two looks: pieces that must look the same twice) */try{for(let k=0;k<2;k++){ABT.scanT=-1e9;ABT.scan=null;for(let i=0;i<600&&(ABT.scan||ABT.queue.length||ABT.job||i===0);i++)abtTick(q)}}finally{ABT.force=false}return{batches:ABT.B.length,members:ABT.mem.size,textureMB:Math.round(ABT.texMB),arrays:ABT.arrs.size}}
 /* the lag window: own time, a switch to compare, a draw-call kind, and a line per Benchmark view */
 LAGSYS.push(['abt','Scenery area batches (upkeep)']);
 {const t0=abtTick;abtTick=function(){if(!LAG.open)return t0.apply(this,arguments);const u=ABT.up;try{return t0.apply(this,arguments)}finally{const d=ABT.up-u;LAG.sys.abt=(LAG.sys.abt||0)+d;LAG.cur.abt=(LAG.cur.abt||0)+d}}}
@@ -37684,7 +37687,7 @@ function imcBall(e){const o=e.o,g=o.geometry;if(!g.boundingSphere)g.computeBound
    The batching watchdog then looks after it within its usual time budget, and the area batches join it with its
    neighbours. ?noone1 turns it off.
    ===================================================================================================== */
-const ONE={on:!/[?&]noone1(?:[&=]|$)/.test(location.search),n:0,veh:null,vq:null,cur:false};
+const ONE={on:!/[?&]noone1(?:[&=]|$)/.test(location.search),/* r675: vehicles' lone parts too; ?noone1v leaves vehicles out */v:!/[?&]noone1v(?:[&=]|$)/.test(location.search),n:0,veh:null,vq:null,cur:false};
 /* a picture drawn as it is (not moved, repeated or turned) */
 function dpTexId(t){if(!t)return false;if(t.matrixAutoUpdate)return t.offset.x===0&&t.offset.y===0&&t.repeat.x===1&&t.repeat.y===1&&t.rotation===0;const e=t.matrix.elements;return e[0]===1&&e[1]===0&&e[2]===0&&e[3]===0&&e[4]===1&&e[5]===0&&e[6]===0&&e[7]===0&&e[8]===1}
 /* (a plain function: the r500 block that holds DP comes later in the page than this module) */
@@ -37692,7 +37695,7 @@ function dpOneOK(o,root,made){if(!ONE.on||typeof ABT=='undefined'||!ABT.on)retur
  const m=o.material;if(!m||Array.isArray(m)||m.transparent||o.renderOrder!==0)return false;const t=m.type;if(t!=='MeshStandardMaterial'&&t!=='MeshLambertMaterial'&&t!=='MeshBasicMaterial')return false;
  if(m.map&&!abtTexKey(m.map,true))return false;if(m.userData&&m.userData.dpSand)return false;
  if(ONE.vq!==q||!ONE.veh||ONE.veh.size!==(q.vehs||[]).length){ONE.vq=q;ONE.veh=new Set((q.vehs||[]).map(v=>v&&v.m).filter(Boolean))}
- for(let p=root;p&&p!==q.g;p=p.parent)if(p.__mwKeep||ONE.veh.has(p))return false;
+ if(!ONE.v)for(let p=root;p&&p!==q.g;p=p.parent)if(p.__mwKeep||ONE.veh.has(p))return false;
  if(made){ONE.n++;ONE.cur=true}return true}
 
 /* =====================================================================================================
@@ -37716,10 +37719,72 @@ function late1Tick(q){const D=q.dp;if(!D||!D.merged||typeof DP=='undefined'||!DP
  if(!ok.length)return;
  /* one shallow pass over the desert's own pieces that sees only these (the others are flagged to be left alone just for it) */
  const want=new Set(ok),tmp=[];for(const o of q.g.children){if(o.isMesh&&!want.has(o)&&!(o.userData&&o.userData.dpKeep)){(o.userData||(o.userData={})).dpKeep=1;tmp.push(o)}}
- let k=[0,0];try{k=DP._mergeRoot(q,q.g,DP.cfg().lam,true)}catch(e){conLog('error','late loose batching: '+e.message)}finally{for(const o of tmp)delete o.userData.dpKeep}
+ /* (the batcher starts by working out the positions of everything under the group it is given, here the whole desert:
+    only these pieces and the desert group itself are brought up to date instead, then that step is skipped) */
+ const g=q.g,own=Object.prototype.hasOwnProperty.call(g,'updateMatrixWorld'),u0=g.updateMatrixWorld;
+ try{if(typeof mwFresh=='function'){mwFresh(g);for(const o of ok)mwFresh(o)}else{g.updateWorldMatrix(true,false);for(const o of ok)o.updateWorldMatrix(false,false)}}catch(e){}
+ let k=[0,0];g.updateMatrixWorld=function(){};try{k=DP._mergeRoot(q,g,DP.cfg().lam,true)}catch(e){conLog('error','late loose batching: '+e.message)}finally{if(own)g.updateMatrixWorld=u0;else delete g.updateMatrixWorld;for(const o of tmp)delete o.userData.dpKeep}
  for(const o of ok){o.userData.late1=1;seen.delete(o)}if(q.g.userData.dpRecs&&q.g.userData.dpRecs.length&&D.roots&&!D.roots.includes(q.g))D.roots.push(q.g);
  LATE1.n+=ok.length;LATE1.b+=k[0];LATE1.ms+=performance.now()-t0}
 {const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(LATE1.on&&q&&q.g&&q.roam)late1Tick(q)}catch(e){conLog('error','late loose batching: '+e.message);LATE1.on=false}return r}}
+
+/* =====================================================================================================
+   r675: ANIMATIONS FAR AWAY.
+   Most moving things in the desert already only move while you are near them. A few ran all the time wherever you were:
+   - the motel TVs' static and the drive-in screen were redrawn and sent to the graphics card many times a second.
+     They now stop while you are too far to see them (60 m for the little TVs, 300 m for the big screen);
+   - the prison (searchlights, guards on their rounds, cameras, fans, doors) is game logic too, so it keeps running, but
+     while you are far beyond the fog and no prison break is on, it is worked out every 6th frame with the time added up
+     (guards still stop exactly at each corner of their rounds, lights still sweep in step).
+   Everything that can be seen from a distance keeps moving as before. ?noanf turns this off.
+   ===================================================================================================== */
+const ANF={on:!/[?&]noanf(?:[&=]|$)/.test(location.search),pdt:0,pn:0};
+function tvsNear(q){if(!ANF.on||!q||!q.tvs||!q.tvs.length)return true;const lz=P.z-q.OZ;for(const t of q.tvs)if(Math.abs(P.x-t.x)<60&&Math.abs(lz-t.z)<60)return true;return false}
+{const pa=penAnim;penAnim=function(q,dt){
+ if(!ANF.on||!q||!q.penW||(q.pen&&q.pen.on))return ANF.pdt?(dt+=ANF.pdt,ANF.pdt=0,pa(q,dt)):pa(q,dt);
+ /* how far is the prison (its searchlights' rounds give its middle) */
+ const W=q.penW;if(W.__c==null){let sx=0,sz=0,n=0;for(const L of W.lights||[])for(const p of L.path||[]){sx+=p[0];sz+=p[1];n++}W.__c=n&&isFinite(sx/n)&&isFinite(sz/n)?[sx/n,sz/n]:[-460,-768]}
+ let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far}catch(e){}
+ const d=Math.hypot(P.x-W.__c[0],P.z-q.OZ-W.__c[1]);
+ if(!(d>=far+250))return ANF.pdt?(dt+=ANF.pdt,ANF.pdt=0,pa(q,dt)):pa(q,dt);
+ ANF.pdt+=dt;if(++ANF.pn<6)return;ANF.pn=0;const t=ANF.pdt;ANF.pdt=0;return pa(q,t)}}
+
+/* =====================================================================================================
+   r675: PIECES WITH SEVERAL MATERIALS, AND PIECES WITH PER-CORNER COLOURS, BATCHED.
+   The batching (r500) could only take a piece with one material and no per-corner colours. Two kinds were left drawn
+   one by one (crates and boxes with a different picture per side, signs, many vehicle parts...):
+   - a piece with several materials is handed to the batching as one stand-in per material, each pointing at its part of
+     the piece's shape and following the real piece in everything else (place, visibility, being moved). It only joins
+     when every part can be batched (so nothing can go missing), and when one part changes the piece is drawn itself again;
+   - a piece with per-corner colours has them multiplied into the batch's own colours, and the watchdog keeps an eye on them.
+   ?nodpx turns both off (?nodpxm only the several-materials part, ?nodpxc only the colours).
+   ===================================================================================================== */
+const DPX={on:!/[?&]nodpx(?:[&=]|$)/.test(location.search),multi:!/[?&]nodpxm(?:[&=]|$)/.test(location.search),vc:!/[?&]nodpxc(?:[&=]|$)/.test(location.search),subs:new WeakMap(),nm:0,nv:0};
+const _dpxM=new THREE.Matrix4();
+/* the parts of a shape, one per material: the same corners, only that part's triangles */
+function dpxSubs(g){let S2=DPX.subs.get(g);if(S2!==undefined)return S2;S2=null;try{const G=g.groups,A=g.attributes,n=A.position.count,L=[];
+ for(const gr of G){const cnt=g.index?Math.min(gr.count,g.index.count-gr.start):Math.min(gr.count,n-gr.start);if(!(cnt>0)||!(gr.start>=0)){L.length=0;break}
+  const s=new THREE.BufferGeometry();for(const k in A)s.setAttribute(k,A[k]);let ix;
+  if(g.index){const src=g.index.array;ix=(n>65535?new Uint32Array(cnt):new Uint16Array(cnt));for(let i=0;i<cnt;i++)ix[i]=src[gr.start+i]}
+  else{ix=(n>65535?new Uint32Array(cnt):new Uint16Array(cnt));for(let i=0;i<cnt;i++)ix[i]=gr.start+i}
+  s.setIndex(new THREE.BufferAttribute(ix,1));L.push(s)}
+ if(L.length===G.length)S2=L}catch(e){S2=null}DPX.subs.set(g,S2);return S2}
+/* a stand-in for one material of a piece: everything else comes from the real piece */
+function dpxProxy(real,i,mi,sub){const g0=real.geometry,p=Object.create(real);
+ Object.defineProperty(p,'material',{configurable:true,get(){const a=real.material;return Array.isArray(a)?a[mi]:a}});
+ Object.defineProperty(p,'geometry',{configurable:true,get(){return real.geometry===g0?sub:real.geometry}});
+ p.__dpR=real;p.__dpG=i;return p}
+/* called by the batching for each piece it looks at: true = dealt with here (taken, or left out) */
+function dpxConsider(ch,lam,inv,groups,mk,root){const m=ch.material;
+ if(Array.isArray(m)){if(!DPX.multi)return false;const g=ch.geometry,G=g.groups;if(!G||!G.length||G.length>16)return true;
+  _dpxM.multiplyMatrices(inv,ch.matrixWorld);if(_dpxM.determinant()<=0)return true;
+  const subs=dpxSubs(g);if(!subs)return true;const px=[];
+  for(let i=0;i<G.length;i++){const mt=m[G[i].materialIndex];if(!mt||mt.vertexColors)return true;const k=mk(mt,lam);if(!k)return true;const p=dpxProxy(ch,i,G[i].materialIndex,subs[i]);if(!dpOneOK(p,root))return true;px.push([k,p])}
+  for(const[k,p]of px){let L=groups.get(k);if(!L)groups.set(k,L=[]);L.push(p)}DPX.nm++;return true}
+ if(m&&m.vertexColors){if(!DPX.vc)return false;const c=ch.geometry.attributes.color;if(!c||c.itemSize!==3||c.normalized||c.isInterleavedBufferAttribute||!(c.array instanceof Float32Array))return true;
+  const v0=m.vertexColors;let k=null;m.vertexColors=false;try{k=mk(m,lam)}finally{m.vertexColors=v0}if(!k)return true;
+  _dpxM.multiplyMatrices(inv,ch.matrixWorld);if(_dpxM.determinant()<=0)return true;let L=groups.get(k);if(!L)groups.set(k,L=[]);L.push(ch);DPX.nv++;return true}
+ return false}
 
 </script><script>
 /* ======================================================================================================
@@ -37898,25 +37963,25 @@ function geoOK(g){if(!g||!g.isBufferGeometry||!g.attributes.position)return fals
 const _uvm=new THREE.Matrix3();
 function buildMerged(inv,mems,hasMap){let nv=0,ni=0;for(const m of mems){const g=m.o.geometry;nv+=g.attributes.position.count;ni+=g.index?g.index.count:g.attributes.position.count}
  const pos=new Float32Array(nv*3),nor=new Float32Array(nv*3),col=new Float32Array(nv*3),uv=hasMap?new Float32Array(nv*2):null,idx=nv>65535?new Uint32Array(ni):new Uint16Array(ni);let vo=0,io=0;
- for(const m of mems){const o=m.o,g=o.geometry,pa=g.attributes.position.array,na=g.attributes.normal?g.attributes.normal.array:null,ua=g.attributes.uv?g.attributes.uv.array:null,n=g.attributes.position.count;_mA.multiplyMatrices(inv,o.matrixWorld);_n3.getNormalMatrix(_mA);const c=o.material.color,cr=c.r,cg=c.g,cb=c.b;
+ for(const m of mems){const o=m.o,g=o.geometry,pa=g.attributes.position.array,na=g.attributes.normal?g.attributes.normal.array:null,ua=g.attributes.uv?g.attributes.uv.array:null,n=g.attributes.position.count;_mA.multiplyMatrices(inv,o.matrixWorld);_n3.getNormalMatrix(_mA);const c=o.material.color,cr=c.r,cg=c.g,cb=c.b;const vca=o.material.vertexColors&&g.attributes.color&&g.attributes.color.itemSize===3&&!g.attributes.color.normalized&&!g.attributes.color.isInterleavedBufferAttribute?g.attributes.color.array:null;
   let ue=null;if(uv&&o.material.map){const t=o.material.map;if(t.matrixAutoUpdate)t.updateMatrix();ue=t.matrix.elements}
-  for(let i=0;i<n;i++){const k=(vo+i)*3;_v3.fromArray(pa,i*3).applyMatrix4(_mA);pos[k]=_v3.x;pos[k+1]=_v3.y;pos[k+2]=_v3.z;if(na)_v3.fromArray(na,i*3).applyMatrix3(_n3).normalize();else _v3.set(0,1,0);nor[k]=_v3.x;nor[k+1]=_v3.y;nor[k+2]=_v3.z;col[k]=cr;col[k+1]=cg;col[k+2]=cb;
+  for(let i=0;i<n;i++){const k=(vo+i)*3;_v3.fromArray(pa,i*3).applyMatrix4(_mA);pos[k]=_v3.x;pos[k+1]=_v3.y;pos[k+2]=_v3.z;if(na)_v3.fromArray(na,i*3).applyMatrix3(_n3).normalize();else _v3.set(0,1,0);nor[k]=_v3.x;nor[k+1]=_v3.y;nor[k+2]=_v3.z;if(vca){const j=i*3;col[k]=cr*vca[j];col[k+1]=cg*vca[j+1];col[k+2]=cb*vca[j+2]}else{col[k]=cr;col[k+1]=cg;col[k+2]=cb}
    if(uv){let u=ua?ua[i*2]:0,v=ua?ua[i*2+1]:0;if(ue){const u2=ue[0]*u+ue[3]*v+ue[6],v2=ue[1]*u+ue[4]*v+ue[7];u=u2;v=v2}uv[(vo+i)*2]=u;uv[(vo+i)*2+1]=v}}
   if(g.index){const ia=g.index.array,kk=g.index.count;for(let i=0;i<kk;i++)idx[io+i]=ia[i]+vo;io+=kk}else{for(let i=0;i<n;i++)idx[io+i]=vo+i;io+=n}vo+=n}
  const out=new THREE.BufferGeometry();out.setAttribute('position',new THREE.BufferAttribute(pos,3));out.setAttribute('normal',new THREE.BufferAttribute(nor,3));out.setAttribute('color',new THREE.BufferAttribute(col,3));if(uv)out.setAttribute('uv',new THREE.BufferAttribute(uv,2));out.setIndex(new THREE.BufferAttribute(idx,1));out.computeBoundingSphere();return out}
-function snapMem(rec,o){_mA.multiplyMatrices(rec.inv,o.matrixWorld);const m=o.material,t=m.map||null;return{o,m:Float32Array.from(_mA.elements),mat:m,geo:o.geometry,col:m.color.getHex(),emi:m.emissive?m.emissive.getHex():0,ei:m.emissiveIntensity,op:m.opacity,map:t,mv:t?t.version:0,tr:t?[t.repeat.x,t.repeat.y,t.offset.x,t.offset.y,t.rotation]:null,pv:o.geometry.attributes.position.version}}
+function snapMem(rec,o){_mA.multiplyMatrices(rec.inv,o.matrixWorld);const m=o.material,t=m.map||null;return{o,m:Float32Array.from(_mA.elements),mat:m,geo:o.geometry,col:m.color.getHex(),emi:m.emissive?m.emissive.getHex():0,ei:m.emissiveIntensity,op:m.opacity,map:t,mv:t?t.version:0,tr:t?[t.repeat.x,t.repeat.y,t.offset.x,t.offset.y,t.rotation]:null,pv:o.geometry.attributes.position.version,vcf:!!m.vertexColors,cv:o.geometry.attributes.color?o.geometry.attributes.color.version:-1}}
 /* r669: the watchdog. Things that can move were all checked every 8th frame (about 7,800 pieces near the Fort: a 20-30 ms
    hitch every 8th frame); now a slice is checked every frame (dpWatchSlice). Each check is cheaper too: the chain up to the
    batch's group is looked at once per group per pass, and the position compare is skipped when the position system's
    change stamps (r647) say neither the piece nor its group was worked out again since it was last found unchanged */
 const DPW={on:!/[?&]nodpw(?:[&=]|$)/.test(location.search),ps:0,MB:.4,RB:.2,one:[null]};
-function memDirty(rec,m){const o=m.o;if(!o.parent||!o.visible)return 1;let p=o.parent;if(DPW.on&&p.__wdc===DPW.ps&&p.__wdr===rec.root){if(!p.__wdv)return 1}else{let x=p,ok=true;while(x&&x!==rec.root){if(!x.visible){ok=false;break}x=x.parent}if(!x)ok=false;p.__wdc=DPW.ps;p.__wdr=rec.root;p.__wdv=ok;if(!ok)return 1}if(typeof mwFresh==='function')mwFresh(o);if(o.material!==m.mat||o.geometry!==m.geo)return 1;const mt=o.material;if(!mt.visible||mt.color.getHex()!==m.col||(mt.emissive&&mt.emissive.getHex()!==m.emi)||mt.opacity!==m.op||mt.emissiveIntensity!==m.ei||(mt.map||null)!==m.map||o.geometry.attributes.position.version!==m.pv)return 1;
+function memDirty(rec,m){const o=m.o;if(!o.parent||!o.visible)return 1;let p=o.parent;if(DPW.on&&p.__wdc===DPW.ps&&p.__wdr===rec.root){if(!p.__wdv)return 1}else{let x=p,ok=true;while(x&&x!==rec.root){if(!x.visible){ok=false;break}x=x.parent}if(!x)ok=false;p.__wdc=DPW.ps;p.__wdr=rec.root;p.__wdv=ok;if(!ok)return 1}if(typeof mwFresh==='function')mwFresh(o.__dpR||o);if(o.material!==m.mat||o.geometry!==m.geo)return 1;const mt=o.material;if(!mt.visible||mt.color.getHex()!==m.col||(mt.emissive&&mt.emissive.getHex()!==m.emi)||mt.opacity!==m.op||mt.emissiveIntensity!==m.ei||(mt.map||null)!==m.map||o.geometry.attributes.position.version!==m.pv||!!mt.vertexColors!==m.vcf||(m.vcf&&(o.geometry.attributes.color?o.geometry.attributes.color.version:-1)!==m.cv))return 1;
  if(m.map){const t=m.map,r=m.tr;if(t.version!==m.mv||t.repeat.x!==r[0]||t.repeat.y!==r[1]||t.offset.x!==r[2]||t.offset.y!==r[3]||t.rotation!==r[4])return 1}
- const st=DPW.on&&typeof MWC!=='undefined'&&MWC.on&&typeof MWX!=='undefined'&&MWX.on&&MWX.used;if(st&&m.oc!==undefined&&(o.__mwchg|0)===m.oc&&(rec.root.__mwchg|0)===m.rc)return 0;
- _mA.multiplyMatrices(rec.inv,o.matrixWorld);const e=_mA.elements,s=m.m;for(let i=0;i<16;i++)if(Math.abs(e[i]-s[i])>2.5e-3)return 1;if(st){m.oc=o.__mwchg|0;m.rc=rec.root.__mwchg|0}return 0}
+ const st=DPW.on&&typeof MWC!=='undefined'&&MWC.on&&typeof MWX!=='undefined'&&MWX.on&&MWX.used;if(st&&m.oc!==undefined&&((o.__dpR||o).__mwchg|0)===m.oc&&(rec.root.__mwchg|0)===m.rc)return 0;
+ _mA.multiplyMatrices(rec.inv,o.matrixWorld);const e=_mA.elements,s=m.m;for(let i=0;i<16;i++)if(Math.abs(e[i]-s[i])>2.5e-3)return 1;if(st){m.oc=(o.__dpR||o).__mwchg|0;m.rc=rec.root.__mwchg|0}return 0}
 function dpMergeRoot(q,root,lam,shallow){root.updateMatrixWorld(true);const inv=new THREE.Matrix4().copy(root.matrixWorld).invert();const groups=new Map(),skip=new Set([q.sky,q.zsky,BUS._sky,q.sand,q.zstar,q.bg].filter(Boolean));
  /* things the vehicle code animates by name (wheels, steering, props, doors, turrets...) stay out */const ud=root.userData||{};for(const k in ud){const v=ud[k];if(!v)continue;if(v.isObject3D)skip.add(v);else if(Array.isArray(v))for(const y of v){if(!y)continue;if(y.isObject3D)skip.add(y);else if(typeof y==='object')for(const kk of['t','p','m'])if(y[kk]&&y[kk].isObject3D)skip.add(y[kk])}}
- const smg=root.userData.smg;const consider=ch=>{if(ch.isMesh&&ch.visible&&!ch.isSprite&&!ch.isPoints&&!ch.isLine&&!ch.isInstancedMesh&&!ch.isSkinnedMesh&&geoOK(ch.geometry)){const key=matKey(ch.material,lam);if(key){_mA.multiplyMatrices(inv,ch.matrixWorld);if(_mA.determinant()>0){let L=groups.get(key);if(!L)groups.set(key,L=[]);L.push(ch)}}}};
+ const smg=root.userData.smg;const consider=ch=>{if(ch.isMesh&&ch.visible&&!ch.isSprite&&!ch.isPoints&&!ch.isLine&&!ch.isInstancedMesh&&!ch.isSkinnedMesh&&geoOK(ch.geometry)){if(DPX.on&&dpxConsider(ch,lam,inv,groups,matKey,root))return;const key=matKey(ch.material,lam);if(key){_mA.multiplyMatrices(inv,ch.matrixWorld);if(_mA.determinant()>0){let L=groups.get(key);if(!L)groups.set(key,L=[]);L.push(ch)}}}};
  const bad=ch=>ch===smg||skip.has(ch)||(ch.userData&&(ch.userData.chunk||ch.userData.sm||ch.userData.mv||ch.userData.noChunk||ch.userData.dpKeep||ch.userData.dpDyn||ch.userData.dpMerged));
  if(shallow){/* the ground, roads and dunes are flagged noChunk only because they are big: they are static all the same (sky domes and the like are not) */for(const ch of root.children){if(!ch.isMesh)continue;if(skip.has(ch)||(ch.userData&&(ch.userData.dpKeep||ch.userData.dpDyn||ch.userData.dpMerged||ch.userData.mv||ch.userData.chunk)))continue;const mt=ch.material;if(!mt||Array.isArray(mt)||mt.side===THREE.BackSide||(ch.userData.noChunk&&mt.transparent))continue;consider(ch)}}else{const walk=o=>{for(const ch of o.children){if(bad(ch)||ch.isInstancedMesh||ch.isSkinnedMesh)continue;consider(ch);if(ch.children.length&&ch.visible)walk(ch)}};walk(root)}
  const recs=root.userData.dpRecs||[];let saved=0;for(const[key,L]of groups){if(L.length<2&&!dpOneOK(L[0],root))continue;/* batches of at most ~60k vertices */let b=[],nv=0;const flush=()=>{ONE.cur=false;if(b.length<2&&!(b.length===1&&dpOneOK(b[0],root,1))){b=[];nv=0;return}const src=b[0].material,hasMap=!!src.map;const rec={root,inv,key,lam,hasMap,src,mems:[]};for(const o of b)rec.mems.push(snapMem(rec,o));try{const geo=buildMerged(inv,rec.mems,hasMap);const mesh=new THREE.Mesh(geo,mergedMat(src,lam&&src.type!=='MeshBasicMaterial'));mesh.userData={dpMerged:1,noSeam:1};if(src.transparent)mesh.renderOrder=b[0].renderOrder;root.add(mesh);rec.mesh=mesh;for(const m of rec.mems)m.o.layers.set(DP.HID);recs.push(rec);saved+=b.length-1}catch(e){err('batch',e)}b=[];nv=0};
