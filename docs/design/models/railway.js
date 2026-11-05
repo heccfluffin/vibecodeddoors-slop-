@@ -111,7 +111,7 @@ function rrStation(g,st){const k=lkKit(),M=k.M,Z=RRZ,ZE=Z+1.6,ZB=Z+7.6,PY=.6,{x0
  {const sx=xc+(st.road=='W'?6:-6),sw=5,sd=2.6,sz0=ZB-.4-sd,h0=2.9,h1=2.5;B(sw-.2,h1+.03,.1,sx,PY+(h1+.03)/2,ZB-.45,WD);for(const e of[-1,1]){const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(sd,0);sh.lineTo(sd,h1-.01);sh.lineTo(0,h0-.01);sh.lineTo(0,0);const w=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.1,bevelEnabled:false}),WD);w.rotation.y=-Math.PI/2;w.position.set(sx+e*(sw/2-.05)+.05,PY,sz0);G.add(w)}
   for(let i=0;i<9;i++)if(i<6||i>7)B(.02,h1,.01,sx-sw/2+.3+i*.55,PY+h1/2,ZB-.505,WD2);/* no battens behind the poster */
   const roof=new THREE.Mesh(new THREE.BoxGeometry(sw+.5,.06,sd+.7),TIN);roof.position.set(sx,PY+(h0+h1)/2+.1*(h0-h1)/sd+.035,sz0+sd/2-.1);roof.rotation.x=Math.atan2(h0-h1,sd);G.add(roof);
-  B(sw-.4,.08,.45,sx,PY+.45,ZB-.8,WD);B(sw-.4,.45,.06,sx,PY+.75,ZB-.58,WD);for(const dx of[-1.8,0,1.8])B(.06,.45,.4,sx+dx,PY+.22,ZB-.8,WD2);
+  B(sw-.4,.08,.45,sx,PY+.45,ZB-.8,WD);B(sw-.4,.45,.06,sx,PY+.7,ZB-.58,WD);for(const dx of[-1.8,0,1.8]){B(.06,.45,.4,sx+dx,PY+.22,ZB-.8,WD2);B(.05,.92,.04,sx+dx,PY+.46,ZB-.58,WD2)}/* uprights hold the back */
   {const p=k.lab('TIMETABLE\nAll trains stop here,\nboth ways, for 15 s.\nSee the board for\nthe next one.\nDOORS BUT DESERT RAILWAY',1,1.2,'#f0e8c8','#2a2018',40);p.position.set(sx+1.6,PY+1.6,ZB-.52);p.rotation.y=Math.PI;G.add(p)}
   obs.push({x0:sx-sw/2,x1:sx+sw/2,z0:ZB-.5,z1:ZB-.4},{x0:sx-sw/2,x1:sx-sw/2+.1,z0:sz0,z1:ZB-.4},{x0:sx+sw/2-.1,x1:sx+sw/2,z0:sz0,z1:ZB-.4})}
  /* station signs at both ends, white boards with black letters on two posts, facing the track */
@@ -122,12 +122,12 @@ function rrStation(g,st){const k=lkKit(),M=k.M,Z=RRZ,ZE=Z+1.6,ZB=Z+7.6,PY=.6,{x0
   const lt=new THREE.Mesh(new THREE.CylinderGeometry(.14,.1,.32,6),M(0xfff0c8,{emissive:0xffd890,emissiveIntensity:1.1}));lt.position.set(lx-.5,PY+3.27,ZE+2.6);G.add(lt);B(.34,.05,.34,lx-.5,PY+3.455,ZE+2.6,DK);lamps.push({x:lx-.5,y:PY+3.15,z:ZE+2.6});obs.push({x0:lx-.1,x1:lx+.1,z0:ZE+2.5,z1:ZE+2.7})}
  /* the departure board near the boarding spot, a bin, a bench on the open platform */
  const board=rrBoard();board.position.set(xc,PY,ZE+4.6);board.rotation.y=Math.PI;G.add(board);obs.push({x0:xc-.9,x1:xc+.9,z0:ZE+4.5,z1:ZE+4.7});
- {const bx=xc+(st.road=='W'?-6:6);B(1.6,.06,.42,bx,PY+.45,ZE+4.2,WD);B(1.6,.42,.05,bx,PY+.74,ZE+4.42,WD);for(const dx of[-.7,.7])B(.06,.45,.42,bx+dx,PY+.22,ZE+4.2,DK)}
+ {const bx=xc+(st.road=='W'?-6:6);B(1.6,.06,.42,bx,PY+.45,ZE+4.2,WD);B(1.6,.43,.05,bx,PY+.685,ZE+4.42,WD);for(const dx of[-.7,.7]){B(.06,.45,.42,bx+dx,PY+.22,ZE+4.2,DK);B(.05,.88,.04,bx+dx,PY+.44,ZE+4.42,DK)}}
  {const bn=new THREE.Mesh(new THREE.CylinderGeometry(.22,.2,.8,12),M(0x2c4a34,{roughness:.6}));bn.position.set(xc+(st.road=='W'?-2.5:2.5),PY+.4,ZE+5.2);G.add(bn);const lid=new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,.06,12),DK);lid.position.set(xc+(st.road=='W'?-2.5:2.5),PY+.83,ZE+5.2);G.add(lid)}
  /* the gravel patch where the track road ends, beside the ramp's foot */
  {const gx=re+rs*11,gm=M(0x8e7f66,{roughness:1,polygonOffset:true,polygonOffsetUnits:-2});const p=new THREE.Mesh(new THREE.PlaneGeometry(10,ZB+6-ZE-1),gm);p.rotation.x=-Math.PI/2;p.position.set(gx,.03,(ZE+1+ZB+6)/2);G.add(p)}
  /* Quarry & Gorge: a viewing bench at the west end, looking across the tracks to the gorge */
- if(st.view){const vx=x0+1.4;B(1.6,.06,.42,vx,PY+.45,ZE+1.6,WD);B(1.6,.42,.05,vx,PY+.74,ZE+1.82,WD);for(const dx of[-.7,.7])B(.06,.45,.42,vx+dx,PY+.22,ZE+1.6,DK);
+ if(st.view){const vx=x0+1.4;B(1.6,.06,.42,vx,PY+.45,ZE+1.6,WD);B(1.6,.43,.05,vx,PY+.685,ZE+1.82,WD);for(const dx of[-.7,.7]){B(.06,.45,.42,vx+dx,PY+.22,ZE+1.6,DK);B(.05,.88,.04,vx+dx,PY+.44,ZE+1.82,DK)};
   const s=k.lab("DEVIL'S GORGE · 70 m DOWN",1.2,.3,'#5a3a22','#f0e0b8',50);for(const dx of[-.5,.5])B(.05,1.2,.05,vx+dx+.2,PY+.6,ZE+.9,WD2);B(1.26,.34,.03,vx+.2,PY+1.1,ZE+.915,WD2);s.position.set(vx+.2,PY+1.1,ZE+.935);G.add(s)}
  props.push({x:xc,z:ZE+3.9,r:2,what:'board'},{x:xc,z:ZE+1.4,r:Math.max(3,(x1-x0)/2),what:'wait'});
  G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{board,obs,props,lamps,g:G}}
