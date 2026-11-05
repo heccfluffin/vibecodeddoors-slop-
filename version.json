@@ -1,1 +1,1 @@
-{"b": "r671", "notes": "Single scenery pieces left out of the area batches (same speed, less graphics memory)"}
+{"b": "r672", "notes": "Parked vehicles are drawn together with the scenery around them (fewer draw calls). ?noabtv turns it off."}
