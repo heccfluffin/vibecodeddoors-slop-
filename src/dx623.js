@@ -17,14 +17,14 @@ const WARM={on:!/[?&]nowarm/.test(location.search),done:new WeakSet(),list:[],sc
  R:450,BUS:10,PLAY:2.5,bs:16,lights:[],hot:[],hotC:[],HOTR:1200,stats:{objects:0,geos:0,ms:0,batches:0,maxMs:0},cam:null,prox:null};
 /* walk the desert a few thousand objects per frame and list what still needs uploading */
 function warmScanStep(q,n){const S2=WARM.scan;if(!S2)return true;const veh=S2.veh,PF=typeof PL_FAR!='undefined'?(1<<PL_FAR):64;
- while(n-->0&&S2.st.length){const[o,cx,cz]=S2.st.pop();const ud=o.userData||{};if(o.isLight)S2.lights.push(o);
+ while(n-->0&&S2.so.length){const o=S2.so.pop(),cx=S2.sx.pop(),cz=S2.sz.pop();const ud=o.userData||{};if(o.isLight)S2.lights.push(o);
   if(o!==q.g&&!o.visible){if(!(ud.chunk||ud.sm||veh.has(o)))continue}
   if(o===q.sky||o===q.zsky||o===q.zstar)continue;
   let x=cx,z=cz;if(ud.chunk){x=ud.cx;z=ud.cz+q.OZ}
   if((o.isMesh||o.isSprite||o.isPoints||o.isLine)&&o.geometry&&!o.children.length&&!WARM.done.has(o.geometry)){const m=o.layers.mask;
    if(((m&1)||m===PF)&&o.onBeforeRender===THREE.Object3D.prototype.onBeforeRender){let px=x,pz=z;if(px==null){/* positions of things the last frame skipped (r629) are worked out first */try{mwFresh(o)}catch(e){}const e=o.matrixWorld.elements;px=e[12];pz=e[14];if(ud.dpMerged){const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const c=g.boundingSphere.center.clone().applyMatrix4(o.matrixWorld);px=c.x;pz=c.z}}S2.out.push({o,x:px,z:pz})}}
-  for(let i=o.children.length-1;i>=0;i--)S2.st.push([o.children[i],x,z])}
- if(S2.st.length)return false;WARM.list=S2.out;WARM.lights=S2.lights;WARM.litQ=q;WARM.scan=null;warmSort();return true}
+  for(let i=o.children.length-1;i>=0;i--){S2.so.push(o.children[i]);S2.sx.push(x);S2.sz.push(z)}}
+ if(S2.so.length)return false;WARM.list=S2.out;WARM.lights=S2.lights;WARM.litQ=q;WARM.scan=null;warmSort();return true}
 /* where to warm around: you, or while the bus is still driving in, the bus stop where it will let you off */
 function warmCtr(q){return q.roam?[P.x,P.z]:[0,-1043+q.OZ]}
 function warmSort(){const L=WARM.list,[cx,cz]=warmCtr(WARM.q);for(const it of L)it.d=Math.hypot(it.x-cx,it.z-cz);L.sort((a,b)=>b.d-a.d);WARM.sortT=performance.now()}/* nearest at the end, popped first */
@@ -40,11 +40,11 @@ function warmBatch(q,L,r0){if(!WARM.cam){WARM.cam=new THREE.PerspectiveCamera(60
 function warmTick(q,r0){if(!WARM.on||!q||!q.g||q.ld||state!=='bus')return;if(WARM.q!==q){WARM.q=q;WARM.list=[];WARM.lights=[];WARM.litQ=null;WARM.hot=[];WARM.hotC=[];WARM.scan=null;WARM.scanT=0}
  const now=performance.now();
  if(WARM.roam!==q.roam){WARM.roam=q.roam;WARM.scanT=0;warmSort()}
- if(!WARM.scan&&(!WARM.list.length&&now-WARM.scanT>3000||now-WARM.scanT>12000)){WARM.scanT=now;WARM.scan={st:[[q.g,null,null]],out:[],lights:[],veh:new Set((q.vehs||[]).map(v=>v&&v.m).filter(Boolean))}}
+ /* (r677: the full look every 20 s, was 12: new things are caught the moment they are added anyway) */if(!WARM.scan&&(!WARM.list.length&&now-WARM.scanT>3000||now-WARM.scanT>20000)){WARM.scanT=now;WARM.scan={so:[q.g],sx:[null],sz:[null],out:[],lights:[],veh:new Set((q.vehs||[]).map(v=>v&&v.m).filter(Boolean))}}
  /* nothing new is warmed until the first scan has found the desert's lights (else its shaders would be made for an unlit scene) */
  if(WARM.litQ===q&&(WARM.hot.length||WARM.hotC.length))warmHot(q,r0);
  if(WARM.scan){warmScanStep(q,4000);if(WARM.scan&&!WARM.list.length)return}
- if(now-WARM.sortT>2000)warmSort();
+ /* (r677: sorted again only after you have moved 25 m) */if(now-WARM.sortT>2000){const[sx,sz]=warmCtr(q);if(WARM.scx==null||Math.hypot(sx-WARM.scx,sz-WARM.scz)>25){WARM.scx=sx;WARM.scz=sz;warmSort()}else WARM.sortT=now}
  const L=WARM.list;if(!L.length)return;const budget=q.roam?WARM.PLAY:WARM.BUS,t0=performance.now(),[cx,cz]=warmCtr(q);
  while(L.length&&performance.now()-t0<budget){const b=[];while(L.length&&b.length<WARM.bs){const it=L[L.length-1];if(Math.hypot(it.x-cx,it.z-cz)>WARM.R)break;L.pop();const g=it.o.geometry;if(!g||WARM.done.has(g)||!it.o.parent)continue;WARM.done.add(g);b.push(it.o)}
   if(!b.length)break;const t1=performance.now();warmBatch(q,b,r0);const d=performance.now()-t1;WARM.stats.objects+=b.length;WARM.stats.batches++;WARM.stats.ms+=d;if(d>WARM.stats.maxMs)WARM.stats.maxMs=d;/* a slow batch (big shapes, a new shader) makes the next ones smaller */if(d>budget*2)WARM.bs=Math.max(2,WARM.bs>>1);else if(d<budget*.5)WARM.bs=Math.min(64,WARM.bs+4)}}

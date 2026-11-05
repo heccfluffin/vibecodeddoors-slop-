@@ -1077,6 +1077,8 @@ R("||o.geometry.attributes.position.version!==m.pv)return 1;","||o.geometry.attr
 R("pv:o.geometry.attributes.position.version}}","pv:o.geometry.attributes.position.version,vcf:!!m.vertexColors,cv:o.geometry.attributes.color?o.geometry.attributes.color.version:-1}}")
 R("const c=o.material.color,cr=c.r,cg=c.g,cb=c.b;","const c=o.material.color,cr=c.r,cg=c.g,cb=c.b;const vca=o.material.vertexColors&&g.attributes.color&&g.attributes.color.itemSize===3&&!g.attributes.color.normalized&&!g.attributes.color.isInterleavedBufferAttribute?g.attributes.color.array:null;")
 R("col[k]=cr;col[k+1]=cg;col[k+2]=cb;","if(vca){const j=i*3;col[k]=cr*vca[j];col[k+1]=cg*vca[j+1];col[k+2]=cb*vca[j+2]}else{col[k]=cr;col[k+1]=cg;col[k+2]=cb}")
+# r677: the sky's colour strip reuses its pixel buffer instead of making a new one every 0.4 s
+R("const x=D.skyCv.getContext('2d'),im=x.createImageData(4,512),d=im.data;","const x=D.skyCv.getContext('2d'),im=D.skyIm||(D.skyIm=x.createImageData(4,512)),d=im.data;")
 import base64 as _b64
 _fw=','.join("%s:'%s'"%(w,_b64.b64encode(open(S+'fonts/w%s.woff2'%w,'rb').read()).decode()) for w in (400,600,700,800))
 _fjs=("<script>/* r604: the game's font, Barlow Semi Condensed (SIL Open Font License), built in */(function(){const W={%s};"
@@ -1090,7 +1092,7 @@ _fb=base64.b64encode(open(S+'figmus.mp3','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="figMus" type="text/plain">'+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r676';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-05 r677';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

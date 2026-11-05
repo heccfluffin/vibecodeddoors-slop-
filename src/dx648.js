@@ -19,7 +19,7 @@
    once they have looked and sat exactly the same at two looks. When it moves, its parts draw themselves that same frame;
    it is not barred for good (it can join again once it stands still). ?noabtv turns this part off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,uni:!/[?&]noabtu(?:[&=]|$)/.test(location.search),/* r675: a parked vehicle's moving parts (wheels...) join too */vmov:!/[?&]noabtvm(?:[&=]|$)/.test(location.search),mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,/* r677: cheaper upkeep; ?noabtrr = the old way */rr:!/[?&]noabtrr(?:[&=]|$)/.test(location.search),uni:!/[?&]noabtu(?:[&=]|$)/.test(location.search),/* r675: a parked vehicle's moving parts (wheels...) join too */vmov:!/[?&]noabtvm(?:[&=]|$)/.test(location.search),mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
@@ -47,6 +47,11 @@ function abtKey(o){const m=o.material,g=o.geometry;if(!m||Array.isArray(m)||!g||
  if(A.position.isInterleavedBufferAttribute||A.normal.isInterleavedBufferAttribute||(A.color&&A.color.isInterleavedBufferAttribute))return null;if(one&&m.vertexColors&&A.color.itemSize!==3)return null;
  let tk='';if(m.map){if(!A.uv||A.uv.itemSize!==2||A.uv.isInterleavedBufferAttribute)return null;tk=abtTexKey(m.map,one);if(!tk)return null}
  return t+'|'+tk+'|'+m.side+'|'+m.alphaTest+(m.alphaTest>0?'/'+m.opacity:'')+'|'+(m.depthWrite?1:0)+(m.depthTest?1:0)+(m.fog?1:0)+(m.flatShading?1:0)+(m.dithering?1:0)+(m.toneMapped?1:0)+(m.colorWrite?1:0)+(m.premultipliedAlpha?1:0)+'|'+m.blending+'|'+m.depthFunc+'|'+(m.polygonOffset?m.polygonOffsetFactor+'/'+m.polygonOffsetUnits:'')+'|'+(one?3:A.color.itemSize)}
+/* r677: a merged batch's key is remembered on its shape (its material belongs to the batching alone); worked out again when
+   anything the key depends on changes */
+function abtKeyC(o){const u=o.userData;if(!u||!u.dpMerged)return abtKey(o);const m=o.material,g=o.geometry;if(!m||!g||Array.isArray(m))return abtKey(o);const t=m.map,c=g.__abk;
+ if(c&&c.m===m&&c.ro===o.renderOrder&&c.t===m.transparent&&c.s===m.side&&c.a===m.alphaTest&&c.op===m.opacity&&c.v===m.visible&&c.vc===m.vertexColors&&c.mp===t&&c.ob===m.onBeforeCompile&&(!t||(c.tv===t.version&&c.im===t.image&&c.ox===t.offset.x&&c.oy===t.offset.y&&c.rx===t.repeat.x&&c.ry===t.repeat.y&&c.rt===t.rotation&&c.ma===t.matrixAutoUpdate))&&c.pa===g.attributes.position&&c.ca===g.attributes.color&&c.ua===g.attributes.uv)return c.k;
+ const k=abtKey(o);g.__abk={k,m,ro:o.renderOrder,t:m.transparent,s:m.side,a:m.alphaTest,op:m.opacity,v:m.visible,vc:m.vertexColors,mp:t,ob:m.onBeforeCompile,tv:t?t.version:0,im:t?t.image:null,ox:t?t.offset.x:0,oy:t?t.offset.y:0,rx:t?t.repeat.x:0,ry:t?t.repeat.y:0,rt:t?t.rotation:0,ma:t?t.matrixAutoUpdate:0,pa:g.attributes.position,ca:g.attributes.color,ua:g.attributes.uv};return k}
 /* ---------- looking through the desert (a little each frame) ---------- */
 function abtScanStep(q,ms){const t0=performance.now();let J=ABT.scan;
  if(!J){const veh=new Set();for(const v of q.vehs||[])if(v&&v.m)veh.add(v.m);const skip=new Set([q.sky,q.sun,q.zsky,q.zstar,q.bg,BUS._sky,BUS._sun,typeof SKN!='undefined'?SKN.g:null].filter(Boolean));
@@ -63,7 +68,7 @@ function abtScanStep(q,ms){const t0=performance.now();let J=ABT.scan;
    if(J.skip.has(c)||(!iv&&c.__mwKeep)||u.dpDyn||u.mv||u.fsc||u.skn||c.updateMatrixWorld!==_mwP)continue;
    if((u.dpKeep||u.flv)&&!(iv&&c.isMesh&&u.flv&&u.dpMerged))continue;
    if(c.isMesh&&c.children.length===0&&(u.dpMerged||(ABT.ones&&!c.isSprite&&(c.layers.mask===1||c.layers.mask===64)))){const m=c.material;if(m&&m.map)J.users.set(m.map,(J.users.get(m.map)||0)+1);
-    if(c.isSkinnedMesh||c.isInstancedMesh||c.onBeforeRender!==_abOBR||ABT.lively.has(c))continue;const k=abtKey(c);if(!k)continue;
+    if(c.isSkinnedMesh||c.isInstancedMesh||c.onBeforeRender!==_abOBR||ABT.lively.has(c))continue;const k=ABT.rr?abtKeyC(c):abtKey(c);if(!k)continue;
     /* r669: a single piece joins only once it has looked and sat exactly the same at two looks in a row (8 s apart) */
     if(!u.dpMerged||iv||im){/* (a parked vehicle's parts too: it has to stand still for a look) */if(typeof mwFresh=='function')mwFresh(c);const sn=ABT.seen.get(c),now=ABT.scanN;
      if(!sn||sn.mat!==m||sn.geo!==c.geometry||!abtSigOK(m,sn.sig)||!abtSame(c.matrixWorld.elements,sn.mw)){ABT.seen.set(c,{mat:m,geo:c.geometry,sig:abtSig(m),mw:Float64Array.from(c.matrixWorld.elements),n:now});continue}
@@ -207,7 +212,8 @@ function abtVis(p,q,fr){if(p===q.g)return q.g.visible;if(p.__abf===fr)return p._
 function abtMid(){if(!ABT.act)return;const t0=performance.now(),q=ABT.q,fr=++ABT.fr;
  C.updateWorldMatrix(true,false);_abP.multiplyMatrices(C.projectionMatrix,C.matrixWorldInverse);_abF.setFromProjectionMatrix(_abP);
  let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}const cx=C.position.x,cy=C.position.y,cz=C.position.z;const ps=ABT.ps;ps.length=0;let nb=0,nm=0;
- for(const b of ABT.B){const m=b.mesh;m.matrixWorld.multiplyMatrices(q.g.matrixWorld,m.matrix);if(b.swq!==(q.g.__mwchg|0)||!b.sw.radius){b.sw.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld);b.swq=q.g.__mwchg|0}
+ /* (r677: a batch's place is worked out again only when the desert group moved) */const gq=q.g.__mwchg|0,gst=ABT.rr&&typeof MWC!='undefined'&&MWC.on;
+ for(const b of ABT.B){const m=b.mesh;if(!gst||b.mwq!==gq||!b.mwq0){m.matrixWorld.multiplyMatrices(q.g.matrixWorld,m.matrix);b.mwq=gq;b.mwq0=1}if(b.swq!==(q.g.__mwchg|0)||!b.sw.radius){b.sw.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld);b.swq=q.g.__mwchg|0}
   const s=b.sw,d=Math.hypot(s.center.x-cx,s.center.y-cy,s.center.z-cz)-s.radius;if(d>far||!_abF.intersectsSphere(s))continue;
   let any=false,ch=false;const V=b.vis;
   for(const[gp,GL]of b.byP){if(!(gp.__abf===fr?gp.__abv:abtVis(gp,q,fr))){for(const r of GL)if(V[r.i*4]!==0){V[r.i*4]=0;ch=true}continue}
@@ -217,7 +223,8 @@ function abtMid(){if(!ABT.act)return;const t0=performance.now(),q=ABT.q,fr=++ABT
    if(r.one&&!r.fb){const mm=r.mat;if(mm.__abq!==fr){mm.__abq=fr;mm.__abok=abtSigOK(mm,r.sig)}let w=!mm.__abok?'look':((r.i+fr)&3)===0&&(abtAv(r.geo)!==r.av||r.geo.index!==r.idx0)?'shape changed':null;
     if(w){ABT.why[w]=(ABT.why[w]||0)+1;if(w==='look')ABT.livelyMat.add(mm);ABT.lively.add(o);r.fb=true;b.dirty=true;ABT.dirty=true;ABT.st.fb++}}/* (its place was worked out again, to the same numbers) */
    if(!r.fb&&(o.parent!==r.par||o.geometry!==r.geo||o.material!==r.mat||(o.__mwchg|0)!==r.chg||(((r.i+fr)&3)===1&&r.geo.attributes.position.version!==r.pv))){const w=o.parent!==r.par?'group':o.geometry!==r.geo?'shape replaced':o.material!==r.mat?'material':r.geo.attributes.position.version!==r.pv?'shape changed':'moved';ABT.why[w]=(ABT.why[w]||0)+1;if((w==='moved'||w==='group')&&!r.veh)ABT.lively.add(o);if(r.veh)ABT.seen.delete(o);r.fb=true;b.dirty=true;ABT.dirty=true;ABT.st.fb++}
-   let dr=!r.fb&&o.visible&&(o.layers.mask&1)!==0&&r.mat.visible;if(dr){const p=r.par;dr=p.__abf===fr?p.__abv:abtVis(p,q,fr)}
+   /* r677: its own shown/layer/look-shown flags a quarter of the pieces each frame (its group's every frame, its place every frame) */
+   let dr=false;if(!r.fb){if(ABT.rr&&r.dv!==undefined&&((r.i+fr)&3)!==2)dr=r.dv;else dr=r.dv=o.visible&&(o.layers.mask&1)!==0&&r.mat.visible}if(dr){const p=r.par;dr=p.__abf===fr?p.__abv:abtVis(p,q,fr)}
    const v=dr?255:0;if(V[r.i*4]!==v){V[r.i*4]=v;ch=true}
    if(dr){any=true;nm++;o.__abX=fr;const p=r.par;if(p.__abH!==fr){p.__abH=fr;p.__abK=0;p.__abC=0;ps.push(p)}p.__abK+=o.id;p.__abC++}}}
   if(ch)b.vt.needsUpdate=true;
