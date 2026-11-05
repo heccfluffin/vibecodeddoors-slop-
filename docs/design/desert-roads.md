@@ -1,4 +1,4 @@
-Status: part 1 (the layout plan) approved 2026-11-05, right-hand traffic · part 2 (the road look: models) in progress · part 3 (AI on the roads) after that
+Status: part 1 (the layout plan) approved 2026-11-05, right-hand traffic · part 2 (the road look: models) batch 1 for review · part 3 (AI on the roads) after that
 
 # Desert roads: a tidy layout, one look, and AI that drives on them
 
@@ -45,7 +45,7 @@ station, wind farm tracks, and Gulch Main St (now shown as dirt on the map).
 
 **At the gorge:** the road surface stops at each bridge's ends; the bridge deck carries the road across.
 
-## Part 2: the road look (models, after part 1 is approved)
+## Part 2: the road look (models: `models/desert-roads.js`, needs `fort-kit.js`)
 One builder, `drBuild`, from one table `DROADS` (each road: name, kind, a centre line of straight pieces and arcs).
 - Highway: 8 m, white edge lines, yellow centre dash (solid near junctions), 1.2 m gravel shoulders with a ragged edge
   that fades into the sand, reflector posts every 50 m on the right.
@@ -72,3 +72,20 @@ One builder, `drBuild`, from one table `DROADS` (each road: name, kind, a centre
 ## Has to move with it (for Claude Code)
 The AI routes above; the street signs `S`; `xpCover` keeps clear of the new roads by itself (it follows mapR);
 the map (`dm2Draw`) should read `DROADS` for road shapes and kinds; `NAV` road cells from `DROADS`.
+
+### Batch 1: pieces, junctions, dirt track mouths, for review · `drPiece`, `drJunction`, `drMouth`, `drStopSign`
+- `drPiece(g, centreLine, kind)`: the road between two junctions, from a list of points (curves made with `drArc`).
+  Cut into ~100 m pieces. Highways have gravel shoulders with ragged outer edges, white edge lines, a yellow centre
+  dash (3 m on, 9 m off) and reflector posts every 25 m (alternate sides); town roads lines only; dirt tracks ruts and
+  ragged edges.
+- `drJunction(g, x, z, arms)`: T junctions and crossroads, all at right angles (every junction in the plan is). Rounded
+  kerb corners (9 m), edge lines that follow them, a stop line and a STOP sign on each road that gives way. Returns how
+  far from the centre each road piece starts.
+- `drMouth(g, x, z, dir, halfWidth)`: a gravel mouth where a dirt track leaves an asphalt road; the asphalt road and
+  its edge line run straight past.
+- **Sides:** in three.js, a driver facing (dx, dz) has their right hand towards (-dz, dx). Right-hand traffic keeps
+  to that side: the AI's lane centre is 2 m that way from the centre line (part 3).
+- Everything is flat at y .06 (the old strips' height), with lines nudged by `polygonOffsetUnits` only.
+
+Next: batch 2, the gorge bridge ends, the town roads' kerbs and pavements, road signs (names at junctions, speed
+limits, the distance signs), and the plan's whole network as a `DROADS` table.
