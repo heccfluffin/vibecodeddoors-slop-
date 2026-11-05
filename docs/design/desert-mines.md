@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) for review
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) for review
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -280,7 +280,7 @@ Door space: each blocker is built round a doorway at the origin (the door in the
 x ±0.8, 3 m high, as `mineDoor` builds them); put the group at the door of the room it blocks. Every material has
 `userData.gd = 1` so the mines' sandy tint leaves it alone.
 
-### Batch 1: the blocked doors, for review · `dmRubble`, `dmGrate`, `dmWrench`, `dmLever`, `dmCrawl`, `dmFlood`, `dmChasm`
+### Batch 1: the blocked doors, approved 2026-11-05 · `dmRubble`, `dmGrate`, `dmWrench`, `dmLever`, `dmCrawl`, `dmFlood`, `dmChasm`
 - **Rubble** (`dmRubble(g)`): a rock fall burying the doorway, with a broken prop and a cracked lintel in it. The rocks are dropped one by one onto the heap (`dmPile`), so each rests on the ground or on the rocks under it, over a dirt core that shows between them. Six layers;
   `setDig(k)` clears them from the top as you dig (k = hits done / hits needed), leaving a few stones. Obstacle until
   clear. Dynamite or the Runaway Cart clear it at once.
@@ -305,6 +305,34 @@ x ±0.8, 3 m high, as `mineDoor` builds them); put the group at the door of the 
   -1 or 1) has missing planks, darker rope and a frayed end hanging off at the middle: the clues. `bridges` gives both
   walkable strips; `parts.snap(k)` (0 → 1 over about 0.6 s) breaks the rotten one in the middle and swings both halves
   down. The room's floor needs a gap between `za` and `zb` (the chasm room shape's black strip goes).
+
+### Batch 2: things in the rooms, for review · `dmVein`, `dmOreCart`, `dmAlcove`, `dmOil`, `dmGas`, `dmRockfall`
+Room space: the mine room (walls at x ±4, roof 4 m). Rolled with the room (seeded) like everything else.
+- **Ore veins** (`dmVein(g, x, y, z, ry, ore, seed)`, chest height y 1.35, its back on the wall: `ry` PI/2 on the left
+  wall, -PI/2 on the right). A rough rock boss standing out of the wall, in the ore's own rock and flecked with it:
+  - **copper:** rounded native-copper nuggets, some gone green;
+  - **iron:** dark metallic knobs with rust;
+  - **silver:** bright wiry nuggets, some tarnished;
+  - **gold:** yellow nuggets in white quartz;
+  - **crystal:** three clusters of glowing six-sided crystals with points;
+  - **diamond:** a few clear stones in blue-grey rock.
+  `setMined(k)` (hits done / hits needed) knocks the ore out; at 1 the boss is a flattened pocket covered in pick
+  scars with chips on the floor. `tick(t)` twinkles silver, gold, crystal and diamond. `DMORE` holds the names and
+  colours. The boss uses its own flat (planar) texture so it doesn't swirl.
+- **The ore cart** (`dmOreCart(g, x, z, ry)`): a painted, riveted steel tub with rust streaks on four wheels, a push bar
+  and couplings, on a 4 m length of track with sleepers and a buffer stop; a lamp on a post (`lights`) and an ORE CART
+  · BANK YOUR ORE · E board on its own posts beside the track, readable from both sides. `setLoad(k)` raises the ore
+  in the tub as ore is banked (shared in co-op: the tub shows everyone's banked ore together). Obstacle: the cart, the
+  track and the buffer.
+- **Alcoves** (`dmAlcove(g, x, z, side)`): two rough rock pillars from floor to roof standing 0.9 m out from the wall,
+  1.4 m apart, a timber head beam, a few stones inside. One or two a room (from door 2). `spot` is where you stand.
+- **Oil cans** (`dmOil()`): a green LAMP OIL tin with a spout, cap and handle (the pickup, in drawers and crates).
+- **Gas pockets** (`dmGas(g, x, z, HX, L)`): a dark fissure by the wall with a yellow sulphur crust, a GAS! · DON'T STOP
+  chalk board on a stake, and a low green haze. `setFill(k)` spreads it from the fissure through the room (0 → 1 over
+  the 20 s in the spec), `tick(t)` makes it drift. The haze is sprites (`gd` set).
+- **Loose roof** (`dmRockfall(g, x, z)`): cracks drawn on the roof, flat slabs hanging a little low and stones about to
+  drop. `warn(true)` starts a trickle of dust (the 1.2 s warning), `fall(k)` (0 → 1 over 0.6 s) drops the stones, and
+  at 1 a small heap stays (`obs`, as in the spec).
 
 # Part 2 (F): five levels and the room remodel: plan after part 1
 Levels of about 20 doors joined by a cage lift or a long ladder: 1 Old Workings, 2 Crystal Caves, 3 The Flooded Level,
