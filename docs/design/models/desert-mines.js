@@ -430,9 +430,12 @@ function dmShell(g,o){const K=dmKit(),HX=o.HX||4,HY=o.HY||4,Z=o.Z||20,lv=o.lv||1
  G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return{g:G,mesh,at,prof:pf,HX,HY,Z,lv}}
 /* something lying on the rock: turn +y to the rock's inward normal, sink it a little */
 function dmOnRock(ge,sh,z,s,sink,spin){const a=sh.at(z,s),n=new THREE.Vector3(-a.n[0],-a.n[1],0);const q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),n);ge.rotateY(spin||0);ge.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q));ge.translate(a.p[0]-n.x*(sink||0),a.p[1]-n.y*(sink||0),a.p[2]);return ge}
-function dmCrystal(list,sz,seed,col){let sd=seed*31+7;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;const n=4+(r()*4|0),G=[];
- for(let i=0;i<n;i++){const h=sz*(.5+r()*.9),w=sz*(.09+r()*.06),pr=new THREE.CylinderGeometry(w,w*1.1,h,6,1);pr.translate(0,h/2,0);const tip=new THREE.ConeGeometry(w,w*2.2,6);tip.translate(0,h+w*1.1,0);
-  for(const ge of[pr,tip]){ge.rotateZ((r()-.5)*1.1);ge.rotateY(r()*6.28);ge.translate((r()-.5)*sz*.3,0,(r()-.5)*sz*.3);G.push(ge)}}
+function dmCrystal(list,sz,seed,col){let sd=seed*31+7;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;const n=6+(r()*5|0),G=[];
+ /* a cluster: one big crystal standing nearly upright, smaller ones fanning out from the same base. Each crystal is a
+    six-sided column (sunk into the rock below y 0) with a faceted point that matches it exactly, both moved together. */
+ for(let i=0;i<n;i++){const main=i==0,stub=i>n-3,h=sz*(main?1:stub?.12+r()*.1:.3+r()*.5),w=main?h*.2:stub?sz*(.05+r()*.03):h*(.16+r()*.06),a=main?r()*.15:stub?.6+r()*.5:.3+r()*.55,dir=main?r()*6.28:(i/n)*6.28+r()*.8,off=main?0:sz*(stub?.14+r()*.06:.06+r()*.1),ox=-Math.cos(dir)*off,oz=Math.sin(dir)*off,sp=r()*1.05;
+  const pr=new THREE.CylinderGeometry(w*.9,w,h+w,6,1);pr.translate(0,(h-w)/2,0);const tip=new THREE.ConeGeometry(w*.9,w*1.9,6);tip.translate(0,h+w*.95,0);
+  for(const ge of[pr,tip]){ge.rotateY(sp);ge.rotateZ(a);ge.rotateY(dir);ge.translate(ox,0,oz);G.push(ge)}}
  return G}
 function dmBone(kind,sz,seed){let sd=seed*17+3;const r=()=>((sd=Math.imul(sd^sd>>>15,sd|1)+0x6d2b79f5|0)>>>0)/4294967296;const G=[];
  if(kind=='long'){const s=new THREE.CylinderGeometry(.035*sz,.035*sz,.7*sz,8);s.rotateZ(Math.PI/2);G.push(s);for(const e of[-1,1]){const k=new THREE.SphereGeometry(.07*sz,8,6);k.scale(1,.8,1.2);k.translate(e*.35*sz,0,0);G.push(k)}}
@@ -449,9 +452,9 @@ function dmDress(g,sh,o){const K=dmKit(),M=K.M,lv=sh.lv,HX=sh.HX,HY=sh.HY,Z=sh.Z
   /* old tools leaning on the wall, a water barrel */const S=[];const tz=zr(3);for(const[dx,ry]of[[0,.15],[.35,-.1]]){mgBeam(S,[HX-.12,0,tz+dx],[HX-.45,1.25,tz+dx+ry],.04,.04,[.55,.4,.26])}
   G.add(mgMerge(S,K.TIMBV));const bz=zr(3),br=new THREE.Mesh(new THREE.CylinderGeometry(.3,.27,.8,14),M(0xffffff,{map:K.PLANKT,roughness:.9}));br.position.set(-HX+.42,.4,bz);G.add(br);out.obs.push({x0:-HX,x1:-HX+.75,z0:bz-.35,z1:bz+.35})}
  if(lv==2){/* crystal clusters on the walls and roof, and a few small ones at the foot of the walls */const A=[],B=[];let k=0;const n=Math.round(Z/2.2);
-  for(let i=0;i<n;i++){const z=zr(1.2),s=r()<.6?(r()<.5?.12+r()*.15:.73+r()*.15):.35+r()*.3,big=s>.3&&s<.7;const list=(k++%3)?A:B;dmCrystal(list,big?.9+r()*.6:.6+r()*.5,i+5).forEach(ge=>{dmOnRock(ge,sh,z,s,.06,r()*6);mgPut(list,ge,0,0,0,0,[1,1,1])});const a=sh.at(z,s);if(i%3==0)out.glow.push([a.p[0]*.8,a.p[1]-.4,z])}
+  for(let i=0;i<n;i++){const z=zr(1.2),s=r()<.6?(r()<.5?.12+r()*.15:.73+r()*.15):.35+r()*.3,big=s>.3&&s<.7;const list=(k++%3)?A:B;const spin=r()*6.28;dmCrystal(list,big?.9+r()*.6:.6+r()*.5,i+5).forEach(ge=>{dmOnRock(ge,sh,z,s,.05,spin);mgPut(list,ge,0,0,0,0,[1,1,1])});const a=sh.at(z,s);if(i%3==0)out.glow.push([a.p[0]*.8,a.p[1]-.4,z])}
   for(let i=0;i<Math.round(Z/4);i++){const z=zr(1.5),sx=r()<.5?-1:1;const list=i%2?A:B;dmCrystal(list,.35+r()*.25,i+70).forEach(ge=>{ge.translate(sx*(HX-.12),-.02,z);mgPut(list,ge,0,0,0,0,[1,1,1])})}
-  const CA=M(0xbfe6ff,{emissive:0x3aa0ff,emissiveIntensity:.9,roughness:.15,metalness:.1}),CB=M(0xe0c8ff,{emissive:0x9a50ff,emissiveIntensity:.85,roughness:.15,metalness:.1});
+  const CA=M(0xbfe6ff,{emissive:0x3a9cff,emissiveIntensity:.75,roughness:.12,metalness:.1,flatShading:true}),CB=M(0xe4ccff,{emissive:0x9050f0,emissiveIntensity:.7,roughness:.12,metalness:.1,flatShading:true});
   if(A.length)G.add(mgMerge(A,CA));if(B.length)G.add(mgMerge(B,CB))}
  if(lv==3){/* puddles, a pipe along one wall on brackets, ankle-deep water */const PM=M(0x1a2226,{roughness:.12,metalness:.3,polygonOffset:true,polygonOffsetUnits:-2});
   for(let i=0;i<4+(r()*3|0);i++){const p=new THREE.Mesh(new THREE.CircleGeometry(1,20),PM);p.rotation.x=-Math.PI/2;p.scale.set(.5+r()*.9,.4+r()*.6,1);p.position.set((r()-.5)*(2*HX-2),.004,zr(1));G.add(p)}

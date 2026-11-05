@@ -459,7 +459,9 @@ tunnels):
   - 5: almost black.
 - **Each level's dressing:**
   - 1: plank lagging laid over the timber sets, and boards behind the posts; old tools and a water barrel.
-  - 2: glowing blue and violet crystal clusters on the walls and roof, small ones at the foot of the walls.
+  - 2: glowing blue and violet crystal clusters on the walls and roof (a big crystal with smaller ones and stubs fanning
+    out from one base; each crystal is a six-sided column with a faceted point, sunk into the rock), small clusters at
+    the foot of the walls.
   - 3: puddles, a rusty pipe along one wall on brackets, ankle-deep water in wet rooms.
   - 4: glowing cracks placed one by one in each room, so no two rooms look alike and nothing repeats. Each crack
     starts on the floor a little way out from the wall, runs to the foot of the wall and climbs it, sometimes with a
