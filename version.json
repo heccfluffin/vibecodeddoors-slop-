@@ -1,1 +1,1 @@
-{"b": "r675", "notes": "Desert speed-up: parked vehicles near you, multi-material and painted pieces batched; far pieces skipped in the position update; far TV/drive-in/prison animations eased."}
+{"b": "r676", "notes": "Fixed quarter-second freezes when new scenery batches came into view, and short hitches while walking."}
