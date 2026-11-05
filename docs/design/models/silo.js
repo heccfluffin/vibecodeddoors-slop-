@@ -200,3 +200,109 @@ g.add(k.ext(s2,.4,x+.4,zc,Y,k.CON))}
   for(const[,y,r]of pipes)C(r+.05,r+.05,.04,X1-.026,Y+y,PZ,k.GRY,'x',null,14)}
  g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});
  return{door,lamps,blockers:[{x0:BD.x0,x1:BD.x1,z0:ZS,z1:zc-BD.hw},{x0:BD.x0,x1:BD.x1,z0:zc+BD.hw,z1:ZN},{x0:BD.x1,x1:BD.x1+DW+.3,z0:zc+BD.hw,z1:ZN}]}}
+
+/* =====================================================================================================
+   Batch 2: the shaft, the catwalk and the cradle (silo space, shaft centre (0, 0); the missile stands at y -18).
+   slShaft(g)   -> {strobe:{set(on), tick(dt)}, lamps:[Vector3,...]}
+       The lining (radius 4.7, the surface tube's size) in cast concrete from the floor (y -20.4) to the ground, with
+       the passage's opening on the north side (x -1.5..1.5, up to 2.65 m above the catwalk) and a steel portal round it;
+       steel rings every 3 m; four guide rails on the diagonals; two cable ladders; caged lamps; four red strobes
+       (strobe.set(true) during a countdown, strobe.tick(dt) every frame); the floor with the flame deflector, a ring
+       grate round it, scorch marks, and two exhaust ducts (east and west).
+   slCatwalk(g) -> {umb:{set(k)}, tag, blockers:[{x0,x1,z0,z1}]}
+       The catwalk ring at y -14 (steel grating you can see through, radius 2.25..4.68) on radial beams with knee braces,
+       the railing on its inner edge, the sill plate where the passage meets it, the maintenance tag on a clipboard on
+       the railing facing the passage (tag: the label mesh; the game can swap its own picture in), and the umbilical
+       arm on the south side reaching the missile's plug (umb.set(0) plugged in, umb.set(1) swung clear for launch).
+       blockers: the umbilical mast.
+   slCradle(g)  -> {set(k)}
+       The launch ring the missile stands on (top at y -18), four legs with shock absorbers down to the floor,
+       cross-bracing, and four hold-down clamps on the skirt between the fins (set(0) clamped .. set(1) open).
+   ===================================================================================================== */
+/* a piece of upright tube: radius r, from y0 to y1, angles a0..a1 (0 = +z, turning towards +x); in: faces the middle */
+function slTube(r,y0,y1,a0,a1,m,inw,seg){const k=slKit(),s=(m.userData&&m.userData.s)||.5,n=seg||Math.max(4,Math.ceil(Math.abs(a1-a0)*r/.35)),P=[],N=[],U=[],I=[];
+ for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n,sx=Math.sin(a),cz=Math.cos(a);for(const y of[y0,y1]){P.push(r*sx,y,r*cz);N.push(inw?-sx:sx,0,inw?-cz:cz);U.push(a*r*s,y*s)}}
+ for(let i=0;i<n;i++){const a=i*2;if(inw===(a1>a0))I.push(a,a+1,a+2,a+1,a+3,a+2);else I.push(a,a+2,a+1,a+1,a+2,a+3)}
+ const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(P,3));ge.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));ge.setIndex(I);const o=new THREE.Mesh(ge,m);o.userData.noSeam=true;return o}
+/* a flat ring (annulus) at height y facing up (dn: facing down) */
+function slAnn(r0,r1,y,m,dn,a0,a1){const ge=new THREE.RingGeometry(r0,r1,64,1,a0||0,a1==null?Math.PI*2:a1-(a0||0));const s=(m.userData&&m.userData.s)||1,uv=ge.attributes.uv,p=ge.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)*s,p.getY(i)*s);
+ const o=new THREE.Mesh(ge,m);o.rotation.x=dn?Math.PI/2:-Math.PI/2;o.position.y=y;o.userData.noSeam=true;return o}
+const SLS={FL:-20.4,PA:Math.asin(1.5/4.7),RAILS:[1,3,5,7].map(i=>i*Math.PI/4),CAB:[1.25,-1.25],LAMPA:[0,1,2,3].map(i=>.45+i*Math.PI/2),RINGS:[-19.2,-16.2,-13,-10.2,-7.2,-4.2,-1.2]};
+
+function slShaft(g){const k=slKit(),H=k.H(g),{B,C}=H,R=SLD.R,Y=SLD.Y,FL=SLS.FL,PA=SLS.PA,PH=SLD.P.h+.25;
+ /* the lining: below the catwalk, the band with the passage's opening, above */
+ g.add(slTube(R,FL,Y,0,Math.PI*2,k.CON,true));g.add(slTube(R,Y,Y+PH,PA,Math.PI*2-PA,k.CON,true));g.add(slTube(R,Y+PH,0,0,Math.PI*2,k.CON,true));
+ /* the steel portal on the shaft side of the passage (it also covers the passage's ends) */
+ for(const sx of[-1,1])B(.27,PH-.28,.45,sx*1.605,Y+(PH-.28)/2,4.52,k.YEL);B(3.5,.28,.45,0,Y+PH-.14,4.52,k.YEL);B(3,.012,.45,0,Y+.006,4.52,k.DIA);
+ k.sign(g,'TUNNEL · ELEVATOR',1.6,.16,'#1a1a1a','#e8c020',0,Y+PH-.14,4.288,Math.PI);
+ /* steel rings every 3 m (the one at the passage leaves its opening) */
+ for(const y of SLS.RINGS){const gap=y>Y&&y<Y+PH,a0=gap?PA+.02:0,a1=gap?Math.PI*2-PA-.02:Math.PI*2;g.add(slTube(R-.1,y-.09,y+.09,a0,a1,k.GRY,true));g.add(slAnn(R-.1,R,y+.09,k.GRY,false,a0,a1));g.add(slAnn(R-.1,R,y-.09,k.GRY,true,a0,a1))}
+ /* guide rails on the diagonals, on brackets */
+ {const L=[];for(const a of SLS.RAILS){const sx=Math.sin(a),cz=Math.cos(a),put=(w,h,d,r,y)=>{L.push([new THREE.BoxGeometry(w,h,d),new THREE.Matrix4().compose(new THREE.Vector3(r*sx,y,r*cz),new THREE.Quaternion().setFromEuler(new THREE.Euler(0,a,0)),new THREE.Vector3(1,1,1))])};
+  put(.05,-FL,.14,R-.24,FL/2);put(.16,-FL,.03,R-.31,FL/2);for(let y=FL+.8;y<-.3;y+=1.5)put(.22,.08,.2,R-.1,y)}g.add(k.merge(L,k.GRY))}
+ /* cable ladders with cables */
+ {const L=[],Cb=[];for(const a of SLS.CAB){const sx=Math.sin(a),cz=Math.cos(a),q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,a,0)),put=(w,h,d,r,y,lt)=>{(lt||L).push([new THREE.BoxGeometry(w,h,d),new THREE.Matrix4().compose(new THREE.Vector3(r*sx,y,r*cz),q,new THREE.Vector3(1,1,1))])};
+  for(const dx of[-.2,.2]){const tx=Math.cos(a)*dx,tz=-Math.sin(a)*dx;L.push([new THREE.BoxGeometry(.025,-FL,.07),new THREE.Matrix4().compose(new THREE.Vector3((R-.12)*sx+tx,FL/2,(R-.12)*cz+tz),q,new THREE.Vector3(1,1,1))])}
+  for(let y=FL+.2;y<0;y+=.3)put(.4,.02,.025,R-.12,y);
+  [-.12,-.04,.05,.13].forEach((dx,i)=>{const tx=Math.cos(a)*dx,tz=-Math.sin(a)*dx,r=.02+i%2*.01;k.rodL(Cb,[(R-.16)*sx+tx,FL,(R-.16)*cz+tz],[(R-.16)*sx+tx,0,(R-.16)*cz+tz],r,8)})}
+  g.add(k.merge(L,k.GRY));g.add(k.merge(Cb,k.BLK))}
+ /* caged lamps */
+ const lamps=[];for(const a of SLS.LAMPA)for(const y of[-18.6,-15.6,-9.2,-4.2]){const l=k.cageLamp('side'),r=R-.01;l.position.set(r*Math.sin(a),y,r*Math.cos(a));l.rotation.y=a+Math.PI;g.add(l);lamps.push(new THREE.Vector3((r-.5)*Math.sin(a),y,(r-.5)*Math.cos(a)))}
+ /* red strobes, east and west, high and at the catwalk */
+ const strobes=[];for(const a of[Math.PI/2,-Math.PI/2])for(const y of[-2.6,-11.9]){const G=new THREE.Group(),r=R-.01;G.position.set(r*Math.sin(a),y,r*Math.cos(a));G.rotation.y=a+Math.PI;g.add(G);const GH=k.H(G);GH.B(.2,.2,.08,0,0,.04,k.BLK);
+  const d=new THREE.Mesh(new THREE.SphereGeometry(.09,14,10,0,Math.PI*2,0,Math.PI/2),k.M(0x601010,{emissive:0xff1a10,emissiveIntensity:.15,transparent:true,opacity:.85}));d.rotation.x=Math.PI/2;d.position.z=.08;G.add(d);const sp=k.glow(1.4,0xff3020);sp.position.z=.16;sp.material.opacity=0;G.add(sp);strobes.push({d,sp})}
+ let on=false,st=0;const strobe={set(v){on=!!v},tick(dt){st+=dt;const f=on?Math.max(0,Math.sin(st*9)):0;for(const s of strobes){s.d.material.emissiveIntensity=on?.2+2.2*f:.15;s.sp.material.opacity=f*.9}}};
+ /* the floor: concrete with scorch marks, the ring grate round the flame deflector, the deflector, the exhaust ducts */
+ {g.add(slAnn(0,1.7,FL,k.FLR));g.add(slAnn(2.3,R,FL,k.FLR));
+  const so=k.tex(256,256,(x,w,h)=>{x.clearRect(0,0,w,h);const gr=x.createRadialGradient(128,128,20,128,128,128);gr.addColorStop(0,'rgba(10,8,6,.95)');gr.addColorStop(.5,'rgba(20,16,12,.6)');gr.addColorStop(1,'rgba(20,16,12,0)');x.fillStyle=gr;x.fillRect(0,0,w,h);for(let i=0;i<40;i++){x.strokeStyle='rgba(10,8,6,.35)';x.lineWidth=2+k.r()*5;const a=k.r()*6.28;x.beginPath();x.moveTo(128+Math.cos(a)*40,128+Math.sin(a)*40);x.lineTo(128+Math.cos(a)*(90+k.r()*38),128+Math.sin(a)*(90+k.r()*38));x.stroke()}});
+  const sc=new THREE.Mesh(new THREE.PlaneGeometry(8.6,8.6),new THREE.MeshStandardMaterial({map:so,transparent:true,depthWrite:false,roughness:1,polygonOffset:true,polygonOffsetUnits:-4}));sc.rotation.x=-Math.PI/2;sc.position.y=FL+.003;sc.renderOrder=1;g.add(sc)}
+ g.add(slTube(2.3,FL-.25,FL,0,Math.PI*2,k.BLK,true,40));g.add(slTube(1.7,FL-.25,FL,0,Math.PI*2,k.BLK,false,32));g.add(slAnn(1.7,2.3,FL-.25,k.BLK));
+ {const gr=slAnn(1.7,2.3,FL-.012,k.GRT);gr.material=k.GRT;const uv=gr.geometry.attributes.uv,p=gr.geometry.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/.3,p.getY(i)/.3);g.add(gr);g.add(slTube(2.3,FL-.03,FL,0,Math.PI*2,k.GRY,true,40));g.add(slTube(1.7,FL-.03,FL,0,Math.PI*2,k.GRY,false,32))}
+ {const SCO=k.M(0x2a2622,{metalness:.6,roughness:.7});C(.06,1.5,1.0,0,FL+.5,0,SCO,null,null,32);C(1.55,1.6,.12,0,FL+.06,0,SCO,null,null,32);for(let i=0;i<8;i++){const a=i*Math.PI/4;H.rod([1.45*Math.sin(a),FL+.1,1.45*Math.cos(a)],[.3*Math.sin(a),FL+.86,.3*Math.cos(a)],.025,SCO,null,5)}}
+ for(const a of[Math.PI/2,-Math.PI/2]){const w=.24;g.add(slTube(R-.005,FL,FL+2.2,a-w,a+w,k.BLK,true,8));const sx=Math.sin(a),cz=Math.cos(a),q=new THREE.Euler(0,a,0);
+  for(const da of[-w,w]){const o=new THREE.Mesh(new THREE.BoxGeometry(.14,2.3,.12),k.HZD);o.position.set((R-.05)*Math.sin(a+da),FL+1.15,(R-.05)*Math.cos(a+da));o.rotation.y=a+da;g.add(o)}
+  {const o=new THREE.Mesh(new THREE.BoxGeometry(2*w*R+.14,.14,.12),k.HZD);o.position.set((R-.05)*sx,FL+2.27,(R-.05)*cz);o.rotation.y=a;g.add(o)}k.sign(g,'EXHAUST',.9,.18,'#1a1a1a','#e8c020',(R-.12)*sx,FL+2.55,(R-.12)*cz,a+Math.PI)}
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});return{strobe,lamps}}
+
+function slCatwalk(g){const k=slKit(),H=k.H(g),{B,C}=H,R=SLD.R,Y=SLD.Y,RI=2.25,RO=R-.02;
+ /* the grating deck, its inner edge and the toe plate */
+ {const ge=new THREE.RingGeometry(RI,RO,72,1),uv=ge.attributes.uv,p=ge.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/.3,p.getY(i)/.3);const d=new THREE.Mesh(ge,k.GRT);d.rotation.x=-Math.PI/2;d.position.y=Y;g.add(d)}
+ g.add(slTube(RI,Y-.18,Y+.1,0,Math.PI*2,k.GRY,true,48));g.add(slTube(RI+.01,Y-.18,Y+.1,0,Math.PI*2,k.GRY,false,48));g.add(slAnn(RI,RI+.01,Y+.1,k.GRY));
+ /* radial beams under the deck, with knee braces to the wall, and a ring beam at the wall */
+ {const L=[],n=16;for(let i=0;i<n;i++){const a=(i+.5)/n*Math.PI*2,sx=Math.sin(a),cz=Math.cos(a),q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,a,0)),rm=(RI+R)/2;
+   if(Math.abs(Math.atan2(sx,cz))<SLS.PA+.08)continue;
+   L.push([new THREE.BoxGeometry(.08,.16,R-RI-.02),new THREE.Matrix4().compose(new THREE.Vector3(rm*sx,Y-.085,rm*cz),q,new THREE.Vector3(1,1,1))]);
+   k.rodL(L,[(R-.03)*sx,Y-1.3,(R-.03)*cz],[(R-1.3)*sx,Y-.17,(R-1.3)*cz],.03);L.push([new THREE.BoxGeometry(.18,.24,.04),new THREE.Matrix4().compose(new THREE.Vector3((R-.02)*sx,Y-1.3,(R-.02)*cz),q,new THREE.Vector3(1,1,1))])}
+  g.add(k.merge(L,k.GRY))}
+ g.add(slTube(R-.08,Y-.17,Y-.01,0,Math.PI*2,k.GRY,true,64));g.add(slAnn(R-.08,R,Y-.17,k.GRY,true));
+ /* the railing on the inner edge: posts, top and middle rails */
+ {const L=[],n=20,r=RI+.06;for(let i=0;i<n;i++){const a=i/n*Math.PI*2;k.boxL(L,.05,1.05,.05,r*Math.sin(a),Y+.525,r*Math.cos(a))}g.add(k.merge(L,k.YEL));
+  for(const y of[1.05,.55]){const t=new THREE.Mesh(new THREE.TorusGeometry(r,y>1?.028:.02,6,80),k.YEL);t.rotation.x=Math.PI/2;t.position.y=Y+y;g.add(t)}}
+ /* the maintenance tag on a clipboard hung on the top rail, facing the passage */
+ const TZ=RI+.11;B(.4,.52,.02,0,Y+.78,TZ,k.M(0x7a5a3a,{roughness:.8}));B(.12,.05,.035,0,Y+1.02,TZ+.02,k.GRY);H.rod([0,Y+1.04,TZ+.01],[0,Y+1.08,TZ-.05],.008,k.GRY,null,5);
+ const tag=(()=>{const c=document.createElement('canvas');c.width=256;c.height=320;const x=c.getContext('2d');x.fillStyle='#f0e8c0';x.fillRect(0,0,256,320);x.strokeStyle='#b01818';x.lineWidth=8;x.strokeRect(4,4,248,312);x.fillStyle='#1a1a1a';x.textAlign='center';x.font='bold 30px '+(k.FONT||'Arial');x.fillText('SILO 1',128,52);x.font='bold 22px '+(k.FONT||'Arial');x.fillText('MAINTENANCE TAG',128,92);x.font='16px '+(k.FONT||'Arial');['STAGE 1 & 2 FUELLED','LAST INSPECTED:','YESTERDAY','INSPECTOR: SEEK'].forEach((l,i)=>x.fillText(l,128,140+i*28));x.font='bold 18px '+(k.FONT||'Arial');x.fillText('READ ME (E)',128,280);
+  const t=new THREE.CanvasTexture(c);const m=new THREE.Mesh(new THREE.PlaneGeometry(.34,.425),new THREE.MeshBasicMaterial({map:t}));m.position.set(0,Y+.76,TZ+.016);g.add(m);return m})();
+ /* the umbilical arm: a mast on the south side of the deck, an arm out to the plug on the missile (missile space (0, 6.1, -1.4) = silo (0, -11.9, -1.4)) */
+ const MZ=-2.75,AY=-11.9;B(.4,.03,.4,0,Y+.015,MZ,k.GRY);B(.2,AY+.25-Y,.2,0,(Y+AY+.25)/2,MZ,k.OLV);for(const[dx,dz]of[[-.18,0],[.18,0],[0,-.18]])H.rod([dx,Y+.03,MZ+dz],[dx*.4,Y+1.0,MZ+dz*.4],.02,k.OLV,null,5);
+ C(.16,.16,.12,0,AY+.31,MZ,k.GRY,null,null,16);
+ const arm=new THREE.Group();arm.position.set(0,AY,MZ);arm.userData.dpKeep=1;g.add(arm);{const AH=k.H(arm),E=-1.45-MZ,L=E-.2;AH.C(.13,.13,.22,0,.12,0,k.GRY,null,null,16);AH.B(.14,.14,L,0,0,L/2,k.OLV);AH.B(.04,.04,L,0,.09,L/2,k.YEL);
+  AH.C(.16,.13,.16,0,0,E-.12,k.GRY,'z',null,16);AH.C(.1,.1,.04,0,0,E-.02,k.BLK,'z',null,16);for(const dx of[-.06,.06]){AH.rod([dx,-.07,.2],[dx,-.35,L*.5],.03,k.BLK,null,8);AH.rod([dx,-.35,L*.5],[dx,-.08,L-.05],.03,k.BLK,null,8)}
+  k.sign(arm,'UMBILICAL',.5,.09,'#e8c020','#1a1a1a',.072,0,L/2,Math.PI/2)}
+ H.rod([0,Y+.05,MZ-.1],[0,Y+.05,-R+.05],.035,k.BLK,null,8);B(.3,.4,.15,0,Y+.4,-R+.075,k.CAB);
+ const umb={set(u){arm.rotation.y=-u*Math.PI/2}};
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true});
+ return{umb,tag,blockers:[{x0:-.3,x1:.3,z0:MZ-.3,z1:MZ+.3}]}}
+
+function slCradle(g){const k=slKit(),H=k.H(g),{B,C}=H,FL=SLS.FL,TOP=-18,STL=k.M(0x4a4e52,{metalness:.6,roughness:.45});
+ /* the launch ring: a box-section ring, top at y -18 */
+ g.add(slTube(1.2,TOP-.3,TOP,0,Math.PI*2,STL,true,48));g.add(slTube(1.78,TOP-.3,TOP,0,Math.PI*2,STL,false,56));g.add(slAnn(1.2,1.78,TOP,STL));g.add(slAnn(1.2,1.78,TOP-.3,STL,true));
+ g.add(slAnn(1.42,1.48,TOP+.002,k.M(0xe0b820,Object.assign({roughness:.6},k.PO))));
+ /* four legs with shock absorbers, cross bracing */
+ const LG=[0,1,2,3].map(i=>i*Math.PI/2);for(const a of LG){const sx=Math.sin(a),cz=Math.cos(a),r=1.5;B(.3,.14,.3,r*sx,FL+.07,r*cz,STL);B(.22,-19.2-FL-.14,.22,r*sx,(FL+.14-19.2)/2,r*cz,STL);C(.14,.14,.7,r*sx,TOP-.3-.55,r*cz,k.YEL,null,null,14);C(.08,.08,.5,r*sx,TOP-.3-.2,r*cz,k.GRY,null,null,12);
+  for(let i=0;i<5;i++){const t=new THREE.Mesh(new THREE.TorusGeometry(.16,.02,5,14),k.BLK);t.rotation.x=Math.PI/2;t.position.set(r*sx,TOP-.3-.85+i*.1,r*cz);g.add(t)}}
+ for(let i=0;i<4;i++){const a=LG[i],b=LG[(i+1)%4],r=1.5;H.rod([r*Math.sin(a),FL+.15,r*Math.cos(a)],[r*Math.sin(b),TOP-1.4,r*Math.cos(b)],.03,STL,null,6);H.rod([r*Math.sin(b),FL+.15,r*Math.cos(b)],[r*Math.sin(a),TOP-1.4,r*Math.cos(a)],.03,STL,null,6)}
+ /* four hold-down clamps between the fins: a block on the ring and a jaw arm that tips out to let go */
+ const arms=[];for(const a of LG){const G=new THREE.Group();G.rotation.y=a;g.add(G);const GH=k.H(G);GH.B(.32,.22,.3,0,TOP+.11,1.66,STL);GH.C(.05,.05,.38,0,TOP+.24,1.76,k.GRY,'x',null,10);
+  const P=new THREE.Group();P.position.set(0,TOP+.24,1.76);G.add(P);const PH=k.H(P);PH.B(.2,.36,.1,0,.11,-.06,k.YEL);PH.B(.19,.12,.3,0,.27,-.215,k.YEL);PH.B(.18,.24,.05,0,.13,-.36,k.BLK);arms.push(P)}
+ const set=u=>{for(const P of arms)P.rotation.x=u*.9};set(0);
+ g.traverse(o=>{if(o.isMesh)o.userData.noSeam=true;if(o.isGroup&&o!==g)o.userData.dpKeep=1});return{set}}

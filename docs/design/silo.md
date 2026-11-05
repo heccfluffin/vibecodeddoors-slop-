@@ -1,4 +1,4 @@
-Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) approved 2026-11-05 · batch 2 (shaft, catwalk, cradle) in progress
+Status: part 1 (the way out) ready to build 2026-11-05 · part 2 (the new look) plan approved 2026-11-05 · batch 1 (the lift and the tunnel) approved 2026-11-05 · batch 2 (shaft, catwalk, cradle) for review
 
 # Silo 1: getting out again, and a new look
 
@@ -92,9 +92,39 @@ Everything is built in **silo space**: one group at the shaft centre on the grou
    (x 559.6..580, z -693.4..-688.8), the passage x 576.5..579.5, z -695.6..-693.4. Not walkable: `TU.blockers` moved to
    world, which are the bulkhead x 569.3..570.3 except z -692.1..-690.1 (the doorway), and the open door x 570.3..572.8,
    z -690.1..-688.8. Arrive at the car's centre (556.6, -691.6).
-4. **Lights:** point lights at `TU.lamps[1]`, `[3]`, `[5]` and one on the car at `EL.lamp` (car space). Keep them in the
-   scene all the time and set their intensity to 0 when you're not underground (adding or removing lights makes the
-   game rebuild its shaders and stutter).
+4. **Lights: don't add new ones.** The Old Quarry mine already has a pool of 4 point lights that move to the
+   nearest lamps (`UGM.lights`, dx642b, `ugmLights`; it fades them to 0 when you're not in the mine). Wrap
+   `ugmLights`: while `q.deep === 4`, put the pool at the silo lamps nearest you (`TU.lamps`, the car's `EL.lamp` in
+   world space, and the shaft's `SH.lamps` from batch 2) and set their intensity (about 1.1, range 11). Adding lights
+   would make every lit material in the desert costlier and the game rebuild its shaders.
 5. The batching must leave the car and the door alone (`dpKeep` is already set on both); everything else is still.
 6. Test: ride down (the gate opens to the tunnel), walk through the blast door, to the passage, back, ride up (the gate
    opens to the bunker); look up the shaft from the car halfway; check the bunker floor doesn't hide the shaft.
+
+### Batch 2: the shaft, the catwalk and the cradle, for review · `slShaft`, `slCatwalk`, `slCradle`
+- **The shaft:** radius 4.7 (the surface tube's size; the old one was 6), cast concrete from the floor (y -20.4) up to
+  the ground, steel rings every 3 m, four guide rails on the diagonals, two cable ladders, caged lamps at four heights,
+  four red strobes, a yellow steel portal where the passage comes in (TUNNEL · ELEVATOR). The floor: a cone-shaped
+  flame deflector under the nozzle, a ring grate round it, scorch marks, and two exhaust ducts (east and west).
+- **The catwalk** at y -14: see-through steel grating from 2.25 m to the wall, on radial beams with knee braces, a
+  yellow railing on the inner edge, a diamond-plate sill where the passage meets it, the maintenance tag on a clipboard
+  hung on the railing facing the passage, and the **umbilical arm** on the south side: a mast with an arm out to the
+  missile's plug (missile space (0, 6.1, -1.4), so the missile must stand unturned, as it does now).
+- **The cradle:** the launch ring the missile stands on (top at y -18), four legs with yellow shock absorbers, cross
+  bracing, and four hold-down clamps on the skirt between the fins.
+
+**Wiring (Claude Code), on top of batch 1:**
+1. In `siloBuild`: `SH=slShaft(R)`, `CWK=slCatwalk(R)`, `CRD=slCradle(R)`. Remove the old shaft cylinders, the floor disc,
+   the rings, the glowing balls, the catwalk ring, the railing and the old tag. Every mesh of these three goes on
+   `renderOrder=-2` like the rest of the silo, so the bunker floor and the ground never cover them.
+2. **Where you can walk:** the catwalk ring is now 2.45..4.35 m from the shaft centre (was 2.45..5.5), joined to the
+   passage (part 1's outline); `CWK.blockers` (the umbilical mast) moved to world is not walkable. The tag prop stays
+   at (578, -696.9).
+3. The tag: keep the game's own canvas if you like (`CWK.tag.material.map`), or the one drawn here.
+4. **The countdown:** when `N.st` becomes `'count'`: `SH.strobe.set(true)` and swing the arm clear over 2 s
+   (`CWK.umb.set(0..1)`); when the missile leaves (`'launch'`) open the clamps over 0.5 s (`CRD.set(0..1)`); back to
+   idle: strobes off, `umb.set(0)`, `CRD.set(0)` once the cradle is loaded again. `SH.strobe.tick(dt)` every frame
+   while you're underground.
+5. **Lights:** the pool from batch 1 also takes `SH.lamps` (shaft space = silo space). Two near the catwalk and two
+   near the floor look right (the preview uses those four).
+6. The surface tube still ends in the black disc at ground level until batch 3.
