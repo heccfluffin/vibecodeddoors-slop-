@@ -1,4 +1,4 @@
-Status: plan approved 2026-11-05 (models after the roads) (shown on the desert road plan map, change 12)
+Status: plan approved 2026-11-05 · models: batch 1 (the coach) for review (shown on the desert road plan map, change 12)
 
 # The railway: four stations, both ways, and a train you can ride
 
@@ -30,7 +30,7 @@ lines up with each platform. It stops at every station for 15 s each way, then w
 waits off the map as now. The `trn` co-op message gains the direction.
 
 **A passenger coach** behind the tender (a new model in the dx631 style: green and cream, open end platforms with
-railings, eight bench seats, windows, lamps, DOORS BUT DESERT RAILWAY on the side).
+railings, sixteen bench seats in facing pairs, windows, lamps, DOORS BUT DESERT RAILWAY on the side).
 - Standing on a platform while the train is stopped: `[E] Board the train (to <next station>)`. You take a seat
   (like the bus: you can look around, the camera stays in the coach).
 - At the next stop: `[E] Get off at <station>` puts you on that platform. Stay on to ride further. At the end of a run
@@ -52,5 +52,23 @@ direction; the crossings logic already works from the head and length, so it nee
 tracks join the road plan (`desert-roads.md`), so they are built with it.
 
 ## Models (after the plan is approved)
-Batch 1: the passenger coach (outside and in). Batch 2: the platform kit (platform, shelter, departure board, sign,
-bench, lamp, bin) and the three new stations put together.
+`models/railway.js` (needs `fort-kit.js`, `airfield.js`, `lake.js`).
+
+### Batch 1: the passenger coach, for review · `rrCoach()`
+A 14 m wooden coach in the train's style: dark green with a cream window band and gold lining, DOORS BUT DESERT RAILWAY
+on the letterboard, No 1 on the side, a clerestory roof with little windows, drip rails, truss rods underneath, two
+bogies and couplers like the wagons. Open end platforms with brass railings (a gap in the middle to step across to the
+next car), grab rails and three steps down each corner, kept inside the loading gauge (a platform's edge is 1.6 m from
+the track's middle). Inside: plank floor, eight bays of facing benches either side of the aisle (sixteen seats), brass
+luggage racks, three hanging oil lamps, open end doors.
+
+**Wiring (Claude Code):** add it to the train in dx631's car list right after the tender: `car(14, rrCoach())` (the
+same car() spacing, wheels via `userData.spin`). `userData.seats` gives sixteen sitting spots (car space, yaw `ry`) for
+riders, `userData.doors` the four step-down points (a player getting off goes to the nearest one on the platform side,
++z), `userData.lamp` where to hang a point light while someone rides (borrow one of the pool lights, don't add one).
+Westbound the whole train is turned round, so seats and doors turn with it. The coach is about 14 m more train:
+update the stopping points in railway.md's table by 14 m if the coach goes anywhere other than behind the tender (it
+was planned there; the table assumes it).
+
+Batch 2: the platform kit (platform, shelter, departure board, station sign, bench, lamp, bin) and the three new
+stations put together.
