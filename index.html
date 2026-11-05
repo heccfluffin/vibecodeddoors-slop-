@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-11-05 r673';
+const BUILD='2026-11-05 r674';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15890,6 +15890,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r674',['Desert speed-up: far fewer draw calls (about half at the Fort). Pieces of scenery that are the only one of their kind, loose pieces in the newer places, and the Fort, PD, prison and other later-built places are now drawn together with their neighbours','Dust, sparks and other little puffs are drawn together instead of one by one','Rows of barriers, posts and panels are no longer drawn when they are behind you','To compare, these can be switched off in the address: ?noone1, ?nolate1, ?noabtm, ?noptb, ?noimc']],
 ['r673',['Fixed a short hitch every so often in the desert: each time a door or gate opened or closed somewhere, the whole map was redrawn']],
 ['r672',['Desert speed-up: parked cars, planes and helicopters that nobody is in and that have stood still for a while are now drawn together with the scenery around them (fewer draw calls). A vehicle that moves goes straight back to being drawn on its own','?noabtv in the address turns this off, to compare']],
 ['r671',['Single scenery pieces no longer join the area batches (your benchmark showed the same speed without them, and they used more graphics memory). Add ?abt1 to the address to turn them back on']],
@@ -37337,7 +37338,7 @@ function bakeBack(mid){for(const c of BAKE.dirty){const p=c.parent,e=p&&p.__bkE;
    once they have looked and sat exactly the same at two looks. When it moves, its parts draw themselves that same frame;
    it is not barred for good (it can join again once it stands still). ?noabtv turns this part off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,mov:!/[?&]noabtm(?:[&=]|$)/.test(location.search),veh:!/[?&]noabtv(?:[&=]|$)/.test(location.search),on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
@@ -37351,7 +37352,7 @@ const _abM=new THREE.Matrix4(),_abN=new THREE.Matrix3(),_abV=new THREE.Vector3()
 /* which merged batches can be joined, and with what (null = stays as it is) */
 function abtTexKey(t,loose){const im=t.image;if(!im||!(im.width>0)||!(im.height>0))return null;if(!(typeof HTMLCanvasElement!='undefined'&&im instanceof HTMLCanvasElement))return null;
  if(im.width*im.height>512*720||t.encoding!==THREE.LinearEncoding||t.format!==THREE.RGBAFormat||t.type!==THREE.UnsignedByteType||t.premultiplyAlpha)return null;
- if(!loose&&(t.matrixAutoUpdate||!t.matrix.equals(_abI3)))return null;
+ if(!loose&&(t.matrixAutoUpdate?!dpTexId(t):!t.matrix.equals(_abI3)))return null;/* (r674: a one-piece batch keeps its own picture when it is drawn as it is) */
  return im.width+'x'+im.height+'/'+t.wrapS+'/'+t.wrapT+'/'+t.magFilter+'/'+t.minFilter+'/'+t.anisotropy+'/'+(t.flipY?1:0)+'/'+(t.generateMipmaps?1:0)}
 const _abI3=new THREE.Matrix3();
 /* r668: single pieces (not in any batch) can join too: their colour is stored per vertex, their picture's offset and
@@ -37368,26 +37369,28 @@ function abtKey(o){const m=o.material,g=o.geometry;if(!m||Array.isArray(m)||!g||
 /* ---------- looking through the desert (a little each frame) ---------- */
 function abtScanStep(q,ms){const t0=performance.now();let J=ABT.scan;
  if(!J){const veh=new Set();for(const v of q.vehs||[])if(v&&v.m)veh.add(v.m);const skip=new Set([q.sky,q.sun,q.zsky,q.zstar,q.bg,BUS._sky,BUS._sun,typeof SKN!='undefined'?SKN.g:null].filter(Boolean));
-  for(const o of (q.dp&&q.dp.movers)||[])if(o&&o.isObject3D)skip.add(o);
+  /* r674: places that are watched as possibly moving (all the later-built ones) are looked into too: their pieces must sit still for two looks */
+  const mset=new Set();for(const o of (q.dp&&q.dp.movers)||[])if(o&&o.isObject3D)(ABT.mov?mset:skip).add(o);
   const vmap=new Map();for(const v of q.vehs||[])if(v&&v.m)vmap.set(v.m,v);
-  ABT.scanN=(ABT.scanN|0)+1;J=ABT.scan={st:[q.g],veh,vmap,inV:new Set(),skip,G:new Map(),users:new Map(),tex:new Map(),lights:[],inv:new THREE.Matrix4().copy(q.g.matrixWorld).invert()}}
+  ABT.scanN=(ABT.scanN|0)+1;J=ABT.scan={st:[q.g],veh,vmap,inV:new Set(),mset,inM:new Set(),skip,G:new Map(),users:new Map(),tex:new Map(),lights:[],inv:new THREE.Matrix4().copy(q.g.matrixWorld).invert()}}
  while(J.st.length){const o=J.st.pop();
-  const iv=J.inV.has(o);
+  const iv=J.inV.has(o),im=J.inM.has(o);
   for(const c of o.children){if(c.isLight){J.lights.push(c);continue}const u=c.userData||{};
    /* r672: a vehicle nobody is in and that is not moving is looked inside: its far shape and its batched parts can join */
    if(J.veh.has(c)){if(ABT.veh&&abtParked(J.vmap.get(c))&&c.children.length){J.inV.add(c);J.st.push(c)}continue}
+   const isM=J.mset.has(c);if(isM&&iv)continue;
    if(J.skip.has(c)||(!iv&&c.__mwKeep)||u.dpDyn||u.mv||u.fsc||u.skn||c.updateMatrixWorld!==_mwP)continue;
    if((u.dpKeep||u.flv)&&!(iv&&c.isMesh&&u.flv&&u.dpMerged))continue;
    if(c.isMesh&&c.children.length===0&&(u.dpMerged||(ABT.ones&&!c.isSprite&&(c.layers.mask===1||c.layers.mask===64)))){const m=c.material;if(m&&m.map)J.users.set(m.map,(J.users.get(m.map)||0)+1);
     if(c.isSkinnedMesh||c.isInstancedMesh||c.onBeforeRender!==_abOBR||ABT.lively.has(c))continue;const k=abtKey(c);if(!k)continue;
     /* r669: a single piece joins only once it has looked and sat exactly the same at two looks in a row (8 s apart) */
-    if(!u.dpMerged||iv){/* (a parked vehicle's parts too: it has to stand still for a look) */if(typeof mwFresh=='function')mwFresh(c);const sn=ABT.seen.get(c),now=ABT.scanN;
+    if(!u.dpMerged||iv||im){/* (a parked vehicle's parts too: it has to stand still for a look) */if(typeof mwFresh=='function')mwFresh(c);const sn=ABT.seen.get(c),now=ABT.scanN;
      if(!sn||sn.mat!==m||sn.geo!==c.geometry||!abtSigOK(m,sn.sig)||!abtSame(c.matrixWorld.elements,sn.mw)){ABT.seen.set(c,{mat:m,geo:c.geometry,sig:abtSig(m),mw:Float64Array.from(c.matrixWorld.elements),n:now});continue}
      if(sn.n>=now)continue}
     if(typeof mwFresh=='function')mwFresh(c);/* (pieces in hidden places are not kept up to date by the frame) */const g=c.geometry;if(!g.boundingSphere)g.computeBoundingSphere();_abV.copy(g.boundingSphere.center).applyMatrix4(c.matrixWorld).applyMatrix4(J.inv);
     /* (parked vehicles are spread out, so they share bigger areas: 432 m) */const AR=iv?ABT.AREA*3:ABT.AREA,ax=Math.floor(_abV.x/AR),az=Math.floor(_abV.z/AR),gk=(iv?'V':'')+ax+','+az+'#'+k;let e=J.G.get(gk);if(!e)J.G.set(gk,e={gk,k,ax,az,ar:AR,L:[]});e.L.push(c);
     if(m.map){const tk=k.split('|')[1];let s=J.tex.get(tk);if(!s)J.tex.set(tk,s=new Set());s.add(m.map.image)}}
-   else if(c.children.length){J.st.push(c);if(iv)J.inV.add(c)}}
+   else if(c.children.length){J.st.push(c);if(iv)J.inV.add(c);if(im||isM)J.inM.add(c)}}
   if(performance.now()-t0>ms)return false}
  return true}
 const _abOBR=THREE.Object3D.prototype.onBeforeRender;
@@ -37580,6 +37583,144 @@ function sknInView(){if(typeof SKN=='undefined'||!SKN.on||!SKN.g)return null;C.u
 {const g0=lagGap;lagGap=function(){const L=LAG.spikes,last=L[L.length-1];const r=g0.apply(this,arguments);const sp=L[L.length-1];
  if(sp&&sp!==last&&!sp.step){const A=LAG.auto;if(A&&A.i>0){const st=A.L[A.i-1];if(st&&!String(st[0]).startsWith('base'))sp.step=st[1]}}return r}}
 
+
+/* =====================================================================================================
+   r674: DUST, SPARKS AND OTHER LITTLE PUFFS DRAWN TOGETHER.
+   The game's particle effects (tyre dust, road dust, sparks, puffs, splashes...) are small glowing sprites added
+   straight to the scene, and every single one was its own draw call: 30 to 150 a frame in the desert Benchmark
+   ("sky, sun and other" in the lag window), more when lots of cars drive about.
+   Now, while the main view is drawn, those sprites are left out of the scene's list and drawn by two shapes instead
+   (one for normal puffs, one for glowing ones), one corner set per puff, with exactly the sprite's own maths:
+   its place seen from the camera (worked out the same way the renderer does), its size, colour and see-through-ness,
+   farthest first, the same fog. Nothing about the particles themselves changes: the game still moves, fades and
+   removes them as before, and right after drawing the real list is put back.
+   Only plain particles join (the shared glow picture, no turn, standard centre, normal or glowing blend); anything else
+   is drawn as before. ?noptb in the address turns it off.
+   ===================================================================================================== */
+const PTB={on:!/[?&]noptb(?:[&=]|$)/.test(location.search),B:null,n:0,up:0,fr:0,ok:null,mv:new THREE.Matrix4(),sp:null,inR:0,att:0,pool:[],mats:null,L:[]};
+const _ptbOBC=THREE.Material.prototype.onBeforeCompile,_ptbOBR=THREE.Object3D.prototype.onBeforeRender;
+function ptbMat(add){return new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{map:{value:GLOW}}]),
+ vertexShader:'attribute vec3 iMv;\nattribute vec2 iSc;\nattribute vec4 iCol;\nvarying vec2 vUv;\nvarying vec4 vCol;\n#include <common>\n#include <fog_pars_vertex>\nvoid main() {\n\tvUv = uv;\n\tvCol = iCol;\n\tvec4 mvPosition = vec4( iMv, 1.0 );\n\tvec2 alignedPosition = position.xy * iSc;\n\tmvPosition.xy += alignedPosition;\n\tgl_Position = projectionMatrix * mvPosition;\n\t#include <fog_vertex>\n}',
+ fragmentShader:'uniform sampler2D map;\nvarying vec2 vUv;\nvarying vec4 vCol;\n#include <common>\n#include <fog_pars_fragment>\nvoid main() {\n\tvec3 outgoingLight = vec3( 0.0 );\n\tvec4 diffuseColor = vCol;\n\tvec4 texelColor = texture2D( map, vUv );\n\tdiffuseColor *= texelColor;\n\toutgoingLight = diffuseColor.rgb;\n\tgl_FragColor = vec4( outgoingLight, diffuseColor.a );\n\t#include <tonemapping_fragment>\n\t#include <encodings_fragment>\n\t#include <fog_fragment>\n}',
+ transparent:true,depthWrite:false,depthTest:true,fog:true,blending:add?THREE.AdditiveBlending:THREE.NormalBlending})}
+/* one shape: the four corners of three's sprite, drawn once per puff */
+function ptbBatch(){const g=new THREE.InstancedBufferGeometry();
+ g.setIndex([0,1,2,0,2,3]);g.setAttribute('position',new THREE.Float32BufferAttribute([-.5,-.5,0,.5,-.5,0,.5,.5,0,-.5,.5,0],3));g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0,1,0,1,1,0,1],2));
+ const B={g,cap:0,mesh:new THREE.Mesh(g,PTB.mats[0])};B.mesh.frustumCulled=false;B.mesh.__ptb=1;B.mesh.raycast=()=>{};ptbGrow(B,64);return B}
+function ptbGrow(B,n){let c=B.cap||64;while(c<n)c*=2;if(c===B.cap)return;B.cap=c;const g=B.g;
+ for(const[k,s]of[['iMv',3],['iSc',2],['iCol',4]]){const a=new THREE.InstancedBufferAttribute(new Float32Array(c*s),s);a.setUsage(THREE.DynamicDrawUsage);g.setAttribute(k,a)}}
+/* a sprite that can be drawn this way: exactly what the effects code makes (vfxMat), straight in the scene */
+function ptbOK(o){if(!o.isSprite||!o.visible||o.parent!==S||o.renderOrder!==0||o.onBeforeRender!==_ptbOBR||!o.layers.test(C.layers))return false;
+ const m=o.material;if(!m||!m.isSpriteMaterial||m.map!==GLOW||m.alphaMap||m.rotation!==0||!m.sizeAttenuation||!m.transparent||m.depthWrite||!m.depthTest||!m.fog||!m.toneMapped||m.alphaTest!==0||!m.visible||m.onBeforeCompile!==_ptbOBC||m.premultipliedAlpha||m.clippingPlanes&&m.clippingPlanes.length||m.colorWrite===false||m.polygonOffset)return false;
+ if(m.blending!==THREE.NormalBlending&&m.blending!==THREE.AdditiveBlending)return false;if(o.center.x!==.5||o.center.y!==.5)return false;return true}
+/* the picture must be drawn the way three would: linear, not turned or moved */
+function ptbReady(){if(PTB.ok!==null)return PTB.ok;try{const t=GLOW;if(t.matrixAutoUpdate)t.updateMatrix();const e=t.matrix.elements,I=[1,0,0,0,1,0,0,0,1];PTB.ok=t.encoding===THREE.LinearEncoding&&I.every((v,k)=>e[k]===v)}catch(x){PTB.ok=false}return PTB.ok}
+const _ptbSort=(a,b)=>a.z!==b.z?a.z-b.z:a.id-b.id;
+/* inside the drawing, right after the positions are worked out: each puff seen from the camera, farthest first.
+   Puffs are drawn in runs of the same blend in that order (a normal puff behind a glowing one stays behind it) */
+function ptbFill(){const cam=C;if(cam.parent===null)cam.updateMatrixWorld();const mv=PTB.mv,ci=cam.matrixWorldInverse,L=PTB.L;L.length=0;
+ for(const o of PTB.sp){if(o.matrixAutoUpdate)o.updateMatrix();o.matrixWorld.multiplyMatrices(S.matrixWorld,o.matrix);o.matrixWorldNeedsUpdate=false;
+  mv.multiplyMatrices(ci,o.matrixWorld);const e=mv.elements,w=o.matrixWorld.elements;
+  L.push({o,z:e[14],id:o.id,x:e[12],y:e[13],sx:Math.hypot(w[0],w[1],w[2]),sy:Math.hypot(w[4],w[5],w[6]),add:o.material.blending===THREE.AdditiveBlending?1:0})}
+ L.sort(_ptbSort);let i=0,run=0;
+ while(i<L.length){const add=L[i].add;let j=i;while(j<L.length&&L[j].add===add)j++;
+  const B=PTB.pool[run]||(PTB.pool[run]=ptbBatch());run++;const n=j-i;ptbGrow(B,n);
+  const A=B.g.attributes,p=A.iMv.array,s=A.iSc.array,c=A.iCol.array;
+  for(let k=0;k<n;k++){const r=L[i+k],m=r.o.material,cl=m.color;p[k*3]=r.x;p[k*3+1]=r.y;p[k*3+2]=r.z;s[k*2]=r.sx;s[k*2+1]=r.sy;c[k*4]=cl.r;c[k*4+1]=cl.g;c[k*4+2]=cl.b;c[k*4+3]=m.opacity}
+  for(const k of['iMv','iSc','iCol']){const a=A[k];a.updateRange.offset=0;a.updateRange.count=n*a.itemSize;a.needsUpdate=true}
+  B.g.instanceCount=n;
+  /* (placed at its farthest puff, so the runs keep their order, and sit among other see-through things about where they are) */
+  const m=B.mesh;m.material=PTB.mats[add];const w=L[i].o.matrixWorld.elements;m.position.set(w[12],w[13],w[14]);m.updateMatrix();m.matrixWorld.multiplyMatrices(S.matrixWorld,m.matrix);m.parent=S;S.children.push(m);PTB.att++;
+  i=j}}
+{const u0=S.updateMatrixWorld;S.updateMatrixWorld=function(){const r=u0.apply(this,arguments);if(PTB.inR===1){PTB.inR=2;try{ptbFill()}catch(e){conLog('error','dust and sparks: '+e.message)}}return r}}
+{const r0=R.render;R.render=function(sc,cam){
+ if(!PTB.on||sc!==S||cam!==C||PTB.inR||S.autoUpdate===false||!ptbReady())return r0.apply(this,arguments);
+ const t0=performance.now(),ch=S.children;let any=false;for(let i=0;i<ch.length;i++){const o=ch[i];if(o.isSprite&&ptbOK(o)){any=true;break}}
+ if(!any){PTB.n=0;return r0.apply(this,arguments)}
+ if(!PTB.mats)PTB.mats=[ptbMat(false),ptbMat(true)];
+ /* the scene's list without the puffs (they are drawn by the two shapes instead) */
+ const F=[],sp=PTB.sp=[];for(const o of ch)(o.isSprite&&ptbOK(o)?sp:F).push(o);
+ const orig=ch,fl=F.length;S.children=F;PTB.n=sp.length;PTB.att=0;PTB.inR=1;const t1=performance.now();
+ try{return r0.apply(this,arguments)}
+ finally{const t2=performance.now(),a=S.children;PTB.inR=0;
+  /* the real list back; anything added while drawing goes into it too */
+  if(a!==F||a.length!==fl+PTB.att){for(const x of a)if(!x.__ptb&&!orig.includes(x))orig.push(x)}
+  S.children=orig;for(const B of PTB.pool)B.mesh.parent=null;PTB.sp=null;
+  const d=(t1-t0)+(performance.now()-t2);PTB.up+=d;PTB.fr++;if(typeof LAG!='undefined'&&LAG.open){LAG.sys.ptb=(LAG.sys.ptb||0)+d;LAG.cur.ptb=(LAG.cur.ptb||0)+d}}}}
+/* the lag window: own time, and a draw-call kind */
+LAGSYS.push(['ptb','Dust and sparks drawn together (upkeep)']);
+{const lc=lagCats;lagCats=function(q){const r=lc.apply(this,arguments);if(r&&r.cat){const c0=r.cat;r.cat=o=>o&&o.__ptb?'dust and sparks (drawn together)':c0(o)}return r}}
+
+/* =====================================================================================================
+   r674 part 2: INSTANCED SCENERY CULLED PROPERLY.
+   About 20 desert shapes are drawn many times over in one go (rows of barriers, posts, panels...). three r128 judges
+   whether such a shape is in view from one copy only, so r606 made them always drawn, even far behind you.
+   Now each is checked against the view with a ball around all its copies (worked out again when the copies change)
+   and left out of that drawing when it is wholly behind you or past the fog. ?noimc turns it off.
+   ===================================================================================================== */
+const IMC={on:!/[?&]noimc(?:[&=]|$)/.test(location.search),L:null,q:null,sw:[],F:new THREE.Frustum(),M:new THREE.Matrix4(),S:new THREE.Sphere(),n:0};
+function imcList(q){const L=[];q.g.traverse(o=>{if(o.isInstancedMesh&&!o.frustumCulled&&o.userData&&o.userData.noChunk)L.push({o,v:-1,c:-1,s:new THREE.Sphere()})});return L}
+/* a ball (in the shape's own space) around every copy */
+function imcBall(e){const o=e.o,g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const bs=g.boundingSphere,n=o.count,M=IMC.M,v=new THREE.Vector3(),C2=[],R2=[];const bx=new THREE.Box3();
+ for(let i=0;i<n;i++){o.getMatrixAt(i,M);v.copy(bs.center).applyMatrix4(M);const r=bs.radius*M.getMaxScaleOnAxis();C2.push(v.clone());R2.push(r);bx.expandByPoint(v.clone().addScalar(-r));bx.expandByPoint(v.clone().addScalar(r))}
+ if(!n||!isFinite(bs.radius)){e.s.radius=-1;return}bx.getCenter(e.s.center);let rr=0;for(let i=0;i<n;i++)rr=Math.max(rr,C2[i].distanceTo(e.s.center)+R2[i]);e.s.radius=rr;e.v=o.instanceMatrix.version;e.c=n}
+{const r0=R.render;R.render=function(sc,cam){const q=BUS&&BUS.ride;
+ if(!IMC.on||sc!==S||cam!==C||!q||!q.g||!q.g.visible||!q.imFix||cam.parent!==null)return r0.apply(this,arguments);
+ if(IMC.q!==q){IMC.q=q;IMC.L=imcList(q)}
+ const sw=IMC.sw;sw.length=0;
+ try{cam.updateMatrixWorld();IMC.M.multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse);IMC.F.setFromProjectionMatrix(IMC.M);
+  let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}
+  for(const e of IMC.L){const o=e.o;if(!o.visible||o.parent==null)continue;if(e.v!==o.instanceMatrix.version||e.c!==o.count)imcBall(e);if(e.s.radius<0)continue;
+   const s=IMC.S.copy(e.s).applyMatrix4(o.matrixWorld);const d=s.center.distanceTo(cam.position)-s.radius;
+   if(d>far||!IMC.F.intersectsSphere(s)){o.visible=false;sw.push(o)}}}catch(x){for(const o of sw)o.visible=true;sw.length=0}
+ IMC.n=sw.length;
+ try{return r0.apply(this,arguments)}finally{for(const o of sw)o.visible=true;sw.length=0}}}
+
+/* =====================================================================================================
+   r674 part 3: ONE-PIECE BATCHES (the build.py block 'r674 one-piece batches' asks this).
+   A piece whose look is the only one of its kind in its place could not be batched, so it was drawn on its own
+   (300 to 600 such draws in the Benchmark views). Such a piece now gets a batch of one when the scenery area batches can
+   take it (plain or cut-out, one of the usual material kinds, a small canvas picture or none, not part of a vehicle).
+   The batching watchdog then looks after it within its usual time budget, and the area batches join it with its
+   neighbours. ?noone1 turns it off.
+   ===================================================================================================== */
+const ONE={on:!/[?&]noone1(?:[&=]|$)/.test(location.search),n:0,veh:null,vq:null,cur:false};
+/* a picture drawn as it is (not moved, repeated or turned) */
+function dpTexId(t){if(!t)return false;if(t.matrixAutoUpdate)return t.offset.x===0&&t.offset.y===0&&t.repeat.x===1&&t.repeat.y===1&&t.rotation===0;const e=t.matrix.elements;return e[0]===1&&e[1]===0&&e[2]===0&&e[3]===0&&e[4]===1&&e[5]===0&&e[6]===0&&e[7]===0&&e[8]===1}
+/* (a plain function: the r500 block that holds DP comes later in the page than this module) */
+function dpOneOK(o,root,made){if(!ONE.on||typeof ABT=='undefined'||!ABT.on)return false;const q=BUS&&BUS.ride;if(!q||!q.g)return false;
+ const m=o.material;if(!m||Array.isArray(m)||m.transparent||o.renderOrder!==0)return false;const t=m.type;if(t!=='MeshStandardMaterial'&&t!=='MeshLambertMaterial'&&t!=='MeshBasicMaterial')return false;
+ if(m.map&&!abtTexKey(m.map,true))return false;if(m.userData&&m.userData.dpSand)return false;
+ if(ONE.vq!==q||!ONE.veh||ONE.veh.size!==(q.vehs||[]).length){ONE.vq=q;ONE.veh=new Set((q.vehs||[]).map(v=>v&&v.m).filter(Boolean))}
+ for(let p=root;p&&p!==q.g;p=p.parent)if(p.__mwKeep||ONE.veh.has(p))return false;
+ if(made){ONE.n++;ONE.cur=true}return true}
+
+/* =====================================================================================================
+   r674 part 4: LOOSE PIECES BATCHED LATE.
+   The desert's batching (r500) looks at the pieces lying straight in the desert (not inside a place's group) once, while
+   loading. Most later-built places put many of their pieces there too (signs, posts, rails, crates...), so those were
+   never batched and were drawn one by one (about 250 draws in the Fort view).
+   Now such a piece that has sat exactly the same for 6 s is batched like the rest (with others of its look, or alone
+   when it is the only one: part 3), a few hundred at a time, and the batching watchdog looks after it from then on.
+   ?nolate1 turns it off.
+   ===================================================================================================== */
+const LATE1={on:!/[?&]nolate1(?:[&=]|$)/.test(location.search),q:null,seen:new Map(),t:0,n:0,b:0,ms:0,MAX:40,more:false};
+function late1FP(o){const e=o.matrixWorld.elements,m=o.material;return e[0]+'|'+e[1]+'|'+e[2]+'|'+e[5]+'|'+e[10]+'|'+e[12]+'|'+e[13]+'|'+e[14]+'|'+o.visible+'|'+o.layers.mask+'|'+(m&&m.id)+'|'+(o.geometry&&o.geometry.id)+'|'+(m&&m.color?m.color.getHex():'')+'|'+(m&&m.opacity)}
+function late1Tick(q){const D=q.dp;if(!D||!D.merged||typeof DP=='undefined'||!DP._mergeRoot)return;const now=performance.now();if(now-LATE1.t<(LATE1.more?1500:3000))return;LATE1.t=now;LATE1.more=false;const t0=now;
+ if(LATE1.q!==q){LATE1.q=q;LATE1.seen=new Map()}
+ const veh=new Set((q.vehs||[]).map(v=>v&&v.m)),ok=[],seen=LATE1.seen;
+ for(const o of q.g.children){if(!o.isMesh||o.isSprite||o.isInstancedMesh||o.isSkinnedMesh||o.children.length||veh.has(o)||!o.visible)continue;const u=o.userData||{};
+  if(u.dpMerged||u.dpKeep||u.dpDyn||u.mv||u.chunk||u.fsc||u.skn||u.flv||u.late1)continue;const mk=o.layers.mask;if(mk!==1&&mk!==(1<<PL_FAR))continue;
+  if(o.onBeforeRender!==_ptbOBR||o.updateMatrixWorld!==_mwP||o.__mwKeep)continue;
+  const fp=late1FP(o),c=seen.get(o);if(!c||c.fp!==fp){seen.set(o,{fp,t:now});continue}if(now-c.t<6000)continue;ok.push(o);if(ok.length>=LATE1.MAX){LATE1.more=true;break}}
+ if(!ok.length)return;
+ /* one shallow pass over the desert's own pieces that sees only these (the others are flagged to be left alone just for it) */
+ const want=new Set(ok),tmp=[];for(const o of q.g.children){if(o.isMesh&&!want.has(o)&&!(o.userData&&o.userData.dpKeep)){(o.userData||(o.userData={})).dpKeep=1;tmp.push(o)}}
+ let k=[0,0];try{k=DP._mergeRoot(q,q.g,DP.cfg().lam,true)}catch(e){conLog('error','late loose batching: '+e.message)}finally{for(const o of tmp)delete o.userData.dpKeep}
+ for(const o of ok){o.userData.late1=1;seen.delete(o)}if(q.g.userData.dpRecs&&q.g.userData.dpRecs.length&&D.roots&&!D.roots.includes(q.g))D.roots.push(q.g);
+ LATE1.n+=ok.length;LATE1.b+=k[0];LATE1.ms+=performance.now()-t0}
+{const ru=busRoamUpd;busRoamUpd=function(q,dt){const r=ru.apply(this,arguments);try{if(LATE1.on&&q&&q.g&&q.roam)late1Tick(q)}catch(e){conLog('error','late loose batching: '+e.message);LATE1.on=false}return r}}
+
 </script><script>
 /* ======================================================================================================
    r500: THE DESERT, POLISHED. A layer on top of the desert code (every hook is wrapped in try/catch, so a
@@ -37747,7 +37888,7 @@ function matKey(m,lam){if(!m||Array.isArray(m))return null;const t=m.type;if(t!=
  /* see-through things only when they do not write depth (then the order inside a batch cannot matter much) or are cut-outs */if(m.transparent&&m.depthWrite&&!(m.alphaTest>0))return null;
  const tk=m.map?texKey(m.map):'';if(m.map&&!tk)return null;const lamb=lam&&t!=='MeshBasicMaterial';
  return (lamb?'L':t)+'|'+tk+'|'+(m.emissive?m.emissive.getHex():0)+'|'+(m.emissiveIntensity!=null?+m.emissiveIntensity.toFixed(2):'')+'|'+(lamb?'':(m.roughness!=null?+m.roughness.toFixed(1):'')+'/'+(m.metalness!=null?+m.metalness.toFixed(1):'')+'/'+(m.shininess!=null?m.shininess:'')+'/'+(m.specular?m.specular.getHex():''))+'|'+m.side+'|'+(m.transparent?1:0)+(+m.opacity.toFixed(2))+'|'+m.alphaTest+'|'+(m.depthWrite?1:0)+(m.depthTest?1:0)+(m.flatShading?1:0)+(m.fog?1:0)+(m.colorWrite?1:0)+(m.toneMapped?1:0)+(m.dithering?1:0)+(m.premultipliedAlpha?1:0)+'|'+m.blending+'|'+m.depthFunc+'|'+(m.polygonOffset?m.polygonOffsetFactor+'/'+m.polygonOffsetUnits:'')+'|'+(m.shadowSide==null?'':m.shadowSide)+'|'+(m.userData&&m.userData.dpSand?'sand':'')}
-function mergedMat(src,lam){const base={color:0xffffff,vertexColors:true,map:src.map?canonTex(src.map,texKey(src.map)):null,side:src.side,transparent:!!src.transparent,opacity:src.opacity,alphaTest:src.alphaTest,depthWrite:src.depthWrite,depthTest:src.depthTest,fog:src.fog,blending:src.blending,polygonOffset:src.polygonOffset,polygonOffsetFactor:src.polygonOffsetFactor,polygonOffsetUnits:src.polygonOffsetUnits,dithering:src.dithering,toneMapped:src.toneMapped,premultipliedAlpha:src.premultipliedAlpha,depthFunc:src.depthFunc,colorWrite:src.colorWrite};
+function mergedMat(src,lam){const base={color:0xffffff,vertexColors:true,map:src.map?(ONE.cur&&dpTexId(src.map)?src.map:canonTex(src.map,texKey(src.map))):null,side:src.side,transparent:!!src.transparent,opacity:src.opacity,alphaTest:src.alphaTest,depthWrite:src.depthWrite,depthTest:src.depthTest,fog:src.fog,blending:src.blending,polygonOffset:src.polygonOffset,polygonOffsetFactor:src.polygonOffsetFactor,polygonOffsetUnits:src.polygonOffsetUnits,dithering:src.dithering,toneMapped:src.toneMapped,premultipliedAlpha:src.premultipliedAlpha,depthFunc:src.depthFunc,colorWrite:src.colorWrite};
  const em={emissive:src.emissive?src.emissive.getHex():0,emissiveIntensity:src.emissiveIntensity==null?1:src.emissiveIntensity};let m;
  if(src.type==='MeshBasicMaterial')m=new THREE.MeshBasicMaterial(base);else if(lam||src.type==='MeshLambertMaterial')m=new THREE.MeshLambertMaterial(Object.assign(base,em));
  else if(src.type==='MeshPhongMaterial')m=new THREE.MeshPhongMaterial(Object.assign(base,em,{shininess:src.shininess,specular:src.specular.getHex(),flatShading:!!src.flatShading}));
@@ -37778,9 +37919,9 @@ function dpMergeRoot(q,root,lam,shallow){root.updateMatrixWorld(true);const inv=
  const smg=root.userData.smg;const consider=ch=>{if(ch.isMesh&&ch.visible&&!ch.isSprite&&!ch.isPoints&&!ch.isLine&&!ch.isInstancedMesh&&!ch.isSkinnedMesh&&geoOK(ch.geometry)){const key=matKey(ch.material,lam);if(key){_mA.multiplyMatrices(inv,ch.matrixWorld);if(_mA.determinant()>0){let L=groups.get(key);if(!L)groups.set(key,L=[]);L.push(ch)}}}};
  const bad=ch=>ch===smg||skip.has(ch)||(ch.userData&&(ch.userData.chunk||ch.userData.sm||ch.userData.mv||ch.userData.noChunk||ch.userData.dpKeep||ch.userData.dpDyn||ch.userData.dpMerged));
  if(shallow){/* the ground, roads and dunes are flagged noChunk only because they are big: they are static all the same (sky domes and the like are not) */for(const ch of root.children){if(!ch.isMesh)continue;if(skip.has(ch)||(ch.userData&&(ch.userData.dpKeep||ch.userData.dpDyn||ch.userData.dpMerged||ch.userData.mv||ch.userData.chunk)))continue;const mt=ch.material;if(!mt||Array.isArray(mt)||mt.side===THREE.BackSide||(ch.userData.noChunk&&mt.transparent))continue;consider(ch)}}else{const walk=o=>{for(const ch of o.children){if(bad(ch)||ch.isInstancedMesh||ch.isSkinnedMesh)continue;consider(ch);if(ch.children.length&&ch.visible)walk(ch)}};walk(root)}
- const recs=root.userData.dpRecs||[];let saved=0;for(const[key,L]of groups){if(L.length<2)continue;/* batches of at most ~60k vertices */let b=[],nv=0;const flush=()=>{if(b.length<2){b=[];nv=0;return}const src=b[0].material,hasMap=!!src.map;const rec={root,inv,key,lam,hasMap,src,mems:[]};for(const o of b)rec.mems.push(snapMem(rec,o));try{const geo=buildMerged(inv,rec.mems,hasMap);const mesh=new THREE.Mesh(geo,mergedMat(src,lam&&src.type!=='MeshBasicMaterial'));mesh.userData={dpMerged:1,noSeam:1};if(src.transparent)mesh.renderOrder=b[0].renderOrder;root.add(mesh);rec.mesh=mesh;for(const m of rec.mems)m.o.layers.set(DP.HID);recs.push(rec);saved+=b.length-1}catch(e){err('batch',e)}b=[];nv=0};
+ const recs=root.userData.dpRecs||[];let saved=0;for(const[key,L]of groups){if(L.length<2&&!dpOneOK(L[0],root))continue;/* batches of at most ~60k vertices */let b=[],nv=0;const flush=()=>{ONE.cur=false;if(b.length<2&&!(b.length===1&&dpOneOK(b[0],root,1))){b=[];nv=0;return}const src=b[0].material,hasMap=!!src.map;const rec={root,inv,key,lam,hasMap,src,mems:[]};for(const o of b)rec.mems.push(snapMem(rec,o));try{const geo=buildMerged(inv,rec.mems,hasMap);const mesh=new THREE.Mesh(geo,mergedMat(src,lam&&src.type!=='MeshBasicMaterial'));mesh.userData={dpMerged:1,noSeam:1};if(src.transparent)mesh.renderOrder=b[0].renderOrder;root.add(mesh);rec.mesh=mesh;for(const m of rec.mems)m.o.layers.set(DP.HID);recs.push(rec);saved+=b.length-1}catch(e){err('batch',e)}b=[];nv=0};
   for(const o of L){const n=o.geometry.attributes.position.count;if(nv+n>60000)flush();b.push(o);nv+=n}flush()}
- if(recs.length)root.userData.dpRecs=recs;return[recs.length,saved]}
+ ONE.cur=false;if(recs.length)root.userData.dpRecs=recs;return[recs.length,saved]}
 function dpRebuild(rec){const keep=[];for(const m of rec.mems){if(m.out){m.o.layers.set(0);m.o.userData.dpDyn=1}else keep.push(m)}
  if(keep.length<2){for(const m of keep){m.o.layers.set(0)}if(rec.mesh){if(rec.mesh.parent)rec.mesh.parent.remove(rec.mesh);try{rec.mesh.geometry.dispose()}catch(e){}}rec.dead=1;const L=rec.root.userData.dpRecs;if(L){const i=L.indexOf(rec);if(i>=0)L.splice(i,1)}return}
  rec.mems=keep;try{const g2=buildMerged(rec.inv,keep,rec.hasMap);rec.mesh.geometry.dispose();rec.mesh.geometry=g2}catch(e){err('rebuild',e)}}

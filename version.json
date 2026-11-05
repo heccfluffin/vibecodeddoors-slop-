@@ -1,1 +1,1 @@
-{"b": "r673", "notes": "Fixed a short hitch in the desert: the whole map was redrawn every time a door or gate opened or closed."}
+{"b": "r674", "notes": "Desert speed-up: about half the draw calls at the Fort (lone pieces, loose pieces and later-built places drawn together with their neighbours; dust and sparks drawn together; rows of barriers culled when behind you)."}
