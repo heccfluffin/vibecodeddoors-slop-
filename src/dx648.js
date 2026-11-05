@@ -15,7 +15,7 @@
    an original ever has to draw itself), so memory stays about the same.
    ?noabt in the address turns it off.
    ===================================================================================================== */
-const ABT={TEXMB0:0,on:!/[?&]noabt(?:[&=]|$)/.test(location.search),ones:!/[?&]noabt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
+const ABT={TEXMB0:0,on:!/[?&]noabt(?:[&=]|$)/.test(location.search),/* r671: single pieces off by default (the user's benchmark: the same speed with them, more memory); ?abt1 turns them on */ones:/[?&]abt1(?:[&=]|$)/.test(location.search),AREA:144,MAXM:250,MAXV:120000,NEAR:450,FAR:700,TEXMB:200,free:true,
  q:null,B:[],mem:new Map(),arrs:new Map(),texMB:0,users:new Map(),scan:null,scanT:-1e9,job:null,queue:[],fr:0,ps:[],sw:[],att:[],
  st:{batches:0,drawn:0,members:0,fb:0,builds:0,built:0,drawnMembers:0},up:0,act:false,ok:null,force:false,why:{},lively:new WeakSet(),livelyMat:new WeakSet(),dirty:false,warmQ:[],seen:new WeakMap(),scanN:0};
 function abtSame(a,b){for(let i=0;i<16;i++)if(a[i]!==b[i])return false;return true}
