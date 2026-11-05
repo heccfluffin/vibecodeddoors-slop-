@@ -1,1 +1,1 @@
-{"b": "r672", "notes": "Parked vehicles are drawn together with the scenery around them (fewer draw calls). ?noabtv turns it off."}
+{"b": "r673", "notes": "Fixed a short hitch in the desert: the whole map was redrawn every time a door or gate opened or closed."}
