@@ -116,7 +116,15 @@ function abtGrow(a){const cap=Math.min(255,Math.ceil(a.cap*1.5)+4);if(cap<=a.cap
 const _abCv=document.createElement('canvas');
 /* one picture into one layer (a new one, or the same one again when the picture was drawn again) */
 function abtCopy(a,t,i){abtCopyImg(a,t.image,i);a.ver.set(t,t.version)}
-function abtCopyImg(a,im,i){let d;const cx=im.getContext&&im.getContext('2d');if(cx)d=cx.getImageData(0,0,a.w,a.h).data;else{_abCv.width=a.w;_abCv.height=a.h;const c2=_abCv.getContext('2d');c2.clearRect(0,0,a.w,a.h);c2.drawImage(im,0,0);d=c2.getImageData(0,0,a.w,a.h).data}
+/* r685: the picture goes straight from its canvas into the layer (WebGL2 takes a canvas as the source). getImageData made
+   Firefox wait for the graphics card to send each picture back first (canvases live there): the 45-110 ms upkeep spikes
+   when several pictures arrived or an array grew. ?noabtdup = the old copy through getImageData. */
+ABT.dup=!/[?&]noabtdup(?:[&=]|$)/.test(location.search);
+function abtCopyImg(a,im,i){if(ABT.dup&&im&&im.width===a.w&&im.height===a.h){try{const gl=R.getContext(),pr=R.properties.get(a.tex);R.state.bindTexture(gl.TEXTURE_2D_ARRAY,pr.__webglTexture);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,a.flip);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
+  gl.texSubImage3D(gl.TEXTURE_2D_ARRAY,0,0,0,i,a.w,a.h,1,gl.RGBA,gl.UNSIGNED_BYTE,im);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);a.img[i]=im;a.dirty=true;ABT.dupN=(ABT.dupN|0)+1;return}
+  catch(e){ABT.dup=false;try{conLog('error','area batch pictures: direct copy failed ('+e.message+'), copying the old way')}catch(_){}}}
+ let d;const cx=im.getContext&&im.getContext('2d');if(cx)d=cx.getImageData(0,0,a.w,a.h).data;else{_abCv.width=a.w;_abCv.height=a.h;const c2=_abCv.getContext('2d');c2.clearRect(0,0,a.w,a.h);c2.drawImage(im,0,0);d=c2.getImageData(0,0,a.w,a.h).data}
  let px=new Uint8Array(d.buffer,d.byteOffset,d.length);if(a.flip){const s=px,row=a.w*4;px=new Uint8Array(s.length);for(let y=0;y<a.h;y++)px.set(s.subarray((a.h-1-y)*row,(a.h-y)*row),y*row)}
  const gl=R.getContext(),pr=R.properties.get(a.tex);R.state.bindTexture(gl.TEXTURE_2D_ARRAY,pr.__webglTexture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,false);gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
  gl.texSubImage3D(gl.TEXTURE_2D_ARRAY,0,0,0,i,a.w,a.h,1,gl.RGBA,gl.UNSIGNED_BYTE,px);a.img[i]=im;a.dirty=true}

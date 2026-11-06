@@ -68,3 +68,16 @@ function shwStandIns(q){const out=[],seen=new Set(),G={};const geo=(ci,uv,sk)=>{
  try{const L=shwStandIns(q);g=new THREE.Group();g.name='shw';for(const o of L)g.add(o);S.add(g);SHW.st.dummies=L.length}catch(e){try{conLog('error','shader stand-ins: '+e.message)}catch(_){}}
  try{const r=c0.apply(this,arguments);if(g){S.remove(g);g=null}if(SHW.up)try{shwPreUpload(q)}catch(e){try{conLog('error','send-ahead: '+e.message)}catch(_){}}return r}finally{if(g)S.remove(g);SHW.st.progs=(R.info.programs||[]).length-p0;SHW.st.ms=performance.now()-t0;
   try{conLog('info','shaders made behind the loading screen: '+SHW.st.progs+' ('+SHW.st.dummies+' stand-ins for things built later), '+SHW.st.ms.toFixed(0)+' ms')}catch(e){}}}}
+/* r685: THE MAP'S BACKGROUND. When four or more obstacles came or went (speed-check cones, parked backup cars, a place
+   finishing building), the whole 2048 px map background was painted again: 37-64 ms in one frame. Most of those changes
+   do not change what the map shows (it draws buildings found from walls, not single cones). Now the buildings are found
+   again first (quick) and the background is painted again only if the result is different. ?noshwmap = as before. */
+SHW.map=!/[?&]noshwmap(?:[&=]|$)/.test(location.search);
+function shwMapSig(D){if(!D)return'';const r=v=>Math.round(v*10);const L=a=>(a||[]).map(o=>o&&o.x0!=null?r(o.x0)+','+r(o.x1)+','+r(o.z0)+','+r(o.z1)+(o.k||'')+(o.c||''):JSON.stringify(o)).join(';');
+ return [L(D.bld),L(D.wall),L(D.dash),L(D.gr),L(D.rd)].join('|')}
+if(typeof dmapBg=='function'&&typeof dmChanged=='function'&&typeof dmScan=='function'){
+ {const bg0=dmapBg;dmapBg=function(q){const had=!!q.mapBg;const c=bg0.apply(this,arguments);if(!had&&SHW.map)try{DM2.sg=shwMapSig(DM2.data);DM2.mrN=(q.mapR||[]).length}catch(e){}return c}}
+ {const dc0=dmChanged;dmChanged=function(q){const r=dc0.apply(this,arguments);if(!r||!SHW.map)return r;
+  try{if(typeof DMAP!='undefined'&&DMAP.open)return r;if((q.mapR||[]).length!==DM2.mrN||DM2.sg==null)return r;
+   const t0=performance.now();dmScan(q);const same=shwMapSig(DM2.data)===DM2.sg;SHW.st.mapMs=performance.now()-t0;
+   if(same){DM2.cnt=dmCount(q);SHW.st.mapSkip=(SHW.st.mapSkip|0)+1;return false}}catch(e){}return r}}}
