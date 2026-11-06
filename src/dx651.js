@@ -33,11 +33,11 @@ function shwStandIns(q){const out=[],seen=new Set(),G={};const geo=(ci,uv,sk)=>{
   const ci=o.geometry.attributes.color?o.geometry.attributes.color.itemSize:0;
   for(const m of ms){if(!m||m.isShaderMaterial||!/^Mesh(Basic|Lambert|Standard|Phong)Material$/.test(m.type))continue;const k=shwSig(m,'c'+ci);if(!src.has(k))src.set(k,[m,ci])}});
  /* 1) late batches of places (the batcher's own merged material, as made from this piece) */
- const merged=new Map();for(const[,[m,ci]]of src){let x;try{x=mm(m,lam)}catch(e){continue}const k=shwSig(x,'m');if(merged.has(k))continue;merged.set(k,x);add(x,3,!!x.map,false,'m');if(ci===4)add(x,4,!!x.map,false,'m4')}
+ const merged=new Map();for(const[,[m,ci]]of src){let x;try{x=mm(m,lam)}catch(e){continue}const k=shwSig(x,'m');if(merged.has(k))continue;merged.set(k,x);add(x,3,!!x.map,false,'m')}
  /* 2) scenery area batches made from those (r667; same rules as abtKey for the material) */
  if(typeof abtMat=='function'&&typeof ABT!='undefined')for(const[,x]of merged){const t=x.type;if(t!=='MeshLambertMaterial'&&t!=='MeshStandardMaterial'&&t!=='MeshBasicMaterial')continue;
   if(x.transparent||x.onBeforeCompile!==THREE.Material.prototype.onBeforeCompile||(x.userData&&x.userData.dpSand)||!x.vertexColors)continue;
-  for(const X of(x.map?[true,false]:[false])){let a;try{a=abtMat(x,X?{tex:null}:null,null,1,false,false)}catch(e){continue}add(a,3,X,false,'a')}}
+  /* (a piece with a picture only joins when its picture goes into a texture array, so X = has a picture) */const X=!!x.map;let a;try{a=abtMat(x,X?{tex:null}:null,null,1,false,false)}catch(e){continue}add(a,3,X,false,'a')}
  /* 3) people batching (r654): the merged material (never the cheap Lambert swap) with bones */
  if(typeof sknWhy=='function'&&typeof sknRoots=='function'&&typeof SKN!='undefined'&&SKN.on!==false){const sk=new Set();
   for(const r of sknRoots(q))r.traverse(o=>{if(!o.isMesh||sk.has(o.material))return;if(!shwSknOK(o))return;sk.add(o.material);let x;try{x=mm(o.material,false)}catch(e){return}x.skinning=true;x.userData.skn=1;add(x,3,!!x.map,true,'s')})}
