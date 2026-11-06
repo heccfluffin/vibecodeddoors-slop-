@@ -11,7 +11,20 @@
    material with the same settings, so the real ones later find theirs ready. The stand-ins are never drawn and stay in
    memory (a shader is thrown away when its last material is). ?noshw turns this off to compare.
    ===================================================================================================== */
-const SHW={on:!/[?&]noshw(?:[&=]|$)/.test(location.search),keep:[],q:null,st:{dummies:0,progs:0,ms:0}};
+const SHW={on:!/[?&]noshw(?:[&=]|$)/.test(location.search),up:!/[?&]noshwup(?:[&=]|$)/.test(location.search),keep:[],q:null,st:{dummies:0,progs:0,ms:0,upMs:0,upGeo:0,upTex:0}};
+/* r685: the arrival. With "skip the bus ride" the warm-up (r632) gets no time before you step off, so the first frames
+   sent ~4,000 shapes and ~130 pictures to the graphics card at once (about 1.7 s of hitches in the drive report). Now,
+   right after the shaders, the view from the bus stop is drawn in all six directions into a single hidden pixel while the
+   loading screen is still up, which sends all of it ahead. ?noshwup leaves this out. */
+function shwPreUpload(q){const t0=performance.now(),g0=R.info.memory.geometries,x0=R.info.memory.textures;
+ const cam=new THREE.PerspectiveCamera(90,1,C.near,C.far);cam.layers.mask=C.layers.mask;cam.position.set(0,1.7,-1043+q.OZ);
+ const vp=new THREE.Vector4(),sc=new THREE.Vector4();R.getViewport(vp);R.getScissor(sc);const st=R.getScissorTest();
+ const D=[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1],[0,1,0],[0,-1,0]];
+ try{R.setViewport(0,0,1,1);R.setScissor(0,0,1,1);R.setScissorTest(true);
+  for(const d of D){cam.up.set(0,d[1]?0:1,d[1]?1:0);cam.lookAt(cam.position.x+d[0],cam.position.y+d[1],cam.position.z+d[2]);cam.updateMatrixWorld(true);R.render(S,cam)}}
+ finally{R.setScissorTest(st);R.setScissor(sc);R.setViewport(vp)}
+ SHW.st.upMs=performance.now()-t0;SHW.st.upGeo=R.info.memory.geometries-g0;SHW.st.upTex=R.info.memory.textures-x0;
+ try{conLog('info','sent ahead behind the loading screen: '+SHW.st.upGeo+' shapes, '+SHW.st.upTex+' pictures, '+SHW.st.upMs.toFixed(0)+' ms')}catch(e){}}
 /* the material settings that decide which shader three.js makes (r128's program parameters that come from a material) */
 function shwSig(m,extra){const t=k=>m[k]?1:0,mp=m.map;
  return [m.type,mp?(mp.encoding|0):'-',t('matcap'),t('envMap'),t('lightMap'),t('aoMap'),t('emissiveMap'),t('bumpMap'),t('normalMap'),m.normalMapType|0,t('displacementMap'),t('specularMap'),t('roughnessMap'),t('metalnessMap'),t('alphaMap'),t('gradientMap'),m.combine|0,m.vertexColors?1:0,m.fog?1:0,m.flatShading?1:0,m.premultipliedAlpha?1:0,m.alphaTest||0,m.side|0,m.dithering?1:0,m.toneMapped===false?0:1,m.skinning?1:0,m.morphTargets?1:0,(m.clippingPlanes&&m.clippingPlanes.length)|0,m.transparent?1:0,JSON.stringify(m.defines||null),(m.userData&&m.userData.dpSand)?1:0,m.customProgramCacheKey?String(m.customProgramCacheKey()).length+':'+String(m.customProgramCacheKey()).slice(0,60):'',extra||''].join('|')}
@@ -53,5 +66,5 @@ function shwStandIns(q){const out=[],seen=new Set(),G={};const geo=(ci,uv,sk)=>{
 {const c0=R.compile;R.compile=function(sc,cam){const q=typeof BUS!='undefined'&&BUS.ride;if(!SHW.on||sc!==S||!q||!q.g||!q.ld||SHW.q===q)return c0.apply(this,arguments);SHW.q=q;
  const t0=performance.now(),p0=(R.info.programs||[]).length;let g=null;
  try{const L=shwStandIns(q);g=new THREE.Group();g.name='shw';for(const o of L)g.add(o);S.add(g);SHW.st.dummies=L.length}catch(e){try{conLog('error','shader stand-ins: '+e.message)}catch(_){}}
- try{return c0.apply(this,arguments)}finally{if(g)S.remove(g);SHW.st.progs=(R.info.programs||[]).length-p0;SHW.st.ms=performance.now()-t0;
+ try{const r=c0.apply(this,arguments);if(g){S.remove(g);g=null}if(SHW.up)try{shwPreUpload(q)}catch(e){try{conLog('error','send-ahead: '+e.message)}catch(_){}}return r}finally{if(g)S.remove(g);SHW.st.progs=(R.info.programs||[]).length-p0;SHW.st.ms=performance.now()-t0;
   try{conLog('info','shaders made behind the loading screen: '+SHW.st.progs+' ('+SHW.st.dummies+' stand-ins for things built later), '+SHW.st.ms.toFixed(0)+' ms')}catch(e){}}}}
