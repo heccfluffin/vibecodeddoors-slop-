@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r685',['Smoother arrival in the desert: the places that used to be built the moment you stepped off the bus (air wing, command wing, PD HQ, silo, water spots and more) are now built behind the loading screen, and what is around the bus stop is sent to the graphics card there too','Fewer hitches while driving: the map no longer repaints itself when only a few cones or parked cars come and go, and scenery pictures are copied without waiting on the graphics card']],
 ['r684',['Fewer freezes while driving around the desert: the shaders for things the game builds while you play (scenery batches, people, far shapes) are now made behind the loading screen, so the loading screen can take a few seconds longer','The warm-up now also catches pieces that share a shape but have a different material']],
 ['r683',['Two new songs down in the desert mines. Like out on the sand, the mine music now picks a song at random and moves on to another when one ends']],
 ['r682',['Four new desert songs. Out on the sand the music now picks a song at random each time, and moves on to another when one ends']],

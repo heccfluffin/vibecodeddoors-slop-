@@ -1109,7 +1109,7 @@ for _i in (2,3):
     _fb=base64.b64encode(open(S+'minmus%d.mp3'%_i,'rb').read()).decode();k=s.rfind('</body>');s=s[:k]+'<script id="mineMus%d" type="text/plain">'%_i+_fb+'</script>\n'+s[k:]
 _lv=base64.b64encode(open(S+'likevid.mp4','rb').read()).decode()
 k=s.rfind('</body>');s=s[:k]+'<script id="likeVid" type="text/plain">'+_lv+'</script>\n'+s[k:]
-s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-06 r684';",s,count=1)
+s=re.sub(r"const BUILD='[^']*';","const BUILD='2026-11-06 r685';",s,count=1)
 open(OUTF,'w').write(s)
 for i,m in enumerate(re.finditer(r'<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>',s,re.S)):
     js=m.group(1)

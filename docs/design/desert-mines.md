@@ -1,4 +1,4 @@
-Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · part 2 (F) plan approved 2026-11-05, models batch 1 (the looks and the stations) approved 2026-11-05, batch 2 (the working rooms) approved 2026-11-06, batch 3 (the cave rooms) for review · part 3 (E, G) still to design
+Status: all ideas picked 2026-10-22 (A to H) · part 1 (A, B, C, D, H: the rules) approved 2026-10-22 · part 1 models: batch 1 (the blocked doors) approved, batch 2 (things in the rooms) approved, batch 3 (the creatures) approved 2026-11-05 · **part 1 ready to build** · part 2 (F) plan approved 2026-11-05, models batch 1 (the looks and the stations) approved 2026-11-05, batch 2 (the working rooms) for review · part 3 (E, G) still to design
 
 # The Desert Mines: how the run plays now, and what to change
 
@@ -532,10 +532,8 @@ tunnels):
 - **Station 80:**
   - The cage runs as above but stops with a jolt after 8 s. Then `short(true)` and the front gate opens again ("The
     cable won't go any further.").
-  - `dmManway(G2, x, z)` stands in the hall beside the cage. It must stand clear of the station's concrete apron
-    (the 4 m in front of the cage, z from -Z+2.75 to -Z+6.75), or the apron covers the hole. The preview
-    uses (2.4, -6.8) in a 16 m hall. The game cuts the floor at `hole`; give the floor pieces round it UVs from room
-    space (one tile per 2.5 m), not 0..1 per piece, or the narrow pieces beside the hole come out stretched.
+  - `dmManway(G2, x, z)` stands in the hall beside the cage. The preview uses (2.4, -9.6) in a 16 m hall; the game
+    cuts the floor at `hole`.
   - E at the ladder (`top`) starts a 5 s climb down (the camera goes down the rungs, fades). You come out at the foot
     of `dmManwayFoot(G2, x, z, HY, 5, HX)` near room 81's entry wall, facing into the room.
   - Room 81's shell takes `holes: [foot.hole]`, and its entry door is never used: the cage's back gate stays shut at
@@ -543,7 +541,7 @@ tunnels):
   - Co-op: each player climbs on their own.
 - **Badges:** "Five Levels Down" when you reach the foot of the ladder.
 
-### Batch 2: the working rooms, approved 2026-11-06 · `dmMagazine`, `dmLampRoom`, `dmCanteen`, `dmOffice`, `dmChute`, `dmPump`
+### Batch 2: the working rooms, for review · `dmMagazine`, `dmLampRoom`, `dmCanteen`, `dmOffice`, `dmChute`, `dmPump`
 Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 1) with one big thing against one wall.
 
 **What's in it:**
@@ -559,16 +557,14 @@ Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 
 - **Canteen:**
   - a table and two benches, with lunch tins and mugs;
   - an iron stove with a glowing door, a kettle and a chimney up into the rock;
-  - a dresser with four drawers, and plates behind a rail on its rack;
+  - a dresser with four drawers and plates on its rack;
   - a notice board ("NO SNAP ON THE TRACKS", "WASH YOUR HANDS", "LAMPS BACK BY 6").
 - **Old office:**
   - a desk with six drawers, papers, an inkwell and a lit lamp, and a chair;
   - a filing cabinet and a shelf of ledgers;
   - the level plan on a board: five rooms in a row, the gas ones marked with a green cloud and "GAS" in red.
 - **Ore chute:**
-  - a timbered box hole high in the wall, cut into the rock: the room's shell leaves a hole there, the timber set
-    stands just behind the rock's farthest point so the rough rock edge laps over it, and plank backing closes the
-    cut behind it. Lining boards run back from the set, and the opening is dark;
+  - a timbered box hole high in the wall;
   - a plank trough sloping down to a sliding gate, on two legs;
   - a lever;
   - a small tub on a spur of track under the mouth.
@@ -588,8 +584,8 @@ Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 
     against that wall, centred at `z`.
   - Put it midway between two timber sets, and leave out any set that falls within its length. The lengths along the
     wall are: magazine 2.2 m, lamp room 6.5 m, canteen 8 m, office 6.5 m, chute 3.5 m, pump 6.5 m.
-  - Call `dmDress` with `noProps: true` in these rooms, so the random barrel, tools, basalt columns, steam vents,
-    bones and carved block stay out of the way.
+  - Call `dmDress` with `noProps: true` in these rooms, so the random barrel, tools, bones and carved block stay out
+    of the way.
   - Add `obs` to the room. Each thing returns its own `props` for its press-E spots.
   - `lights` are spots for pool lights: take them from the pool, don't add lights.
 - **Powder magazine** (`what: 'magazine'`): E opens the doors (`parts.doors(k)` over 0.8 s) and gives you one
@@ -599,81 +595,9 @@ Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 
   (`parts.drawers`) are ordinary drawer spots for the game's drawer loot.
 - **Old office** (`'map'`, `'desk'`): build the map with `parts.map(rooms)`. Rooms are the next five rooms after this
   one, `{gas: true}` for the gas rooms (known from the seeded roll). The desk is a drawer spot.
-- **Ore chute** (`'chute'`): build the room's shell with `holes: [dmChuteHole(HX, side, z)]` so the box hole is
-  cut into the rock. E pulls the lever and opens the gate (`parts.gate(1)`). Over 6 s, `parts.pour(k)` runs
+- **Ore chute** (`'chute'`): E pulls the lever and opens the gate (`parts.gate(1)`). Over 6 s, `parts.pour(k)` runs
   from 0 to 1 and each player gets one free ore of the level's ore table. +4 noise (the Burrower). Once per room.
 - **Pump room** (`'pump'`): hold E on the valve for 4 s. `parts.run(k)` eases to 1 over 3 s; call `tick(t, dt)` each
   frame while near. The next flooded passage (part 1's blocker) on this level is already drained when you reach it.
-
-### Batch 3: the cave rooms, for review · `dmFork`, `dmDrift`, `dmGallery`, `dmStope`, `dmGeode`, `dmDip`, `dmRaise`
-These change the room's shape, so each one returns what the game needs to walk, climb and collide: `obs`, `props`,
-`ladders` (`{x, z, y0, y1, ry}`), `ledges` (`{x0, x1, z0, z1, y}`, walkable tops), `floorCut` (where the room's floor
-box is left out), `ground` (walking height along z), `glow` (pool-light spots) and `tick`.
-
-**What's in each one:**
-- **Fork:** a lumpy rock pillar from floor to roof splits the room into two 2.4 m passages that meet again before
-  the exit. `props`: a `find` spot in one passage and a `danger` spot in the other.
-- **Side drift:** a 6 m dead-end tunnel off one wall, 2.4 m wide. It's reached through a timber portal (two posts and
-  a cap) set into a cut in the rock, with plank backing round it. It has its own small rock shell and floor, closed at
-  the far end, and a `find` spot there.
-- **Wide gallery** (room HX 7): two rows of rock pillars every 5 m, and two tracks down the middle (`tracks: [-0.9,
-  0.9]`).
-- **Stope** (room HY 8):
-  - round timber stulls wall to wall at three heights, with their ends in the rock;
-  - a plank ledge 1.7 m deep at 3.4 m on one wall, resting on two stulls, with a toe board;
-  - a ladder up to the ledge, and a `vein` spot on the rock above the ledge;
-  - scree heaped against the other wall.
-- **Geode room** (`dmGeode(g, o)`): the whole room is the inside of a giant geode, 16 m long, about 8.8 m wide at
-  the floor and 5.4 m high, narrowing towards the doors:
-  - a violet lining covered in about two thousand crystal points, each pointing in, and big crystal clusters along
-    the foot of the walls on both sides;
-  - flat rock end walls with the doors, each with a banded agate rim where the lining meets it;
-  - a silver vein: bright lumps in a sloping streak at chest height on one wall;
-  - a rough rind outside in the level's rock (only seen if something looks in from outside).
-- **Dip:** timber steps (five, 0.24 m each) down 1.2 m into a flooded hollow, 3.2 m of water 0.75 m deep, then steps up.
-  Lumpy rock walls go down the sides, carrying on the room's rock from the wall above.
-- **Ladder raise** (room HY 5): a rock wall across the room, 3 m high and 2.4 m thick, flat on top with a plank deck. A
-  ladder on each face sticks 0.9 m above the deck to hold on to.
-
-**Wiring (Claude Code):**
-- **Which rooms:** these replace the plain tunnel in the level mix from part 2's table. Each room is still a box with
-  its doors at the ends, so turns, co-op seeding and the creatures' paths keep working.
-- **Geode room:** build it instead of the room's shell: no `dmShell`, `dmDress`, timber sets, lanterns or rails
-  (its crystals glow; its `glow` spots take violet pool lights). Lay the room's floor box as usual, `2 × out.HX`
-  (8.8 m) wide; the parts of it outside the lining are hidden in the rock. Its doors must be within 1 m of the middle
-  (`dIn`, `dOut` give their x). Its `obs` are the lining's walls at foot height. The vein is a `vein` prop with
-  `ore: 'silver'` (a part 1 ore vein of silver). Only on level 2.
-- **Rails:** leave them out in the fork, geode, stope, dip and raise rooms (the Runaway Cart doesn't come in those
-  rooms). The gallery has its two tracks.
-- **Timber sets:** leave out any that fall inside the fork's pillar, the drift's portal, the dip or the raise.
-- **Climbing ladders** (new, also used by part 3):
-  - Standing at a ladder's foot or top and pressing W or S climbs it at 1.6 m/s, facing `ry`.
-  - At the top you step off onto the `ledge`. Jump lets go.
-  - Creatures can't climb. Rush passes under the ledge in the stope, and the raise blocks Rush: he stops at the wall
-    as at a closed door, then fades.
-- **Walking heights:**
-  - `ledges` are walkable tops, like `q.obs` boxes with `top` in the desert.
-  - The dip's `ground` gives the floor height along z, and its `floorCut` is where the room's floor box is left out.
-  - In the dip's water (`water: {y, z0, z1, slow: 0.5}`) you walk at half speed with a splash sound, and your lantern
-    doesn't go out.
-- **Side drift:** build the room's shell with `holes: [dmDriftHole(HX, side, z)]`. The room's wall obstacle has a gap
-  at `wallGap`, and the drift's own walls are in `obs`. The Burrower can wait at the dead end (part 1's creature).
-- **Stope:** the vein above the ledge is a part 1 ore vein with double ore. You reach it from the ledge.
-- **Geode room:** quiet, so no bats spawn in it.
-- **Stope ledge height:** 3.4 m, so part 1's rockfall can't drop on a player standing on the ledge.
-
-A fix that also touches batch 1: the rock shell's wall top could come out as an invalid number on some room heights.
-That gave a broken (smooth, untextured) wall in the 8 m stope. It's fixed in `dmProf`, so batch 1's rooms are safe too. Also fixed in batch 1's dressing: level 5's fungus caps now sit on their stems (they were placed separately), the
-bell and the caps no longer overlap themselves at the seam, level 3's puddles each sit a little higher than the last so
-overlapping ones don't flicker, and `dmDress` takes `floorCut` (no puddles over the dip's hollow).
-
-After review (2026-11-06):
-- The rock and floor pictures now tile without seams (every blob and crack is drawn wrapped round the picture's
-  edges). This shows most on pillars seen up close, but it also improves batch 1's walls.
-- The fork's pillar had a stretched strip down one side (its texture wrapped wrongly at the seam) and a hard shading
-  line. Now the texture is continuous, the normals are shared across the seam, and the pillar has round ends instead
-  of a blade edge. The gallery pillars use the same code.
-- The dip's side walls faced outwards, so you could see past them from down in the water. They face in now.
-- The geode is now the room itself (see above). It had lanterns floating outside it before.
 
 # Part 3 (E, G): shuffled set pieces, the Company Store and contracts: plan after part 2
