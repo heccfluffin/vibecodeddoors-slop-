@@ -11,12 +11,21 @@
    material with the same settings, so the real ones later find theirs ready. The stand-ins are never drawn and stay in
    memory (a shader is thrown away when its last material is). ?noshw turns this off to compare.
    ===================================================================================================== */
-const SHW={on:!/[?&]noshw(?:[&=]|$)/.test(location.search),up:!/[?&]noshwup(?:[&=]|$)/.test(location.search),keep:[],q:null,st:{dummies:0,progs:0,ms:0,upMs:0,upGeo:0,upTex:0}};
+const SHW={UPR:300,UPMS:6000,on:!/[?&]noshw(?:[&=]|$)/.test(location.search),up:!/[?&]noshwup(?:[&=]|$)/.test(location.search),keep:[],q:null,st:{dummies:0,progs:0,ms:0,upMs:0,upGeo:0,upTex:0}};
 /* r685: the arrival. With "skip the bus ride" the warm-up (r632) gets no time before you step off, so the first frames
    sent ~4,000 shapes and ~130 pictures to the graphics card at once (about 1.7 s of hitches in the drive report). Now,
    right after the shaders, the view from the bus stop is drawn in all six directions into a single hidden pixel while the
    loading screen is still up, which sends all of it ahead. ?noshwup leaves this out. */
 function shwPreUpload(q){const t0=performance.now(),g0=R.info.memory.geometries,x0=R.info.memory.textures;
+ /* first the warm-up's own list (r632): everything near the stop that is shown or only hidden for being far away
+    (details, cells, vehicles), each drawn alone into the hidden pixel, whatever its group's state; nearest first */
+ if(typeof WARM!='undefined'&&WARM.on&&typeof warmScanStep=='function'&&typeof warmBatch=='function'){try{
+  WARM.q=q;WARM.list=[];WARM.lights=[];WARM.litQ=null;WARM.hot=[];WARM.hotC=[];WARM.roam=q.roam;WARM.scanT=performance.now();
+  WARM.scan={so:[q.g],sx:[null],sz:[null],out:[],lights:[],veh:new Set((q.vehs||[]).map(v=>v&&v.m).filter(Boolean))};
+  let k=0;while(!warmScanStep(q,20000)&&k++<200){}
+  const L=WARM.list,[cx,cz]=warmCtr(q),r0=WARM.r0||R.render;let n=0;
+  while(L.length&&performance.now()-t0<SHW.UPMS){const b=[];while(L.length&&b.length<64){const it=L[L.length-1];if(Math.hypot(it.x-cx,it.z-cz)>SHW.UPR)break;L.pop();const o=it.o;if(!o.geometry||!o.parent||!warmNeed(o))continue;warmMark(o);b.push(o)}
+   if(!b.length)break;warmBatch(q,b,r0);n+=b.length}SHW.st.upWarm=n}catch(e){try{conLog('error','send-ahead (warm list): '+e.message)}catch(_){}}}
  const cam=new THREE.PerspectiveCamera(90,1,C.near,C.far);cam.layers.mask=C.layers.mask;cam.position.set(0,1.7,-1043+q.OZ);
  const vp=new THREE.Vector4(),sc=new THREE.Vector4();R.getViewport(vp);R.getScissor(sc);const st=R.getScissorTest();
  const D=[[1,0,0],[-1,0,0],[0,0,1],[0,0,-1],[0,1,0],[0,-1,0]];
