@@ -532,8 +532,9 @@ tunnels):
 - **Station 80:**
   - The cage runs as above but stops with a jolt after 8 s. Then `short(true)` and the front gate opens again ("The
     cable won't go any further.").
-  - `dmManway(G2, x, z)` stands in the hall beside the cage. The preview uses (2.4, -9.6) in a 16 m hall; the game
-    cuts the floor at `hole`.
+  - `dmManway(G2, x, z)` stands in the hall beside the cage. It must stand clear of the station's concrete apron
+    (the 4 m in front of the cage, z from -Z+2.75 to -Z+6.75), or the apron covers the hole. The preview
+    uses (2.4, -6.8) in a 16 m hall. The game cuts the floor at `hole`.
   - E at the ladder (`top`) starts a 5 s climb down (the camera goes down the rungs, fades). You come out at the foot
     of `dmManwayFoot(G2, x, z, HY, 5, HX)` near room 81's entry wall, facing into the room.
   - Room 81's shell takes `holes: [foot.hole]`, and its entry door is never used: the cage's back gate stays shut at
