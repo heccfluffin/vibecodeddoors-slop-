@@ -196,3 +196,43 @@ function dpxConsider(ch,lam,inv,groups,mk,root){const m=ch.material;
   const v0=m.vertexColors;let k=null;m.vertexColors=false;try{k=mk(m,lam)}finally{m.vertexColors=v0}if(!k)return true;
   _dpxM.multiplyMatrices(inv,ch.matrixWorld);if(_dpxM.determinant()<=0)return true;let L=groups.get(k);if(!L)groups.set(k,L=[]);L.push(ch);DPX.nv++;return true}
  return false}
+
+/* =====================================================================================================
+   r681: PARKED VEHICLES' FIXED PARTS WORKED OUT EVERY 8TH FRAME.
+   Every frame the position update visited every shown part of every vehicle (about 6,000 visits at the Fort, most of
+   all visits), though most vehicles are parked and their parts do not move. Now, for a vehicle nobody is in, that is not
+   moving and not wrecked: the vehicle itself and its moving parts (wheels, rotors, turrets, radar... the parts the
+   vehicle code turns) every frame, its fixed parts every 8th frame. Whenever the vehicle itself moves, everything is
+   worked out that frame. A parked vehicle whose fixed parts turn out to change anyway (an animation this does not know
+   about) is always worked out in full from then on. Things that read a position (rays, the batching watchdog) still
+   get it fresh. ?novpw turns it off.
+   ===================================================================================================== */
+const VPW={on:!/[?&]novpw(?:[&=]|$)/.test(location.search),map:new WeakMap(),n:-1,q:null,lively:new WeakSet(),skip:0,full:0,t:0};
+function vpwVeh(o){const q=BUS&&BUS.ride;if(!q||!q.vehs)return null;if(VPW.q!==q||VPW.n!==q.vehs.length||(MWC.f-VPW.t)>120){VPW.q=q;VPW.n=q.vehs.length;VPW.t=MWC.f;VPW.map=new WeakMap();for(const v of q.vehs)if(v&&v.m)VPW.map.set(v.m,v)}return VPW.map.get(o)||null}
+/* the moving parts, outermost first, each with the moving parts it sits inside (a barrel inside its turret) */
+function vpwParts(o){if(o.__vpm&&o.__vpmN===o.children.length&&(MWC.f-o.__vpmT)<600)return o.__vpm;let L=[];try{L=typeof vbParts=='function'?[...vbParts(o).keys()]:[]}catch(e){L=[]}
+ const S2=new Set(L),dep=p=>{let d=0;for(let a=p.parent;a&&a!==o;a=a.parent)d++;return d};L=L.filter(p=>{let a=p;while(a&&a!==o)a=a.parent;return a===o});
+ for(const p of L){p.__vpu=[];for(let a=p.parent;a&&a!==o;a=a.parent)if(S2.has(a))p.__vpu.push(a)}L.sort((x,y)=>dep(x)-dep(y));
+ o.__vpm=L;o.__vpmS=new Set(L.filter(p=>!p.__vpu.length));o.__vpmN=o.children.length;o.__vpmT=MWC.f;return L}
+/* the same visit as the vehicle walk (r653), leaving the moving parts for later and noting whether a fixed part changed */
+function vpwWalk(o,force,st,mv){const ch=o.children;for(let i=0,l=ch.length;i<l;i++){const c=ch[i];
+  if(c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(force);continue}
+  if(mv&&mv.has(c)){st.later.push(c);continue}
+  if(!c.visible){c.__mwSk=MWX.fr;MWV.skipped++;continue}
+  if((c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.isMesh&&!c.isSprite&&!c.children.length){MWV.skipped++;continue}
+  const f=mwSelf(c,force);if(f&&!force)st.ch=true;vpwWalk(c,f,st,mv)}}
+{const f0=mwFull;mwFull=function(o,force){if(!VPW.on||!o.__mwKeep||!MWC.on||!MWV.on||typeof abtParked!='function')return f0(o,force);
+ const v=vpwVeh(o);if(!v||VPW.lively.has(o)||!abtParked(v))return f0(o,force);
+ const rc=mwSelf(o,force),mv=vpwParts(o),MS=o.__vpmS;
+ if(rc||!o.__vpw||((MWC.f+o.id)&7)===0){/* in full: the fixed parts branch by branch (noting which ones changed), then the moving ones */o.__vpw=1;VPW.full++;const st={ch:false,later:[]};
+  const LV=o.__vpl||(o.__vpl=new Set());if(!rc)LV.clear();const och=o.children;
+  for(let i=0,l=och.length;i<l;i++){const c=och[i];if(c.updateMatrixWorld!==_mwP){c.updateMatrixWorld(rc);continue}if(MS.has(c)){st.later.push(c);continue}if(!c.visible){c.__mwSk=MWX.fr;continue}
+   if((c.layers.mask===4||(MWX.far&&c.layers.mask===64))&&c.isMesh&&!c.isSprite&&!c.children.length)continue;
+   const s2={ch:false,later:st.later},f=mwSelf(c,rc);if(f&&!rc)s2.ch=true;vpwWalk(c,f,s2,MS);if(s2.ch&&!rc)LV.add(c)}
+  /* (a vehicle with changes in many branches is simply always worked out in full) */if(LV.size>6)VPW.lively.add(o);for(const p of st.later){if(!p.visible){p.__mwSk=MWX.fr;continue}const f=mwSelf(p,rc);vpwWalk(p,f,{ch:false,later:[]},null)}return}
+ /* in between: only the moving parts, outermost first: one that turned has everything inside it worked out; one that did
+    not only has the moving parts inside it looked at (their fixed parents have not moved) */VPW.skip++;const fr=MWC.f;
+ for(const p of mv){if(!p.parent||!p.visible)continue;let skip=false;for(const a of p.__vpu)if(a.__vpd===fr){skip=true;break}if(skip)continue;
+  let ok=true;for(let a=p.parent;a&&a!==o;a=a.parent)if(!a.visible){ok=false;break}if(!ok)continue;
+  const f=mwSelf(p,false);if(f){p.__vpd=fr;vpwWalk(p,true,{ch:false,later:[]},null)}}
+ /* and the branches where something changed by itself last time */if(o.__vpl)for(const c of o.__vpl){if(!c.parent||!c.visible)continue;const f=mwSelf(c,false);vpwWalk(c,f,{ch:false,later:[]},MS)}}}
