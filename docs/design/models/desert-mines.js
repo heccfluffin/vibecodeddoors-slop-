@@ -357,7 +357,7 @@ function dmMummyHand(){const k=rtKit(),o=dmKit(),M=o.M,G=new THREE.Group();const
                                 posts (o.sets: the z of the game's sets); 2 crystal clusters, glowing; 3 puddles, a pipe
                                 along the wall, ankle-deep water when o.wet; 4 glowing cracks placed per room (from
                                 the floor up the walls, two over the roof), magma seeps, basalt columns, steam vents; 5 glowing fungus, bones and fallen carved stones (o.noProps leaves out the barrel, tools,
-                                basalt columns, steam vents, bones and carved block, for the working rooms). Returns {tick(t), glow (spots
+                                bones and carved block, for the working rooms). Returns {tick(t), glow (spots
                                 for pool lights), obs}.
      dmStation(g, o)            a station hall's things: the level board, bell, signal board, bench, lamps. The hall is
                                 a room box (HX 5, HY 5, Z 16) with dmShell over it.
@@ -417,7 +417,7 @@ function dmShell(g,o){const K=dmKit(),HX=o.HX||4,HY=o.HY||4,Z=o.Z||20,lv=o.lv||1
  const nz=Math.max(2,Math.ceil(Z/.42)),pos=[],col=[],uv=[],idx=[],np=P.length;
  for(let a=0;a<=nz;a++){const z=-Z*a/nz;for(let j=0;j<np;j++){const[x,y]=P[j],[nx,ny]=N[j],d=disp(x,y,z,ny);pos.push(x+nx*d,y+ny*d,z);uv.push(pf.S[j]/2.5,-z/2.5);
   const v=(.8+.32*dmNoise(x*1.7+40,y*1.7,z*1.7))*(y<.7?.78+.22*y/.7:1)*(lv==5?1-.25*sm(HY,HY+L.vault,y):1);if(lv==4){/* the heat: the rock warms to red towards the floor */const ht=Math.max(0,1-y/1.4)*.55;col.push(v+ht*.9,v+ht*.22,v)}else col.push(v,v,v)}}
- const hole=(x,y,z)=>(o.holes||[]).some(h=>(h.y0===undefined?y>pf.W:y>h.y0&&y<h.y1)&&x>h.x0&&x<h.x1&&z>h.z0&&z<h.z1);
+ const hole=(x,y,z)=>(o.holes||[]).some(h=>y>pf.W&&x>h.x0&&x<h.x1&&z>h.z0&&z<h.z1);
  for(let a=0;a<nz;a++)for(let j=0;j<np-1;j++){const i0=a*np+j,i1=i0+1,i2=i0+np,i3=i2+1;const cx=(P[j][0]+P[j+1][0])/2,cy=(P[j][1]+P[j+1][1])/2,cz=-Z*(a+.5)/nz;if(hole(cx,cy,cz))continue;idx.push(i0,i2,i1,i1,i2,i3)}
  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
  const mat=dmShellMat(lv),mesh=new THREE.Mesh(ge,mat);G.add(mesh);
@@ -489,9 +489,9 @@ function dmDress(g,sh,o){const K=dmKit(),M=K.M,lv=sh.lv,HX=sh.HX,HY=sh.HY,Z=sh.Z
   const hm=mk(HALO,new THREE.MeshBasicMaterial({color:0xff4a10,map:gT,vertexColors:true,transparent:true,opacity:.55,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetUnits:-3}));hm.renderOrder=3;
   ticks.push(t=>{hm.material.opacity=.45+.12*Math.sin(t*1.3)+.05*Math.sin(t*3.7)});
   /* basalt columns at the foot of the walls, steam vents in the floor */const B=[],BM=M(0xffffff,{vertexColors:true,map:dmRockTex(4),roughness:.7,metalness:.05});
-  if(!o.noProps)for(let i=0;i<Math.round(Z/1.6);i++){const s=r()<.5?-1:1,z=zr(.8),h=.6+r()*1.8,w=.22+r()*.16,c=new THREE.CylinderGeometry(w,w,h,6);c.translate(0,h/2,0);const v=.5+r()*.25;mgPut(B,c,s*(HX+w-.05),-.02,z,r(),[v,v,v])}G.add(mgMerge(B,BM));
+  for(let i=0;i<Math.round(Z/1.6);i++){const s=r()<.5?-1:1,z=zr(.8),h=.6+r()*1.8,w=.22+r()*.16,c=new THREE.CylinderGeometry(w,w,h,6);c.translate(0,h/2,0);const v=.5+r()*.25;mgPut(B,c,s*(HX+w-.05),-.02,z,r(),[v,v,v])}G.add(mgMerge(B,BM));
   const SP=dmSprite('rgba(200,190,185,.5)',true),VM=M(0x200804,{emissive:0xff5010,emissiveIntensity:1.2,roughness:.9,polygonOffset:true,polygonOffsetUnits:-2});
-  for(let i=0;i<(o.noProps?0:2);i++){const x=(r()<.5?-1:1)*(HX-.9-r()*.6),z=-Z*(.3+.4*i)-r()*1.5;const v=new THREE.Mesh(new THREE.CircleGeometry(.32,10),VM);v.rotation.x=-Math.PI/2;v.scale.set(1,.45,1);v.position.set(x,.005,z);G.add(v);
+  for(let i=0;i<2;i++){const x=(r()<.5?-1:1)*(HX-.9-r()*.6),z=-Z*(.3+.4*i)-r()*1.5;const v=new THREE.Mesh(new THREE.CircleGeometry(.32,10),VM);v.rotation.x=-Math.PI/2;v.scale.set(1,.45,1);v.position.set(x,.005,z);G.add(v);
    const puffs=[];for(let j=0;j<6;j++){const s2=new THREE.Sprite(new THREE.SpriteMaterial({map:SP,transparent:true,depthWrite:false,opacity:.5}));G.add(s2);puffs.push(s2)}ticks.push(t=>puffs.forEach((p,j)=>{const k=(t*.35+j/6)%1;p.position.set(x+Math.sin(j*2+t)*.15*k,.1+k*3.2,z);p.scale.setScalar(.25+k*.8);p.material.opacity=.22*Math.sin(Math.PI*k)}));out.glow.push([x,.5,z])}}
  if(lv==5){/* glowing fungus at the foot of the walls, bones, fallen carved stones */const F=[],FS=[];
   for(let i=0;i<Math.round(Z/1.3);i++){const s=r()<.5?.06+r()*.08:.86+r()*.08,z=zr(.8);for(let j=0;j<3+(r()*4|0);j++){const h=.05+r()*.12,st=new THREE.CylinderGeometry(.012,.016,h,5);st.translate(0,h/2,0);const cp=new THREE.SphereGeometry(.035+r()*.04,8,5,0,6.29,0,1.6);cp.scale(1,.55,1);cp.translate(0,h,0);
@@ -602,7 +602,6 @@ function dmManwayFoot(g,x,z,HY,lv,HX){const K=dmKit(),M=K.M,G=new THREE.Group();
      dmOffice(g, o)     a desk with drawers, a chair, an oil lamp, a filing cabinet, a shelf of ledgers, and the level
                         map on a board: parts.map(rooms) draws the next rooms, rooms = [{gas: true/false}, ...] (five).
                         what 'map' and 'desk'.
-     dmChuteHole(HX, side, z)  where the chute's box hole cuts the rock: give it to the room's dmShell (holes).
      dmChute(g, sh, o)  an ore chute: a timber trough coming out of a timbered box hole high in the wall, down to a
                         gate over a little tub on a spur of track; a lever on the leg. parts.gate(k), parts.pour(k)
                         (0 → 1: the ore rattles down and the tub fills). Needs the room's shell (dmShell). what 'chute'.
@@ -661,8 +660,7 @@ function dmCanteen(g,o){const K=dmKit(),M=K.M,HX=o.HX||4,G=dmWallG(g,o.side,o.z,
  /* the dresser further along: drawers below, plates on the rack above */const dx=2.2;mgBeam(T,[dx-.6,.9,.3],[dx+.6,.9,.3],.5,.04,K.c.tim2);for(const x of[-.58,.58])mgBeam(T,[dx+x,0,.3],[dx+x,.88,.3],.5,.04,K.c.tim);mgBeam(T,[dx-.55,.45,.08],[dx+.55,.45,.08],.03,.86,K.c.tim2);mgBeam(T,[dx-.55,.025,.3],[dx+.55,.025,.3],.46,.04,K.c.tim2);
  for(const x of[-.58,.58])mgBeam(T,[dx+x,.92,.1],[dx+x,1.75,.1],.12,.05,K.c.tim);for(const y of[1.25,1.72])mgBeam(T,[dx-.6,y,.1],[dx+.6,y,.1],.14,.03,K.c.tim2);mgBeam(T,[dx-.55,1.33,.045],[dx+.55,1.33,.045],.02,.8,K.c.tim2);
  G.add(mgMerge(T,K.TIMBV));const drawers=[];for(let i=0;i<2;i++)for(let j=0;j<2;j++){const d=new THREE.Mesh(new THREE.BoxGeometry(.52,.36,.04),M(0xffffff,{map:K.PLANKT,roughness:.85}));d.position.set(dx-.28+i*.56,.25+j*.42,.56);G.add(d);const kb=new THREE.Mesh(new THREE.SphereGeometry(.025,8,6),M(0x2a2a28,{metalness:.6}));kb.position.set(dx-.28+i*.56,.25+j*.42,.59);G.add(kb);drawers.push(dmProp(G,dx-.28+i*.56,.9,.6,'drawer'))}out.parts.drawers=drawers;
- for(let i=0;i<4;i++){const pl=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.015,16),M(0xe8e4dc,{roughness:.4}));pl.rotation.x=Math.PI/2-.2;pl.position.set(dx-.4+i*.26,1.367,.11);G.add(pl)}
- {const rl=[];mgBeam(rl,[dx-.555,1.32,.165],[dx+.555,1.32,.165],.02,.03,K.c.tim2);G.add(mgMerge(rl,K.TIMBV))}/* the plate rail that holds them */
+ for(let i=0;i<4;i++){const pl=new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.015,16),M(0xe8e4dc,{roughness:.4}));pl.rotation.x=Math.PI/2-.2;pl.position.set(dx-.4+i*.26,1.37,.13);G.add(pl)}
  /* lunch tins and mugs on the table */const TIN=M(0x6a6e66,{metalness:.6,roughness:.4}),MUG=M(0xe0dcd0,{roughness:.4});for(const[x,zz,ry]of[[-.75,1.05,.2],[.1,1.55,-.3],[.7,1.08,.1]]){const t=new THREE.Mesh(new THREE.BoxGeometry(.24,.1,.16),TIN);t.position.set(x,.785+.05,tz+zz-1.3);t.rotation.y=ry;G.add(t);const h=new THREE.Mesh(new THREE.TorusGeometry(.04,.006,4,10,Math.PI),TIN);h.position.set(x,.885,tz+zz-1.3);h.rotation.y=ry;G.add(h)}
  for(const[x,zz]of[[-.4,1.5],[.45,1.1],[.95,1.5]]){const m=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,.09,10),MUG);m.position.set(x,.83,zz);G.add(m);const hd=new THREE.Mesh(new THREE.TorusGeometry(.025,.006,4,8),MUG);hd.position.set(x+.045,.83,zz);G.add(hd)}
  /* the stove: an iron box on legs with a chimney into the dark, and the kettle */const sx=-2.0;{const IR=M(0x2a2826,{metalness:.5,roughness:.6});const st=new THREE.Mesh(new THREE.BoxGeometry(.5,.45,.45),IR);st.position.set(sx,.2+.225,.4);G.add(st);for(const x of[-.2,.2])for(const zz of[.22,.58]){const l=new THREE.Mesh(new THREE.BoxGeometry(.04,.2,.04),IR);l.position.set(sx+x,.1,zz);G.add(l)}
@@ -689,20 +687,12 @@ function dmOffice(g,o){const K=dmKit(),M=K.M,HX=o.HX||4,G=dmWallG(g,o.side,o.z,H
   x.fillStyle='#5a3a1a';x.font='italic 18px '+dmF();x.fillText('Keep your lamp lit and your head down. · The Foreman',256,290);mt.needsUpdate=true};drawMap([{},{gas:1},{},{},{gas:1}]);out.parts.map=drawMap;
  {const P=[];for(const x of[-.75,.75])mgBeam(P,[2.6+x,0,.1],[2.6+x,2.2,.1],.07,.07,K.c.tim);G.add(mgMerge(P,K.TIMBV));const b=new THREE.Mesh(new THREE.BoxGeometry(1.7,1.06,.04),[K.TIMB,K.TIMB,K.TIMB,K.TIMB,M(0xffffff,{map:mt,roughness:.85}),K.TIMB]);b.position.set(2.6,1.55,.155);G.add(b)}
  out.obs.push(dmObsR(G,-.85,.85,dz-.42,dz+.42),dmObsR(G,-.25,.25,dz+.5,dz+1.0),dmObsR(G,1.2,1.8,0,.65),dmObsR(G,-1.85,-.85,0,.32),dmObsR(G,1.8,3.4,0,.2));out.props.push(dmProp(G,2.6,.9,1,'map'),dmProp(G,0,dz+1.4,.8,'desk'));G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return out}
-/* where the ore chute's box hole cuts the rock: pass it in the room's dmShell holes */
-function dmChuteHole(HX,side,z){const yb=2.35,yt=3.4;return{x0:side<0?-HX-2:HX-.6,x1:side<0?-HX+.6:HX+2,z0:z-.62,z1:z+.62,y0:yb-.05,y1:yt+.05,yb,yt}}
 function dmChute(g,sh,o){const K=dmKit(),M=K.M,HX=sh.HX,side=o.side,z=o.z,G=new THREE.Group();g.add(G);const out={g:G,props:[],obs:[],lights:[],parts:{},tick:()=>{}};const V=THREE.Vector3;
- /* the box hole is cut into the rock: the room's shell leaves a hole there (dmChuteHole, pass it to dmShell's
-    holes), the timber set stands just behind the rock's farthest point so the rough rock edge laps over it, and a
-    plank backing behind everything closes the cut; the lining runs back to it and the opening is dark. */
- const CH=dmChuteHole(HX,side,z),yb=CH.yb,yt=CH.yt,xm=side*(HX-1.65),y1=1.55,T=[];let far=0;for(let k=0;k<=10;k++)for(let m=0;m<=8;m++){const yy=yb-.4+(yt-yb+.8)*m/8,zz=z-.95+1.9*k/10;let lo=0,hi=.5;for(let it=0;it<18;it++){const mid=(lo+hi)/2,a=sh.at(zz,side<0?mid*.5:1-mid*.5);(a.p[1]<yy?lo=mid:hi=mid)}const a=sh.at(zz,side<0?lo*.5:1-lo*.5);far=Math.max(far,Math.abs(a.p[0]))}
- const xf=far+.02,xb=far+.26,xw=side*(xf+.08);
- for(const dz of[-.55,.55])mgBeam(T,[xw,yb,z+dz],[xw,yt,z+dz],.16,.16,K.c.tim);for(const y of[yb,yt])mgBeam(T,[xw,y,z-.71],[xw,y,z+.71],.2,.16,K.c.tim2);
- for(const dz of[-.45,.45])mgBeam(T,[side*(xf+.1),(yb+yt)/2,z+dz],[side*(xb-.005),(yb+yt)/2,z+dz],.04,yt-yb-.12,K.c.tim2);for(const y of[yb+.09,yt-.09])mgBeam(T,[side*(xf+.1),y,z],[side*(xb-.005),y,z],.86,.04,K.c.tim2);
- for(let dz=-.9;dz<.91;dz+=.3)mgBeam(T,[side*(xb+.035),yb-.5,z+dz],[side*(xb+.035),yt+.5,z+dz],.28,.04,[.5+K.r()*.1,.37,.24]);/* the backing planks */
- const hole=new THREE.Mesh(new THREE.PlaneGeometry(.86,yt-yb-.16),M(0x050403));hole.rotation.y=-side*Math.PI/2;hole.position.set(side*(xb-.01),(yb+yt)/2,z);G.add(hole);
- const y0=yb+.17;
- /* the trough: a floor and two sides of planks, sloping down from inside the hole to the mouth */const A=new V(side*(xb-.04),y0+.03,z),Bm=new V(xm,y1,z),d=new V().subVectors(Bm,A),L=d.length(),ang=Math.atan2(-d.y,Math.abs(d.x));
+ /* the box hole: a timber frame on the wall at 3 m with a black hole behind, the trough runs from it down to x = HX-1.6 */
+ const xw=side*(HX-.05),xm=side*(HX-1.65),y0=3.15,y1=1.55,T=[];
+ for(const dz of[-.55,.55])mgBeam(T,[xw,2.55,z+dz],[xw,3.75,z+dz],.16,.16,K.c.tim);for(const y of[2.55,3.75])mgBeam(T,[xw,y,z-.72],[xw,y,z+.72],.16,.16,K.c.tim2);
+ const hole=new THREE.Mesh(new THREE.PlaneGeometry(.95,1.05),M(0x050403));hole.rotation.y=-side*Math.PI/2;hole.position.set(side*(HX+.02),3.15,z);G.add(hole);
+ /* the trough: a floor and two sides of planks, sloping down from inside the hole to the mouth */const A=new V(side*(HX+.25),y0+.1,z),Bm=new V(xm,y1,z),d=new V().subVectors(Bm,A),L=d.length(),ang=Math.atan2(-d.y,Math.abs(d.x));
  const tr=new THREE.Group();tr.position.copy(A);tr.rotation.y=side>0?Math.PI:0;G.add(tr);const tr2=new THREE.Group();tr2.rotation.z=-ang;tr.add(tr2);const TT=[];
  mgBeam(TT,[0,0,0],[L,0,0],.7,.05,K.c.tim2);for(const s of[-1,1])mgBeam(TT,[0,.2,s*.375],[L,.2,s*.375],.05,.38,K.c.tim);for(let x=.6;x<L-.3;x+=1.1)mgBeam(TT,[x,-.06,-.42],[x,-.06,.42],.08,.06,K.c.tim2);/* battens under the floor */
  tr2.add(mgMerge(TT,K.TIMBV));
