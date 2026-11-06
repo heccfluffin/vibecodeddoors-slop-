@@ -564,8 +564,9 @@ Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 
   - a filing cabinet and a shelf of ledgers;
   - the level plan on a board: five rooms in a row, the gas ones marked with a green cloud and "GAS" in red.
 - **Ore chute:**
-  - a timbered box hole high in the wall. It is fitted to the real rock: the frame stands just proud of the rock's
-    nearest point, with lining boards running back and darkness behind;
+  - a timbered box hole high in the wall, cut into the rock: the room's shell leaves a hole there, the timber set
+    stands just behind the rock's farthest point so the rough rock edge laps over it, and plank backing closes the
+    cut behind it. Lining boards run back from the set, and the opening is dark;
   - a plank trough sloping down to a sliding gate, on two legs;
   - a lever;
   - a small tub on a spur of track under the mouth.
@@ -596,7 +597,8 @@ Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 
   (`parts.drawers`) are ordinary drawer spots for the game's drawer loot.
 - **Old office** (`'map'`, `'desk'`): build the map with `parts.map(rooms)`. Rooms are the next five rooms after this
   one, `{gas: true}` for the gas rooms (known from the seeded roll). The desk is a drawer spot.
-- **Ore chute** (`'chute'`): E pulls the lever and opens the gate (`parts.gate(1)`). Over 6 s, `parts.pour(k)` runs
+- **Ore chute** (`'chute'`): build the room's shell with `holes: [dmChuteHole(HX, side, z)]` so the box hole is
+  cut into the rock. E pulls the lever and opens the gate (`parts.gate(1)`). Over 6 s, `parts.pour(k)` runs
   from 0 to 1 and each player gets one free ore of the level's ore table. +4 noise (the Burrower). Once per room.
 - **Pump room** (`'pump'`): hold E on the valve for 4 s. `parts.run(k)` eases to 1 over 3 s; call `tick(t, dt)` each
   frame while near. The next flooded passage (part 1's blocker) on this level is already drained when you reach it.

@@ -417,7 +417,7 @@ function dmShell(g,o){const K=dmKit(),HX=o.HX||4,HY=o.HY||4,Z=o.Z||20,lv=o.lv||1
  const nz=Math.max(2,Math.ceil(Z/.42)),pos=[],col=[],uv=[],idx=[],np=P.length;
  for(let a=0;a<=nz;a++){const z=-Z*a/nz;for(let j=0;j<np;j++){const[x,y]=P[j],[nx,ny]=N[j],d=disp(x,y,z,ny);pos.push(x+nx*d,y+ny*d,z);uv.push(pf.S[j]/2.5,-z/2.5);
   const v=(.8+.32*dmNoise(x*1.7+40,y*1.7,z*1.7))*(y<.7?.78+.22*y/.7:1)*(lv==5?1-.25*sm(HY,HY+L.vault,y):1);if(lv==4){/* the heat: the rock warms to red towards the floor */const ht=Math.max(0,1-y/1.4)*.55;col.push(v+ht*.9,v+ht*.22,v)}else col.push(v,v,v)}}
- const hole=(x,y,z)=>(o.holes||[]).some(h=>y>pf.W&&x>h.x0&&x<h.x1&&z>h.z0&&z<h.z1);
+ const hole=(x,y,z)=>(o.holes||[]).some(h=>(h.y0===undefined?y>pf.W:y>h.y0&&y<h.y1)&&x>h.x0&&x<h.x1&&z>h.z0&&z<h.z1);
  for(let a=0;a<nz;a++)for(let j=0;j<np-1;j++){const i0=a*np+j,i1=i0+1,i2=i0+np,i3=i2+1;const cx=(P[j][0]+P[j+1][0])/2,cy=(P[j][1]+P[j+1][1])/2,cz=-Z*(a+.5)/nz;if(hole(cx,cy,cz))continue;idx.push(i0,i2,i1,i1,i2,i3)}
  const ge=new THREE.BufferGeometry();ge.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));ge.setAttribute('color',new THREE.Float32BufferAttribute(col,3));ge.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));ge.setIndex(idx);ge.computeVertexNormals();
  const mat=dmShellMat(lv),mesh=new THREE.Mesh(ge,mat);G.add(mesh);
@@ -602,6 +602,7 @@ function dmManwayFoot(g,x,z,HY,lv,HX){const K=dmKit(),M=K.M,G=new THREE.Group();
      dmOffice(g, o)     a desk with drawers, a chair, an oil lamp, a filing cabinet, a shelf of ledgers, and the level
                         map on a board: parts.map(rooms) draws the next rooms, rooms = [{gas: true/false}, ...] (five).
                         what 'map' and 'desk'.
+     dmChuteHole(HX, side, z)  where the chute's box hole cuts the rock: give it to the room's dmShell (holes).
      dmChute(g, sh, o)  an ore chute: a timber trough coming out of a timbered box hole high in the wall, down to a
                         gate over a little tub on a spur of track; a lever on the leg. parts.gate(k), parts.pour(k)
                         (0 → 1: the ore rattles down and the tub fills). Needs the room's shell (dmShell). what 'chute'.
@@ -688,17 +689,20 @@ function dmOffice(g,o){const K=dmKit(),M=K.M,HX=o.HX||4,G=dmWallG(g,o.side,o.z,H
   x.fillStyle='#5a3a1a';x.font='italic 18px '+dmF();x.fillText('Keep your lamp lit and your head down. · The Foreman',256,290);mt.needsUpdate=true};drawMap([{},{gas:1},{},{},{gas:1}]);out.parts.map=drawMap;
  {const P=[];for(const x of[-.75,.75])mgBeam(P,[2.6+x,0,.1],[2.6+x,2.2,.1],.07,.07,K.c.tim);G.add(mgMerge(P,K.TIMBV));const b=new THREE.Mesh(new THREE.BoxGeometry(1.7,1.06,.04),[K.TIMB,K.TIMB,K.TIMB,K.TIMB,M(0xffffff,{map:mt,roughness:.85}),K.TIMB]);b.position.set(2.6,1.55,.155);G.add(b)}
  out.obs.push(dmObsR(G,-.85,.85,dz-.42,dz+.42),dmObsR(G,-.25,.25,dz+.5,dz+1.0),dmObsR(G,1.2,1.8,0,.65),dmObsR(G,-1.85,-.85,0,.32),dmObsR(G,1.8,3.4,0,.2));out.props.push(dmProp(G,2.6,.9,1,'map'),dmProp(G,0,dz+1.4,.8,'desk'));G.traverse(m=>{if(m.isMesh)m.userData.noSeam=true});return out}
+/* where the ore chute's box hole cuts the rock: pass it in the room's dmShell holes */
+function dmChuteHole(HX,side,z){const yb=2.35,yt=3.4;return{x0:side<0?-HX-2:HX-.6,x1:side<0?-HX+.6:HX+2,z0:z-.62,z1:z+.62,y0:yb-.05,y1:yt+.05,yb,yt}}
 function dmChute(g,sh,o){const K=dmKit(),M=K.M,HX=sh.HX,side=o.side,z=o.z,G=new THREE.Group();g.add(G);const out={g:G,props:[],obs:[],lights:[],parts:{},tick:()=>{}};const V=THREE.Vector3;
- /* the box hole: found on the real rock. The rock is sampled over the opening; the frame stands just proud of its
-    nearest point and four lining boards run back from the frame into the rock to its farthest point, so nothing floats
-    and no gap shows. The hole behind is black; the trough runs from inside it down to x = HX-1.65. */
- const yb=2.35,yt=3.4,xm=side*(HX-1.65),y1=1.55,T=[];let near=1e9,far=0,nearO=1e9;for(let k=0;k<=8;k++)for(let m=0;m<=6;m++){const yy=yb-.1+(yt-yb+.2)*m/6,zz=z-.65+1.3*k/8,inO=Math.abs(zz-z)<.5&&yy>yb&&yy<yt;let lo=0,hi=.5;for(let it=0;it<18;it++){const mid=(lo+hi)/2,a=sh.at(zz,side<0?mid*.5:1-mid*.5);(a.p[1]<yy?lo=mid:hi=mid)}const a=sh.at(zz,side<0?lo*.5:1-lo*.5);const ax=Math.abs(a.p[0]);near=Math.min(near,ax);far=Math.max(far,ax);if(inO)nearO=Math.min(nearO,ax)}
- const xf=near-.06,xb=Math.max(xf+.12,nearO-.02),xw=side*xf;/* the lining runs back to the dark, which sits just in front of the rock inside the opening */
- for(const dz of[-.55,.55])mgBeam(T,[xw,yb,z+dz],[xw,yt,z+dz],.16,.16,K.c.tim);for(const y of[yb,yt])mgBeam(T,[xw,y,z-.71],[xw,y,z+.71],.2,.16,K.c.tim2);/* the head and sill stand 2 cm proud of the posts, which end inside them */
- for(const dz of[-.45,.45])mgBeam(T,[side*(xf+.02),(yb+yt)/2,z+dz],[side*xb,(yb+yt)/2,z+dz],.04,yt-yb-.12,K.c.tim2);for(const y of[yb+.09,yt-.09])mgBeam(T,[side*(xf+.02),y,z],[side*xb,y,z],.86,.04,K.c.tim2);
- const hole=new THREE.Mesh(new THREE.PlaneGeometry(.9,yt-yb-.1),M(0x050403));hole.rotation.y=-side*Math.PI/2;hole.position.set(side*xb,(yb+yt)/2,z);G.add(hole);
+ /* the box hole is cut into the rock: the room's shell leaves a hole there (dmChuteHole, pass it to dmShell's
+    holes), the timber set stands just behind the rock's farthest point so the rough rock edge laps over it, and a
+    plank backing behind everything closes the cut; the lining runs back to it and the opening is dark. */
+ const CH=dmChuteHole(HX,side,z),yb=CH.yb,yt=CH.yt,xm=side*(HX-1.65),y1=1.55,T=[];let far=0;for(let k=0;k<=10;k++)for(let m=0;m<=8;m++){const yy=yb-.4+(yt-yb+.8)*m/8,zz=z-.95+1.9*k/10;let lo=0,hi=.5;for(let it=0;it<18;it++){const mid=(lo+hi)/2,a=sh.at(zz,side<0?mid*.5:1-mid*.5);(a.p[1]<yy?lo=mid:hi=mid)}const a=sh.at(zz,side<0?lo*.5:1-lo*.5);far=Math.max(far,Math.abs(a.p[0]))}
+ const xf=far+.02,xb=far+.26,xw=side*(xf+.08);
+ for(const dz of[-.55,.55])mgBeam(T,[xw,yb,z+dz],[xw,yt,z+dz],.16,.16,K.c.tim);for(const y of[yb,yt])mgBeam(T,[xw,y,z-.71],[xw,y,z+.71],.2,.16,K.c.tim2);
+ for(const dz of[-.45,.45])mgBeam(T,[side*(xf+.1),(yb+yt)/2,z+dz],[side*(xb-.005),(yb+yt)/2,z+dz],.04,yt-yb-.12,K.c.tim2);for(const y of[yb+.09,yt-.09])mgBeam(T,[side*(xf+.1),y,z],[side*(xb-.005),y,z],.86,.04,K.c.tim2);
+ for(let dz=-.9;dz<.91;dz+=.3)mgBeam(T,[side*(xb+.035),yb-.5,z+dz],[side*(xb+.035),yt+.5,z+dz],.28,.04,[.5+K.r()*.1,.37,.24]);/* the backing planks */
+ const hole=new THREE.Mesh(new THREE.PlaneGeometry(.86,yt-yb-.16),M(0x050403));hole.rotation.y=-side*Math.PI/2;hole.position.set(side*(xb-.01),(yb+yt)/2,z);G.add(hole);
  const y0=yb+.17;
- /* the trough: a floor and two sides of planks, sloping down from inside the hole to the mouth */const A=new V(side*(xb+.2),y0+.03,z),Bm=new V(xm,y1,z),d=new V().subVectors(Bm,A),L=d.length(),ang=Math.atan2(-d.y,Math.abs(d.x));
+ /* the trough: a floor and two sides of planks, sloping down from inside the hole to the mouth */const A=new V(side*(xb-.04),y0+.03,z),Bm=new V(xm,y1,z),d=new V().subVectors(Bm,A),L=d.length(),ang=Math.atan2(-d.y,Math.abs(d.x));
  const tr=new THREE.Group();tr.position.copy(A);tr.rotation.y=side>0?Math.PI:0;G.add(tr);const tr2=new THREE.Group();tr2.rotation.z=-ang;tr.add(tr2);const TT=[];
  mgBeam(TT,[0,0,0],[L,0,0],.7,.05,K.c.tim2);for(const s of[-1,1])mgBeam(TT,[0,.2,s*.375],[L,.2,s*.375],.05,.38,K.c.tim);for(let x=.6;x<L-.3;x+=1.1)mgBeam(TT,[x,-.06,-.42],[x,-.06,.42],.08,.06,K.c.tim2);/* battens under the floor */
  tr2.add(mgMerge(TT,K.TIMBV));
