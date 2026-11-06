@@ -557,14 +557,15 @@ Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 
 - **Canteen:**
   - a table and two benches, with lunch tins and mugs;
   - an iron stove with a glowing door, a kettle and a chimney up into the rock;
-  - a dresser with four drawers and plates on its rack;
+  - a dresser with four drawers, and plates behind a rail on its rack;
   - a notice board ("NO SNAP ON THE TRACKS", "WASH YOUR HANDS", "LAMPS BACK BY 6").
 - **Old office:**
   - a desk with six drawers, papers, an inkwell and a lit lamp, and a chair;
   - a filing cabinet and a shelf of ledgers;
   - the level plan on a board: five rooms in a row, the gas ones marked with a green cloud and "GAS" in red.
 - **Ore chute:**
-  - a timbered box hole high in the wall;
+  - a timbered box hole high in the wall. It is fitted to the real rock: the frame stands just proud of the rock's
+    nearest point, with lining boards running back and darkness behind;
   - a plank trough sloping down to a sliding gate, on two legs;
   - a lever;
   - a small tub on a spur of track under the mouth.
@@ -584,8 +585,8 @@ Each one is an ordinary mine room (its shell, floor, sets and lanterns as batch 
     against that wall, centred at `z`.
   - Put it midway between two timber sets, and leave out any set that falls within its length. The lengths along the
     wall are: magazine 2.2 m, lamp room 6.5 m, canteen 8 m, office 6.5 m, chute 3.5 m, pump 6.5 m.
-  - Call `dmDress` with `noProps: true` in these rooms, so the random barrel, tools, bones and carved block stay out
-    of the way.
+  - Call `dmDress` with `noProps: true` in these rooms, so the random barrel, tools, basalt columns, steam vents,
+    bones and carved block stay out of the way.
   - Add `obs` to the room. Each thing returns its own `props` for its press-E spots.
   - `lights` are spots for pool lights: take them from the pool, don't add lights.
 - **Powder magazine** (`what: 'magazine'`): E opens the doors (`parts.doors(k)` over 0.8 s) and gives you one
