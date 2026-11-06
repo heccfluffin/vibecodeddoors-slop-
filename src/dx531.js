@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r683',['Two new songs down in the desert mines. Like out on the sand, the mine music now picks a song at random and moves on to another when one ends']],
 ['r682',['Four new desert songs. Out on the sand the music now picks a song at random each time, and moves on to another when one ends']],
 ['r681',['Desert speed-up: parked vehicles\' fixed parts are worked out every 8th frame instead of every frame (their wheels, turrets, rotors and anything that moves still every frame)']],
 ['r680',['Fixed a hitch when turning round quickly in the desert (people and things that had been behind you were all worked out again at once)','Fixed a regular short hitch from the distance culling (it looked through the whole desert in one go every couple of seconds; now a little each frame)']],

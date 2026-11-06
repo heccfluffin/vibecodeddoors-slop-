@@ -10,7 +10,7 @@ def rep(m):
     i,body=m.group(1),m.group(2);h=hashlib.sha1(body.encode()).hexdigest()[:10];fn='media/%s.%s.b64'%(i,h)
     open(OUT+'/'+fn,'w').write(body.strip());ids.append((i,fn));return '<script id="%s" type="text/plain" data-src="%s"></script>'%(i,fn)
 s=re.sub(r'<script id="([A-Za-z0-9_]+)" type="text/plain">([^<]*)</script>',rep,s)
-order=['lobbyMus','seekMus','desertMus','desertMus2','damMus','desertMus3','desertMus4','desertMus5','desertMus6']
+order=['lobbyMus','seekMus','desertMus','desertMus2','damMus','desertMus3','desertMus4','desertMus5','desertMus6','mineMus2','mineMus3']
 ids.sort(key=lambda x:order.index(x[0]) if x[0] in order else 99)
 loader='<script>/* the music and videos live in media/ next to this page; fetch them in the background, a couple at a time */(function(){const L=%s;let i=0;const next=()=>{if(i>=L.length)return;const[id,src]=L[i++];fetch(src).then(r=>r.ok?r.text():"").then(t=>{const el=document.getElementById(id);if(el&&t)el.textContent=t}).catch(()=>{}).finally(next)};const go=()=>{next();next()};if(document.readyState=="loading")document.addEventListener("DOMContentLoaded",go);else go()})();</script>'%str([list(x) for x in ids]).replace("'",'"')
 k=s.find('</body>');s=s[:k]+loader+s[k:] if k>=0 else s+loader
