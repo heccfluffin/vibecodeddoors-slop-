@@ -72,7 +72,32 @@ function shwStandIns(q){const out=[],seen=new Set(),G={};const geo=(ci,uv,sk)=>{
  /* 5) particle quads (r674) */
  try{if(typeof PTB!='undefined'&&typeof ptbMat=='function'){if(!PTB.mats)PTB.mats=[ptbMat(false),ptbMat(true)];for(const m of PTB.mats)if(m)add(m,0,true,false,'p')}}catch(e){}
  return out}
+/* r685: the places that were built only once you stepped off the bus (each by its own once-a-second check: the air wing,
+   guidance and launch rooms, hangar and strike consoles, the PD HQ, the refit station, the command wing, the silo, the
+   water-delivery spots, the runway clean-up) are built here instead, at the end of loading, in the same order and with
+   the same conditions. They mark themselves built, so those checks then find nothing to do. In the drive report they
+   were most of the 900-1,260 new pieces drawn at once in the first seconds (and their shaders/pictures).
+   ?noshwearly = as before. */
+SHW.early=!/[?&]noshwearly(?:[&=]|$)/.test(location.search);
+function shwEarly(q){const t0=performance.now(),ld=q.ld,done=[];const F=(n,ok,f)=>{if(typeof window[n]!=='function')return;try{if(ok()){f();done.push(n)}}catch(e){try{conLog('error','early build '+n+': '+e.message)}catch(_){}}};
+ q.ld=0;try{
+  F('pgSetup',()=>true,()=>pgSetup(q));
+  F('lrFix',()=>q.mil&&q.mil.nuke,()=>lrFix(q));
+  F('awBase',()=>q.mil&&q.addVeh,()=>{awBase(q);awPad(q)});
+  F('ngBuild',()=>q.mil&&q.mil.nuke,()=>{ngBuild(q);lkBuild(q)});
+  F('hdBuild',()=>q.mil&&q.mil.door,()=>hdBuild(q));
+  F('xsBuild',()=>q.mil,()=>xsBuild(q));
+  F('rwClear',()=>q.obs&&q.g,()=>rwClear(q));
+  F('rwTrees',()=>q.obs&&q.g,()=>rwTrees(q));
+  F('pdHQ',()=>q.g&&q.obs&&q.props&&q.anims,()=>pdHQ(q));
+  F('rfsBuild',()=>q.mil&&q.g,()=>rfsBuild(q));
+  F('cwBuild',()=>q.g&&q.obs&&q.mil&&q.props&&q.anims,()=>cwBuild(q));
+  F('siloBuild',()=>q.mil&&q.mil.nuke,()=>siloBuild(q));
+  F('wdBuild',()=>q.g&&q.locs&&q.locs.length&&typeof WDEL!='undefined'&&WDEL.q!==q,()=>wdBuild(q));
+ }finally{q.ld=ld}
+ SHW.st.early=done.length;SHW.st.earlyMs=performance.now()-t0;try{conLog('info','built behind the loading screen: '+done.join(', ')+' ('+SHW.st.earlyMs.toFixed(0)+' ms)')}catch(e){}}
 {const c0=R.compile;R.compile=function(sc,cam){const q=typeof BUS!='undefined'&&BUS.ride;if(!SHW.on||sc!==S||!q||!q.g||!q.ld||SHW.q===q)return c0.apply(this,arguments);SHW.q=q;
+ if(SHW.early)try{shwEarly(q)}catch(e){}
  const t0=performance.now(),p0=(R.info.programs||[]).length;let g=null;
  try{const L=shwStandIns(q);g=new THREE.Group();g.name='shw';for(const o of L)g.add(o);S.add(g);SHW.st.dummies=L.length}catch(e){try{conLog('error','shader stand-ins: '+e.message)}catch(_){}}
  try{const r=c0.apply(this,arguments);if(g){S.remove(g);g=null}if(SHW.up)try{shwPreUpload(q)}catch(e){try{conLog('error','send-ahead: '+e.message)}catch(_){}}return r}finally{if(g)S.remove(g);SHW.st.progs=(R.info.programs||[]).length-p0;SHW.st.ms=performance.now()-t0;
