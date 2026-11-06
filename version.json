@@ -1,1 +1,1 @@
-{"b": "r680", "notes": "Fixed a hitch when turning round quickly in the desert and a regular short hitch from the distance culling."}
+{"b": "r681", "notes": "Desert speed-up: parked vehicles fixed parts worked out every 8th frame."}
