@@ -694,7 +694,7 @@ function dmChute(g,sh,o){const K=dmKit(),M=K.M,HX=sh.HX,side=o.side,z=o.z,G=new 
     and no gap shows. The hole behind is black; the trough runs from inside it down to x = HX-1.65. */
  const yb=2.35,yt=3.4,xm=side*(HX-1.65),y1=1.55,T=[];let near=1e9,far=0,nearO=1e9;for(let k=0;k<=8;k++)for(let m=0;m<=6;m++){const yy=yb-.1+(yt-yb+.2)*m/6,zz=z-.65+1.3*k/8,inO=Math.abs(zz-z)<.5&&yy>yb&&yy<yt;let lo=0,hi=.5;for(let it=0;it<18;it++){const mid=(lo+hi)/2,a=sh.at(zz,side<0?mid*.5:1-mid*.5);(a.p[1]<yy?lo=mid:hi=mid)}const a=sh.at(zz,side<0?lo*.5:1-lo*.5);const ax=Math.abs(a.p[0]);near=Math.min(near,ax);far=Math.max(far,ax);if(inO)nearO=Math.min(nearO,ax)}
  const xf=near-.06,xb=Math.max(xf+.12,nearO-.02),xw=side*xf;/* the lining runs back to the dark, which sits just in front of the rock inside the opening */
- for(const dz of[-.55,.55])mgBeam(T,[xw,yb-.08,z+dz],[xw,yt+.08,z+dz],.16,.16,K.c.tim);for(const y of[yb,yt])mgBeam(T,[xw,y,z-.71],[xw,y,z+.71],.16,.16,K.c.tim2);
+ for(const dz of[-.55,.55])mgBeam(T,[xw,yb,z+dz],[xw,yt,z+dz],.16,.16,K.c.tim);for(const y of[yb,yt])mgBeam(T,[xw,y,z-.71],[xw,y,z+.71],.2,.16,K.c.tim2);/* the head and sill stand 2 cm proud of the posts, which end inside them */
  for(const dz of[-.45,.45])mgBeam(T,[side*(xf+.02),(yb+yt)/2,z+dz],[side*xb,(yb+yt)/2,z+dz],.04,yt-yb-.12,K.c.tim2);for(const y of[yb+.09,yt-.09])mgBeam(T,[side*(xf+.02),y,z],[side*xb,y,z],.86,.04,K.c.tim2);
  const hole=new THREE.Mesh(new THREE.PlaneGeometry(.9,yt-yb-.1),M(0x050403));hole.rotation.y=-side*Math.PI/2;hole.position.set(side*xb,(yb+yt)/2,z);G.add(hole);
  const y0=yb+.17;
