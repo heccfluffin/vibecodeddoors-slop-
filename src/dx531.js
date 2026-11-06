@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r684',['Fewer freezes while driving around the desert: the shaders for things the game builds while you play (scenery batches, people, far shapes) are now made behind the loading screen, so the loading screen can take a few seconds longer','The warm-up now also catches pieces that share a shape but have a different material']],
 ['r683',['Two new songs down in the desert mines. Like out on the sand, the mine music now picks a song at random and moves on to another when one ends']],
 ['r682',['Four new desert songs. Out on the sand the music now picks a song at random each time, and moves on to another when one ends']],
 ['r681',['Desert speed-up: parked vehicles\' fixed parts are worked out every 8th frame instead of every frame (their wheels, turrets, rotors and anything that moves still every frame)']],
