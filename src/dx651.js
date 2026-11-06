@@ -16,7 +16,11 @@ const SHW={on:!/[?&]noshw(?:[&=]|$)/.test(location.search),keep:[],q:null,st:{du
 function shwSig(m,extra){const t=k=>m[k]?1:0,mp=m.map;
  return [m.type,mp?(mp.encoding|0):'-',t('matcap'),t('envMap'),t('lightMap'),t('aoMap'),t('emissiveMap'),t('bumpMap'),t('normalMap'),m.normalMapType|0,t('displacementMap'),t('specularMap'),t('roughnessMap'),t('metalnessMap'),t('alphaMap'),t('gradientMap'),m.combine|0,m.vertexColors?1:0,m.fog?1:0,m.flatShading?1:0,m.premultipliedAlpha?1:0,m.alphaTest||0,m.side|0,m.dithering?1:0,m.toneMapped===false?0:1,m.skinning?1:0,m.morphTargets?1:0,(m.clippingPlanes&&m.clippingPlanes.length)|0,m.transparent?1:0,JSON.stringify(m.defines||null),(m.userData&&m.userData.dpSand)?1:0,m.customProgramCacheKey?String(m.customProgramCacheKey()).length+':'+String(m.customProgramCacheKey()).slice(0,60):'',extra||''].join('|')}
 /* the material part of sknWhy (dx640): can a piece with this material be drawn by a bone? */
-function shwSknOK(o){if(o.children.length||o.isSprite||o.isPoints||o.isLine||o.isInstancedMesh||o.isSkinnedMesh)return false;const u=o.userData;if(u.dpMerged||u.flv||u.fsc||u.skn)return false;
+function shwSknOK(q,o){if(o.children.length||o.isSprite||o.isPoints||o.isLine||o.isInstancedMesh||o.isSkinnedMesh)return false;const u=o.userData;if(u.dpMerged||u.flv||u.fsc||u.skn)return false;
+ /* (already batched pieces sit on layer 2; render hooks, odd shapes and anything inside a vehicle-like group are never taken) */
+ const mk=o.layers.mask;if(mk!==1&&mk!==(1<<PL_FAR))return false;if(o.onBeforeRender!==THREE.Object3D.prototype.onBeforeRender)return false;try{if(!DP._geoOK(o.geometry))return false}catch(e){return false}
+ if(SKN.lively&&SKN.lively.has(o.material))return false;
+ /* in scenery cells only the moving things are taken (r662) */let mv=false,cell=false;for(let p=o.parent;p&&p!==q.g;p=p.parent){if(p.updateMatrixWorld!==_mwP||p.__mwKeep||p.userData.flv||p.userData.fsc)return false;const pu=p.userData;if(pu.dpDyn||pu.dpKeep||pu.mv)mv=true;if(pu.chunk)cell=true}if(cell&&!mv)return false;
  const m=o.material;if(!m||Array.isArray(m)||(m.userData&&m.userData.dpSand)||m.transparent||!sknKey(m))return false;
  if(m.map){const im=m.map.image;if(!(im&&((typeof HTMLImageElement!='undefined'&&im instanceof HTMLImageElement)||(typeof ImageBitmap!='undefined'&&im instanceof ImageBitmap)||(typeof HTMLCanvasElement!='undefined'&&im instanceof HTMLCanvasElement))))return false}return true}
 /* a tiny stand-in shape with the attributes the real batches have */
@@ -40,11 +44,11 @@ function shwStandIns(q){const out=[],seen=new Set(),G={};const geo=(ci,uv,sk)=>{
   /* (a piece with a picture only joins when its picture goes into a texture array, so X = has a picture) */const X=!!x.map;let a;try{a=abtMat(x,X?{tex:null}:null,null,1,false,false)}catch(e){continue}add(a,3,X,false,'a')}
  /* 3) people batching (r654): the merged material (never the cheap Lambert swap) with bones */
  if(typeof sknWhy=='function'&&typeof sknRoots=='function'&&typeof SKN!='undefined'&&SKN.on!==false){const sk=new Set();
-  for(const r of sknRoots(q))r.traverse(o=>{if(!o.isMesh||sk.has(o.material))return;if(!shwSknOK(o))return;sk.add(o.material);let x;try{x=mm(o.material,false)}catch(e){return}x.skinning=true;x.userData.skn=1;add(x,3,!!x.map,true,'s')})}
+  for(const r of sknRoots(q))r.traverse(o=>{if(!o.isMesh||sk.has(o.material))return;if(!shwSknOK(q,o))return;sk.add(o.material);let x;try{x=mm(o.material,false)}catch(e){return}x.skinning=true;x.userData.skn=1;add(x,3,!!x.map,true,'s')})}
  /* 4) far vehicles and far scenery shapes (r651/r652): their three shared materials */
  try{if(typeof flvMats=='function')for(const m of flvMats())add(m,3,false,false,'f')}catch(e){}
  /* 5) particle quads (r674) */
- try{if(typeof PTB!='undefined'&&PTB.mats)for(const m of PTB.mats)if(m)add(m,0,true,false,'p')}catch(e){}
+ try{if(typeof PTB!='undefined'&&typeof ptbMat=='function'){if(!PTB.mats)PTB.mats=[ptbMat(false),ptbMat(true)];for(const m of PTB.mats)if(m)add(m,0,true,false,'p')}}catch(e){}
  return out}
 {const c0=R.compile;R.compile=function(sc,cam){const q=typeof BUS!='undefined'&&BUS.ride;if(!SHW.on||sc!==S||!q||!q.g||!q.ld||SHW.q===q)return c0.apply(this,arguments);SHW.q=q;
  const t0=performance.now(),p0=(R.info.programs||[]).length;let g=null;
