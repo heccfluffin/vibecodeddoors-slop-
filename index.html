@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-11-06 r682';
+const BUILD='2026-11-06 r683';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15890,6 +15890,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r683',['Two new songs down in the desert mines. Like out on the sand, the mine music now picks a song at random and moves on to another when one ends']],
 ['r682',['Four new desert songs. Out on the sand the music now picks a song at random each time, and moves on to another when one ends']],
 ['r681',['Desert speed-up: parked vehicles\' fixed parts are worked out every 8th frame instead of every frame (their wheels, turrets, rotors and anything that moves still every frame)']],
 ['r680',['Fixed a hitch when turning round quickly in the desert (people and things that had been behind you were all worked out again at once)','Fixed a regular short hitch from the distance culling (it looked through the whole desert in one go every couple of seconds; now a little each frame)']],
@@ -37884,22 +37885,25 @@ function vpwWalk(o,force,st,mv){const ch=o.children;for(let i=0,l=ch.length;i<l;
  /* and the branches where something changed by itself last time */if(o.__vpl)for(const c of o.__vpl){if(!c.parent||!c.visible)continue;const f=mwSelf(c,false);vpwWalk(c,f,{ch:false,later:[]},MS)}}}
 
 
-/* r682: more desert songs. Out on the sand the game used to loop one song ("Desert").
-   Now each time the desert music starts it picks one of five songs at random, and when a song
-   ends it picks another (never the same one twice in a row). The new songs are inlined by
-   build.py as desertMus3..desertMus6; on the website they load in the background, so a song
-   that hasn't arrived yet is simply not picked. */
+/* r682/r683: more desert songs. Out on the sand (DMUS2) and down in the desert mines (DMUS) the game
+   used to loop one song each. Now each time that music starts it picks a song from its list at
+   random, and when a song ends it picks another (never the same one twice in a row). The new songs
+   are inlined by build.py (desertMus3..6 for the sand, mineMus2..3 for the mines); on the website
+   they load in the background, so a song that hasn't arrived yet is simply not picked.
+   ?nodsongs = the old single looping songs. */
 const DSONGS=['desertMus2','desertMus3','desertMus4','desertMus5','desertMus6'];
-const DSNG={cache:{},last:null,on:!/[?&]nodsongs(?:[&=]|$)/.test(location.search)};
+const MSONGS=['desertMus','mineMus2','mineMus3'];
+const DSNG={cache:{},on:!/[?&]nodsongs(?:[&=]|$)/.test(location.search)};
 function dsngReady(id){try{const el=document.getElementById(id);return !!(el&&el.textContent.length>1000)}catch(e){return false}}
-function dsngAudio(id){if(DSNG.cache[id])return DSNG.cache[id];try{const el=document.getElementById(id);if(!el)return null;const bin=atob(el.textContent.trim()),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const a=new Audio(URL.createObjectURL(new Blob([u],{type:'audio/mpeg'})));a.loop=false;a.volume=0;a.addEventListener('ended',()=>{DSNG.ended=a});DSNG.cache[id]=a;try{el.textContent=''}catch(e){}return a}catch(e){return null}}
-function dsngPick(){const ok=DSONGS.filter(id=>DSNG.cache[id]||dsngReady(id));if(!ok.length)return null;let c=ok.filter(id=>id!==DSNG.last);if(!c.length)c=ok;const id=c[Math.floor(Math.random()*c.length)];/* not the seeded room random: this runs in the desert, never during room generation */DSNG.last=id;return id}
-function dsngSwap(o,keepVol){const id=dsngPick();if(!id)return;const a=dsngAudio(id);if(!a)return;if(o.a&&o.a!==a){try{o.a.pause()}catch(e){}}try{a.currentTime=0}catch(e){}a.loop=false;if(!keepVol)o.v=0;try{a.volume=Math.max(0,Math.min(1,o.v))}catch(e){}o.a=a;o.id=id}
-{const dc0=dmusCh;dmusCh=function(o,id,want,dt){if(!DSNG.on||o!==DMUS2)return dc0.apply(this,arguments);try{
-  /* a fresh start (first time, or after the music had fully faded out and paused): pick a random song */
-  if(want&&(!o.a||(o.a.paused&&o.v<=0&&DSNG.ended!==o.a)))dsngSwap(o,false);
+function dsngAudio(id){if(DSNG.cache[id])return DSNG.cache[id];try{const el=document.getElementById(id);if(!el)return null;const bin=atob(el.textContent.trim()),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);const a=new Audio(URL.createObjectURL(new Blob([u],{type:'audio/mpeg'})));a.loop=false;a.volume=0;a.addEventListener('ended',()=>{a.__end=1});DSNG.cache[id]=a;try{el.textContent=''}catch(e){}return a}catch(e){return null}}
+/* not the seeded room random: this only runs in the desert, never during room generation */
+function dsngPick(o,list){const ok=list.filter(id=>DSNG.cache[id]||dsngReady(id));if(!ok.length)return null;let c=ok.filter(id=>id!==o.id);if(!c.length)c=ok;return c[Math.floor(Math.random()*c.length)]}
+function dsngSwap(o,list,keepVol){const id=dsngPick(o,list);if(!id)return;const a=dsngAudio(id);if(!a)return;if(o.a&&o.a!==a){try{o.a.pause()}catch(e){}}try{a.currentTime=0}catch(e){}a.loop=false;a.__end=0;if(!keepVol)o.v=0;try{a.volume=Math.max(0,Math.min(1,o.v))}catch(e){}o.a=a;o.id=id}
+{const dc0=dmusCh;dmusCh=function(o,id,want,dt){const list=!DSNG.on?null:o===DMUS2?DSONGS:o===DMUS?MSONGS:null;if(!list)return dc0.apply(this,arguments);try{
   /* the song finished: straight on to another one, at the same volume */
-  else if(want&&o.a&&DSNG.ended===o.a){DSNG.ended=null;dsngSwap(o,true)}
+  if(want&&o.a&&o.a.__end)dsngSwap(o,list,true);
+  /* a fresh start (first time, or after the music had fully faded out and paused): pick a random song */
+  else if(want&&(!o.a||(o.a.paused&&o.v<=0)))dsngSwap(o,list,false);
 }catch(e){}return dc0.apply(this,arguments)}}
 
 </script><script>
@@ -38386,5 +38390,7 @@ function dpMil(q,g){const ML=q.mil;if(!ML||typeof MILB==='undefined')return;cons
 <script id="desertMus4" type="text/plain" data-src="media/desertMus4.ac6f3e12e6.b64"></script>
 <script id="desertMus5" type="text/plain" data-src="media/desertMus5.5c771fa52d.b64"></script>
 <script id="desertMus6" type="text/plain" data-src="media/desertMus6.2e0c483ed7.b64"></script>
+<script id="mineMus2" type="text/plain" data-src="media/mineMus2.1a7442bd1c.b64"></script>
+<script id="mineMus3" type="text/plain" data-src="media/mineMus3.257f117755.b64"></script>
 <script id="likeVid" type="text/plain" data-src="media/likeVid.ee59eb6bac.b64"></script>
-<script>/* the music and videos live in media/ next to this page; fetch them in the background, a couple at a time */(function(){const L=[["lobbyMus", "media/lobbyMus.47c1a41c73.b64"], ["seekMus", "media/seekMus.1b05c600c7.b64"], ["desertMus", "media/desertMus.978735d984.b64"], ["desertMus2", "media/desertMus2.d81f7e18c3.b64"], ["damMus", "media/damMus.4bc48ab94c.b64"], ["desertMus3", "media/desertMus3.428583a0ee.b64"], ["desertMus4", "media/desertMus4.ac6f3e12e6.b64"], ["desertMus5", "media/desertMus5.5c771fa52d.b64"], ["desertMus6", "media/desertMus6.2e0c483ed7.b64"], ["pumpkinVid", "media/pumpkinVid.aedac6ed9e.b64"], ["curiousVid", "media/curiousVid.6453c41f41.b64"], ["seekVid", "media/seekVid.2f6003a887.b64"], ["sylVid", "media/sylVid.df0627146c.b64"], ["lemonVid", "media/lemonVid.5c7e66e6ec.b64"], ["figMus", "media/figMus.235b0142c2.b64"], ["likeVid", "media/likeVid.ee59eb6bac.b64"]];let i=0;const next=()=>{if(i>=L.length)return;const[id,src]=L[i++];fetch(src).then(r=>r.ok?r.text():"").then(t=>{const el=document.getElementById(id);if(el&&t)el.textContent=t}).catch(()=>{}).finally(next)};const go=()=>{next();next()};if(document.readyState=="loading")document.addEventListener("DOMContentLoaded",go);else go()})();</script></body></html>
+<script>/* the music and videos live in media/ next to this page; fetch them in the background, a couple at a time */(function(){const L=[["lobbyMus", "media/lobbyMus.47c1a41c73.b64"], ["seekMus", "media/seekMus.1b05c600c7.b64"], ["desertMus", "media/desertMus.978735d984.b64"], ["desertMus2", "media/desertMus2.d81f7e18c3.b64"], ["damMus", "media/damMus.4bc48ab94c.b64"], ["desertMus3", "media/desertMus3.428583a0ee.b64"], ["desertMus4", "media/desertMus4.ac6f3e12e6.b64"], ["desertMus5", "media/desertMus5.5c771fa52d.b64"], ["desertMus6", "media/desertMus6.2e0c483ed7.b64"], ["mineMus2", "media/mineMus2.1a7442bd1c.b64"], ["mineMus3", "media/mineMus3.257f117755.b64"], ["pumpkinVid", "media/pumpkinVid.aedac6ed9e.b64"], ["curiousVid", "media/curiousVid.6453c41f41.b64"], ["seekVid", "media/seekVid.2f6003a887.b64"], ["sylVid", "media/sylVid.df0627146c.b64"], ["lemonVid", "media/lemonVid.5c7e66e6ec.b64"], ["figMus", "media/figMus.235b0142c2.b64"], ["likeVid", "media/likeVid.ee59eb6bac.b64"]];let i=0;const next=()=>{if(i>=L.length)return;const[id,src]=L[i++];fetch(src).then(r=>r.ok?r.text():"").then(t=>{const el=document.getElementById(id);if(el&&t)el.textContent=t}).catch(()=>{}).finally(next)};const go=()=>{next();next()};if(document.readyState=="loading")document.addEventListener("DOMContentLoaded",go);else go()})();</script></body></html>
