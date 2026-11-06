@@ -31,6 +31,9 @@ This folder is how the design chat (Claude in the claude.ai app) and Claude Code
   Newest notes at the top, each with the date and build number.
 
 Only one side changes code: Claude Code. If both need to touch the same file in `docs/`, pull first.
+Claude Code: commit only the files in `docs/design/` you actually changed. Don't commit copies from an old checkout.
+The r684 release (2026-11-06) put back older copies of `desert-mines.md` and `models/desert-mines.js`, which undid
+approved model fixes. The design chat has restored them.
 
 ## Models (`docs/design/models/`)
 
