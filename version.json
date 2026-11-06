@@ -1,1 +1,1 @@
-{"b": "r679", "notes": "Desert: off-screen people skipped, no map redraw hitch for small changes, watchdog hitches gone, picture budget by graphics card."}
+{"b": "r680", "notes": "Fixed a hitch when turning round quickly in the desert and a regular short hitch from the distance culling."}

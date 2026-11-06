@@ -57,7 +57,7 @@ const RAWRND=Math.random,noSeed=f=>{const o=Math.random;Math.random=RAWRND;try{r
    "Copy report" puts everything on the clipboard so it can be pasted into a bug report.
    ===================================================================================================== */
 const CON={log:[],t0:performance.now(),open:false,fps:0,ri:null,errOnly:false,el:null};
-const BUILD='2026-11-05 r679';
+const BUILD='2026-11-06 r680';
 /* =====================================================================================================
    USER IDs, RANKS AND BANS. Every device (browser) makes its own key pair (WebCrypto ECDSA P-256) the first time, and its
    user ID (U-XXXX-XXXX) is a fingerprint of that key, so nobody can wear someone else's ID without their key.
@@ -15890,6 +15890,7 @@ addEventListener('pagehide',()=>jlSave(true));addEventListener('beforeunload',()
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r680',['Fixed a hitch when turning round quickly in the desert (people and things that had been behind you were all worked out again at once)','Fixed a regular short hitch from the distance culling (it looked through the whole desert in one go every couple of seconds; now a little each frame)']],
 ['r679',['Desert speed-up: people and moving pieces behind you or past the fog are no longer worked out every frame','The map no longer redraws itself (a short hitch) when a police car drives out of the PD, a car-wash door opens or speed-check cones are put out','No more occasional 10 ms hitches from the scenery watchdog: big batches are checked a little at a time','With a graphics card of its own, the desert\'s scenery batches may use 300 MB of video memory for pictures (200 MB with built-in graphics)']],
 ['r678',['Test switch: ?abtmb=350 in the address sets how much video memory the desert\'s scenery batches may use for pictures (normally 200 MB). More can mean fewer draw calls in busy places, but needs a graphics card with memory to spare']],
 ['r677',['Desert: the scenery batches cost less to look after every frame, and the warm-up and the sky make less garbage (fewer small pauses for memory clean-up)']],
@@ -20166,15 +20167,18 @@ function perfLate(q){const D=q.dp;if(!D||!D.merged||!D.roots||typeof DP=='undefi
 /* ---------- distance culling of loose objects ---------- */
 const PERF_D=[150,320];
 function perfCull(q){const cam=C.position,root=q.g;let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}
- const L=PERF.leaves||(PERF.leaves=[]);if(!L.length||PERF.li>=L.length){L.length=0;PERF.li=0;const veh=new Set((q.vehs||[]).map(v=>v.m));
-  const walk=(o,inChunk)=>{for(const c of o.children){if(veh.has(c))continue;const ch=inChunk||!!(c.userData&&c.userData.chunk);if(c.children.length)walk(c,ch);else if(!ch&&(c.isMesh||c.isSprite)&&!c.isInstancedMesh)L.push(c)}};walk(root,false)}
+ /* r680: the list of loose pieces is made again a few thousand objects a frame (it walked the whole desert in one frame
+    every couple of seconds: 10-13 ms hitches); the old list keeps being used meanwhile */
+ let L=PERF.leaves||(PERF.leaves=[]);if((!L.length||PERF.li>=L.length)&&!PERF.wst){PERF.wst=[root];PERF.wch=[false];PERF.nl=[];PERF.wveh=new Set((q.vehs||[]).map(v=>v.m))}
+ if(PERF.wst){const st=PERF.wst,sc=PERF.wch,nl=PERF.nl,veh=PERF.wveh;let n=0;while(st.length&&n<(L.length?3000:1e9)){const o=st.pop(),inCh=sc.pop();for(const c of o.children){n++;if(veh.has(c))continue;const ch=inCh||!!(c.userData&&c.userData.chunk);if(c.children.length){st.push(c);sc.push(ch)}else if(!ch&&(c.isMesh||c.isSprite)&&!c.isInstancedMesh)nl.push(c)}}
+  if(!st.length){PERF.leaves=L=nl;PERF.wst=null;PERF.li=0}else if(PERF.li>=L.length)PERF.li=0}
  const v=new THREE.Vector3();for(let k=0;k<400&&PERF.li<L.length;k++,PERF.li++){const o=L[PERF.li];if(!o.parent)continue;const mask=o.layers.mask,isFar=mask===(1<<PL_FAR);if(!isFar&&mask!==1)continue;
   /* measured from the middle of what is drawn, not from where the object sits (a batch sits at its group's origin, which can be far from the things in it) */
   let r=1;if(typeof mwFresh==='function')mwFresh(o);v.setFromMatrixPosition(o.matrixWorld);try{if(o.isSprite)r=Math.max(o.scale.x,o.scale.y);else{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere){r=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld)}}}catch(e){}
 const d=v.distanceTo(cam)-r,lim=Math.min(far,r<1.2?PERF_D[0]:r<4?PERF_D[1]:1e9),want=d>lim;
   if(want&&!isFar){o.layers.set(PL_FAR);PERF.stats.culled++}else if(!want&&isFar){o.layers.set(0);PERF.stats.culled--}}}
 /* ---------- run it from the desert's own update ---------- */
-{const ru14=busRoamUpd;busRoamUpd=function(q,dt){const r=ru14.apply(this,arguments);try{if(!PERF.on||!q||!q.g)return r;if(PERF.q!==q){PERF.q=q;PERF.seen=new Map();PERF.leaves=null;PERF.li=0;PERF.lt=0}
+{const ru14=busRoamUpd;busRoamUpd=function(q,dt){const r=ru14.apply(this,arguments);try{if(!PERF.on||!q||!q.g)return r;if(PERF.q!==q){PERF.q=q;PERF.seen=new Map();PERF.leaves=null;PERF.li=0;PERF.lt=0;PERF.wst=null}
   const now=performance.now();if(now-(PERF.lt||0)>1500){PERF.lt=now;perfLate(q)}perfCull(q)}catch(e){conLog('error','perf: '+e.message);PERF.on=false}return r}}
 /* for testing: batch everything new now, and cull everything in one go */function perfForce(){const q=BUS.ride;if(!q)return;for(let j=0;j<3;j++){for(const c of PERF.seen.values())c.t-=7000;for(let i=0;i<80;i++)perfLate(q)}PERF.leaves=null;PERF.li=0;for(let i=0;i<200;i++)perfCull(q);return PERF.stats}
 
@@ -32252,9 +32256,9 @@ function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SK
  if(P.gv!==SKN.gv)sknGroups(P);const GG=P.G;
  for(let gi=0,gn=GG.length;gi<gn;gi++){const g=GG[gi],gp=g.p;const turn=SKN.allTurn||((gi+fr)&7)===0;
  /* r679: a group wholly behind you or past the fog: its pieces are put away once (as when hidden) and skipped until it is in view */
- if(fcOn&&gp){if(turn||g.lr===undefined)sknGroupBall(g,R2);else if(g.lr>0){const e=gp.matrixWorld.elements,lc=g.lc,x=e[0]*lc[0]+e[4]*lc[1]+e[8]*lc[2]+e[12],y=e[1]*lc[0]+e[5]*lc[1]+e[9]*lc[2]+e[13],z=e[2]*lc[0]+e[6]*lc[1]+e[10]*lc[2]+e[14];
+ if(fcOn&&mov&&gp){/* (r680: only moving pieces' groups: still pieces cost little and must never need redoing when you turn) */if(turn||g.lr===undefined)sknGroupBall(g,R2);else if(g.lr>0){const e=gp.matrixWorld.elements,lc=g.lc,x=e[0]*lc[0]+e[4]*lc[1]+e[8]*lc[2]+e[12],y=e[1]*lc[0]+e[5]*lc[1]+e[9]*lc[2]+e[13],z=e[2]*lc[0]+e[6]*lc[1]+e[10]*lc[2]+e[14];
   const sc=Math.sqrt(Math.max(e[0]*e[0]+e[1]*e[1]+e[2]*e[2],e[4]*e[4]+e[5]*e[5]+e[6]*e[6],e[8]*e[8]+e[9]*e[9]+e[10]*e[10])),rr=g.lr*sc;_skFS.center.set(x,y,z);_skFS.radius=rr;
-  const dx=x-cx,dy=y-cy,dz=z-cz;if((dx*dx+dy*dy+dz*dz>(far+rr)*(far+rr))||!_skFF.intersectsSphere(_skFS)){const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;if(r.on){B.fill(0,s*16,s*16+16);r.on=false;wr=true;ds.push(s)}r.vis=false}SKN.fcg++;continue}}}
+  const dx=x-cx,dy=y-cy,dz=z-cz;if((dx*dx+dy*dy+dz*dz>(far+rr)*(far+rr))||!_skFF.intersectsSphere(_skFS)){/* r680: still pieces keep their bones (nothing to redo when you turn round: r679 made a 63 ms hitch); moving ones are put away */if(mov){const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;if(r.on){B.fill(0,s*16,s*16+16);r.on=false;wr=true;ds.push(s)}r.vis=false}}SKN.fcg++;continue}}}
  if(SKN.quick&&!turn&&g.skip&&gp&&(gp.__bkO!==undefined?gp.__bkO:gp.children).length===g.cl){if(g.skip===1){SKN.qg++;continue}if((gp.__skf===fr?gp.__skv:sknVis(gp,q,fr))===false){SKN.qg++;continue}}
  const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;const o=r.o,j=s*16;if(o.parent!==gp)SKN.gv++;
   if(r.cull&&r.vis&&!turn)continue;
