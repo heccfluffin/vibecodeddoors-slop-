@@ -28,14 +28,17 @@ function perfLate(q){const D=q.dp;if(!D||!D.merged||!D.roots||typeof DP=='undefi
 /* ---------- distance culling of loose objects ---------- */
 const PERF_D=[150,320];
 function perfCull(q){const cam=C.position,root=q.g;let far=1e9;try{if(S.fog&&S.fog.far)far=S.fog.far+30}catch(e){}
- const L=PERF.leaves||(PERF.leaves=[]);if(!L.length||PERF.li>=L.length){L.length=0;PERF.li=0;const veh=new Set((q.vehs||[]).map(v=>v.m));
-  const walk=(o,inChunk)=>{for(const c of o.children){if(veh.has(c))continue;const ch=inChunk||!!(c.userData&&c.userData.chunk);if(c.children.length)walk(c,ch);else if(!ch&&(c.isMesh||c.isSprite)&&!c.isInstancedMesh)L.push(c)}};walk(root,false)}
+ /* r680: the list of loose pieces is made again a few thousand objects a frame (it walked the whole desert in one frame
+    every couple of seconds: 10-13 ms hitches); the old list keeps being used meanwhile */
+ let L=PERF.leaves||(PERF.leaves=[]);if((!L.length||PERF.li>=L.length)&&!PERF.wst){PERF.wst=[root];PERF.wch=[false];PERF.nl=[];PERF.wveh=new Set((q.vehs||[]).map(v=>v.m))}
+ if(PERF.wst){const st=PERF.wst,sc=PERF.wch,nl=PERF.nl,veh=PERF.wveh;let n=0;while(st.length&&n<(L.length?3000:1e9)){const o=st.pop(),inCh=sc.pop();for(const c of o.children){n++;if(veh.has(c))continue;const ch=inCh||!!(c.userData&&c.userData.chunk);if(c.children.length){st.push(c);sc.push(ch)}else if(!ch&&(c.isMesh||c.isSprite)&&!c.isInstancedMesh)nl.push(c)}}
+  if(!st.length){PERF.leaves=L=nl;PERF.wst=null;PERF.li=0}else if(PERF.li>=L.length)PERF.li=0}
  const v=new THREE.Vector3();for(let k=0;k<400&&PERF.li<L.length;k++,PERF.li++){const o=L[PERF.li];if(!o.parent)continue;const mask=o.layers.mask,isFar=mask===(1<<PL_FAR);if(!isFar&&mask!==1)continue;
   /* measured from the middle of what is drawn, not from where the object sits (a batch sits at its group's origin, which can be far from the things in it) */
   let r=1;if(typeof mwFresh==='function')mwFresh(o);v.setFromMatrixPosition(o.matrixWorld);try{if(o.isSprite)r=Math.max(o.scale.x,o.scale.y);else{const g=o.geometry;if(!g.boundingSphere)g.computeBoundingSphere();if(g.boundingSphere){r=g.boundingSphere.radius*o.matrixWorld.getMaxScaleOnAxis();v.copy(g.boundingSphere.center).applyMatrix4(o.matrixWorld)}}}catch(e){}
 const d=v.distanceTo(cam)-r,lim=Math.min(far,r<1.2?PERF_D[0]:r<4?PERF_D[1]:1e9),want=d>lim;
   if(want&&!isFar){o.layers.set(PL_FAR);PERF.stats.culled++}else if(!want&&isFar){o.layers.set(0);PERF.stats.culled--}}}
 /* ---------- run it from the desert's own update ---------- */
-{const ru14=busRoamUpd;busRoamUpd=function(q,dt){const r=ru14.apply(this,arguments);try{if(!PERF.on||!q||!q.g)return r;if(PERF.q!==q){PERF.q=q;PERF.seen=new Map();PERF.leaves=null;PERF.li=0;PERF.lt=0}
+{const ru14=busRoamUpd;busRoamUpd=function(q,dt){const r=ru14.apply(this,arguments);try{if(!PERF.on||!q||!q.g)return r;if(PERF.q!==q){PERF.q=q;PERF.seen=new Map();PERF.leaves=null;PERF.li=0;PERF.lt=0;PERF.wst=null}
   const now=performance.now();if(now-(PERF.lt||0)>1500){PERF.lt=now;perfLate(q)}perfCull(q)}catch(e){conLog('error','perf: '+e.message);PERF.on=false}return r}}
 /* for testing: batch everything new now, and cull everything in one go */function perfForce(){const q=BUS.ride;if(!q)return;for(let j=0;j<3;j++){for(const c of PERF.seen.values())c.t-=7000;for(let i=0;i<80;i++)perfLate(q)}PERF.leaves=null;PERF.li=0;for(let i=0;i<200;i++)perfCull(q);return PERF.stats}

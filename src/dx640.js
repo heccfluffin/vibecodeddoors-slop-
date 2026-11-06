@@ -133,9 +133,9 @@ function sknBones(){const q=SKN.q;if(!q||!SKN.g)return;const cp=C.position;if(SK
  if(P.gv!==SKN.gv)sknGroups(P);const GG=P.G;
  for(let gi=0,gn=GG.length;gi<gn;gi++){const g=GG[gi],gp=g.p;const turn=SKN.allTurn||((gi+fr)&7)===0;
  /* r679: a group wholly behind you or past the fog: its pieces are put away once (as when hidden) and skipped until it is in view */
- if(fcOn&&gp){if(turn||g.lr===undefined)sknGroupBall(g,R2);else if(g.lr>0){const e=gp.matrixWorld.elements,lc=g.lc,x=e[0]*lc[0]+e[4]*lc[1]+e[8]*lc[2]+e[12],y=e[1]*lc[0]+e[5]*lc[1]+e[9]*lc[2]+e[13],z=e[2]*lc[0]+e[6]*lc[1]+e[10]*lc[2]+e[14];
+ if(fcOn&&mov&&gp){/* (r680: only moving pieces' groups: still pieces cost little and must never need redoing when you turn) */if(turn||g.lr===undefined)sknGroupBall(g,R2);else if(g.lr>0){const e=gp.matrixWorld.elements,lc=g.lc,x=e[0]*lc[0]+e[4]*lc[1]+e[8]*lc[2]+e[12],y=e[1]*lc[0]+e[5]*lc[1]+e[9]*lc[2]+e[13],z=e[2]*lc[0]+e[6]*lc[1]+e[10]*lc[2]+e[14];
   const sc=Math.sqrt(Math.max(e[0]*e[0]+e[1]*e[1]+e[2]*e[2],e[4]*e[4]+e[5]*e[5]+e[6]*e[6],e[8]*e[8]+e[9]*e[9]+e[10]*e[10])),rr=g.lr*sc;_skFS.center.set(x,y,z);_skFS.radius=rr;
-  const dx=x-cx,dy=y-cy,dz=z-cz;if((dx*dx+dy*dy+dz*dz>(far+rr)*(far+rr))||!_skFF.intersectsSphere(_skFS)){const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;if(r.on){B.fill(0,s*16,s*16+16);r.on=false;wr=true;ds.push(s)}r.vis=false}SKN.fcg++;continue}}}
+  const dx=x-cx,dy=y-cy,dz=z-cz;if((dx*dx+dy*dy+dz*dz>(far+rr)*(far+rr))||!_skFF.intersectsSphere(_skFS)){/* r680: still pieces keep their bones (nothing to redo when you turn round: r679 made a 63 ms hitch); moving ones are put away */if(mov){const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;if(r.on){B.fill(0,s*16,s*16+16);r.on=false;wr=true;ds.push(s)}r.vis=false}}SKN.fcg++;continue}}}
  if(SKN.quick&&!turn&&g.skip&&gp&&(gp.__bkO!==undefined?gp.__bkO:gp.children).length===g.cl){if(g.skip===1){SKN.qg++;continue}if((gp.__skf===fr?gp.__skv:sknVis(gp,q,fr))===false){SKN.qg++;continue}}
  const SL=g.sl;for(let si=0,sn=SL.length;si<sn;si++){const s=SL[si],r=R2[s];if(!r||r.dead)continue;const o=r.o,j=s*16;if(o.parent!==gp)SKN.gv++;
   if(r.cull&&r.vis&&!turn)continue;
