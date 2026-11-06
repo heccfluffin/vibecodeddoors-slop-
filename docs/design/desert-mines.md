@@ -534,7 +534,8 @@ tunnels):
     cable won't go any further.").
   - `dmManway(G2, x, z)` stands in the hall beside the cage. It must stand clear of the station's concrete apron
     (the 4 m in front of the cage, z from -Z+2.75 to -Z+6.75), or the apron covers the hole. The preview
-    uses (2.4, -6.8) in a 16 m hall. The game cuts the floor at `hole`.
+    uses (2.4, -6.8) in a 16 m hall. The game cuts the floor at `hole`; give the floor pieces round it UVs from room
+    space (one tile per 2.5 m), not 0..1 per piece, or the narrow pieces beside the hole come out stretched.
   - E at the ladder (`top`) starts a 5 s climb down (the camera goes down the rungs, fades). You come out at the foot
     of `dmManwayFoot(G2, x, z, HY, 5, HX)` near room 81's entry wall, facing into the room.
   - Room 81's shell takes `holes: [foot.hole]`, and its entry door is never used: the cage's back gate stays shut at
