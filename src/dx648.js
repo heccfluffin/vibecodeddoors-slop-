@@ -180,8 +180,10 @@ function abtChunkStep(c,ms,t0){/* r686: a big piece is done in parts of ABT.SUB 
    if(c.aL){c.li=one?c.li1:abtLayer(c.arr,m.map,false);if(c.li<0){c.bad=true;return true}}
    if(c.uv&&one){const t=m.map;if(t.matrixAutoUpdate)t.updateMatrix();c.te=t.matrix.elements.slice()}}
   const e=c.me,ne=c.ne,P=A.position.array,N=A.normal.array,Cc=A.color,vo=c.vo,i0=c.sub,i1=ABT.SUB?Math.min(n,i0+ABT.SUB):n;
-  for(let i=i0;i<i1;i++){const x=P[i*3],y=P[i*3+1],z=P[i*3+2],j=(vo+i)*3;c.pos[j]=e[0]*x+e[4]*y+e[8]*z+e[12];c.pos[j+1]=e[1]*x+e[5]*y+e[9]*z+e[13];c.pos[j+2]=e[2]*x+e[6]*y+e[10]*z+e[14];
+  let x0=c.bx0,x1=c.bx1,y0=c.by0,y1=c.by1,z0=c.bz0,z1=c.bz1;if(x0===undefined){x0=y0=z0=Infinity;x1=y1=z1=-Infinity}
+  for(let i=i0;i<i1;i++){const x=P[i*3],y=P[i*3+1],z=P[i*3+2],j=(vo+i)*3;const X=e[0]*x+e[4]*y+e[8]*z+e[12],Y=e[1]*x+e[5]*y+e[9]*z+e[13],Z=e[2]*x+e[6]*y+e[10]*z+e[14];c.pos[j]=X;c.pos[j+1]=Y;c.pos[j+2]=Z;if(X<x0)x0=X;if(X>x1)x1=X;if(Y<y0)y0=Y;if(Y>y1)y1=Y;if(Z<z0)z0=Z;if(Z>z1)z1=Z;
    const a=N[i*3],b=N[i*3+1],d=N[i*3+2];let nx=ne[0]*a+ne[3]*b+ne[6]*d,ny=ne[1]*a+ne[4]*b+ne[7]*d,nz=ne[2]*a+ne[5]*b+ne[8]*d;const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;c.nor[j]=nx/l;c.nor[j+1]=ny/l;c.nor[j+2]=nz/l}
+  c.bx0=x0;c.bx1=x1;c.by0=y0;c.by1=y1;c.bz0=z0;c.bz1=z1;
   if(one){const mc=m.color||_abW,vc=m.vertexColors&&Cc;for(let i=i0;i<i1;i++){const j=(vo+i)*3;c.col[j]=mc.r*(vc?Cc.getX(i):1);c.col[j+1]=mc.g*(vc?Cc.getY(i):1);c.col[j+2]=mc.b*(vc?Cc.getZ(i):1)}}
   else if(Cc.normalized||!(Cc.array instanceof Float32Array)){for(let i=i0;i<i1;i++){c.col[(vo+i)*c.ci]=Cc.getX(i);c.col[(vo+i)*c.ci+1]=Cc.getY(i);c.col[(vo+i)*c.ci+2]=Cc.getZ(i);if(c.ci===4)c.col[(vo+i)*4+3]=Cc.getW(i)}}else c.col.set(Cc.array.subarray(i0*c.ci,i1*c.ci),(vo+i0)*c.ci);
   if(c.uv){if(one){const te=c.te,U=A.uv;for(let i=i0;i<i1;i++){const u=U.getX(i),v=U.getY(i);c.uv[(vo+i)*2]=te[0]*u+te[3]*v+te[6];c.uv[(vo+i)*2+1]=te[1]*u+te[4]*v+te[7]}}else c.uv.set(A.uv.array.subarray(i0*2,i1*2),(vo+i0)*2)}
@@ -197,7 +199,9 @@ function abtChunkStep(c,ms,t0){/* r686: a big piece is done in parts of ABT.SUB 
  return true}
 function abtChunkMesh(c,gk){const g=new THREE.BufferGeometry();if(c.vo<c.nv){const v=c.vo;c.pos=c.pos.subarray(0,v*3);c.nor=c.nor.subarray(0,v*3);c.col=c.col.subarray(0,v*c.ci);if(c.uv)c.uv=c.uv.subarray(0,v*2);c.aM=c.aM.subarray(0,v);if(c.aE)c.aE=c.aE.subarray(0,v*3);if(c.aRM)c.aRM=c.aRM.subarray(0,v*2);if(c.aL)c.aL=c.aL.subarray(0,v);c.idx=c.idx.subarray(0,c.io)}g.setAttribute('position',new THREE.BufferAttribute(c.pos,3));g.setAttribute('normal',new THREE.BufferAttribute(c.nor,3));g.setAttribute('color',new THREE.BufferAttribute(c.col,c.ci));
  if(c.uv)g.setAttribute('uv',new THREE.BufferAttribute(c.uv,2));g.setAttribute('aM',new THREE.BufferAttribute(c.aM,1));if(c.aE)g.setAttribute('aE',new THREE.BufferAttribute(c.aE,3));if(c.aRM)g.setAttribute('aRM',new THREE.BufferAttribute(c.aRM,2));if(c.aL)g.setAttribute('aL',new THREE.BufferAttribute(c.aL,1));
- g.setIndex(new THREE.BufferAttribute(c.idx,1));g.computeBoundingSphere();
+ g.setIndex(new THREE.BufferAttribute(c.idx,1));
+ /* r686: the box was gathered while the corners were copied (spread over frames); the ball is the one round that box (a little bigger than the tightest, which only means the batch is drawn a moment sooner at the screen edge) */
+ if(ABT.SUB&&c.bx0!==undefined&&isFinite(c.bx0)){g.boundingBox=new THREE.Box3(new THREE.Vector3(c.bx0,c.by0,c.bz0),new THREE.Vector3(c.bx1,c.by1,c.bz1));g.boundingSphere=g.boundingBox.getBoundingSphere(new THREE.Sphere())}else g.computeBoundingSphere();
  const n=c.L.length,vis=new Uint8Array(n*4),vt=new THREE.DataTexture(vis,n,1,THREE.RGBAFormat);vt.magFilter=vt.minFilter=THREE.NearestFilter;vt.generateMipmaps=false;vt.needsUpdate=true;
  const mat=abtMat(c.src,c.arr,vt,n,!!c.aE,!!c.aRM);const mesh=new THREE.Mesh(g,mat);mesh.__abt=1;if(c.veh)mesh.__abtV=1;mesh.matrixAutoUpdate=false;mesh.matrix.makeTranslation(c.ox,0,c.oz);mesh.name='area batch';
  /* (the big arrays are not needed once they are on the graphics card; r686: a borrowed scratch set goes back to the pool when every part is there) */
