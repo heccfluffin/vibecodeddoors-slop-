@@ -171,11 +171,13 @@ function abtChunkInit(J,L){const q=J.q;let nv=0,ni=0;for(const o of L){const g=o
  return c}
 function abtChunkStep(c,ms,t0){/* r686: a big piece is done in parts of ABT.SUB corners, so one huge piece no longer blows the 2.5 ms budget (was up to 126 ms) */
  while(c.i<c.L.length){const o=c.L[c.i],k=c.i;const g=o.geometry,A=g.attributes,n=A.position.count,m=o.material;const one=!(o.userData&&o.userData.dpMerged);
+  /* r687: a piece done in parts must still be the very same shape when we come back to it (the batcher's watchdog can rebuild a merged piece in between: half old, half new corners made huge stretched triangles in r686) */
+  if(c.sub&&(g!==c.g0||A.position!==c.p0||A.position.array!==c.pa0||n!==c.n0||g.index!==c.i0||(g.index&&g.index.count!==c.ic0)||A.position.version!==c.pv0||o.material!==c.m0)){c.bad=true;ABT.st.subBad=(ABT.st.subBad|0)+1;return true}
   if(!c.sub){if(typeof mwFresh=='function')mwFresh(o);
    c.li1=-1;if(c.aL&&one){c.li1=abtLayer(c.arr,m.map,true);if(c.li1<0){ABT.st.noRoom=(ABT.st.noRoom|0)+1;c.i++;if(performance.now()-t0>ms)return c.i>=c.L.length;continue}}
    _abM.multiplyMatrices(c.inv,o.matrixWorld);if(_abM.determinant()<=0){c.bad=true;return true}
    const e=_abM.elements;e[12]-=c.ox;e[14]-=c.oz;_abN.getNormalMatrix(_abM);c.me=_abM.elements.slice();c.ne=_abN.elements.slice();
-   /* (what the piece was like when its corners were taken: if it moves while a big piece is done in parts, the batch's check sees it) */c.mw0=Float64Array.from(o.matrixWorld.elements);c.pv0=A.position.version;c.chg0=o.__mwchg|0;
+   /* (what the piece was like when its corners were taken: if it moves while a big piece is done in parts, the batch's check sees it) */c.mw0=Float64Array.from(o.matrixWorld.elements);c.pv0=A.position.version;c.chg0=o.__mwchg|0;c.g0=g;c.p0=A.position;c.pa0=A.position.array;c.n0=n;c.i0=g.index;c.ic0=g.index?g.index.count:0;c.m0=m;
    if(!c.aE&&m.emissive&&m.emissive.getHex()!==0&&(m.emissiveIntensity==null?1:m.emissiveIntensity)>0){c.bad=true;return true}if(!c.aRM&&c.src.type==='MeshStandardMaterial'&&(m.roughness!==c.src.roughness||m.metalness!==c.src.metalness)){c.bad=true;return true}
    if(c.aL){c.li=one?c.li1:abtLayer(c.arr,m.map,false);if(c.li<0){c.bad=true;return true}}
    if(c.uv&&one){const t=m.map;if(t.matrixAutoUpdate)t.updateMatrix();c.te=t.matrix.elements.slice()}}
