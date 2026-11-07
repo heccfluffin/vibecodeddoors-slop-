@@ -239,12 +239,13 @@ function abtByParent(M){const G=new Map();for(const r of M){let L=G.get(r.par);i
    coordinates, the index...) is sent on its own, about 1.5 MB a frame, by drawing a scratch shape that holds just that
    part into nothing (three.js keeps the uploaded buffer with the part, so the real batch finds it ready). The old
    batches stay on screen until the new one is complete, then they swap in one go as before. ?noabtslice = as before. */
-ABT.slice=!/[?&]noabtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;ABT.SUB=/[?&]noabtsub(?:[&=]|$)/.test(location.search)?0:16384;
+/* r687: r686's three batch-building changes broke some scenery in real play (huge stretched triangles round the bus stop): OFF until found; ?abtslice, ?abtpool, ?abtsub turn them on for testing */
+ABT.slice=/[?&]abtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;ABT.SUB=/[?&]abtsub(?:[&=]|$)/.test(location.search)?16384:0;
 /* r686: SCRATCH SETS. Every chunk used to get ~9 MB of brand-new arrays (300 batches in a drive = gigabytes thrown away,
    so the browser had to clean memory up often: the 'memory clean-up' waits and some of the 100-340 ms upkeep spikes).
    Now a few sets of the biggest size are kept and lent out: a batch's parts are views into a set, and the set comes back
    when all of its parts have been sent to the graphics card (the copies there are what gets drawn). ?noabtpool = as before. */
-ABT.pool=!/[?&]noabtpool(?:[&=]|$)/.test(location.search);ABT.sets=[];ABT.st.sets=0;
+ABT.pool=/[?&]abtpool(?:[&=]|$)/.test(location.search);ABT.sets=[];ABT.st.sets=0;
 function abtSet(nv,ni){let s=null;for(let i=0;i<ABT.sets.length;i++){const x=ABT.sets[i];if(x.cap>=nv){s=x;ABT.sets.splice(i,1);break}}
  if(!s){const cap=Math.max(nv,ABT.MAXV||120000);s={cap,pos:new Float32Array(cap*3),nor:new Float32Array(cap*3),col:new Float32Array(cap*4),uv:new Float32Array(cap*2),aM:new Uint8Array(cap),aE:new Float32Array(cap*3),aRM:new Float32Array(cap*2),aL:new Uint8Array(cap),i16:new Uint16Array(0),i32:new Uint32Array(0)};ABT.st.sets++}
  if(nv>65535){if(s.i32.length<ni)s.i32=new Uint32Array(Math.max(ni,s.i32.length*1.5|0))}else if(s.i16.length<ni)s.i16=new Uint16Array(Math.max(ni,s.i16.length*1.5|0));return s}
