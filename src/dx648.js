@@ -202,7 +202,7 @@ function abtTick(q){if(ABT.q!==q){abtForget();ABT.q=q}
  let J=ABT.job;const budget=ABT.force?1e9:2.5;
  while(performance.now()-t0<budget+(ABT.force?0:.8)){
   if(!J){const e=ABT.queue.shift();if(!e)break;J=ABT.job=abtStart(q,e);if(!J)continue}
-  if(!J.cur){if(J.ci>=J.chunks.length){abtFinish(J);J=ABT.job=null;continue}J.cur=abtChunkInit(J,J.chunks[J.ci])}
+  if(!J.cur){if(J.ci>=J.chunks.length){if(ABT.slice&&!ABT.force&&!abtUpStep(J))break;abtFinish(J);J=ABT.job=null;continue}J.cur=abtChunkInit(J,J.chunks[J.ci])}
   const c=J.cur;if(c.bad||abtChunkStep(c,budget,t0)){if(!c.bad&&c.i>=c.L.length)J.done.push(abtChunkMesh(c,J.e.gk));J.cur=null;J.ci++}}
  /* pictures that were drawn again since they were copied */
  if((ABT.fr&63)===0)for(const a of ABT.arrs.values())for(const[t,v]of a.ver)if(t.version!==v)abtCopy(a,t,a.L.get(t.image));
@@ -220,7 +220,26 @@ function abtFinish(J){const gk=J.e.gk;for(const b of ABT.B.filter(b=>b.gk===gk))
   if(!ok){try{b.mesh.geometry.dispose();b.mat.dispose();b.vt.dispose()}catch(e){}continue}
   b.sig=J.sig;b.byP=abtByParent(b.mem);for(const r of b.mem)ABT.mem.set(r.o,b);ABT.B.push(b);ABT.warmQ.push(b);ABT.st.built++}}
 function abtByParent(M){const G=new Map();for(const r of M){let L=G.get(r.par);if(!L)G.set(r.par,L=[]);L.push(r)}return[...G]}
-function abtForget(){for(const b of ABT.B.slice())abtRetire(b);ABT.B=[];ABT.mem.clear();ABT.queue=[];ABT.job=null;ABT.scan=null;ABT.scanT=-1e9;ABT.warmQ=[];
+/* r686: A FINISHED AREA IS SENT TO THE GRAPHICS CARD A PIECE AT A TIME. A new area batch is up to 120,000 corners
+   (about 9 MB): it used to be sent in one go the frame it was finished (the 35 ms 'Scenery area batches (upkeep)'
+   hitches in a row while driving, one per batch). Now each of its parts (positions, normals, colours, picture
+   coordinates, the index...) is sent on its own, about 1.5 MB a frame, by drawing a scratch shape that holds just that
+   part into nothing (three.js keeps the uploaded buffer with the part, so the real batch finds it ready). The old
+   batches stay on screen until the new one is complete, then they swap in one go as before. ?noabtslice = as before. */
+ABT.slice=!/[?&]noabtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;
+function abtUpMat(){return ABT.upM||(ABT.upM=new THREE.ShaderMaterial({vertexShader:'void main(){gl_Position=vec4(2.,2.,2.,1.);}',fragmentShader:'void main(){gl_FragColor=vec4(0.);}',depthWrite:false,depthTest:false}))}
+function abtUpStep(J){if(!J.up){J.up=[];for(const b of J.done){const g=b.mesh.geometry;for(const k in g.attributes)J.up.push([k,g.attributes[k]]);if(g.index)J.up.push(['#',g.index])}}
+ if(!J.up.length)return true;const t0=performance.now();let bytes=0;
+ if(!ABT.upS){ABT.upS=new THREE.Scene();ABT.upC=new THREE.Camera();ABT.upG=new THREE.BufferGeometry();ABT.upMesh=new THREE.Mesh(ABT.upG,abtUpMat());ABT.upMesh.frustumCulled=false;ABT.upS.add(ABT.upMesh)}
+ const vp=new THREE.Vector4(),sc=new THREE.Vector4();R.getViewport(vp);R.getScissor(sc);const st=R.getScissorTest();
+ try{R.setViewport(0,0,1,1);R.setScissor(0,0,1,1);R.setScissorTest(true);
+  while(J.up.length&&(bytes===0||bytes<ABT.UPB)){const[k,a]=J.up.shift();if(!a.array){continue}bytes+=a.array.byteLength;const g=ABT.upG;
+   for(const n in g.attributes)g.deleteAttribute(n);g.setIndex(null);if(k==='#')g.setIndex(a);else g.setAttribute(k,a);g.setDrawRange(0,0);
+   R.info.render.frame++;/* (three sends a shape's parts once per frame number) */R.render(ABT.upS,ABT.upC)}}
+ finally{R.setScissorTest(st);R.setScissor(sc);R.setViewport(vp);const g=ABT.upG;for(const n in g.attributes)g.deleteAttribute(n);g.setIndex(null)}
+ ABT.st.upB=(ABT.st.upB||0)+bytes;ABT.st.upMs=(ABT.st.upMs||0)+performance.now()-t0;return !J.up.length}
+function abtForget(){if(ABT.job&&ABT.job.done)for(const b of ABT.job.done)try{b.mesh.geometry.dispose();b.mat.dispose();b.vt.dispose()}catch(e){}
+ for(const b of ABT.B.slice())abtRetire(b);ABT.B=[];ABT.mem.clear();ABT.queue=[];ABT.job=null;ABT.scan=null;ABT.scanT=-1e9;ABT.warmQ=[];
  for(const a of ABT.arrs.values())try{a.tex.dispose()}catch(e){}ABT.arrs.clear();ABT.texMB=0}
 /* is this group shown, all the way up to the desert? (once per group per frame) */
 function abtVis(p,q,fr){if(p===q.g)return q.g.visible;if(p.__abf===fr)return p.__abv;let v;if(!p.visible)v=false;else{const pp=p.parent;v=pp===q.g?true:pp?abtVis(pp,q,fr):false}p.__abf=fr;p.__abv=v;return v}

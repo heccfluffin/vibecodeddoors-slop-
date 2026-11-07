@@ -69,6 +69,8 @@ function shwStandIns(q){const out=[],seen=new Set(),G={};const geo=(ci,uv,sk)=>{
   for(const r of sknRoots(q))r.traverse(o=>{if(!o.isMesh||sk.has(o.material))return;if(!shwSknOK(q,o))return;sk.add(o.material);let x;try{x=mm(o.material,false)}catch(e){return}x.skinning=true;x.userData.skn=1;add(x,3,!!x.map,true,'s')})}
  /* 4) far vehicles and far scenery shapes (r651/r652): their three shared materials */
  try{if(typeof flvMats=='function')for(const m of flvMats())add(m,3,false,false,'f')}catch(e){}
+ /* (r686: the area batches' upload helper, a tiny shader) */
+ try{if(typeof abtUpMat=='function')add(abtUpMat(),0,false,false,'u')}catch(e){}
  /* 5) particle quads (r674) */
  try{if(typeof PTB!='undefined'&&typeof ptbMat=='function'){if(!PTB.mats)PTB.mats=[ptbMat(false),ptbMat(true)];for(const m of PTB.mats)if(m)add(m,0,true,false,'p')}}catch(e){}
  return out}
