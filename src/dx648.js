@@ -164,8 +164,9 @@ function abtChunkInit(J,L){const q=J.q;let nv=0,ni=0;for(const o of L){const g=o
  /* glow per vertex only if some member glows; roughness and metal per vertex only if they differ */
  const glow=T!=='MeshBasicMaterial'&&L.some(o=>{const m=o.material;return m.emissive&&m.emissive.getHex()!==0&&(m.emissiveIntensity==null?1:m.emissiveIntensity)>0});
  const rmv=T==='MeshStandardMaterial'&&L.some(o=>o.material.roughness!==src.roughness||o.material.metalness!==src.metalness);
- const c={L,i:0,nv,ni,vo:0,io:0,pos:new Float32Array(nv*3),nor:new Float32Array(nv*3),col:new Float32Array(nv*ci),ci,uv:X?new Float32Array(nv*2):null,aM:new Uint8Array(nv),aE:glow?new Float32Array(nv*3):null,aRM:rmv?new Float32Array(nv*2):null,aL:X?new Uint8Array(nv):null,
-  idx:nv>65535?new Uint32Array(ni):new Uint16Array(ni),inv,ox,oz,recs:[],arr:null,src,bad:false,veh:J.e.gk[0]==='V'};
+ const P2=ABT.pool?abtSet(nv,ni):null;
+ const c={L,i:0,nv,ni,vo:0,io:0,set:P2,pos:P2?P2.pos.subarray(0,nv*3):new Float32Array(nv*3),nor:P2?P2.nor.subarray(0,nv*3):new Float32Array(nv*3),col:P2?P2.col.subarray(0,nv*ci):new Float32Array(nv*ci),ci,uv:X?(P2?P2.uv.subarray(0,nv*2):new Float32Array(nv*2)):null,aM:P2?P2.aM.subarray(0,nv):new Uint8Array(nv),aE:glow?(P2?P2.aE.subarray(0,nv*3):new Float32Array(nv*3)):null,aRM:rmv?(P2?P2.aRM.subarray(0,nv*2):new Float32Array(nv*2)):null,aL:X?(P2?P2.aL.subarray(0,nv):new Uint8Array(nv)):null,
+  idx:P2?(nv>65535?P2.i32.subarray(0,ni):P2.i16.subarray(0,ni)):(nv>65535?new Uint32Array(ni):new Uint16Array(ni)),inv,ox,oz,recs:[],arr:null,src,bad:false,veh:J.e.gk[0]==='V'};
  if(X){const tk=J.e.k.split('|')[1],onlyOne=!L.some(o=>o.userData&&o.userData.dpMerged);/* (pictures of single pieces only get a new array while the budget is under 60%) */c.arr=onlyOne&&!ABT.arrs.has(tk)&&ABT.texMB>ABT.TEXMB*.6?null:abtArr(tk,new Set(L.map(o=>o.material.map.image)).size);if(!c.arr)c.bad=true}
  return c}
 function abtChunkStep(c,ms,t0){while(c.i<c.L.length){const o=c.L[c.i],k=c.i++;const g=o.geometry,A=g.attributes,n=A.position.count,m=o.material;if(typeof mwFresh=='function')mwFresh(o);
@@ -192,7 +193,8 @@ function abtChunkMesh(c,gk){const g=new THREE.BufferGeometry();if(c.vo<c.nv){con
  g.setIndex(new THREE.BufferAttribute(c.idx,1));g.computeBoundingSphere();
  const n=c.L.length,vis=new Uint8Array(n*4),vt=new THREE.DataTexture(vis,n,1,THREE.RGBAFormat);vt.magFilter=vt.minFilter=THREE.NearestFilter;vt.generateMipmaps=false;vt.needsUpdate=true;
  const mat=abtMat(c.src,c.arr,vt,n,!!c.aE,!!c.aRM);const mesh=new THREE.Mesh(g,mat);mesh.__abt=1;if(c.veh)mesh.__abtV=1;mesh.matrixAutoUpdate=false;mesh.matrix.makeTranslation(c.ox,0,c.oz);mesh.name='area batch';
- /* (the big arrays are not needed once they are on the graphics card) */for(const k in g.attributes)g.attributes[k].onUpload(function(){this.array=null});g.index.onUpload(function(){this.array=null});
+ /* (the big arrays are not needed once they are on the graphics card; r686: a borrowed scratch set goes back to the pool when every part is there) */
+ const set=c.set;let left=Object.keys(g.attributes).length+1;const up=function(){this.array=null;if(set&&--left===0)abtSetBack(set)};for(const k in g.attributes)g.attributes[k].onUpload(up);g.index.onUpload(up);
  return{gk,mem:c.recs,mesh,mat,vis,vt,arr:c.arr,dirty:false,drawn:false,sw:new THREE.Sphere(),swq:-1}}
 function abtRetire(b){const i=ABT.B.indexOf(b);if(i>=0)ABT.B.splice(i,1);for(const r of b.mem)if(ABT.mem.get(r.o)===b)ABT.mem.delete(r.o);try{b.mesh.geometry.dispose();b.mat.dispose();b.vt.dispose()}catch(e){}}
 /* ---------- every frame, outside drawing: look, build ---------- */
@@ -203,7 +205,7 @@ function abtTick(q){if(ABT.q!==q){abtForget();ABT.q=q}
  while(performance.now()-t0<budget+(ABT.force?0:.8)){
   if(!J){const e=ABT.queue.shift();if(!e)break;J=ABT.job=abtStart(q,e);if(!J)continue}
   if(!J.cur){if(J.ci>=J.chunks.length){if(ABT.slice&&!ABT.force&&!abtUpStep(J))break;abtFinish(J);J=ABT.job=null;continue}J.cur=abtChunkInit(J,J.chunks[J.ci])}
-  const c=J.cur;if(c.bad||abtChunkStep(c,budget,t0)){if(!c.bad&&c.i>=c.L.length)J.done.push(abtChunkMesh(c,J.e.gk));J.cur=null;J.ci++}}
+  const c=J.cur;if(c.bad||abtChunkStep(c,budget,t0)){if(!c.bad&&c.i>=c.L.length)J.done.push(abtChunkMesh(c,J.e.gk));else if(c.set)abtSetBack(c.set);J.cur=null;J.ci++}}
  /* pictures that were drawn again since they were copied */
  if((ABT.fr&63)===0)for(const a of ABT.arrs.values())for(const[t,v]of a.ver)if(t.version!==v)abtCopy(a,t,a.L.get(t.image));
  for(const a of ABT.arrs.values())abtMips(a);
@@ -227,6 +229,15 @@ function abtByParent(M){const G=new Map();for(const r of M){let L=G.get(r.par);i
    part into nothing (three.js keeps the uploaded buffer with the part, so the real batch finds it ready). The old
    batches stay on screen until the new one is complete, then they swap in one go as before. ?noabtslice = as before. */
 ABT.slice=!/[?&]noabtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;
+/* r686: SCRATCH SETS. Every chunk used to get ~9 MB of brand-new arrays (300 batches in a drive = gigabytes thrown away,
+   so the browser had to clean memory up often: the 'memory clean-up' waits and some of the 100-340 ms upkeep spikes).
+   Now a few sets of the biggest size are kept and lent out: a batch's parts are views into a set, and the set comes back
+   when all of its parts have been sent to the graphics card (the copies there are what gets drawn). ?noabtpool = as before. */
+ABT.pool=!/[?&]noabtpool(?:[&=]|$)/.test(location.search);ABT.sets=[];ABT.st.sets=0;
+function abtSet(nv,ni){let s=null;for(let i=0;i<ABT.sets.length;i++){const x=ABT.sets[i];if(x.cap>=nv){s=x;ABT.sets.splice(i,1);break}}
+ if(!s){const cap=Math.max(nv,ABT.MAXV||120000);s={cap,pos:new Float32Array(cap*3),nor:new Float32Array(cap*3),col:new Float32Array(cap*4),uv:new Float32Array(cap*2),aM:new Uint8Array(cap),aE:new Float32Array(cap*3),aRM:new Float32Array(cap*2),aL:new Uint8Array(cap),i16:new Uint16Array(0),i32:new Uint32Array(0)};ABT.st.sets++}
+ if(nv>65535){if(s.i32.length<ni)s.i32=new Uint32Array(Math.max(ni,s.i32.length*1.5|0))}else if(s.i16.length<ni)s.i16=new Uint16Array(Math.max(ni,s.i16.length*1.5|0));return s}
+function abtSetBack(s){if(ABT.sets.length<3&&!ABT.sets.includes(s))ABT.sets.push(s)}
 function abtUpMat(){return ABT.upM||(ABT.upM=new THREE.ShaderMaterial({vertexShader:'void main(){gl_Position=vec4(2.,2.,2.,1.);}',fragmentShader:'void main(){gl_FragColor=vec4(0.);}',depthWrite:false,depthTest:false}))}
 function abtUpStep(J){if(!J.up){J.up=[];for(const b of J.done){const g=b.mesh.geometry;for(const k in g.attributes)J.up.push([k,g.attributes[k]]);if(g.index)J.up.push(['#',g.index])}}
  if(!J.up.length)return true;const t0=performance.now();let bytes=0;
