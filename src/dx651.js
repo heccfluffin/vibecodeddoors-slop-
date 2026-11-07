@@ -69,6 +69,10 @@ function shwStandIns(q){const out=[],seen=new Set(),G={};const geo=(ci,uv,sk)=>{
   for(const r of sknRoots(q))r.traverse(o=>{if(!o.isMesh||sk.has(o.material))return;if(!shwSknOK(q,o))return;sk.add(o.material);let x;try{x=mm(o.material,false)}catch(e){return}x.skinning=true;x.userData.skn=1;add(x,3,!!x.map,true,'s')})}
  /* 4) far vehicles and far scenery shapes (r651/r652): their three shared materials */
  try{if(typeof flvMats=='function')for(const m of flvMats())add(m,3,false,false,'f')}catch(e){}
+ /* (r686: the blowing sand made on the first roaming frame, and the two kinds of night stars) */
+ try{add(new THREE.PointsMaterial({color:0xe0b880,size:.12,transparent:true,opacity:.5,depthWrite:false}),0,false,false,'pt');
+  add(new THREE.PointsMaterial({size:1.7,sizeAttenuation:false,vertexColors:true,transparent:true,opacity:0,depthWrite:false,fog:false}),3,false,false,'pt');
+  add(new THREE.PointsMaterial({color:0xfff4e0,size:1.6,sizeAttenuation:false,transparent:true,opacity:0,depthWrite:false,fog:false}),0,false,false,'pt')}catch(e){}
  /* (r686: the area batches' upload helper, a tiny shader) */
  try{if(typeof abtUpMat=='function')add(abtUpMat(),0,false,false,'u')}catch(e){}
  /* 5) particle quads (r674) */
@@ -95,6 +99,8 @@ function shwEarly(q){const t0=performance.now(),ld=q.ld,done=[];const F=(n,ok,f)
   F('rfsBuild',()=>q.mil&&q.g,()=>rfsBuild(q));
   F('cwBuild',()=>q.g&&q.obs&&q.mil&&q.props&&q.anims,()=>cwBuild(q));
   F('siloBuild',()=>q.mil&&q.mil.nuke,()=>siloBuild(q));
+  /* (r686: the oasis/crater ground patches take the floor's sand look on the first frame you roam: new shaders) */
+  F('ssGroundMatch',()=>q.ssG&&!q.ssGM,()=>ssGroundMatch(q));
   F('wdBuild',()=>q.g&&q.locs&&q.locs.length&&typeof WDEL!='undefined'&&WDEL.q!==q,()=>wdBuild(q));
  }finally{q.ld=ld}
  SHW.st.early=done.length;SHW.st.earlyMs=performance.now()-t0;try{conLog('info','built behind the loading screen: '+done.join(', ')+' ('+SHW.st.earlyMs.toFixed(0)+' ms)')}catch(e){}}
