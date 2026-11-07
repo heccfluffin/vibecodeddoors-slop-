@@ -169,23 +169,30 @@ function abtChunkInit(J,L){const q=J.q;let nv=0,ni=0;for(const o of L){const g=o
   idx:P2?(nv>65535?P2.i32.subarray(0,ni):P2.i16.subarray(0,ni)):(nv>65535?new Uint32Array(ni):new Uint16Array(ni)),inv,ox,oz,recs:[],arr:null,src,bad:false,veh:J.e.gk[0]==='V'};
  if(X){const tk=J.e.k.split('|')[1],onlyOne=!L.some(o=>o.userData&&o.userData.dpMerged);/* (pictures of single pieces only get a new array while the budget is under 60%) */c.arr=onlyOne&&!ABT.arrs.has(tk)&&ABT.texMB>ABT.TEXMB*.6?null:abtArr(tk,new Set(L.map(o=>o.material.map.image)).size);if(!c.arr)c.bad=true}
  return c}
-function abtChunkStep(c,ms,t0){while(c.i<c.L.length){const o=c.L[c.i],k=c.i++;const g=o.geometry,A=g.attributes,n=A.position.count,m=o.material;if(typeof mwFresh=='function')mwFresh(o);
-  const one=!(o.userData&&o.userData.dpMerged);let li1=-1;if(c.aL&&one){li1=abtLayer(c.arr,m.map,true);if(li1<0){ABT.st.noRoom=(ABT.st.noRoom|0)+1;if(performance.now()-t0>ms)return c.i>=c.L.length;continue}}
-  _abM.multiplyMatrices(c.inv,o.matrixWorld);if(_abM.determinant()<=0){c.bad=true;return true}
-  const e=_abM.elements;e[12]-=c.ox;e[14]-=c.oz;
-  _abN.getNormalMatrix(_abM);const ne=_abN.elements;const P=A.position.array,N=A.normal.array,Cc=A.color,vo=c.vo;
-  for(let i=0;i<n;i++){const x=P[i*3],y=P[i*3+1],z=P[i*3+2],j=(vo+i)*3;c.pos[j]=e[0]*x+e[4]*y+e[8]*z+e[12];c.pos[j+1]=e[1]*x+e[5]*y+e[9]*z+e[13];c.pos[j+2]=e[2]*x+e[6]*y+e[10]*z+e[14];
-   const a=N[i*3],b=N[i*3+1],d=N[i*3+2];let nx=ne[0]*a+ne[3]*b+ne[6]*d,ny=ne[1]*a+ne[4]*b+ne[7]*d,nz=ne[2]*a+ne[5]*b+ne[8]*d;const l=Math.hypot(nx,ny,nz)||1;c.nor[j]=nx/l;c.nor[j+1]=ny/l;c.nor[j+2]=nz/l}
-
-  if(one){const mc=m.color||_abW,vc=m.vertexColors&&Cc;for(let i=0;i<n;i++){const j=(vo+i)*3;c.col[j]=mc.r*(vc?Cc.getX(i):1);c.col[j+1]=mc.g*(vc?Cc.getY(i):1);c.col[j+2]=mc.b*(vc?Cc.getZ(i):1)}}
-  else if(Cc.normalized||!(Cc.array instanceof Float32Array)){for(let i=0;i<n;i++){c.col[(vo+i)*c.ci]=Cc.getX(i);c.col[(vo+i)*c.ci+1]=Cc.getY(i);c.col[(vo+i)*c.ci+2]=Cc.getZ(i);if(c.ci===4)c.col[(vo+i)*4+3]=Cc.getW(i)}}else c.col.set(Cc.array.subarray(0,n*c.ci),vo*c.ci);
-  if(c.uv){if(one){const t=m.map;if(t.matrixAutoUpdate)t.updateMatrix();const te=t.matrix.elements,U=A.uv;for(let i=0;i<n;i++){const u=U.getX(i),v=U.getY(i);c.uv[(vo+i)*2]=te[0]*u+te[3]*v+te[6];c.uv[(vo+i)*2+1]=te[1]*u+te[4]*v+te[7]}}else c.uv.set(A.uv.array.subarray(0,n*2),vo*2)}
-  c.aM.fill(k,vo,vo+n);if(!c.aE&&m.emissive&&m.emissive.getHex()!==0&&(m.emissiveIntensity==null?1:m.emissiveIntensity)>0){c.bad=true;return true}if(!c.aRM&&c.src.type==='MeshStandardMaterial'&&(m.roughness!==c.src.roughness||m.metalness!==c.src.metalness)){c.bad=true;return true}
-  if(c.aE){const em=m.emissive?m.emissive:null,s=m.emissiveIntensity==null?1:m.emissiveIntensity;const r=em?em.r*s:0,gg=em?em.g*s:0,b=em?em.b*s:0;for(let i=0;i<n;i++){c.aE[(vo+i)*3]=r;c.aE[(vo+i)*3+1]=gg;c.aE[(vo+i)*3+2]=b}}
-  if(c.aRM){for(let i=0;i<n;i++){c.aRM[(vo+i)*2]=m.roughness;c.aRM[(vo+i)*2+1]=m.metalness}}
-  if(c.aL){const li=one?li1:abtLayer(c.arr,m.map,false);if(li<0){c.bad=true;return true}c.aL.fill(li,vo,vo+n)}
+function abtChunkStep(c,ms,t0){/* r686: a big piece is done in parts of ABT.SUB corners, so one huge piece no longer blows the 2.5 ms budget (was up to 126 ms) */
+ while(c.i<c.L.length){const o=c.L[c.i],k=c.i;const g=o.geometry,A=g.attributes,n=A.position.count,m=o.material;const one=!(o.userData&&o.userData.dpMerged);
+  if(!c.sub){if(typeof mwFresh=='function')mwFresh(o);
+   c.li1=-1;if(c.aL&&one){c.li1=abtLayer(c.arr,m.map,true);if(c.li1<0){ABT.st.noRoom=(ABT.st.noRoom|0)+1;c.i++;if(performance.now()-t0>ms)return c.i>=c.L.length;continue}}
+   _abM.multiplyMatrices(c.inv,o.matrixWorld);if(_abM.determinant()<=0){c.bad=true;return true}
+   const e=_abM.elements;e[12]-=c.ox;e[14]-=c.oz;_abN.getNormalMatrix(_abM);c.me=_abM.elements.slice();c.ne=_abN.elements.slice();
+   /* (what the piece was like when its corners were taken: if it moves while a big piece is done in parts, the batch's check sees it) */c.mw0=Float64Array.from(o.matrixWorld.elements);c.pv0=A.position.version;c.chg0=o.__mwchg|0;
+   if(!c.aE&&m.emissive&&m.emissive.getHex()!==0&&(m.emissiveIntensity==null?1:m.emissiveIntensity)>0){c.bad=true;return true}if(!c.aRM&&c.src.type==='MeshStandardMaterial'&&(m.roughness!==c.src.roughness||m.metalness!==c.src.metalness)){c.bad=true;return true}
+   if(c.aL){c.li=one?c.li1:abtLayer(c.arr,m.map,false);if(c.li<0){c.bad=true;return true}}
+   if(c.uv&&one){const t=m.map;if(t.matrixAutoUpdate)t.updateMatrix();c.te=t.matrix.elements.slice()}}
+  const e=c.me,ne=c.ne,P=A.position.array,N=A.normal.array,Cc=A.color,vo=c.vo,i0=c.sub,i1=ABT.SUB?Math.min(n,i0+ABT.SUB):n;
+  for(let i=i0;i<i1;i++){const x=P[i*3],y=P[i*3+1],z=P[i*3+2],j=(vo+i)*3;c.pos[j]=e[0]*x+e[4]*y+e[8]*z+e[12];c.pos[j+1]=e[1]*x+e[5]*y+e[9]*z+e[13];c.pos[j+2]=e[2]*x+e[6]*y+e[10]*z+e[14];
+   const a=N[i*3],b=N[i*3+1],d=N[i*3+2];let nx=ne[0]*a+ne[3]*b+ne[6]*d,ny=ne[1]*a+ne[4]*b+ne[7]*d,nz=ne[2]*a+ne[5]*b+ne[8]*d;const l=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;c.nor[j]=nx/l;c.nor[j+1]=ny/l;c.nor[j+2]=nz/l}
+  if(one){const mc=m.color||_abW,vc=m.vertexColors&&Cc;for(let i=i0;i<i1;i++){const j=(vo+i)*3;c.col[j]=mc.r*(vc?Cc.getX(i):1);c.col[j+1]=mc.g*(vc?Cc.getY(i):1);c.col[j+2]=mc.b*(vc?Cc.getZ(i):1)}}
+  else if(Cc.normalized||!(Cc.array instanceof Float32Array)){for(let i=i0;i<i1;i++){c.col[(vo+i)*c.ci]=Cc.getX(i);c.col[(vo+i)*c.ci+1]=Cc.getY(i);c.col[(vo+i)*c.ci+2]=Cc.getZ(i);if(c.ci===4)c.col[(vo+i)*4+3]=Cc.getW(i)}}else c.col.set(Cc.array.subarray(i0*c.ci,i1*c.ci),(vo+i0)*c.ci);
+  if(c.uv){if(one){const te=c.te,U=A.uv;for(let i=i0;i<i1;i++){const u=U.getX(i),v=U.getY(i);c.uv[(vo+i)*2]=te[0]*u+te[3]*v+te[6];c.uv[(vo+i)*2+1]=te[1]*u+te[4]*v+te[7]}}else c.uv.set(A.uv.array.subarray(i0*2,i1*2),(vo+i0)*2)}
+  c.aM.fill(k,vo+i0,vo+i1);
+  if(c.aE){const em=m.emissive?m.emissive:null,s=m.emissiveIntensity==null?1:m.emissiveIntensity;const r=em?em.r*s:0,gg=em?em.g*s:0,b=em?em.b*s:0;for(let i=i0;i<i1;i++){c.aE[(vo+i)*3]=r;c.aE[(vo+i)*3+1]=gg;c.aE[(vo+i)*3+2]=b}}
+  if(c.aRM){for(let i=i0;i<i1;i++){c.aRM[(vo+i)*2]=m.roughness;c.aRM[(vo+i)*2+1]=m.metalness}}
+  if(c.aL)c.aL.fill(c.li,vo+i0,vo+i1);
+  if(i1<n){c.sub=i1;if(performance.now()-t0>ms)return false;continue}
+  c.sub=0;c.i++;
   const I=g.index;if(I){const ia=I.array;for(let i=0,l=I.count;i<l;i++)c.idx[c.io+i]=ia[i]+vo;c.io+=I.count}else{for(let i=0;i<n;i++)c.idx[c.io+i]=vo+i;c.io+=n}
-  c.vo+=n;c.recs.push({o,par:o.parent,geo:g,mat:m,pv:A.position.version,chg:o.__mwchg|0,mw:Float64Array.from(o.matrixWorld.elements),fb:false,i:k,tex:m.map||null,freed:!!c.veh,veh:!!c.veh,one,sig:one?abtSig(m):null,av:one?abtAv(g):0,idx0:g.index});
+  c.vo+=n;c.recs.push({o,par:o.parent,geo:g,mat:m,pv:c.pv0,chg:c.chg0,mw:c.mw0,fb:false,i:k,tex:m.map||null,freed:!!c.veh,veh:!!c.veh,one,sig:one?abtSig(m):null,av:one?abtAv(g):0,idx0:g.index});
   if(performance.now()-t0>ms)return c.i>=c.L.length}
  return true}
 function abtChunkMesh(c,gk){const g=new THREE.BufferGeometry();if(c.vo<c.nv){const v=c.vo;c.pos=c.pos.subarray(0,v*3);c.nor=c.nor.subarray(0,v*3);c.col=c.col.subarray(0,v*c.ci);if(c.uv)c.uv=c.uv.subarray(0,v*2);c.aM=c.aM.subarray(0,v);if(c.aE)c.aE=c.aE.subarray(0,v*3);if(c.aRM)c.aRM=c.aRM.subarray(0,v*2);if(c.aL)c.aL=c.aL.subarray(0,v);c.idx=c.idx.subarray(0,c.io)}g.setAttribute('position',new THREE.BufferAttribute(c.pos,3));g.setAttribute('normal',new THREE.BufferAttribute(c.nor,3));g.setAttribute('color',new THREE.BufferAttribute(c.col,c.ci));
@@ -228,7 +235,7 @@ function abtByParent(M){const G=new Map();for(const r of M){let L=G.get(r.par);i
    coordinates, the index...) is sent on its own, about 1.5 MB a frame, by drawing a scratch shape that holds just that
    part into nothing (three.js keeps the uploaded buffer with the part, so the real batch finds it ready). The old
    batches stay on screen until the new one is complete, then they swap in one go as before. ?noabtslice = as before. */
-ABT.slice=!/[?&]noabtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;
+ABT.slice=!/[?&]noabtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;ABT.SUB=/[?&]noabtsub(?:[&=]|$)/.test(location.search)?0:16384;
 /* r686: SCRATCH SETS. Every chunk used to get ~9 MB of brand-new arrays (300 batches in a drive = gigabytes thrown away,
    so the browser had to clean memory up often: the 'memory clean-up' waits and some of the 100-340 ms upkeep spikes).
    Now a few sets of the biggest size are kept and lent out: a batch's parts are views into a set, and the set comes back
