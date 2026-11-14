@@ -100,7 +100,7 @@ function shwEarly(q){const t0=performance.now(),ld=q.ld,done=[];const F=(n,ok,f)
   F('cwBuild',()=>q.g&&q.obs&&q.mil&&q.props&&q.anims,()=>cwBuild(q));
   F('siloBuild',()=>q.mil&&q.mil.nuke,()=>siloBuild(q));
   /* (r686: the oasis/crater ground patches take the floor's sand look on the first frame you roam: new shaders) */
-  F('ssGroundMatch',()=>q.ssG&&!q.ssGM,()=>ssGroundMatch(q));
+  /* (r688: back to its old moment, the first frame you roam, unless ?shwgm) */if(/[?&]shwgm(?:[&=]|$)/.test(location.search))F('ssGroundMatch',()=>q.ssG&&!q.ssGM,()=>ssGroundMatch(q));
   F('wdBuild',()=>q.g&&q.locs&&q.locs.length&&typeof WDEL!='undefined'&&WDEL.q!==q,()=>wdBuild(q));
  }finally{q.ld=ld}
  SHW.st.early=done.length;SHW.st.earlyMs=performance.now()-t0;try{conLog('info','built behind the loading screen: '+done.join(', ')+' ('+SHW.st.earlyMs.toFixed(0)+' ms)')}catch(e){}}
