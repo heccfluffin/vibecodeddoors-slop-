@@ -3,6 +3,7 @@
    Shows the newest builds' changes. Played from the website, it also checks version.json and says so if a newer build is out.
    ===================================================================================================== */
 const CHLOG=[
+['r689',['Fewer hitches while driving again: two of the three scenery speed-ups from r686 are back (tested by players, no glitches). The third one stays off until it is fixed']],
 ['r688',['The scenery batching is back to how it was in r685 (r686 and r687 broke the scenery round the bus stop for some players). The new parts are switched off while we find out which one caused it']],
 ['r687',['Fixed r686\'s broken scenery (huge stretched triangles and black walls round the bus stop): a piece that changed while it was being added to a scenery batch now cancels that batch instead of mixing old and new shapes. r686\'s smoother driving is back with the fix']],
 ['r686',['Fewer hitches while driving: new scenery batches are sent to the graphics card a bit at a time instead of all at once, big pieces are prepared in small steps, and the game reuses its working memory instead of throwing gigabytes away (fewer memory clean-up pauses)','The blowing sand, the night stars and the oasis and crater ground no longer freeze the game for a moment the first time they appear']],

@@ -262,12 +262,11 @@ function abtByParent(M){const G=new Map();for(const r of M){let L=G.get(r.par);i
    coordinates, the index...) is sent on its own, about 1.5 MB a frame, by drawing a scratch shape that holds just that
    part into nothing (three.js keeps the uploaded buffer with the part, so the real batch finds it ready). The old
    batches stay on screen until the new one is complete, then they swap in one go as before. ?noabtslice = as before. */
-/* r688: r686/r687 broke scenery in the user's Firefox a few seconds into play (huge stretched triangles), which headless
-   Chrome never showed. Everything new is OFF, so the game builds its area batches exactly as r685 did. Each part can be
-   switched on alone to find the culprit: ?abtslice (send a batch in parts), ?abtpool (reuse working memory),
-   ?abtsub (big pieces in steps). */
-ABT.slice=/[?&]abtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;ABT.SUB=/[?&]abtsub(?:[&=]|$)/.test(location.search)?16384:0;
-ABT.pool=/[?&]abtpool(?:[&=]|$)/.test(location.search);ABT.sets=[];ABT.st.sets=0;
+/* r689: the user tried each r686 part alone in Firefox: ?abtslice and ?abtpool look fine, ?abtsub glitches (pieces break up
+   as you move away, even close up). So sending a batch in parts and reusing working memory are ON again
+   (?noabtslice, ?noabtpool turn them off); big pieces in steps stays OFF (?abtsub, still broken, not understood yet). */
+ABT.slice=!/[?&]noabtslice(?:[&=]|$)/.test(location.search);ABT.UPB=1.5e6;ABT.SUB=/[?&]abtsub(?:[&=]|$)/.test(location.search)?16384:0;
+ABT.pool=!/[?&]noabtpool(?:[&=]|$)/.test(location.search);ABT.sets=[];ABT.st.sets=0;
 function abtSet(nv,ni){let s=null;for(let i=0;i<ABT.sets.length;i++){const x=ABT.sets[i];if(x.cap>=nv){s=x;ABT.sets.splice(i,1);break}}
  if(!s){const cap=Math.max(nv,ABT.MAXV||120000);s={cap,pos:new Float32Array(cap*3),nor:new Float32Array(cap*3),col:new Float32Array(cap*4),uv:new Float32Array(cap*2),aM:new Uint8Array(cap),aE:new Float32Array(cap*3),aRM:new Float32Array(cap*2),aL:new Uint8Array(cap),i16:new Uint16Array(0),i32:new Uint32Array(0)};ABT.st.sets++}
  if(nv>65535){if(s.i32.length<ni)s.i32=new Uint32Array(Math.max(ni,s.i32.length*1.5|0))}else if(s.i16.length<ni)s.i16=new Uint16Array(Math.max(ni,s.i16.length*1.5|0));return s}
